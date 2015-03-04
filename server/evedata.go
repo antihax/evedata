@@ -44,7 +44,7 @@ func GoServer() {
 		log.Fatalf("Cannot ping database: %v", err)
 	}
 
-	ctx.Store = sessions.NewCookieStore(ctx.conf.Store.Key)
+	ctx.store = sessions.NewCookieStore(ctx.conf.Store.Key)
 
 	// Allocate the router
 	rtr := NewRouter(ctx)

@@ -107,12 +107,13 @@ func FindAgents(c *AppContext, w http.ResponseWriter, r *http.Request) (int, err
 		divisionS = ""
 	}
 
+    
 	var user *models.Users
 	if r.RenderArgs["User"] != nil {
 		user = r.RenderArgs["User"].(*models.Users)
 	}
 
-	r.
+
 	// SECURED: requires user to be logged in, once we know that we add
 	// restriction to the query to ensure only linked cid -> uid can obtain data
 	if characterID != 0 && user != nil {
