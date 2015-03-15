@@ -5,15 +5,16 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/context"
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 )
 
 // appContext provides access to handles throughout the app.
 type AppContext struct {
-	conf  *config.Config
-	db    *sqlx.DB
-	store *sessions.Store
+	Conf  *config.Config
+	Db    *sqlx.DB
+	Store *sessions.Store
 	/*
 		templates map[string]*template.Template
 		decoder   *schema.Decoder*/
@@ -27,28 +28,26 @@ func GoServer() {
 	ctx := &AppContext{}
 
 	// Read configuation.
-	ctx.conf, err = config.ReadConfig()
+	ctx.Conf, err = config.ReadConfig()
 	if err != nil {
 		log.Fatalf("Error reading configuration: %v", err)
 	}
 
 	// Connect to the database
-	ctx.db, err = sqlx.Connect(ctx.conf.Database.Driver, ctx.conf.Database.Spec)
+	ctx.Db, err = sqlx.Connect(ctx.Conf.Database.Driver, ctx.Conf.Database.Spec)
 	if err != nil {
 		log.Fatalf("Cannot connect to database: %v", err)
 	}
 
 	// Check the connection is successful.
-	err = ctx.db.Ping()
+	err = ctx.Db.Ping()
 	if err != nil {
 		log.Fatalf("Cannot ping database: %v", err)
 	}
-
-	ctx.store = sessions.NewCookieStore(ctx.conf.Store.Key)
 
 	// Allocate the router
 	rtr := NewRouter(ctx)
 
 	log.Println("Listening port 3000...")
-	http.ListenAndServe(":3000", rtr)
+	http.ListenAndServe(":3000", context.ClearHandler(rtr))
 }

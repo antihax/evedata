@@ -23,7 +23,7 @@ type marketRegion struct {
 func MarketRegions(c *AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	mR := []marketRegion{}
 
-	err := c.db.Select(&mR, "SELECT regionID, regionName, count FROM tradeRegions GROUP BY regionID ORDER BY regionName")
+	err := c.Db.Select(&mR, "SELECT regionID, regionName, count FROM tradeRegions GROUP BY regionID ORDER BY regionName")
 	if err != nil {
 		return 500, err
 	}
@@ -71,7 +71,7 @@ func MarketSellRegionItems(c *AppContext, w http.ResponseWriter, r *http.Request
 		return 500, err
 	}
 
-	err = c.db.Select(&mR, `SELECT  remainingVolume AS quantity, price, stationName, M.stationID
+	err = c.Db.Select(&mR, `SELECT  remainingVolume AS quantity, price, stationName, M.stationID
                              FROM    market M
                              INNER JOIN staStations S ON S.stationID=M.stationID
                              WHERE      done=0 AND
@@ -114,7 +114,7 @@ func MarketBuyRegionItems(c *AppContext, w http.ResponseWriter, r *http.Request)
 		return 500, errors.New("Invalid itemID")
 	}
 
-	err = c.db.Select(&mR, `   SELECT  remainingVolume AS quantity, price, stationName, M.stationID
+	err = c.Db.Select(&mR, `   SELECT  remainingVolume AS quantity, price, stationName, M.stationID
                              FROM    market M
                              INNER JOIN staStations S ON S.stationID=M.stationID
                              WHERE      done=0 AND
@@ -166,7 +166,7 @@ func MarketItemLists(c *AppContext, w http.ResponseWriter, r *http.Request) (int
 		return 500, err
 	}
 
-	Rows, err := c.db.Queryx(`SELECT  T.typeID, typeName, CONCAT_WS(',', G5.marketGroupName, G4.marketGroupName, G3.marketGroupName, G2.marketGroupName, G.marketGroupName) AS Categories, count(*) AS count
+	Rows, err := c.Db.Queryx(`SELECT  T.typeID, typeName, CONCAT_WS(',', G5.marketGroupName, G4.marketGroupName, G3.marketGroupName, G2.marketGroupName, G.marketGroupName) AS Categories, count(*) AS count
            FROM    market M
            INNER JOIN invTypes T ON M.typeID = T.typeID
            LEFT JOIN invMarketGroups G on T.marketGroupID = G.marketGroupID

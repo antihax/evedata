@@ -2,9 +2,8 @@ package evedata
 
 import (
 	"errors"
-	"evedata-revel/app"
-	"evedata-revel/app/models"
 	"evedata-revel/null"
+	"evedata/models"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -63,9 +62,6 @@ func FindAgents(c *AppContext, w http.ResponseWriter, r *http.Request) (int, err
 	}
 
 	characterID, err = strconv.Atoi(r.FormValue("characterID"))
-	if err != nil {
-		return 500, errors.New("Invalid characterID")
-	}
 
 	level, err = strconv.Atoi(r.FormValue("level"))
 	if err != nil {
@@ -77,7 +73,7 @@ func FindAgents(c *AppContext, w http.ResponseWriter, r *http.Request) (int, err
 		return 500, errors.New("Invalid jumps")
 	}
 
-	match, err := regexp.MatchString("([0-9].[0-9)", r.FormValue("sec"))
+	match, err := regexp.MatchString("([0-9].[0-9])", r.FormValue("sec"))
 	if err != nil {
 		return 500, errors.New("Invalid sec")
 	}
@@ -89,9 +85,6 @@ func FindAgents(c *AppContext, w http.ResponseWriter, r *http.Request) (int, err
 	locator = BooleanizeFormValue(r.FormValue("locator"))
 
 	division, err = strconv.Atoi(r.FormValue("division"))
-	if err != nil {
-		return 500, errors.New("Invalid division")
-	}
 
 	// Build custom strings for query filters
 
@@ -107,12 +100,7 @@ func FindAgents(c *AppContext, w http.ResponseWriter, r *http.Request) (int, err
 		divisionS = ""
 	}
 
-    
-	var user *models.Users
-	if r.RenderArgs["User"] != nil {
-		user = r.RenderArgs["User"].(*models.Users)
-	}
-
+	user := models.GetUser(r)
 
 	// SECURED: requires user to be logged in, once we know that we add
 	// restriction to the query to ensure only linked cid -> uid can obtain data
@@ -177,7 +165,7 @@ func FindAgents(c *AppContext, w http.ResponseWriter, r *http.Request) (int, err
          )
 		ORDER BY J;`
 
-		err = app.Dbx.Select(&aG, sqlQuery,
+		err = c.Db.Select(&aG, sqlQuery,
 			characterID, characterID, characterID, characterID, characterID, characterID,
 			user.UID, level, sec, systemID, jumps)
 
@@ -228,13 +216,13 @@ func FindAgents(c *AppContext, w http.ResponseWriter, r *http.Request) (int, err
 		         J <= ?
 		ORDER BY J         ;`
 
-		err = app.Dbx.Select(&aG, sqlQuery, level, sec, systemID, jumps)
+		err = c.Db.Select(&aG, sqlQuery, level, sec, systemID, jumps)
 	}
 	mRows.Rows = &aG
 
 	if err != nil {
-		c.RenderError(err)
+		return 500, err
 	}
 
-	return c.RenderJson(mRows)
+	return 200, nil
 }
