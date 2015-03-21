@@ -42,7 +42,7 @@ func SetUser(r *http.Request, user int, pass string, db *sqlx.DB) {
 	if err != nil {
 		context.Set(r, "user", nil)
 	} else {
-		context.Set(r, "user", U)
+		context.Set(r, "user", &U)
 	}
 
 	return

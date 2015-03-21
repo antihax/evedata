@@ -8,6 +8,13 @@ import (
 	"strings"
 )
 
+func init() {
+	AddRoute(Route{"marketRegions", "GET", "/J/marketRegions", MarketRegions})
+	AddRoute(Route{"marketItemLists", "GET", "/J/marketItemLists", MarketItemLists})
+	AddRoute(Route{"marketSellRegionItems", "GET", "/J/marketSellRegionItems", MarketSellRegionItems})
+	AddRoute(Route{"marketBuyRegionItems", "GET", "/J/marketBuyRegionItems", MarketBuyRegionItems})
+}
+
 /******************************************************************************
  * marketRegions JSON query
  *****************************************************************************/
@@ -114,7 +121,7 @@ func MarketBuyRegionItems(c *AppContext, w http.ResponseWriter, r *http.Request)
 		return 500, errors.New("Invalid itemID")
 	}
 
-	err = c.Db.Select(&mR, `   SELECT  remainingVolume AS quantity, price, stationName, M.stationID
+	err = c.Db.Select(&mR, ` SELECT  remainingVolume AS quantity, price, stationName, M.stationID
                              FROM    market M
                              INNER JOIN staStations S ON S.stationID=M.stationID
                              WHERE      done=0 AND

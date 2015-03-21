@@ -11,33 +11,10 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-var routes = Routes{
-	Route{
-		"marketRegions",
-		"GET",
-		"/J/marketRegions/",
-		MarketRegions,
-	}, Route{
-		"marketItemLists",
-		"GET",
-		"/J/marketItemLists/",
-		MarketItemLists,
-	}, Route{
-		"marketSellRegionItems",
-		"GET",
-		"/J/marketSellRegionItems/",
-		MarketSellRegionItems,
-	}, Route{
-		"marketBuyRegionItems",
-		"GET",
-		"/J/marketBuyRegionItems/",
-		MarketBuyRegionItems,
-	}, Route{
-		"agents",
-		"GET",
-		"/U/agents/",
-		FindAgents,
-	},
+var routes Routes
+
+func AddRoute(r Route) {
+	routes = append(routes, r)
 }
 
 type appFunc func(*AppContext, http.ResponseWriter, *http.Request) (int, error)
@@ -56,11 +33,10 @@ type Route struct {
 type Routes []Route
 
 func (a appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	loadUser(r, a.Db)
 	status, err := a.h(a.AppContext, w, r)
 	if err != nil {
 		log.Printf("HTTP %d: %q", status, err)
-
-		loadUser(r, a.Db)
 
 		switch status {
 		case http.StatusNotFound:
@@ -74,7 +50,6 @@ func (a appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func NewRouter(ctx *AppContext) *mux.Router {
-
 	router := mux.NewRouter().StrictSlash(false)
 	for _, route := range routes {
 		router.
@@ -90,17 +65,21 @@ func NewRouter(ctx *AppContext) *mux.Router {
 const ContextKey int = 0
 
 func loadUser(r *http.Request, db *sqlx.DB) {
+
 	uidC, err := r.Cookie("uid")
+
 	if err != nil {
 		return
 	}
 
 	passC, err := r.Cookie("pass")
+
 	if err != nil {
 		return
 	}
 
 	uid, err := strconv.Atoi(uidC.Value)
+
 	if err != nil {
 		return
 	}

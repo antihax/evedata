@@ -1,6 +1,7 @@
 package evedata
 
 import (
+	"encoding/json"
 	"errors"
 	"evedata-revel/null"
 	"evedata/models"
@@ -8,6 +9,10 @@ import (
 	"regexp"
 	"strconv"
 )
+
+func init() {
+	AddRoute(Route{"agents", "GET", "/U/agents", FindAgents})
+}
 
 /******************************************************************************
  * marketRegions JSON query
@@ -129,8 +134,8 @@ func FindAgents(c *AppContext, w http.ResponseWriter, r *http.Request) (int, err
 			sqlQuery += `jumps AS J`
 		}
 
-		sqlQuery += `		FROM
-		         agtAgents AS A
+		sqlQuery += `		
+			FROM agtAgents AS A
 		         INNER JOIN agtConfig AS Cfg ON A.agentID = Cfg.agentID
 		         INNER JOIN eveNames AS E ON A.agentID = E.itemID
 		         INNER JOIN staStations AS Sta ON Sta.stationID = A.locationID
@@ -190,8 +195,8 @@ func FindAgents(c *AppContext, w http.ResponseWriter, r *http.Request) (int, err
 			sqlQuery += `jumps AS J`
 		}
 
-		sqlQuery += `		FROM
-		         agtAgents AS A
+		sqlQuery += `		
+				 FROM agtAgents AS A
 		         INNER JOIN agtConfig AS Cfg ON A.agentID = Cfg.agentID
 		         INNER JOIN eveNames AS E ON A.agentID = E.itemID
 		         INNER JOIN staStations AS Sta ON Sta.stationID = A.locationID
@@ -223,6 +228,10 @@ func FindAgents(c *AppContext, w http.ResponseWriter, r *http.Request) (int, err
 	if err != nil {
 		return 500, err
 	}
+
+	// Skip the root node and JSONify.
+	encoder := json.NewEncoder(w)
+	encoder.Encode(mRows)
 
 	return 200, nil
 }

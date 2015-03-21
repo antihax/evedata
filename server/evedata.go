@@ -24,7 +24,7 @@ func GoServer() {
 
 	var err error
 
-	// Make a new app context.
+	// Make a new app context.8
 	ctx := &AppContext{}
 
 	// Read configuation.
