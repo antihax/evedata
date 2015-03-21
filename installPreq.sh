@@ -7,4 +7,3 @@ go get github.com/golang/lint/golint
 go get code.google.com/p/go.tools/cmd/goimports
 go get code.google.com/p/go.tools/cmd/vet
 go get code.google.com/p/go.net/context
-
