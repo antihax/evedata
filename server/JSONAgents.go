@@ -162,7 +162,7 @@ func FindAgents(c *AppContext, w http.ResponseWriter, r *http.Request) (int, err
 		GROUP BY
 		         A.agentID
 		HAVING
-		         J > 0 AND
+		         J >= 0 AND
 		         J <= ? AND (
 		            CorpStanding > RequiredStanding OR
 		            FactionStanding > RequiredStanding OR
@@ -217,7 +217,7 @@ func FindAgents(c *AppContext, w http.ResponseWriter, r *http.Request) (int, err
 		GROUP BY
 		         A.agentID
 		HAVING
-		         J > 0 AND
+		         J >= 0 AND
 		         J <= ?
 		ORDER BY J         ;`
 
