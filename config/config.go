@@ -12,7 +12,7 @@ type Config struct {
 		Spec   string
 	}
 	Store struct {
-		Key []byte
+		Key string
 	}
 }
 
