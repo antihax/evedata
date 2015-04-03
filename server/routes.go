@@ -3,6 +3,7 @@ package evedata
 import (
 	"evedata/models"
 	"log"
+	"mime"
 	"net/http"
 	"strconv"
 
@@ -12,6 +13,10 @@ import (
 )
 
 var routes Routes
+
+func init() {
+	mime.AddExtensionType(".svg", "image/svg+xml")
+}
 
 func AddRoute(r Route) {
 	routes = append(routes, r)
@@ -58,6 +63,18 @@ func NewRouter(ctx *AppContext) *mux.Router {
 			Name(route.Name).
 			Handler(appHandler{ctx, route.HandlerFunc})
 	}
+
+	router.PathPrefix("/css/").Handler(http.StripPrefix("/css/",
+		http.FileServer(http.Dir("static/css"))))
+
+	router.PathPrefix("/i/").Handler(http.StripPrefix("/i/",
+		http.FileServer(http.Dir("static/i"))))
+
+	router.PathPrefix("/images/").Handler(http.StripPrefix("/images/",
+		http.FileServer(http.Dir("static/images"))))
+
+	router.PathPrefix("/js/").Handler(http.StripPrefix("/js/",
+		http.FileServer(http.Dir("static/js"))))
 
 	return router
 }

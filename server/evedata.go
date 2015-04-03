@@ -45,7 +45,7 @@ func GoServer() {
 		log.Fatalf("Cannot ping database: %v", err)
 	}
 
-	// Allocate the router
+	// Allocate the routes
 	rtr := NewRouter(ctx)
 
 	log.Println("Listening port 3000...")

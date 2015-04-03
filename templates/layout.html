@@ -1,0 +1,128 @@
+{{define "base"}}
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+	<title>{{.Title}}</title>
+
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/jquery-ui-1.8.12.custom.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/ui.jqgrid.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/css/site.css" />
+
+       <script type="text/javascript">
+          window.eve = false;
+       </script>
+
+      <script type="text/javascript">
+         var _gaq = _gaq || [];
+         _gaq.push(['_setAccount', 'UA-2043836-4']);
+         _gaq.push(['_setDomainName', 'evedata.org']);
+         _gaq.push(['_trackPageview']);
+         
+         (function() {
+           var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+           ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+           var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+         })();
+         
+      </script>
+
+      <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="/js/f/excanvas.min.js"></script><![endif]-->
+      <script src="/js/jquery-1.6.js"></script>
+      <script src="/js/g/grid.locale-en.js"></script>
+      <script src="/js/g/jquery.jqGrid.min.js"></script>
+      <script src="/js/t/jquery.jstree.js"></script>
+      <script src="/js/f/jquery.flot.min.js"></script>
+      <script src="/js/table.js"></script>      
+   </head>
+   <body>
+
+      <div id="headContainer">
+         <img src="/images/logo.png" style="float: left; margin: 5px" alt="EVEData">
+         <nav id="main_nav">
+            <ul style="margin: 6px; padding-left:10px">
+               <li>
+                  <img src="/i/ic/menu48.svg" height=25 width=25 alt="-">
+                  <ul>
+                     <li>
+                        <a href="keys.cgi"><img src="/i/ic/three115.svg" height=20 width=20 alt="-"> My Account</a>
+                        <ul>
+                           			<li><a href="/keys.cgi">API Keys</a></li>
+			<li><a href="/assetWorth.cgi">Asset Worth</a></li>
+			<li><a href="/myAccount.cgi">Update Account</a></li>
+
+                        </ul>
+                     </li>
+                     <li>
+                        <a href="/"><img src="/i/ic/shopping11.svg" height=20 width=20 alt="-"> Market</a>
+                        <ul>
+                           			<li><a href="/">Market Browser</a></li>
+			<li><a href="/items.cgi">Item Information</a></li>
+			<li><a href="/iskPerLP.cgi">Isk Per LP Store</a></li>
+			<li><a href="/marginFinder.cgi">Margin Finder</a></li>
+			<li><a href="/reportMarketMargin.cgi">Station Trade Report</a></li>
+			<li><a href="/topSystems.cgi">Top Trade Systems</a></li>
+
+                        </ul>
+                     </li>
+                     <li>
+                        <a href="/agentFinder.cgi"><img src="/i/ic/solar16.svg" height=20 width=20 alt="-"> Systems</a>
+                        <ul>
+                           			<li><a href="/agentFinder.cgi">Agent Finder</a></li>
+			<li><a href="/icebelts.cgi">IceBelts</a></li>
+			<li><a href="/jumps.cgi">Jumps</a></li>
+			<li><a href="/kills.cgi">NPC/PC Kills</a></li>
+			<li><a href="/wormhole.cgi">WormHoles</a></li>
+
+                        </ul>
+                     </li>
+                     <li>
+                        <a href="/jam.cgi"><img src="/i/ic/screwdriver3.svg" height=20 width=20 alt="-"> Tools</a>
+                        <ul>
+                           			<li><a href="/jam.cgi">ECM Jam Chance</a></li>
+
+                        </ul>
+                     </li>
+                  </ul>
+               </li>
+            </ul>
+         </nav>
+         <nav id="main_nav">
+            <ul style="margin: 1px; padding-left:10px">
+               <li><a href="join.cgi"><img src="/i/ic/create1.svg" height=25 width=25 alt="Join"></a></li>
+            </ul>
+         </nav>
+
+         <nav id="main_nav">
+            <ul style="margin: 1px; padding-left:0px">
+               <li><a href="/login.cgi"><img src="/i/ic/login.svg" height=25 width=25 alt="Login"></a></li>
+            </ul>
+         </nav>
+ </div>
+      <script type="text/javascript">
+         google_ad_client = "ca-pub-7592797392299801";
+         google_ad_slot = "0773189252";
+         google_ad_width = 728;
+         google_ad_height = 90;
+      </script>
+      <!-- bigone -->
+      <script type="text/javascript"
+         src="//pagead2.googlesyndication.com/pagead/show_ads.js"></script>
+      <hr style="height:3px; ">
+      <div id="content">
+	
+	{{template "body" .}}
+
+     </div>
+      <br>
+      <br>
+      <center>
+         <a href="http://www.eveonline.com">EVE-Online</a> &copy; <a href="http://www.ccp.is">CCP hf</a>
+         <br>
+         <a href="/legal.cgi">CCP Legal Notice</a>
+      </center>
+   </body>
+</html>
+
+{{end}}
