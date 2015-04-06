@@ -7,10 +7,6 @@ import (
 	"net/http"
 )
 
-func Init() {
-
-}
-
 func init() {
 	evedata.AddRoute(evedata.Route{"agents", "GET", "/", mainPage})
 }
@@ -26,8 +22,8 @@ func mainPage(c *evedata.AppContext, w http.ResponseWriter, r *http.Request) (in
 	err := templates.Templates.ExecuteTemplate(w, "base", p)
 
 	if err != nil {
-		return 500, err
+		return http.StatusInternalServerError, err
 	}
 
-	return 200, nil
+	return http.StatusOK, nil
 }

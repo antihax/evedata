@@ -33,16 +33,16 @@ func GoServer() {
 		log.Fatalf("Error reading configuration: %v", err)
 	}
 
-	// Connect to the database
+	// Build Connection Pool
 	ctx.Db, err = sqlx.Connect(ctx.Conf.Database.Driver, ctx.Conf.Database.Spec)
 	if err != nil {
-		log.Fatalf("Cannot connect to database: %v", err)
+		log.Fatalf("Cannot build database pool: %v", err)
 	}
 
-	// Check the connection is successful.
+	// Check we can connect
 	err = ctx.Db.Ping()
 	if err != nil {
-		log.Fatalf("Cannot ping database: %v", err)
+		log.Fatalf("Cannot connect to database: %v", err)
 	}
 
 	// Allocate the routes
