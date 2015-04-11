@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/jmoiron/sqlx"
 )
 
 func init() {
@@ -70,7 +72,7 @@ func MarketSellRegionItems(c *AppContext, w http.ResponseWriter, r *http.Request
 
 	regionID, err = strconv.Atoi(r.FormValue("regionID"))
 	if err != nil {
-		return 500, err
+		regionID = 0
 	}
 
 	itemID, err = strconv.Atoi(r.FormValue("itemID"))
@@ -78,15 +80,26 @@ func MarketSellRegionItems(c *AppContext, w http.ResponseWriter, r *http.Request
 		return 500, err
 	}
 
-	err = c.Db.Select(&mR, `SELECT  remainingVolume AS quantity, price, stationName, M.stationID
-                             FROM    market M
-                             INNER JOIN staStations S ON S.stationID=M.stationID
-                             WHERE      done=0 AND
-                                      bid=0 AND
-                                      M.regionID = ?
-                                      AND typeID = ?
+	if regionID == 0 {
+		err = c.Db.Select(&mR, `SELECT  remainingVolume AS quantity, price, stationName, M.stationID
+        	                    FROM    market M
+                             	INNER JOIN staStations S ON S.stationID=M.stationID
+                             	WHERE      done=0 AND
+                                	       bid=0 AND
+                                      	   typeID = ?
+                             ORDER BY price ASC
+                             `, itemID)
+	} else {
+		err = c.Db.Select(&mR, `SELECT  remainingVolume AS quantity, price, stationName, M.stationID
+        	                    FROM    market M
+                             	INNER JOIN staStations S ON S.stationID=M.stationID
+                             	WHERE      done=0 AND
+                                	       bid=0 AND
+                                      	   M.regionID = ? AND
+                                      	   typeID = ?
                              ORDER BY price ASC
                              `, regionID, itemID)
+	}
 
 	if err != nil {
 		return 500, err
@@ -113,7 +126,7 @@ func MarketBuyRegionItems(c *AppContext, w http.ResponseWriter, r *http.Request)
 
 	regionID, err = strconv.Atoi(r.FormValue("regionID"))
 	if err != nil {
-		return 500, errors.New("Invalid regionID")
+		regionID = 0
 	}
 
 	itemID, err = strconv.Atoi(r.FormValue("itemID"))
@@ -121,15 +134,28 @@ func MarketBuyRegionItems(c *AppContext, w http.ResponseWriter, r *http.Request)
 		return 500, errors.New("Invalid itemID")
 	}
 
-	err = c.Db.Select(&mR, ` SELECT  remainingVolume AS quantity, price, stationName, M.stationID
-                             FROM    market M
-                             INNER JOIN staStations S ON S.stationID=M.stationID
-                             WHERE      done=0 AND
+	if regionID == 0 {
+		err = c.Db.Select(&mR, ` SELECT  remainingVolume AS quantity, price, stationName, M.stationID
+                            	 FROM    market M
+                            	 INNER JOIN staStations S ON S.stationID=M.stationID
+                            	 WHERE      
+                            	 	  done=0 AND
                                       bid=1 AND
-                                      M.regionID = ?
-                                      AND typeID = ?
-                             ORDER BY price DESC
+                                      typeID = ?
+                            	 ORDER BY price DESC
+                             `, itemID)
+	} else {
+		err = c.Db.Select(&mR, ` SELECT  remainingVolume AS quantity, price, stationName, M.stationID
+                            	 FROM    market M
+                            	 INNER JOIN staStations S ON S.stationID=M.stationID
+                            	 WHERE      
+                            	 	  done=0 AND
+                                      bid=1 AND
+                                      M.regionID = ? AND
+                                      typeID = ?
+                            	 ORDER BY price DESC
                              `, regionID, itemID)
+	}
 
 	if err != nil {
 		return 500, err
@@ -165,15 +191,29 @@ type marketTree struct {
 // returning a JSON list to the user.
 func MarketItemLists(c *AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 
-	var id int
+	var regionID int
 	var err error
-
-	id, err = strconv.Atoi(r.FormValue("regionID"))
+	var Rows *sqlx.Rows
+	regionID, err = strconv.Atoi(r.FormValue("regionID"))
 	if err != nil {
-		return 500, err
+		regionID = 0
 	}
 
-	Rows, err := c.Db.Queryx(`SELECT  T.typeID, typeName, CONCAT_WS(',', G5.marketGroupName, G4.marketGroupName, G3.marketGroupName, G2.marketGroupName, G.marketGroupName) AS Categories, count(*) AS count
+	if regionID == 0 {
+		Rows, err = c.Db.Queryx(`SELECT  T.typeID, typeName, CONCAT_WS(',', G5.marketGroupName, G4.marketGroupName, G3.marketGroupName, G2.marketGroupName, G.marketGroupName) AS Categories, count(*) AS count
+           FROM    market M
+           INNER JOIN invTypes T ON M.typeID = T.typeID
+           LEFT JOIN invMarketGroups G on T.marketGroupID = G.marketGroupID
+           LEFT JOIN invMarketGroups G2 on G.parentGroupID = G2.marketGroupID
+           LEFT JOIN invMarketGroups G3 on G2.parentGroupID = G3.marketGroupID
+           LEFT JOIN invMarketGroups G4 on G3.parentGroupID = G4.marketGroupID
+           LEFT JOIN invMarketGroups G5 on G4.parentGroupID = G5.marketGroupID
+
+           WHERE done=0 AND T.marketGroupID IS NOT NULL
+           GROUP BY T.typeID
+           ORDER BY Categories, typeName`)
+	} else {
+		Rows, err = c.Db.Queryx(`SELECT  T.typeID, typeName, CONCAT_WS(',', G5.marketGroupName, G4.marketGroupName, G3.marketGroupName, G2.marketGroupName, G.marketGroupName) AS Categories, count(*) AS count
            FROM    market M
            INNER JOIN invTypes T ON M.typeID = T.typeID
            LEFT JOIN invMarketGroups G on T.marketGroupID = G.marketGroupID
@@ -184,8 +224,8 @@ func MarketItemLists(c *AppContext, w http.ResponseWriter, r *http.Request) (int
 
            WHERE regionID = ? AND done=0 AND T.marketGroupID IS NOT NULL
            GROUP BY T.typeID
-           ORDER BY Categories, typeName`, id)
-
+           ORDER BY Categories, typeName`, regionID)
+	}
 	var (
 		mTree       marketTree
 		groups      []string

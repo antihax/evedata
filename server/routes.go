@@ -42,7 +42,6 @@ func (a appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	loadUser(r, a.Db)
 	status, err := a.h(a.AppContext, w, r)
 	if err != nil {
-
 		log.Printf("HTTP %d: %q", status, err)
 
 		switch status {

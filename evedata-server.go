@@ -2,10 +2,9 @@ package main
 
 import (
 	"evedata/server"
-	"evedata/views"
+	_ "evedata/views" // bootstrap the interface
 )
 
 func main() {
-	views.Init()
 	evedata.GoServer()
 }

@@ -48,6 +48,8 @@ func GoServer() {
 	// Allocate the routes
 	rtr := NewRouter(ctx)
 
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	log.Println("Listening port 3000...")
 	http.ListenAndServe(":3000", context.ClearHandler(rtr))
 }
