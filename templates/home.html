@@ -1,4 +1,5 @@
 {{define "body"}}
+<script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>
 <h2>Market Browser</h2>
 
 <style type="text/css"> 
@@ -6,7 +7,10 @@
 #itemList {height:500px; width:300px; overflow:auto; border:1px solid black}
 </style>
 
-<a name="topOfTable">Select Region: <select id="region"></select>
+<div id="remote">
+  <input class="typeahead" type="text" placeholder="Item Search">
+</div>
+
 <table><tr><td><input type="hidden" id="selectedItem" name="selectedItem">
 <input type="hidden" id="searchItems" name="searchItems">
 <div id="itemList" class="itemList"></div>
@@ -15,165 +19,35 @@
 <table id="buyOrders" class="buyOrders"></table>
 </td></tr></table>
 
-<h2>What do we do</h2>
-We gather realtime data from the <a href="http://www.eveonline.com">EVE Online</a> video game and other sources such as EVE Market Data Relay to provide tools to capsuleers for everyday use in New Eden.<br><br>
-
-<br><br>
-
-
 <script type="text/javascript">
-
-$(function() 
-{
-	$(document).ready(function()
-	{
-		// Get the characters associated to account
-		$.getJSON("/J/marketRegions",function(data)
-		{
-			var select = $('select#region').empty();
-			select.append( '<option value=""></option>' );
-
-			$.each(data, function(i,data)
-			{
-				select.append( '<option value="' + data.regionID + '">' + data.regionName +' (' + data.count + ')</option>' );
-			});
-			
-		})
-		.error(function() { alert("error loading characters; you may not have any? Make sure there is at least one full API key registered."); });
-	return false;
-	});
-
-	$("select#region").change(function(){
-		$('#itemList').jstree('refresh',-1);
-		var k = $('#searchItems').val();
-		if (k)
-		{
-			$('#itemList').jstree('search', k);
-		}
-		else
-		{
-			$("#itemList").jstree("clear_search"); 
-		}
-	}); 
-
-	$("#searchItems").keyup(function(){
-		var k = $('#searchItems').val();
-		if (k)
-		{
-			$('#itemList').jstree('search', k);
-		}
-		else
-		{
-			$("#itemList").jstree("clear_search"); 
-		}
-	}); 
-
-$("#itemList").jstree({ 
-	"json_data" : 
-	{  
-		"ajax" : 
-		{  
-			"url" : "/J/marketItemLists",  
-			"data" : function (n) 
-			{
-				return { regionID: $("select#region").val()};   
-			}
-		},
-		"progressive_render" : true
-	},  
-	"plugins" : [ "themes", "json_data", "ui", "search" ],
-	"search" : {"show_only_matches":true}
-
-	})
-	.bind("select_node.jstree", function (event, data) {   
-
-		$("#selectedItem").val(data.rslt.obj.attr("id"))
-            	if (data.rslt.obj.attr("id"))
-		{
-			$("table#sellOrders").setGridParam({datatype:'json'}); 
-			$("table#sellOrders").trigger("reloadGrid");
-			$("table#buyOrders").setGridParam({datatype:'json'}); 
-			$("table#buyOrders").trigger("reloadGrid");
-		}
-         })  
-
-         .delegate("a", "click", function (event, data) { event.preventDefault(); })  
-
+var itemSearch = new Bloodhound({
+    sufficient: 25,
+    limit: 25,
+    datumTokenizer: function (datum) {
+        return Bloodhound.tokenizers.whitespace(datum.value);
+    },
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    remote: {
+        url: '/J/searchItems?q=%QUERY',
+        filter: function (itemSearch) {
+            return $.map(itemSearch.rows, function (itemSearch) {
+                return {
+                    value: itemSearch.TypeName
+                };
+            });
+        }
+    }
 });
 
+// Initialize the Bloodhound suggestion engine
+itemSearch.initialize();
 
-
-$("table#sellOrders").jqGrid({
-	url:'/J/marketSellRegionItems',
-	settings: {
-		timeout: 1500
-	},
-	datatype: 'json',
-	mtype: 'GET',
-	postData: {
-		regionID: function() { return $("select#region").val(); },
-		itemID: function() { return $("#selectedItem").val(); } 
-	}, 
-	jsonReader: { 
-		root: 'rows', 
-		id: 'name', 
-		repeatitems: false, 
-		page: function(obj) { return 1; }, 
-		total: function(obj) { return 1; }, 
-		records: function(obj) { return obj.rows.length; }, 
-		userdata: "userData" 
-	}, 
-	colNames:['Quantity', 'Price','Station'],
-	colModel :[ 
-		{name:'quantity', index:'quantity', width:150, align:'right',sorttype:'int', formatter:'integer'}, 
-		{name:'price', index:'price', width:150, align:'right',sorttype:'float', formatter:'currency',summaryType:'sum'}, 
-		{name:'stationName', index:'stationName', width:300, align:'left',sorttype:'text', formatter:'text'}, 
-	],
-	loadComplete: function () {
-		$("table#sellOrders").setGridParam({datatype:'local'});
-		$("table#sellOrders").setGridParam({loadonce:true});
-	},
-	sortable: true,
-	viewrecords: true,
-	caption: 'Sell Orders',
-	rowNum:  500,
-	height:  200,
-}); 
-$("table#buyOrders").jqGrid({
-	url:'/J/marketBuyRegionItems',
-	settings: {
-		timeout: 1500
-	},
-	datatype: 'json',
-	mtype: 'GET',
-	postData: {
-		regionID: function() { return $("select#region").val(); },
-		itemID: function() { return $("#selectedItem").val(); } 
-	}, 
-	jsonReader: { 
-		root: 'rows', 
-		id: 'name', 
-		repeatitems: false, 
-		page: function(obj) { return 1; }, 
-		total: function(obj) { return 1; }, 
-		records: function(obj) { return obj.rows.length; }, 
-		userdata: "userData" 
-	}, 
-	colNames:['Quantity', 'Price','Station'],
-	colModel :[ 
-		{name:'quantity', index:'quantity', width:150, align:'right',sorttype:'int', formatter:'integer'}, 
-		{name:'price', index:'price', width:150, align:'right',sorttype:'float', formatter:'currency',summaryType:'sum'}, 
-		{name:'stationName', index:'stationName', width:300, align:'left',sorttype:'text', formatter:'text'}, 
-	],
-	loadComplete: function () {
-		$("table#buyOrders").setGridParam({datatype:'local'});
-		$("table#buyOrders").setGridParam({loadonce:true});
-	},
-	sortable: true,
-	viewrecords: true,
-	caption: 'Buy Orders',
-	rowNum:  500,
-	height:  200,
-}); 
+$('#remote .typeahead').typeahead(null, {
+  name: 'itemSearch',
+  limit: 25,
+  display: 'value',
+  source: itemSearch.ttAdapter()
+});
+ 
 </script>
 {{end}}

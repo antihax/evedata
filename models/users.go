@@ -3,6 +3,7 @@ package models
 import (
 	"crypto/md5"
 	"database/sql"
+	"errors"
 	"net/http"
 
 	"github.com/gorilla/context"
@@ -49,7 +50,7 @@ func SetUser(r *http.Request, user int, pass string, db *sqlx.DB) {
 }
 
 // AuthenticateUser takes a username and password and returns a User struct
-func AuthenticateUser(user string, pass string, db *sqlx.DB) *Users {
+func AuthenticateUser(user string, pass string, db *sqlx.DB) (*Users, error) {
 	U := Users{}
 	var err error
 	passB := []byte(pass)
@@ -57,8 +58,8 @@ func AuthenticateUser(user string, pass string, db *sqlx.DB) *Users {
 	passHash := fmt.Sprintf("%x", passMD5)
 	err = db.Get(&U, "SELECT * FROM users WHERE userName =? AND password =?", user, passHash)
 	if err != nil {
-		return nil
+		return nil, errors.New("Incorrect Login Credentials")
 	}
 
-	return &U
+	return &U, nil
 }
