@@ -1,0 +1,114 @@
+{{define "body"}}
+<script>
+	$(document).ready(function() {
+				var agents = $('#agents').dataTable( {
+	 					"searching": false,
+	 					"paging": false,
+	 					"scrollY": "200px",
+	 					"lengthChange": false,
+	 					"info": false,
+	 					"order": [[ 1, "asc" ]],
+	 					"sAjaxDataProp": "",
+	 				    "aoColumns": [
+							{ "mData": "agent" },
+							{ "mData": "station" },
+							{ "mData": "level" },
+							{ "mData": "jumps" },
+							{ "mData": "security" },
+							{ "mData": "corp" },
+							{ "mData": "faction" },
+							{ "mData": "division" },
+						],
+						"columnDefs": [
+   							{ className: "row-right-align", "targets": [ 1, 2 ] }
+  						]
+    				} );
+			} );
+</script>
+<h3>Agent Finder</h3>
+<div id="systemSearchContainer">
+	<input class="typeahead" type="text" placeholder="Solar System Name">
+	<button id="highsec" type="button" class="btn btn-primary btn-sm" data-toggle="button">
+    	
+	</button>
+	<label>Locator
+	<button id="locator" type="button" class="btn btn-primary btn-sm" data-toggle="button">
+    	
+	</button>
+    </label>
+    
+	<label>Security
+	<select id="security" class="form-control">
+    	<option>1</option>
+    	<option>2</option>
+    	<option selected>3</option>
+    	<option>4</option>
+    	<option>5</option>
+	</select>
+	</label>
+	
+</div>
+<div class="insideContainer">
+	<table id="agents" class="display compact" cellspacing="0" width="100%">
+		<thead>
+			<tr>
+				<th>Agent</th>
+				<th>Station</th>
+				<th>Level</th>
+				<th>Jumps</th>
+				<th>Sec</th>
+				<th>Corporation</th>
+				<th>Faction</th>
+				<th>Division</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+
+<script type="text/javascript">
+	$('#systemSearchContainer')
+	.removeClass( 'display' )
+	.addClass('table table-striped table-bordered');
+		
+	var systemSearch = new Bloodhound({
+	   sufficient: 50,
+	   limit: 50,
+	   datumTokenizer: function (datum) {
+	       return Bloodhound.tokenizers.whitespace(datum.value);
+	   },
+	   queryTokenizer: Bloodhound.tokenizers.whitespace,
+	   remote: {
+	       url: '/J/knownSpaceSystems?q=%QUERY&hisec=' + $('#highsec').hasClass('active'),
+	       filter: function (systemSearch) {
+	           return $.map(systemSearch.rows, function (systemSearch) {
+	               return {
+	                   value: 	systemSearch.SolarSystemName,
+	                   id:		systemSearch.SolarSystemID
+	               };
+	           });
+	       }
+	   }
+	});
+	
+	// Initialize the Bloodhound suggestion engine
+	systemSearch.initialize();
+	
+	$('#systemSearchContainer .typeahead').typeahead(null, {
+		name: 'systemSearch',
+		limit: 50,
+		display: 'value',
+		source: systemSearch.ttAdapter()
+	}).on('typeahead:selected', function(obj, datum, name) {
+		// /U/agents?systemID=30000142&characterID=&level=1&division=&jumps=10&sec=1.0&highsec=true&locator=false&_search=false&nd=1434314371046&rows=50&page=1&sidx=&sord=asc
+		$('#agents').dataTable().api().ajax.url('/J/marketSellRegionItems?itemID='+datum.id).load();
+	});
+	
+	 $('#highsec').click(function () {
+	 	systemSearch.remote.url = '/J/knownSpaceSystems?q=%QUERY&hisec=' + ! $('#highsec').hasClass('active');
+	 	systemSearch.initialize();
+	 });
+	 
+</script>
+{{end}}

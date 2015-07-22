@@ -1,0 +1,112 @@
+{{define "body"}}
+<script>
+	$(document).ready(function() {
+				var sellOrders = $('#sellOrders').dataTable( {
+	 					"searching": false,
+	 					"paging": false,
+	 					"scrollY": "200px",
+	 					"lengthChange": false,
+	 					"info": false,
+	 					"order": [[ 1, "asc" ]],
+	 					"sAjaxDataProp": "",
+	 				    "aoColumns": [
+							{ "mData": "stationName" },
+							{ "mData": "price" },
+							{ "mData": "quantity" },
+						],
+						"columnDefs": [
+   							{ className: "row-right-align", "targets": [ 1, 2 ] }
+  						]
+    				} );
+				var buyOrders = $('#buyOrders').dataTable( {
+	 					"searching": false,
+	 					"paging": false,
+	 					"scrollY": "200px",
+	 					"lengthChange": false,
+	 					"info": false,
+	 					"order": [[ 1, "desc" ]],
+	 					"sAjaxDataProp": "",
+	 				    "aoColumns": [
+							{ "mData": "stationName" },
+							{ "mData": "price" },
+							{ "mData": "quantity" },
+						],
+						"columnDefs": [
+   							{ className: "row-right-align", "targets": [ 1, 2 ] }
+  						]					
+				} );
+			} );
+</script>
+<h3>Market Browser</h3>
+<div id="itemSearchContainer">
+	<input class="typeahead" type="text" placeholder="Item Search">
+</div>
+<h4>Sell Orders</h4>
+<div class="insideContainer">
+	<table id="sellOrders" class="display compact" cellspacing="0" width="100%">
+		<thead>
+			<tr>
+				<th>stationName</th>
+				<th>price</th>
+				<th>quantity</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+<h4>Buy Orders</h4>
+<div class="insideContainer"> 
+	<table id="buyOrders" class="display compact" cellspacing="0" width="100%">
+		<thead>
+			<tr>
+				<th>stationName</th>
+				<th>price</th>
+				<th>quantity</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+
+
+<script type="text/javascript">
+	$('#itemSearchContainer')
+	.removeClass( 'display' )
+	.addClass('table table-striped table-bordered');
+		
+	var itemSearch = new Bloodhound({
+	   sufficient: 100,
+	   limit: 100,
+	   datumTokenizer: function (datum) {
+	       return Bloodhound.tokenizers.whitespace(datum.value);
+	   },
+	   queryTokenizer: Bloodhound.tokenizers.whitespace,
+	   remote: {
+	       url: '/J/searchItems?q=%QUERY',
+	       filter: function (itemSearch) {
+	           return $.map(itemSearch.rows, function (itemSearch) {
+	               return {
+	                   value: 	itemSearch.TypeName,
+	                   id:		itemSearch.TypeID
+	               };
+	           });
+	       }
+	   }
+	});
+	
+	// Initialize the Bloodhound suggestion engine
+	itemSearch.initialize();
+	
+	$('#itemSearchContainer .typeahead').typeahead(null, {
+		name: 'itemSearch',
+		limit: 100,
+		display: 'value',
+		source: itemSearch.ttAdapter()
+	}).on('typeahead:selected', function(obj, datum, name) {
+		$('#sellOrders').dataTable().api().ajax.url('/J/marketSellRegionItems?itemID='+datum.id).load();
+		$('#buyOrders').dataTable().api().ajax.url('/J/marketBuyRegionItems?itemID='+datum.id).load();
+	});
+</script>
+{{end}}

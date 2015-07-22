@@ -46,7 +46,7 @@ func searchitemsPage(c *evedata.AppContext, w http.ResponseWriter, r *http.Reque
            WHERE done=0 AND T.marketGroupID IS NOT NULL AND typeName LIKE ?
            GROUP BY T.typeID
            ORDER BY typeName
-           LIMIT 25`, "%"+q+"%")
+           LIMIT 100`, "%"+q+"%")
 
 	if err != nil {
 		return http.StatusInternalServerError, err

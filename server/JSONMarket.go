@@ -28,7 +28,6 @@ type marketRegion struct {
 
 // MarketRegions Query market regions from the database and return JSON to the
 // user
-
 func MarketRegions(c *AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	mR := []marketRegion{}
 
@@ -81,7 +80,7 @@ func MarketSellRegionItems(c *AppContext, w http.ResponseWriter, r *http.Request
 	}
 
 	if regionID == 0 {
-		err = c.Db.Select(&mR, `SELECT  remainingVolume AS quantity, price, stationName, M.stationID
+		err = c.Db.Select(&mR, `SELECT  format(remainingVolume, 0) AS quantity, format(price, 2) as price, stationName, M.stationID
         	                    FROM    market M
                              	INNER JOIN staStations S ON S.stationID=M.stationID
                              	WHERE      done=0 AND
@@ -90,7 +89,7 @@ func MarketSellRegionItems(c *AppContext, w http.ResponseWriter, r *http.Request
                              ORDER BY price ASC
                              `, itemID)
 	} else {
-		err = c.Db.Select(&mR, `SELECT  remainingVolume AS quantity, price, stationName, M.stationID
+		err = c.Db.Select(&mR, `SELECT  format(remainingVolume, 0) AS quantity, format(price, 2) as price, stationName, M.stationID
         	                    FROM    market M
                              	INNER JOIN staStations S ON S.stationID=M.stationID
                              	WHERE      done=0 AND
@@ -108,7 +107,8 @@ func MarketSellRegionItems(c *AppContext, w http.ResponseWriter, r *http.Request
 	mRows.Rows = &mR
 
 	encoder := json.NewEncoder(w)
-	encoder.Encode(mRows)
+	//encoder.Encode(mRows)
+	encoder.Encode(mR)
 	return 200, nil
 }
 
@@ -135,7 +135,7 @@ func MarketBuyRegionItems(c *AppContext, w http.ResponseWriter, r *http.Request)
 	}
 
 	if regionID == 0 {
-		err = c.Db.Select(&mR, ` SELECT  remainingVolume AS quantity, price, stationName, M.stationID
+		err = c.Db.Select(&mR, ` SELECT  format(remainingVolume, 0) AS quantity, format(price, 2) as price, stationName, M.stationID
                             	 FROM    market M
                             	 INNER JOIN staStations S ON S.stationID=M.stationID
                             	 WHERE      
@@ -145,7 +145,7 @@ func MarketBuyRegionItems(c *AppContext, w http.ResponseWriter, r *http.Request)
                             	 ORDER BY price DESC
                              `, itemID)
 	} else {
-		err = c.Db.Select(&mR, ` SELECT  remainingVolume AS quantity, price, stationName, M.stationID
+		err = c.Db.Select(&mR, ` SELECT  format(remainingVolume, 0) AS quantity, format(price, 2) as price, stationName, M.stationID
                             	 FROM    market M
                             	 INNER JOIN staStations S ON S.stationID=M.stationID
                             	 WHERE      
@@ -164,7 +164,8 @@ func MarketBuyRegionItems(c *AppContext, w http.ResponseWriter, r *http.Request)
 	mRows.Rows = &mR
 
 	encoder := json.NewEncoder(w)
-	encoder.Encode(mRows)
+	//	encoder.Encode(mRows)
+	encoder.Encode(mR)
 	return 200, nil
 }
 
