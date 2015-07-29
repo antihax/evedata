@@ -40,6 +40,9 @@
 <h3>Market Browser</h3>
 <div id="itemSearchContainer">
 	<input class="typeahead" type="text" placeholder="Item Search">
+	<button id="highsec" type="button" class="btn btn-primary btn-sm sec active" data-toggle="button">HighSec</button>
+	<button id="lowsec" type="button" class="btn btn-primary btn-sm sec" data-toggle="button">LowSec</button>
+	<button id="nullsec" type="button" class="btn btn-primary btn-sm sec" data-toggle="button">NullSec</button>
 </div>
 <h4>Sell Orders</h4>
 <div class="insideContainer">
@@ -98,15 +101,37 @@
 	
 	// Initialize the Bloodhound suggestion engine
 	itemSearch.initialize();
+	var datum;
 	
 	$('#itemSearchContainer .typeahead').typeahead(null, {
 		name: 'itemSearch',
 		limit: 100,
 		display: 'value',
 		source: itemSearch.ttAdapter()
-	}).on('typeahead:selected', function(obj, datum, name) {
-		$('#sellOrders').dataTable().api().ajax.url('/J/marketSellRegionItems?itemID='+datum.id).load();
-		$('#buyOrders').dataTable().api().ajax.url('/J/marketBuyRegionItems?itemID='+datum.id).load();
+	}).on('typeahead:selected', function(obj, d, name) {
+		datum = d;
+		resetFlags();
 	});
-</script>
+
+	
+	$('.sec').click(function () {
+		setTimeout(resetFlags, 50);
+	});
+
+	function resetFlags() {
+		var secFlags = {High: 1, Low: 2, Null: 4};
+		var f;
+		if ($('#highsec').hasClass('active')) {
+			f = f | secFlags.High;
+		}
+		if ($('#lowsec').hasClass('active')) {
+			f = f | secFlags.Low;
+		}
+		if ($('#nullsec').hasClass('active')) {
+			f = f | secFlags.Null;
+		}
+		$('#sellOrders').dataTable().api().ajax.url('/J/marketSellRegionItems?itemID='+datum.id+"&secflags="+f).load();
+		$('#buyOrders').dataTable().api().ajax.url('/J/marketBuyRegionItems?itemID='+datum.id+"&secflags="+f).load();
+	}
+	</script>
 {{end}}
