@@ -3,7 +3,7 @@ package evedata
 import (
 	"encoding/json"
 	"errors"
-	"evedata-revel/null"
+	"evedata/null"
 	"evedata/models"
 	"net/http"
 	"regexp"
