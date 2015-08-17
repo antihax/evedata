@@ -4,7 +4,14 @@
     	"Driver": 	"mysql",
     	"Spec":		"user:pass@tcp(database:3306)/database?allowOldPasswords=1&parseTime=true"
     },
+    
     "Store": {
-    	"Key": "SuperSecretKey"
+    	"Key": 		"SuperSecretKey"
+    },
+    
+	"EMDRCrestBridge": {
+		"Enabled": 	true,
+    	"Import":  	true,
+    	"URL":		"http://upload.eve-emdr.com/upload/"
     }
 }

@@ -14,6 +14,11 @@ type Config struct {
 	Store struct {
 		Key string
 	}
+	EMDRCrestBridge struct {
+		Enabled bool
+		Import  bool
+		URL     string
+	}
 }
 
 func ReadConfig() (*Config, error) {

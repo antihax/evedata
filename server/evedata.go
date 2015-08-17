@@ -29,6 +29,7 @@ func GoServer() {
 
 	// Read configuation.
 	ctx.Conf, err = config.ReadConfig()
+
 	if err != nil {
 		log.Fatalf("Error reading configuration: %v", err)
 	}
@@ -50,6 +51,11 @@ func GoServer() {
 
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	log.Println("Listening port 3000...")
+	if ctx.Conf.EMDRCrestBridge.Enabled {
+		log.Println("Starting EMDR <- Crest Bridge")
+		go goEMDRCrestBridge(ctx)
+	}
+
+	log.Println("EveData Listening port 3000...")
 	http.ListenAndServe(":3000", context.ClearHandler(rtr))
 }

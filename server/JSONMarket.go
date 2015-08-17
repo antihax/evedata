@@ -2,7 +2,6 @@ package evedata
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -13,8 +12,6 @@ import (
 func init() {
 	AddRoute(Route{"marketRegions", "GET", "/J/marketRegions", MarketRegions})
 	AddRoute(Route{"marketItemLists", "GET", "/J/marketItemLists", MarketItemLists})
-	AddRoute(Route{"marketSellRegionItems", "GET", "/J/marketSellRegionItems", MarketSellRegionItems})
-	AddRoute(Route{"marketBuyRegionItems", "GET", "/J/marketBuyRegionItems", MarketBuyRegionItems})
 }
 
 /******************************************************************************
@@ -38,133 +35,6 @@ func MarketRegions(c *AppContext, w http.ResponseWriter, r *http.Request) (int, 
 
 	w.Header().Set("Cache-Control", "public, max-age=3600")
 	encoder := json.NewEncoder(w)
-	encoder.Encode(mR)
-	return 200, nil
-}
-
-/******************************************************************************
- * marketSellRegionItems JSON query
- *****************************************************************************/
-type marketItems struct {
-	StationName string `db:"stationName" json:"stationName"`
-	StationID   string `db:"stationID"   json:"stationID"   `
-	Quantity    string `db:"quantity"    json:"quantity"   `
-	Price       string `db:"price"       json:"price"      `
-}
-
-// Rows is a list of rows for JSON conversion
-type Rows struct {
-	Rows *[]marketItems `json:"rows"`
-}
-
-// MarketSellRegionItems Query market sell orders for a user specified
-// regionID and itemID query string and return JSON to the user
-func MarketSellRegionItems(c *AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
-	var (
-		regionID int
-		itemID   int
-		mRows    Rows
-		err      error
-	)
-
-	mR := []marketItems{}
-
-	regionID, err = strconv.Atoi(r.FormValue("regionID"))
-	if err != nil {
-		regionID = 0
-	}
-
-	itemID, err = strconv.Atoi(r.FormValue("itemID"))
-	if err != nil {
-		return 500, err
-	}
-
-	if regionID == 0 {
-		err = c.Db.Select(&mR, `SELECT  format(remainingVolume, 0) AS quantity, format(price, 2) as price, stationName, M.stationID
-        	                    FROM    market M
-                             	INNER JOIN staStations S ON S.stationID=M.stationID
-                             	WHERE      done=0 AND
-                                	       bid=0 AND
-                                      	   typeID = ?
-                             ORDER BY price ASC
-                             `, itemID)
-	} else {
-		err = c.Db.Select(&mR, `SELECT  format(remainingVolume, 0) AS quantity, format(price, 2) as price, stationName, M.stationID
-        	                    FROM    market M
-                             	INNER JOIN staStations S ON S.stationID=M.stationID
-                             	WHERE      done=0 AND
-                                	       bid=0 AND
-                                      	   M.regionID = ? AND
-                                      	   typeID = ?
-                             ORDER BY price ASC
-                             `, regionID, itemID)
-	}
-
-	if err != nil {
-		return 500, err
-	}
-
-	mRows.Rows = &mR
-
-	encoder := json.NewEncoder(w)
-	//encoder.Encode(mRows)
-	encoder.Encode(mR)
-	return 200, nil
-}
-
-// MarketBuyRegionItems Query market buy orders for a user specified
-// regionID and itemID query string and return JSON to the user
-func MarketBuyRegionItems(c *AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
-	var (
-		regionID int
-		itemID   int
-		mRows    Rows
-		err      error
-	)
-
-	mR := []marketItems{}
-
-	regionID, err = strconv.Atoi(r.FormValue("regionID"))
-	if err != nil {
-		regionID = 0
-	}
-
-	itemID, err = strconv.Atoi(r.FormValue("itemID"))
-	if err != nil {
-		return 500, errors.New("Invalid itemID")
-	}
-
-	if regionID == 0 {
-		err = c.Db.Select(&mR, ` SELECT  format(remainingVolume, 0) AS quantity, format(price, 2) as price, stationName, M.stationID
-                            	 FROM    market M
-                            	 INNER JOIN staStations S ON S.stationID=M.stationID
-                            	 WHERE      
-                            	 	  done=0 AND
-                                      bid=1 AND
-                                      typeID = ?
-                            	 ORDER BY price DESC
-                             `, itemID)
-	} else {
-		err = c.Db.Select(&mR, ` SELECT  format(remainingVolume, 0) AS quantity, format(price, 2) as price, stationName, M.stationID
-                            	 FROM    market M
-                            	 INNER JOIN staStations S ON S.stationID=M.stationID
-                            	 WHERE      
-                            	 	  done=0 AND
-                                      bid=1 AND
-                                      M.regionID = ? AND
-                                      typeID = ?
-                            	 ORDER BY price DESC
-                             `, regionID, itemID)
-	}
-
-	if err != nil {
-		return 500, err
-	}
-
-	mRows.Rows = &mR
-
-	encoder := json.NewEncoder(w)
-	//	encoder.Encode(mRows)
 	encoder.Encode(mR)
 	return 200, nil
 }

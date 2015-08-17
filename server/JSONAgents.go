@@ -3,8 +3,8 @@ package evedata
 import (
 	"encoding/json"
 	"errors"
-	"evedata/null"
 	"evedata/models"
+	"evedata/null"
 	"net/http"
 	"regexp"
 	"strconv"
