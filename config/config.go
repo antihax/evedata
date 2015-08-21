@@ -15,9 +15,11 @@ type Config struct {
 		Key string
 	}
 	EMDRCrestBridge struct {
-		Enabled bool
-		Import  bool
-		URL     string
+		Enabled       bool
+		Import        bool
+		Upload        bool
+		URL           string
+		MaxGoRoutines int64
 	}
 }
 

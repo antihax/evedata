@@ -3,7 +3,9 @@ package main
 import (
 	"evedata/server"
 	_ "evedata/views"
-) // bootstrap interface
+)
+
+// bootstrap interface
 
 func main() {
 	evedata.GoServer()

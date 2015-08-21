@@ -10,8 +10,10 @@
     },
     
 	"EMDRCrestBridge": {
-		"Enabled": 	true,
-    	"Import":  	true,
-    	"URL":		"http://upload.eve-emdr.com/upload/"
+		"Enabled": 			true,
+    	"Import":  			true,
+    	"Upload":  			true,
+    	"URL":				"http://upload.eve-emdr.com/upload/",
+    	"MaxGoRoutines":	16
     }
 }
