@@ -158,14 +158,14 @@ func postHistory(h marketHistory, c *AppContext, typeID int64, regionID int64) {
 		`)
 		defer historyUpdate.Close()
 		if err != nil {
-			log.Fatalf("EMDRCrestBridge: %s", err)
+			log.Printf("EMDRCrestBridge: %s", err)
+		} else {
+			tx, err := c.Db.Begin()
+			for _, e := range h.Items {
+				tx.Stmt(historyUpdate).Exec(e.Date, e.LowPrice, e.HighPrice, e.AvgPrice, typeID, regionID)
+			}
+			tx.Commit()
 		}
-
-		tx, err := c.Db.Begin()
-		for _, e := range h.Items {
-			tx.Stmt(historyUpdate).Exec(e.Date, e.LowPrice, e.HighPrice, e.AvgPrice, typeID, regionID)
-		}
-		tx.Commit()
 	}
 
 	if c.Conf.EMDRCrestBridge.Upload {
@@ -194,8 +194,9 @@ func postHistory(h marketHistory, c *AppContext, typeID int64, regionID int64) {
 		enc, err := json.Marshal(u)
 		if err != nil {
 			log.Println("EMDRCrestBridge:", err)
+		} else {
+			postUUDIF(c.Conf.EMDRCrestBridge.URL, enc)
 		}
-		postUUDIF(c.Conf.EMDRCrestBridge.URL, enc)
 	}
 }
 
@@ -222,21 +223,22 @@ func postOrders(o marketOrders, c *AppContext, buy int, typeID int64, regionID i
 
 		if err != nil {
 			log.Fatalf("EMDRCrestBridge: %s", err)
-		}
+		} else {
 
-		// Mark orders complete
-		tx, err := c.Db.Begin()
-		tx.Stmt(orderMark).Exec(regionID, typeID)
+			// Mark orders complete
+			tx, err := c.Db.Begin()
+			tx.Stmt(orderMark).Exec(regionID, typeID)
 
-		// Add or update orders
-		for _, e := range o.Items {
-			tx.Stmt(orderUpdate).Exec(e.ID, e.Price, e.Volume, typeID, e.VolumeEntered, e.MinVolume, buy, e.Issued, e.Duration, e.Location.ID, regionID, stations[e.Location.ID])
-		}
+			// Add or update orders
+			for _, e := range o.Items {
+				tx.Stmt(orderUpdate).Exec(e.ID, e.Price, e.Volume, typeID, e.VolumeEntered, e.MinVolume, buy, e.Issued, e.Duration, e.Location.ID, regionID, stations[e.Location.ID])
+			}
 
-		err = tx.Commit()
+			err = tx.Commit()
 
-		if err != nil {
-			log.Println("EMDRCrestBridge:", err)
+			if err != nil {
+				log.Println("EMDRCrestBridge:", err)
+			}
 		}
 	}
 
@@ -284,10 +286,9 @@ func postOrders(o marketOrders, c *AppContext, buy int, typeID int64, regionID i
 		enc, err := json.Marshal(u)
 		if err != nil {
 			log.Println("EMDRCrestBridge:", err)
+		} else {
+			postUUDIF(c.Conf.EMDRCrestBridge.URL, enc)
 		}
-
-		//log.Printf("%s", enc)
-		postUUDIF(c.Conf.EMDRCrestBridge.URL, enc)
 	}
 }
 
@@ -298,15 +299,15 @@ func postUUDIF(url string, j []byte) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Panic(err)
-	}
-	defer resp.Body.Close()
+		log.Println("EMDRCrestBridge:", err)
+	} else {
+		defer resp.Body.Close()
 
-	if resp.Status != "200 OK" {
-		body, _ := ioutil.ReadAll(resp.Body)
-		log.Println("EMDRCrestBridge:", string(body))
-		log.Println("EMDRCrestBridge:", string(resp.Status))
-
+		if resp.Status != "200 OK" {
+			body, _ := ioutil.ReadAll(resp.Body)
+			log.Println("EMDRCrestBridge:", string(body))
+			log.Println("EMDRCrestBridge:", string(resp.Status))
+		}
 	}
 }
 
