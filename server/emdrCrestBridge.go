@@ -160,7 +160,7 @@ func postHistory(h marketHistory, c *AppContext, typeID int64, regionID int64) {
 		if err != nil {
 			log.Printf("EMDRCrestBridge: %s", err)
 		} else {
-			tx, err := c.Db.Begin()
+			tx, _ := c.Db.Begin()
 			for _, e := range h.Items {
 				tx.Stmt(historyUpdate).Exec(e.Date, e.LowPrice, e.HighPrice, e.AvgPrice, typeID, regionID)
 			}
