@@ -98,7 +98,7 @@ func goEMDRCrestBridge(c *AppContext) {
 					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/types/%d/history/", r.RegionID, t.TypeID)
 					response, err := crest.Get(url, nil, &h, nil)
 					if err != nil {
-						log.Printf("EMDRCrestBridge: %s %s", err, response.RawText())
+						log.Printf("EMDRCrestBridge: %s", err)
 						return
 					}
 					if response.Status() == 200 {
@@ -116,7 +116,7 @@ func goEMDRCrestBridge(c *AppContext) {
 					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/orders/buy/?type=https://public-crest.eveonline.com/types/%d/", r.RegionID, t.TypeID)
 					response, err := crest.Get(url, nil, &b, nil)
 					if err != nil {
-						log.Printf("EMDRCrestBridge: %s %s", err, response.RawText())
+						log.Printf("EMDRCrestBridge: %s", err)
 						return
 					}
 					if response.Status() == 200 {
@@ -134,7 +134,7 @@ func goEMDRCrestBridge(c *AppContext) {
 					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/orders/sell/?type=https://public-crest.eveonline.com/types/%d/", r.RegionID, t.TypeID)
 					response, err := crest.Get(url, nil, &s, nil)
 					if err != nil {
-						log.Printf("EMDRCrestBridge: %s %s", err, response.RawText())
+						log.Printf("EMDRCrestBridge: %s", err)
 						return
 					}
 					if response.Status() == 200 {
