@@ -103,7 +103,7 @@ func goEMDRCrestBridge(c *AppContext) {
 					}
 					if response.Status() == 200 {
 						if len(h.Items) > 0 {
-							go postHistory(h, c, t.TypeID, r.RegionID)
+							go postHistory(sem, h, c, t.TypeID, r.RegionID)
 						}
 					}
 				}()
@@ -121,7 +121,7 @@ func goEMDRCrestBridge(c *AppContext) {
 					}
 					if response.Status() == 200 {
 						if len(b.Items) > 0 {
-							go postOrders(b, c, 1, t.TypeID, r.RegionID)
+							go postOrders(sem, b, c, 1, t.TypeID, r.RegionID)
 						}
 					}
 				}()
@@ -140,7 +140,7 @@ func goEMDRCrestBridge(c *AppContext) {
 					if response.Status() == 200 {
 						if len(s.Items) > 0 {
 
-							go postOrders(s, c, 0, t.TypeID, r.RegionID)
+							go postOrders(sem, s, c, 0, t.TypeID, r.RegionID)
 						}
 					}
 				}()
@@ -149,7 +149,10 @@ func goEMDRCrestBridge(c *AppContext) {
 	}
 }
 
-func postHistory(h marketHistory, c *AppContext, typeID int64, regionID int64) {
+func postHistory(sem chan bool, h marketHistory, c *AppContext, typeID int64, regionID int64) {
+	sem <- true
+	defer func() { <-sem }()
+
 	if c.Conf.EMDRCrestBridge.Import {
 		historyUpdate, err := c.Db.Prepare(`
 			INSERT IGNORE INTO market_history 
@@ -200,7 +203,9 @@ func postHistory(h marketHistory, c *AppContext, typeID int64, regionID int64) {
 	}
 }
 
-func postOrders(o marketOrders, c *AppContext, buy int, typeID int64, regionID int64) {
+func postOrders(sem chan bool, o marketOrders, c *AppContext, buy int, typeID int64, regionID int64) {
+	sem <- true
+	defer func() { <-sem }()
 
 	if c.Conf.EMDRCrestBridge.Import {
 		orderUpdate, err := c.Db.Prepare(`
