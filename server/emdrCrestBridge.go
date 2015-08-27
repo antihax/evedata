@@ -102,9 +102,8 @@ func goEMDRCrestBridge(c *AppContext) {
 						return
 					}
 					if response.Status() == 200 {
-						if len(h.Items) > 0 {
-							go postHistory(sem, h, c, t.TypeID, r.RegionID)
-						}
+						go postHistory(sem, h, c, t.TypeID, r.RegionID)
+
 					}
 				}()
 
@@ -120,9 +119,9 @@ func goEMDRCrestBridge(c *AppContext) {
 						return
 					}
 					if response.Status() == 200 {
-						if len(b.Items) > 0 {
-							go postOrders(sem, b, c, 1, t.TypeID, r.RegionID)
-						}
+
+						go postOrders(sem, b, c, 1, t.TypeID, r.RegionID)
+
 					}
 				}()
 
@@ -138,9 +137,9 @@ func goEMDRCrestBridge(c *AppContext) {
 						return
 					}
 					if response.Status() == 200 {
-						if len(s.Items) > 0 {
-							go postOrders(sem, s, c, 0, t.TypeID, r.RegionID)
-						}
+
+						go postOrders(sem, s, c, 0, t.TypeID, r.RegionID)
+
 					}
 				}()
 			}
