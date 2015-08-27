@@ -73,12 +73,28 @@ func goEMDRCrestBridge(c *AppContext) {
 	}
 	log.Printf("EMDRCrestBridge: Loaded %d stations", len(stations))
 
+	/*var (
+		gets  uint64
+		posts uint64
+	)
+
+		debug := time.Tick(time.Second)
+		go func() {
+			for {
+				<-debug
+				fmt.Printf("Processed %d gets, %d posts\n", gets, posts)
+				atomic.StoreUint64(&gets, 0)
+				atomic.StoreUint64(&posts, 0)
+			}
+		}()*/
+
 	// Throttle Crest Requests
-	rate := time.Second / 8
+	rate := time.Second / 41
 	throttle := time.Tick(rate)
 
 	// semaphore to prevent runaways
 	sem := make(chan bool, c.Conf.EMDRCrestBridge.MaxGoRoutines)
+	postSem := make(chan bool, 20)
 
 	// CREST Session
 	crest := napping.Session{}
@@ -96,13 +112,15 @@ func goEMDRCrestBridge(c *AppContext) {
 					// Process Market History
 					h := marketHistory{}
 					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/types/%d/history/", r.RegionID, t.TypeID)
+					//		atomic.AddUint64(&gets, 1)
 					response, err := crest.Get(url, nil, &h, nil)
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
 						return
 					}
 					if response.Status() == 200 {
-						go postHistory(sem, h, c, t.TypeID, r.RegionID)
+						//		atomic.AddUint64(&posts, 1)
+						go postHistory(postSem, h, c, t.TypeID, r.RegionID)
 
 					}
 				}()
@@ -113,14 +131,15 @@ func goEMDRCrestBridge(c *AppContext) {
 					// Process Market Buy Orders
 					b := marketOrders{}
 					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/orders/buy/?type=https://public-crest.eveonline.com/types/%d/", r.RegionID, t.TypeID)
+					//	atomic.AddUint64(&gets, 1)
 					response, err := crest.Get(url, nil, &b, nil)
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
 						return
 					}
 					if response.Status() == 200 {
-
-						go postOrders(sem, b, c, 1, t.TypeID, r.RegionID)
+						//		atomic.AddUint64(&posts, 1)
+						go postOrders(postSem, b, c, 1, t.TypeID, r.RegionID)
 
 					}
 				}()
@@ -131,14 +150,15 @@ func goEMDRCrestBridge(c *AppContext) {
 					// Process Market Sell Orders
 					s := marketOrders{}
 					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/orders/sell/?type=https://public-crest.eveonline.com/types/%d/", r.RegionID, t.TypeID)
+					//	atomic.AddUint64(&gets, 1)
 					response, err := crest.Get(url, nil, &s, nil)
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
 						return
 					}
 					if response.Status() == 200 {
-
-						go postOrders(sem, s, c, 0, t.TypeID, r.RegionID)
+						//	atomic.AddUint64(&posts, 1)
+						go postOrders(postSem, s, c, 0, t.TypeID, r.RegionID)
 
 					}
 				}()
@@ -298,7 +318,6 @@ func postOrders(sem chan bool, o marketOrders, c *AppContext, buy int, typeID in
 func postUUDIF(url string, j []byte) {
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(j))
 	req.Header.Set("Content-Type", "application/json")
-
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
