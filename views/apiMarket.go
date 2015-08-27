@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"evedata/server"
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -80,14 +81,22 @@ type Rows struct {
 	Rows *[]marketItems `json:"rows"`
 }
 
-// MarketSellRegionItems Query market sell orders for a user specified
-// regionID and itemID query string and return JSON to the user
-func MarketSellRegionItems(c *evedata.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+const (
+	HighSec = 1 << iota
+	LowSec  = 1 << iota
+	NullSec = 1 << iota
+)
+
+// MarketRegionItems Query market orders for a user specified
+func marketRegionItems(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, buy bool) (int, error) {
 	var (
-		regionID int
-		itemID   int
-		mRows    Rows
-		err      error
+		regionID      int
+		itemID        int
+		secFlags      int
+		mRows         Rows
+		err           error
+		secFilter     string
+		secFilterPass int
 	)
 
 	mR := []marketItems{}
@@ -102,25 +111,53 @@ func MarketSellRegionItems(c *evedata.AppContext, w http.ResponseWriter, r *http
 		return 500, err
 	}
 
+	secFlags, err = strconv.Atoi(r.FormValue("secflags"))
+	if err != nil {
+		encoder := json.NewEncoder(w)
+		encoder.Encode(mR)
+		return 200, nil
+	}
+
+	if secFlags&HighSec != 0 {
+		secFilterPass++
+		secFilter += "round(Sy.security,1) >= 0.5"
+	}
+	if secFlags&LowSec != 0 {
+		secFilterPass++
+		if secFilterPass > 1 {
+			secFilter += " OR "
+		}
+		secFilter += "round(Sy.security,1) BETWEEN 0.1 AND 0.4"
+	}
+	if secFlags&NullSec != 0 {
+		secFilterPass++
+		if secFilterPass > 1 {
+			secFilter += " OR "
+		}
+
+		secFilter += "round(Sy.security,1) <= 0 "
+	}
+
 	if regionID == 0 {
-		err = c.Db.Select(&mR, `SELECT  format(remainingVolume, 0) AS quantity, format(price, 2) as price, stationName, M.stationID
+		sql := `SELECT  format(remainingVolume, 0) AS quantity, format(price, 2) as price, stationName, M.stationID
         	                    FROM    market M
                              	INNER JOIN staStations S ON S.stationID=M.stationID
+                             	INNER JOIN mapSolarSystems Sy ON Sy.solarSystemID = M.systemID
                              	WHERE      done=0 AND
-                                	       bid=0 AND
-                                      	   typeID = ?
-                             ORDER BY price ASC
-                             `, itemID)
+                                	       bid=? AND
+                                      	   typeID = ? AND (` + secFilter + `) ORDER BY price ASC`
+		err = c.Db.Select(&mR, sql, buy, itemID)
+		fmt.Printf("%s", sql)
+		fmt.Printf("%d %d %d", secFlags&LowSec, secFlags, LowSec)
 	} else {
 		err = c.Db.Select(&mR, `SELECT  format(remainingVolume, 0) AS quantity, format(price, 2) as price, stationName, M.stationID
         	                    FROM    market M
                              	INNER JOIN staStations S ON S.stationID=M.stationID
+                             	INNER JOIN mapSolarSystems Sy ON Sy.solarSystemID = M.systemID
                              	WHERE      done=0 AND
-                                	       bid=0 AND
+                                	       bid=? AND
                                       	   M.regionID = ? AND
-                                      	   typeID = ?
-                             ORDER BY price ASC
-                             `, regionID, itemID)
+                                      	   typeID = ? AND (`+secFilter+`) ORDER BY price ASC`, buy, regionID, itemID, secFilter)
 	}
 
 	if err != nil {
@@ -134,58 +171,12 @@ func MarketSellRegionItems(c *evedata.AppContext, w http.ResponseWriter, r *http
 	return 200, nil
 }
 
+func MarketSellRegionItems(c *evedata.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+	return marketRegionItems(c, w, r, false)
+}
+
 // MarketBuyRegionItems Query market buy orders for a user specified
 // regionID and itemID query string and return JSON to the user
 func MarketBuyRegionItems(c *evedata.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
-	var (
-		regionID int
-		itemID   int
-		mRows    Rows
-		err      error
-	)
-
-	mR := []marketItems{}
-
-	regionID, err = strconv.Atoi(r.FormValue("regionID"))
-	if err != nil {
-		regionID = 0
-	}
-
-	itemID, err = strconv.Atoi(r.FormValue("itemID"))
-	if err != nil {
-		return 500, errors.New("Invalid itemID")
-	}
-
-	if regionID == 0 {
-		err = c.Db.Select(&mR, ` SELECT  format(remainingVolume, 0) AS quantity, format(price, 2) as price, stationName, M.stationID
-                            	 FROM    market M
-                            	 INNER JOIN staStations S ON S.stationID=M.stationID
-                            	 WHERE      
-                            	 	  done=0 AND
-                                      bid=1 AND
-                                      typeID = ?
-                            	 ORDER BY price DESC
-                             `, itemID)
-	} else {
-		err = c.Db.Select(&mR, ` SELECT  format(remainingVolume, 0) AS quantity, format(price, 2) as price, stationName, M.stationID
-                            	 FROM    market M
-                            	 INNER JOIN staStations S ON S.stationID=M.stationID
-                            	 WHERE      
-                            	 	  done=0 AND
-                                      bid=1 AND
-                                      M.regionID = ? AND
-                                      typeID = ?
-                            	 ORDER BY price DESC
-                             `, regionID, itemID)
-	}
-
-	if err != nil {
-		return 500, err
-	}
-
-	mRows.Rows = &mR
-
-	encoder := json.NewEncoder(w)
-	encoder.Encode(mR)
-	return 200, nil
+	return marketRegionItems(c, w, r, true)
 }
