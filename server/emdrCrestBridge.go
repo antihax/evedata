@@ -89,7 +89,7 @@ func goEMDRCrestBridge(c *AppContext) {
 		}()*/
 
 	// Throttle Crest Requests
-	rate := time.Second / 30
+	rate := time.Second / 20
 	throttle := time.Tick(rate)
 
 	// semaphore to prevent runaways
