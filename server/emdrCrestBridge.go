@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"sync/atomic"
 	"time"
 
 	"github.com/jmcvetta/napping"
@@ -73,28 +74,27 @@ func goEMDRCrestBridge(c *AppContext) {
 	}
 	log.Printf("EMDRCrestBridge: Loaded %d stations", len(stations))
 
-	/*var (
+	var (
 		gets  uint64
 		posts uint64
 	)
 
-		debug := time.Tick(time.Second)
-		go func() {
-			for {
-				<-debug
-				fmt.Printf("Processed %d gets, %d posts\n", gets, posts)
-				atomic.StoreUint64(&gets, 0)
-				atomic.StoreUint64(&posts, 0)
-			}
-		}()*/
+	debug := time.Tick(time.Second)
+	go func() {
+		for {
+			<-debug
+			fmt.Printf("Processed %d gets, %d posts\n", gets, posts)
+			atomic.StoreUint64(&gets, 0)
+			atomic.StoreUint64(&posts, 0)
+		}
+	}()
 
 	// Throttle Crest Requests
-	rate := time.Second / 20
+	rate := time.Second / 30
 	throttle := time.Tick(rate)
 
 	// semaphore to prevent runaways
 	sem := make(chan bool, c.Conf.EMDRCrestBridge.MaxGoRoutines)
-	postSem := make(chan bool, 20)
 
 	// CREST Session
 	crest := napping.Session{}
@@ -112,15 +112,15 @@ func goEMDRCrestBridge(c *AppContext) {
 					// Process Market History
 					h := marketHistory{}
 					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/types/%d/history/", r.RegionID, t.TypeID)
-					//		atomic.AddUint64(&gets, 1)
+					atomic.AddUint64(&gets, 1)
 					response, err := crest.Get(url, nil, &h, nil)
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
 						return
 					}
 					if response.Status() == 200 {
-						//		atomic.AddUint64(&posts, 1)
-						go postHistory(postSem, h, c, t.TypeID, r.RegionID)
+						atomic.AddUint64(&posts, 1)
+						go postHistory(sem, h, c, t.TypeID, r.RegionID)
 
 					}
 				}()
@@ -131,15 +131,15 @@ func goEMDRCrestBridge(c *AppContext) {
 					// Process Market Buy Orders
 					b := marketOrders{}
 					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/orders/buy/?type=https://public-crest.eveonline.com/types/%d/", r.RegionID, t.TypeID)
-					//	atomic.AddUint64(&gets, 1)
+					atomic.AddUint64(&gets, 1)
 					response, err := crest.Get(url, nil, &b, nil)
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
 						return
 					}
 					if response.Status() == 200 {
-						//		atomic.AddUint64(&posts, 1)
-						go postOrders(postSem, b, c, 1, t.TypeID, r.RegionID)
+						atomic.AddUint64(&posts, 1)
+						go postOrders(sem, b, c, 1, t.TypeID, r.RegionID)
 
 					}
 				}()
@@ -158,7 +158,7 @@ func goEMDRCrestBridge(c *AppContext) {
 					}
 					if response.Status() == 200 {
 						//	atomic.AddUint64(&posts, 1)
-						go postOrders(postSem, s, c, 0, t.TypeID, r.RegionID)
+						go postOrders(sem, s, c, 0, t.TypeID, r.RegionID)
 
 					}
 				}()
