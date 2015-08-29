@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"sync/atomic"
 	"time"
 
 	"github.com/jmcvetta/napping"
@@ -74,27 +73,63 @@ func goEMDRCrestBridge(c *AppContext) {
 	}
 	log.Printf("EMDRCrestBridge: Loaded %d stations", len(stations))
 
-	var (
-		gets  uint64
-		posts uint64
-	)
+	/*	var (
+			gets    uint64
+			posts   uint64
+			posters uint64
+		)
 
-	debug := time.Tick(time.Second)
+		debug := time.Tick(time.Second)
+		go func() {
+			for {
+				<-debug
+				fmt.Printf("%d, %d, %d\n", gets, posts, posters)
+				atomic.StoreUint64(&gets, 0)
+				atomic.StoreUint64(&posts, 0)
+			}
+		}()*/
+
+	// FanOut response channel for posters
+	postChannel := make(chan []byte)
+
+	// Pool of transports.
+	transport := &http.Transport{DisableKeepAlives: false}
+	client := &http.Client{Transport: transport}
+
 	go func() {
-		for {
-			<-debug
-			fmt.Printf("Processed %d gets, %d posts\n", gets, posts)
-			atomic.StoreUint64(&gets, 0)
-			atomic.StoreUint64(&posts, 0)
+		for i := 0; i < 11; i++ {
+			// Don't spawn them all at once.
+			time.Sleep(time.Second / 2)
+			//posters++
+			go func() {
+				for {
+					msg := <-postChannel
+					//atomic.AddUint64(&posts, 1)
+
+					response, err := client.Post(c.Conf.EMDRCrestBridge.URL, "application/json", bytes.NewBuffer(msg))
+					if err != nil {
+						log.Println("EMDRCrestBridge:", err)
+					} else {
+						if response.Status != "200 OK" {
+							body, _ := ioutil.ReadAll(response.Body)
+							log.Println("EMDRCrestBridge:", string(body))
+							log.Println("EMDRCrestBridge:", string(response.Status))
+						}
+						// Must read everything to close the body and reuse connection
+						ioutil.ReadAll(response.Body)
+						response.Body.Close()
+					}
+				}
+			}()
 		}
 	}()
-
 	// Throttle Crest Requests
 	rate := time.Second / 30
 	throttle := time.Tick(rate)
 
 	// semaphore to prevent runaways
 	sem := make(chan bool, c.Conf.EMDRCrestBridge.MaxGoRoutines)
+	sem2 := make(chan bool, c.Conf.EMDRCrestBridge.MaxGoRoutines)
 
 	// CREST Session
 	crest := napping.Session{}
@@ -106,60 +141,58 @@ func goEMDRCrestBridge(c *AppContext) {
 			for _, t := range types {
 				<-throttle // impliment throttle
 
-				sem <- true
+				sem2 <- true
 				go func() {
-					defer func() { <-sem }()
+					defer func() { <-sem2 }()
 					// Process Market History
 					h := marketHistory{}
 					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/types/%d/history/", r.RegionID, t.TypeID)
-					atomic.AddUint64(&gets, 1)
+					//	atomic.AddUint64(&gets, 1)
 					response, err := crest.Get(url, nil, &h, nil)
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
 						return
 					}
 					if response.Status() == 200 {
-						atomic.AddUint64(&posts, 1)
-						go postHistory(sem, h, c, t.TypeID, r.RegionID)
-
+						sem <- true
+						go postHistory(sem, postChannel, h, c, t.TypeID, r.RegionID)
 					}
+
 				}()
 
-				sem <- true
+				sem2 <- true
 				go func() {
-					defer func() { <-sem }()
+					defer func() { <-sem2 }()
 					// Process Market Buy Orders
 					b := marketOrders{}
 					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/orders/buy/?type=https://public-crest.eveonline.com/types/%d/", r.RegionID, t.TypeID)
-					atomic.AddUint64(&gets, 1)
+					//atomic.AddUint64(&gets, 1)
 					response, err := crest.Get(url, nil, &b, nil)
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
 						return
 					}
 					if response.Status() == 200 {
-						atomic.AddUint64(&posts, 1)
-						go postOrders(sem, b, c, 1, t.TypeID, r.RegionID)
-
+						sem <- true
+						go postOrders(sem, postChannel, b, c, 1, t.TypeID, r.RegionID)
 					}
 				}()
 
-				sem <- true
+				sem2 <- true
 				go func() {
-					defer func() { <-sem }()
+					defer func() { <-sem2 }()
 					// Process Market Sell Orders
 					s := marketOrders{}
 					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/orders/sell/?type=https://public-crest.eveonline.com/types/%d/", r.RegionID, t.TypeID)
-					//	atomic.AddUint64(&gets, 1)
+					//atomic.AddUint64(&gets, 1)
 					response, err := crest.Get(url, nil, &s, nil)
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
 						return
 					}
 					if response.Status() == 200 {
-						//	atomic.AddUint64(&posts, 1)
-						go postOrders(sem, s, c, 0, t.TypeID, r.RegionID)
-
+						sem <- true
+						go postOrders(sem, postChannel, s, c, 0, t.TypeID, r.RegionID)
 					}
 				}()
 			}
@@ -167,10 +200,8 @@ func goEMDRCrestBridge(c *AppContext) {
 	}
 }
 
-func postHistory(sem chan bool, h marketHistory, c *AppContext, typeID int64, regionID int64) {
-	sem <- true
+func postHistory(sem chan bool, postChan chan []byte, h marketHistory, c *AppContext, typeID int64, regionID int64) {
 	defer func() { <-sem }()
-
 	if c.Conf.EMDRCrestBridge.Import {
 		historyUpdate, err := c.Db.Prepare(`
 			INSERT IGNORE INTO market_history 
@@ -216,15 +247,13 @@ func postHistory(sem chan bool, h marketHistory, c *AppContext, typeID int64, re
 		if err != nil {
 			log.Println("EMDRCrestBridge:", err)
 		} else {
-			postUUDIF(c.Conf.EMDRCrestBridge.URL, enc)
+			postChan <- enc
 		}
 	}
 }
 
-func postOrders(sem chan bool, o marketOrders, c *AppContext, buy int, typeID int64, regionID int64) {
-	sem <- true
+func postOrders(sem chan bool, postChan chan []byte, o marketOrders, c *AppContext, buy int, typeID int64, regionID int64) {
 	defer func() { <-sem }()
-
 	if c.Conf.EMDRCrestBridge.Import {
 		orderUpdate, err := c.Db.Prepare(`
 					INSERT INTO market
@@ -310,25 +339,7 @@ func postOrders(sem chan bool, o marketOrders, c *AppContext, buy int, typeID in
 		if err != nil {
 			log.Println("EMDRCrestBridge:", err)
 		} else {
-			postUUDIF(c.Conf.EMDRCrestBridge.URL, enc)
-		}
-	}
-}
-
-func postUUDIF(url string, j []byte) {
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(j))
-	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Println("EMDRCrestBridge:", err)
-	} else {
-		defer resp.Body.Close()
-
-		if resp.Status != "200 OK" {
-			body, _ := ioutil.ReadAll(resp.Body)
-			log.Println("EMDRCrestBridge:", string(body))
-			log.Println("EMDRCrestBridge:", string(resp.Status))
+			postChan <- enc
 		}
 	}
 }
