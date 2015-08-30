@@ -5,7 +5,6 @@ import (
 	"compress/zlib"
 	"encoding/json"
 	"evedata/config"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -293,8 +292,6 @@ func goConsumer() {
 			log.Fatal(err)
 		}
 
-		fmt.Printf("%s\n", decoded)
-
 		decoder := json.NewDecoder(bytes.NewReader(decoded))
 		for {
 			var m emdrHeader
@@ -303,7 +300,7 @@ func goConsumer() {
 			} else if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Printf("%+v\n", m)
+
 		}
 	}
 }

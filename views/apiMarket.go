@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"evedata/server"
-	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -147,8 +146,6 @@ func marketRegionItems(c *evedata.AppContext, w http.ResponseWriter, r *http.Req
                                 	       bid=? AND
                                       	   typeID = ? AND (` + secFilter + `) ORDER BY price ASC`
 		err = c.Db.Select(&mR, sql, buy, itemID)
-		fmt.Printf("%s", sql)
-		fmt.Printf("%d %d %d", secFlags&LowSec, secFlags, LowSec)
 	} else {
 		err = c.Db.Select(&mR, `SELECT  format(remainingVolume, 0) AS quantity, format(price, 2) as price, stationName, M.stationID
         	                    FROM    market M

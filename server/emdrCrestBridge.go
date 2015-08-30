@@ -17,6 +17,11 @@ var stations map[int64]int64
 
 func goEMDRCrestBridge(c *AppContext) {
 
+	type regionKey struct {
+		RegionID int64
+		TypeID   int64
+	}
+
 	type marketRegions struct {
 		RegionID   int64  `db:"regionID"`
 		RegionName string `db:"regionName"`
@@ -32,7 +37,7 @@ func goEMDRCrestBridge(c *AppContext) {
 		SELECT 	regionID, regionName 
 		FROM 	mapRegions 
 		WHERE 	regionID < 11000000 
-			AND regionID NOT IN(10000017, 10000019, 10000004);
+			AND regionID NOT IN( 10000017, 10000019, 10000004);
 	`)
 	if err != nil {
 		log.Fatal("EMDRCrestBridge:", err)
@@ -140,13 +145,14 @@ func goEMDRCrestBridge(c *AppContext) {
 			// and each item per region
 			for _, t := range types {
 				<-throttle // impliment throttle
-
 				sem2 <- true
+
+				rk := regionKey{r.RegionID, t.TypeID}
 				go func() {
 					defer func() { <-sem2 }()
 					// Process Market History
 					h := marketHistory{}
-					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/types/%d/history/", r.RegionID, t.TypeID)
+					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/types/%d/history/", rk.RegionID, rk.TypeID)
 					//	atomic.AddUint64(&gets, 1)
 					response, err := crest.Get(url, nil, &h, nil)
 					if err != nil {
@@ -155,9 +161,8 @@ func goEMDRCrestBridge(c *AppContext) {
 					}
 					if response.Status() == 200 {
 						sem <- true
-						go postHistory(sem, postChannel, h, c, t.TypeID, r.RegionID)
+						go postHistory(sem, postChannel, h, c, rk.RegionID, rk.TypeID)
 					}
-
 				}()
 
 				sem2 <- true
@@ -165,7 +170,7 @@ func goEMDRCrestBridge(c *AppContext) {
 					defer func() { <-sem2 }()
 					// Process Market Buy Orders
 					b := marketOrders{}
-					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/orders/buy/?type=https://public-crest.eveonline.com/types/%d/", r.RegionID, t.TypeID)
+					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/orders/buy/?type=https://public-crest.eveonline.com/types/%d/", rk.RegionID, rk.TypeID)
 					//atomic.AddUint64(&gets, 1)
 					response, err := crest.Get(url, nil, &b, nil)
 					if err != nil {
@@ -174,7 +179,7 @@ func goEMDRCrestBridge(c *AppContext) {
 					}
 					if response.Status() == 200 {
 						sem <- true
-						go postOrders(sem, postChannel, b, c, 1, t.TypeID, r.RegionID)
+						go postOrders(sem, postChannel, b, c, 1, rk.RegionID, rk.TypeID)
 					}
 				}()
 
@@ -183,7 +188,7 @@ func goEMDRCrestBridge(c *AppContext) {
 					defer func() { <-sem2 }()
 					// Process Market Sell Orders
 					s := marketOrders{}
-					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/orders/sell/?type=https://public-crest.eveonline.com/types/%d/", r.RegionID, t.TypeID)
+					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/orders/sell/?type=https://public-crest.eveonline.com/types/%d/", rk.RegionID, rk.TypeID)
 					//atomic.AddUint64(&gets, 1)
 					response, err := crest.Get(url, nil, &s, nil)
 					if err != nil {
@@ -192,7 +197,7 @@ func goEMDRCrestBridge(c *AppContext) {
 					}
 					if response.Status() == 200 {
 						sem <- true
-						go postOrders(sem, postChannel, s, c, 0, t.TypeID, r.RegionID)
+						go postOrders(sem, postChannel, s, c, 0, rk.RegionID, rk.TypeID)
 					}
 				}()
 			}
@@ -200,7 +205,7 @@ func goEMDRCrestBridge(c *AppContext) {
 	}
 }
 
-func postHistory(sem chan bool, postChan chan []byte, h marketHistory, c *AppContext, typeID int64, regionID int64) {
+func postHistory(sem chan bool, postChan chan []byte, h marketHistory, c *AppContext, regionID int64, typeID int64) {
 	defer func() { <-sem }()
 	if c.Conf.EMDRCrestBridge.Import {
 		historyUpdate, err := c.Db.Prepare(`
@@ -252,7 +257,7 @@ func postHistory(sem chan bool, postChan chan []byte, h marketHistory, c *AppCon
 	}
 }
 
-func postOrders(sem chan bool, postChan chan []byte, o marketOrders, c *AppContext, buy int, typeID int64, regionID int64) {
+func postOrders(sem chan bool, postChan chan []byte, o marketOrders, c *AppContext, buy int, regionID int64, typeID int64) {
 	defer func() { <-sem }()
 	if c.Conf.EMDRCrestBridge.Import {
 		orderUpdate, err := c.Db.Prepare(`
