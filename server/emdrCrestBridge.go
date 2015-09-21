@@ -37,7 +37,7 @@ func goEMDRCrestBridge(c *AppContext) {
 		SELECT 	regionID, regionName 
 		FROM 	mapRegions 
 		WHERE 	regionID < 11000000 
-			AND regionID NOT IN( 10000017, 10000019, 10000004);
+			AND regionID NOT IN(10000001, 10000017, 10000019, 10000004);
 	`)
 	if err != nil {
 		log.Fatal("EMDRCrestBridge:", err)
