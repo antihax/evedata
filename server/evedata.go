@@ -1,6 +1,7 @@
 package evedata
 
 import (
+	"database/sql"
 	"evedata/config"
 	"log"
 	"net/http"
@@ -15,6 +16,12 @@ type AppContext struct {
 	Conf  *config.Config
 	Db    *sqlx.DB
 	Store *sessions.Store
+
+	Bridge struct {
+		HistoryUpdate *sql.Stmt
+		OrderMark     *sql.Stmt
+		OrderUpdate   *sql.Stmt
+	}
 	/*
 		templates map[string]*template.Template
 		decoder   *schema.Decoder*/

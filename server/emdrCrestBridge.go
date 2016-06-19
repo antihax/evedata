@@ -78,22 +78,6 @@ func goEMDRCrestBridge(c *AppContext) {
 	}
 	log.Printf("EMDRCrestBridge: Loaded %d stations", len(stations))
 
-	/*	var (
-			gets    uint64
-			posts   uint64
-			posters uint64
-		)
-
-		debug := time.Tick(time.Second)
-		go func() {
-			for {
-				<-debug
-				fmt.Printf("%d, %d, %d\n", gets, posts, posters)
-				atomic.StoreUint64(&gets, 0)
-				atomic.StoreUint64(&posts, 0)
-			}
-		}()*/
-
 	// FanOut response channel for posters
 	postChannel := make(chan []byte)
 
@@ -101,15 +85,48 @@ func goEMDRCrestBridge(c *AppContext) {
 	transport := &http.Transport{DisableKeepAlives: false}
 	client := &http.Client{Transport: transport}
 
+	if c.Conf.EMDRCrestBridge.Import {
+		var err error
+		c.Bridge.HistoryUpdate, err = c.Db.Prepare(`
+			INSERT IGNORE INTO market_history 
+				(date, low, high, mean, quantity, orders, itemID, regionID) 
+				VALUES(?,?,?,?,?,?,?,?);
+		`)
+		if err != nil {
+			log.Fatalf("EMDRCrestBridge: %s", err)
+		}
+
+		c.Bridge.OrderUpdate, err = c.Db.Prepare(`
+					INSERT INTO market
+						(orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, systemID, reported)
+						VALUES(?,?,?,?,?,?,?,?,?,?,?,?,NOW())
+						ON DUPLICATE KEY UPDATE price=VALUES(price),
+												remainingVolume=VALUES(remainingVolume),
+												issued=VALUES(issued),
+												duration=VALUES(duration),
+												reported=VALUES(reported),
+												done=0;
+				`)
+		if err != nil {
+			log.Fatalf("EMDRCrestBridge: %s", err)
+		}
+
+		c.Bridge.OrderMark, err = c.Db.Prepare(`
+					UPDATE market SET done = 1 WHERE regionID = ? AND typeID =?
+				`)
+
+		if err != nil {
+			log.Fatalf("EMDRCrestBridge: %s", err)
+		}
+	}
+
 	go func() {
 		for i := 0; i < 11; i++ {
 			// Don't spawn them all at once.
 			time.Sleep(time.Second / 2)
-			//posters++
 			go func() {
 				for {
 					msg := <-postChannel
-					//atomic.AddUint64(&posts, 1)
 
 					response, err := client.Post(c.Conf.EMDRCrestBridge.URL, "application/json", bytes.NewBuffer(msg))
 					if err != nil {
@@ -128,6 +145,7 @@ func goEMDRCrestBridge(c *AppContext) {
 			}()
 		}
 	}()
+
 	// Throttle Crest Requests
 	rate := time.Second / 30
 	throttle := time.Tick(rate)
@@ -142,6 +160,25 @@ func goEMDRCrestBridge(c *AppContext) {
 	for {
 		// loop through all regions
 		for _, r := range regions {
+			<-throttle // impliment throttle
+			sem2 <- true
+			go func() {
+				defer func() { <-sem2 }()
+				// Process Market Buy Orders
+				b := marketOrders{}
+				url := fmt.Sprintf("https://crest-tq.eveonline.com/market/%d/orders/all/", r.RegionID)
+
+				response, err := crest.Get(url, nil, &b, nil)
+				if err != nil {
+					log.Printf("EMDRCrestBridge: %s", err)
+					return
+				}
+				if response.Status() == 200 {
+					sem <- true
+					go postOrders(sem, postChannel, b, c, r.RegionID)
+				}
+			}()
+
 			// and each item per region
 			for _, t := range types {
 				<-throttle // impliment throttle
@@ -152,8 +189,8 @@ func goEMDRCrestBridge(c *AppContext) {
 					defer func() { <-sem2 }()
 					// Process Market History
 					h := marketHistory{}
-					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/types/%d/history/", rk.RegionID, rk.TypeID)
-					//	atomic.AddUint64(&gets, 1)
+					url := fmt.Sprintf("https://crest-tq.eveonline.com/market/%d/history/?type=https://crest-tq.eveonline.com/inventory/types/%d/", rk.RegionID, rk.TypeID)
+
 					response, err := crest.Get(url, nil, &h, nil)
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
@@ -164,42 +201,6 @@ func goEMDRCrestBridge(c *AppContext) {
 						go postHistory(sem, postChannel, h, c, rk.RegionID, rk.TypeID)
 					}
 				}()
-
-				sem2 <- true
-				go func() {
-					defer func() { <-sem2 }()
-					// Process Market Buy Orders
-					b := marketOrders{}
-					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/orders/buy/?type=https://public-crest.eveonline.com/types/%d/", rk.RegionID, rk.TypeID)
-					//atomic.AddUint64(&gets, 1)
-					response, err := crest.Get(url, nil, &b, nil)
-					if err != nil {
-						log.Printf("EMDRCrestBridge: %s", err)
-						return
-					}
-					if response.Status() == 200 {
-						sem <- true
-						go postOrders(sem, postChannel, b, c, 1, rk.RegionID, rk.TypeID)
-					}
-				}()
-
-				sem2 <- true
-				go func() {
-					defer func() { <-sem2 }()
-					// Process Market Sell Orders
-					s := marketOrders{}
-					url := fmt.Sprintf("https://public-crest.eveonline.com/market/%d/orders/sell/?type=https://public-crest.eveonline.com/types/%d/", rk.RegionID, rk.TypeID)
-					//atomic.AddUint64(&gets, 1)
-					response, err := crest.Get(url, nil, &s, nil)
-					if err != nil {
-						log.Printf("EMDRCrestBridge: %s", err)
-						return
-					}
-					if response.Status() == 200 {
-						sem <- true
-						go postOrders(sem, postChannel, s, c, 0, rk.RegionID, rk.TypeID)
-					}
-				}()
 			}
 		}
 	}
@@ -208,21 +209,13 @@ func goEMDRCrestBridge(c *AppContext) {
 func postHistory(sem chan bool, postChan chan []byte, h marketHistory, c *AppContext, regionID int64, typeID int64) {
 	defer func() { <-sem }()
 	if c.Conf.EMDRCrestBridge.Import {
-		historyUpdate, err := c.Db.Prepare(`
-			INSERT IGNORE INTO market_history 
-				(date, low, high, mean, quantity, orders, itemID, regionID) 
-				VALUES(?,?,?,?,?,?,?,?);
-		`)
-		defer historyUpdate.Close()
-		if err != nil {
-			log.Printf("EMDRCrestBridge: %s", err)
-		} else {
-			tx, _ := c.Db.Begin()
-			for _, e := range h.Items {
-				tx.Stmt(historyUpdate).Exec(e.Date, e.LowPrice, e.HighPrice, e.AvgPrice, typeID, regionID)
-			}
-			tx.Commit()
+
+		tx, _ := c.Db.Begin()
+		for _, e := range h.Items {
+			tx.Stmt(c.Bridge.HistoryUpdate).Exec(e.Date, e.LowPrice, e.HighPrice, e.AvgPrice, typeID, regionID)
 		}
+		tx.Commit()
+
 	}
 
 	if c.Conf.EMDRCrestBridge.Upload {
@@ -257,45 +250,26 @@ func postHistory(sem chan bool, postChan chan []byte, h marketHistory, c *AppCon
 	}
 }
 
-func postOrders(sem chan bool, postChan chan []byte, o marketOrders, c *AppContext, buy int, regionID int64, typeID int64) {
+func postOrders(sem chan bool, postChan chan []byte, o marketOrders, c *AppContext, regionID int64) {
 	defer func() { <-sem }()
 	if c.Conf.EMDRCrestBridge.Import {
-		orderUpdate, err := c.Db.Prepare(`
-					INSERT INTO market
-						(orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, systemID, reported)
-						VALUES(?,?,?,?,?,?,?,?,?,?,?,?,NOW())
-						ON DUPLICATE KEY UPDATE price=VALUES(price),
-												remainingVolume=VALUES(remainingVolume),
-												issued=VALUES(issued),
-												duration=VALUES(duration),
-												reported=VALUES(reported),
-												done=0;
-				`)
-		defer orderUpdate.Close()
 
-		orderMark, err := c.Db.Prepare(`
-					UPDATE market SET done = 1 WHERE regionID = ? AND typeID =?
-				`)
-		defer orderMark.Close()
+		// Mark orders complete
+		tx, err := c.Db.Begin()
+
+		// Add or update orders
+		first := false
+		for _, e := range o.Items {
+			if first {
+				tx.Stmt(c.Bridge.OrderMark).Exec(regionID, e.TypeID)
+			}
+			tx.Stmt(c.Bridge.OrderUpdate).Exec(e.ID, e.Price, e.Volume, e.TypeID, e.VolumeEntered, e.MinVolume, e.Buy, e.Issued, e.Duration, e.StationID, regionID, stations[e.StationID])
+		}
+
+		err = tx.Commit()
 
 		if err != nil {
-			log.Fatalf("EMDRCrestBridge: %s", err)
-		} else {
-
-			// Mark orders complete
-			tx, err := c.Db.Begin()
-			tx.Stmt(orderMark).Exec(regionID, typeID)
-
-			// Add or update orders
-			for _, e := range o.Items {
-				tx.Stmt(orderUpdate).Exec(e.ID, e.Price, e.Volume, typeID, e.VolumeEntered, e.MinVolume, buy, e.Issued, e.Duration, e.Location.ID, regionID, stations[e.Location.ID])
-			}
-
-			err = tx.Commit()
-
-			if err != nil {
-				log.Println("EMDRCrestBridge:", err)
-			}
+			log.Println("EMDRCrestBridge:", err)
 		}
 	}
 
@@ -307,7 +281,7 @@ func postOrders(sem chan bool, postChan chan []byte, o marketOrders, c *AppConte
 		u.Rowsets = make([]rowsetsUUDIF, 1)
 
 		u.Rowsets[0].RegionID = regionID
-		u.Rowsets[0].TypeID = typeID
+
 		u.Rowsets[0].GeneratedAt = time.Now()
 
 		u.Rowsets[0].Rows = make([][]interface{}, len(o.Items))
@@ -326,6 +300,7 @@ func postOrders(sem chan bool, postChan chan []byte, o marketOrders, c *AppConte
 				r, _ = strconv.Atoi(e.Range)
 			}
 
+			u.Rowsets[0].TypeID = e.TypeID
 			u.Rowsets[0].Rows[i] = make([]interface{}, 11)
 			u.Rowsets[0].Rows[i][0] = e.Price
 			u.Rowsets[0].Rows[i][1] = e.Volume
@@ -336,8 +311,8 @@ func postOrders(sem chan bool, postChan chan []byte, o marketOrders, c *AppConte
 			u.Rowsets[0].Rows[i][6] = e.Buy
 			u.Rowsets[0].Rows[i][7] = e.Issued + "+00:00"
 			u.Rowsets[0].Rows[i][8] = e.Duration
-			u.Rowsets[0].Rows[i][9] = e.Location.ID
-			u.Rowsets[0].Rows[i][10] = stations[e.Location.ID]
+			u.Rowsets[0].Rows[i][9] = e.StationID
+			u.Rowsets[0].Rows[i][10] = stations[e.StationID]
 		}
 
 		enc, err := json.Marshal(u)
@@ -415,14 +390,8 @@ type marketOrders struct {
 		Range         string
 		Duration      int64
 		ID            int64
-		Location      struct {
-			ID   int64
-			Name string
-		}
-		Type struct {
-			ID   int64
-			Name string
-		}
+		TypeID        int64
+		StationID     int64
 	}
 	PageCount  int64
 	TotalCount int64

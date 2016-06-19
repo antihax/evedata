@@ -1088,7 +1088,7 @@ html {
 }
 body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 1.42857143;
     color: #c8c8c8;
     background-color: #272b30
@@ -2640,7 +2640,7 @@ input[type="checkbox"]:focus {
 output {
     display: block;
     padding-top: 9px;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 1.42857143;
     color: #272b30
 }
@@ -2649,7 +2649,7 @@ output {
     width: 100%;
     height: 38px;
     padding: 8px 12px;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 1.42857143;
     color: #272b30;
     background-color: #ffffff;
@@ -2837,7 +2837,7 @@ select[multiple].input-sm {
 }
 .input-lg {
     height: 54px;
-    padding: 14px 16px;
+    padding: 12px 16px;
     font-size: 18px;
     line-height: 1.3333333;
     border-radius: 6px
@@ -2852,7 +2852,7 @@ select[multiple].input-lg {
 }
 .form-group-lg .form-control {
     height: 54px;
-    padding: 14px 16px;
+    padding: 12px 16px;
     font-size: 18px;
     line-height: 1.3333333;
     border-radius: 6px
