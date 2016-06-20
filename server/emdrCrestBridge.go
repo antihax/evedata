@@ -133,8 +133,6 @@ func goEMDRCrestBridge(c *AppContext) {
 						log.Println("EMDRCrestBridge:", err)
 					} else {
 						if response.Status != "200 OK" {
-							body, _ := ioutil.ReadAll(response.Body)
-							log.Println("EMDRCrestBridge:", string(body))
 							log.Println("EMDRCrestBridge:", string(response.Status))
 						}
 						// Must read everything to close the body and reuse connection
@@ -223,25 +221,32 @@ func postHistory(sem chan bool, postChan chan []byte, h marketHistory, c *AppCon
 		u.ResultType = "history"
 		u.Columns = []string{"date", "orders", "quantity", "low", "high", "average"}
 
-		u.Rowsets = make([]rowsetsUUDIF, 1)
+		rowsets := make(map[int64]rowsetsUUDIF)
 
-		u.Rowsets[0].RegionID = regionID
-		u.Rowsets[0].TypeID = typeID
-		u.Rowsets[0].GeneratedAt = time.Now()
+		edit := rowsets[typeID]
+		edit.RegionID = regionID
+		edit.TypeID = typeID
+		edit.GeneratedAt = time.Now()
 
-		u.Rowsets[0].Rows = make([][]interface{}, len(h.Items))
+		edit.Rows = make([][]interface{}, len(h.Items))
 
 		for i, e := range h.Items {
-			u.Rowsets[0].Rows[i] = make([]interface{}, 6)
-			u.Rowsets[0].Rows[i][0] = e.Date + "+00:00"
-			u.Rowsets[0].Rows[i][1] = e.OrderCount
-			u.Rowsets[0].Rows[i][2] = e.Volume
-			u.Rowsets[0].Rows[i][3] = e.LowPrice
-			u.Rowsets[0].Rows[i][4] = e.HighPrice
-			u.Rowsets[0].Rows[i][5] = e.AvgPrice
+
+			edit.Rows[i] = make([]interface{}, 6)
+			edit.Rows[i][0] = e.Date + "+00:00"
+			edit.Rows[i][1] = e.OrderCount
+			edit.Rows[i][2] = e.Volume
+			edit.Rows[i][3] = e.LowPrice
+			edit.Rows[i][4] = e.HighPrice
+			edit.Rows[i][5] = e.AvgPrice
+		}
+		rowsets[typeID] = edit
+		for _, v := range rowsets {
+			u.Rowsets = append(u.Rowsets, v)
 		}
 
 		enc, err := json.Marshal(u)
+
 		if err != nil {
 			log.Println("EMDRCrestBridge:", err)
 		} else {
@@ -261,9 +266,9 @@ func postOrders(sem chan bool, postChan chan []byte, o marketOrders, c *AppConte
 		first := false
 		for _, e := range o.Items {
 			if first {
-				tx.Stmt(c.Bridge.OrderMark).Exec(regionID, e.TypeID)
+				tx.Stmt(c.Bridge.OrderMark).Exec(regionID, e.Type)
 			}
-			tx.Stmt(c.Bridge.OrderUpdate).Exec(e.ID, e.Price, e.Volume, e.TypeID, e.VolumeEntered, e.MinVolume, e.Buy, e.Issued, e.Duration, e.StationID, regionID, stations[e.StationID])
+			tx.Stmt(c.Bridge.OrderUpdate).Exec(e.ID, e.Price, e.Volume, e.Type, e.VolumeEntered, e.MinVolume, e.Buy, e.Issued, e.Duration, e.StationID, regionID, stations[e.StationID])
 		}
 
 		err = tx.Commit()
@@ -278,16 +283,9 @@ func postOrders(sem chan bool, postChan chan []byte, o marketOrders, c *AppConte
 		u.ResultType = "orders"
 		u.Columns = []string{"price", "volRemaining", "range", "orderID", "volEntered", "minVolume", "bid", "issueDate", "duration", "stationID", "solarSystemID"}
 
-		u.Rowsets = make([]rowsetsUUDIF, 1)
+		rowsets := make(map[int64]rowsetsUUDIF)
 
-		u.Rowsets[0].RegionID = regionID
-
-		u.Rowsets[0].GeneratedAt = time.Now()
-
-		u.Rowsets[0].Rows = make([][]interface{}, len(o.Items))
-
-		for i, e := range o.Items {
-
+		for _, e := range o.Items {
 			var r int
 			switch {
 			case e.Range == "station":
@@ -300,19 +298,29 @@ func postOrders(sem chan bool, postChan chan []byte, o marketOrders, c *AppConte
 				r, _ = strconv.Atoi(e.Range)
 			}
 
-			u.Rowsets[0].TypeID = e.TypeID
-			u.Rowsets[0].Rows[i] = make([]interface{}, 11)
-			u.Rowsets[0].Rows[i][0] = e.Price
-			u.Rowsets[0].Rows[i][1] = e.Volume
-			u.Rowsets[0].Rows[i][2] = r
-			u.Rowsets[0].Rows[i][3] = e.ID
-			u.Rowsets[0].Rows[i][4] = e.VolumeEntered
-			u.Rowsets[0].Rows[i][5] = e.MinVolume
-			u.Rowsets[0].Rows[i][6] = e.Buy
-			u.Rowsets[0].Rows[i][7] = e.Issued + "+00:00"
-			u.Rowsets[0].Rows[i][8] = e.Duration
-			u.Rowsets[0].Rows[i][9] = e.StationID
-			u.Rowsets[0].Rows[i][10] = stations[e.StationID]
+			edit := rowsets[e.Type]
+			edit.RegionID = regionID
+			edit.GeneratedAt = time.Now()
+			edit.TypeID = e.Type
+			row := make([]interface{}, 11)
+			row[0] = e.Price
+			row[1] = e.Volume
+			row[2] = r
+			row[3] = e.ID
+			row[4] = e.VolumeEntered
+			row[5] = e.MinVolume
+			row[6] = e.Buy
+			row[7] = e.Issued + "+00:00"
+			row[8] = e.Duration
+			row[9] = e.StationID
+			row[10] = stations[e.StationID]
+			edit.Count++
+			edit.Rows = append(edit.Rows, row)
+			rowsets[e.Type] = edit
+		}
+
+		for _, v := range rowsets {
+			u.Rowsets = append(u.Rowsets, v)
 		}
 
 		enc, err := json.Marshal(u)
@@ -330,7 +338,7 @@ func newUUDIFHeader() marketUUDIF {
 	n.Version = "0.1"
 
 	n.Generator.Name = "EveData.Org"
-	n.Generator.Version = "0.025a"
+	n.Generator.Version = "0.1a"
 
 	n.UploadKeys = make([]uploadKeysUUDIF, 1)
 	n.UploadKeys[0] = uploadKeysUUDIF{"EveData.Org", "TheCheeseIsBree"}
@@ -344,6 +352,7 @@ type rowsetsUUDIF struct {
 	GeneratedAt time.Time       `json:"generatedAt"`
 	RegionID    int64           `json:"regionID"`
 	TypeID      int64           `json:"typeID"`
+	Count       int64           `json:"-"`
 	Rows        [][]interface{} `json:"rows"`
 }
 
@@ -390,7 +399,7 @@ type marketOrders struct {
 		Range         string
 		Duration      int64
 		ID            int64
-		TypeID        int64
+		Type          int64
 		StationID     int64
 	}
 	PageCount  int64
