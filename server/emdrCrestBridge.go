@@ -99,7 +99,7 @@ func goEMDRCrestBridge(c *AppContext) {
 		c.Bridge.OrderUpdate, err = c.Db.Prepare(`
 					INSERT INTO market
 						(orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, systemID, reported)
-						VALUES(?,?,?,?,?,?,?,?,?,?,?,?,NOW())
+						VALUES(?,?,?,?,?,?,?,?,?,?,?,?,UTC_TIMESTAMP())
 						ON DUPLICATE KEY UPDATE price=VALUES(price),
 												remainingVolume=VALUES(remainingVolume),
 												issued=VALUES(issued),
@@ -174,6 +174,22 @@ func goEMDRCrestBridge(c *AppContext) {
 				if response.Status() == 200 {
 					sem <- true
 					go postOrders(sem, postChannel, b, c, r.RegionID)
+
+					next := b.Next.Href
+					for len(next) > 0 {
+						fmt.Printf("got next %s\n", next)
+						n := marketOrders{}
+						res, err := crest.Get(next, nil, &n, nil)
+						if err != nil {
+							log.Printf("EMDRCrestBridge: %s", err)
+							return
+						}
+						if res.Status() == 200 {
+							sem <- true
+							go postOrders(sem, postChannel, n, c, r.RegionID)
+						}
+						next = n.Next.Href
+					}
 				}
 			}()
 
@@ -391,6 +407,9 @@ type marketHistory struct {
 	}
 	PageCount  int64
 	TotalCount int64
+	Next       struct {
+		Href string
+	}
 }
 
 type marketOrders struct {
@@ -409,4 +428,7 @@ type marketOrders struct {
 	}
 	PageCount  int64
 	TotalCount int64
+	Next       struct {
+		Href string
+	}
 }
