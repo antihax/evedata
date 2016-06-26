@@ -21,6 +21,10 @@ type Config struct {
 		URL           string
 		MaxGoRoutines int64
 	}
+	CREST struct {
+		ClientID  string
+		SecretKey string
+	}
 }
 
 func ReadConfig() (*Config, error) {

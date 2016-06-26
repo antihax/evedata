@@ -21,6 +21,7 @@ function go()
 	$("#minute").val(cycle < 100 ? minute + "%" : "PermaJam!" );
 }
 </script>
+	<center>
     <table width="260" border="0" cellpadding="0" cellspacing="2">
     	<tr><td>Jam Strength</td>			<td><input id="jam" size="2" value="1"></td></tr>
 	<tr><td>Ship Sensor Strength</td>		<td><input id="ship" size="5" value="22"></td></tr>
@@ -28,8 +29,5 @@ function go()
 	<tr><td colspan=2><hr></td></tr>
 	<tr><td>Jam chance per Cycle</td>		<td><input id="cycle" size="7" disabled></td></tr>
 	<tr><td>Jam chance per Minute</td>		<td><input id="minute" size="7" disabled></td></tr>
-    </table>
-
-
-
+    </table></center>
 {{end}}

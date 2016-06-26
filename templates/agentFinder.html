@@ -54,8 +54,6 @@
 		<option value="24">Security</option>
 	</select>
 	</label>
-	
-	
 </div>
 
 <div class="insideContainer">
@@ -81,9 +79,7 @@
 	$('#systemSearchContainer')
 	.removeClass( 'display' )
 	.addClass('table table-striped table-bordered');
-	
-	
-		
+			
 	var systemSearch = new Bloodhound({
 	   sufficient: 50,
 	   limit: 50,
@@ -124,7 +120,6 @@
 	 	systemSearch.remote.url = '/J/knownSpaceSystems?q=%QUERY&hisec=' + ! $('#highsec').hasClass('active');
 	 	updateAgentList();
 	 	systemSearch.initialize();
-	 	
 	 });
 	 
 	 function updateAgentList() {

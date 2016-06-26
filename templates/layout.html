@@ -7,17 +7,12 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="icon" href="/i/favicon.ico">
 		<title>{{.Title}}</title>
-
-		<script src="/js/dumper.js"></script>
 		
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.2/js/bootstrap.min.js"></script>
+		
 		<script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.7/js/jquery.dataTables.js"></script>
-
-<!-- 
-		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.7/css/jquery.dataTables.min.css">
--->
 
 		<link rel="stylesheet" href="/css/bootstrap.min.css">
 		<link rel="stylesheet" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
@@ -58,10 +53,24 @@
 					</div>
 				</div>
 			</nav>
+			{{template "ads-adaptive" .}}
 			<div class="jumbotron">
 				{{template "body" .}}
 			</div>
 		</div>
 	</body>
 </html>
+{{end}}
+
+{{define "ads-adaptive"}}
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- EVEData Responsive -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-7592797392299801"
+     data-ad-slot="5613186081"
+     data-ad-format="auto"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
 {{end}}
