@@ -15,5 +15,11 @@
     	"Upload":  			true,
     	"URL":				"http://upload.eve-emdr.com/upload/",
     	"MaxGoRoutines":	16
-    }
+    },
+    "CREST": {
+    	"ClientID": "NIL",
+    	"SecretKey": "NIL",
+    	"RedirectURL": "NIL"
+    },
+    "MemcachedAddress": "localhost:11211"
 }

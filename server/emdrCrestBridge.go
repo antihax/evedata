@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"strconv"
 	"time"
 
@@ -14,6 +13,39 @@ import (
 )
 
 var stations map[int64]int64
+
+// Temporary Hack
+func getKills(r int64, client napping.Session, c *AppContext) {
+	type kills struct {
+		KillID        int
+		SolarSystemID int
+		KillTime      string
+		MoonID        int
+		Victim        struct {
+			CharacterID   int
+			CorporationID int
+			AllianceID    int
+		}
+		ZKB struct {
+			Hash string
+		}
+	}
+
+	url := fmt.Sprintf("https://zkillboard.com/api/kills/regionID/%d/", r)
+	h := []kills{}
+	response, err := client.Get(url, nil, &h, nil)
+	if err != nil {
+		log.Printf("EMDRCrestBridge: %s", err)
+		return
+	}
+	if response.Status() == 200 {
+		tx, _ := c.Db.Begin()
+		for _, e := range h {
+			tx.Stmt(c.Bridge.KillInsert).Exec(e.KillID, e.SolarSystemID, e.KillTime, e.MoonID, e.Victim.CharacterID, e.Victim.CorporationID, e.Victim.AllianceID, e.ZKB.Hash)
+		}
+		tx.Commit()
+	}
+}
 
 func goEMDRCrestBridge(c *AppContext) {
 
@@ -81,9 +113,7 @@ func goEMDRCrestBridge(c *AppContext) {
 	// FanOut response channel for posters
 	postChannel := make(chan []byte)
 
-	// Pool of transports.
-	transport := &http.Transport{DisableKeepAlives: false}
-	client := &http.Client{Transport: transport}
+	client := c.HTTPClient
 
 	if c.Conf.EMDRCrestBridge.Import {
 		var err error
@@ -91,6 +121,14 @@ func goEMDRCrestBridge(c *AppContext) {
 			INSERT IGNORE INTO market_history 
 				(date, low, high, mean, quantity, orders, itemID, regionID) 
 				VALUES(?,?,?,?,?,?,?,?);
+		`)
+		if err != nil {
+			log.Fatalf("EMDRCrestBridge: %s", err)
+		}
+
+		c.Bridge.KillInsert, err = c.Db.Prepare(`
+			INSERT IGNORE INTO killmails (id,solarSystemID,killTime,moonID,victimCharacterID,victimCorporationID,victimAllianceID,hash)
+			VALUES(?,?,?,?,?,?,?,?);
 		`)
 		if err != nil {
 			log.Fatalf("EMDRCrestBridge: %s", err)
@@ -153,7 +191,7 @@ func goEMDRCrestBridge(c *AppContext) {
 	sem2 := make(chan bool, c.Conf.EMDRCrestBridge.MaxGoRoutines)
 
 	// CREST Session
-	crest := napping.Session{}
+	crest := napping.Session{Client: client}
 
 	for {
 		// loop through all regions
@@ -165,6 +203,8 @@ func goEMDRCrestBridge(c *AppContext) {
 				// Process Market Buy Orders
 				b := marketOrders{}
 				url := fmt.Sprintf("https://crest-tq.eveonline.com/market/%d/orders/all/", r.RegionID)
+
+				go getKills(r.RegionID, crest, c)
 
 				response, err := crest.Get(url, nil, &b, nil)
 				if err != nil {

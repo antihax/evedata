@@ -14,10 +14,7 @@ func init() {
 // FindAgents generate a list of agents based on user input
 func ecmjamPage(c *evedata.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 
-	p := Page{
-		Title: "ECM Jam",
-	}
-
+	p := NewPage(c, r, "EVE ECM Jam")
 	templates.Templates = template.Must(template.ParseFiles("templates/ecmjam.html", templates.LayoutPath))
 	err := templates.Templates.ExecuteTemplate(w, "base", p)
 

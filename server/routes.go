@@ -1,15 +1,13 @@
 package evedata
 
 import (
-	"evedata/models"
+	"fmt"
 	"log"
 	"mime"
 	"net/http"
-	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
-	"github.com/jmoiron/sqlx"
 )
 
 var routes Routes
@@ -39,11 +37,10 @@ type Route struct {
 type Routes []Route
 
 func (a appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	loadUser(r, a.Db)
 	status, err := a.h(a.AppContext, w, r)
 	if err != nil {
 		log.Printf("HTTP %d: %q", status, err)
-
+		fmt.Fprintf(w, "%s\n", err)
 		switch status {
 		case http.StatusNotFound:
 			http.NotFound(w, r)
@@ -81,26 +78,3 @@ func NewRouter(ctx *AppContext) *mux.Router {
 }
 
 const ContextKey int = 0
-
-func loadUser(r *http.Request, db *sqlx.DB) {
-
-	uidC, err := r.Cookie("uid")
-
-	if err != nil {
-		return
-	}
-
-	passC, err := r.Cookie("pass")
-
-	if err != nil {
-		return
-	}
-
-	uid, err := strconv.Atoi(uidC.Value)
-
-	if err != nil {
-		return
-	}
-
-	models.SetUser(r, uid, passC.Value, db)
-}

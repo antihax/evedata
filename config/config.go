@@ -1,7 +1,10 @@
 package config
 
 import (
+	"bytes"
 	"encoding/json"
+	"io/ioutil"
+	"net/http"
 	"os"
 )
 
@@ -22,9 +25,12 @@ type Config struct {
 		MaxGoRoutines int64
 	}
 	CREST struct {
-		ClientID  string
-		SecretKey string
+		ClientID    string
+		SecretKey   string
+		RedirectURL string
 	}
+	ServerIP         string
+	MemcachedAddress string
 }
 
 func ReadConfig() (*Config, error) {
@@ -43,5 +49,24 @@ func ReadConfig() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	c.ServerIP, err = checkIP()
+	if err != nil {
+		return nil, err
+	}
 	return &c, nil
+}
+
+func checkIP() (string, error) {
+	rsp, err := http.Get("http://checkip.amazonaws.com")
+	if err != nil {
+		return "", err
+	}
+	defer rsp.Body.Close()
+
+	buf, err := ioutil.ReadAll(rsp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	return string(bytes.TrimSpace(buf)), nil
 }

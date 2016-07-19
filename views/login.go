@@ -1,60 +1,62 @@
 package views
 
 import (
-	"encoding/json"
-	"evedata/models"
+	"crypto/rand"
+	"encoding/base64"
+	"errors"
+	"evedata/eveapi"
 	"evedata/server"
-	"evedata/templates"
-	"html/template"
 	"net/http"
-	"strconv"
 )
 
 func init() {
-	evedata.AddRoute(evedata.Route{"login", "GET", "/login", loginPage})
-	evedata.AddRoute(evedata.Route{"login", "POST", "/login", loginPostPage})
+	evedata.AddRoute(evedata.Route{"eveAuth", "GET", "/eveAuth", eveSSO})
+	evedata.AddRoute(evedata.Route{"YourMotherWasAHampsterAndYourFatherSmeltOfElderberries", "GET", "/YourMotherWasAHampsterAndYourFatherSmeltOfElderberries", eveSSOAnswer})
 }
 
-func loginPage(c *evedata.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func eveSSO(c *evedata.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 
-	p := Page{
-		Title: "Login to your account",
+	b := make([]byte, 16)
+	rand.Read(b)
+	state := base64.URLEncoding.EncodeToString(b)
+
+	session, err := c.Store.Get(r, "session")
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	session.Values["state"] = state
+	session.Save(r, w)
+
+	url := c.SSOAuthenticator.AuthorizeURL(state, true)
+	http.Redirect(w, r, url, 302)
+	return http.StatusMovedPermanently, nil
+}
+
+func eveSSOAnswer(c *evedata.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+	code := r.FormValue("code")
+
+	session, err := c.Store.Get(r, "session")
+	if err != nil {
+		return http.StatusInternalServerError, errors.New("Unable to connect to session store")
 	}
 
-	templates.Templates = template.Must(template.ParseFiles("templates/user/login.html", templates.LayoutPath))
-	err := templates.Templates.ExecuteTemplate(w, "base", p)
-
+	tok, err := c.SSOAuthenticator.TokenExchange(c.HTTPClient, code)
+	if err != nil {
+		return http.StatusInternalServerError, errors.New("Failed Token Exchange")
+	}
+	cli := eveapi.NewAuthenticatedClient(c.HTTPClient, tok)
+	v, err := cli.Verify()
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
 
-	return http.StatusOK, nil
-}
-
-func loginPostPage(c *evedata.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
-
-	u, err := models.AuthenticateUser(r.FormValue("username"), r.FormValue("password"), c.Db)
-
-	encoder := json.NewEncoder(w)
-
+	session.Values["character"] = v
+	session.Values["token"] = tok
+	err = session.Save(r, w)
 	if err != nil {
-		encoder.Encode(struct{ Status int }{0})
-		return http.StatusOK, nil
+		return http.StatusInternalServerError, err
 	}
 
-	r.AddCookie(&http.Cookie{
-		Name:  "uid",
-		Value: strconv.FormatInt(u.UID, 10),
-		Path:  "/",
-	})
-
-	r.AddCookie(&http.Cookie{
-		Name:  "pass",
-		Value: u.Password,
-		Path:  "/",
-	})
-
-	encoder.Encode(struct{ Status int }{1})
-
-	return http.StatusOK, nil
+	http.Redirect(w, r, "/", 302)
+	return http.StatusMovedPermanently, nil
 }
