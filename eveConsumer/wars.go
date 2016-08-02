@@ -61,7 +61,7 @@ func (c *EveConsumer) checkWars() {
 			}
 			for _, a := range war.Allies {
 				_, err = tx.Exec(`INSERT INTO warAllies
-				(id, allyID) VALUES(?,?) ON DUPLICATE IGNORE;`,
+				(id, allyID) VALUES(?,?) ON DUPLICATE KEY IGNORE;`,
 					war.ID, a.ID)
 				if err != nil {
 					log.Printf("EVEConsumer: Failed writing war allies: %v", err)
