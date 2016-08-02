@@ -16,12 +16,13 @@ type SSOAuthenticator struct {
 }
 
 // Redirect type to hide oauth2 API
-type CRESTToken *oauth2.Token
+type CRESTToken oauth2.Token
+type CRESTTokenP *oauth2.Token
 
 // NewSSOAuthenticator create a new CREST SSO Authenticator.
 // Requires your application clientID, clientSecret, and redirectURL.
 // RedirectURL must match exactly to what you registered with CCP.
-func NewSSOAuthenticator(clientID string, clientSecret string, redirectURL string) *SSOAuthenticator {
+func NewSSOAuthenticator(clientID string, clientSecret string, redirectURL string, scopes []string) *SSOAuthenticator {
 	client := &SSOAuthenticator{}
 	client.oauthConfig = &oauth2.Config{
 		ClientID:     clientID,
@@ -30,6 +31,7 @@ func NewSSOAuthenticator(clientID string, clientSecret string, redirectURL strin
 			AuthURL:  "https://login.eveonline.com/oauth/authorize",
 			TokenURL: "https://login.eveonline.com/oauth/token",
 		},
+		Scopes:      scopes,
 		RedirectURL: redirectURL,
 	}
 	return client
@@ -50,7 +52,8 @@ func (c SSOAuthenticator) AuthorizeURL(state string, onlineAccess bool) string {
 // TokenExchange exchanges the code returned to the redirectURL with
 // the CREST server to an access token. A caching client must be passed.
 // This client MUST cache per CCP guidelines or face banning.
-func (c SSOAuthenticator) TokenExchange(client *http.Client, code string) (CRESTToken, error) {
+func (c SSOAuthenticator) TokenExchange(client *http.Client, code string) (CRESTTokenP, error) {
+
 	tok, err := c.oauthConfig.Exchange(createContext(client), code)
 	if err != nil {
 		return nil, err

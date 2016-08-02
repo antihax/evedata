@@ -3,6 +3,8 @@ package evedata
 import (
 	"encoding/json"
 
+	"github.com/gorilla/sessions"
+
 	"evedata/models"
 	"evedata/null"
 	"net/http"
@@ -18,7 +20,7 @@ func init() {
 }
 
 // NextAssetCheck ()
-func NextAssetCheck(c *AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func NextAssetCheck(c *AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
 	var (
 		err         error
@@ -56,7 +58,7 @@ func NextAssetCheck(c *AppContext, w http.ResponseWriter, r *http.Request) (int,
 }
 
 // AssetCharacters ()
-func AssetCharacters(c *AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func AssetCharacters(c *AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
 	type characterRow struct {
 		Name        string `db:"name" json:"name"`
@@ -93,7 +95,7 @@ func AssetCharacters(c *AppContext, w http.ResponseWriter, r *http.Request) (int
 }
 
 // AssetStations ()
-func AssetStations(c *AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func AssetStations(c *AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
 	type stationRow struct {
 		Name       string      `db:"name" json:"name"`
@@ -138,7 +140,7 @@ func AssetStations(c *AppContext, w http.ResponseWriter, r *http.Request) (int, 
 }
 
 // Assets ()
-func Assets(c *AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func Assets(c *AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
 	type assetRow struct {
 		Item      string `db:"typeName" json:"item"`

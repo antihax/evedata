@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -25,7 +26,7 @@ type marketRegion struct {
 
 // MarketRegions Query market regions from the database and return JSON to the
 // user
-func MarketRegions(c *AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func MarketRegions(c *AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	mR := []marketRegion{}
 
 	err := c.Db.Select(&mR, "SELECT regionID, regionName, count FROM tradeRegions GROUP BY regionID ORDER BY regionName")
@@ -60,7 +61,7 @@ type marketTree struct {
 
 // MarketItemLists queries the database for a user specified regionID
 // returning a JSON list to the user.
-func MarketItemLists(c *AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func MarketItemLists(c *AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
 	var regionID int
 	var err error

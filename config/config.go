@@ -25,9 +25,16 @@ type Config struct {
 		MaxGoRoutines int64
 	}
 	CREST struct {
-		ClientID    string
-		SecretKey   string
-		RedirectURL string
+		SSO struct {
+			ClientID    string
+			SecretKey   string
+			RedirectURL string
+		}
+		Token struct {
+			ClientID    string
+			SecretKey   string
+			RedirectURL string
+		}
 	}
 	ServerIP         string
 	MemcachedAddress string

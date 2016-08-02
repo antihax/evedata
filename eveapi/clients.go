@@ -27,7 +27,15 @@ func (c *AnonymousClient) UseTestServer(testServer bool) {
 }
 
 // NewAuthenticatedClient assigns a token to a client.
-func NewAuthenticatedClient(client *http.Client, tok CRESTToken) *AuthenticatedClient {
+func NewAnonymousClient(client *http.Client) *AnonymousClient {
+	c := &AnonymousClient{}
+	c.base = eveTQ
+	c.httpClient = client
+	return c
+}
+
+// NewAuthenticatedClient assigns a token to a client.
+func NewAuthenticatedClient(client *http.Client, tok CRESTTokenP) *AuthenticatedClient {
 	c := &AuthenticatedClient{}
 	c.base = eveTQ
 	c.tokenSource = oauth2.StaticTokenSource(tok)

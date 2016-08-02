@@ -1,18 +1,26 @@
 package views
 
 import (
-	"evedata/server"
 	"net/http"
+
+	"github.com/gorilla/sessions"
 )
 
 type Page struct {
 	Title       string
-	CharacterID int
+	CharacterID int64
 }
 
-func NewPage(c *evedata.AppContext, r *http.Request, title string) *Page {
+func NewPage(s *sessions.Session, r *http.Request, title string) *Page {
 	p := &Page{Title: title}
-	session, _ := c.Store.Get(r, "session")
-	p.CharacterID = session.Values["characterID"].(int)
+
+	characterID := s.Values["characterID"]
+
+	if characterID != nil {
+		p.CharacterID = characterID.(int64)
+	} else {
+		p.CharacterID = 0
+	}
+
 	return p
 }

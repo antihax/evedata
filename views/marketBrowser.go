@@ -8,6 +8,8 @@ import (
 	"html/template"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/sessions"
 )
 
 func init() {
@@ -18,9 +20,9 @@ func init() {
 }
 
 // marketBrowser generates.... stuff
-func marketBrowser(c *evedata.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func marketBrowser(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
-	p := NewPage(c, r, "EVE Online Market Browser")
+	p := NewPage(s, r, "EVE Online Market Browser")
 
 	templates.Templates = template.Must(template.ParseFiles("templates/marketBrowser.html", templates.LayoutPath))
 	err := templates.Templates.ExecuteTemplate(w, "base", p)
@@ -44,7 +46,7 @@ type ARows struct {
 	Rows *[]marketItemList `json:"rows"`
 }
 
-func searchitemsPage(c *evedata.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func searchitemsPage(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
 	var q string
 	q = r.FormValue("q")
@@ -186,12 +188,12 @@ func marketRegionItems(c *evedata.AppContext, w http.ResponseWriter, r *http.Req
 	return 200, nil
 }
 
-func MarketSellRegionItems(c *evedata.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func MarketSellRegionItems(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	return marketRegionItems(c, w, r, false)
 }
 
 // MarketBuyRegionItems Query market buy orders for a user specified
 // regionID and itemID query string and return JSON to the user
-func MarketBuyRegionItems(c *evedata.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func MarketBuyRegionItems(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	return marketRegionItems(c, w, r, true)
 }

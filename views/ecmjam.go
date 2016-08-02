@@ -5,16 +5,17 @@ import (
 	"evedata/templates"
 	"html/template"
 	"net/http"
+
+	"github.com/gorilla/sessions"
 )
 
 func init() {
 	evedata.AddRoute(evedata.Route{"ecmjam", "GET", "/ecmjam", ecmjamPage})
 }
 
-// FindAgents generate a list of agents based on user input
-func ecmjamPage(c *evedata.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func ecmjamPage(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
-	p := NewPage(c, r, "EVE ECM Jam")
+	p := NewPage(s, r, "EVE ECM Jam")
 	templates.Templates = template.Must(template.ParseFiles("templates/ecmjam.html", templates.LayoutPath))
 	err := templates.Templates.ExecuteTemplate(w, "base", p)
 

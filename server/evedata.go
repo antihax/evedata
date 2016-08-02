@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"encoding/gob"
 	"evedata/config"
+	"evedata/eveConsumer"
 	"evedata/eveapi"
+	"evedata/models"
 	"log"
 	"net/http"
 
@@ -14,7 +16,7 @@ import (
 	gsm "github.com/bradleypeabody/gorilla-sessions-memcache"
 	"github.com/gorilla/context"
 	"github.com/gregjones/httpcache"
-	httpmemcache "github.com/gregjones/httpcache/memcache" // dumb package name...
+	httpmemcache "github.com/gregjones/httpcache/memcache" // ...
 
 	"github.com/jmoiron/sqlx"
 )
@@ -25,7 +27,8 @@ type AppContext struct {
 	Db    *sqlx.DB
 	Store *gsm.MemcacheStore
 
-	SSOAuthenticator *eveapi.SSOAuthenticator
+	SSOAuthenticator   *eveapi.SSOAuthenticator
+	TokenAuthenticator *eveapi.SSOAuthenticator
 
 	HTTPClient *http.Client
 
@@ -44,45 +47,43 @@ func GoServer() {
 	ctx := &AppContext{}
 
 	// Read configuation.
-	ctx.Conf, err = config.ReadConfig()
-
-	if err != nil {
+	if ctx.Conf, err = config.ReadConfig(); err != nil {
 		log.Fatalf("Error reading configuration: %v", err)
 	}
 
 	// Build Connection Pool
-	ctx.Db, err = sqlx.Connect(ctx.Conf.Database.Driver, ctx.Conf.Database.Spec)
-	if err != nil {
+	if ctx.Db, err = models.SetupDatabase(ctx.Conf.Database.Driver, ctx.Conf.Database.Spec); err != nil {
 		log.Fatalf("Cannot build database pool: %v", err)
 	}
 
-	// Check we can connect
-	err = ctx.Db.Ping()
-	if err != nil {
-		log.Fatalf("Cannot connect to database: %v", err)
-	}
+	scopes := []string{eveapi.ScopeCharacterContactsRead,
+		eveapi.ScopeCharacterContactsWrite}
 
-	ctx.SSOAuthenticator = eveapi.NewSSOAuthenticator(ctx.Conf.CREST.ClientID,
-		ctx.Conf.CREST.SecretKey,
-		ctx.Conf.CREST.RedirectURL)
+	ctx.SSOAuthenticator = eveapi.NewSSOAuthenticator(ctx.Conf.CREST.SSO.ClientID,
+		ctx.Conf.CREST.SSO.SecretKey,
+		ctx.Conf.CREST.SSO.RedirectURL,
+		scopes)
 
-	// Allocate the routes
-	rtr := NewRouter(ctx)
+	ctx.TokenAuthenticator = eveapi.NewSSOAuthenticator(ctx.Conf.CREST.Token.ClientID,
+		ctx.Conf.CREST.Token.SecretKey,
+		ctx.Conf.CREST.Token.RedirectURL,
+		scopes)
 
 	// Connect to the memcache server
 	cache := memcache.New(ctx.Conf.MemcachedAddress)
 
 	// Create a memcached http client for the CCP APIs.
-	crestCache := httpmemcache.NewWithClient(cache)
-	transport := httpcache.NewTransport(crestCache)
+	transport := httpcache.NewTransport(httpmemcache.NewWithClient(cache))
+	transport.Transport = &http.Transport{Proxy: http.ProxyFromEnvironment}
 	ctx.HTTPClient = &http.Client{Transport: transport}
 
 	// Create a memcached session store.
 	ctx.Store = gsm.NewMemcacheStore(cache, "EVEDATA_SESSIONS_", []byte(ctx.Conf.Store.Key))
+	ctx.Store.StoreMethod = gsm.StoreMethodSecureCookie
 
+	// Register structs for storage
 	gob.Register(eveapi.VerifyResponse{})
 	gob.Register(oauth2.Token{})
-	ctx.Store.StoreMethod = gsm.StoreMethodSecureCookie
 
 	// Set our logging flags
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -91,6 +92,13 @@ func GoServer() {
 		log.Println("Starting EMDR <- Crest Bridge")
 		go goEMDRCrestBridge(ctx)
 	}
+
+	eC := eveConsumer.NewEVEConsumer(ctx.HTTPClient, ctx.Db)
+	eC.RunConsumer()
+	defer eC.StopConsumer()
+
+	// Allocate the routes
+	rtr := NewRouter(ctx)
 
 	log.Printf("EveData Listening port 3000...\n")
 	http.ListenAndServe(":3000", context.ClearHandler(rtr))

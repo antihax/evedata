@@ -8,6 +8,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 )
 
 var routes Routes
@@ -21,7 +22,7 @@ func AddRoute(r Route) {
 	routes = append(routes, r)
 }
 
-type appFunc func(*AppContext, http.ResponseWriter, *http.Request) (int, error)
+type appFunc func(*AppContext, http.ResponseWriter, *http.Request, *sessions.Session) (int, error)
 type appHandler struct {
 	*AppContext
 	h appFunc
@@ -37,10 +38,13 @@ type Route struct {
 type Routes []Route
 
 func (a appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	status, err := a.h(a.AppContext, w, r)
+
+	s, _ := a.AppContext.Store.Get(r, "session")
+
+	status, err := a.h(a.AppContext, w, r, s)
 	if err != nil {
 		log.Printf("HTTP %d: %q", status, err)
-		fmt.Fprintf(w, "%s\n", err)
+
 		switch status {
 		case http.StatusNotFound:
 			http.NotFound(w, r)
@@ -49,6 +53,7 @@ func (a appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		default:
 			http.Error(w, http.StatusText(status), status)
 		}
+		fmt.Fprintf(w, "%s\n", err)
 	}
 }
 
@@ -73,7 +78,8 @@ func NewRouter(ctx *AppContext) *mux.Router {
 
 	router.PathPrefix("/js/").Handler(http.StripPrefix("/js/",
 		http.FileServer(http.Dir("static/js"))))
-
+	router.PathPrefix("/fonts/").Handler(http.StripPrefix("/fonts/",
+		http.FileServer(http.Dir("static/fonts"))))
 	return router
 }
 

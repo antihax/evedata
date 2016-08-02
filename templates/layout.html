@@ -8,14 +8,17 @@
 		<link rel="icon" href="/i/favicon.ico">
 		<title>{{.Title}}</title>
 		
-		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.2/js/bootstrap.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 		
+		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-growl/1.0.6/bootstrap-growl.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.0/bootstrap-table.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.0/bootstrap-table-locale-all.min.js"></script>
+				
 		<script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.7/js/jquery.dataTables.js"></script>
-
+		
 		<link rel="stylesheet" href="/css/bootstrap.min.css">
-		<link rel="stylesheet" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.0/bootstrap-table.min.css">	
 		<link rel="stylesheet" href="/css/site.css">
 	</head>
 	<body>
@@ -31,27 +34,39 @@
 						</button>
 						<a class="navbar-brand" href="#"><img src="/images/logo.png" alt="EVEData"></a>
 					</div>
+					
 					<div id="navbar" class="navbar-collapse collapse">
 						<ul class="nav navbar-nav">
-							<li class="active"><a href="#">Home</a></li>
-							<li><a href="#">About</a></li>
-							<li><a href="#">Contact</a></li>
-							<li class="dropdown">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown <span class="caret"></span></a>
+							<li class="active"><a href="/">Home</a></li>
+							<li class="active">
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Wars <span class="caret"></span></a>
 								<ul class="dropdown-menu" role="menu">
-									<li><a href="#">Action</a></li>
-									<li><a href="#">Another action</a></li>
-									<li><a href="#">Something else here</a></li>
+									<li><a href="/warContactManager">War Contact Manager</a></li>
 									<li class="divider"></li>
-									<li class="dropdown-header">Nav header</li>
-									<li><a href="#">Separated link</a></li>
-									<li><a href="#">One more separated link</a></li>
 								</ul>
 							</li>
+							<li class="active">
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Account <span class="caret"></span></a>
+								<ul class="dropdown-menu" role="menu">
+									<li><a href="/account">Account Information</a></li>
+									<li class="divider"></li>
+									{{ if .CharacterID }}
+										<li><a href="/logout">Logout</a></li>
+									{{ else }}
+										<li><a href="/eveAuth">Login</a></li>
+									{{ end }}									
+								</ul>
+							</li>							
 						</ul>
-						<ul class="nav navbar-nav navbar-right">
-							{{template "login" .}}
-							<a href="/eveAuth"><img src="/images/EVE_SSO_Login_Buttons_Small_Black.png"></a>
+						
+						<ul class="nav navbar-nav navbar-right pull-right">
+							<li>
+								{{ if .CharacterID }}
+									<a href="/account"><img src="//image.eveonline.com/Character/{{.CharacterID}}_32.jpg"></a>
+								{{ else }}
+									<a href="/eveAuth"><img src="/images/EVE_SSO_Login_Buttons_Small_Black.png"></a>
+								{{ end }}
+							</li>
 						</ul>
 					</div>
 				</div>
@@ -76,4 +91,9 @@
 <script>
 (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+{{end}}
+
+{{define "not-logged-in"}}
+<h2>You are not logged in</h2>
+Please <a href="/eveAuth">Log in With EVE Online</a> to access this feature.
 {{end}}
