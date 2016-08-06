@@ -24,7 +24,7 @@ func NewEVEConsumer(h *http.Client, d *sqlx.DB) *EveConsumer {
 
 func (c *EveConsumer) goConsumer() {
 	log.Printf("EVEConsumer: Running\n")
-	rate := time.Second * 1
+	rate := time.Second * 10
 	throttle := time.Tick(rate)
 	for {
 

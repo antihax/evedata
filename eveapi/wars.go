@@ -114,3 +114,20 @@ func (c *AnonymousClient) War(href string) (*War, error) {
 	w.getFrameInfo(res)
 	return w, nil
 }
+
+func (c *AnonymousClient) WarByID(id int) (*War, error) {
+	w := &War{AnonymousClient: c}
+	url := c.base.CREST + fmt.Sprintf("wars/%d/", id)
+	res, err := c.httpClient.Get(url)
+	defer res.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	err = decode(res, w)
+	if err != nil {
+		return nil, err
+	}
+
+	w.getFrameInfo(res)
+	return w, nil
+}

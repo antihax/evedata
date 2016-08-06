@@ -217,7 +217,6 @@ func goEMDRCrestBridge(c *AppContext) {
 
 					next := b.Next.Href
 					for len(next) > 0 {
-						fmt.Printf("got next %s\n", next)
 						n := marketOrders{}
 						res, err := crest.Get(next, nil, &n, nil)
 						if err != nil {

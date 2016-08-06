@@ -3,6 +3,67 @@ package eveConsumer
 import "log"
 
 func (c *EveConsumer) checkWars() {
+	c.collectWarsFromCREST()
+	c.updateWars()
+}
+
+func (c *EveConsumer) updateWars() {
+	rows, err := c.db.Query(
+		`SELECT id FROM eve.wars 
+			WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL) 
+			AND cacheUntil < UTC_TIMESTAMP()`)
+	tx, err := c.db.Beginx()
+	if err != nil {
+		log.Printf("EVEConsumer: Failed starting transaction: %v", err)
+		return
+	}
+
+	for rows.Next() {
+		var id int
+		err = rows.Scan(&id)
+		if err != nil {
+			log.Printf("EVEConsumer: Failed translating war ID: %v", err)
+			return
+		}
+		war, err := c.eve.WarByID(id)
+		if err != nil {
+			log.Printf("EVEConsumer: Failed reading wars: %v", err)
+			return
+		}
+
+		_, err = tx.Exec(`UPDATE wars SET
+					timeFinished=?, 
+					openForAllies=?, 
+					mutual=?, 
+					cacheUntil=? WHERE id = ?;`,
+			war.TimeFinished.String(),
+			war.OpenForAllies,
+			war.Mutual,
+			war.CacheUntil, war.ID)
+
+		if err != nil {
+			log.Printf("EVEConsumer: Failed writing wars: %v", err)
+			return
+		}
+
+		for _, a := range war.Allies {
+			_, err = tx.Exec(`INSERT IGNORE INTO warAllies
+				(id, allyID) VALUES(?,?);`,
+				war.ID, a.ID)
+			if err != nil {
+				log.Printf("EVEConsumer: Failed writing war allies: %v", err)
+				return
+			}
+		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		log.Printf("EVEConsumer: Failed writing war allies: %v", err)
+		return
+	}
+}
+
+func (c *EveConsumer) collectWarsFromCREST() {
 	r := struct {
 		Value int
 		Wait  int
@@ -34,6 +95,14 @@ func (c *EveConsumer) checkWars() {
 		tx, err := c.db.Beginx()
 		if err != nil {
 			log.Printf("EVEConsumer: Could not start transaction for wars: %v", err)
+			return
+		}
+
+		// Update state so we dont have two polling at once.
+		_, err = c.db.Exec("UPDATE states SET value = ?, nextCheck =? WHERE state = 'wars' LIMIT 1", w.Page, w.CacheUntil)
+
+		if err != nil {
+			log.Printf("EVEConsumer: Could not update war state: %v", err)
 			return
 		}
 
@@ -69,12 +138,10 @@ func (c *EveConsumer) checkWars() {
 				}
 			}
 		}
-		tx.Exec("UPDATE states SET value = ?, nextCheck =? WHERE state = 'wars' LIMIT 1", w.Page, w.CacheUntil)
 		err = tx.Commit()
 		if err != nil {
-			log.Printf("EVEConsumer: Could not commit transaction for wars: %v", err)
+			log.Printf("EVEConsumer: Failed writing war allies: %v", err)
 			return
 		}
 	}
-
 }
