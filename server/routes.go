@@ -1,7 +1,6 @@
 package evedata
 
 import (
-	"fmt"
 	"log"
 	"mime"
 	"net/http"
@@ -44,16 +43,7 @@ func (a appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	status, err := a.h(a.AppContext, w, r, s)
 	if err != nil {
 		log.Printf("HTTP %d: %q", status, err)
-
-		switch status {
-		case http.StatusNotFound:
-			http.NotFound(w, r)
-		case http.StatusInternalServerError:
-			http.Error(w, http.StatusText(status), status)
-		default:
-			http.Error(w, http.StatusText(status), status)
-		}
-		fmt.Fprintf(w, "%s\n", err)
+		http.Error(w, err.Error(), status)
 	}
 }
 

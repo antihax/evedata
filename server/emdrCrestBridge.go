@@ -39,11 +39,19 @@ func getKills(r int64, client napping.Session, c *AppContext) {
 		return
 	}
 	if response.Status() == 200 {
-		tx, _ := c.Db.Begin()
+		tx, err := c.Db.Begin()
+		if err != nil {
+			log.Printf("EMDRCrestBridge: %s", err)
+			return
+		}
 		for _, e := range h {
 			tx.Stmt(c.Bridge.KillInsert).Exec(e.KillID, e.SolarSystemID, e.KillTime, e.MoonID, e.Victim.CharacterID, e.Victim.CorporationID, e.Victim.AllianceID, e.ZKB.Hash)
 		}
-		tx.Commit()
+		err = tx.Commit()
+		if err != nil {
+			log.Printf("EMDRCrestBridge: %s", err)
+			return
+		}
 	}
 }
 
@@ -263,17 +271,24 @@ func postHistory(sem chan bool, postChan chan []byte, h marketHistory, c *AppCon
 	defer func() { <-sem }()
 	if c.Conf.EMDRCrestBridge.Import {
 
-		tx, _ := c.Db.Begin()
+		tx, err := c.Db.Begin()
+		if err != nil {
+			log.Printf("EMDRCrestBridge: %s", err)
+			return
+		}
 		for _, e := range h.Items {
 			//(date, low, high, mean, quantity, orders, itemID, regionID)
 			//fmt.Printf("%s %f %f %f %d %d %d %d\n", e.Date, e.LowPrice, e.HighPrice, e.AvgPrice, e.Volume, e.OrderCount, typeID, regionID)
-			tx.Stmt(c.Bridge.HistoryUpdate).Exec(e.Date, e.LowPrice, e.HighPrice, e.AvgPrice, e.Volume, e.OrderCount, typeID, regionID)
+			_, err := tx.Stmt(c.Bridge.HistoryUpdate).Exec(e.Date, e.LowPrice, e.HighPrice, e.AvgPrice, e.Volume, e.OrderCount, typeID, regionID)
+			if err != nil {
+				log.Printf("EMDRCrestBridge: %s", err)
+				return
+			}
 		}
-		err := tx.Commit()
+		err = tx.Commit()
 		if err != nil {
 			log.Println("EMDRCrestBridge:", err)
 		}
-
 	}
 
 	if c.Conf.EMDRCrestBridge.Upload {
@@ -321,18 +336,28 @@ func postOrders(sem chan bool, postChan chan []byte, o marketOrders, c *AppConte
 
 		// Mark orders complete
 		tx, err := c.Db.Begin()
-
+		if err != nil {
+			log.Printf("EMDRCrestBridge: %s", err)
+			return
+		}
 		// Add or update orders
 		first := false
 		for _, e := range o.Items {
 			if first {
-				tx.Stmt(c.Bridge.OrderMark).Exec(regionID, e.Type)
+				_, err = tx.Stmt(c.Bridge.OrderMark).Exec(regionID, e.Type)
+				if err != nil {
+					log.Printf("EMDRCrestBridge: %s", err)
+					return
+				}
 			}
-			tx.Stmt(c.Bridge.OrderUpdate).Exec(e.ID, e.Price, e.Volume, e.Type, e.VolumeEntered, e.MinVolume, e.Buy, e.Issued, e.Duration, e.StationID, regionID, stations[e.StationID])
+			_, err = tx.Stmt(c.Bridge.OrderUpdate).Exec(e.ID, e.Price, e.Volume, e.Type, e.VolumeEntered, e.MinVolume, e.Buy, e.Issued, e.Duration, e.StationID, regionID, stations[e.StationID])
+			if err != nil {
+				log.Printf("EMDRCrestBridge: %s", err)
+				return
+			}
 		}
 
 		err = tx.Commit()
-
 		if err != nil {
 			log.Println("EMDRCrestBridge:", err)
 		}

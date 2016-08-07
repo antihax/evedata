@@ -24,7 +24,7 @@ func NewEVEConsumer(h *http.Client, d *sqlx.DB) *EveConsumer {
 
 func (c *EveConsumer) goConsumer() {
 	log.Printf("EVEConsumer: Running\n")
-	rate := time.Second * 10
+	rate := time.Second * 60
 	throttle := time.Tick(rate)
 	for {
 
@@ -39,8 +39,26 @@ func (c *EveConsumer) goConsumer() {
 	log.Printf("EVEConsumer: Shutting Down\n")
 }
 
+func (c *EveConsumer) goTriggers() {
+	log.Printf("EVEConsumer: Running\n")
+	rate := time.Second * 60
+	throttle := time.Tick(rate)
+	for {
+
+		select {
+		case <-c.stopChannel:
+			return
+		default:
+			c.contactSync()
+		}
+		<-throttle
+	}
+	log.Printf("EVEConsumer: Shutting Down\n")
+}
+
 func (c *EveConsumer) RunConsumer() {
 	go c.goConsumer()
+	go c.goTriggers()
 	log.Printf("EVEConsumer: Started\n")
 }
 func (c *EveConsumer) StopConsumer() {
