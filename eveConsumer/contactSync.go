@@ -1,9 +1,6 @@
 package eveConsumer
 
-import (
-	"fmt"
-	"log"
-)
+import "log"
 
 func (c *EveConsumer) contactSync() {
 	rows, err := c.db.Query(
@@ -33,7 +30,9 @@ func (c *EveConsumer) contactSync() {
 			log.Printf("EVEConsumer: Failed getting character info %v", err)
 			continue
 		}
-		fmt.Printf("%+v %+v\n", source, char)
+		if char.AllianceID > 0 {
+
+		}
 
 	}
 	err = tx.Commit()
