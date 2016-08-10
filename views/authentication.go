@@ -7,7 +7,6 @@ import (
 	"evedata/eveapi"
 	"evedata/models"
 	"evedata/server"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -40,7 +39,7 @@ func eveSSO(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *se
 	state := base64.URLEncoding.EncodeToString(b)
 
 	s.Values["state"] = state
-	log.Printf("created state %v != %v\n", state, s.Values["state"])
+
 	err := s.Save(r, w)
 	if err != nil {
 		return http.StatusInternalServerError, err
@@ -56,7 +55,7 @@ func eveSSOAnswer(c *evedata.AppContext, w http.ResponseWriter, r *http.Request,
 	state := r.FormValue("state")
 
 	if s.Values["state"] != state {
-		log.Printf("confim state %v != %v\n", state, s.Values["state"])
+
 		return http.StatusInternalServerError, errors.New("Invalid State. It is possible that the session cookie is missing. Stop eating the cookies!")
 	}
 
