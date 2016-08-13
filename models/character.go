@@ -24,6 +24,8 @@ type CRESTToken struct {
 	CharacterName    string      `db:"characterName" json:"characterName"`
 	LastCode         int         `db:"lastCode" json:"lastCode"`
 	LastStatus       null.String `db:"lastStatus" json:"lastStatus"`
+	AccessToken      string      `db:"accessToken" json:"accessToken"`
+	RefreshToken     string      `db:"refreshToken" json:"refreshToken"`
 }
 
 func (c *ApiKey) UpdateChecked(nextCheck time.Time) error {
@@ -79,7 +81,7 @@ func GetCRESTTokens(characterID int64) ([]CRESTToken, error) {
 	return tokens, nil
 }
 
-func AddCRESTToken(characterID int64, tokenCharacterID int64, characterName string, tok eveapi.CRESTTokenP) error {
+func AddCRESTToken(characterID int64, tokenCharacterID int64, characterName string, tok *eveapi.CRESTToken) error {
 	if _, err := database.Exec(`
 		INSERT INTO crestTokens	(characterID, tokenCharacterID, accessToken, refreshToken, expiry, tokenType, characterName)
 			VALUES		(?,?,?,?,?,?,?)

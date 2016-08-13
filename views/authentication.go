@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
-	"evedata/eveapi"
+	"evedata/appContext"
 	"evedata/models"
 	"evedata/server"
 	"net/http"
@@ -22,7 +22,7 @@ func init() {
 	evedata.AddRoute(evedata.Route{"eveTokenAnswer", "GET", "/eveTokenAnswer", eveTokenAnswer})
 }
 
-func logout(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func logout(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	s.Options.MaxAge = -1
 	err := s.Save(r, w)
 	if err != nil {
@@ -33,7 +33,7 @@ func logout(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *se
 	return http.StatusMovedPermanently, nil
 }
 
-func eveSSO(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func eveSSO(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	b := make([]byte, 16)
 	rand.Read(b)
 	state := base64.URLEncoding.EncodeToString(b)
@@ -50,7 +50,7 @@ func eveSSO(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *se
 	return http.StatusMovedPermanently, nil
 }
 
-func eveSSOAnswer(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func eveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	code := r.FormValue("code")
 	state := r.FormValue("state")
 
@@ -63,7 +63,8 @@ func eveSSOAnswer(c *evedata.AppContext, w http.ResponseWriter, r *http.Request,
 	if err != nil {
 		return http.StatusInternalServerError, errors.New("Failed Token Exchange")
 	}
-	cli := eveapi.NewAuthenticatedClient(c.HTTPClient, tok)
+
+	cli := c.SSOAuthenticator.GetClientFromToken(c.HTTPClient, tok)
 	v, err := cli.Verify()
 	if err != nil {
 		return http.StatusInternalServerError, err
@@ -82,7 +83,7 @@ func eveSSOAnswer(c *evedata.AppContext, w http.ResponseWriter, r *http.Request,
 	return http.StatusMovedPermanently, nil
 }
 
-func eveCRESTToken(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func eveCRESTToken(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	b := make([]byte, 16)
 	rand.Read(b)
 	state := base64.URLEncoding.EncodeToString(b)
@@ -99,7 +100,7 @@ func eveCRESTToken(c *evedata.AppContext, w http.ResponseWriter, r *http.Request
 	return http.StatusMovedPermanently, nil
 }
 
-func eveTokenAnswer(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func eveTokenAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	code := r.FormValue("code")
 	state := r.FormValue("state")
 
@@ -112,7 +113,7 @@ func eveTokenAnswer(c *evedata.AppContext, w http.ResponseWriter, r *http.Reques
 		return http.StatusInternalServerError, errors.New("Failed Token Exchange")
 	}
 
-	cli := eveapi.NewAuthenticatedClient(c.HTTPClient, tok)
+	cli := c.TokenAuthenticator.GetClientFromToken(c.HTTPClient, tok)
 	v, err := cli.Verify()
 	if err != nil {
 		return http.StatusInternalServerError, err

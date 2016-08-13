@@ -1,6 +1,9 @@
 package eveConsumer
 
-import "log"
+import (
+	"evedata/models"
+	"log"
+)
 
 func (c *EveConsumer) checkWars() {
 	c.collectWarsFromCREST()
@@ -8,11 +11,11 @@ func (c *EveConsumer) checkWars() {
 }
 
 func (c *EveConsumer) updateWars() {
-	rows, err := c.db.Query(
+	rows, err := c.ctx.Db.Query(
 		`SELECT id FROM eve.wars 
 			WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL) 
 			AND cacheUntil < UTC_TIMESTAMP()`)
-	tx, err := c.db.Beginx()
+	tx, err := c.ctx.Db.Beginx()
 	if err != nil {
 		log.Printf("EVEConsumer: Failed starting transaction: %v", err)
 		return
@@ -25,7 +28,7 @@ func (c *EveConsumer) updateWars() {
 			log.Printf("EVEConsumer: Failed translating war ID: %v", err)
 			return
 		}
-		war, err := c.eve.WarByID(id)
+		war, err := c.ctx.EVE.WarByID(id)
 		if err != nil {
 			log.Printf("EVEConsumer: Failed reading wars: %v", err)
 			return
@@ -40,18 +43,20 @@ func (c *EveConsumer) updateWars() {
 			war.OpenForAllies,
 			war.Mutual,
 			war.CacheUntil, war.ID)
-
 		if err != nil {
 			log.Printf("EVEConsumer: Failed writing wars: %v", err)
 			return
 		}
 
 		for _, a := range war.Allies {
-			_, err = tx.Exec(`INSERT IGNORE INTO warAllies
-				(id, allyID) VALUES(?,?);`,
-				war.ID, a.ID)
+			_, err = tx.Exec(`INSERT IGNORE INTO warAllies (id, allyID) VALUES(?,?);`, war.ID, a.ID)
 			if err != nil {
 				log.Printf("EVEConsumer: Failed writing war allies: %v", err)
+				return
+			}
+			err = models.AddCRESTRef(a.ID, a.HRef)
+			if err != nil {
+				log.Printf("EVEConsumer: Failed writing CREST ref: %v", err)
 				return
 			}
 		}
@@ -69,7 +74,7 @@ func (c *EveConsumer) collectWarsFromCREST() {
 		Wait  int
 	}{0, 0}
 
-	if err := c.db.Get(&r, `
+	if err := c.ctx.Db.Get(&r, `
 		SELECT value, TIME_TO_SEC(TIMEDIFF(nextCheck, UTC_TIMESTAMP())) AS wait
 			FROM states 
 			WHERE state = 'wars'
@@ -83,7 +88,7 @@ func (c *EveConsumer) collectWarsFromCREST() {
 		return
 	}
 
-	w, err := c.eve.Wars(r.Value)
+	w, err := c.ctx.EVE.Wars(r.Value)
 
 	if err != nil {
 		log.Printf("EVEConsumer: Error checking wars: %v", err)
@@ -92,14 +97,14 @@ func (c *EveConsumer) collectWarsFromCREST() {
 
 	// Loop through all of the pages
 	for ; w != nil; w, err = w.NextPage() {
-		tx, err := c.db.Beginx()
+		tx, err := c.ctx.Db.Beginx()
 		if err != nil {
 			log.Printf("EVEConsumer: Could not start transaction for wars: %v", err)
 			return
 		}
 
 		// Update state so we dont have two polling at once.
-		_, err = c.db.Exec("UPDATE states SET value = ?, nextCheck =? WHERE state = 'wars' LIMIT 1", w.Page, w.CacheUntil)
+		_, err = c.ctx.Db.Exec("UPDATE states SET value = ?, nextCheck =? WHERE state = 'wars' LIMIT 1", w.Page, w.CacheUntil)
 
 		if err != nil {
 			log.Printf("EVEConsumer: Could not update war state: %v", err)
@@ -107,7 +112,7 @@ func (c *EveConsumer) collectWarsFromCREST() {
 		}
 
 		for _, r := range w.Items {
-			war, err := c.eve.War(r.HRef)
+			war, err := c.ctx.EVE.War(r.HRef)
 			if err != nil {
 				log.Printf("EVEConsumer: Failed reading wars: %v", err)
 				return
@@ -128,12 +133,29 @@ func (c *EveConsumer) collectWarsFromCREST() {
 				log.Printf("EVEConsumer: Failed writing wars: %v", err)
 				return
 			}
+
+			err = models.AddCRESTRef(war.Aggressor.ID, war.Aggressor.HRef)
+			if err != nil {
+				log.Printf("EVEConsumer: Failed writing CREST ref: %v", err)
+				return
+			}
+
+			err = models.AddCRESTRef(war.Defender.ID, war.Defender.HRef)
+			if err != nil {
+				log.Printf("EVEConsumer: Failed writing CREST ref: %v", err)
+				return
+			}
+
 			for _, a := range war.Allies {
-				_, err = tx.Exec(`INSERT IGNORE INTO warAllies
-				(id, allyID) VALUES(?,?);`,
-					war.ID, a.ID)
+				_, err = tx.Exec(`INSERT IGNORE INTO warAllies (id, allyID) VALUES(?,?);`, war.ID, a.ID)
 				if err != nil {
 					log.Printf("EVEConsumer: Failed writing war allies: %v", err)
+					return
+				}
+
+				err = models.AddCRESTRef(a.ID, a.HRef)
+				if err != nil {
+					log.Printf("EVEConsumer: Failed writing CREST ref: %v", err)
 					return
 				}
 			}

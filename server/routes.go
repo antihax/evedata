@@ -1,6 +1,7 @@
 package evedata
 
 import (
+	"evedata/appContext"
 	"log"
 	"mime"
 	"net/http"
@@ -21,9 +22,9 @@ func AddRoute(r Route) {
 	routes = append(routes, r)
 }
 
-type appFunc func(*AppContext, http.ResponseWriter, *http.Request, *sessions.Session) (int, error)
+type appFunc func(*appContext.AppContext, http.ResponseWriter, *http.Request, *sessions.Session) (int, error)
 type appHandler struct {
-	*AppContext
+	*appContext.AppContext
 	h appFunc
 }
 
@@ -47,7 +48,7 @@ func (a appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func NewRouter(ctx *AppContext) *mux.Router {
+func NewRouter(ctx *appContext.AppContext) *mux.Router {
 	router := mux.NewRouter().StrictSlash(false)
 	for _, route := range routes {
 		router.

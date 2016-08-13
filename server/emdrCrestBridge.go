@@ -3,6 +3,7 @@ package evedata
 import (
 	"bytes"
 	"encoding/json"
+	"evedata/appContext"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -15,7 +16,7 @@ import (
 var stations map[int64]int64
 
 // Temporary Hack
-func getKills(r int64, client napping.Session, c *AppContext) {
+func getKills(r int64, client napping.Session, c *appContext.AppContext) {
 	type kills struct {
 		KillID        int
 		SolarSystemID int
@@ -55,7 +56,7 @@ func getKills(r int64, client napping.Session, c *AppContext) {
 	}
 }
 
-func goEMDRCrestBridge(c *AppContext) {
+func goEMDRCrestBridge(c *appContext.AppContext) {
 
 	type regionKey struct {
 		RegionID int64
@@ -267,7 +268,7 @@ func goEMDRCrestBridge(c *AppContext) {
 	}
 }
 
-func postHistory(sem chan bool, postChan chan []byte, h marketHistory, c *AppContext, regionID int64, typeID int64) {
+func postHistory(sem chan bool, postChan chan []byte, h marketHistory, c *appContext.AppContext, regionID int64, typeID int64) {
 	defer func() { <-sem }()
 	if c.Conf.EMDRCrestBridge.Import {
 
@@ -330,7 +331,7 @@ func postHistory(sem chan bool, postChan chan []byte, h marketHistory, c *AppCon
 	}
 }
 
-func postOrders(sem chan bool, postChan chan []byte, o marketOrders, c *AppContext, regionID int64) {
+func postOrders(sem chan bool, postChan chan []byte, o marketOrders, c *appContext.AppContext, regionID int64) {
 	defer func() { <-sem }()
 	if c.Conf.EMDRCrestBridge.Import {
 

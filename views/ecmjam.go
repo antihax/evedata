@@ -1,6 +1,7 @@
 package views
 
 import (
+	"evedata/appContext"
 	"evedata/server"
 	"evedata/templates"
 	"html/template"
@@ -13,7 +14,7 @@ func init() {
 	evedata.AddRoute(evedata.Route{"ecmjam", "GET", "/ecmjam", ecmjamPage})
 }
 
-func ecmjamPage(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func ecmjamPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
 	p := NewPage(s, r, "EVE ECM Jam")
 	templates.Templates = template.Must(template.ParseFiles("templates/ecmjam.html", templates.LayoutPath))

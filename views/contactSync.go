@@ -3,6 +3,7 @@ package views
 import (
 	"encoding/json"
 	"errors"
+	"evedata/appContext"
 	"evedata/models"
 	"evedata/server"
 	"evedata/templates"
@@ -20,7 +21,7 @@ func init() {
 	evedata.AddRoute(evedata.Route{"ContactSync", "DELETE", "/U/contactSync", apiDeleteContactSync})
 }
 
-func contactSyncPage(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func contactSyncPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
 	p := NewPage(s, r, "Contact Copiers")
 	templates.Templates = template.Must(template.ParseFiles("templates/contactSync.html", templates.LayoutPath))
@@ -32,7 +33,7 @@ func contactSyncPage(c *evedata.AppContext, w http.ResponseWriter, r *http.Reque
 	return http.StatusOK, nil
 }
 
-func apiAddContactSync(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func apiAddContactSync(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
 	type localContactSync struct {
 		Source      int `json:",string"`
@@ -59,7 +60,7 @@ func apiAddContactSync(c *evedata.AppContext, w http.ResponseWriter, r *http.Req
 	return 200, nil
 }
 
-func apiGetContactSyncs(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func apiGetContactSyncs(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	characterID := s.Values["characterID"].(int64)
 	cc, err := models.GetContactSyncs(characterID)
 	if err != nil {
@@ -72,7 +73,7 @@ func apiGetContactSyncs(c *evedata.AppContext, w http.ResponseWriter, r *http.Re
 	return 200, nil
 }
 
-func apiDeleteContactSync(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func apiDeleteContactSync(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
 	destination, err := strconv.Atoi(r.FormValue("destination"))
 	if err != nil {

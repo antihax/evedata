@@ -1,8 +1,8 @@
 package evedata
 
 import (
-	"database/sql"
 	"encoding/gob"
+	"evedata/appContext"
 	"evedata/config"
 	"evedata/eveConsumer"
 	"evedata/eveapi"
@@ -17,34 +17,13 @@ import (
 	"github.com/gorilla/context"
 	"github.com/gregjones/httpcache"
 	httpmemcache "github.com/gregjones/httpcache/memcache" // ...
-
-	"github.com/jmoiron/sqlx"
 )
-
-// appContext provides access to handles throughout the app.
-type AppContext struct {
-	Conf  *config.Config
-	Db    *sqlx.DB
-	Store *gsm.MemcacheStore
-
-	SSOAuthenticator   *eveapi.SSOAuthenticator
-	TokenAuthenticator *eveapi.SSOAuthenticator
-
-	HTTPClient *http.Client
-
-	Bridge struct {
-		HistoryUpdate *sql.Stmt
-		OrderMark     *sql.Stmt
-		OrderUpdate   *sql.Stmt
-		KillInsert    *sql.Stmt
-	}
-}
 
 func GoServer() {
 	var err error
 
-	// Make a new app context.8
-	ctx := &AppContext{}
+	// Make a new app context.
+	ctx := &appContext.AppContext{}
 
 	// Read configuation.
 	if ctx.Conf, err = config.ReadConfig(); err != nil {
@@ -85,6 +64,9 @@ func GoServer() {
 	gob.Register(eveapi.VerifyResponse{})
 	gob.Register(oauth2.Token{})
 
+	// Anonymous EVE API & Crest Client
+	ctx.EVE = eveapi.NewAnonymousClient(ctx.HTTPClient)
+
 	// Set our logging flags
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
@@ -93,7 +75,7 @@ func GoServer() {
 		go goEMDRCrestBridge(ctx)
 	}
 
-	eC := eveConsumer.NewEVEConsumer(ctx.HTTPClient, ctx.Db)
+	eC := eveConsumer.NewEVEConsumer(ctx)
 	eC.RunConsumer()
 	defer eC.StopConsumer()
 

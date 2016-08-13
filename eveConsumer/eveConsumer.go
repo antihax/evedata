@@ -1,23 +1,19 @@
 package eveConsumer
 
 import (
-	"evedata/eveapi"
+	"evedata/appContext"
 	"log"
-	"net/http"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
 type EveConsumer struct {
-	httpClient  *http.Client
-	db          *sqlx.DB
-	eve         *eveapi.AnonymousClient
+	ctx *appContext.AppContext
+
 	stopChannel chan bool
 }
 
-func NewEVEConsumer(h *http.Client, d *sqlx.DB) *EveConsumer {
-	e := &EveConsumer{h, d, eveapi.NewAnonymousClient(h), make(chan bool)}
+func NewEVEConsumer(ctx *appContext.AppContext) *EveConsumer {
+	e := &EveConsumer{ctx, make(chan bool)}
 
 	return e
 }

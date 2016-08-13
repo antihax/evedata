@@ -3,6 +3,7 @@ package views
 import (
 	"encoding/json"
 	"errors"
+	"evedata/appContext"
 	"evedata/server"
 	"evedata/templates"
 	"html/template"
@@ -20,7 +21,7 @@ func init() {
 }
 
 // marketBrowser generates.... stuff
-func marketBrowser(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func marketBrowser(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
 	p := NewPage(s, r, "EVE Online Market Browser")
 
@@ -46,7 +47,7 @@ type ARows struct {
 	Rows *[]marketItemList `json:"rows"`
 }
 
-func searchitemsPage(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func searchitemsPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
 	var q string
 	q = r.FormValue("q")
@@ -107,7 +108,7 @@ const (
 )
 
 // MarketRegionItems Query market orders for a user specified
-func marketRegionItems(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, buy bool) (int, error) {
+func marketRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, buy bool) (int, error) {
 	var (
 		regionID      int
 		itemID        int
@@ -188,12 +189,12 @@ func marketRegionItems(c *evedata.AppContext, w http.ResponseWriter, r *http.Req
 	return 200, nil
 }
 
-func MarketSellRegionItems(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func MarketSellRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	return marketRegionItems(c, w, r, false)
 }
 
 // MarketBuyRegionItems Query market buy orders for a user specified
 // regionID and itemID query string and return JSON to the user
-func MarketBuyRegionItems(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func MarketBuyRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	return marketRegionItems(c, w, r, true)
 }

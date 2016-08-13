@@ -3,6 +3,7 @@ package views
 import (
 	"encoding/json"
 	"errors"
+	"evedata/appContext"
 	"evedata/eveapi"
 	"evedata/models"
 	"evedata/server"
@@ -25,7 +26,7 @@ func init() {
 	evedata.AddRoute(evedata.Route{"apiKeys", "DELETE", "/U/crestTokens", apiDeleteCRESTToken})
 }
 
-func accountPage(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func accountPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
 	p := NewPage(s, r, "Account Information")
 	templates.Templates = template.Must(template.ParseFiles("templates/account.html", templates.LayoutPath))
@@ -37,7 +38,7 @@ func accountPage(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, 
 	return http.StatusOK, nil
 }
 
-func apiGetKeys(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func apiGetKeys(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	characterID := s.Values["characterID"].(int64)
 	keys, err := models.GetAPIKeys(characterID)
 	if err != nil {
@@ -50,7 +51,7 @@ func apiGetKeys(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s
 	return 200, nil
 }
 
-func apiDeleteKey(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func apiDeleteKey(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
 	keyID, err := strconv.Atoi(r.FormValue("keyID"))
 	if err != nil {
@@ -64,7 +65,7 @@ func apiDeleteKey(c *evedata.AppContext, w http.ResponseWriter, r *http.Request,
 	return 200, nil
 }
 
-func apiAddKey(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func apiAddKey(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
 	type localApiKey struct {
 		KeyID string
@@ -99,7 +100,7 @@ func apiAddKey(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s 
 	return 200, nil
 }
 
-func apiGetCRESTTokens(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func apiGetCRESTTokens(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	if s.Values["characterID"] == nil {
 		return http.StatusForbidden, nil
 	}
@@ -116,7 +117,7 @@ func apiGetCRESTTokens(c *evedata.AppContext, w http.ResponseWriter, r *http.Req
 	return 200, nil
 }
 
-func apiDeleteCRESTToken(c *evedata.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func apiDeleteCRESTToken(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
 	cid, err := strconv.Atoi(r.FormValue("tokenCharacterID"))
 	if err != nil {
