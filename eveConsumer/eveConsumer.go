@@ -19,7 +19,7 @@ func NewEVEConsumer(ctx *appContext.AppContext) *EveConsumer {
 }
 
 func (c *EveConsumer) goConsumer() {
-	log.Printf("EVEConsumer: Running\n")
+	log.Printf("EVEConsumer: Running Consumer\n")
 	rate := time.Second * 60
 	throttle := time.Tick(rate)
 	for {
@@ -36,7 +36,7 @@ func (c *EveConsumer) goConsumer() {
 }
 
 func (c *EveConsumer) goTriggers() {
-	log.Printf("EVEConsumer: Running\n")
+	log.Printf("EVEConsumer: Running Triggers\n")
 	rate := time.Second * 60
 	throttle := time.Tick(rate)
 	for {

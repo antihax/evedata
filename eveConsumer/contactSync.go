@@ -9,7 +9,7 @@ import (
 )
 
 func (c *EveConsumer) contactSync() {
-
+	return
 	// Gather characters for update
 	rows, err := c.ctx.Db.Query(
 		`SELECT source, group_concat(destination)
