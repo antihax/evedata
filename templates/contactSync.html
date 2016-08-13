@@ -1,0 +1,138 @@
+{{define "body"}} 
+	{{ if .CharacterID }} 
+	<p>The Contact Sync tool will automaticly copy war declarations from the Copy From to the Copy To characters contacts. This is typically used to keep scouts up to date.</p>
+	    <div class="table-responsive">
+	        <p class="toolbar contactToolbar" id="contactToolbar">Contact Sync<a class="addcontact btn btn-default" href="javascript:">Add New Contact Contact Copy</a></p>
+	        <table class="table" data-show-refresh="true" data-toolbar=".contactToolbar"
+	        data-url="/U/contactSync" id="contactstable">
+	            <thead>
+	                <tr>
+	                    <th data-field="sourceName">Copy From</th>
+	                    <th data-field="destinationName">Copy To</th>
+	                    <th data-field="nextSync">Next Sync</th>
+	                    <th data-align="center" data-events="actionEvents"
+	                    data-field="action" data-formatter="contactFormatter">
+	                    Action</th>
+	                </tr>
+	            </thead>
+	        </table>
+	    </div>
+			    
+	    <div class="modal fade" id="addcontact">
+	        <div class="modal-dialog">
+	            <div class="modal-content">
+	                <div class="modal-header">
+	                    <button aria-label="Close" class="close" data-dismiss=
+	                    "modal" type="button"><span aria-hidden=
+	                    "true">&times;</span></button>
+	                    <h4 class="modal-title"></h4>
+	                </div>
+	                <div class="modal-body">
+	                    <div class="form-group">
+	                        <label>Copy From</label> <select class="form-control" name=
+	                        "source" id="source"></select>
+	                    </div>
+	                    <div class="form-group">
+	                        <label>Copy To</label> <select class="form-control" name=
+	                        "destination" id="destination"></select>
+	                    </div>
+	                </div>
+	                <div class="modal-footer">
+	                    <button class="btn btn-default" data-dismiss="modal" type=
+	                    "button">Close</button> <button class=
+	                    "btn btn-primary submit" type="button">Submit</button>
+	                </div>
+	            </div><!-- /.modal-content -->
+	        </div><!-- /.modal-dialog -->
+	    </div><!-- /.modal -->
+	    
+	    <script>
+	        var 	$contactstable = $('#contactstable').bootstrapTable({url: "/U/contactSync"}, "changeLocale", "en_US"),
+	        		$addcontact = $('#addcontact').modal({show: false});
+	                
+	        $(function () {
+	        
+				$.ajax({
+				  url: '/U/crestTokens',
+				  dataType:'JSON',
+				  success:function(data){
+				  
+				    $.each(data, function(key, val){
+				      $('#source').append('<option id=' + val.tokenCharacterID + '>' + val.characterName + '</option>');
+				      $('#destination').append('<option id=' + val.tokenCharacterID + '>' + val.characterName + '</option>');
+				    })
+				  },
+				  error:function(){
+				    $select.html('<option id="-1">You must add characters first.</option>');
+				  }
+				});
+	            
+	            // create event
+	            $('.addcontact').click(function () {
+	                showAddContactCopy("Add New Character");
+	            });
+	            $addcontact.find('.submit').click(function () {
+	                var row = {"source": $('#source').children(":selected").attr("id"), 
+	                	"destination": $('#destination').children(":selected").attr("id") };
+	                $.ajax({
+	                    url: "/U/contactSync",
+	                    type: 'put',
+	                    contentType: 'application/json',
+	                    data: JSON.stringify(row),
+	                    success: function () {
+	                        $addcontact.modal('hide');
+	                        $contactstable.bootstrapTable('refresh');
+	                        showAlert("API key added successfully!", 'success');
+	                    },
+	                    error: function (error) {
+	                        $addcontact.modal('hide');
+	                        showAlert( 'Add Character Failed: ' + error.responseText, 'danger');
+	                    }
+	                });
+	            });
+	        });
+	        
+
+	        
+	        
+	        function queryParams(params) {
+	            return {};
+	        }
+	        function contactFormatter(value) {
+	            return [
+	                '<a class="removecontact" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
+	            ].join('');
+	        }
+
+	        // update and delete events
+	        window.actionEvents = {
+	            'click .removecontact': function (e, value, row) {
+	                if (confirm('Are you sure you want to delete this contact sync?')) {
+	                    $.ajax({
+	                        url: "/U/contactSync?destination=" + row.destination,
+	                        type: 'delete',
+	                        success: function () {
+	                            $contactstable.bootstrapTable('refresh');
+	                            showAlert('Delete item successful!', 'success');
+	                        },
+	                        error: function (error) {
+	                            showAlert('Delete item error: ' + error.responseText, 'danger');
+	                        }
+	                    })
+	                }
+	            },
+	        };
+	        
+	        function showAddContactCopy(title) {
+	            $addcontact.find('.modal-title').text(title);
+	            $addcontact.modal('show');
+	        }
+	        function showAlert(message, type) {
+	            $.growl(message,{type: type, delay: 4000,});
+	        }
+	    </script>
+    
+	{{ else }} 
+		{{template "not-logged-in" .}} 
+	{{ end }} 
+{{end}}
