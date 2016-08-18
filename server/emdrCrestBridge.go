@@ -279,7 +279,6 @@ func postHistory(sem chan bool, postChan chan []byte, h marketHistory, c *appCon
 		}
 		for _, e := range h.Items {
 			//(date, low, high, mean, quantity, orders, itemID, regionID)
-			//fmt.Printf("%s %f %f %f %d %d %d %d\n", e.Date, e.LowPrice, e.HighPrice, e.AvgPrice, e.Volume, e.OrderCount, typeID, regionID)
 			_, err := tx.Stmt(c.Bridge.HistoryUpdate).Exec(e.Date, e.LowPrice, e.HighPrice, e.AvgPrice, e.Volume, e.OrderCount, typeID, regionID)
 			if err != nil {
 				log.Printf("EMDRCrestBridge: %s", err)

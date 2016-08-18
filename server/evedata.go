@@ -63,6 +63,7 @@ func GoServer() {
 	// Register structs for storage
 	gob.Register(eveapi.VerifyResponse{})
 	gob.Register(oauth2.Token{})
+	gob.Register(eveapi.CRESTToken{})
 
 	// Anonymous EVE API & Crest Client
 	ctx.EVE = eveapi.NewAnonymousClient(ctx.HTTPClient)

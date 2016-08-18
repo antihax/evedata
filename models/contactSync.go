@@ -7,13 +7,23 @@ import (
 )
 
 type ContactSync struct {
-	Source          int         `db:"source" json:"source"`
-	SourceName      string      `db:"sourceName" json:"sourceName"`
-	Destination     int         `db:"destination" json:"destination"`
-	DestinationName string      `db:"destinationName" json:"destinationName"`
-	CharacterID     int         `db:"characterID" json:"characterID"`
+	Source          int64       `db:"source" json:"source"`
+	SourceName      null.String `db:"sourceName" json:"sourceName"`
+	Destination     int64       `db:"destination" json:"destination"`
+	DestinationName null.String `db:"destinationName" json:"destinationName"`
+	CharacterID     int64       `db:"characterID" json:"characterID"`
 	LastError       null.String `db:"lastError" json:"lastError"`
 	NextSync        time.Time   `db:"nextSync" json:"nextSync"`
+}
+
+func (c *ContactSync) Error(err string) {
+	database.Exec(`UPDATE contactSyncs SET lastError = ? WHERE source = ?`,
+		err, c.Source)
+}
+
+func (c *ContactSync) Updated(nextSync time.Time) {
+	database.Exec(`UPDATE contactSyncs SET nextSync = ? WHERE source = ?`,
+		nextSync, c.Source)
 }
 
 func GetContactSyncs(characterID int64) ([]ContactSync, error) {
@@ -21,8 +31,8 @@ func GetContactSyncs(characterID int64) ([]ContactSync, error) {
 	if err := database.Select(&cc, `
 		SELECT C.characterID, source, S.characterName AS sourceName, destination, D.characterName AS destinationName, nextSync
 			FROM contactSyncs C
-	        INNER JOIN crestTokens D ON C.destination = D.tokenCharacterID
-	        INNER JOIN crestTokens S ON C.source = S.tokenCharacterID
+	        LEFT JOIN crestTokens D ON C.destination = D.tokenCharacterID
+			LEFT JOIN crestTokens S ON C.source = S.tokenCharacterID
 			WHERE C.characterID = ?;`, characterID); err != nil {
 
 		return nil, err
