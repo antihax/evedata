@@ -59,6 +59,7 @@ func GoServer() {
 	// Create a memcached session store.
 	ctx.Store = gsm.NewMemcacheStore(cache, "EVEDATA_SESSIONS_", []byte(ctx.Conf.Store.Key))
 	ctx.Store.StoreMethod = gsm.StoreMethodSecureCookie
+	ctx.Store.Options.Domain = ctx.Conf.Domain
 
 	// Register structs for storage
 	gob.Register(eveapi.VerifyResponse{})

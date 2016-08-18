@@ -37,6 +37,7 @@ type Config struct {
 		}
 	}
 	ServerIP         string
+	Domain           string
 	MemcachedAddress string
 }
 
