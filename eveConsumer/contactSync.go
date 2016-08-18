@@ -3,7 +3,6 @@ package eveConsumer
 import (
 	"evedata/eveapi"
 	"evedata/models"
-	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -131,6 +130,11 @@ func (c *EveConsumer) contactSync() {
 		}
 
 		for _, client := range clients {
+
+			if client == nil {
+				continue
+			}
+
 			// Copy the contactsToAdd map
 			toProcess := make(map[int64]*toAdd)
 			for k, v := range contactsToAdd {
@@ -179,7 +183,6 @@ func (c *EveConsumer) contactSync() {
 				// Add the remaining contacts
 				for _, contact := range toProcess {
 					err = client.SetContact(contact.id, contact.ref, contact.standing)
-					fmt.Printf("%v %v\n", contact.id, contact.ref)
 					if err != nil {
 						log.Printf("EVEConsumer: Failed SetContact: %v", err)
 						continue
