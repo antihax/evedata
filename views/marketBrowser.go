@@ -22,7 +22,6 @@ func init() {
 
 // marketBrowser generates.... stuff
 func marketBrowser(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-
 	p := NewPage(s, r, "EVE Online Market Browser")
 
 	templates.Templates = template.Must(template.ParseFiles("templates/marketBrowser.html", templates.LayoutPath))
@@ -48,7 +47,6 @@ type ARows struct {
 }
 
 func searchitemsPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-
 	var q string
 	q = r.FormValue("q")
 
@@ -59,15 +57,14 @@ func searchitemsPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Re
 	mIL := []marketItemList{}
 
 	err := c.Db.Select(&mIL, `SELECT  T.typeID, typeName, CONCAT_WS(',', G5.marketGroupName, G4.marketGroupName, G3.marketGroupName, G2.marketGroupName, G.marketGroupName) AS Categories, count(*) AS count
-           FROM market M
-           INNER JOIN invTypes T ON M.typeID = T.typeID
+           FROM invTypes T 
            LEFT JOIN invMarketGroups G on T.marketGroupID = G.marketGroupID
            LEFT JOIN invMarketGroups G2 on G.parentGroupID = G2.marketGroupID
            LEFT JOIN invMarketGroups G3 on G2.parentGroupID = G3.marketGroupID
            LEFT JOIN invMarketGroups G4 on G3.parentGroupID = G4.marketGroupID
            LEFT JOIN invMarketGroups G5 on G4.parentGroupID = G5.marketGroupID
 
-           WHERE done=0 AND T.marketGroupID IS NOT NULL AND typeName LIKE ?
+           WHERE published=1 AND T.marketGroupID IS NOT NULL AND typeName LIKE ?
            GROUP BY T.typeID
            ORDER BY typeName
            LIMIT 100`, "%"+q+"%")
