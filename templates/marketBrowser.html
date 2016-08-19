@@ -1,42 +1,5 @@
 {{define "body"}}
-<script>
-	$(document).ready(function() {
-				var sellOrders = $('#sellOrders').dataTable( {
-	 					"searching": false,
-	 					"paging": false,
-	 					"scrollY": "200px",
-	 					"lengthChange": false,
-	 					"info": false,
-	 					"order": [[ 1, "asc" ]],
-	 					"sAjaxDataProp": "",
-	 				    "aoColumns": [
-							{ "mData": "stationName" },
-							{ "mData": "price" },
-							{ "mData": "quantity" },
-						],
-						"columnDefs": [
-   							{ className: "row-right-align", "targets": [ 1, 2 ] }
-  						]
-    				} );
-				var buyOrders = $('#buyOrders').dataTable( {
-	 					"searching": false,
-	 					"paging": false,
-	 					"scrollY": "200px",
-	 					"lengthChange": false,
-	 					"info": false,
-	 					"order": [[ 1, "desc" ]],
-	 					"sAjaxDataProp": "",
-	 				    "aoColumns": [
-							{ "mData": "stationName" },
-							{ "mData": "price" },
-							{ "mData": "quantity" },
-						],
-						"columnDefs": [
-   							{ className: "row-right-align", "targets": [ 1, 2 ] }
-  						]					
-				} );
-			} );
-</script>
+
 <h3>Market Browser</h3>
 <div id="itemSearchContainer">
 	<input class="typeahead" type="text" placeholder="Item Search"><br>
@@ -46,12 +9,12 @@
 </div>
 <h4>Sell Orders</h4>
 <div class="insideContainer">
-	<table id="sellOrders" class="table table-striped" cellspacing="0" width="100%">
+	<table id="sellOrders" class="table" data-toggle="table" cellspacing="0" width="100%">
 		<thead>
 			<tr>
-				<th>stationName</th>
-				<th>price</th>
-				<th>quantity</th>
+				<th data-field="stationName">Station Name</th>
+				<th data-field="price">Price</th>
+				<th data-field="quantity">Quantity</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -60,12 +23,12 @@
 </div>
 <h4>Buy Orders</h4>
 <div class="insideContainer"> 
-	<table id="buyOrders" class="table table-striped" cellspacing="0" width="100%">
+	<table id="buyOrders" class="table" data-toggle="table" cellspacing="0" width="100%">
 		<thead>
 			<tr>
-				<th>stationName</th>
-				<th>price</th>
-				<th>quantity</th>
+				<th data-field="stationName">Station Name</th>
+				<th data-field="price">Price</th>
+				<th data-field="quantity">Quantity</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -112,7 +75,6 @@
 		datum = d;
 		resetFlags();
 	});
-
 	
 	$('.sec').click(function () {
 		setTimeout(resetFlags, 50);
@@ -130,8 +92,13 @@
 		if ($('#nullsec').hasClass('active')) {
 			f = f | secFlags.Null;
 		}
-		$('#sellOrders').dataTable().api().ajax.url('/J/marketSellRegionItems?itemID='+datum.id+"&secflags="+f).load();
-		$('#buyOrders').dataTable().api().ajax.url('/J/marketBuyRegionItems?itemID='+datum.id+"&secflags="+f).load();
+		$('#sellOrders').bootstrapTable('refreshOptions', {
+			url: '/J/marketSellRegionItems?itemID='+datum.id+"&secflags="+f
+			});
+
+		$('#buyOrders').bootstrapTable('refreshOptions', {
+			url: '/J/marketBuyRegionItems?itemID='+datum.id+"&secflags="+f
+			});		
 	}
 	</script>
 {{end}}

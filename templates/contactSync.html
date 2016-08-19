@@ -82,11 +82,11 @@
 	                    success: function () {
 	                        $addcontact.modal('hide');
 	                        $contactstable.bootstrapTable('refresh');
-	                        showAlert("API key added successfully!", 'success');
+	                        showAlert("Contact Sync added successfully!", 'success');
 	                    },
 	                    error: function (error) {
 	                        $addcontact.modal('hide');
-	                        showAlert( 'Add Character Failed: ' + error.responseText, 'danger');
+	                        showAlert( 'Add Contact Sync Failed: ' + error.responseText, 'danger');
 	                    }
 	                });
 	            });
