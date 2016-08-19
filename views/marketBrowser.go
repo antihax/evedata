@@ -156,23 +156,23 @@ func marketRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.
 	}
 
 	if regionID == 0 {
-		sql := `SELECT  format(remainingVolume, 0) AS quantity, format(price, 2) as price, stationName, M.stationID
+		sql := `SELECT  remainingVolume AS quantity, price, stationName, M.stationID
         	                    FROM    market M
                              	INNER JOIN staStations S ON S.stationID=M.stationID
                              	INNER JOIN mapSolarSystems Sy ON Sy.solarSystemID = M.systemID
                              	WHERE      done=0 AND
                                 	       bid=? AND
-                                      	   typeID = ? AND (` + secFilter + `) ORDER BY price ASC`
+                                      	   typeID = ? AND (` + secFilter + `)`
 		err = c.Db.Select(&mR, sql, buy, itemID)
 	} else {
-		err = c.Db.Select(&mR, `SELECT  format(remainingVolume, 0) AS quantity, format(price, 2) as price, stationName, M.stationID
+		err = c.Db.Select(&mR, `SELECT  remainingVolume AS quantity, price, stationName, M.stationID
         	                    FROM    market M
                              	INNER JOIN staStations S ON S.stationID=M.stationID
                              	INNER JOIN mapSolarSystems Sy ON Sy.solarSystemID = M.systemID
                              	WHERE      done=0 AND
                                 	       bid=? AND
                                       	   M.regionID = ? AND
-                                      	   typeID = ? AND (`+secFilter+`) ORDER BY price ASC`, buy, regionID, itemID, secFilter)
+                                      	   typeID = ? AND (`+secFilter+`)`, buy, regionID, itemID, secFilter)
 	}
 
 	if err != nil {

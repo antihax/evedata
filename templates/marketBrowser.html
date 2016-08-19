@@ -9,12 +9,15 @@
 </div>
 <h4>Sell Orders</h4>
 <div class="insideContainer">
-	<table id="sellOrders" class="table" data-toggle="table" cellspacing="0" width="100%">
+	<table id="sellOrders" class="table" 
+		data-sort-name="price"
+        data-sort-order="asc"
+		data-toggle="table" cellspacing="0" width="100%">
 		<thead>
 			<tr>
 				<th data-field="stationName">Station Name</th>
-				<th data-field="price">Price</th>
-				<th data-field="quantity">Quantity</th>
+				<th data-field="price" data-formatter="priceFormatter">Price</th>
+				<th data-field="quantity" data-formatter="priceFormatter">Quantity</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -23,12 +26,15 @@
 </div>
 <h4>Buy Orders</h4>
 <div class="insideContainer"> 
-	<table id="buyOrders" class="table" data-toggle="table" cellspacing="0" width="100%">
+	<table id="buyOrders" class="table" 
+		data-sort-name="price"
+        data-sort-order="desc"
+		data-toggle="table" cellspacing="0" width="100%">
 		<thead>
 			<tr>
 				<th data-field="stationName">Station Name</th>
-				<th data-field="price">Price</th>
-				<th data-field="quantity">Quantity</th>
+				<th data-field="price" data-formatter="priceFormatter">Price</th>
+				<th data-field="quantity" data-formatter="priceFormatter">Quantity</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -38,6 +44,19 @@
 
 
 <script type="text/javascript">
+
+    function priceFormatter(nStr) {
+         nStr += '';
+		 var x = nStr.split('.');
+		 var x1 = x[0];
+		 var x2 = x.length > 1 ? '.' + x[1] : '';
+		 var rgx = /(\d+)(\d{3})/;
+		 while (rgx.test(x1)) {
+		  x1 = x1.replace(rgx, '$1' + ',' + '$2');
+		 }
+		 return x1 + x2;
+    }
+    
 	$('#itemSearchContainer')
 	.removeClass( 'display' )
 	.addClass('table table-striped table-bordered');
