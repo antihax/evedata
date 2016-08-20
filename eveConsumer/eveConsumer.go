@@ -23,7 +23,7 @@ func NewEVEConsumer(ctx *appContext.AppContext) *EVEConsumer {
 
 func (c *EVEConsumer) goConsumer() {
 	log.Printf("EVEConsumer: Running Consumer\n")
-	rate := time.Second * 60
+	rate := time.Second * 60 * 15
 	throttle := time.Tick(rate)
 	for {
 
@@ -40,7 +40,7 @@ func (c *EVEConsumer) goConsumer() {
 
 func (c *EVEConsumer) goTriggers() {
 	log.Printf("EVEConsumer: Running Triggers\n")
-	rate := time.Second * 60
+	rate := time.Second * 60 * 15
 	throttle := time.Tick(rate)
 	for {
 
@@ -50,6 +50,7 @@ func (c *EVEConsumer) goTriggers() {
 			return
 		default:
 			c.contactSync()
+			c.updateDatabase()
 		}
 		<-throttle
 	}
