@@ -15,10 +15,10 @@ import (
 )
 
 func init() {
-	evedata.AddRoute(evedata.Route{"ContactSync", "GET", "/contactSync", contactSyncPage})
-	evedata.AddRoute(evedata.Route{"ContactSync", "PUT", "/U/contactSync", apiAddContactSync})
-	evedata.AddRoute(evedata.Route{"ContactSync", "GET", "/U/contactSync", apiGetContactSyncs})
-	evedata.AddRoute(evedata.Route{"ContactSync", "DELETE", "/U/contactSync", apiDeleteContactSync})
+	evedata.AddRoute("ContactSync", "GET", "/contactSync", contactSyncPage)
+	evedata.AddRoute("ContactSync", "PUT", "/U/contactSync", apiAddContactSync)
+	evedata.AddRoute("ContactSync", "GET", "/U/contactSync", apiGetContactSyncs)
+	evedata.AddRoute("ContactSync", "DELETE", "/U/contactSync", apiDeleteContactSync)
 }
 
 func contactSyncPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {

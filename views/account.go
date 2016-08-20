@@ -16,14 +16,14 @@ import (
 )
 
 func init() {
-	evedata.AddRoute(evedata.Route{"account", "GET", "/account", accountPage})
+	evedata.AddRoute("account", "GET", "/account", accountPage)
 
-	evedata.AddRoute(evedata.Route{"apiKeys", "GET", "/U/apiKeys", apiGetKeys})
-	evedata.AddRoute(evedata.Route{"apiKeys", "DELETE", "/U/apiKeys", apiDeleteKey})
-	evedata.AddRoute(evedata.Route{"apiKeys", "PUT", "/U/apiKeys", apiAddKey})
+	evedata.AddRoute("apiKeys", "GET", "/U/apiKeys", apiGetKeys)
+	evedata.AddRoute("apiKeys", "DELETE", "/U/apiKeys", apiDeleteKey)
+	evedata.AddRoute("apiKeys", "PUT", "/U/apiKeys", apiAddKey)
 
-	evedata.AddRoute(evedata.Route{"apiKeys", "GET", "/U/crestTokens", apiGetCRESTTokens})
-	evedata.AddRoute(evedata.Route{"apiKeys", "DELETE", "/U/crestTokens", apiDeleteCRESTToken})
+	evedata.AddRoute("crestTokens", "GET", "/U/crestTokens", apiGetCRESTTokens)
+	evedata.AddRoute("crestTokens", "DELETE", "/U/crestTokens", apiDeleteCRESTToken)
 }
 
 func accountPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {

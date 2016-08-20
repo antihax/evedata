@@ -11,15 +11,22 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-var routes Routes
+type route struct {
+	Name        string
+	Method      string
+	Pattern     string
+	HandlerFunc appFunc
+}
+
+var availableRoutes []route
 
 func init() {
 	// report correct
 	mime.AddExtensionType(".svg", "image/svg+xml")
 }
 
-func AddRoute(r Route) {
-	routes = append(routes, r)
+func AddRoute(name string, method string, pattern string, handlerFunc appFunc) {
+	availableRoutes = append(availableRoutes, route{name, method, pattern, handlerFunc})
 }
 
 type appFunc func(*appContext.AppContext, http.ResponseWriter, *http.Request, *sessions.Session) (int, error)
@@ -28,29 +35,26 @@ type appHandler struct {
 	h appFunc
 }
 
-type Route struct {
-	Name        string
-	Method      string
-	Pattern     string
-	HandlerFunc appFunc
-}
-
-type Routes []Route
-
 func (a appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	s, _ := a.AppContext.Store.Get(r, "session")
+	s, err := a.AppContext.Store.Get(r, "session")
+	if err != nil {
+		log.Printf("Unable to access session store: %q", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	status, err := a.h(a.AppContext, w, r, s)
 	if err != nil {
 		log.Printf("HTTP %d: %q", status, err)
 		http.Error(w, err.Error(), status)
+		return
 	}
 }
 
 func NewRouter(ctx *appContext.AppContext) *mux.Router {
 	router := mux.NewRouter().StrictSlash(false)
-	for _, route := range routes {
+	for _, route := range availableRoutes {
 		router.
 			Methods(route.Method).
 			Path(route.Pattern).

@@ -17,6 +17,10 @@ func (c *EveConsumer) contactSync() {
             INNER JOIN crestTokens T ON T.tokenCharacterID = destination
 		    GROUP BY source
             HAVING max(nextSync) < UTC_TIMESTAMP()`)
+	if err != nil {
+		log.Printf("EVEConsumer: Failed query: %v", err)
+		return
+	}
 
 	// Loop updatable characters
 	for rows.Next() {
@@ -26,7 +30,10 @@ func (c *EveConsumer) contactSync() {
 		)
 
 		err = rows.Scan(&source, &dest)
-
+		if err != nil {
+			log.Printf("EVEConsumer: Failed scan: %v", err)
+			continue
+		}
 		destinations := strings.Split(dest, ",")
 		if err != nil {
 			log.Printf("EVEConsumer: Failed Scanning Rows: %v", err)
@@ -162,7 +169,7 @@ func (c *EveConsumer) contactSync() {
 					if add != nil {
 						// Contact is already listed.
 						if contact.Standing != add.standing {
-							err := client.SetContact(add.id, add.ref, add.standing)
+							err = client.SetContact(add.id, add.ref, add.standing)
 							if err != nil {
 								log.Printf("EVEConsumer: Failed SetContact: %v", err)
 								continue
@@ -172,7 +179,7 @@ func (c *EveConsumer) contactSync() {
 						delete(toProcess, contact.Contact.ID)
 					} else {
 						// No longer at war... delete the contact
-						err := client.DeleteContact(contact.Contact.ID, contact.Contact.Href)
+						err = client.DeleteContact(contact.Contact.ID, contact.Contact.Href)
 						if err != nil {
 							log.Printf("EVEConsumer: Failed DeleteContact: %v", err)
 							continue

@@ -13,13 +13,13 @@ import (
 )
 
 func init() {
-	evedata.AddRoute(evedata.Route{"logout", "GET", "/logout", logout})
+	evedata.AddRoute("logout", "GET", "/logout", logout)
 
-	evedata.AddRoute(evedata.Route{"eveAuth", "GET", "/eveAuth", eveSSO})
-	evedata.AddRoute(evedata.Route{"eveSSOAnswer", "GET", "/eveSSOAnswer", eveSSOAnswer})
+	evedata.AddRoute("eveAuth", "GET", "/eveAuth", eveSSO)
+	evedata.AddRoute("eveSSOAnswer", "GET", "/eveSSOAnswer", eveSSOAnswer)
 
-	evedata.AddRoute(evedata.Route{"eveTokenAuth", "GET", "/eveTokenAuth", eveCRESTToken})
-	evedata.AddRoute(evedata.Route{"eveTokenAnswer", "GET", "/eveTokenAnswer", eveTokenAnswer})
+	evedata.AddRoute("eveTokenAuth", "GET", "/eveTokenAuth", eveCRESTToken)
+	evedata.AddRoute("eveTokenAnswer", "GET", "/eveTokenAnswer", eveTokenAnswer)
 }
 
 func logout(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {

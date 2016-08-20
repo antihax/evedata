@@ -14,10 +14,10 @@ import (
 )
 
 func init() {
-	evedata.AddRoute(evedata.Route{"marketBrowser", "GET", "/", marketBrowser})
-	evedata.AddRoute(evedata.Route{"searchItems", "GET", "/J/searchItems", searchitemsPage})
-	evedata.AddRoute(evedata.Route{"marketSellRegionItems", "GET", "/J/marketSellRegionItems", MarketSellRegionItems})
-	evedata.AddRoute(evedata.Route{"marketBuyRegionItems", "GET", "/J/marketBuyRegionItems", MarketBuyRegionItems})
+	evedata.AddRoute("marketBrowser", "GET", "/", marketBrowser)
+	evedata.AddRoute("searchItems", "GET", "/J/searchItems", searchitemsPage)
+	evedata.AddRoute("marketSellRegionItems", "GET", "/J/marketSellRegionItems", MarketSellRegionItems)
+	evedata.AddRoute("marketBuyRegionItems", "GET", "/J/marketBuyRegionItems", MarketBuyRegionItems)
 }
 
 // marketBrowser generates.... stuff
@@ -99,17 +99,14 @@ type Rows struct {
 }
 
 const (
-	HighSec = 1 << iota
-	LowSec  = 1 << iota
-	NullSec = 1 << iota
+	highSec = 1 << iota
+	lowSec  = 1 << iota
+	nullSec = 1 << iota
 )
 
 // MarketRegionItems Query market orders for a user specified
 func marketRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, buy bool) (int, error) {
 	var (
-		regionID      int
-		itemID        int
-		secFlags      int
 		mRows         Rows
 		err           error
 		secFilter     string
@@ -118,35 +115,35 @@ func marketRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.
 
 	mR := []marketItems{}
 
-	regionID, err = strconv.Atoi(r.FormValue("regionID"))
+	regionID, err := strconv.Atoi(r.FormValue("regionID"))
 	if err != nil {
 		regionID = 0
 	}
 
-	itemID, err = strconv.Atoi(r.FormValue("itemID"))
+	itemID, err := strconv.Atoi(r.FormValue("itemID"))
 	if err != nil {
 		return 500, err
 	}
 
-	secFlags, err = strconv.Atoi(r.FormValue("secflags"))
+	secFlags, err := strconv.Atoi(r.FormValue("secflags"))
 	if err != nil {
 		encoder := json.NewEncoder(w)
 		encoder.Encode(mR)
 		return 200, nil
 	}
 
-	if secFlags&HighSec != 0 {
+	if secFlags&highSec != 0 {
 		secFilterPass++
 		secFilter += "round(Sy.security,1) >= 0.5"
 	}
-	if secFlags&LowSec != 0 {
+	if secFlags&lowSec != 0 {
 		secFilterPass++
 		if secFilterPass > 1 {
 			secFilter += " OR "
 		}
 		secFilter += "round(Sy.security,1) BETWEEN 0.1 AND 0.4"
 	}
-	if secFlags&NullSec != 0 {
+	if secFlags&nullSec != 0 {
 		secFilterPass++
 		if secFilterPass > 1 {
 			secFilter += " OR "
@@ -186,6 +183,8 @@ func marketRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.
 	return 200, nil
 }
 
+// MarketSellRegionItems Query market sell orders for a user specified
+// regionID and itemID query string and return JSON to the user
 func MarketSellRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	return marketRegionItems(c, w, r, false)
 }

@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	evedata.AddRoute(evedata.Route{"ecmjam", "GET", "/ecmjam", ecmjamPage})
+	evedata.AddRoute("ecmjam", "GET", "/ecmjam", ecmjamPage)
 }
 
 func ecmjamPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {

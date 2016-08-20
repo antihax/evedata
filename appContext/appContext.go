@@ -10,7 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// appContext provides access to handles throughout the app.
+// AppContext provides access to handles throughout the app.
 type AppContext struct {
 	Conf  *config.Config
 	Db    *sqlx.DB
@@ -19,8 +19,7 @@ type AppContext struct {
 
 	SSOAuthenticator   *eveapi.SSOAuthenticator
 	TokenAuthenticator *eveapi.SSOAuthenticator
-
-	HTTPClient *http.Client
+	HTTPClient         *http.Client
 
 	Bridge struct {
 		HistoryUpdate *sql.Stmt

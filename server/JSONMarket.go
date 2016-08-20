@@ -12,8 +12,8 @@ import (
 )
 
 func init() {
-	AddRoute(Route{"marketRegions", "GET", "/J/marketRegions", MarketRegions})
-	AddRoute(Route{"marketItemLists", "GET", "/J/marketItemLists", MarketItemLists})
+	AddRoute("marketRegions", "GET", "/J/marketRegions", MarketRegions)
+	AddRoute("marketItemLists", "GET", "/J/marketItemLists", MarketItemLists)
 }
 
 /******************************************************************************

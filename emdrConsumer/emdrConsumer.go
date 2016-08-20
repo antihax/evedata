@@ -42,21 +42,18 @@ func goConsumer() {
 	var err error
 	// Read configuation.
 	log.Print("Reading Configuration")
-	conf, err = config.ReadConfig()
-	if err != nil {
+	if conf, err = config.ReadConfig(); err != nil {
 		log.Fatalf("Error reading configuration: %v", err)
 	}
 
 	// Build Connection Pool
 	log.Print("Building Database Pool")
-	db, err = sqlx.Connect(conf.Database.Driver, conf.Database.Spec)
-	if err != nil {
+	if db, err = sqlx.Connect(conf.Database.Driver, conf.Database.Spec); err != nil {
 		log.Fatalf("Cannot build database pool: %v", err)
 	}
 
 	// Check we can connect
-	err = db.Ping()
-	if err != nil {
+	if err = db.Ping(); err != nil {
 		log.Fatalf("Cannot connect to database: %v", err)
 	}
 
@@ -67,11 +64,10 @@ func goConsumer() {
 
 	// Connect
 	log.Print("Subscribing to EMDR")
-	err = client.Connect("tcp://relay-us-central-1.eve-emdr.com:8050")
-	client.SetSubscribe("")
-	if err != nil {
+	if err = client.Connect("tcp://relay-us-central-1.eve-emdr.com:8050"); err != nil {
 		log.Fatal(err)
 	}
+	client.SetSubscribe("")
 
 	// Endless loop.
 	log.Print("Waiting for content")

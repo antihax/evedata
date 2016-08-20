@@ -26,13 +26,13 @@ func (c *EveConsumer) goConsumer() {
 
 		select {
 		case <-c.stopChannel:
+			log.Printf("EVEConsumer: Shutting Down\n")
 			return
 		default:
 			c.checkWars()
 		}
 		<-throttle
 	}
-	log.Printf("EVEConsumer: Shutting Down\n")
 }
 
 func (c *EveConsumer) goTriggers() {
@@ -43,13 +43,13 @@ func (c *EveConsumer) goTriggers() {
 
 		select {
 		case <-c.stopChannel:
+			log.Printf("EVEConsumer: Shutting Down\n")
 			return
 		default:
 			c.contactSync()
 		}
 		<-throttle
 	}
-	log.Printf("EVEConsumer: Shutting Down\n")
 }
 
 func (c *EveConsumer) RunConsumer() {
