@@ -1,0 +1,65 @@
+{{define "body"}}
+
+<h3>ISK Per Loyalty Points</h3>
+Formula assumes buying requirements from lowest sell order and selling converted item to highest buy order in Jita.
+<div id="CorporationContainer">
+	<select class="form-control" name="corp" id="corp"></select>
+</div>
+<div class="insideContainer">
+	<table id="iskPerLPTable" class="table" 
+		data-sort-name="iskPerLP"
+        data-sort-order="desc"
+		data-toggle="table" cellspacing="0" width="100%">
+		<thead>
+			<tr>
+				<th data-field="typeName">Item Name</th>
+				<th data-field="itemCost" data-formatter="priceFormatter">ISK Cost</th>
+				<th data-field="iskPerLP" data-formatter="priceFormatter">ISK Per LP</th>
+				<th data-field="requirements">Required Items</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+</div>
+
+
+<script type="text/javascript">
+
+  function priceFormatter(nStr) {
+        nStr += '';
+        var x = nStr.split('.');
+        var x1 = x[0];
+        var x2 = x.length > 1 ? '.' + x[1] : '';
+        var rgx = /(\d+)(\d{3})/;
+        while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        }
+        return x1 + x2;
+    }
+
+    $.ajax({
+        url: '/J/iskPerLPCorps',
+        dataType: 'JSON',
+        success: function(data) {
+            $.each(data, function(key, val) {
+                $('#corp').append('<option id=' + val.itemName + '>' + val.itemName + '</option>');
+            })
+            $('#iskPerLPTable').bootstrapTable('refreshOptions', {
+    		url: '/J/iskPerLP?corp='+$('#corp').val()
+    		});	
+        },
+        error: function() { }
+    });
+    
+
+
+	$('#corp').change(function(){
+    	$('#iskPerLPTable').bootstrapTable('refreshOptions', {
+    		url: '/J/iskPerLP?corp='+$('#corp').val()
+    		});	
+    	});	
+	
+	</script>
+{{end}}

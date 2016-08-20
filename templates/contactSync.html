@@ -1,8 +1,10 @@
 {{define "body"}} 
-	{{ if .CharacterID }} 
+	<h3>Contact Sync</h3>
 	The Contact Sync tool will automaticly copy war declarations from the Copy From to the Copy To characters contacts. This is typically used to keep scouts up to date.
+
+	{{ if .CharacterID }} 
 	    <div class="table-responsive">
-	        <p class="toolbar contactToolbar" id="contactToolbar">Contact Sync<a class="addcontact btn btn-default" href="javascript:">Add New Contact Contact Copy</a></p>
+	        <p class="toolbar contactToolbar" id="contactToolbar"><a class="addcontact btn btn-default" href="javascript:">Add New Contact Contact Copy</a></p>
 	        <table class="table" data-show-refresh="true" data-toolbar=".contactToolbar"
 	        data-url="/U/contactSync" id="contactstable">
 	            <thead>
