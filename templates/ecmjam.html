@@ -1,8 +1,6 @@
 {{define "body"}}
 
-	   
 Enter data below to determine ECM jam chance based on number of modules and strength of module and target ship. To obtain "PermaJam" the strength of the module must exceed the targets sensor strength, stacking lower strength modules will never "PermaJam". <br><br>
-
 
 <script>
 $(document).ready(function () 
@@ -23,9 +21,9 @@ function go()
 </script>
 	<center>
     <table width="260" border="0" cellpadding="0" cellspacing="2">
-    	<tr><td>Jam Strength</td>			<td><input id="jam" size="2" value="1"></td></tr>
+    <tr><td>Jam Strength</td>				<td><input id="jam" size="2" value="1"></td></tr>
 	<tr><td>Ship Sensor Strength</td>		<td><input id="ship" size="5" value="22"></td></tr>
-	<tr><td>Number of Modules/Drones</td>		<td><input id="modules" size="3" value="5"></td></tr>
+	<tr><td>Number of Modules/Drones</td>	<td><input id="modules" size="3" value="5"></td></tr>
 	<tr><td colspan=2><hr></td></tr>
 	<tr><td>Jam chance per Cycle</td>		<td><input id="cycle" size="7" disabled></td></tr>
 	<tr><td>Jam chance per Minute</td>		<td><input id="minute" size="7" disabled></td></tr>

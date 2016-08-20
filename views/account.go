@@ -28,7 +28,7 @@ func init() {
 
 func accountPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
-	p := NewPage(s, r, "Account Information")
+	p := newPage(s, r, "Account Information")
 	templates.Templates = template.Must(template.ParseFiles("templates/account.html", templates.LayoutPath))
 
 	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {

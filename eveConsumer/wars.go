@@ -5,12 +5,12 @@ import (
 	"log"
 )
 
-func (c *EveConsumer) checkWars() {
+func (c *EVEConsumer) checkWars() {
 	c.collectWarsFromCREST()
 	c.updateWars()
 }
 
-func (c *EveConsumer) updateWars() {
+func (c *EVEConsumer) updateWars() {
 	rows, err := c.ctx.Db.Query(
 		`SELECT id FROM eve.wars 
 			WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL) 
@@ -68,7 +68,7 @@ func (c *EveConsumer) updateWars() {
 	}
 }
 
-func (c *EveConsumer) collectWarsFromCREST() {
+func (c *EVEConsumer) collectWarsFromCREST() {
 	r := struct {
 		Value int
 		Wait  int

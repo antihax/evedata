@@ -6,13 +6,13 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-type Page struct {
+type page struct {
 	Title       string
 	CharacterID int64
 }
 
-func NewPage(s *sessions.Session, r *http.Request, title string) *Page {
-	p := &Page{Title: title}
+func newPage(s *sessions.Session, r *http.Request, title string) *page {
+	p := &page{Title: title}
 
 	characterID := s.Values["characterID"]
 

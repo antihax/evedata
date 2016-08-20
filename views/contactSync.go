@@ -23,7 +23,7 @@ func init() {
 
 func contactSyncPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
-	p := NewPage(s, r, "Contact Copiers")
+	p := newPage(s, r, "Contact Copiers")
 	templates.Templates = template.Must(template.ParseFiles("templates/contactSync.html", templates.LayoutPath))
 
 	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {

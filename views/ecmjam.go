@@ -16,7 +16,7 @@ func init() {
 
 func ecmjamPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
-	p := NewPage(s, r, "EVE ECM Jam")
+	p := newPage(s, r, "EVE ECM Jam")
 	templates.Templates = template.Must(template.ParseFiles("templates/ecmjam.html", templates.LayoutPath))
 	err := templates.Templates.ExecuteTemplate(w, "base", p)
 

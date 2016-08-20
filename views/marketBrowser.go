@@ -22,7 +22,7 @@ func init() {
 
 // marketBrowser generates.... stuff
 func marketBrowser(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-	p := NewPage(s, r, "EVE Online Market Browser")
+	p := newPage(s, r, "EVE Online Market Browser")
 
 	templates.Templates = template.Must(template.ParseFiles("templates/marketBrowser.html", templates.LayoutPath))
 	err := templates.Templates.ExecuteTemplate(w, "base", p)

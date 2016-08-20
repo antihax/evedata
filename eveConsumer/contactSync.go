@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func (c *EveConsumer) contactSync() {
+func (c *EVEConsumer) contactSync() {
 
 	// Gather characters for update
 	rows, err := c.ctx.Db.Query(
@@ -200,7 +200,7 @@ func (c *EveConsumer) contactSync() {
 	}
 }
 
-func (c *EveConsumer) getClient(characterID int64, tokenCharacterID int64) (*eveapi.AuthenticatedClient, error) {
+func (c *EVEConsumer) getClient(characterID int64, tokenCharacterID int64) (*eveapi.AuthenticatedClient, error) {
 	tok := models.CRESTToken{}
 	if err := c.ctx.Db.QueryRowx(
 		`SELECT expiry, tokenType, accessToken, refreshToken, tokenCharacterID, characterID

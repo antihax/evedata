@@ -8,6 +8,7 @@ import (
 	"os"
 )
 
+// Config stucture for the EVEData App
 type Config struct {
 	Database struct {
 		Import string
@@ -41,6 +42,7 @@ type Config struct {
 	MemcachedAddress string
 }
 
+// ReadConfig should be run at startup and result shared between microservices.
 func ReadConfig() (*Config, error) {
 	c := Config{}
 

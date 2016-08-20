@@ -6,26 +6,29 @@ import (
 	"time"
 )
 
-type EveConsumer struct {
-	ctx *appContext.AppContext
-
-	stopChannel chan bool
+// EveConsumer provides the microservice which conducts backend
+// polling of EVE Crest and XML resources as needed.
+type EVEConsumer struct {
+	ctx                 *appContext.AppContext
+	consumerStopChannel chan bool
+	triggersStopChannel chan bool
 }
 
-func NewEVEConsumer(ctx *appContext.AppContext) *EveConsumer {
-	e := &EveConsumer{ctx, make(chan bool)}
+// NewEVEConsumer creates a new EveConsumer
+func NewEVEConsumer(ctx *appContext.AppContext) *EVEConsumer {
+	e := &EVEConsumer{ctx, make(chan bool), make(chan bool)}
 
 	return e
 }
 
-func (c *EveConsumer) goConsumer() {
+func (c *EVEConsumer) goConsumer() {
 	log.Printf("EVEConsumer: Running Consumer\n")
 	rate := time.Second * 60
 	throttle := time.Tick(rate)
 	for {
 
 		select {
-		case <-c.stopChannel:
+		case <-c.consumerStopChannel:
 			log.Printf("EVEConsumer: Shutting Down\n")
 			return
 		default:
@@ -35,14 +38,14 @@ func (c *EveConsumer) goConsumer() {
 	}
 }
 
-func (c *EveConsumer) goTriggers() {
+func (c *EVEConsumer) goTriggers() {
 	log.Printf("EVEConsumer: Running Triggers\n")
 	rate := time.Second * 60
 	throttle := time.Tick(rate)
 	for {
 
 		select {
-		case <-c.stopChannel:
+		case <-c.triggersStopChannel:
 			log.Printf("EVEConsumer: Shutting Down\n")
 			return
 		default:
@@ -52,11 +55,16 @@ func (c *EveConsumer) goTriggers() {
 	}
 }
 
-func (c *EveConsumer) RunConsumer() {
+// RunConsumer starts the consumer and returns.
+func (c *EVEConsumer) RunConsumer() {
 	go c.goConsumer()
 	go c.goTriggers()
 	log.Printf("EVEConsumer: Started\n")
 }
-func (c *EveConsumer) StopConsumer() {
+
+// StopConsumer shuts down any running go routines and returns.
+func (c *EVEConsumer) StopConsumer() {
+	c.consumerStopChannel <- true
+	c.triggersStopChannel <- true
 	log.Printf("EVEConsumer: Stopped\n")
 }
