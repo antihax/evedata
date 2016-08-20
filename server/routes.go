@@ -37,12 +37,7 @@ type appHandler struct {
 
 func (a appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	s, err := a.AppContext.Store.Get(r, "session")
-	if err != nil {
-		log.Printf("Unable to access session store: %q", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	s, _ := a.AppContext.Store.Get(r, "session")
 
 	status, err := a.h(a.AppContext, w, r, s)
 	if err != nil {
