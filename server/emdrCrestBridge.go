@@ -102,6 +102,8 @@ func goEMDRCrestBridge(c *appContext.AppContext) {
 		SELECT stationID, solarSystemID 
 		FROM staStations;
 	`)
+	defer rows.Close()
+
 	for rows.Next() {
 
 		var stationID int64
@@ -278,12 +280,12 @@ func postHistory(sem chan bool, postChan chan []byte, h marketHistory, c *appCon
 			return
 		}
 		for _, e := range h.Items {
-			//(date, low, high, mean, quantity, orders, itemID, regionID)
 			_, err := tx.Stmt(c.Bridge.HistoryUpdate).Exec(e.Date, e.LowPrice, e.HighPrice, e.AvgPrice, e.Volume, e.OrderCount, typeID, regionID)
 			if err != nil {
 				log.Printf("EMDRCrestBridge: %s", err)
 				return
 			}
+
 		}
 		err = tx.Commit()
 		if err != nil {

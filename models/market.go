@@ -40,3 +40,21 @@ func GetISKPerLPCorporations() ([]IskPerLPCorporation, error) {
 	}
 	return s, nil
 }
+
+type ArbitrageCalculatorStations struct {
+	StationName string `db:"stationName" json:"stationName" `
+	StationID   string `db:"stationID" json:"stationID" `
+}
+
+func GetArbitrageCalculatorStations() ([]ArbitrageCalculatorStations, error) {
+	s := []ArbitrageCalculatorStations{}
+	if err := database.Select(&s, `
+		SELECT stationID, stationName
+			FROM    marketStations
+			WHERE 	Count > 4000
+			ORDER BY stationName
+	`); err != nil {
+		return nil, err
+	}
+	return s, nil
+}

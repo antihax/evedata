@@ -66,14 +66,14 @@ func MarketItemLists(c *appContext.AppContext, w http.ResponseWriter, r *http.Re
 
 	var regionID int
 	var err error
-	var Rows *sqlx.Rows
+	var rows *sqlx.Rows
 	regionID, err = strconv.Atoi(r.FormValue("regionID"))
 	if err != nil {
 		regionID = 0
 	}
 
 	if regionID == 0 {
-		Rows, err = c.Db.Queryx(`SELECT  T.typeID, typeName, CONCAT_WS(',', G5.marketGroupName, G4.marketGroupName, G3.marketGroupName, G2.marketGroupName, G.marketGroupName) AS Categories, count(*) AS count
+		rows, err = c.Db.Queryx(`SELECT  T.typeID, typeName, CONCAT_WS(',', G5.marketGroupName, G4.marketGroupName, G3.marketGroupName, G2.marketGroupName, G.marketGroupName) AS Categories, count(*) AS count
            FROM    market M
            INNER JOIN invTypes T ON M.typeID = T.typeID
            LEFT JOIN invMarketGroups G on T.marketGroupID = G.marketGroupID
@@ -86,7 +86,7 @@ func MarketItemLists(c *appContext.AppContext, w http.ResponseWriter, r *http.Re
            GROUP BY T.typeID
            ORDER BY Categories, typeName`)
 	} else {
-		Rows, err = c.Db.Queryx(`SELECT  T.typeID, typeName, CONCAT_WS(',', G5.marketGroupName, G4.marketGroupName, G3.marketGroupName, G2.marketGroupName, G.marketGroupName) AS Categories, count(*) AS count
+		rows, err = c.Db.Queryx(`SELECT  T.typeID, typeName, CONCAT_WS(',', G5.marketGroupName, G4.marketGroupName, G3.marketGroupName, G2.marketGroupName, G.marketGroupName) AS Categories, count(*) AS count
            FROM    market M
            INNER JOIN invTypes T ON M.typeID = T.typeID
            LEFT JOIN invMarketGroups G on T.marketGroupID = G.marketGroupID
@@ -99,6 +99,7 @@ func MarketItemLists(c *appContext.AppContext, w http.ResponseWriter, r *http.Re
            GROUP BY T.typeID
            ORDER BY Categories, typeName`, regionID)
 	}
+	defer rows.Close()
 	var (
 		mTree       marketTree
 		groups      []string
@@ -116,8 +117,8 @@ func MarketItemLists(c *appContext.AppContext, w http.ResponseWriter, r *http.Re
 	// we can cheat here and build arrays at once time
 	// without all that tedious searching.
 
-	for Rows.Next() {
-		err := Rows.StructScan(&marketResult)
+	for rows.Next() {
+		err := rows.StructScan(&marketResult)
 		if err != nil {
 			return 500, err
 		}

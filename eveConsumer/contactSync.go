@@ -22,6 +22,8 @@ func (c *EVEConsumer) contactSync() {
 		return
 	}
 
+	defer rows.Close()
+
 	// Loop updatable characters
 	for rows.Next() {
 		var (
