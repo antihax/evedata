@@ -16,6 +16,10 @@ func (c *EVEConsumer) updateWars() {
 			WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL) 
 			AND cacheUntil < UTC_TIMESTAMP()`)
 	defer rows.Close()
+	if err != nil {
+		log.Printf("EVEConsumer: Failed getting wars: %v", err)
+		return
+	}
 
 	tx, err := c.ctx.Db.Beginx()
 	if err != nil {
@@ -24,6 +28,7 @@ func (c *EVEConsumer) updateWars() {
 	}
 
 	for rows.Next() {
+
 		var id int
 		err = rows.Scan(&id)
 		if err != nil {

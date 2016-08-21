@@ -58,3 +58,33 @@ func GetArbitrageCalculatorStations() ([]ArbitrageCalculatorStations, error) {
 	}
 	return s, nil
 }
+
+type ArbitrageCalculator struct {
+	TypeID      int64  `db:"typeID" json:"typeID" `
+	TypeName    string `db:"typeName" json:"typeName" `
+	PortionSize int64  `db:"portionSize" json:"portionSize" `
+	Buys        string `db:"buys" json:"buys" `
+	Vol         int64  `db:"vol" json:"vol" `
+	Price       int64  `db:"price" json:"price" `
+}
+
+func GetArbitrageCalculator(hours int64, stationID int64, minVolume int64, maxPrice int64) ([]ArbitrageCalculator, error) {
+	s := []ArbitrageCalculator{}
+	if err := database.Select(&s, `
+		SELECT  market.typeID AS typeID, typeName, portionSize, count(*) as buys, market_vol.quantity / 2 as vol, max(price) AS price
+		FROM    market, invTypes, market_vol
+		WHERE   market.done = 0 AND
+		        market.typeID = market_vol.itemID AND
+		        market.regionID = market_vol.regionID AND
+		        market.typeID = invTypes.typeID AND
+		        reported >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL ? DAY_HOUR) AND
+		        market.stationID = ?
+		        AND bid = 1
+		        AND done = 0 AND
+		        market_vol.quantity /2 > ?
+		GROUP BY market.typeID
+		HAVING price < ?`); err != nil {
+		return nil, err
+	}
+	return s, nil
+}
