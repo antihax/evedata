@@ -1,6 +1,9 @@
 package models
 
-import "evedata/null"
+import (
+	"evedata/null"
+	"fmt"
+)
 
 type IskPerLP struct {
 	ItemName     string      `db:"itemName" json:"itemName"`
@@ -60,18 +63,29 @@ func GetArbitrageCalculatorStations() ([]ArbitrageCalculatorStations, error) {
 }
 
 type ArbitrageCalculator struct {
-	TypeID      int64  `db:"typeID" json:"typeID" `
-	TypeName    string `db:"typeName" json:"typeName" `
-	PortionSize int64  `db:"portionSize" json:"portionSize" `
-	Buys        string `db:"buys" json:"buys" `
-	Vol         int64  `db:"vol" json:"vol" `
-	Price       int64  `db:"price" json:"price" `
+	TypeID   int64  `db:"typeID" json:"typeID" `
+	TypeName string `db:"typeName" json:"typeName" `
+	Volume   int64  `db:"volume" json:"volume" `
+	Buys     int64  `db:"buys" json:"buys" `
+	Margin   string `db:"margin" json:"margin" `
 }
 
-func GetArbitrageCalculator(hours int64, stationID int64, minVolume int64, maxPrice int64) ([]ArbitrageCalculator, error) {
-	s := []ArbitrageCalculator{}
-	if err := database.Select(&s, `
-		SELECT  market.typeID AS typeID, typeName, portionSize, count(*) as buys, market_vol.quantity / 2 as vol, max(price) AS price
+func GetArbitrageCalculator(hours int64, stationID int64, minVolume int64, maxPrice int64, brokersFee float64, tax float64) ([]ArbitrageCalculator, error) {
+	type buys struct {
+		TypeID   int64   `db:"typeID"`
+		TypeName string  `db:"typeName"`
+		Buys     int64   `db:"buys"`
+		Volume   int64   `db:"volume"`
+		Price    float64 `db:"price"`
+	}
+	type sells struct {
+		TypeID int64   `db:"typeID"`
+		Price  float64 `db:"price"`
+	}
+
+	b := []buys{}
+	if err := database.Select(&b, `
+		SELECT  market.typeID AS typeID, typeName, count(*) as buys, ROUND(market_vol.quantity / 2) as volume, ROUND(max(price) + (max(price) * ?),2) AS price
 		FROM    market, invTypes, market_vol
 		WHERE   market.done = 0 AND
 		        market.typeID = market_vol.itemID AND
@@ -83,8 +97,48 @@ func GetArbitrageCalculator(hours int64, stationID int64, minVolume int64, maxPr
 		        AND done = 0 AND
 		        market_vol.quantity /2 > ?
 		GROUP BY market.typeID
-		HAVING price < ?`); err != nil {
+		HAVING price < ?`, brokersFee, hours, stationID, minVolume, maxPrice); err != nil {
 		return nil, err
 	}
-	return s, nil
+
+	sellOrders := make(map[int64]sells)
+	s := []sells{}
+	if err := database.Select(&s, `
+		SELECT  typeID, ROUND(min(price) - (min(price) * ?) - (min(price) * ?),2) AS price
+		FROM    market
+		WHERE   reported >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL ? DAY_HOUR) AND
+		        market.stationID = ?
+		        AND bid = 0
+		        GROUP BY typeID`, brokersFee, tax, hours, stationID); err != nil {
+		return nil, err
+	}
+
+	// Add broker fee to all orders.
+	for _, order := range s {
+		sellOrders[order.TypeID] = order
+	}
+
+	margins := []ArbitrageCalculator{}
+
+	for _, buyOrder := range b {
+		sellOrder, ok := sellOrders[buyOrder.TypeID]
+
+		if !ok {
+			continue
+		}
+
+		if (sellOrder.Price - buyOrder.Price) > 500000 {
+			newOrder := ArbitrageCalculator{}
+
+			newOrder.Buys = buyOrder.Buys
+			newOrder.Volume = buyOrder.Volume
+			newOrder.TypeID = buyOrder.TypeID
+			newOrder.TypeName = buyOrder.TypeName
+			newOrder.Margin = fmt.Sprintf("%.2f", sellOrder.Price-buyOrder.Price)
+
+			margins = append(margins, newOrder)
+		}
+	}
+
+	return margins, nil
 }

@@ -15,12 +15,11 @@ func (c *EVEConsumer) updateWars() {
 		`SELECT id FROM eve.wars 
 			WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL) 
 			AND cacheUntil < UTC_TIMESTAMP()`)
-	defer rows.Close()
 	if err != nil {
 		log.Printf("EVEConsumer: Failed getting wars: %v", err)
 		return
 	}
-
+	defer rows.Close()
 	tx, err := c.ctx.Db.Beginx()
 	if err != nil {
 		log.Printf("EVEConsumer: Failed starting transaction: %v", err)
