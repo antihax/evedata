@@ -1,7 +1,6 @@
 {{define "body"}} 
 	{{ if .CharacterID }} 
-		You are logged in with {{ .CharacterID }}
-	
+		You are logged in with <img src="//image.eveonline.com/Character/{{.CharacterID}}_128.jpg"> <br>{{ .CharacterID }}
 	    <div class="table-responsive">
 	        <p class="toolbar apikeyToolbar" id="apikeyToolbar">EVE API Keys <a class="addapi btn btn-default" href="javascript:">Add API</a></p>
 	        <table class="table" data-show-refresh="true" data-toolbar=".apikeyToolbar"
