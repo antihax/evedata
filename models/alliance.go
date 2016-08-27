@@ -2,14 +2,15 @@ package models
 
 import "time"
 
-func UpdateAlliance(allianceID int64, name string, memberCount int64, shortName string, executorCorp int64, startDate time.Time) error {
+func UpdateAlliance(allianceID int64, name string, memberCount int64, shortName string, executorCorp int64, startDate time.Time, deleted bool, description string, creatorCorp int64, creatorCharacter int64) error {
 	if _, err := database.Exec(`
-		INSERT INTO alliances 
-			(allianceID,name,shortName,executorCorpID,memberCount,startDate,updated)
-			VALUES(?,?,?,?,?,?,UTC_TIMESTAMP()) 
+		INSERT INTO alliance 
+			(allianceID,name,shortName,executorCorpID,startDate,corporationsCount,deleted,description,creatorCorpID,creatorCharacter,updated)
+			VALUES(?,?,?,?,?,?,?,?,?,?,UTC_TIMESTAMP()) 
 			ON DUPLICATE KEY UPDATE 
-			executorCorpID = VALUE(executorCorpID), memberCount = VALUE(memberCount), updated = UTC_TIMESTAMP()
-	`, allianceID, name, shortName, executorCorp, startDate); err != nil {
+			executorCorpID = VALUES(executorCorpID), corporationsCount = VALUES(corporationsCount), 
+			description = VALUES(description), deleted = VALUES(deleted), updated = UTC_TIMESTAMP()
+	`, allianceID, name, shortName, executorCorp, startDate, memberCount, deleted, description, creatorCorp, creatorCharacter); err != nil {
 		return err
 	}
 	return nil

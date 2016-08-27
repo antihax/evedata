@@ -27,20 +27,20 @@ func (c *EVEConsumer) collectAlliancesFromCREST() {
 	}
 
 	if r.Wait >= 0 {
-		return
+		//return
 	}
 
-	w, err := c.ctx.EVE.Alliances(r.Value)
+	w, err := c.ctx.EVE.Alliances(0)
 
 	if err != nil {
-		log.Printf("EVEConsumer: Error checking wars: %v", err)
+		log.Printf("EVEConsumer: Error checking Alliances: %v", err)
 		return
 	}
 
 	// Loop through all of the pages
 	for ; w != nil; w, err = w.NextPage() {
 		if err != nil {
-			log.Printf("EVEConsumer: Could not start transaction for wars: %v", err)
+			log.Printf("EVEConsumer: Could not start transaction for Alliances: %v", err)
 			continue
 		}
 
@@ -48,26 +48,35 @@ func (c *EVEConsumer) collectAlliancesFromCREST() {
 		_, err = c.ctx.Db.Exec("UPDATE states SET value = ?, nextCheck =? WHERE state = 'alliances' LIMIT 1", w.Page, w.CacheUntil)
 
 		if err != nil {
-			log.Printf("EVEConsumer: Could not update war state: %v", err)
+			log.Printf("EVEConsumer: Could not update alliance state: %v", err)
 			continue
 		}
 
 		for _, r := range w.Items {
+			err := c.updateAlliance(r.HRef)
 			if err != nil {
-				log.Printf("EVEConsumer: Failed writing wars: %v", err)
-				continue
-			}
-
-			err = models.AddCRESTRef(r.ID, r.Href)
-			if err != nil {
-				log.Printf("EVEConsumer: Failed writing CREST ref: %v", err)
+				log.Printf("EVEConsumer: Failed writing updating alliance: %v", err)
 				continue
 			}
 		}
 
-		if err != nil {
-			log.Printf("EVEConsumer: Failed writing war allies: %v", err)
-			return
-		}
 	}
+}
+
+func (c *EVEConsumer) updateAlliance(href string) error {
+	a, err := c.ctx.EVE.Alliance(href)
+	if err != nil {
+		return err
+	}
+	err = models.AddCRESTRef(a.ID, href)
+	if err != nil {
+		return err
+	}
+	err = models.UpdateAlliance(a.ID, a.Name, a.CorporationsCount, a.ShortName, a.ExecutorCorporation.ID,
+		a.StartDate.UTC(), a.Deleted, a.Description, a.CreatorCorporation.ID, a.CreatorCharacter.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

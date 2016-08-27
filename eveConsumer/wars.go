@@ -72,7 +72,6 @@ func (c *EVEConsumer) updateWars() {
 		log.Printf("EVEConsumer: Failed writing war allies: %v", err)
 		return
 	}
-
 }
 
 func (c *EVEConsumer) collectWarsFromCREST() {
