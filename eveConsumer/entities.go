@@ -27,7 +27,7 @@ func (c *EVEConsumer) collectAlliancesFromCREST() {
 	}
 
 	if r.Wait >= 0 {
-		return
+		//return
 	}
 
 	w, err := c.ctx.EVE.Alliances(0)
@@ -55,11 +55,10 @@ func (c *EVEConsumer) collectAlliancesFromCREST() {
 		for _, r := range w.Items {
 			err := c.updateAlliance(r.HRef)
 			if err != nil {
-				log.Printf("EVEConsumer: Failed writing updating alliance: %v", err)
+				log.Printf("EVEConsumer: Failed writing updating corporation: %v", err)
 				continue
 			}
 		}
-
 	}
 }
 
@@ -78,5 +77,29 @@ func (c *EVEConsumer) updateAlliance(href string) error {
 		return err
 	}
 
+	for _, corp := range a.Corporations {
+		err = c.updateCorporation(corp.ID)
+		if err != nil {
+			return err
+		}
+		err = models.AddCRESTRef(corp.ID, corp.Href)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *EVEConsumer) updateCorporation(id int64) error {
+	a, err := c.ctx.EVE.GetCorporationPublicSheet(id)
+	if err != nil {
+		return err
+	}
+
+	err = models.UpdateCorporation(a.CorporationID, a.CorporationName, a.Ticker, a.CEOID, a.StationID,
+		a.Description, a.AllianceID, a.FactionID, a.URL, a.MemberCount, a.Shares)
+	if err != nil {
+		return err
+	}
 	return nil
 }

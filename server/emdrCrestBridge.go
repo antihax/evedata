@@ -40,18 +40,13 @@ func getKills(r int64, client napping.Session, c *appContext.AppContext) {
 		return
 	}
 	if response.Status() == 200 {
-		tx, err := c.Db.Begin()
-		if err != nil {
-			log.Printf("EMDRCrestBridge: %s", err)
-			return
-		}
+
 		for _, e := range h {
-			tx.Stmt(c.Bridge.KillInsert).Exec(e.KillID, e.SolarSystemID, e.KillTime, e.MoonID, e.Victim.CharacterID, e.Victim.CorporationID, e.Victim.AllianceID, e.ZKB.Hash)
-		}
-		err = tx.Commit()
-		if err != nil {
-			log.Printf("EMDRCrestBridge: %s", err)
-			return
+			c.Bridge.KillInsert.Exec(e.KillID, e.SolarSystemID, e.KillTime, e.MoonID, e.Victim.CharacterID, e.Victim.CorporationID, e.Victim.AllianceID, e.ZKB.Hash)
+			if err != nil {
+				log.Printf("EMDRCrestBridge: %s", err)
+				return
+			}
 		}
 	}
 }
@@ -222,10 +217,10 @@ func goEMDRCrestBridge(c *appContext.AppContext) {
 					log.Printf("EMDRCrestBridge: %s", err)
 					return
 				}
+
 				if response.Status() == 200 {
 					sem <- true
 					go postOrders(sem, postChannel, b, c, r.RegionID)
-
 					next := b.Next.Href
 					for len(next) > 0 {
 						n := marketOrders{}
@@ -274,22 +269,12 @@ func postHistory(sem chan bool, postChan chan []byte, h marketHistory, c *appCon
 	defer func() { <-sem }()
 	if c.Conf.EMDRCrestBridge.Import {
 
-		tx, err := c.Db.Begin()
-		if err != nil {
-			log.Printf("EMDRCrestBridge: %s", err)
-			return
-		}
 		for _, e := range h.Items {
-			_, err := tx.Stmt(c.Bridge.HistoryUpdate).Exec(e.Date, e.LowPrice, e.HighPrice, e.AvgPrice, e.Volume, e.OrderCount, typeID, regionID)
+			_, err := c.Bridge.HistoryUpdate.Exec(e.Date, e.LowPrice, e.HighPrice, e.AvgPrice, e.Volume, e.OrderCount, typeID, regionID)
 			if err != nil {
 				log.Printf("EMDRCrestBridge: %s", err)
 				return
 			}
-
-		}
-		err = tx.Commit()
-		if err != nil {
-			log.Println("EMDRCrestBridge:", err)
 		}
 	}
 
@@ -336,44 +321,35 @@ func postOrders(sem chan bool, postChan chan []byte, o marketOrders, c *appConte
 	defer func() { <-sem }()
 	if c.Conf.EMDRCrestBridge.Import {
 
-		// Mark orders complete
-		tx, err := c.Db.Begin()
-		if err != nil {
-			log.Printf("EMDRCrestBridge: %s", err)
-			return
-		}
 		// Add or update orders
 		first := false
 		for _, e := range o.Items {
 			if first {
-				_, err = tx.Stmt(c.Bridge.OrderMark).Exec(regionID, e.Type)
+				_, err := c.Bridge.OrderMark.Exec(regionID, e.Type)
 				if err != nil {
 					log.Printf("EMDRCrestBridge: %s", err)
 					return
 				}
 			}
-			_, err = tx.Stmt(c.Bridge.OrderUpdate).Exec(e.ID, e.Price, e.Volume, e.Type, e.VolumeEntered, e.MinVolume, e.Buy, e.Issued, e.Duration, e.StationID, regionID, stations[e.StationID])
+			_, err := c.Bridge.OrderUpdate.Exec(e.ID, e.Price, e.Volume, e.Type, e.VolumeEntered, e.MinVolume, e.Buy, e.Issued, e.Duration, e.StationID, regionID, stations[e.StationID])
 			if err != nil {
 				log.Printf("EMDRCrestBridge: %s", err)
 				return
 			}
 		}
 
-		err = tx.Commit()
-		if err != nil {
-			log.Println("EMDRCrestBridge:", err)
-		}
 	}
 
 	if c.Conf.EMDRCrestBridge.Upload {
+
 		u := newUUDIFHeader()
 		u.ResultType = "orders"
 		u.Columns = []string{"price", "volRemaining", "range", "orderID", "volEntered", "minVolume", "bid", "issueDate", "duration", "stationID", "solarSystemID"}
-
 		rowsets := make(map[int64]rowsetsUUDIF)
 
 		for _, e := range o.Items {
 			var r int
+
 			switch {
 			case e.Range == "station":
 				r = -1
@@ -404,6 +380,7 @@ func postOrders(sem chan bool, postChan chan []byte, o marketOrders, c *appConte
 			edit.Count++
 			edit.Rows = append(edit.Rows, row)
 			rowsets[e.Type] = edit
+
 		}
 
 		for _, v := range rowsets {

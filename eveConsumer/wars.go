@@ -20,11 +20,6 @@ func (c *EVEConsumer) updateWars() {
 		return
 	}
 	defer rows.Close()
-	tx, err := c.ctx.Db.Beginx()
-	if err != nil {
-		log.Printf("EVEConsumer: Failed starting transaction: %v", err)
-		return
-	}
 
 	for rows.Next() {
 
@@ -40,7 +35,7 @@ func (c *EVEConsumer) updateWars() {
 			continue
 		}
 
-		_, err = tx.Exec(`UPDATE wars SET
+		_, err = c.ctx.Db.Exec(`UPDATE wars SET
 					timeFinished=?, 
 					openForAllies=?, 
 					mutual=?, 
@@ -55,7 +50,7 @@ func (c *EVEConsumer) updateWars() {
 		}
 
 		for _, a := range war.Allies {
-			_, err = tx.Exec(`INSERT IGNORE INTO warAllies (id, allyID) VALUES(?,?);`, war.ID, a.ID)
+			_, err = c.ctx.Db.Exec(`INSERT IGNORE INTO warAllies (id, allyID) VALUES(?,?);`, war.ID, a.ID)
 			if err != nil {
 				log.Printf("EVEConsumer: Failed writing war allies: %v", err)
 				continue
@@ -67,11 +62,7 @@ func (c *EVEConsumer) updateWars() {
 			}
 		}
 	}
-	err = tx.Commit()
-	if err != nil {
-		log.Printf("EVEConsumer: Failed writing war allies: %v", err)
-		return
-	}
+
 }
 
 func (c *EVEConsumer) collectWarsFromCREST() {
@@ -103,11 +94,6 @@ func (c *EVEConsumer) collectWarsFromCREST() {
 
 	// Loop through all of the pages
 	for ; w != nil; w, err = w.NextPage() {
-		tx, err := c.ctx.Db.Beginx()
-		if err != nil {
-			log.Printf("EVEConsumer: Could not start transaction for wars: %v", err)
-			continue
-		}
 
 		// Update state so we dont have two polling at once.
 		_, err = c.ctx.Db.Exec("UPDATE states SET value = ?, nextCheck =? WHERE state = 'wars' LIMIT 1", w.Page, w.CacheUntil)
@@ -124,7 +110,7 @@ func (c *EVEConsumer) collectWarsFromCREST() {
 				continue
 			}
 
-			_, err = tx.Exec(`INSERT INTO wars
+			_, err = c.ctx.Db.Exec(`INSERT INTO wars
 				(id, timeFinished,timeStarted,timeDeclared,openForAllies,cacheUntil,aggressorID,defenderID,mutual)
 				VALUES(?,?,?,?,?,?,?,?,?)
 				ON DUPLICATE KEY UPDATE 
@@ -153,7 +139,7 @@ func (c *EVEConsumer) collectWarsFromCREST() {
 			}
 
 			for _, a := range war.Allies {
-				_, err = tx.Exec(`INSERT IGNORE INTO warAllies (id, allyID) VALUES(?,?);`, war.ID, a.ID)
+				_, err = c.ctx.Db.Exec(`INSERT IGNORE INTO warAllies (id, allyID) VALUES(?,?);`, war.ID, a.ID)
 				if err != nil {
 					log.Printf("EVEConsumer: Failed writing war allies: %v", err)
 					continue
@@ -166,10 +152,6 @@ func (c *EVEConsumer) collectWarsFromCREST() {
 				}
 			}
 		}
-		err = tx.Commit()
-		if err != nil {
-			log.Printf("EVEConsumer: Failed writing war allies: %v", err)
-			return
-		}
+
 	}
 }

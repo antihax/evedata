@@ -67,7 +67,7 @@ func (c *EVEConsumer) contactSync() {
 		}
 
 		// Find the ID to search for wars.
-		var searchID int
+		var searchID int64
 		if char.AllianceID > 0 {
 			searchID = char.AllianceID
 		} else {
