@@ -34,7 +34,6 @@ func (c *EVEConsumer) goConsumer() {
 		default:
 			c.checkAlliances()
 			c.checkWars()
-
 		}
 		<-throttle
 	}

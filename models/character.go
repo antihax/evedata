@@ -105,3 +105,15 @@ func DeleteCRESTToken(characterID int64, tokenCharacterID int) error {
 	}
 	return nil
 }
+
+func UpdateCharacter(characterID int64, name string, bloodlineID int64, ancestryID int64, corporationID int64, allianceID int64, race string, securityStatus float64, cacheUntil time.Time) error {
+	if _, err := database.Exec(`
+		INSERT INTO eve.character (characterID,name,bloodlineID,ancestryID,corporationID,allianceID,race,securityStatus,updated,cacheUntil)
+			VALUES(?,?,?,?,?,?,?,?,UTC_TIMESTAMP(),?) 
+			ON DUPLICATE KEY UPDATE 
+			corporationID=VALUES(corporationID), allianceID=VALUES(allianceID), securityStatus=VALUES(securityStatus), updated = UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil)
+	`, characterID, name, bloodlineID, ancestryID, corporationID, allianceID, race, securityStatus, cacheUntil); err != nil {
+		return err
+	}
+	return nil
+}

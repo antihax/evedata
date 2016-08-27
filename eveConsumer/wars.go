@@ -1,9 +1,6 @@
 package eveConsumer
 
-import (
-	"evedata/models"
-	"log"
-)
+import "log"
 
 func (c *EVEConsumer) checkWars() {
 	c.collectWarsFromCREST()
@@ -55,7 +52,8 @@ func (c *EVEConsumer) updateWars() {
 				log.Printf("EVEConsumer: Failed writing war allies: %v", err)
 				continue
 			}
-			err = models.AddCRESTRef(a.ID, a.HRef)
+
+			c.updateEntity(a.HRef, a.ID)
 			if err != nil {
 				log.Printf("EVEConsumer: Failed writing CREST ref: %v", err)
 				continue
@@ -126,13 +124,13 @@ func (c *EVEConsumer) collectWarsFromCREST() {
 				continue
 			}
 
-			err = models.AddCRESTRef(war.Aggressor.ID, war.Aggressor.HRef)
+			err = c.updateEntity(war.Aggressor.HRef, war.Aggressor.ID)
 			if err != nil {
 				log.Printf("EVEConsumer: Failed writing CREST ref: %v", err)
 				continue
 			}
 
-			err = models.AddCRESTRef(war.Defender.ID, war.Defender.HRef)
+			err = c.updateEntity(war.Defender.HRef, war.Defender.ID)
 			if err != nil {
 				log.Printf("EVEConsumer: Failed writing CREST ref: %v", err)
 				continue
@@ -145,7 +143,7 @@ func (c *EVEConsumer) collectWarsFromCREST() {
 					continue
 				}
 
-				err = models.AddCRESTRef(a.ID, a.HRef)
+				err = c.updateEntity(a.HRef, a.ID)
 				if err != nil {
 					log.Printf("EVEConsumer: Failed writing CREST ref: %v", err)
 					continue
