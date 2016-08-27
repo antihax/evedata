@@ -27,7 +27,7 @@ func (c *EVEConsumer) collectAlliancesFromCREST() {
 	}
 
 	if r.Wait >= 0 {
-		//return
+		return
 	}
 
 	w, err := c.ctx.EVE.Alliances(0)

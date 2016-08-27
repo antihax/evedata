@@ -41,7 +41,7 @@ func GoServer() {
 	ctx.SSOAuthenticator = eveapi.NewSSOAuthenticator(ctx.Conf.CREST.SSO.ClientID,
 		ctx.Conf.CREST.SSO.SecretKey,
 		ctx.Conf.CREST.SSO.RedirectURL,
-		scopes)
+		nil)
 
 	ctx.TokenAuthenticator = eveapi.NewSSOAuthenticator(ctx.Conf.CREST.Token.ClientID,
 		ctx.Conf.CREST.Token.SecretKey,
