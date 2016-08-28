@@ -83,8 +83,12 @@ func GetArbitrageCalculator(hours int64, stationID int64, minVolume int64, maxPr
 		Price  float64 `db:"price"`
 	}
 
+	errc := make(chan error)
+
 	b := []buys{}
-	if err := database.Select(&b, `
+
+	go func() {
+		err := database.Select(&b, `
 		SELECT  market.typeID AS typeID, typeName, count(*) as buys, ROUND(market_vol.quantity / 2) as volume, ROUND(max(price) + (max(price) * ?),2) AS price
 		FROM    market, invTypes, market_vol
 		WHERE   market.done = 0 AND
@@ -97,28 +101,39 @@ func GetArbitrageCalculator(hours int64, stationID int64, minVolume int64, maxPr
 		        AND done = 0 AND
 		        market_vol.quantity /2 > ?
 		GROUP BY market.typeID
-		HAVING price < ?`, brokersFee, hours, stationID, minVolume, maxPrice); err != nil {
-		return nil, err
-	}
+		HAVING price < ?`, brokersFee, hours, stationID, minVolume, maxPrice)
+
+		errc <- err
+	}()
 
 	sellOrders := make(map[int64]sells)
 	s := []sells{}
-	if err := database.Select(&s, `
+	go func() {
+		err := database.Select(&s, `
 		SELECT  typeID, ROUND(min(price) - (min(price) * ?) - (min(price) * ?),2) AS price
 		FROM    market
 		WHERE   reported >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL ? DAY_HOUR) AND
 		        market.stationID = ?
 		        AND bid = 0
-		        GROUP BY typeID`, brokersFee, tax, hours, stationID); err != nil {
-		return nil, err
-	}
+		        GROUP BY typeID`, brokersFee, tax, hours, stationID)
 
-	// Add broker fee to all orders.
-	for _, order := range s {
-		sellOrders[order.TypeID] = order
-	}
+		// Add broker fee to all orders.
+		for _, order := range s {
+			sellOrders[order.TypeID] = order
+		}
+		errc <- err
+	}()
 
 	margins := []ArbitrageCalculator{}
+
+	err1, err2 := <-errc, <-errc
+
+	if err1 != nil {
+		return nil, err1
+	}
+	if err2 != nil {
+		return nil, err2
+	}
 
 	for _, buyOrder := range b {
 		sellOrder, ok := sellOrders[buyOrder.TypeID]
