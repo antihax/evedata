@@ -62,7 +62,6 @@ func GoServer() {
 	ctx.Store.Options.Domain = ctx.Conf.Domain
 
 	// Register structs for storage
-	gob.Register(eveapi.VerifyResponse{})
 	gob.Register(oauth2.Token{})
 	gob.Register(eveapi.CRESTToken{})
 
