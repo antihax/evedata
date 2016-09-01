@@ -3,18 +3,26 @@ package eveConsumer
 import "log"
 
 func (c *EVEConsumer) checkWars() {
-	c.collectWarsFromCREST()
-	c.updateWars()
+	err := c.collectWarsFromCREST()
+	if err != nil {
+		log.Printf("EVEConsumer: collecting wars: %v", err)
+	}
+
+	err = c.updateWars()
+	if err != nil {
+		log.Printf("EVEConsumer: updating wars: %v", err)
+	}
+
 }
 
-func (c *EVEConsumer) updateWars() {
+func (c *EVEConsumer) updateWars() error {
 	rows, err := c.ctx.Db.Query(
 		`SELECT id FROM eve.wars 
 			WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL) 
 			AND cacheUntil < UTC_TIMESTAMP()`)
 	if err != nil {
-		log.Printf("EVEConsumer: Failed getting wars: %v", err)
-		return
+
+		return err
 	}
 	defer rows.Close()
 
@@ -23,13 +31,11 @@ func (c *EVEConsumer) updateWars() {
 		var id int
 		err = rows.Scan(&id)
 		if err != nil {
-			log.Printf("EVEConsumer: Failed translating war ID: %v", err)
-			continue
+			return err
 		}
 		war, err := c.ctx.EVE.WarByID(id)
 		if err != nil {
-			log.Printf("EVEConsumer: Failed reading wars: %v", err)
-			continue
+			return err
 		}
 
 		_, err = c.ctx.Db.Exec(`UPDATE wars SET
@@ -42,28 +48,25 @@ func (c *EVEConsumer) updateWars() {
 			war.Mutual,
 			war.CacheUntil, war.ID)
 		if err != nil {
-			log.Printf("EVEConsumer: Failed writing wars: %v", err)
-			continue
+			return err
 		}
 
 		for _, a := range war.Allies {
 			_, err = c.ctx.Db.Exec(`INSERT IGNORE INTO warAllies (id, allyID) VALUES(?,?);`, war.ID, a.ID)
 			if err != nil {
-				log.Printf("EVEConsumer: Failed writing war allies: %v", err)
-				continue
+				return err
 			}
 
 			c.updateEntity(a.HRef, a.ID)
 			if err != nil {
-				log.Printf("EVEConsumer: Failed writing CREST ref: %v", err)
-				continue
+				return err
 			}
 		}
 	}
-
+	return nil
 }
 
-func (c *EVEConsumer) collectWarsFromCREST() {
+func (c *EVEConsumer) collectWarsFromCREST() error {
 	r := struct {
 		Value int
 		Wait  int
@@ -75,19 +78,17 @@ func (c *EVEConsumer) collectWarsFromCREST() {
 			WHERE state = 'wars'
 			LIMIT 1;
 		`); err != nil {
-		log.Printf("EVEConsumer: Error checking state: %v", err)
-		return
+		return err
 	}
 
 	if r.Wait >= 0 {
-		return
+		return nil
 	}
 
 	w, err := c.ctx.EVE.Wars(r.Value)
 
 	if err != nil {
-		log.Printf("EVEConsumer: Error checking wars: %v", err)
-		return
+		return err
 	}
 
 	// Loop through all of the pages
@@ -97,14 +98,13 @@ func (c *EVEConsumer) collectWarsFromCREST() {
 		_, err = c.ctx.Db.Exec("UPDATE states SET value = ?, nextCheck =? WHERE state = 'wars' LIMIT 1", w.Page, w.CacheUntil)
 
 		if err != nil {
-			log.Printf("EVEConsumer: Could not update war state: %v", err)
 			continue
 		}
 
 		for _, r := range w.Items {
+
 			war, err := c.ctx.EVE.War(r.HRef)
 			if err != nil {
-				log.Printf("EVEConsumer: Failed reading wars: %v", err)
 				continue
 			}
 
@@ -120,36 +120,42 @@ func (c *EVEConsumer) collectWarsFromCREST() {
 				war.OpenForAllies, war.CacheUntil, war.Aggressor.ID,
 				war.Defender.ID, war.Mutual)
 			if err != nil {
-				log.Printf("EVEConsumer: Failed writing wars: %v", err)
 				continue
 			}
 
 			err = c.updateEntity(war.Aggressor.HRef, war.Aggressor.ID)
 			if err != nil {
-				log.Printf("EVEConsumer: Failed writing CREST ref: %v", err)
 				continue
 			}
 
 			err = c.updateEntity(war.Defender.HRef, war.Defender.ID)
 			if err != nil {
-				log.Printf("EVEConsumer: Failed writing CREST ref: %v", err)
 				continue
 			}
 
 			for _, a := range war.Allies {
 				_, err = c.ctx.Db.Exec(`INSERT IGNORE INTO warAllies (id, allyID) VALUES(?,?);`, war.ID, a.ID)
 				if err != nil {
-					log.Printf("EVEConsumer: Failed writing war allies: %v", err)
 					continue
 				}
 
-				err = c.updateEntity(a.HRef, a.ID)
-				if err != nil {
-					log.Printf("EVEConsumer: Failed writing CREST ref: %v", err)
+				if err = c.updateEntity(a.HRef, a.ID); err != nil {
 					continue
 				}
 			}
-		}
 
+			/*	kills, err := war.GetKillmails()
+				if err != nil {
+					return err
+				}
+				for _, kills := range kills.Items {
+					k, err := war.Killmail(kills.HRef)
+					if err != nil {
+						return err
+					}
+					fmt.Printf("%+v\n", k)
+				}*/
+		}
 	}
+	return nil
 }

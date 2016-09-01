@@ -12,11 +12,13 @@ type EVEConsumer struct {
 	ctx                 *appContext.AppContext
 	consumerStopChannel chan bool
 	triggersStopChannel chan bool
+	seenID              map[int64]time.Time
+	seenHref            map[string]time.Time
 }
 
 // NewEVEConsumer creates a new EveConsumer
 func NewEVEConsumer(ctx *appContext.AppContext) *EVEConsumer {
-	e := &EVEConsumer{ctx, make(chan bool), make(chan bool)}
+	e := &EVEConsumer{ctx, make(chan bool), make(chan bool), make(map[int64]time.Time), make(map[string]time.Time)}
 
 	return e
 }
@@ -32,8 +34,8 @@ func (c *EVEConsumer) goConsumer() {
 			log.Printf("EVEConsumer: Shutting Down\n")
 			return
 		default:
-			c.checkAlliances()
 			c.checkWars()
+			c.checkAlliances()
 		}
 		<-throttle
 	}

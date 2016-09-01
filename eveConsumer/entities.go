@@ -2,8 +2,10 @@ package eveConsumer
 
 import (
 	"evedata/models"
+	"fmt"
 	"log"
 	"strings"
+	"time"
 )
 
 func (c *EVEConsumer) checkAlliances() {
@@ -132,10 +134,16 @@ func (c *EVEConsumer) updateEntity(href string, id int64) error {
 }
 
 func (c *EVEConsumer) updateAlliance(href string) error {
+	if c.seenHref[href].After(time.Now().UTC()) {
+		return nil
+	}
+
 	a, err := c.ctx.EVE.Alliance(href)
 	if err != nil {
 		return err
 	}
+
+	c.seenHref[href] = time.Now().UTC().Add(time.Hour)
 	err = models.AddCRESTRef(a.ID, href)
 	if err != nil {
 		return err
@@ -164,7 +172,16 @@ func (c *EVEConsumer) updateAlliance(href string) error {
 }
 
 func (c *EVEConsumer) updateCorporation(id int64) error {
+	if c.seenID[id].After(time.Now().UTC()) {
+		return nil
+	}
 	a, err := c.ctx.EVE.GetCorporationPublicSheet(id)
+	if err != nil {
+		return err
+	}
+	c.seenID[id] = time.Now().UTC().Add(time.Hour)
+	href := "https://crest-tq.eveonline.com/" + fmt.Sprintf("corporations/%d/", a.CorporationID)
+	err = models.AddCRESTRef(a.CorporationID, href)
 	if err != nil {
 		return err
 	}
