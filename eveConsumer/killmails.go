@@ -39,6 +39,10 @@ func (c *EVEConsumer) addKillmail(href string) error {
 		return err
 	}
 	c.updateEntity(kill.Victim.Character.Href, kill.Victim.Character.ID)
+	c.updateEntity(kill.Victim.Corporation.Href, kill.Victim.Corporation.ID)
+	if kill.Victim.Alliance.ID != 0 {
+		c.updateEntity(kill.Victim.Alliance.Href, kill.Victim.Alliance.ID)
+	}
 	models.AddKillmail(kill.KillID, kill.SolarSystem.ID, kill.KillTime.UTC(), kill.Victim.Character.ID,
 		kill.Victim.Corporation.ID, kill.Victim.Alliance.ID, hash, kill.AttackerCount, kill.Victim.DamageTaken,
 		kill.Victim.Position.X, kill.Victim.Position.Y, kill.Victim.Position.Z, kill.Victim.ShipType.ID,
@@ -51,6 +55,10 @@ func (c *EVEConsumer) addKillmail(href string) error {
 
 	for _, attacker := range kill.Attackers {
 		c.updateEntity(attacker.Character.Href, attacker.Character.ID)
+		c.updateEntity(attacker.Corporation.Href, attacker.Corporation.ID)
+		if attacker.Alliance.ID != 0 {
+			c.updateEntity(attacker.Alliance.Href, attacker.Alliance.ID)
+		}
 		models.AddKillmailAttacker(kill.KillID, attacker.Character.ID, attacker.Corporation.ID, attacker.Alliance.ID,
 			attacker.ShipType.ID, attacker.FinalBlow, attacker.DamageDone, attacker.WeaponType.ID,
 			attacker.SecurityStatus)
