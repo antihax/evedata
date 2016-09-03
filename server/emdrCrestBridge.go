@@ -15,42 +15,6 @@ import (
 
 var stations map[int64]int64
 
-// Temporary Hack
-func getKills(r int64, client napping.Session, c *appContext.AppContext) {
-	type kills struct {
-		KillID        int
-		SolarSystemID int
-		KillTime      string
-		MoonID        int
-		Victim        struct {
-			CharacterID   int
-			CorporationID int
-			AllianceID    int
-		}
-		ZKB struct {
-			Hash string
-		}
-	}
-
-	url := fmt.Sprintf("https://zkillboard.com/api/kills/regionID/%d/", r)
-	h := []kills{}
-	response, err := client.Get(url, nil, &h, nil)
-	if err != nil {
-		log.Printf("EMDRCrestBridge: %s", err)
-		return
-	}
-	if response.Status() == 200 {
-
-		for _, e := range h {
-			c.Bridge.KillInsert.Exec(e.KillID, e.SolarSystemID, e.KillTime, e.MoonID, e.Victim.CharacterID, e.Victim.CorporationID, e.Victim.AllianceID, e.ZKB.Hash)
-			if err != nil {
-				log.Printf("EMDRCrestBridge: %s", err)
-				return
-			}
-		}
-	}
-}
-
 func goEMDRCrestBridge(c *appContext.AppContext) {
 
 	type regionKey struct {
@@ -210,7 +174,7 @@ func goEMDRCrestBridge(c *appContext.AppContext) {
 				b := marketOrders{}
 				url := fmt.Sprintf("https://crest-tq.eveonline.com/market/%d/orders/all/", r.RegionID)
 
-				go getKills(r.RegionID, crest, c)
+				//go getKills(r.RegionID, crest, c)
 
 				response, err := crest.Get(url, nil, &b, nil)
 				if err != nil {

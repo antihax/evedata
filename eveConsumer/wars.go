@@ -81,7 +81,7 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 	}
 
 	if r.Wait >= 0 {
-		return nil
+		//return nil
 	}
 
 	w, err := c.ctx.EVE.Wars(r.Value)
@@ -143,17 +143,16 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 				}
 			}
 
-			/*	kills, err := war.GetKillmails()
+			kills, err := war.GetKillmails()
+			if err != nil {
+				return err
+			}
+			for _, kills := range kills.Items {
+				err := c.addKillmail(kills.HRef)
 				if err != nil {
 					return err
 				}
-				for _, kills := range kills.Items {
-					k, err := war.Killmail(kills.HRef)
-					if err != nil {
-						return err
-					}
-					fmt.Printf("%+v\n", k)
-				}*/
+			}
 		}
 	}
 	return nil
