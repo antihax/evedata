@@ -16,10 +16,17 @@
     	"URL":				"http://upload.eve-emdr.com/upload/",
     	"MaxGoRoutines":	16
     },
-    "CREST": {
-    	"ClientID": "NIL",
-    	"SecretKey": "NIL",
-    	"RedirectURL": "NIL"
+	"CREST": {
+        "SSO": {
+                "ClientID": "",
+                "SecretKey": "",
+                "RedirectURL": "http://www/eveSSOAnswer"
+        },
+        "Token": {
+        		"ClientID": "",
+        		"SecretKey": "",
+        		"RedirectURL": "http://www/eveTokenAnswer"
+        }
     },
-    "MemcachedAddress": "localhost:11211"
+     "MemcachedAddress": ["192.168.1.10:11211", "192.168.1.14:11211", "192.168.1.12:11211"],
 }

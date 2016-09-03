@@ -49,7 +49,7 @@ func GoServer() {
 		scopes)
 
 	// Connect to the memcache server
-	ctx.Cache = memcache.New(ctx.Conf.MemcachedAddress)
+	ctx.Cache = memcache.New(ctx.Conf.MemcachedAddress...)
 
 	// Create a memcached http client for the CCP APIs.
 	transport := httpcache.NewTransport(httpmemcache.NewWithClient(ctx.Cache))

@@ -39,7 +39,7 @@ type Config struct {
 	}
 	ServerIP         string
 	Domain           string
-	MemcachedAddress string
+	MemcachedAddress []string
 }
 
 // ReadConfig should be run at startup and result shared between microservices.
