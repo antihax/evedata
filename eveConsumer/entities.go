@@ -6,69 +6,61 @@ import (
 	"log"
 	"strings"
 	"time"
+
+	"github.com/bradfitz/gomemcache/memcache"
 )
 
 func (c *EVEConsumer) checkAlliances() {
+
 	err := c.collectEntitiesFromCREST()
 	if err != nil {
 		log.Printf("EVEConsumer: collecting entities: %v", err)
 	}
-
 	err = c.updateEntities()
 	if err != nil {
 		log.Printf("EVEConsumer: updating entities: %v", err)
 	}
+
 }
 
 func (c *EVEConsumer) updateEntities() error {
+
 	alliances, err := c.ctx.Db.Query(
-		`SELECT allianceid FROM alliance 
-			WHERE cacheUntil < UTC_TIMESTAMP()`)
+		`SELECT allianceid, crestRef, cacheUntil FROM alliance A
+INNER JOIN crestID C ON A.allianceID = C.id
+			WHERE cacheUntil < UTC_TIMESTAMP()  
+UNION
+SELECT corporationid, crestRef, cacheUntil FROM corporation A
+INNER JOIN crestID C ON A.corporationID = C.id
+			WHERE cacheUntil < UTC_TIMESTAMP()
+UNION
+(SELECT characterID, crestRef, cacheUntil FROM eve.character A
+INNER JOIN crestID C ON A.characterID = C.id
+			WHERE cacheUntil < UTC_TIMESTAMP())
+            
+            ORDER BY cacheUntil ASC`)
 	if err != nil {
 		return err
 	}
 
 	for alliances.Next() {
-		var id int64
-		err = alliances.Scan(&id)
+		var (
+			id      int64
+			href    string
+			nothing string
+		)
+
+		err = alliances.Scan(&id, &href, &nothing)
 		if err != nil {
 			return err
 		}
-		a, err := c.ctx.EVE.AllianceByID(id)
-		if err != nil {
+
+		if err = c.updateEntity(href, id); err != nil {
 			return err
 		}
-		err = models.UpdateAlliance(a.ID, a.Name, a.CorporationsCount, a.ShortName, a.ExecutorCorporation.ID,
-			a.StartDate.UTC(), a.Deleted, a.Description, a.CreatorCorporation.ID, a.CreatorCharacter.ID, a.CacheUntil.UTC())
-		if err != nil {
-			return err
-		}
-		err = c.updateCharacter(a.CreatorCharacter.ID)
-		if err != nil {
-			return err
-		}
+
 	}
 	alliances.Close()
-
-	corporations, err := c.ctx.Db.Query(
-		`SELECT corporationid FROM corporation 
-			WHERE cacheUntil < UTC_TIMESTAMP()`)
-	if err != nil {
-		return err
-	}
-
-	for corporations.Next() {
-		var id int64
-		err = corporations.Scan(&id)
-		if err != nil {
-			return err
-		}
-		err = c.updateCorporation(id)
-		if err != nil {
-			return err
-		}
-	}
-	corporations.Close()
 
 	return nil
 }
@@ -112,8 +104,7 @@ func (c *EVEConsumer) collectEntitiesFromCREST() error {
 		}
 
 		for _, r := range w.Items {
-			err := c.updateAlliance(r.HRef)
-			if err != nil {
+			if err = c.updateEntity(r.HRef, r.ID); err != nil {
 				return err
 			}
 		}
@@ -122,92 +113,102 @@ func (c *EVEConsumer) collectEntitiesFromCREST() error {
 }
 
 func (c *EVEConsumer) updateEntity(href string, id int64) error {
-	var err error
-	if strings.Contains(href, "alliances") {
-		err = c.updateAlliance(href)
-	} else if strings.Contains(href, "corporations") {
-		err = c.updateCorporation(id)
-	} else if strings.Contains(href, "characters") {
-		err = c.updateCharacter(id)
-	}
+	var (
+		err error
+		t   int32
+	)
+	go func() error {
+		_, err := c.ctx.Cache.Get("EVEDATA_entity:" + href)
+		if err != nil {
+
+			if strings.Contains(href, "alliances") {
+				t, err = c.updateAlliance(href)
+			} else if strings.Contains(href, "corporations") {
+				t, err = c.updateCorporation(id)
+			} else if strings.Contains(href, "characters") {
+				t, err = c.updateCharacter(id)
+			}
+			if err != nil {
+				return err
+			}
+			err = models.AddCRESTRef(id, href)
+			if err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+
+		item := &memcache.Item{
+			Key:        "EVEDATA_entity:" + href,
+			Value:      []byte("1"),
+			Expiration: t,
+		}
+		err = c.ctx.Cache.Set(item)
+		return err
+	}()
 	return err
 }
 
-func (c *EVEConsumer) updateAlliance(href string) error {
-	if c.seenHref[href].After(time.Now().UTC()) {
-		return nil
-	}
+func (c *EVEConsumer) updateAlliance(href string) (int32, error) {
 
 	a, err := c.ctx.EVE.Alliance(href)
 	if err != nil {
-		return err
+		return 1, err
 	}
 
-	c.seenHref[href] = time.Now().UTC().Add(time.Hour)
-	err = models.AddCRESTRef(a.ID, href)
-	if err != nil {
-		return err
-	}
 	err = models.UpdateAlliance(a.ID, a.Name, a.CorporationsCount, a.ShortName, a.ExecutorCorporation.ID,
 		a.StartDate.UTC(), a.Deleted, a.Description, a.CreatorCorporation.ID, a.CreatorCharacter.ID, a.CacheUntil.UTC())
 	if err != nil {
-		return err
+		return 1, err
 	}
-	err = c.updateCharacter(a.CreatorCharacter.ID)
+	err = c.updateEntity(a.CreatorCharacter.Href, a.CreatorCharacter.ID)
 	if err != nil {
-		return err
+		return 1, err
 	}
 
 	for _, corp := range a.Corporations {
-		err = c.updateCorporation(corp.ID)
+		err = c.updateEntity(corp.Href, corp.ID)
 		if err != nil {
-			return err
-		}
-		err = models.AddCRESTRef(corp.ID, corp.Href)
-		if err != nil {
-			return err
+			return 1, err
 		}
 	}
-	return nil
+	t := int32(a.CacheUntil.Sub(time.Now().UTC()).Seconds())
+	return t, nil
 }
 
-func (c *EVEConsumer) updateCorporation(id int64) error {
-	if c.seenID[id].After(time.Now().UTC()) {
-		return nil
-	}
+func (c *EVEConsumer) updateCorporation(id int64) (int32, error) {
+
 	a, err := c.ctx.EVE.GetCorporationPublicSheet(id)
 	if err != nil {
-		return err
-	}
-	c.seenID[id] = time.Now().UTC().Add(time.Hour)
-	href := "https://crest-tq.eveonline.com/" + fmt.Sprintf("corporations/%d/", a.CorporationID)
-	err = models.AddCRESTRef(a.CorporationID, href)
-	if err != nil {
-		return err
+		return 1, err
 	}
 
 	err = models.UpdateCorporation(a.CorporationID, a.CorporationName, a.Ticker, a.CEOID, a.StationID,
 		a.Description, a.AllianceID, a.FactionID, a.URL, a.MemberCount, a.Shares, a.CachedUntil.UTC())
 	if err != nil {
-		return err
+		return 1, err
 	}
 
-	err = c.updateCharacter(a.CEOID)
+	chref := "https://crest-tq.eveonline.com/" + fmt.Sprintf("characters/%d/", a.CEOID)
+	err = c.updateEntity(chref, a.CEOID)
 	if err != nil {
-		return err
+		return 1, err
 	}
 
-	return nil
+	t := int32(a.CachedUntil.Sub(time.Now().UTC()).Seconds())
+	return t, nil
 }
 
-func (c *EVEConsumer) updateCharacter(id int64) error {
+func (c *EVEConsumer) updateCharacter(id int64) (int32, error) {
 	a, err := c.ctx.EVE.GetCharacterInfo(id)
 	if err != nil {
-		return err
+		return 1, err
 	}
 	err = models.UpdateCharacter(a.CharacterID, a.CharacterName, a.BloodlineID, a.AncestryID, a.CorporationID, a.AllianceID, a.Race, a.SecurityStatus, a.CachedUntil.UTC())
 	if err != nil {
-		return err
+		return 1, err
 	}
-	return nil
+	t := int32(a.CachedUntil.Sub(time.Now().UTC()).Seconds())
+	return t, nil
 }

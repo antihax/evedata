@@ -6,7 +6,8 @@ import (
 	"evedata/eveapi"
 	"net/http"
 
-	"github.com/bradleypeabody/gorilla-sessions-memcache"
+	"github.com/bradfitz/gomemcache/memcache"
+	gsm "github.com/bradleypeabody/gorilla-sessions-memcache"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -16,6 +17,8 @@ type AppContext struct {
 	Db    *sqlx.DB
 	Store *gsm.MemcacheStore
 	EVE   *eveapi.AnonymousClient
+
+	Cache *memcache.Client
 
 	SSOAuthenticator   *eveapi.SSOAuthenticator
 	TokenAuthenticator *eveapi.SSOAuthenticator

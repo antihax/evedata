@@ -49,15 +49,15 @@ func GoServer() {
 		scopes)
 
 	// Connect to the memcache server
-	cache := memcache.New(ctx.Conf.MemcachedAddress)
+	ctx.Cache = memcache.New(ctx.Conf.MemcachedAddress)
 
 	// Create a memcached http client for the CCP APIs.
-	transport := httpcache.NewTransport(httpmemcache.NewWithClient(cache))
+	transport := httpcache.NewTransport(httpmemcache.NewWithClient(ctx.Cache))
 	transport.Transport = &http.Transport{Proxy: http.ProxyFromEnvironment}
 	ctx.HTTPClient = &http.Client{Transport: transport}
 
 	// Create a memcached session store.
-	ctx.Store = gsm.NewMemcacheStore(cache, "EVEDATA_SESSIONS_", []byte(ctx.Conf.Store.Key))
+	ctx.Store = gsm.NewMemcacheStore(ctx.Cache, "EVEDATA_SESSIONS_", []byte(ctx.Conf.Store.Key))
 	ctx.Store.StoreMethod = gsm.StoreMethodSecureCookie
 	ctx.Store.Options.Domain = ctx.Conf.Domain
 
