@@ -106,7 +106,9 @@ func DeleteCRESTToken(characterID int64, tokenCharacterID int) error {
 	return nil
 }
 
-func UpdateCharacter(characterID int64, name string, bloodlineID int64, ancestryID int64, corporationID int64, allianceID int64, race string, securityStatus float64, cacheUntil time.Time) error {
+func UpdateCharacter(characterID int64, name string, bloodlineID int64, ancestryID int64, corporationID int64, allianceID int64,
+	race string, securityStatus float64, cacheUntil time.Time) error {
+	cacheUntil = time.Now().UTC().Add(time.Hour * 24)
 	if _, err := database.Exec(`
 		INSERT INTO eve.character (characterID,name,bloodlineID,ancestryID,corporationID,allianceID,race,securityStatus,updated,cacheUntil)
 			VALUES(?,?,?,?,?,?,?,?,UTC_TIMESTAMP(),?) 

@@ -4,6 +4,8 @@ import "time"
 
 func UpdateAlliance(allianceID int64, name string, memberCount int64, shortName string, executorCorp int64, startDate time.Time, deleted bool,
 	description string, creatorCorp int64, creatorCharacter int64, cacheUntil time.Time) error {
+
+	cacheUntil = time.Now().UTC().Add(time.Hour * 24)
 	if _, err := database.Exec(`
 		INSERT INTO alliance 
 			(allianceID,name,shortName,executorCorpID,startDate,corporationsCount,deleted,description,creatorCorpID,creatorCharacter,updated,cacheUntil)

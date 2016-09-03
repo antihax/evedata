@@ -12,7 +12,6 @@ func (c *EVEConsumer) checkWars() {
 	if err != nil {
 		log.Printf("EVEConsumer: updating wars: %v", err)
 	}
-
 }
 
 func (c *EVEConsumer) updateWars() error {
