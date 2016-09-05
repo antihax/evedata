@@ -33,7 +33,7 @@ func (c *EVEConsumer) goConsumer() {
 			log.Printf("EVEConsumer: Shutting Down\n")
 			return
 		default:
-
+			c.checkNPCCorps()
 			c.checkWars()
 			c.checkAlliances()
 

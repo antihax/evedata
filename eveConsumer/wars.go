@@ -81,7 +81,7 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 	}
 
 	if r.Wait >= 0 {
-		//return nil
+		return nil
 	}
 
 	w, err := c.ctx.EVE.Wars(r.Value)
