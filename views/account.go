@@ -52,8 +52,7 @@ func apiGetKeys(c *appContext.AppContext, w http.ResponseWriter, r *http.Request
 }
 
 func apiDeleteKey(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-
-	keyID, err := strconv.Atoi(r.FormValue("keyID"))
+	keyID, err := strconv.ParseInt(r.FormValue("keyID"), 10, 64)
 	if err != nil {
 		return http.StatusNotFound, errors.New("Invalid keyID")
 	}
@@ -66,12 +65,7 @@ func apiDeleteKey(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 }
 
 func apiAddKey(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-
-	type localApiKey struct {
-		KeyID string
-		VCode string
-	}
-	var key localApiKey
+	var key eveapi.XMLAPIKey
 
 	if r.Body == nil {
 		return http.StatusNotFound, errors.New("No Data Received")
@@ -80,12 +74,8 @@ func apiAddKey(c *appContext.AppContext, w http.ResponseWriter, r *http.Request,
 	if err != nil {
 		return http.StatusNotFound, err
 	}
-	keyID, err := strconv.Atoi(key.KeyID)
-	if err != nil {
-		return http.StatusNotFound, errors.New("Invalid keyID")
-	}
 
-	if eveapi.IsValidVCode(key.VCode) == false {
+	if key.IsValidVCode() == false {
 		return http.StatusConflict, errors.New("Invalid vCode")
 	}
 
@@ -93,7 +83,7 @@ func apiAddKey(c *appContext.AppContext, w http.ResponseWriter, r *http.Request,
 		return http.StatusForbidden, nil
 	}
 	characterID := s.Values["characterID"].(int64)
-	if err := models.AddApiKey(characterID, keyID, key.VCode); err != nil {
+	if err := models.AddApiKey(characterID, key.KeyID, key.VCode); err != nil {
 		return http.StatusConflict, err
 	}
 
@@ -119,7 +109,7 @@ func apiGetCRESTTokens(c *appContext.AppContext, w http.ResponseWriter, r *http.
 
 func apiDeleteCRESTToken(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 
-	cid, err := strconv.Atoi(r.FormValue("tokenCharacterID"))
+	cid, err := strconv.ParseInt(r.FormValue("tokenCharacterID"), 10, 64)
 	if err != nil {
 		return http.StatusNotFound, errors.New("Invalid tokenCharacterID")
 	}

@@ -7,22 +7,22 @@ import (
 )
 
 type ApiKey struct {
-	KeyID       int         `db:"keyID" json:"keyID"`
-	CharacterID int         `db:"characterID" json:"characterID"`
+	KeyID       int64       `db:"keyID" json:"keyID"`
+	CharacterID int64       `db:"characterID" json:"characterID"`
 	NextCheck   time.Time   `db:"nextCheck" json:"nextCheck"`
-	LastCode    int         `db:"lastCode" json:"lastCode"`
+	LastCode    int64       `db:"lastCode" json:"lastCode"`
 	LastError   null.String `db:"lastError" json:"lastError"`
-	AccessMask  int         `db:"accessMask" json:"accessMask"`
+	AccessMask  int64       `db:"accessMask" json:"accessMask"`
 	Type        null.String `db:"type" json:"type"`
 }
 
 type CRESTToken struct {
 	Expiry           time.Time   `db:"expiry" json:"expiry"`
-	CharacterID      int         `db:"characterID" json:"characterID"`
+	CharacterID      int64       `db:"characterID" json:"characterID"`
 	TokenType        string      `db:"tokenType" json:"tokenType"`
-	TokenCharacterID int         `db:"tokenCharacterID" json:"tokenCharacterID"`
+	TokenCharacterID int64       `db:"tokenCharacterID" json:"tokenCharacterID"`
 	CharacterName    string      `db:"characterName" json:"characterName"`
-	LastCode         int         `db:"lastCode" json:"lastCode"`
+	LastCode         int64       `db:"lastCode" json:"lastCode"`
 	LastStatus       null.String `db:"lastStatus" json:"lastStatus"`
 	AccessToken      string      `db:"accessToken" json:"accessToken"`
 	RefreshToken     string      `db:"refreshToken" json:"refreshToken"`
@@ -51,7 +51,7 @@ func GetAPIKeys(characterID int64) ([]ApiKey, error) {
 	return keys, nil
 }
 
-func AddApiKey(characterID int64, keyID int, vCode string) error {
+func AddApiKey(characterID int64, keyID int64, vCode string) error {
 	if _, err := database.Exec(`INSERT INTO apiKeys (characterID, keyID, vCode)VALUES(?,?,?)`,
 		characterID, keyID, vCode); err != nil {
 
@@ -60,7 +60,7 @@ func AddApiKey(characterID int64, keyID int, vCode string) error {
 	return nil
 }
 
-func DeleteApiKey(characterID int64, keyID int) error {
+func DeleteApiKey(characterID int64, keyID int64) error {
 	if _, err := database.Exec(`DELETE FROM apiKeys WHERE characterID = ? AND keyID = ? LIMIT 1`,
 		characterID, keyID); err != nil {
 
@@ -97,7 +97,7 @@ func AddCRESTToken(characterID int64, tokenCharacterID int64, characterName stri
 	return nil
 }
 
-func DeleteCRESTToken(characterID int64, tokenCharacterID int) error {
+func DeleteCRESTToken(characterID int64, tokenCharacterID int64) error {
 	if _, err := database.Exec(`DELETE FROM crestTokens WHERE characterID = ? AND tokenCharacterID = ? LIMIT 1`,
 		characterID, tokenCharacterID); err != nil {
 

@@ -84,7 +84,7 @@ func (c *EVEConsumer) collectEntitiesFromCREST() error {
 		return nil
 	}
 
-	w, err := c.ctx.EVE.Alliances(0)
+	w, err := c.ctx.EVE.Alliances(r.Value)
 
 	if err != nil {
 		return err
