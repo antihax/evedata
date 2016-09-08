@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"evedata/null"
+	"time"
+)
 
 func AddKillmail(id int64, solarSystemID int64, killTime time.Time, victimCharacterID int64, victimCorporationID int64,
 	victimAllianceID int64, hash string, attackerCount int64, damageTaken int64, x float64, y float64, z float64,
@@ -49,19 +52,19 @@ func GetKnownKillmails() ([]int64, error) {
 }
 
 type ActiveWarList struct {
-	WarID         int64     `db:"warID" json:"warID"`
-	TimeStarted   time.Time `db:"timeStarted" json:"timeStarted"`
-	TimeFinished  time.Time `db:"timeFinished" json:"timeFinished"`
-	OpenForAllies bool      `db:"openForAllies" json:"openForAllies"`
-	AggressorID   int64     `db:"aggressorID" json:"aggressorID"`
-	AggressorType string    `db:"aggressorType" json:"aggressorType"`
-	AggressorName string    `db:"aggressorName" json:"aggressorName"`
-	DefenderID    int64     `db:"defenderID" json:"defenderID"`
-	DefenderType  string    `db:"defenderType" json:"defenderType"`
-	DefenderName  string    `db:"defenderName" json:"defenderName"`
-	Mutual        bool      `db:"mutual" json:"mutual"`
-	Kills         int64     `db:"kills" json:"kills"`
-	Losses        int64     `db:"losses" json:"losses"`
+	WarID         int64       `db:"warID" json:"warID"`
+	TimeStarted   time.Time   `db:"timeStarted" json:"timeStarted"`
+	TimeFinished  time.Time   `db:"timeFinished" json:"timeFinished"`
+	OpenForAllies bool        `db:"openForAllies" json:"openForAllies"`
+	AggressorID   int64       `db:"aggressorID" json:"aggressorID"`
+	AggressorType null.String `db:"aggressorType" json:"aggressorType"`
+	AggressorName null.String `db:"aggressorName" json:"aggressorName"`
+	DefenderID    int64       `db:"defenderID" json:"defenderID"`
+	DefenderType  null.String `db:"defenderType" json:"defenderType"`
+	DefenderName  null.String `db:"defenderName" json:"defenderName"`
+	Mutual        bool        `db:"mutual" json:"mutual"`
+	Kills         int64       `db:"kills" json:"kills"`
+	Losses        int64       `db:"losses" json:"losses"`
 }
 
 func GetActiveWarList() ([]ActiveWarList, error) {

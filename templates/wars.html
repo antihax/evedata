@@ -1,0 +1,24 @@
+{{define "body"}}
+
+<h3>Active Wars</h3>
+<div class="insideContainer">
+	<table id="activeWarTable" class="table" 
+		data-sort-name="kills"
+        data-sort-order="desc"
+        data-url="/J/activeWars"
+		data-toggle="table" cellspacing="0" width="100%">
+		<thead>
+			<tr>
+				<th data-field="aggressorName">Aggressor</th>
+				<th data-field="defenderName">Defender</th>
+				<th data-field="kills">Kills</th>
+				<th data-field="losses">Losses</th>
+				<th data-field="openForAllies">Open For Allies</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+</div>
+{{end}}
