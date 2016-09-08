@@ -97,8 +97,8 @@ func goEMDRCrestBridge(c *appContext.AppContext) {
 		}
 
 		c.Bridge.KillInsert, err = c.Db.Prepare(`
-			INSERT IGNORE INTO killmails (id,solarSystemID,killTime,moonID,victimCharacterID,victimCorporationID,victimAllianceID,hash)
-			VALUES(?,?,?,?,?,?,?,?);
+			INSERT IGNORE INTO killmails (id,solarSystemID,killTime,victimCharacterID,victimCorporationID,victimAllianceID,hash)
+			VALUES(?,?,?,?,?,?,?);
 		`)
 		if err != nil {
 			log.Fatalf("EMDRCrestBridge: %s", err)
