@@ -9,14 +9,14 @@ import (
 	"evedata/models"
 	"log"
 	"net/http"
+	"time"
 
-	"golang.org/x/oauth2"
-
-	"github.com/bradfitz/gomemcache/memcache"
-	gsm "github.com/bradleypeabody/gorilla-sessions-memcache"
+	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/context"
 	"github.com/gregjones/httpcache"
-	httpmemcache "github.com/gregjones/httpcache/memcache" // ...
+	httpredis "github.com/gregjones/httpcache/redis"
+	"golang.org/x/oauth2"
+	gsr "gopkg.in/boj/redistore.v1"
 )
 
 func GoServer() {
@@ -48,17 +48,33 @@ func GoServer() {
 		ctx.Conf.CREST.Token.RedirectURL,
 		scopes)
 
-	// Connect to the memcache server
-	ctx.Cache = memcache.New(ctx.Conf.MemcachedAddress...)
+	ctx.Cache = redis.Pool{
+		MaxIdle:     5,
+		IdleTimeout: 60 * time.Second,
+		Dial: func() (redis.Conn, error) {
+			c, err := redis.Dial("tcp", ctx.Conf.Redis.Address)
+			if err != nil {
+				return nil, err
+			}
+			if _, err := c.Do("AUTH", ctx.Conf.Redis.Password); err != nil {
+				c.Close()
+				return nil, err
+			}
+			return c, err
+		},
+	}
 
 	// Create a memcached http client for the CCP APIs.
-	transport := httpcache.NewTransport(httpmemcache.NewWithClient(ctx.Cache))
+	transport := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))
 	transport.Transport = &http.Transport{Proxy: http.ProxyFromEnvironment}
 	ctx.HTTPClient = &http.Client{Transport: transport}
 
 	// Create a memcached session store.
-	ctx.Store = gsm.NewMemcacheStore(ctx.Cache, "EVEDATA_SESSIONS_", []byte(ctx.Conf.Store.Key))
-	ctx.Store.StoreMethod = gsm.StoreMethodSecureCookie
+	ctx.Store, err = gsr.NewRediStoreWithPool(&ctx.Cache, []byte(ctx.Conf.Store.Key))
+	if err != nil {
+		log.Fatalf("Cannot build database pool: %v", err)
+	}
+
 	ctx.Store.Options.Domain = ctx.Conf.Domain
 
 	// Register structs for storage

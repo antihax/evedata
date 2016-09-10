@@ -6,8 +6,9 @@ import (
 	"evedata/eveapi"
 	"net/http"
 
-	"github.com/bradfitz/gomemcache/memcache"
-	gsm "github.com/bradleypeabody/gorilla-sessions-memcache"
+	redistore "gopkg.in/boj/redistore.v1"
+
+	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -15,10 +16,10 @@ import (
 type AppContext struct {
 	Conf  *config.Config
 	Db    *sqlx.DB
-	Store *gsm.MemcacheStore
+	Store *redistore.RediStore
 	EVE   *eveapi.AnonymousClient
 
-	Cache *memcache.Client
+	Cache redis.Pool
 
 	SSOAuthenticator   *eveapi.SSOAuthenticator
 	TokenAuthenticator *eveapi.SSOAuthenticator

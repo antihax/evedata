@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bradfitz/gomemcache/memcache"
+	"github.com/garyburd/redigo/redis"
 )
 
 func (c *EVEConsumer) checkAlliances() {
@@ -115,11 +115,13 @@ func (c *EVEConsumer) collectEntitiesFromCREST() error {
 func (c *EVEConsumer) updateEntity(href string, id int64) error {
 	var (
 		err error
-		t   int32
+		t   time.Duration
 	)
-	go func() error {
-		_, err := c.ctx.Cache.Get("EVEDATA_entity:" + href)
-		if err != nil {
+	go func() {
+		r := c.ctx.Cache.Get()
+		defer r.Close()
+		i, err := redis.Bool(r.Do("EXISTS", "EVEDATA_entity:"+href))
+		if err == nil || i == true {
 
 			if strings.Contains(href, "alliances") {
 				t, err = c.updateAlliance(href)
@@ -129,28 +131,24 @@ func (c *EVEConsumer) updateEntity(href string, id int64) error {
 				t, err = c.updateCharacter(id)
 			}
 			if err != nil {
-				return err
+				return
 			}
 			err = models.AddCRESTRef(id, href)
 			if err != nil {
-				return err
+				return
 			}
+			r.Do("SETEX", "EVEDATA_entity:"+href, (int64)(t.Seconds())+1, true)
 		} else {
-			return err
+			return
 		}
 
-		item := &memcache.Item{
-			Key:        "EVEDATA_entity:" + href,
-			Value:      []byte("1"),
-			Expiration: t,
-		}
-		err = c.ctx.Cache.Set(item)
-		return err
+		return
+
 	}()
 	return err
 }
 
-func (c *EVEConsumer) updateAlliance(href string) (int32, error) {
+func (c *EVEConsumer) updateAlliance(href string) (time.Duration, error) {
 
 	a, err := c.ctx.EVE.Alliance(href)
 	if err != nil {
@@ -173,11 +171,11 @@ func (c *EVEConsumer) updateAlliance(href string) (int32, error) {
 			return 1, err
 		}
 	}
-	t := int32(a.CacheUntil.Sub(time.Now().UTC()).Seconds())
+	t := a.CacheUntil.Sub(time.Now().UTC())
 	return t, nil
 }
 
-func (c *EVEConsumer) updateCorporation(id int64) (int32, error) {
+func (c *EVEConsumer) updateCorporation(id int64) (time.Duration, error) {
 
 	a, err := c.ctx.EVE.GetCorporationPublicSheet(id)
 	if err != nil {
@@ -196,11 +194,11 @@ func (c *EVEConsumer) updateCorporation(id int64) (int32, error) {
 		return 1, err
 	}
 
-	t := int32(a.CachedUntil.Sub(time.Now().UTC()).Seconds())
+	t := a.CachedUntil.Sub(time.Now().UTC())
 	return t, nil
 }
 
-func (c *EVEConsumer) updateCharacter(id int64) (int32, error) {
+func (c *EVEConsumer) updateCharacter(id int64) (time.Duration, error) {
 	a, err := c.ctx.EVE.GetCharacterInfo(id)
 	if err != nil {
 		return 1, err
@@ -209,6 +207,6 @@ func (c *EVEConsumer) updateCharacter(id int64) (int32, error) {
 	if err != nil {
 		return 1, err
 	}
-	t := int32(a.CachedUntil.Sub(time.Now().UTC()).Seconds())
+	t := a.CachedUntil.Sub(time.Now().UTC())
 	return t, nil
 }

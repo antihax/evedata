@@ -40,6 +40,11 @@ type Config struct {
 	ServerIP         string
 	Domain           string
 	MemcachedAddress []string
+
+	Redis struct {
+		Address  string
+		Password string
+	}
 }
 
 // ReadConfig should be run at startup and result shared between microservices.
