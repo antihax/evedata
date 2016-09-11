@@ -6,19 +6,46 @@
 		data-sort-name="kills"
         data-sort-order="desc"
         data-url="/J/activeWars"
-		data-toggle="table" cellspacing="0" width="100%">
+		data-toggle="table"
+		
+        data-search="true"
+        data-show-refresh="true"
+        data-show-columns="true"
+        data-minimum-count-columns="2"
+        data-show-pagination-switch="true"
+        data-pagination="true"
+        
+        data-page-list="[10, 25, 50, 100, ALL]"
+        data-show-footer="false"
+        data-side-pagination="client"
+		cellspacing="0" width="100%">
 		<thead>
 			<tr>
-				<th data-field="aggressorName">Aggressor</th>
-				<th data-field="defenderName">Defender</th>
-				<th data-field="kills">Kills</th>
-				<th data-field="losses">Losses</th>
-				<th data-field="openForAllies">Open For Allies</th>
+				<th data-field="timeStarted" data-sortable="true" data-visible="false">Time Started</th>
+				<th data-field="timeFinished" data-sortable="true" data-visible="false">Time Finished</th>
+				<th data-field="aggressorName" data-formatter="aggressorFormatter">Aggressor</th>
+				<th data-field="defenderName" data-formatter="defenderFormatter">Defender</th>
+				<th data-field="kills" data-sortable="true">Kills</th>
+				<th data-field="losses" data-sortable="true">Losses</th>
+				<th data-field="openForAllies" data-sortable="true">Open For Allies</th>
+				<th data-field="mutual" data-sortable="true">Mutual</th>
 			</tr>
 		</thead>
 		<tbody>
 		</tbody>
 	</table>
-</div>
+<script>
+    function aggressorFormatter(value, row) {
+    	var warURL = 'https://zkillboard.com/war/' + row.warID +  '/'
+    	var entityURL = 'https://zkillboard.com/'+ row.aggressorType +'/' + row.aggressorID +  '/'
+        return '<a href="' + warURL + '" target="zkill"><i class="glyphicon glyphicon-star"></i></a> <a href="' + entityURL + '" target="zkill">' + value + '</a>';
+    }
+    
+   function defenderFormatter(value, row) {
+    	var warURL = 'https://zkillboard.com/war/' + row.warID +  '/'
+    	var entityURL = 'https://zkillboard.com/'+ row.defenderType +'/' + row.defenderID +  '/'
+        return '<a href="' + warURL + '" target="zkill"><i class="glyphicon glyphicon-star"></i></a> <a href="' + entityURL + '" target="zkill">' + value + '</a>';
+    }
+</script>
 </div>
 {{end}}

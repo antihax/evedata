@@ -121,8 +121,7 @@ func GetActiveWarList() ([]ActiveWarList, error) {
 		) AS L ON W.id = L.id
 	    WHERE 
 			timeFinished > UTC_TIMESTAMP() OR
-	        timeFinished = "0001-01-01 00:00:00" AND
-	        mutual = 0`); err != nil {
+	        timeFinished = "0001-01-01 00:00:00"`); err != nil {
 		return nil, err
 	}
 	return wars, nil
