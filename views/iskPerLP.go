@@ -32,6 +32,7 @@ func iskPerLPPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 }
 
 func iskPerLPCorps(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+	setCache(w, 60*60)
 	v, err := models.GetISKPerLPCorporations()
 	if err != nil {
 		return http.StatusInternalServerError, err
@@ -44,6 +45,7 @@ func iskPerLPCorps(c *appContext.AppContext, w http.ResponseWriter, r *http.Requ
 }
 
 func iskPerLP(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+	setCache(w, 60*30)
 	q := r.FormValue("corp")
 	v, err := models.GetISKPerLP(q)
 	if err != nil {
