@@ -1,5 +1,4 @@
 {{define "body"}}
-
 <h3>Active Wars</h3>
 <div class="insideContainer">
 	<table id="activeWarTable" class="table" 
@@ -27,8 +26,8 @@
 				<th data-field="defenderName" data-formatter="defenderFormatter">Defender</th>
 				<th data-field="kills" data-sortable="true">Kills</th>
 				<th data-field="losses" data-sortable="true">Losses</th>
-				<th data-field="openForAllies" data-sortable="true">Open For Allies</th>
-				<th data-field="mutual" data-sortable="true">Mutual</th>
+				<th data-field="openForAllies" data-sortable="true" data-visible="false">Open For Allies</th>
+				<th data-field="mutual" data-sortable="true" data-visible="false">Mutual</th>
 			</tr>
 		</thead>
 		<tbody>
