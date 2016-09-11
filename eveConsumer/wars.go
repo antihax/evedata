@@ -1,6 +1,9 @@
 package eveConsumer
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
 func (c *EVEConsumer) checkWars() {
 	err := c.collectWarsFromCREST()
@@ -32,35 +35,7 @@ func (c *EVEConsumer) updateWars() error {
 		if err != nil {
 			return err
 		}
-		war, err := c.ctx.EVE.WarByID(id)
-		if err != nil {
-			return err
-		}
-
-		_, err = c.ctx.Db.Exec(`UPDATE wars SET
-					timeFinished=?, 
-					openForAllies=?, 
-					mutual=?, 
-					cacheUntil=? WHERE id = ?;`,
-			war.TimeFinished.String(),
-			war.OpenForAllies,
-			war.Mutual,
-			war.CacheUntil, war.ID)
-		if err != nil {
-			return err
-		}
-
-		for _, a := range war.Allies {
-			_, err = c.ctx.Db.Exec(`INSERT IGNORE INTO warAllies (id, allyID) VALUES(?,?);`, war.ID, a.ID)
-			if err != nil {
-				return err
-			}
-
-			c.updateEntity(a.HRef, a.ID)
-			if err != nil {
-				return err
-			}
-		}
+		c.updateWar(fmt.Sprintf(c.ctx.EVE.GetCRESTURI()+"wars/%d/", id))
 	}
 	return nil
 }
@@ -101,13 +76,19 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 		}
 
 		for _, r := range w.Items {
+			c.updateWar(r.HRef)
+		}
+	}
+	return nil
+}
 
-			war, err := c.ctx.EVE.War(r.HRef)
-			if err != nil {
-				continue
-			}
+func (c *EVEConsumer) updateWar(href string) error {
+	war, err := c.ctx.EVE.War(href)
+	if err != nil {
+		return err
+	}
 
-			_, err = c.ctx.Db.Exec(`INSERT INTO wars
+	_, err = c.ctx.Db.Exec(`INSERT INTO wars
 				(id, timeFinished,timeStarted,timeDeclared,openForAllies,cacheUntil,aggressorID,defenderID,mutual)
 				VALUES(?,?,?,?,?,?,?,?,?)
 				ON DUPLICATE KEY UPDATE 
@@ -115,45 +96,44 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 					openForAllies=VALUES(openForAllies), 
 					mutual=VALUES(mutual), 
 					cacheUntil=VALUES(cacheUntil);`,
-				war.ID, war.TimeFinished.String(), war.TimeStarted.String(), war.TimeDeclared.String(),
-				war.OpenForAllies, war.CacheUntil, war.Aggressor.ID,
-				war.Defender.ID, war.Mutual)
-			if err != nil {
-				continue
-			}
+		war.ID, war.TimeFinished.String(), war.TimeStarted.String(), war.TimeDeclared.String(),
+		war.OpenForAllies, war.CacheUntil, war.Aggressor.ID,
+		war.Defender.ID, war.Mutual)
+	if err != nil {
+		return err
+	}
 
-			err = c.updateEntity(war.Aggressor.HRef, war.Aggressor.ID)
-			if err != nil {
-				continue
-			}
+	err = c.updateEntity(war.Aggressor.HRef, war.Aggressor.ID)
+	if err != nil {
+		return err
+	}
 
-			err = c.updateEntity(war.Defender.HRef, war.Defender.ID)
-			if err != nil {
-				continue
-			}
+	err = c.updateEntity(war.Defender.HRef, war.Defender.ID)
+	if err != nil {
+		return err
+	}
 
-			for _, a := range war.Allies {
-				_, err = c.ctx.Db.Exec(`INSERT IGNORE INTO warAllies (id, allyID) VALUES(?,?);`, war.ID, a.ID)
-				if err != nil {
-					continue
-				}
+	for _, a := range war.Allies {
+		_, err = c.ctx.Db.Exec(`INSERT IGNORE INTO warAllies (id, allyID) VALUES(?,?);`, war.ID, a.ID)
+		if err != nil {
+			return err
+		}
 
-				if err = c.updateEntity(a.HRef, a.ID); err != nil {
-					continue
-				}
-			}
-
-			kills, err := war.GetKillmails()
-			if err != nil {
-				return err
-			}
-			for _, kills := range kills.Items {
-				err := c.addKillmail(kills.HRef)
-				if err != nil {
-					return err
-				}
-			}
+		if err = c.updateEntity(a.HRef, a.ID); err != nil {
+			return err
 		}
 	}
+
+	kills, err := war.GetKillmails()
+	if err != nil {
+		return err
+	}
+	for _, kills := range kills.Items {
+		err := c.addKillmail(kills.HRef)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

@@ -66,7 +66,8 @@ func GoServer() {
 
 	// Create a memcached http client for the CCP APIs.
 	transport := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))
-	transport.Transport = &http.Transport{Proxy: http.ProxyFromEnvironment}
+	transport.Transport = &http.Transport{Proxy: http.ProxyFromEnvironment, MaxIdleConnsPerHost: 5}
+
 	ctx.HTTPClient = &http.Client{Transport: transport}
 
 	// Create a memcached session store.

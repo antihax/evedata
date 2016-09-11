@@ -115,36 +115,34 @@ func (c *EVEConsumer) collectEntitiesFromCREST() error {
 func (c *EVEConsumer) updateEntity(href string, id int64) error {
 	var (
 		err error
-		t   time.Duration
 	)
-	go func() {
-		r := c.ctx.Cache.Get()
-		defer r.Close()
-		i, err := redis.Bool(r.Do("EXISTS", "EVEDATA_entity:"+href))
-		if err == nil || i == true {
-
+	r := c.ctx.Cache.Get()
+	defer r.Close()
+	i, err := redis.Bool(r.Do("EXISTS", "EVEDATA_entity:"+href))
+	if err == nil && i != true {
+		go func() error {
 			if strings.Contains(href, "alliances") {
-				t, err = c.updateAlliance(href)
+				_, err = c.updateAlliance(href)
 			} else if strings.Contains(href, "corporations") {
-				t, err = c.updateCorporation(id)
+				_, err = c.updateCorporation(id)
 			} else if strings.Contains(href, "characters") {
-				t, err = c.updateCharacter(id)
+				_, err = c.updateCharacter(id)
 			}
 			if err != nil {
-				return
+				return err
 			}
 			err = models.AddCRESTRef(id, href)
 			if err != nil {
-				return
+				return err
 			}
-			r.Do("SETEX", "EVEDATA_entity:"+href, (int64)(t.Seconds())+1, true)
-		} else {
-			return
-		}
+			return nil
+		}()
 
-		return
+		r.Do("SETEX", "EVEDATA_entity:"+href, 86400, true)
+	} else {
+		return nil
+	}
 
-	}()
 	return err
 }
 
