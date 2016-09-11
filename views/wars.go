@@ -31,6 +31,7 @@ func activeWarsPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 }
 
 func activeWars(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+	setCache(w, 60*60)
 	v, err := models.GetActiveWarList()
 	if err != nil {
 		return http.StatusInternalServerError, err

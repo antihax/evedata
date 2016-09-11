@@ -33,6 +33,7 @@ func arbitrageCalculatorPage(c *appContext.AppContext, w http.ResponseWriter, r 
 }
 
 func arbitrageCalculatorStations(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+	setCache(w, 60*30)
 	v, err := models.GetArbitrageCalculatorStations()
 	if err != nil {
 		return http.StatusInternalServerError, err
@@ -45,6 +46,7 @@ func arbitrageCalculatorStations(c *appContext.AppContext, w http.ResponseWriter
 }
 
 func arbitrageCalculator(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+	setCache(w, 60*15)
 	hours, err := strconv.ParseInt(r.FormValue("hours"), 10, 64)
 	if err != nil {
 		return http.StatusInternalServerError, err
