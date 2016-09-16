@@ -26,15 +26,15 @@ func (c *EVEConsumer) checkAlliances() {
 func (c *EVEConsumer) updateEntities() error {
 
 	alliances, err := c.ctx.Db.Query(
-		`SELECT allianceid, crestRef, cacheUntil FROM alliance A
+		`SELECT allianceid, crestRef, cacheUntil FROM alliances A
 INNER JOIN crestID C ON A.allianceID = C.id
 			WHERE cacheUntil < UTC_TIMESTAMP()  
 UNION
-SELECT corporationid, crestRef, cacheUntil FROM corporation A
+SELECT corporationid, crestRef, cacheUntil FROM corporations A
 INNER JOIN crestID C ON A.corporationID = C.id
 			WHERE cacheUntil < UTC_TIMESTAMP()
 UNION
-(SELECT characterID, crestRef, cacheUntil FROM eve.character A
+(SELECT characterID, crestRef, cacheUntil FROM characters A
 INNER JOIN crestID C ON A.characterID = C.id
 			WHERE cacheUntil < UTC_TIMESTAMP())
             

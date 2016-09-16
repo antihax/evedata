@@ -75,41 +75,18 @@ func (c *EVEConsumer) contactSync() {
 		}
 
 		// Active Wars
-		activeWars, err := c.ctx.Db.Query(`
-			SELECT K.id, crestRef FROM
-			(SELECT defenderID AS id FROM wars WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND aggressorID = ?
-			UNION
-			SELECT aggressorID AS id FROM wars WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND defenderID = ?
-			UNION
-			SELECT aggressorID  AS id FROM wars W INNER JOIN warAllies A on A.id = W.id WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND allyID = ?
-			UNION
-			SELECT allyID AS id FROM wars W INNER JOIN warAllies A on A.id = W.id WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND aggressorID = ?) AS K
-			INNER JOIN crestID C ON C.id = K.id
-		`, searchID, searchID, searchID, searchID)
+		activeWars, err := models.GetActiveWarsByID(searchID)
 		if err != nil {
 			log.Printf("EVEConsumer: Failed Getting Active Wars: %v", err)
 			continue
 		}
-		defer activeWars.Close()
 
 		// Pending Wars
-		pendingWars, err := c.ctx.Db.Query(`
-			SELECT K.id, crestRef FROM
-			(SELECT defenderID AS id FROM wars WHERE timeStarted > timeDeclared AND timeStarted > UTC_TIMESTAMP() AND aggressorID = ?
-			UNION
-			SELECT aggressorID AS id FROM wars WHERE timeStarted > timeDeclared AND timeStarted > UTC_TIMESTAMP() AND defenderID = ?
-			UNION
-			SELECT aggressorID  AS id FROM wars W INNER JOIN warAllies A on A.id = W.id WHERE timeStarted > timeDeclared AND timeStarted > UTC_TIMESTAMP() AND allyID = ?
-			UNION
-			SELECT allyID AS id FROM wars W INNER JOIN warAllies A on A.id = W.id WHERE timeStarted > timeDeclared AND timeStarted > UTC_TIMESTAMP() AND aggressorID = ?) AS K
-			INNER JOIN crestID C ON C.id = K.id
-		`, searchID, searchID, searchID, searchID)
-
+		pendingWars, err := models.GetPendingWarsByID(searchID)
 		if err != nil {
 			log.Printf("EVEConsumer: Failed Getting Pending Wars: %v", err)
 			continue
 		}
-		defer pendingWars.Close()
 
 		type toAdd struct {
 			id       int64
@@ -118,23 +95,17 @@ func (c *EVEConsumer) contactSync() {
 		}
 		contactsToAdd := make(map[int64]*toAdd)
 
-		for activeWars.Next() {
+		for _, war := range activeWars {
 			con := &toAdd{standing: -10}
-
-			if err = activeWars.Scan(&con.id, &con.ref); err != nil {
-				log.Printf("EVEConsumer: Failed Scanning Active Wars: %v", err)
-				continue
-			}
+			con.id = war.ID
+			con.ref = war.CrestRef
 			contactsToAdd[con.id] = con
 		}
 
-		for pendingWars.Next() {
+		for _, war := range pendingWars {
 			con := &toAdd{standing: -5}
-
-			if err = pendingWars.Scan(&con.id, &con.ref); err != nil {
-				log.Printf("EVEConsumer: Failed Scanning Active Wars: %v", err)
-				continue
-			}
+			con.id = war.ID
+			con.ref = war.CrestRef
 			contactsToAdd[con.id] = con
 		}
 

@@ -103,4 +103,5 @@ func GoServer() {
 
 	log.Printf("EveData Listening port 3000...\n")
 	http.ListenAndServe(":3000", context.ClearHandler(rtr))
+	log.Printf("EveData Quitting..\n")
 }

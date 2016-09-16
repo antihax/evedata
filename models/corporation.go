@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"evedata/null"
+	"time"
+)
 
 func UpdateCorporation(corporationID int64, name string, ticker string, ceoID int64, stationID int64,
 	description string, allianceID int64, factionID int64, url string, memberCount int64, shares int64, cacheUntil time.Time) error {
@@ -8,7 +11,7 @@ func UpdateCorporation(corporationID int64, name string, ticker string, ceoID in
 	cacheUntil = time.Now().UTC().Add(time.Hour * 24)
 
 	if _, err := database.Exec(`
-		INSERT INTO corporation
+		INSERT INTO corporations
 			(corporationID,name,ticker,ceoID,stationID,description,allianceID,factionID,url,memberCount,shares,updated,cacheUntil)
 			VALUES(?,?,?,?,?,?,?,?,?,?,?,UTC_TIMESTAMP(),?) 
 			ON DUPLICATE KEY UPDATE 
@@ -19,4 +22,31 @@ func UpdateCorporation(corporationID int64, name string, ticker string, ceoID in
 		return err
 	}
 	return nil
+}
+
+type Corporation struct {
+	CorporationID   int64       `db:"corporationID" json:"corporationID"`
+	CorporationName string      `db:"corporationName" json:"corporationName"`
+	AllianceID      int64       `db:"allianceID" json:"allianceID"`
+	AllianceName    null.String `db:"allianceName" json:"allianceName"`
+	MemberCount     int64       `db:"memberCount" json:"memberCount"`
+}
+
+// Obtain Corporation information by ID.
+func GetCorporation(id int64) (*Corporation, error) {
+	ref := Corporation{}
+	if err := database.QueryRowx(`
+		SELECT 
+			corporationID,
+		    C.name AS corporationName,
+		    memberCount,
+		    Al.allianceID,
+		    Al.name AS allianceName
+		FROM corporations C
+		LEFT OUTER JOIN alliances Al ON C.allianceID = Al.allianceID
+		WHERE corporationID = ?
+		LIMIT 1`, id).StructScan(&ref); err != nil {
+		return nil, err
+	}
+	return &ref, nil
 }

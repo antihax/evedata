@@ -1,25 +1,7 @@
 {{define "body"}} 
 	{{ if .CharacterID }} 
-		You are logged in with <img src="//image.eveonline.com/Character/{{.CharacterID}}_128.jpg"> <br>{{ .CharacterID }}
-	    <div class="table-responsive">
-	        <p class="toolbar apikeyToolbar" id="apikeyToolbar">EVE API Keys <a class="addapi btn btn-default" href="javascript:">Add API</a></p>
-	        <table class="table" data-show-refresh="true" data-toolbar=".apikeyToolbar"
-	        data-url="/U/apiKeys" id="apikeystable">
-	            <thead>
-	                <tr>
-	                    <th data-field="keyID">KeyID</th>
-	                    <th data-field="accessMask">Mask</th>
-	                    <th data-field="type">Type</th>
-	                    <th data-field="nextCheck">Next Check</th>
-	                    <th data-field="lastError">Last Error</th>
-	                    <th data-align="center" data-events="actionEvents"
-	                    data-field="action" data-formatter="apiKeyFormatter">
-	                    Action</th>
-	                </tr>
-	            </thead>
-	        </table>
-	    </div>
-		<hr>
+		You are logged in with <br>{{ .CharacterID }}
+
 	    <div class="table-responsive">
 	        <p class="toolbar cresttokenToolbar" id="cresttokenToolbar">CREST Tokens <a class="addcrest btn btn-default" href=
 	        "javascript:">Add CREST Token</a></p>
@@ -39,85 +21,20 @@
 	    <p style="font-size: 12px">Note: You will need to press CANCEL on the EVE Logon to relog on and add CREST Tokens for characters from alternate accounts.</p>
 	  
 	    </div>
-	    
-	    <div class="modal fade" id="addapi">
-	        <div class="modal-dialog">
-	            <div class="modal-content">
-	                <div class="modal-header">
-	                    <button aria-label="Close" class="close" data-dismiss=
-	                    "modal" type="button"><span aria-hidden=
-	                    "true">&times;</span></button>
-	                    <h4 class="modal-title"></h4>
-	                </div>
-	                <div class="modal-body">
-	                    <div class="form-group">
-	                        <label>Key ID</label> <input class="form-control" name=
-	                        "keyID" placeholder="Key ID" type="number">
-	                    </div>
-	                    <div class="form-group">
-	                        <label>vCode</label> <input class="form-control" name=
-	                        "vCode" placeholder="vCode" type="text">
-	                    </div>
-	                </div>
-	                <div class="modal-footer">
-	                    <button class="btn btn-default" data-dismiss="modal" type=
-	                    "button">Close</button> <button class=
-	                    "btn btn-primary submit" type="button">Submit</button>
-	                </div>
-	            </div><!-- /.modal-content -->
-	        </div><!-- /.modal-dialog -->
-	    </div><!-- /.modal -->
-	    
-	    
+
 	    <script>
-	        var 	$apikeystable = $('#apikeystable').bootstrapTable({url: "/U/apiKeys"}, "changeLocale", "en_US"),
-	        		$cresttable = $('#cresttable').bootstrapTable({url: "/U/crestTokens"}, "changeLocale", "en_US"),
-	        		$addapi = $('#addapi').modal({show: false});
+	        var 	$cresttable = $('#cresttable').bootstrapTable({url: "/U/crestTokens"}, "changeLocale", "en_US");
 	                
 	        $(function () {
-	        
 	        	// crest token click event
 	            $('.addcrest').click(function () {
 	                window.location.replace("/eveTokenAuth");
 	            });
 	            
-	            // create event
-	            $('.addapi').click(function () {
-	                showAddAPI("Add API Key");
-	            });
-	            $addapi.find('.submit').click(function () {
-	                var row = {};
-	                $addapi.find('input[name]').each(function () {
-	                    row[$(this).attr('name')] = $(this).val();
-	                });
-	                $.ajax({
-	                    url: "/U/apiKeys",
-	                    type: 'put',
-	                    contentType: 'application/json',
-	                    data: JSON.stringify(row),
-	                    success: function () {
-	                        $addapi.modal('hide');
-	                        $apikeystable.bootstrapTable('refresh');
-	                        showAlert("API key added successfully!", 'success');
-	                    },
-	                    error: function () {
-	                        $addapi.modal('hide');
-	                        showAlert( 'Add API Failed. Please recheck vCode and API ID', 'danger');
-	                    }
-	                });
-	            });
 	        });
-	        
-
-	        
 	        
 	        function queryParams(params) {
 	            return {};
-	        }
-	        function apiKeyFormatter(value) {
-	            return [
-	                '<a class="removeapi" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
-	            ].join('');
 	        }
 	        function CRESTTokenFormatter(value) {
 	            return [
@@ -126,21 +43,6 @@
 	        }
 	        // update and delete events
 	        window.actionEvents = {
-	            'click .removeapi': function (e, value, row) {
-	                if (confirm('Are you sure you want to delete this key?')) {
-	                    $.ajax({
-	                        url: "/U/apiKeys?keyID=" + row.keyID,
-	                        type: 'delete',
-	                        success: function () {
-	                            $apikeystable.bootstrapTable('refresh');
-	                            showAlert('Delete item successful!', 'success');
-	                        },
-	                        error: function () {
-	                            showAlert('Delete item error!', 'danger');
-	                        }
-	                    })
-	                }
-	            },
 	            'click .removecrest': function (e, value, row) {
 	                if (confirm('Are you sure you want to delete this token?')) {
 	                    $.ajax({
@@ -158,18 +60,6 @@
 	            }
 	        };
 	        
-	        function showAddAPI(title) {
-	            row = {
-	                keyID: '',
-	                vCode: '',
-	             }; // default row value
-	            $addapi.data('keyID', row.keyID);
-	            $addapi.find('.modal-title').text(title);
-	            for (var name in row) {
-	                $addapi.find('input[name="' + name + '"]').val(row[name]);
-	            }
-	            $addapi.modal('show');
-	        }
 	        function showAlert(message, type) {
 	            $.growl(message,{
 	                // settings

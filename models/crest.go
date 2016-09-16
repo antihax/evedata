@@ -2,6 +2,12 @@ package models
 
 import "strings"
 
+type CRESTRef struct {
+	ID        int64  `db:"id" json:"id"`
+	CrestRef  string `db:"crestRef" json:"crestRef"`
+	CrestType string `db:"type" json:"type"`
+}
+
 func AddCRESTRef(id int64, ref string) error {
 	var t string
 	if strings.Contains(ref, "alliances") {
@@ -18,4 +24,12 @@ func AddCRESTRef(id int64, ref string) error {
 		return err
 	}
 	return nil
+}
+
+func GetCRESTRef(id int64) (*CRESTRef, error) {
+	ref := &CRESTRef{}
+	if err := database.Select(&ref, `SELECT id FROM killmails WHERE id = ?LIMIT 1;`, id); err != nil {
+		return nil, err
+	}
+	return ref, nil
 }

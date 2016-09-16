@@ -84,13 +84,12 @@ func GetArbitrageCalculator(hours int64, stationID int64, minVolume int64, maxPr
 
 	margins := []ArbitrageCalculator{}
 
-	err1, err2 := <-errc, <-errc
-
-	if err1 != nil {
-		return nil, err1
-	}
-	if err2 != nil {
-		return nil, err2
+	// clear the error channel
+	for i := 0; i < 2; i++ {
+		err := <-errc
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	for _, buyOrder := range b {

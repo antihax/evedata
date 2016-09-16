@@ -1,0 +1,141 @@
+{{define "body"}}
+	{{if .Alliance }} 
+		{{ template "alliance" . }}
+	{{else if .Corporation }} 
+		{{ template "corporation" . }}
+	{{else if .Character }} 
+		{{ template "character" . }}
+	{{end}}
+{{end}}
+
+
+{{define "corporation"}}
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-2">
+			<img alt="{{.Corporation.CorporationName}}" src="//image.eveonline.com/corporation/{{.Corporation.CorporationID}}_128.png" />
+		</div>
+		<div class="col-md-10">
+			<dl>
+				<dt>
+					<h2>{{.Corporation.CorporationName}}</h2>
+					Executor: <a href="/corporation?id={{.Alliance.ExecutorCorporationID}}">{{.Alliance.ExecutorCorporationName}}</a>
+				</dt>
+				<dd>
+					{{.Alliance.Description}}
+				</dd>
+			</dl>
+		</div>
+	</div>
+{{end}}
+
+{{define "character"}}
+
+{{end}}
+
+{{define "alliance"}}
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-2">
+			<img alt="{{.Alliance.AllianceName}}" src="//image.eveonline.com/Alliance/{{.Alliance.AllianceID}}_128.png" />
+		</div>
+		<div class="col-md-10">
+			<dl>
+				<dt>
+					<h2>{{.Alliance.AllianceName}}</h2>
+					Executor: <a href="/corporation?id={{.Alliance.ExecutorCorporationID}}">{{.Alliance.ExecutorCorporationName}}</a>
+				</dt>
+				<dd>
+					{{.Alliance.Description}}
+				</dd>
+			</dl>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<h2>
+				Corporations
+			</h2>	
+			<table id="corporations"
+               data-sort-name="corporationName"
+               data-pagination="true"
+               data-search="true"
+               data-sort-order="asc">
+            <thead>
+            <tr>
+                <th data-field="corporationName" data-sortable="true" data-formatter="corporationFormatter">Name</th>
+                <th data-field="memberCount" data-sortable="true">Members</th>
+            </tr>
+            </thead>
+        </table>
+
+			<script>
+				var $corpTable = $('#corporations');
+			    $(function () {
+       				 var corporations = 
+       				 	[			 	
+			      				{{ range $key, $corp := .AllianceMembers }}
+			      				{
+       				 				"memberCount": {{ $corp.MemberCount }},
+       				 				"corporationName": {{ $corp.CorporationName }},
+       				 				"corporationID": {{ $corp.CorporationID }},
+								},
+						{{ end }}       				 	
+					];
+				
+       				$corpTable.bootstrapTable({data: corporations});
+       			});
+       		</script>
+
+		</div>
+		<div class="col-md-6">
+			{{ template "wars" . }}
+		</div>
+	</div>
+</div>
+
+{{end}}
+
+
+{{define "wars"}}
+			<h2>
+				Active Wars
+			</h2>	
+			<table id="wars"
+               data-sort-name="aggressorName"
+               data-pagination="true"
+               data-search="true"
+               data-sort-order="asc">
+            <thead>
+            <tr>
+				<th data-field="aggressorName" data-formatter="aggressorFormatter">Aggressor</th>
+				<th data-field="defenderName" data-formatter="defenderFormatter">Defender</th>
+				<th data-field="kills" data-sortable="true">Kills</th>
+				<th data-field="losses" data-sortable="true">Losses</th>
+            </tr>
+            </thead>
+        </table>
+			<script>
+				var $warTable = $('#wars');
+			    $(function () {
+       				 var wars = 
+       				 	[			 	
+			      				{{ range $key, $war := .Wars }}
+			      				{
+       				 				"aggressorName": {{ $war.AggressorName }},
+       				 				"aggressorType": {{ $war.AggressorType }},
+       				 				"aggressorID": {{ $war.AggressorID }},
+       				 				"defenderName": {{ $war.DefenderName }},
+       				 				"defenderType": {{ $war.DefenderType }},
+       				 				"defenderID": {{ $war.DefenderID }},
+       				 				"kills": {{ $war.Kills }},
+       				 				"losses": {{ $war.Losses }},
+       				 				"warID": {{ $war.WarID }},
+								},
+						{{ end }}       				 	
+					];
+				
+       				$warTable.bootstrapTable({data: wars});
+       			});
+       		</script>
+{{end}}

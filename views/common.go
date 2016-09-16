@@ -6,20 +6,16 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-type page struct {
-	Title       string
-	CharacterID int64
-}
+func newPage(s *sessions.Session, r *http.Request, title string) map[string]interface{} {
+	p := make(map[string]interface{})
 
-func newPage(s *sessions.Session, r *http.Request, title string) *page {
-	p := &page{Title: title}
-
+	p["Title"] = title
 	characterID := s.Values["characterID"]
 
 	if characterID != nil {
-		p.CharacterID = characterID.(int64)
+		p["CharacterID"] = characterID.(int64)
 	} else {
-		p.CharacterID = 0
+		p["CharacterID"] = 0
 	}
 
 	return p

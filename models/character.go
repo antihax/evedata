@@ -28,47 +28,6 @@ type CRESTToken struct {
 	RefreshToken     string      `db:"refreshToken" json:"refreshToken"`
 }
 
-func (c *ApiKey) UpdateChecked(nextCheck time.Time) error {
-	if _, err := database.Exec(`
-		UPDATE apiKeys SET nextCheck = ? 
-		WHERE characterID = ? AND keyID = ? 
-		LIMIT 1;`, nextCheck, c.CharacterID, c.KeyID); err != nil {
-
-		return err
-	}
-	return nil
-}
-
-func GetAPIKeys(characterID int64) ([]ApiKey, error) {
-	keys := []ApiKey{}
-	if err := database.Select(&keys, `
-		SELECT keyID, characterID, nextCheck, accessMask, lastCode, lastError, type 
-		FROM apiKeys 
-		WHERE characterID = ?;`, characterID); err != nil {
-
-		return nil, err
-	}
-	return keys, nil
-}
-
-func AddApiKey(characterID int64, keyID int64, vCode string) error {
-	if _, err := database.Exec(`INSERT INTO apiKeys (characterID, keyID, vCode)VALUES(?,?,?)`,
-		characterID, keyID, vCode); err != nil {
-
-		return err
-	}
-	return nil
-}
-
-func DeleteApiKey(characterID int64, keyID int64) error {
-	if _, err := database.Exec(`DELETE FROM apiKeys WHERE characterID = ? AND keyID = ? LIMIT 1`,
-		characterID, keyID); err != nil {
-
-		return err
-	}
-	return nil
-}
-
 func GetCRESTTokens(characterID int64) ([]CRESTToken, error) {
 	tokens := []CRESTToken{}
 	if err := database.Select(&tokens, `
@@ -110,7 +69,7 @@ func UpdateCharacter(characterID int64, name string, bloodlineID int64, ancestry
 	race string, securityStatus float64, cacheUntil time.Time) error {
 	cacheUntil = time.Now().UTC().Add(time.Hour * 24)
 	if _, err := database.Exec(`
-		INSERT INTO eve.character (characterID,name,bloodlineID,ancestryID,corporationID,allianceID,race,securityStatus,updated,cacheUntil)
+		INSERT INTO characters (characterID,name,bloodlineID,ancestryID,corporationID,allianceID,race,securityStatus,updated,cacheUntil)
 			VALUES(?,?,?,?,?,?,?,?,UTC_TIMESTAMP(),?) 
 			ON DUPLICATE KEY UPDATE 
 			corporationID=VALUES(corporationID), allianceID=VALUES(allianceID), securityStatus=VALUES(securityStatus), updated = UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil)
@@ -118,4 +77,39 @@ func UpdateCharacter(characterID int64, name string, bloodlineID int64, ancestry
 		return err
 	}
 	return nil
+}
+
+type Character struct {
+	CharacterID     int64       `db:"characterID" json:"characterID"`
+	CharacterName   string      `db:"characterName" json:"characterName"`
+	CorporationID   int64       `db:"corporationID" json:"corporationID"`
+	CorporationName string      `db:"corporationName" json:"corporationName"`
+	AllianceID      int64       `db:"allianceID" json:"allianceID"`
+	AllianceName    null.String `db:"allianceName" json:"allianceName"`
+	Race            string      `db:"race" json:"race"`
+	SecurityStatus  float64     `db:"securityStatus" json:"securityStatus"`
+}
+
+// Obtain Character information by ID.
+func GetCharacter(id int64) (*Character, error) {
+	ref := Character{}
+	if err := database.QueryRowx(`
+		SELECT 
+			characterID,
+			C.name AS characterName,
+		    C.corporationID,
+		    Co.name AS corporationName,
+		    C.allianceID,
+		    Al.name AS allianceName,
+		    race,
+		    securityStatus
+		
+		FROM characters C
+		INNER JOIN corporations Co ON Co.corporationID = C.corporationID
+		LEFT OUTER JOIN alliances Al ON Al.allianceID = C.allianceID
+		WHERE characterID = ?
+		LIMIT 1`, id).StructScan(&ref); err != nil {
+		return nil, err
+	}
+	return &ref, nil
 }

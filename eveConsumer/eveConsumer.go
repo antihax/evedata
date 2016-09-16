@@ -71,6 +71,7 @@ func (c *EVEConsumer) RunConsumer() {
 
 // StopConsumer shuts down any running go routines and returns.
 func (c *EVEConsumer) StopConsumer() {
+	log.Printf("EVEConsumer: Stopping Consumer\n")
 	c.consumerStopChannel <- true
 	c.triggersStopChannel <- true
 	log.Printf("EVEConsumer: Stopped\n")
