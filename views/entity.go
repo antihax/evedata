@@ -7,6 +7,7 @@ import (
 	"evedata/server"
 	"evedata/strip"
 	"evedata/templates"
+	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -35,13 +36,33 @@ func alliancePage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 	// Get known wars. This takes the longest.
 	go func() {
 		ref, err := models.GetWarsForEntityByID(id)
+		if err != nil {
+			errc <- err
+			return
+		}
 		p["Wars"] = ref
+		errc <- err
+	}()
+
+	// Get known activity.
+	go func() {
+		ref, err := models.GetConstellationActivity(id, "alliance")
+		fmt.Printf("Act %+v %v\n", ref, err)
+		if err != nil {
+			errc <- err
+			return
+		}
+		p["Activity"] = ref
 		errc <- err
 	}()
 
 	// Get the alliance information
 	go func() {
 		ref, err := models.GetAlliance(id)
+		if err != nil {
+			errc <- err
+			return
+		}
 		ref.Description = strip.StripTags(ref.Description)
 		p["Alliance"] = ref
 		p["Title"] = ref.AllianceName
@@ -51,12 +72,16 @@ func alliancePage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 	// Get the alliance members
 	go func() {
 		ref, err := models.GetAllianceMembers(id)
+		if err != nil {
+			errc <- err
+			return
+		}
 		p["AllianceMembers"] = ref
 		errc <- err
 	}()
 
 	// clear the error channel
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 4; i++ {
 		err := <-errc
 		if err != nil {
 			return http.StatusInternalServerError, err
@@ -88,20 +113,40 @@ func corporationPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Re
 	// Get known wars. This takes the longest.
 	go func() {
 		ref, err := models.GetWarsForEntityByID(id)
+		if err != nil {
+			errc <- err
+			return
+		}
 		p["Wars"] = ref
+		errc <- nil
+	}()
+
+	// Get known activity.
+	go func() {
+		ref, err := models.GetConstellationActivity(id, "corporation")
+		if err != nil {
+			errc <- err
+			return
+		}
+		p["Activity"] = ref
 		errc <- err
 	}()
 
-	// Get the alliance information
+	// Get the corporation information
 	go func() {
 		ref, err := models.GetCorporation(id)
+		if err != nil {
+			errc <- err
+			return
+		}
+		ref.Description = strip.StripTags(ref.Description)
 		p["Corporation"] = ref
 		p["Title"] = ref.CorporationName
-		errc <- err
+		errc <- nil
 	}()
 
 	// clear the error channel
-	for i := 0; i < 2; i++ {
+	for i := 0; i < 3; i++ {
 		err := <-errc
 		if err != nil {
 			return http.StatusInternalServerError, err

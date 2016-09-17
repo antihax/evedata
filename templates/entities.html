@@ -19,14 +19,18 @@
 			<dl>
 				<dt>
 					<h2>{{.Corporation.CorporationName}}</h2>
-					Executor: <a href="/corporation?id={{.Alliance.ExecutorCorporationID}}">{{.Alliance.ExecutorCorporationName}}</a>
+					CEO: <a href="/character?id={{.Corporation.CEOID}}">{{.Corporation.CEOName}}</a>
 				</dt>
 				<dd>
-					{{.Alliance.Description}}
+					{{.Corporation.Description}}
 				</dd>
 			</dl>
 		</div>
 	</div>
+
+	{{ template "wars" . }}
+	{{ template "activity" . }}
+
 {{end}}
 
 {{define "character"}}
@@ -45,13 +49,13 @@
 					<h2>{{.Alliance.AllianceName}}</h2>
 					Executor: <a href="/corporation?id={{.Alliance.ExecutorCorporationID}}">{{.Alliance.ExecutorCorporationName}}</a>
 				</dt>
-				<dd>
-					{{.Alliance.Description}}
-				</dd>
+				<dd style ="white-space: pre-wrap;">{{.Alliance.Description}}</dd>
 			</dl>
 		</div>
 	</div>
 	<div class="row">
+		{{ template "wars" . }}
+		{{ template "activity" . }}
 		<div class="col-md-6">
 			<h2>
 				Corporations
@@ -68,7 +72,6 @@
             </tr>
             </thead>
         </table>
-
 			<script>
 				var $corpTable = $('#corporations');
 			    $(function () {
@@ -86,11 +89,10 @@
        				$corpTable.bootstrapTable({data: corporations});
        			});
        		</script>
+		</div>
+	
 
-		</div>
-		<div class="col-md-6">
-			{{ template "wars" . }}
-		</div>
+
 	</div>
 </div>
 
@@ -98,6 +100,8 @@
 
 
 {{define "wars"}}
+	{{if .Wars }} 
+		<div class="col-md-6">
 			<h2>
 				Active Wars
 			</h2>	
@@ -138,4 +142,48 @@
        				$warTable.bootstrapTable({data: wars});
        			});
        		</script>
+		</div>
+	{{end}}
+{{end}}
+
+{{define "activity"}}
+	{{if .Activity }} 
+		<div class="col-md-6">
+			<h2>
+				Active Constellations
+			</h2>	
+			<table id="activity"
+               data-sort-name="number"
+               data-pagination="true"
+               data-search="true"
+               data-sort-order="desc">
+            <thead>
+            <tr>
+				<th data-field="number">#</th>
+				<th data-field="regionName" data-sortable="true">Region</th>
+				<th data-field="constellationName" data-sortable="true">Constellation</th>
+				<th data-field="solarSystemNames" data-sortable="true">Solar Systems</th>
+            </tr>
+            </thead>
+        </table>
+			<script>
+				var $activityTable = $('#activity');
+			    $(function () {
+       				 var activity = 
+       				 	[			 	
+			      				{{ range $key, $v := .Activity }}
+			      				{
+       				 				"number": {{ $v.Number }},
+       				 				"regionName": {{ $v.RegionName }},
+       				 				"constellationName": {{ $v.ConstellationName }},
+       				 				"solarSystemNames": {{ $v.SolarSystemNames }},
+								},
+						{{ end }}       				 	
+					];
+				
+       				$activityTable.bootstrapTable({data: activity});
+       			});
+       		</script>
+		</div>
+	{{end}}
 {{end}}

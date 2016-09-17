@@ -29,7 +29,10 @@ type Corporation struct {
 	CorporationName string      `db:"corporationName" json:"corporationName"`
 	AllianceID      int64       `db:"allianceID" json:"allianceID"`
 	AllianceName    null.String `db:"allianceName" json:"allianceName"`
+	CEOID           int64       `db:"ceoID" json:"ceoID"`
+	CEOName         string      `db:"ceoName" json:"ceoName"`
 	MemberCount     int64       `db:"memberCount" json:"memberCount"`
+	Description     string      `db:"description" json:"description"`
 }
 
 // Obtain Corporation information by ID.
@@ -37,14 +40,18 @@ func GetCorporation(id int64) (*Corporation, error) {
 	ref := Corporation{}
 	if err := database.QueryRowx(`
 		SELECT 
-			corporationID,
+			C.corporationID,
 		    C.name AS corporationName,
 		    memberCount,
-		    Al.allianceID,
-		    Al.name AS allianceName
+            IFNULL(ceoID,0) AS ceoID,
+            IFNULL(Ch.name, "") AS ceoName,
+		    IFNULL(Al.allianceID,0) AS allianceID,
+		    Al.name AS allianceName,
+		    C.description
 		FROM corporations C
 		LEFT OUTER JOIN alliances Al ON C.allianceID = Al.allianceID
-		WHERE corporationID = ?
+        INNER JOIN characters Ch ON Ch.characterID = C.ceoID
+		WHERE C.corporationID = ?
 		LIMIT 1`, id).StructScan(&ref); err != nil {
 		return nil, err
 	}
