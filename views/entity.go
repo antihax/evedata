@@ -7,7 +7,6 @@ import (
 	"evedata/server"
 	"evedata/strip"
 	"evedata/templates"
-	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -47,7 +46,6 @@ func alliancePage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 	// Get known activity.
 	go func() {
 		ref, err := models.GetConstellationActivity(id, "alliance")
-		fmt.Printf("Act %+v %v\n", ref, err)
 		if err != nil {
 			errc <- err
 			return

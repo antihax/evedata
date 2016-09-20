@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"evedata/appContext"
 	"evedata/config"
+	"evedata/emdrConsumer"
 	"evedata/eveConsumer"
 	"evedata/eveapi"
 	"evedata/models"
@@ -30,6 +31,23 @@ func GoServer() {
 		log.Fatalf("Error reading configuration: %v", err)
 	}
 
+	// Build the redis pool
+	ctx.Cache = redis.Pool{
+		MaxIdle:     5,
+		IdleTimeout: 60 * time.Second,
+		Dial: func() (redis.Conn, error) {
+			c, err := redis.Dial("tcp", ctx.Conf.Redis.Address)
+			if err != nil {
+				return nil, err
+			}
+			if _, err := c.Do("AUTH", ctx.Conf.Redis.Password); err != nil {
+				c.Close()
+				return nil, err
+			}
+			return c, err
+		},
+	}
+
 	// Build Connection Pool
 	if ctx.Db, err = models.SetupDatabase(ctx.Conf.Database.Driver, ctx.Conf.Database.Spec); err != nil {
 		log.Fatalf("Cannot build database pool: %v", err)
@@ -47,22 +65,6 @@ func GoServer() {
 		ctx.Conf.CREST.Token.SecretKey,
 		ctx.Conf.CREST.Token.RedirectURL,
 		scopes)
-
-	ctx.Cache = redis.Pool{
-		MaxIdle:     5,
-		IdleTimeout: 60 * time.Second,
-		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", ctx.Conf.Redis.Address)
-			if err != nil {
-				return nil, err
-			}
-			if _, err := c.Do("AUTH", ctx.Conf.Redis.Password); err != nil {
-				c.Close()
-				return nil, err
-			}
-			return c, err
-		},
-	}
 
 	// Create a memcached http client for the CCP APIs.
 	transport := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))
@@ -91,7 +93,7 @@ func GoServer() {
 
 	if ctx.Conf.EMDRCrestBridge.Enabled {
 		log.Println("Starting EMDR <- Crest Bridge")
-		go goEMDRCrestBridge(ctx)
+		go emdrConsumer.GoEMDRCrestBridge(ctx)
 	}
 
 	eC := eveConsumer.NewEVEConsumer(ctx)

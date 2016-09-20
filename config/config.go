@@ -19,11 +19,10 @@ type Config struct {
 		Key string
 	}
 	EMDRCrestBridge struct {
-		Enabled       bool
-		Import        bool
-		Upload        bool
-		URL           string
-		MaxGoRoutines int64
+		Enabled bool
+		Import  bool
+		Upload  bool
+		URL     string
 	}
 	CREST struct {
 		SSO struct {

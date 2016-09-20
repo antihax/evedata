@@ -1,28 +1,18 @@
-package main
+package emdrConsumer
 
 import (
 	"bytes"
 	"compress/zlib"
 	"encoding/json"
-	"evedata/config"
+	"evedata/appContext"
 	"io"
 	"io/ioutil"
 	"log"
 
-	"github.com/jmoiron/sqlx"
 	zmq "github.com/pebbe/zmq4"
 
 	_ "github.com/go-sql-driver/mysql"
 )
-
-var (
-	db   *sqlx.DB
-	conf *config.Config
-)
-
-func main() {
-	goConsumer()
-}
 
 type emdrHeader struct {
 	UploadKeys []struct {
@@ -38,24 +28,7 @@ type emdrHeader struct {
 	Version     string
 }
 
-func goConsumer() {
-	var err error
-	// Read configuation.
-	log.Print("Reading Configuration")
-	if conf, err = config.ReadConfig(); err != nil {
-		log.Fatalf("Error reading configuration: %v", err)
-	}
-
-	// Build Connection Pool
-	log.Print("Building Database Pool")
-	if db, err = sqlx.Connect(conf.Database.Driver, conf.Database.Spec); err != nil {
-		log.Fatalf("Cannot build database pool: %v", err)
-	}
-
-	// Check we can connect
-	if err = db.Ping(); err != nil {
-		log.Fatalf("Cannot connect to database: %v", err)
-	}
+func goEMDRConsumer(c *appContext.AppContext) {
 
 	client, err := zmq.NewSocket(zmq.SUB)
 	if err != nil {

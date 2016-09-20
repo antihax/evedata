@@ -1,7 +1,6 @@
 package appContext
 
 import (
-	"database/sql"
 	"evedata/config"
 	"evedata/eveapi"
 	"net/http"
@@ -24,11 +23,4 @@ type AppContext struct {
 	SSOAuthenticator   *eveapi.SSOAuthenticator
 	TokenAuthenticator *eveapi.SSOAuthenticator
 	HTTPClient         *http.Client
-
-	Bridge struct {
-		HistoryUpdate *sql.Stmt
-		OrderMark     *sql.Stmt
-		OrderUpdate   *sql.Stmt
-		KillInsert    *sql.Stmt
-	}
 }
