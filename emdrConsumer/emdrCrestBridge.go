@@ -8,12 +8,15 @@ import (
 	"evedata/models"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"strconv"
 	"time"
 )
 
 var stations map[int64]int64
 
+// Run the bridge between CREST and Eve Market Data Relay.
+// Optionally import to the database
 func GoEMDRCrestBridge(c *appContext.AppContext) {
 	type regionKey struct {
 		RegionID int64
@@ -30,12 +33,14 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 		TypeName string `db:"typeName"`
 	}
 
+	// Obtain a list of regions which have market stations
 	regions, err := models.GetMarketRegions()
 	if err != nil {
 		log.Fatal("EMDRCrestBridge:", err)
 	}
 	log.Printf("EMDRCrestBridge: Loaded %d Regions", len(regions))
 
+	// Obtain list of types available on the market
 	types := []marketTypes{}
 	err = c.Db.Select(&types, `
 		SELECT 	typeID, typeName 
@@ -48,13 +53,12 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 	}
 	log.Printf("EMDRCrestBridge: Loaded %d items", len(types))
 
+	// Get a list of stations
 	stations = make(map[int64]int64)
 	rows, err := c.Db.Query(`
 		SELECT stationID, solarSystemID 
 		FROM staStations;
 	`)
-	defer rows.Close()
-
 	for rows.Next() {
 		var stationID, systemID int64
 		if err := rows.Scan(&stationID, &systemID); err != nil {
@@ -69,12 +73,10 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 	}
 	log.Printf("EMDRCrestBridge: Loaded %d stations", len(stations))
 
-	// FanOut response channel for posters
+	// Build buffers for posting to the database and
 	postChannel := make(chan []byte, 20)
 	historyChannel := make(chan *eveapi.MarketTypeHistoryCollectionV1, 20)
 	orderChannel := make(chan *eveapi.MarketOrderCollectionSlimV1, 20)
-
-	client := c.HTTPClient
 
 	if c.Conf.EMDRCrestBridge.Upload {
 		for i := 0; i < 4; i++ {
@@ -84,7 +86,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 				for {
 					msg := <-postChannel
 
-					response, err := client.Post(c.Conf.EMDRCrestBridge.URL, "application/json", bytes.NewBuffer(msg))
+					response, err := http.Post(c.Conf.EMDRCrestBridge.URL, "application/json", bytes.NewBuffer(msg))
 					if err != nil {
 						log.Println("EMDRCrestBridge:", err)
 					} else {
@@ -147,8 +149,9 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 		}()
 	}
 
+	// limit concurrent requests as to not hog the available connections.
+	// Eventually the buffers will become the limiting factors.
 	limiter := make(chan bool, 4)
-
 	for {
 		// loop through all regions
 		for _, r := range regions {
