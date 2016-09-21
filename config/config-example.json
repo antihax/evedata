@@ -14,7 +14,6 @@
     	"Import":  			true,
     	"Upload":  			true,
     	"URL":				"http://upload.eve-emdr.com/upload/",
-    	"MaxGoRoutines":	16
     },
 	"CREST": {
         "SSO": {
@@ -28,5 +27,8 @@
         		"RedirectURL": "http://www/eveTokenAnswer"
         }
     },
-     "MemcachedAddress": ["192.168.1.10:11211", "192.168.1.14:11211", "192.168.1.12:11211"],
+    "Redis": {
+    	"Address": "127.0.0.1:6379",
+    	"Password": ""
+    },
 }

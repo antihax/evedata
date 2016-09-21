@@ -1,10 +1,7 @@
 package config
 
 import (
-	"bytes"
 	"encoding/json"
-	"io/ioutil"
-	"net/http"
 	"os"
 )
 
@@ -36,9 +33,7 @@ type Config struct {
 			RedirectURL string
 		}
 	}
-	ServerIP         string
-	Domain           string
-	MemcachedAddress []string
+	Domain string
 
 	Redis struct {
 		Address  string
@@ -46,7 +41,7 @@ type Config struct {
 	}
 }
 
-// ReadConfig should be run at startup and result shared between microservices.
+// ReadConfig should be run at startup and output shared between microservices via context.
 func ReadConfig() (*Config, error) {
 	c := Config{}
 
@@ -63,24 +58,9 @@ func ReadConfig() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	c.ServerIP, err = checkIP()
+
 	if err != nil {
 		return nil, err
 	}
 	return &c, nil
-}
-
-func checkIP() (string, error) {
-	rsp, err := http.Get("http://checkip.amazonaws.com")
-	if err != nil {
-		return "", err
-	}
-	defer rsp.Body.Close()
-
-	buf, err := ioutil.ReadAll(rsp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	return string(bytes.TrimSpace(buf)), nil
 }
