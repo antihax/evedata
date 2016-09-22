@@ -14,6 +14,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// [TODO] Update and complete
 type emdrHeader struct {
 	UploadKeys []struct {
 		Name string
