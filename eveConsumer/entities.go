@@ -10,8 +10,11 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-func (c *EVEConsumer) checkAlliances() {
+// At the public rate limit, we can obtain 540,000 entities an hour.
+// Recursion will be limited to once an day with expiration of entities at five days.
 
+// Check if we need to update any entity information (character, corporation, alliance)
+func (c *EVEConsumer) checkEntities() {
 	err := c.collectEntitiesFromCREST()
 	if err != nil {
 		log.Printf("EVEConsumer: collecting entities: %v", err)
@@ -23,48 +26,52 @@ func (c *EVEConsumer) checkAlliances() {
 
 }
 
+// update any old entities
 func (c *EVEConsumer) updateEntities() error {
 
-	alliances, err := c.ctx.Db.Query(
+	entities, err := c.ctx.Db.Query(
 		`SELECT allianceid, crestRef, cacheUntil FROM alliances A
-INNER JOIN crestID C ON A.allianceID = C.id
-			WHERE cacheUntil < UTC_TIMESTAMP()  
-UNION
-SELECT corporationid, crestRef, cacheUntil FROM corporations A
-INNER JOIN crestID C ON A.corporationID = C.id
-			WHERE cacheUntil < UTC_TIMESTAMP()
-UNION
-(SELECT characterID, crestRef, cacheUntil FROM characters A
-INNER JOIN crestID C ON A.characterID = C.id
-			WHERE cacheUntil < UTC_TIMESTAMP())
+			INNER JOIN crestID C ON A.allianceID = C.id
+						WHERE cacheUntil < UTC_TIMESTAMP()  
+			UNION
+			SELECT corporationid, crestRef, cacheUntil FROM corporations A
+			INNER JOIN crestID C ON A.corporationID = C.id
+						WHERE cacheUntil < UTC_TIMESTAMP()
+			UNION
+			(SELECT characterID, crestRef, cacheUntil FROM characters A
+			INNER JOIN crestID C ON A.characterID = C.id
+						WHERE cacheUntil < UTC_TIMESTAMP())
             
             ORDER BY cacheUntil ASC`)
 	if err != nil {
 		return err
 	}
 
-	for alliances.Next() {
+	// Loop the entities
+	for entities.Next() {
 		var (
 			id      int64
 			href    string
 			nothing string
 		)
 
-		err = alliances.Scan(&id, &href, &nothing)
+		err = entities.Scan(&id, &href, &nothing)
 		if err != nil {
 			return err
 		}
 
+		// Recursively update expired information
 		if err = c.updateEntity(href, id); err != nil {
 			return err
 		}
 
 	}
-	alliances.Close()
+	entities.Close()
 
 	return nil
 }
 
+// Collect entity information for new alliances
 func (c *EVEConsumer) collectEntitiesFromCREST() error {
 	r := struct {
 		Value int
@@ -90,7 +97,7 @@ func (c *EVEConsumer) collectEntitiesFromCREST() error {
 		return err
 	}
 
-	// Loop through all of the pages
+	// Loop through all of the alliance pages
 	for ; w != nil; w, err = w.NextPage() {
 		if err != nil {
 			return err
@@ -103,6 +110,7 @@ func (c *EVEConsumer) collectEntitiesFromCREST() error {
 			return err
 		}
 
+		// Recursively update expired information
 		for _, r := range w.Items {
 			if err = c.updateEntity(r.HRef, r.ID); err != nil {
 				return err
@@ -118,6 +126,8 @@ func (c *EVEConsumer) updateEntity(href string, id int64) error {
 	)
 	r := c.ctx.Cache.Get()
 	defer r.Close()
+
+	// Skip this entity if we have touched it recently
 	i, err := redis.Bool(r.Do("EXISTS", "EVEDATA_entity:"+href))
 	if err == nil && i != true {
 		go func() error {
@@ -138,6 +148,7 @@ func (c *EVEConsumer) updateEntity(href string, id int64) error {
 			return nil
 		}()
 
+		// Say we touched the entity and expire after one day
 		r.Do("SETEX", "EVEDATA_entity:"+href, 86400, true)
 	} else {
 		return nil

@@ -8,9 +8,10 @@ import (
 	"strings"
 )
 
+// Perform contact sync for wardecs
 func (c *EVEConsumer) contactSync() {
 
-	// Gather characters for update
+	// Gather characters for update. Group for optimized updating.
 	rows, err := c.ctx.Db.Query(
 		`SELECT source, group_concat(destination)
 			FROM contactSyncs S  
@@ -36,12 +37,11 @@ func (c *EVEConsumer) contactSync() {
 			log.Printf("EVEConsumer: Failed scan: %v", err)
 			continue
 		}
-		destinations := strings.Split(dest, ",")
-		if err != nil {
-			log.Printf("EVEConsumer: Failed Scanning Rows: %v", err)
-			continue
-		}
 
+		// Split off characters into an array
+		destinations := strings.Split(dest, ",")
+
+		// get the source character information
 		char, err := c.ctx.EVE.GetCharacterInfo(source)
 		if err != nil {
 			log.Printf("EVEConsumer: Failed getting character info %v", err)
@@ -93,24 +93,25 @@ func (c *EVEConsumer) contactSync() {
 			ref      string
 			standing float64
 		}
+
+		// Make a list of contacts to add.
 		contactsToAdd := make(map[int64]*toAdd)
 
 		for _, war := range activeWars {
-			con := &toAdd{standing: -10}
+			con := &toAdd{standing: -10} // -10 for active wars
 			con.id = war.ID
 			con.ref = war.CrestRef
 			contactsToAdd[con.id] = con
 		}
 
 		for _, war := range pendingWars {
-			con := &toAdd{standing: -5}
+			con := &toAdd{standing: -5} // -5 for pending wars
 			con.id = war.ID
 			con.ref = war.CrestRef
 			contactsToAdd[con.id] = con
 		}
 
 		for _, client := range clients {
-
 			if client == nil {
 				continue
 			}
@@ -149,6 +150,7 @@ func (c *EVEConsumer) contactSync() {
 							}
 						}
 						// Don't need to do anything to this contact.
+						// lets remove it from the list
 						delete(toProcess, contact.Contact.ID)
 					} else {
 						// No longer at war... delete the contact
@@ -173,6 +175,7 @@ func (c *EVEConsumer) contactSync() {
 	}
 }
 
+// Obtain an authenticated client from a stored access/refresh token.
 func (c *EVEConsumer) getClient(characterID int64, tokenCharacterID int64) (*eveapi.AuthenticatedClient, error) {
 	tok := models.CRESTToken{}
 	if err := c.ctx.Db.QueryRowx(
