@@ -20,6 +20,7 @@ import (
 	gsr "gopkg.in/boj/redistore.v1"
 )
 
+// Load the server
 func GoServer() {
 	var err error
 
@@ -40,9 +41,11 @@ func GoServer() {
 			if err != nil {
 				return nil, err
 			}
-			if _, err := c.Do("AUTH", ctx.Conf.Redis.Password); err != nil {
-				c.Close()
-				return nil, err
+			if ctx.Conf.Redis.Password != "" {
+				if _, err := c.Do("AUTH", ctx.Conf.Redis.Password); err != nil {
+					c.Close()
+					return nil, err
+				}
 			}
 			return c, err
 		},

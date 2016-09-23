@@ -6,7 +6,6 @@ import (
 )
 
 // bootstrap interface
-
 func main() {
 	evedata.GoServer()
 }

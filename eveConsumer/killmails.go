@@ -9,11 +9,13 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 var (
 	knownKills map[int64]bool
 	mapLock    sync.RWMutex
+	limiter    chan bool
 )
 
 func (c *EVEConsumer) initKillConsumer() {
@@ -25,10 +27,15 @@ func (c *EVEConsumer) initKillConsumer() {
 	for _, m := range k {
 		knownKills[m] = true
 	}
+	limiter = make(chan bool, 10)
 }
 
 func (c *EVEConsumer) addKillmail(href string) error {
-	go func() error {
+	limiter <- true
+
+	go func(l chan bool) error {
+		defer func(l chan bool) { <-l }(l)
+
 		hash := strings.Split(href, "/")[5]
 		id, err := strconv.ParseInt(strings.Split(href, "/")[4], 10, 64)
 		if err != nil {
@@ -74,7 +81,7 @@ func (c *EVEConsumer) addKillmail(href string) error {
 		knownKills[id] = true
 		mapLock.Unlock()
 		return nil
-	}()
+	}(limiter)
 	return nil
 }
 
@@ -98,6 +105,43 @@ func (c *EVEConsumer) goZKillConsumer() error {
 		}
 		if k.Package.KillID > 0 {
 			c.addKillmail(fmt.Sprintf(c.ctx.EVE.GetCRESTURI()+"killmails/%d/%s/", k.Package.KillID, k.Package.ZKB.Hash))
+		}
+
+	}
+}
+
+func (c *EVEConsumer) goZKillTemporaryConsumer() error {
+	r := struct {
+		Value int
+		Date  time.Time
+	}{0, time.Now()}
+
+	if err := c.ctx.Db.Get(&r, `
+		SELECT value, date(nextCheck) AS date
+			FROM states 
+			WHERE state = 'zkilltemp'
+			LIMIT 1;
+		`); err != nil {
+		return err
+	}
+
+	for {
+		k := make(map[string]interface{})
+
+		date := r.Date.Format("20060102")
+		r.Date = r.Date.Add(time.Hour * 24)
+		err := getJSON(fmt.Sprintf("https://zkillboard.com/api/history/%s/", date), &k)
+		if err != nil {
+			continue
+		}
+
+		for id, hash := range k {
+			c.addKillmail(fmt.Sprintf(c.ctx.EVE.GetCRESTURI()+"killmails/%s/%s/", id, hash))
+		}
+
+		_, err = c.ctx.Db.Exec("UPDATE states SET value = ?, nextCheck =? WHERE state = 'zkilltemp' LIMIT 1", 1, r.Date)
+		if err != nil {
+			continue
 		}
 
 	}

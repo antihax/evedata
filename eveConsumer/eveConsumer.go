@@ -65,6 +65,7 @@ func (c *EVEConsumer) RunConsumer() {
 	go c.goConsumer()
 	go c.goTriggers()
 	go c.goZKillConsumer()
+	go c.goZKillTemporaryConsumer()
 	log.Printf("EVEConsumer: Started\n")
 }
 
