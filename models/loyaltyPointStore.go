@@ -31,6 +31,7 @@ type IskPerLP struct {
 	Requirements null.String `db:"requirements" json:"requirements"`
 }
 
+// [BENCHMARK] 0.016 sec / 0.000 sec
 func GetISKPerLP(corporationName string) ([]IskPerLP, error) {
 	s := []IskPerLP{}
 	if err := database.Select(&s, `

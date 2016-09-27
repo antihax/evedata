@@ -51,6 +51,7 @@ type Alliance struct {
 }
 
 // Obtain alliance information by ID.
+// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetAlliance(id int64) (*Alliance, error) {
 	ref := Alliance{}
 	if err := database.QueryRowx(`
@@ -81,6 +82,7 @@ type AllianceMember struct {
 }
 
 // Obtain a list of corporations within an alliance by ID.
+// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetAllianceMembers(id int64) ([]AllianceMember, error) {
 	ref := []AllianceMember{}
 	if err := database.Select(&ref, `

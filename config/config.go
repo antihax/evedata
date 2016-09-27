@@ -39,6 +39,13 @@ type Config struct {
 		Address  string
 		Password string
 	}
+
+	Discord struct {
+		Enabled   bool
+		ClientID  string
+		SecretKey string
+		Token     string
+	}
 }
 
 // ReadConfig should be run at startup and output shared between microservices via context.

@@ -35,6 +35,7 @@ type Corporation struct {
 }
 
 // Obtain Corporation information by ID.
+// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetCorporation(id int64) (*Corporation, error) {
 	ref := Corporation{}
 	if err := database.QueryRowx(`

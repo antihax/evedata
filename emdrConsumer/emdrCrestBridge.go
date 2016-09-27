@@ -125,7 +125,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 				first := false
 				for _, e := range o.Items {
 					if first {
-						_, err := c.Db.Exec(`UPDATE market SET done = 1 WHERE regionID = ? AND typeID =?`, o.RegionID, e.Type)
+						_, err := c.Db.Exec(`UPDATE market SET done = 1 WHERE regionID = ? AND typeID =? LIMIT 50`, o.RegionID, e.Type)
 						if err != nil {
 							log.Printf("EMDRCrestBridge: %s", err)
 						}

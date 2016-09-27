@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// 0.015 sec
+// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetActiveWarsByID(id int64) ([]CRESTRef, error) {
 	w := []CRESTRef{}
 	if err := database.Select(&w, `
@@ -24,7 +24,7 @@ func GetActiveWarsByID(id int64) ([]CRESTRef, error) {
 	return w, nil
 }
 
-// 0.015 sec
+// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetPendingWarsByID(id int64) ([]CRESTRef, error) {
 	w := []CRESTRef{}
 	if err := database.Select(&w, `
@@ -43,7 +43,7 @@ func GetPendingWarsByID(id int64) ([]CRESTRef, error) {
 	return w, nil
 }
 
-// 0.015 sec
+// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetFinishedWarsByID(id int64) ([]CRESTRef, error) {
 	w := []CRESTRef{}
 	if err := database.Select(&w, `
@@ -78,8 +78,8 @@ type ActiveWarList struct {
 	Losses        int64       `db:"losses" json:"losses"`
 }
 
+// [BENCHMARK] 3.219 sec / 0.703 sec
 func GetActiveWarList() ([]ActiveWarList, error) {
-
 	wars := []ActiveWarList{}
 	if err := database.Select(&wars, `
 	SELECT 
@@ -139,7 +139,6 @@ func GetActiveWarList() ([]ActiveWarList, error) {
 }
 
 func GetWarsForEntityByID(id int64) ([]ActiveWarList, error) {
-
 	wars := []ActiveWarList{}
 	if err := database.Select(&wars, `
 	SELECT 

@@ -62,6 +62,7 @@ type ConstellationActivity struct {
 	RegionName        string `db:"regionName" json:"regionName"`
 }
 
+// [BENCHMARK] 0.015 sec / 0.000 sec
 func GetConstellationActivity(id int64, entityType string) ([]ConstellationActivity, error) {
 	v := []ConstellationActivity{}
 

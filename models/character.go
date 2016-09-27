@@ -28,6 +28,7 @@ type CRESTToken struct {
 	RefreshToken     string      `db:"refreshToken" json:"refreshToken"`
 }
 
+// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetCRESTTokens(characterID int64) ([]CRESTToken, error) {
 	tokens := []CRESTToken{}
 	if err := database.Select(&tokens, `
@@ -91,6 +92,7 @@ type Character struct {
 }
 
 // Obtain Character information by ID.
+// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetCharacter(id int64) (*Character, error) {
 	ref := Character{}
 	if err := database.QueryRowx(`

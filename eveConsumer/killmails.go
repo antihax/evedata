@@ -106,7 +106,6 @@ func (c *EVEConsumer) goZKillConsumer() error {
 		if k.Package.KillID > 0 {
 			c.addKillmail(fmt.Sprintf(c.ctx.EVE.GetCRESTURI()+"killmails/%d/%s/", k.Package.KillID, k.Package.ZKB.Hash))
 		}
-
 	}
 }
 

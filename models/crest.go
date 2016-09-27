@@ -26,9 +26,10 @@ func AddCRESTRef(id int64, ref string) error {
 	return nil
 }
 
+// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetCRESTRef(id int64) (*CRESTRef, error) {
 	ref := &CRESTRef{}
-	if err := database.Select(&ref, `SELECT id FROM killmails WHERE id = ?LIMIT 1;`, id); err != nil {
+	if err := database.Select(&ref, `SELECT id FROM killmails WHERE id = ? LIMIT 1;`, id); err != nil {
 		return nil, err
 	}
 	return ref, nil

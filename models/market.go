@@ -7,6 +7,7 @@ type ArbitrageCalculatorStations struct {
 	StationID   string `db:"stationID" json:"stationID" `
 }
 
+// [BENCHMARK] 0.015 sec / 0.000 sec
 func GetArbitrageCalculatorStations() ([]ArbitrageCalculatorStations, error) {
 	s := []ArbitrageCalculatorStations{}
 	if err := database.Select(&s, `
@@ -46,6 +47,7 @@ func GetArbitrageCalculator(hours int64, stationID int64, minVolume int64, maxPr
 	b := []buys{}
 
 	go func() {
+		// [BENCHMARK] 0.432 sec / 0.016 sec
 		err := database.Select(&b, `
 		SELECT  market.typeID AS typeID, typeName, count(*) as buys, ROUND(market_vol.quantity / 2) as volume, ROUND(max(price) + (max(price) * ?),2) AS price
 		FROM    market, invTypes, market_vol
@@ -67,13 +69,15 @@ func GetArbitrageCalculator(hours int64, stationID int64, minVolume int64, maxPr
 	sellOrders := make(map[int64]sells)
 	s := []sells{}
 	go func() {
+		// [BENCHMARK] 0.297 sec / 0.000 sec
 		err := database.Select(&s, `
 		SELECT  typeID, ROUND(min(price) - (min(price) * ?) - (min(price) * ?),2) AS price
 		FROM    market
 		WHERE   reported >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL ? DAY_HOUR) AND
 		        market.stationID = ?
 		        AND bid = 0
-		        GROUP BY typeID`, brokersFee, tax, hours, stationID)
+		        AND price < ?
+		        GROUP BY typeID`, brokersFee, tax, hours, stationID, maxPrice)
 
 		// Add broker fee to all orders.
 		for _, order := range s {
@@ -120,6 +124,7 @@ type MarketRegion struct {
 	RegionName string `db:"regionName"`
 }
 
+// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetMarketRegions() ([]MarketRegion, error) {
 	v := []MarketRegion{}
 	err := database.Select(&v, `

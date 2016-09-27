@@ -26,6 +26,7 @@ func (c *ContactSync) Updated(nextSync time.Time) {
 		nextSync, c.Source)
 }
 
+// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetContactSyncs(characterID int64) ([]ContactSync, error) {
 	cc := []ContactSync{}
 	if err := database.Select(&cc, `

@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"evedata/appContext"
 	"evedata/config"
+	"evedata/discord"
 	"evedata/emdrConsumer"
 	"evedata/eveConsumer"
 	"evedata/eveapi"
@@ -102,6 +103,10 @@ func GoServer() {
 	eC := eveConsumer.NewEVEConsumer(ctx)
 	eC.RunConsumer()
 	defer eC.StopConsumer()
+
+	if ctx.Conf.Discord.Enabled {
+		go discord.GoDiscordBot(ctx)
+	}
 
 	// Allocate the routes
 	rtr := NewRouter(ctx)
