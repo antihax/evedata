@@ -78,7 +78,7 @@ type ActiveWarList struct {
 	Losses        int64       `db:"losses" json:"losses"`
 }
 
-// [BENCHMARK] 3.219 sec / 0.703 sec
+// [BENCHMARK] 1.469 sec / 0.094 sec
 func GetActiveWarList() ([]ActiveWarList, error) {
 	wars := []ActiveWarList{}
 	if err := database.Select(&wars, `
@@ -115,6 +115,7 @@ func GetActiveWarList() ([]ActiveWarList, error) {
 					K.victimAllianceID != W.aggressorID AND 
 					K.victimCorporationID != W.aggressorID
 				)
+				WHERE killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 31 DAY)
 				GROUP BY W.id
 		) AS K ON W.id = K.id
 		LEFT OUTER JOIN 
@@ -128,6 +129,7 @@ func GetActiveWarList() ([]ActiveWarList, error) {
 					L.victimAllianceID = W.aggressorID OR 
 					L.victimCorporationID = W.aggressorID
 				)
+				WHERE killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 31 DAY)
 				GROUP BY W.id
 		) AS L ON W.id = L.id
 	    WHERE mutual = 0 AND
@@ -175,6 +177,7 @@ func GetWarsForEntityByID(id int64) ([]ActiveWarList, error) {
 					K.victimAllianceID != W.aggressorID AND 
 					K.victimCorporationID != W.aggressorID
 				)
+				WHERE killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 31 DAY)
 				GROUP BY W.id
 		) AS K ON W.id = K.id
 		LEFT OUTER JOIN 
@@ -188,6 +191,7 @@ func GetWarsForEntityByID(id int64) ([]ActiveWarList, error) {
 					L.victimAllianceID = W.aggressorID OR 
 					L.victimCorporationID = W.aggressorID
 				)
+				WHERE killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 31 DAY)
 				GROUP BY W.id
 		) AS L ON W.id = L.id
 	    WHERE (aggressorID = ? OR defenderID = ? OR allyID = ?) AND

@@ -56,6 +56,7 @@ func searchitemsPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Re
 
 	mIL := []marketItemList{}
 
+	// [BENCHMARK] 0.078 sec / 0.000 sec
 	err := c.Db.Select(&mIL, `SELECT  T.typeID, typeName, CONCAT_WS(',', G5.marketGroupName, G4.marketGroupName, G3.marketGroupName, G2.marketGroupName, G.marketGroupName) AS Categories, count(*) AS count
            FROM invTypes T 
            LEFT JOIN invMarketGroups G on T.marketGroupID = G.marketGroupID
