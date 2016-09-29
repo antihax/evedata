@@ -129,6 +129,12 @@ func (c *EVEConsumer) goZKillTemporaryConsumer() error {
 
 		date := r.Date.Format("20060102")
 		r.Date = r.Date.Add(time.Hour * 24)
+
+		if r.Date.Sub(time.Now().UTC()) > 0 {
+			r.Date = time.Now().UTC().Add(time.Hour * 24 * -365)
+			log.Printf("Restart zKill Consumer to %s", r.Date.String())
+		}
+
 		err := getJSON(fmt.Sprintf("https://zkillboard.com/api/history/%s/", date), &k)
 		if err != nil {
 			continue
@@ -142,7 +148,6 @@ func (c *EVEConsumer) goZKillTemporaryConsumer() error {
 		if err != nil {
 			continue
 		}
-
 	}
 }
 
