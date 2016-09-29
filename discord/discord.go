@@ -37,7 +37,7 @@ func goKillmailHunter(ctx *appContext.AppContext) {
 	throttle := time.Tick(rate)
 
 	for {
-
+		<-throttle
 		r := ctx.Cache.Get()
 		defer r.Close()
 
@@ -78,6 +78,9 @@ func goKillmailHunter(ctx *appContext.AppContext) {
             M.security > 0.5
             GROUP BY K.id
             ORDER BY K.id ASC`, startID)
+		if err != nil {
+			continue
+		}
 
 		for rows.Next() {
 			var killID int64
@@ -89,7 +92,7 @@ func goKillmailHunter(ctx *appContext.AppContext) {
 			SendMessage(fmt.Sprintf("https://zkillboard.com/kill/%d/", killID))
 		}
 		rows.Close()
-		<-throttle
+
 	}
 }
 
