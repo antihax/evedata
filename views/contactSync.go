@@ -22,7 +22,7 @@ func init() {
 }
 
 func contactSyncPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-
+	setCache(w, 60*60)
 	p := newPage(s, r, "Contact Copiers")
 	templates.Templates = template.Must(template.ParseFiles("templates/contactSync.html", templates.LayoutPath))
 
@@ -34,7 +34,7 @@ func contactSyncPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Re
 }
 
 func apiAddContactSync(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-
+	setCache(w, 0)
 	type localContactSync struct {
 		Source      int `json:",string"`
 		Destination int `json:",string"`
@@ -61,6 +61,7 @@ func apiAddContactSync(c *appContext.AppContext, w http.ResponseWriter, r *http.
 }
 
 func apiGetContactSyncs(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+	setCache(w, 0)
 	characterID := s.Values["characterID"].(int64)
 	cc, err := models.GetContactSyncs(characterID)
 	if err != nil {
@@ -74,7 +75,7 @@ func apiGetContactSyncs(c *appContext.AppContext, w http.ResponseWriter, r *http
 }
 
 func apiDeleteContactSync(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-
+	setCache(w, 0)
 	destination, err := strconv.Atoi(r.FormValue("destination"))
 	if err != nil {
 		return http.StatusNotFound, errors.New("Invalid destination")

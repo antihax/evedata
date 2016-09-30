@@ -19,6 +19,7 @@ func init() {
 }
 
 func iskPerLPPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+	setCache(w, 60*60)
 	p := newPage(s, r, "ISK Per Loyalty Point")
 
 	templates.Templates = template.Must(template.ParseFiles("templates/iskPerLP.html", templates.LayoutPath))

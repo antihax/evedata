@@ -22,7 +22,7 @@ func init() {
 }
 
 func accountPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-
+	setCache(w, 60*60)
 	p := newPage(s, r, "Account Information")
 	templates.Templates = template.Must(template.ParseFiles("templates/account.html", templates.LayoutPath))
 
@@ -34,6 +34,8 @@ func accountPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reques
 }
 
 func apiGetCRESTTokens(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+	setCache(w, 0)
+
 	if s.Values["characterID"] == nil {
 		return http.StatusForbidden, nil
 	}
@@ -51,7 +53,7 @@ func apiGetCRESTTokens(c *appContext.AppContext, w http.ResponseWriter, r *http.
 }
 
 func apiDeleteCRESTToken(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-
+	setCache(w, 0)
 	cid, err := strconv.ParseInt(r.FormValue("tokenCharacterID"), 10, 64)
 	if err != nil {
 		return http.StatusNotFound, errors.New("Invalid tokenCharacterID")

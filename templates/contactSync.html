@@ -1,10 +1,11 @@
 {{define "body"}} 
-	<h3>Contact Sync</h3>
-	The Contact Sync tool will automaticly copy war declarations from the Copy From to the Copy To characters contacts. This is typically used to keep scouts up to date.
-
+	<h2>Contact Sync</h2>
+<p>	The Contact Sync tool will automaticly copy war declarations from the Copy From to the Copy To characters contacts. This is typically used to keep scouts up to date.</p>
+<p>Instructions: Create a CREST Token for your main and each alt character on the <a href="/account">account page</a>. Then create one Contact Copy from your main to each alt.</p>
+<p>This tool will erase all -5 and -10 personal contacts on the Copy To character and replace them with active and pending war contacts perpetually until the Contact Copy is deleted.</p>
 	{{ if .CharacterID }} 
 	    <div class="table-responsive">
-	        <p class="toolbar contactToolbar" id="contactToolbar"><a class="addcontact btn btn-default" href="javascript:">Add New Contact Contact Copy</a></p>
+	        <p class="toolbar contactToolbar" id="contactToolbar"><a class="addcontact btn btn-default" href="javascript:">Add New Contact Copy</a></p>
 	        <table class="table" data-show-refresh="true" data-toolbar=".contactToolbar"
 	        data-url="/U/contactSync" id="contactstable">
 	            <thead>
