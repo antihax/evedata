@@ -123,8 +123,11 @@ func (c *EVEConsumer) goZKillTemporaryConsumer() error {
 		`); err != nil {
 		return err
 	}
+	rate := time.Second * 60
+	throttle := time.Tick(rate)
 
 	for {
+		<-throttle
 		k := make(map[string]interface{})
 
 		date := r.Date.Format("20060102")
