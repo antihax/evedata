@@ -30,6 +30,7 @@
 
 	{{ template "wars" . }}
 	{{ template "activity" . }}
+	{{ template "assets" . }}
 
 {{end}}
 
@@ -56,6 +57,7 @@
 	<div class="row">
 		{{ template "wars" . }}
 		{{ template "activity" . }}
+			{{ template "assets" . }}
 		<div class="col-md-6">
 			<h2>
 				Corporations
@@ -182,6 +184,49 @@
 					];
 				
        				$activityTable.bootstrapTable({data: activity});
+       			});
+       		</script>
+		</div>
+	{{end}}
+{{end}}
+
+{{define "assets"}}
+	{{if .Assets }} 
+		<div class="col-md-6">
+			<h2>
+				Possible Assets In Space
+			</h2>
+			Note: Citadels may show as fighter drones.
+			<table id="assets"
+               data-sort-name="lastSeen"
+               data-pagination="true"
+               data-search="true"
+               data-sort-order="desc">
+            <thead>
+            <tr>
+				<th data-field="itemName">Near</th>
+				<th data-field="typeName" data-sortable="true">Type</th>
+				<th data-field="security" data-sortable="true">Security</th>
+				<th data-field="lastSeen" data-sortable="true">Last Seen</th>
+            </tr>
+            </thead>
+        </table>
+			<script>
+				var $assetsTable = $('#assets');
+			    $(function () {
+       				 var assets = 
+       				 	[			 	
+			      				{{ range $key, $v := .Assets }}
+			      				{
+       				 				"itemName": {{ $v.ItemName }},
+       				 				"typeName": {{ $v.TypeName }},
+       				 				"security": {{ $v.Security }},
+       				 				"lastSeen": {{ $v.LastSeen }},
+								},
+						{{ end }}       				 	
+					];
+				
+       				$assetsTable.bootstrapTable({data: assets});
        			});
        		</script>
 		</div>

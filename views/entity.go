@@ -67,6 +67,17 @@ func alliancePage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 		errc <- err
 	}()
 
+	// Get the alliance asset information
+	go func() {
+		ref, err := models.GetAllianceAssetsInSpace(id)
+		if err != nil {
+			errc <- err
+			return
+		}
+		p["Assets"] = ref
+		errc <- err
+	}()
+
 	// Get the alliance members
 	go func() {
 		ref, err := models.GetAllianceMembers(id)
@@ -79,7 +90,7 @@ func alliancePage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 	}()
 
 	// clear the error channel
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 5; i++ {
 		err := <-errc
 		if err != nil {
 			return http.StatusInternalServerError, err
@@ -143,8 +154,19 @@ func corporationPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Re
 		errc <- nil
 	}()
 
+	// Get the alliance asset information
+	go func() {
+		ref, err := models.GetCorporationAssetsInSpace(id)
+		if err != nil {
+			errc <- err
+			return
+		}
+		p["Assets"] = ref
+		errc <- err
+	}()
+
 	// clear the error channel
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 4; i++ {
 		err := <-errc
 		if err != nil {
 			return http.StatusInternalServerError, err
