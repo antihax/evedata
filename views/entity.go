@@ -27,7 +27,7 @@ func alliancePage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Invalid ID. Please provide an ?id=")
+		return http.StatusInternalServerError, errors.New("Invalid Alliance ID. Please provide an ?id=")
 	}
 
 	errc := make(chan error)
@@ -114,7 +114,7 @@ func corporationPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Re
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Invalid ID. Please provide an ?id=")
+		return http.StatusInternalServerError, errors.New("Invalid corporation ID. Please provide an ?id=")
 	}
 
 	errc := make(chan error)
@@ -190,7 +190,7 @@ func characterPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Requ
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Invalid ID. Please provide an ?id=")
+		return http.StatusInternalServerError, errors.New("Invalid character ID. Please provide an ?id=")
 	}
 
 	errc := make(chan error)

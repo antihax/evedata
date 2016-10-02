@@ -106,15 +106,35 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 		go func() {
 			for {
 				h := <-historyChannel
-				for _, e := range h.Items {
-					_, err := c.Db.Exec(`INSERT IGNORE INTO market_history 
-						(date, low, high, mean, quantity, orders, itemID, regionID) 
-						VALUES(?,?,?,?,?,?,?,?)`,
-						e.Date, e.LowPrice, e.HighPrice, e.AvgPrice,
-						e.Volume, e.OrderCount, h.TypeID, h.RegionID)
+
+				// Loop until the transaction passes
+				for {
+					tx, err := c.Db.Begin()
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
+						break
 					}
+					for _, e := range h.Items {
+
+						_, err = tx.Exec(`INSERT IGNORE INTO market_history 
+						(date, low, high, mean, quantity, orders, itemID, regionID) 
+						VALUES(?,?,?,?,?,?,?,?);`,
+							e.Date, e.LowPrice, e.HighPrice, e.AvgPrice,
+							e.Volume, e.OrderCount, h.TypeID, h.RegionID)
+
+						if err != nil {
+							tx.Rollback()
+							log.Printf("EMDRCrestBridge: %s", err)
+							break
+						}
+
+					}
+					err = tx.Commit()
+					if err != nil {
+						log.Printf("EMDRCrestBridge: %s", err)
+						break
+					}
+					break // success
 				}
 			}
 		}()
@@ -122,15 +142,26 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 			for {
 				o := <-orderChannel
 				// Add or update orders
-				first := false
-				for _, e := range o.Items {
-					if first {
-						_, err := c.Db.Exec(`UPDATE market SET done = 1 WHERE regionID = ? AND typeID =? LIMIT 50`, o.RegionID, e.Type)
-						if err != nil {
-							log.Printf("EMDRCrestBridge: %s", err)
-						}
+
+				for {
+					first := false
+					tx, err := c.Db.Begin()
+					if err != nil {
+						log.Printf("EMDRCrestBridge: %s", err)
+						continue
 					}
-					_, err := c.Db.Exec(`INSERT INTO market
+
+					for _, e := range o.Items {
+
+						if first {
+							_, err := tx.Exec(`UPDATE market SET done = 1 WHERE regionID = ? AND typeID =?`, o.RegionID, e.Type)
+							if err != nil {
+								log.Printf("EMDRCrestBridge: %s", err)
+								tx.Rollback()
+								break
+							}
+						}
+						_, err = tx.Exec(`INSERT INTO market
 						(orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, systemID, reported)
 						VALUES(?,?,?,?,?,?,?,?,?,?,?,?,UTC_TIMESTAMP())
 						ON DUPLICATE KEY UPDATE price=VALUES(price),
@@ -139,19 +170,29 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 												duration=VALUES(duration),
 												reported=VALUES(reported),
 												done=0;`,
-						e.ID, e.Price, e.Volume, e.Type, e.VolumeEntered, e.MinVolume,
-						e.Buy, e.Issued.UTC(), e.Duration, e.StationID, o.RegionID, stations[e.StationID])
+							e.ID, e.Price, e.Volume, e.Type, e.VolumeEntered, e.MinVolume,
+							e.Buy, e.Issued.UTC(), e.Duration, e.StationID, o.RegionID, stations[e.StationID])
+						if err != nil {
+							log.Printf("EMDRCrestBridge: %s", err)
+							tx.Rollback()
+							break
+						}
+					}
+					err = tx.Commit()
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
+						continue
 					}
+					break // success
 				}
+
 			}
 		}()
 	}
 
 	// limit concurrent requests as to not hog the available connections.
 	// Eventually the buffers will become the limiting factors.
-	limiter := make(chan bool, 4)
+	limiter := make(chan bool, 5)
 	for {
 		// loop through all regions
 		for _, r := range regions {
