@@ -111,3 +111,55 @@ func GetConstellationActivity(id int64, entityType string) ([]ConstellationActiv
 	}
 	return v, nil
 }
+
+type KnownShipTypes struct {
+	Number   int64  `db:"number" json:"number"`
+	ShipType int64  `db:"shipType" json:"shipType"`
+	ShipName string `db:"shipName" json:"shipName"`
+}
+
+// [BENCHMARK] 0.016 sec / 0.000 sec
+func GetKnownShipTypes(id int64, entityType string) ([]KnownShipTypes, error) {
+	v := []KnownShipTypes{}
+
+	var victim, entity string
+
+	switch entityType {
+	case "corporation":
+		victim = fmt.Sprintf("K.victimCorporationID=%d", id)
+		entity = fmt.Sprintf("A.corporationID=%d", id)
+	case "alliance":
+		victim = fmt.Sprintf("K.victimAllianceID=%d", id)
+		entity = fmt.Sprintf("A.allianceID=%d", id)
+	case "character":
+		victim = fmt.Sprintf("K.victimCharacterID=%d", id)
+		entity = fmt.Sprintf("A.characterID=%d", id)
+	}
+
+	if err := database.Select(&v, `
+	SELECT 	
+		COUNT(DISTINCT K.id) AS number, 
+	    shipType,
+	    typeName AS shipName
+	FROM
+	(SELECT K.id AS id, K.shipType
+		FROM killmails K 
+		WHERE 
+			K.killTime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 31 DAY) AND
+			`+victim+`
+			AND shipType > 0
+	UNION ALL
+		SELECT K.id, A.shipType
+			FROM killmails K 
+			INNER JOIN killmailAttackers A ON A.id = K.id 
+			WHERE 
+				K.killTime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 31 DAY) AND
+				`+entity+`
+                AND A.shipType > 0
+	) K
+	INNER JOIN invTypes T ON K.shipType = T.typeID
+	GROUP BY shipType`); err != nil {
+		return nil, err
+	}
+	return v, nil
+}

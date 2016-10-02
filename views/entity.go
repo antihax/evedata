@@ -89,8 +89,19 @@ func alliancePage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 		errc <- err
 	}()
 
+	// Get known Ships.
+	go func() {
+		ref, err := models.GetKnownShipTypes(id, "alliance")
+		if err != nil {
+			errc <- err
+			return
+		}
+		p["KnownShips"] = ref
+		errc <- err
+	}()
+
 	// clear the error channel
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 6; i++ {
 		err := <-errc
 		if err != nil {
 			return http.StatusInternalServerError, err
@@ -165,8 +176,19 @@ func corporationPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Re
 		errc <- err
 	}()
 
+	// Get known Ships.
+	go func() {
+		ref, err := models.GetKnownShipTypes(id, "corporation")
+		if err != nil {
+			errc <- err
+			return
+		}
+		p["KnownShips"] = ref
+		errc <- err
+	}()
+
 	// clear the error channel
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 5; i++ {
 		err := <-errc
 		if err != nil {
 			return http.StatusInternalServerError, err
@@ -204,8 +226,30 @@ func characterPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Requ
 		errc <- err
 	}()
 
+	// Get known activity.
+	go func() {
+		ref, err := models.GetConstellationActivity(id, "character")
+		if err != nil {
+			errc <- err
+			return
+		}
+		p["Activity"] = ref
+		errc <- err
+	}()
+
+	// Get known Ships.
+	go func() {
+		ref, err := models.GetKnownShipTypes(id, "character")
+		if err != nil {
+			errc <- err
+			return
+		}
+		p["KnownShips"] = ref
+		errc <- err
+	}()
+
 	// clear the error channel
-	for i := 0; i < 1; i++ {
+	for i := 0; i < 3; i++ {
 		err := <-errc
 		if err != nil {
 			return http.StatusInternalServerError, err
