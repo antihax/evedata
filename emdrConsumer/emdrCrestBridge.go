@@ -81,7 +81,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 	orderChannel := make(chan *eveapi.MarketOrderCollectionSlimV1, 20)
 
 	if c.Conf.EMDRCrestBridge.Upload {
-		for i := 0; i < 4; i++ {
+		for i := 0; i < 10; i++ {
 			// Don't spawn them all at once.
 			time.Sleep(time.Second / 2)
 			go func() {
@@ -128,6 +128,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 					}
 
 					stmt := fmt.Sprintf("INSERT IGNORE INTO market_history (date, low, high, mean, quantity, orders, itemID, regionID) VALUES \n %s", strings.Join(values, ",\n"))
+
 					_, err = tx.Exec(stmt)
 					if err != nil {
 						tx.Rollback()
@@ -153,7 +154,6 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 				}
 
 				for {
-					first := false
 					tx, err := c.Db.Begin()
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
@@ -162,25 +162,15 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 
 					var values []string
 					for _, e := range o.Items {
-						if first {
-							_, err := tx.Exec(`UPDATE market SET done = 1 WHERE regionID = ? AND typeID =?;`, o.RegionID, e.Type)
-							if err != nil {
-								log.Printf("EMDRCrestBridge: %s", err)
-								tx.Rollback()
-								break
-							}
-						}
-
 						var buy byte
 						if e.Buy == true {
 							buy = 1
 						} else {
 							buy = 0
 						}
-
 						values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,'%s',%d,%d,%d,%d,UTC_TIMESTAMP())",
 							e.ID, e.Price, e.Volume, e.Type, e.VolumeEntered, e.MinVolume,
-							buy, e.Issued.UTC(), e.Duration, e.StationID, o.RegionID, stations[e.StationID]))
+							buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.StationID, o.RegionID, stations[e.StationID]))
 					}
 
 					stmt := fmt.Sprintf(`INSERT INTO market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, systemID, reported) 
@@ -194,6 +184,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 							`, strings.Join(values, ",\n"))
 
 					_, err = tx.Exec(stmt)
+
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
 						tx.Rollback()
@@ -251,7 +242,6 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 
 					// Process Market History
 					h, err := c.EVE.MarketTypeHistoryByID(rk.RegionID, rk.TypeID)
-
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
 						return
