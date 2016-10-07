@@ -91,8 +91,8 @@ func (c *EVEConsumer) collectEntitiesFromCREST() error {
 		return nil
 	}
 
-	w, err := c.ctx.EVE.Alliances(r.Value)
-
+	// Get first page of alliances
+	w, err := c.ctx.EVE.AlliancesV2(r.Value)
 	if err != nil {
 		return err
 	}
@@ -186,7 +186,7 @@ func (c *EVEConsumer) updateAlliance(href string) (time.Duration, error) {
 
 func (c *EVEConsumer) updateCorporation(id int64) (time.Duration, error) {
 
-	a, err := c.ctx.EVE.GetCorporationPublicSheet(id)
+	a, err := c.ctx.EVE.CorporationPublicSheetXML(id)
 	if err != nil {
 		return 1, err
 	}
@@ -208,7 +208,7 @@ func (c *EVEConsumer) updateCorporation(id int64) (time.Duration, error) {
 }
 
 func (c *EVEConsumer) updateCharacter(id int64) (time.Duration, error) {
-	a, err := c.ctx.EVE.GetCharacterInfo(id)
+	a, err := c.ctx.EVE.CharacterInfoXML(id)
 	if err != nil {
 		return 1, err
 	}

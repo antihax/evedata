@@ -213,7 +213,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 			go func(l chan bool) {
 				defer func(l chan bool) { <-l }(l)
 				// Process Market Buy Orders
-				b, err := c.EVE.MarketOrdersSlim(r.RegionID, 1)
+				b, err := c.EVE.MarketOrdersSlimV1ByID(r.RegionID, 1)
 				if err != nil {
 					log.Printf("EMDRCrestBridge: %s", err)
 					return
@@ -241,7 +241,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 					rk := regionKey{r.RegionID, t.TypeID}
 
 					// Process Market History
-					h, err := c.EVE.MarketTypeHistoryByID(rk.RegionID, rk.TypeID)
+					h, err := c.EVE.MarketTypeHistoryV1ByID(rk.RegionID, rk.TypeID)
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
 						return

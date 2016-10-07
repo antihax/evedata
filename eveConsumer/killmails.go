@@ -48,7 +48,7 @@ func (c *EVEConsumer) addKillmail(href string) error {
 			return nil
 		}
 
-		kill, err := c.ctx.EVE.Killmail(href)
+		kill, err := c.ctx.EVE.KillmailV1(href)
 		if err != nil {
 			return err
 		}

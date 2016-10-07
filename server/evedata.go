@@ -57,18 +57,29 @@ func GoServer() {
 		log.Fatalf("Cannot build database pool: %v", err)
 	}
 
-	scopes := []string{eveapi.ScopeCharacterContactsRead,
-		eveapi.ScopeCharacterContactsWrite}
+	// Setup the SSO authenticator, this is the main login.
+	ssoScopes := []string{
+		eveapi.ScopeCharacterKillsRead, // Temporary
+		eveapi.ScopeCharacterLocationRead,
+		eveapi.ScopeCharacterNavigationWrite,
+		eveapi.ScopeRemoteClientUI,
+	}
 
 	ctx.SSOAuthenticator = eveapi.NewSSOAuthenticator(ctx.Conf.CREST.SSO.ClientID,
 		ctx.Conf.CREST.SSO.SecretKey,
 		ctx.Conf.CREST.SSO.RedirectURL,
-		nil)
+		ssoScopes)
+
+	// Setup the Token authenticator, this handles sub characters.
+	tokenScopes := []string{
+		eveapi.ScopeCharacterContactsRead,
+		eveapi.ScopeCharacterContactsWrite,
+	}
 
 	ctx.TokenAuthenticator = eveapi.NewSSOAuthenticator(ctx.Conf.CREST.Token.ClientID,
 		ctx.Conf.CREST.Token.SecretKey,
 		ctx.Conf.CREST.Token.RedirectURL,
-		scopes)
+		tokenScopes)
 
 	// Create a memcached http client for the CCP APIs.
 	transport := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))

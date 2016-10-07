@@ -31,7 +31,7 @@ func (c *EVEConsumer) collectNPCCorps() error {
 		return nil
 	}
 
-	w, err := c.ctx.EVE.NPCCorporations(1)
+	w, err := c.ctx.EVE.NPCCorporationsV1(1)
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func (c *EVEConsumer) collectNPCCorps() error {
 			}
 
 			c.updateEntity(npcCorp.Href, npcCorp.ID)
-			store, err := c.ctx.EVE.LoyaltyPointStore(npcCorp.LoyaltyStore.Href)
+			store, err := c.ctx.EVE.LoyaltyPointStoreV1(npcCorp.LoyaltyStore.Href)
 			if err != nil {
 				continue
 			}
