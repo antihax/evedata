@@ -59,7 +59,7 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 		return nil
 	}
 
-	w, err := c.ctx.EVE.Wars(r.Value)
+	w, err := c.ctx.EVE.WarsV1(r.Value)
 
 	if err != nil {
 		return err
@@ -83,7 +83,7 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 }
 
 func (c *EVEConsumer) updateWar(href string) error {
-	war, err := c.ctx.EVE.War(href)
+	war, err := c.ctx.EVE.WarV1(href)
 	if err != nil {
 		return err
 	}
@@ -124,7 +124,7 @@ func (c *EVEConsumer) updateWar(href string) error {
 		}
 	}
 
-	kills, err := war.GetKillmails()
+	kills, err := war.KillmailsV1()
 	if err != nil {
 		return err
 	}

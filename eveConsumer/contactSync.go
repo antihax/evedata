@@ -42,7 +42,7 @@ func (c *EVEConsumer) contactSync() {
 		destinations := strings.Split(dest, ",")
 
 		// get the source character information
-		char, err := c.ctx.EVE.GetCharacterInfo(source)
+		char, err := c.ctx.EVE.CharacterInfoXML(source)
 		if err != nil {
 			log.Printf("EVEConsumer: Failed getting character info %v", err)
 			continue
@@ -123,7 +123,7 @@ func (c *EVEConsumer) contactSync() {
 			}
 
 			// Get the clients current contacts
-			con, err := client.GetContacts()
+			con, err := client.ContactsV1()
 			if err != nil {
 				log.Printf("EVEConsumer: Failed Getting Client Contacts: %v", err)
 				continue
@@ -143,7 +143,7 @@ func (c *EVEConsumer) contactSync() {
 					if add != nil {
 						// Contact is already listed.
 						if contact.Standing != add.standing {
-							err = client.SetContact(add.id, add.ref, add.standing)
+							err = client.ContactSetV1(add.id, add.ref, add.standing)
 							if err != nil {
 								log.Printf("EVEConsumer: Failed SetContact: %v", err)
 								continue
@@ -154,7 +154,7 @@ func (c *EVEConsumer) contactSync() {
 						delete(toProcess, contact.Contact.ID)
 					} else {
 						// No longer at war... delete the contact
-						err = client.DeleteContact(contact.Contact.ID, contact.Contact.Href)
+						err = client.ContactDeleteV1(contact.Contact.ID, contact.Contact.Href)
 						if err != nil {
 							log.Printf("EVEConsumer: Failed DeleteContact: %v", err)
 							continue
@@ -164,7 +164,7 @@ func (c *EVEConsumer) contactSync() {
 
 				// Add the remaining contacts
 				for _, contact := range toProcess {
-					err = client.SetContact(contact.id, contact.ref, contact.standing)
+					err = client.ContactSetV1(contact.id, contact.ref, contact.standing)
 					if err != nil {
 						log.Printf("EVEConsumer: Failed SetContact: %v", err)
 						continue
