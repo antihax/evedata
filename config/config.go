@@ -1,9 +1,6 @@
 package config
 
-import (
-	"encoding/json"
-	"os"
-)
+import "github.com/BurntSushi/toml"
 
 // Config stucture for the EVEData App
 type Config struct {
@@ -13,13 +10,17 @@ type Config struct {
 		Spec   string
 	}
 	Store struct {
-		Key string
+		Key    string
+		Domain string
 	}
 	EMDRCrestBridge struct {
 		Enabled bool
 		Import  bool
 		Upload  bool
 		URL     string
+	}
+	EVEConsumer struct {
+		Enabled bool
 	}
 	CREST struct {
 		SSO struct {
@@ -33,7 +34,6 @@ type Config struct {
 			RedirectURL string
 		}
 	}
-	Domain string
 
 	Redis struct {
 		Address  string
@@ -52,21 +52,7 @@ type Config struct {
 func ReadConfig() (*Config, error) {
 	c := Config{}
 
-	// read configuration
-	file, err := os.Open("config/config.json")
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	decoder := json.NewDecoder(file)
-
-	err = decoder.Decode(&c)
-	if err != nil {
-		return nil, err
-	}
-
-	if err != nil {
+	if _, err := toml.DecodeFile("config/config.conf", &c); err != nil {
 		return nil, err
 	}
 	return &c, nil

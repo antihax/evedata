@@ -93,7 +93,7 @@ func GoServer() {
 		log.Fatalf("Cannot build database pool: %v", err)
 	}
 
-	ctx.Store.Options.Domain = ctx.Conf.Domain
+	ctx.Store.Options.Domain = ctx.Conf.Store.Domain
 
 	// Register structs for storage
 	gob.Register(oauth2.Token{})
@@ -107,13 +107,16 @@ func GoServer() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	if ctx.Conf.EMDRCrestBridge.Enabled {
-		log.Println("Starting EMDR <- Crest Bridge")
+		log.Println("Starting EMDR <- CREST Bridge")
 		go emdrConsumer.GoEMDRCrestBridge(ctx)
 	}
 
-	eC := eveConsumer.NewEVEConsumer(ctx)
-	eC.RunConsumer()
-	defer eC.StopConsumer()
+	if ctx.Conf.EVEConsumer.Enabled {
+		log.Println("Starting EVE Consumer")
+		eC := eveConsumer.NewEVEConsumer(ctx)
+		eC.RunConsumer()
+		defer eC.StopConsumer()
+	}
 
 	if ctx.Conf.Discord.Enabled {
 		go discord.GoDiscordBot(ctx)
