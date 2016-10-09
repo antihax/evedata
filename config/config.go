@@ -20,7 +20,8 @@ type Config struct {
 		URL     string
 	}
 	EVEConsumer struct {
-		Enabled bool
+		Enabled      bool
+		ZKillEnabled bool
 	}
 	CREST struct {
 		SSO struct {

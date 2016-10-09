@@ -46,7 +46,6 @@ func (c *EVEConsumer) goTriggers() {
 	rate := time.Second * 60 * 15
 	throttle := time.Tick(rate)
 	for {
-
 		select {
 		case <-c.triggersStopChannel:
 			log.Printf("EVEConsumer: Shutting Down\n")
@@ -64,8 +63,11 @@ func (c *EVEConsumer) RunConsumer() {
 	c.initKillConsumer()
 	go c.goConsumer()
 	go c.goTriggers()
-	go c.goZKillConsumer()
-	go c.goZKillTemporaryConsumer()
+	if c.ctx.Conf.EVEConsumer.ZKillEnabled == true {
+		go c.goZKillConsumer()
+		go c.goZKillTemporaryConsumer()
+	}
+
 	log.Printf("EVEConsumer: Started\n")
 }
 

@@ -31,22 +31,23 @@ func (c *EVEConsumer) initKillConsumer() {
 }
 
 func (c *EVEConsumer) addKillmail(href string) error {
-	limiter <- true
 
+	// Check the kill is not known and early out if it is.
+	hash := strings.Split(href, "/")[5]
+	id, err := strconv.ParseInt(strings.Split(href, "/")[4], 10, 64)
+	if err != nil {
+		return err
+	}
+	mapLock.RLock()
+	known := knownKills[id]
+	mapLock.RUnlock()
+	if known == true {
+		return nil
+	}
+
+	limiter <- true
 	go func(l chan bool) error {
 		defer func(l chan bool) { <-l }(l)
-
-		hash := strings.Split(href, "/")[5]
-		id, err := strconv.ParseInt(strings.Split(href, "/")[4], 10, 64)
-		if err != nil {
-			return err
-		}
-		mapLock.RLock()
-		known := knownKills[id]
-		mapLock.RUnlock()
-		if known == true {
-			return nil
-		}
 
 		kill, err := c.ctx.EVE.KillmailV1(href)
 		if err != nil {
@@ -89,8 +90,7 @@ func (c *EVEConsumer) goZKillConsumer() error {
 	type kill struct {
 		Package struct {
 			KillID int
-
-			ZKB struct {
+			ZKB    struct {
 				Hash string
 			}
 		}
