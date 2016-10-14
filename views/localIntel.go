@@ -62,7 +62,7 @@ func localIntel(c *appContext.AppContext, w http.ResponseWriter, r *http.Request
 		return http.StatusNotFound, errors.New("No Data Received")
 	}
 	err = json.NewDecoder(r.Body).Decode(&locl)
-	if err != nil {
+	if err != nil || len(locl.Local) == 0 {
 		return http.StatusNotFound, err
 	}
 

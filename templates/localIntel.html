@@ -9,7 +9,8 @@ Copy and paste the contents of a local window and paste below and we will genera
 			<textarea class="form-control input-sm" rows="6" name="local" id="local" placeholder="Paste character names" required></textarea>
 		</div>
 		<div class="col-xs-5">
-    		<button type="submit" id="submit" class="btn btn-primary">Submit</button>
+    		<button type="submit" id="submit" class="btn btn-primary">Submit</button><br><br>
+    		<button id="hideNPC" type="button" class="btn btn-primary btn-sm active" data-toggle="button">NPCs</button>
   		</div>
 	</div>
 	<div class="row">
@@ -23,6 +24,7 @@ Copy and paste the contents of a local window and paste below and we will genera
 		data-sort-name="number"
         data-sort-order="desc"
         data-cache="true"
+        data-unique-id="id"
         data-url="{{.HashURL}}"
 		data-toggle="table" cellspacing="0" width="100%">
 		<thead>
@@ -42,6 +44,21 @@ Copy and paste the contents of a local window and paste below and we will genera
 
 
 <script type="text/javascript">
+$('#hideNPC').click(function () {
+	var data = $('#localIntel').bootstrapTable('getData');
+	if ($('#hideNPC').hasClass('active')) {
+		for (i = 0; i < data.length; ++i) {
+		    if (data[i].id < 2000000) {
+		    	$('#localIntel').bootstrapTable('hideRow', {uniqueId: data[i].id });
+		    }
+		}
+	} else {
+		for (i = 0; i < data.length; ++i) {
+		    $('#localIntel').bootstrapTable('showRow', {uniqueId: data[i].id });
+		}
+	}
+});
+
 	$('#submit').click(function(){
 		s = $('#local').val();
 		var hash = murmurhash3_32_gc(s,0);
