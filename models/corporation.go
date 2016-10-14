@@ -42,7 +42,7 @@ func GetCorporation(id int64) (*Corporation, error) {
 		SELECT 
 			C.corporationID,
 		    C.name AS corporationName,
-		    memberCount,
+		    C.memberCount,
             IFNULL(ceoID,0) AS ceoID,
             IFNULL(Ch.name, "") AS ceoName,
 		    IFNULL(Al.allianceID,0) AS allianceID,
@@ -50,7 +50,7 @@ func GetCorporation(id int64) (*Corporation, error) {
 		    C.description
 		FROM corporations C
 		LEFT OUTER JOIN alliances Al ON C.allianceID = Al.allianceID
-        INNER JOIN characters Ch ON Ch.characterID = C.ceoID
+        LEFT OUTER JOIN characters Ch ON Ch.characterID = C.ceoID
 		WHERE C.corporationID = ?
 		LIMIT 1`, id).StructScan(&ref); err != nil {
 		return nil, err
