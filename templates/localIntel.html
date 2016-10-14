@@ -1,0 +1,59 @@
+{{define "body"}}
+
+<h3>Local Intel Summary</h3>
+Copy and paste the contents of a local window and paste below and we will generate a summary of entities.
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-6">
+			<textarea class="form-control input-sm" rows="6" name="local" id="local" placeholder="Paste character names" required></textarea>
+		</div>
+		<div class="col-xs-5">
+    		<button type="submit" id="submit" class="btn btn-primary">Submit</button>
+  		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<input class="form-control" name="url" id="url" readonly>
+		</div>
+	</div>
+</div>
+<div class="insideContainer">
+	<table id="localIntel" class="table" 
+		data-sort-name="number"
+        data-sort-order="desc"
+        data-cache="true"
+        data-url="{{.HashURL}}"
+		data-toggle="table" cellspacing="0" width="100%">
+		<thead>
+			<tr>
+				<th data-field="number">#</th>
+				<th data-field="entityName" data-formatter="entityFormatter">Entity</th>
+				<th data-field="memberCount">Members</th>
+				<th data-field="" data-formatter="capabilityFormatter">Capability</th>
+				<th data-field="" data-formatter="warsFormatter">Active Wars</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+</div>
+
+
+<script type="text/javascript">
+	$('#submit').click(function(){
+		s = $('#local').val();
+		var hash = murmurhash3_32_gc(s,0);
+
+		$('#localIntel').bootstrapTable('refreshOptions', {
+			url: '/J/localIntel?hash=' + hash,
+			method: 'post',
+			queryParams: function (p) {
+				return {  local: s }
+			}
+		});	
+	$('#url').val(location.protocol + "//" + location.host + '/localIntel?hash=' + hash)
+	});
+	</script>
+{{end}}
