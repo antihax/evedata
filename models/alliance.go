@@ -89,7 +89,7 @@ func GetAllianceMembers(id int64) ([]AllianceMember, error) {
 		SELECT 
 			M.corporationID, 
 		    name AS corporationName,
-		    memberCount
+		    M.memberCount
 		FROM corporations M
 		WHERE allianceID = ?;
 		`, id); err != nil {
