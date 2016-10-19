@@ -33,7 +33,7 @@ func GoDiscordBot(ctx *appContext.AppContext) {
 // developed around it later.
 func goKillmailHunter(ctx *appContext.AppContext) {
 
-	rate := time.Second * 60
+	rate := time.Second * 60 * 5
 	throttle := time.Tick(rate)
 
 	for {
