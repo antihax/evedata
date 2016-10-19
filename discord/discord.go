@@ -75,7 +75,7 @@ func goKillmailHunter(ctx *appContext.AppContext) {
 			) AND
             K.id > ? AND 
             killTime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 10 MINUTE) AND
-            M.security > 0.5
+            ROUND(M.security, 1) >= 0.5
             GROUP BY K.id
             ORDER BY K.id ASC`, startID)
 		if err != nil {

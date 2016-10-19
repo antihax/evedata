@@ -43,7 +43,7 @@ func (c *EVEConsumer) goConsumer() {
 
 func (c *EVEConsumer) goTriggers() {
 	log.Printf("EVEConsumer: Running Triggers\n")
-	rate := time.Second * 60 * 15
+	rate := time.Second * 60 * 30
 	throttle := time.Tick(rate)
 	for {
 		select {
