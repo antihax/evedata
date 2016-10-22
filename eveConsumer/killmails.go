@@ -135,6 +135,9 @@ func (c *EVEConsumer) goZKillTemporaryConsumer() error {
 
 		if r.Date.Sub(time.Now().UTC()) > 0 {
 			r.Date = time.Now().UTC().Add(time.Hour * 24 * -365)
+			log.Printf("Delete old killmails")
+			c.ctx.Db.Exec("CALL removeOldKillmails();")
+
 			log.Printf("Restart zKill Consumer to %s", r.Date.String())
 		}
 

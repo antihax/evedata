@@ -74,6 +74,9 @@ type ActiveWarList struct {
 	DefenderType  null.String `db:"defenderType" json:"defenderType"`
 	DefenderName  null.String `db:"defenderName" json:"defenderName"`
 	Mutual        bool        `db:"mutual" json:"mutual"`
+	WarKills      int64       `db:"warKills" json:"warKills"`
+	WarLosses     int64       `db:"warLosses" json:"warLosses"`
+	Efficiency    float64     `db:"efficiency" json:"efficiency"`
 	Kills         int64       `db:"kills" json:"kills"`
 	Losses        int64       `db:"losses" json:"losses"`
 }
@@ -92,11 +95,13 @@ func GetActiveWarList() ([]ActiveWarList, error) {
 	    defenderID, 
 	    Df.type AS defenderType, 
 	    mutual, 
-	    IFNULL(kills,0) as kills,  
-	    IFNULL(losses,0) as losses,
+	    IFNULL(K.kills,0) as warKills,  
+	    IFNULL(L.losses,0) as warLosses,
 	    IF(AA.allianceID > 0, AA.name, AC.name) AS aggressorName,
-	    IF(DA.allianceID > 0, DA.name, DC.name) AS defenderName
-	        
+	    IF(DA.allianceID > 0, DA.name, DC.name) AS defenderName,
+		IFNULL(S.efficiency,1) AS efficiency,
+        IFNULL(S.kills,0) AS kills,
+        IFNULL(S.losses,0)  AS losses
 		FROM wars W
 		INNER JOIN crestID Ag ON Ag.id = aggressorID
 	    INNER JOIN crestID Df ON Df.id = defenderID
@@ -104,6 +109,7 @@ func GetActiveWarList() ([]ActiveWarList, error) {
 		LEFT OUTER JOIN alliances DA on DA.allianceID = defenderID
 		LEFT OUTER JOIN corporations AC on AC.corporationID = aggressorID
 		LEFT OUTER JOIN corporations DC on DC.corporationID = defenderID
+        LEFT OUTER JOIN entityKillStats S ON S.id = aggressorID
 		LEFT OUTER JOIN 
 	    ( -- Kills by the Aggressor
 			SELECT 

@@ -2,7 +2,7 @@
 <h3>Active Wars</h3>
 <div class="insideContainer">
 	<table id="activeWarTable" class="table" 
-		data-sort-name="kills"
+		data-sort-name="warKills"
         data-sort-order="desc"
         data-url="/J/activeWars"
 		data-toggle="table"
@@ -21,9 +21,10 @@
 				<th data-field="timeStarted" data-sortable="true" data-visible="false">Time Started</th>
 				<th data-field="timeFinished" data-sortable="true" data-visible="false">Time Finished</th>
 				<th data-field="aggressorName" data-formatter="aggressorFormatter">Aggressor</th>
+				<th data-field="efficiency" data-sortable="true" data-formatter="capabilityFormatter">Aggressor Capability</th>
 				<th data-field="defenderName" data-formatter="defenderFormatter">Defender</th>
-				<th data-field="kills" data-sortable="true">Kills</th>
-				<th data-field="losses" data-sortable="true">Losses</th>
+				<th data-field="warKills" data-sortable="true">Kills in War</th>
+				<th data-field="warLosses" data-sortable="true">Losses in War</th>
 				<th data-field="openForAllies" data-sortable="true" data-visible="false">Open For Allies</th>
 				<th data-field="mutual" data-sortable="true" data-visible="false">Mutual</th>
 			</tr>
