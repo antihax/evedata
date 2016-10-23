@@ -207,3 +207,32 @@ func GetWarsForEntityByID(id int64) ([]ActiveWarList, error) {
 	}
 	return wars, nil
 }
+
+type KnownAllies struct {
+	Number int64  `db:"number" json:"number"`
+	AllyID int64  `db:"allyID" json:"allyID"`
+	Name   string `db:"name" json:"name"`
+	Type   string `db:"type" json:"type"`
+}
+
+// [BENCHMARK] 0.000 sec / 0.000 sec
+func GetKnownAlliesByID(id int64) ([]KnownAllies, error) {
+	w := []KnownAllies{}
+	if err := database.Select(&w, `
+			SELECT 
+				COUNT(DISTINCT W.id) AS number, 
+			    allyID, 
+			    CREST.type,
+				IFNULL(DA.name, DC.name) AS name
+			FROM wars W
+				INNER JOIN warAllies A ON W.id = A.id
+				INNER JOIN crestID CREST ON CREST.id = A.allyID
+				LEFT OUTER JOIN alliances DA on DA.allianceID = A.allyID
+				LEFT OUTER JOIN corporations DC on DC.corporationID = A.allyID
+				WHERE defenderID = ?
+				GROUP BY allyID
+		`, id); err != nil {
+		return nil, err
+	}
+	return w, nil
+}

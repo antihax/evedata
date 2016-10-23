@@ -100,8 +100,19 @@ func alliancePage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 		errc <- err
 	}()
 
+	// Get known Allies.
+	go func() {
+		ref, err := models.GetKnownAlliesByID(id)
+		if err != nil {
+			errc <- err
+			return
+		}
+		p["KnownAllies"] = ref
+		errc <- err
+	}()
+
 	// clear the error channel
-	for i := 0; i < 6; i++ {
+	for i := 0; i < 7; i++ {
 		err := <-errc
 		if err != nil {
 			return http.StatusInternalServerError, err
@@ -187,8 +198,19 @@ func corporationPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Re
 		errc <- err
 	}()
 
+	// Get known Allies.
+	go func() {
+		ref, err := models.GetKnownAlliesByID(id)
+		if err != nil {
+			errc <- err
+			return
+		}
+		p["KnownAllies"] = ref
+		errc <- err
+	}()
+
 	// clear the error channel
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 6; i++ {
 		err := <-errc
 		if err != nil {
 			return http.StatusInternalServerError, err

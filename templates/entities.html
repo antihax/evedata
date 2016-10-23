@@ -32,6 +32,7 @@
 	</div>
 
 	{{ template "wars" . }}
+	{{ template "knownallies" . }}
 	{{ template "activity" . }}
 	{{ template "assets" . }}
 	{{ template "knownships" . }}
@@ -81,6 +82,7 @@
 	</div>
 	<div class="row">
 		{{ template "wars" . }}
+		{{ template "knownallies" . }}
 		{{ template "activity" . }}
 		{{ template "assets" . }}
 		{{ template "knownships" . }}
@@ -90,13 +92,13 @@
 				Corporations
 			</h2>	
 			<table id="corporations"
-               data-sort-name="corporationName"
+               data-sort-name="name"
                data-pagination="true"
                data-search="true"
                data-sort-order="asc">
             <thead>
             <tr>
-                <th data-field="corporationName" data-sortable="true" data-formatter="corporationFormatter">Name</th>
+                <th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
                 <th data-field="memberCount" data-sortable="true">Members</th>
             </tr>
             </thead>
@@ -109,8 +111,9 @@
 			      				{{ range $key, $corp := .AllianceMembers }}
 			      				{
        				 				"memberCount": {{ $corp.MemberCount }},
-       				 				"corporationName": {{ $corp.CorporationName }},
-       				 				"corporationID": {{ $corp.CorporationID }},
+       				 				"name": {{ $corp.CorporationName }},
+       				 				"id": {{ $corp.CorporationID }},
+       				 				"type": "corporation",
 								},
 						{{ end }}       				 	
 					];
@@ -250,6 +253,46 @@
 					];
 				
        				$knownshipsTable.bootstrapTable({data: knownships});
+       			});
+       		</script>
+		</div>
+	{{end}}
+{{end}}
+
+{{define "knownallies"}}
+	{{if .KnownAllies }} 
+		<div class="col-md-6">
+			<h2>
+				Known Allies
+			</h2>	
+			<table id="knownallies"
+               data-sort-name="number"
+               data-pagination="true"
+               data-search="true"
+               data-sort-order="desc">
+            <thead>
+            <tr>
+				<th data-field="number">#</th>
+				<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Ally Name</th>
+            </tr>
+            </thead>
+        </table>
+			<script>
+				var $knownalliesTable = $('#knownallies');
+			    $(function () {
+       				 var knownallies = 
+       				 	[			 	
+			      				{{ range $key, $v := .KnownAllies }}
+			      				{
+       				 				"number": {{ $v.Number }},
+       				 				"type": {{ $v.Type }},
+       				 				"name": {{ $v.Name }},
+       				 				"id": {{ $v.AllyID }},
+								},
+						{{ end }}       				 	
+					];
+				
+       				$knownalliesTable.bootstrapTable({data: knownallies});
        			});
        		</script>
 		</div>

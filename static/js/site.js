@@ -1,4 +1,10 @@
-   function corporationFormatter(value, row) {
+	function capitalizeFirstLetter(string) {
+	    return string.charAt(0).toUpperCase() + string.slice(1);
+	}
+	function entityImage(row) {
+	    return 'https://image.eveonline.com/'+ capitalizeFirstLetter(row.type) + '/' + row.id + '_32.png';
+	}
+	function corporationFormatter(value, row) {
     	var entityURL = '/corporation?id=' + row.corporationID;
         return '<a href="' + entityURL + '">' + value + '</a>';
     }
@@ -20,5 +26,5 @@
     }
     function entityFormatter(value, row) {
     	var entityURL = '/'+ row.type + '?id=' + row.id 
-        return '<a href="' + entityURL + '">' + value + '</a>';
+        return '<a href="' + entityURL + '"><img src="' + entityImage(row) + '" height=32 width=32> ' + value + '</a>';
     }
