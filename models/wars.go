@@ -229,7 +229,7 @@ func GetKnownAlliesByID(id int64) ([]KnownAllies, error) {
 				INNER JOIN crestID CREST ON CREST.id = A.allyID
 				LEFT OUTER JOIN alliances DA on DA.allianceID = A.allyID
 				LEFT OUTER JOIN corporations DC on DC.corporationID = A.allyID
-				WHERE defenderID = ?
+				WHERE defenderID = ? AND W.timeStarted > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 12 MONTH)
 				GROUP BY allyID
 		`, id); err != nil {
 		return nil, err
