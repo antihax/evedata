@@ -73,7 +73,11 @@
         dataType: 'JSON',
         success: function(data) {
             $.each(data, function(key, val) {
-                $('#stationID').append('<option id=' + val.stationID + '>' + val.stationName + '</option>');
+            	if (val.stationName.startsWith("Jita")) {
+                	$('#stationID').append('<option id=' + val.stationID + ' SELECTED>' + val.stationName + '</option>');
+                } else {
+                	$('#stationID').append('<option id=' + val.stationID + '>' + val.stationName + '</option>');
+                }
             })
 			updateTable();
         },
