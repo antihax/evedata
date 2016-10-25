@@ -1,5 +1,5 @@
 .navbar-static-top {
-    margin-bottom: 19px;
+    margin-bottom: 0px;
 }
 
 html {
@@ -175,3 +175,7 @@ p + p {
     margin: 0;
 }
 
+#mainJumbo {
+  padding: 20px;
+  padding-top: 0px;
+}

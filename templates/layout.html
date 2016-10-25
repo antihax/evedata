@@ -84,20 +84,18 @@
 							</li>							
 						</ul>
 						
-						<ul class="nav navbar-nav navbar-right pull-right">
-							<li>
-								{{ if .CharacterID }}
-									<a href="/account"><img src="//image.eveonline.com/Character/{{.CharacterID}}_32.jpg"></a>
-								{{ else }}
-									<a href="/eveAuth"><img src="/images/EVE_SSO_Login_Buttons_Small_Black.png"></a>
-								{{ end }}
-							</li>
-						</ul>
+						<div class="nav navbar-nav navbar-right pull-right" style="padding: 9px">
+							{{ if .CharacterID }}
+								<a href="/account"><img src="//image.eveonline.com/Character/{{.CharacterID}}_32.jpg"></a>
+							{{ else }}
+								<a href="/eveAuth"><img src="/images/EVE_SSO_Login_Buttons_Small_Black.png" style="padding: 0px"></a>
+							{{ end }}
+						</div>
 					</div>
 				</div>
 			</nav>
 			{{template "ads-adaptive" .}}
-			<div class="jumbotron">
+			<div class="jumbotron" id="mainJumbo">
 				{{template "body" .}}
 			</div>
 		</div>
