@@ -2,12 +2,15 @@
 	    return string.charAt(0).toUpperCase() + string.slice(1);
 	}
 	function entityImage(row) {
-	    return 'https://image.eveonline.com/'+ capitalizeFirstLetter(row.type) + '/' + row.id + '_32.png';
+	    return '//image.eveonline.com/'+ capitalizeFirstLetter(row.type) + '/' + row.id + '_32.png';
+	}
+	function typeImage(row) {
+	    return '//image.eveonline.com/Type/' + row.typeID + '_32.png';
 	}
 	function corporationFormatter(value, row) {
     	var entityURL = '/corporation?id=' + row.corporationID;
-        return '<a href="' + entityURL + '">' + value + '</a>';
-    }
+    	return '<a href="' + entityURL + '">' + value + '</a>';
+	}
     function aggressorFormatter(value, row) {
     	var warURL = 'https://zkillboard.com/war/' + row.warID +  '/'
     	var entityURL = '/'+ row.aggressorType + '?id=' + row.aggressorID 
@@ -27,4 +30,9 @@
     function entityFormatter(value, row) {
     	var entityURL = '/'+ row.type + '?id=' + row.id 
         return '<a href="' + entityURL + '"><img src="' + entityImage(row) + '" height=32 width=32> ' + value + '</a>';
+    }
+    function typeFormatter(value, row) {
+    	//var typeURL = '/'+ row.type + '?id=' + row.id 
+    	//return '<a href="' + typeURL + '"><img src="' + typeImage(row) + '" height=32 width=32> ' + value + '</a>';
+    	return '<img src="' + typeImage(row) + '" height=32 width=32> ' + value + '';
     }
