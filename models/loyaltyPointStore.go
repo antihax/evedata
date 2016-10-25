@@ -23,6 +23,7 @@ func AddLPOfferRequirements(offerID int64, typeID int64, quantity int64) error {
 
 type IskPerLP struct {
 	ItemName     string      `db:"itemName" json:"itemName"`
+	TypeID       int64       `db:"typeID" json:"typeID"`
 	TypeName     string      `db:"typeName" json:"typeName"`
 	JitaPrice    float64     `db:"JitaPrice" json:"jitaPrice"`
 	ItemCost     float64     `db:"itemCost" json:"itemCost"`
@@ -35,7 +36,7 @@ type IskPerLP struct {
 func GetISKPerLP(corporationName string) ([]IskPerLP, error) {
 	s := []IskPerLP{}
 	if err := database.Select(&s, `
-		SELECT itemName, Lp.typeName, JitaPrice, itemCost, iskPerLP, JitaVolume, GROUP_CONCAT(quantity, " x ", T.typeName SEPARATOR '<br>\n') AS requirements
+		SELECT itemName, Lp.typeID, Lp.typeName, JitaPrice, itemCost, iskPerLP, JitaVolume, GROUP_CONCAT(quantity, " x ", T.typeName SEPARATOR '<br>\n') AS requirements
 			FROM iskPerLp Lp
 			LEFT JOIN lpOfferRequirements R ON Lp.offerID = R.offerID
 			LEFT JOIN invTypes T ON R.typeID = T.typeID
