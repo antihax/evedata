@@ -1,0 +1,65 @@
+{{define "body"}}
+	<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-2">
+			<a href="#" id="pop">
+				<img alt="{{.Item.TypeName}}" src="//image.eveonline.com/Type/{{.Item.TypeID}}_64.png" />
+			</a>
+		</div>
+		
+		<div class="col-md-10">
+			<dl>
+				<dt>
+					<h2>{{.Item.TypeName}}</h2>
+					{{.Item.Description}}</a><br><br>
+					Race: {{.Item.RaceName}}<br>
+					Mass: {{.Item.Mass}}<br>
+					Volume: {{.Item.Volume}}<br>
+				</dt>
+
+			</dl>
+		</div>
+	</div>
+	{{ template "attributes" . }}
+
+	
+	
+<div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">{{.Item.TypeName}} Render</h4>
+      </div>
+      <div class="modal-body">
+        <img src="//image.eveonline.com/Render/{{.Item.TypeID}}_512.png" id="imagepreview" style="width: 512px; height: 512px;" >
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+$("#pop").on("click", function() {
+   $('#imagepreview').attr('src', $('#imageresource').attr('src'));
+   $('#imagemodal').modal('show'); 
+});
+</script>
+{{end}}
+
+{{define "attributes"}}
+	{{if .ItemAttributes }} 
+		<div class="col-md-6">
+			<h2>
+				Attributes
+			</h2>	
+			<table class="table table-striped">
+            <thead>
+          	{{ range $key, $v := .ItemAttributes }}
+			    <tr>
+       				<td>{{ $v.AttributeName }}</td><td>{{ $v.Value }}</td>
+       			</tr>
+			{{ end }}      
+            </thead>
+        </table>
+		</div>
+	{{end}}
+{{end}}

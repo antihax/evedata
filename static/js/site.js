@@ -32,7 +32,7 @@
         return '<a href="' + entityURL + '"><img src="' + entityImage(row) + '" height=32 width=32> ' + value + '</a>';
     }
     function typeFormatter(value, row) {
-    	//var typeURL = '/'+ row.type + '?id=' + row.id 
-    	//return '<a href="' + typeURL + '"><img src="' + typeImage(row) + '" height=32 width=32> ' + value + '</a>';
-    	return '<img src="' + typeImage(row) + '" height=32 width=32> ' + value + '';
+    	var typeURL = '/item?id=' + row.typeID
+    	return '<a href="' + typeURL + '"><img src="' + typeImage(row) + '" height=32 width=32> ' + value + '</a>';
+    	//return '<img src="' + typeImage(row) + '" height=32 width=32> ' + value + '';
     }
