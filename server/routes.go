@@ -19,6 +19,7 @@ type route struct {
 }
 
 var availableRoutes []route
+var notFoundHandler *route
 
 func init() {
 	// report correct
@@ -27,6 +28,10 @@ func init() {
 
 func AddRoute(name string, method string, pattern string, handlerFunc appFunc) {
 	availableRoutes = append(availableRoutes, route{name, method, pattern, handlerFunc})
+}
+
+func AddNotFoundHandler(handlerFunc appFunc) {
+	notFoundHandler = &route{"404", "GET", "", handlerFunc}
 }
 
 type appFunc func(*appContext.AppContext, http.ResponseWriter, *http.Request, *sessions.Session) (int, error)
@@ -70,6 +75,11 @@ func NewRouter(ctx *appContext.AppContext) *mux.Router {
 		http.FileServer(http.Dir("static/js"))))
 	router.PathPrefix("/fonts/").Handler(http.StripPrefix("/fonts/",
 		http.FileServer(http.Dir("static/fonts"))))
+
+	if notFoundHandler != nil {
+		router.NotFoundHandler = appHandler{ctx, notFoundHandler.HandlerFunc}
+	}
+
 	return router
 }
 
