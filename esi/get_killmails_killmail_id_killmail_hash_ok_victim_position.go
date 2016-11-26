@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-package swagger
+package esi
 
 // Coordinates of the victim in Cartesian space relative to the Sun 
 type GetKillmailsKillmailIdKillmailHashOkVictimPosition struct {

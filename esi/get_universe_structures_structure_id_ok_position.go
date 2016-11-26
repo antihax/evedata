@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-package swagger
+package esi
 
 // Coordinates of the structure in Cartesian space relative to the Sun, in metres. 
 type GetUniverseStructuresStructureIdOkPosition struct {

@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-package swagger
+package esi
 
 // 201 created object
 type PostCharactersCharacterIdCspaCreated struct {

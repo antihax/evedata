@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-package swagger
+package esi
 
 // killmail_id and/or killmail_hash is not valid
 type GetKillmailsKillmailIdKillmailHashUnprocessableEntity struct {

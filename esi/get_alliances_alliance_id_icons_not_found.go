@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-package swagger
+package esi
 
 // No image server for this datasource
 type GetAlliancesAllianceIdIconsNotFound struct {

@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-package swagger
+package esi
 
 // Not found
 type GetUniverseStructuresStructureIdNotFound struct {

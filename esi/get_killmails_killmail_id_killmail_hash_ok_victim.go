@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-package swagger
+package esi
 
 // victim object
 type GetKillmailsKillmailIdKillmailHashOkVictim struct {

@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-package swagger
+package esi
 
 // Is not a character ID
 type GetCharactersCharacterIdUnprocessableEntity struct {

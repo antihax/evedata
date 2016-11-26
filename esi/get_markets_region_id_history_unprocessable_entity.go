@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-package swagger
+package esi
 
 // bad region_id
 type GetMarketsRegionIdHistoryUnprocessableEntity struct {

@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-package swagger
+package esi
 
 // alliance object
 type CorporationscorporationIdalliancehistoryAlliance struct {

@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-package swagger
+package esi
 
 // 200 ok object
 type GetCorporationsNames200Ok struct {
