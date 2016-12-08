@@ -81,8 +81,8 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 	log.Printf("EMDRCrestBridge: Loaded %d stations", len(stations))
 
 	// Build buffers for posting to the database and
-	historyChannel := make(chan marketHistory, 20)
-	orderChannel := make(chan marketOrders, 20)
+	historyChannel := make(chan marketHistory, 5)
+	orderChannel := make(chan marketOrders, 5)
 
 	if c.Conf.EMDRCrestBridge.Import {
 		go func() {
@@ -185,7 +185,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 
 	// limit concurrent requests as to not hog the available connections.
 	// Eventually the buffers will become the limiting factors.
-	limiter := make(chan bool, 20)
+	limiter := make(chan bool, 3)
 	for {
 		// loop through all regions
 		for _, r := range regions {
