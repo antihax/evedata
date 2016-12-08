@@ -44,20 +44,20 @@ func (c *EVEConsumer) collectStructuresFromESI() error {
 }
 
 func (c *EVEConsumer) updateStructure(s int64) error {
-	/*	struc, err := c.ctx.ESI.UniverseApi.GetUniverseStructuresStructureId(s, nil)
-		if err != nil {
-			return err
-		}
+	struc, err := c.ctx.ESI.UniverseApi.GetUniverseStructuresStructureId(c.ctx.ESIPublicToken, s, nil)
+	if err != nil {
+		return err
+	}
 
-		fmt.Printf("%v %v\n", s, struc)
-		_, err = c.ctx.Db.Exec(`INSERT IGNORE INTO staStations
+	_, err = c.ctx.Db.Exec(`INSERT INTO staStations
 					(stationID, solarSystemID, stationName, x, y, z, constellationID, regionID)
 					VALUES(?,?,?,?,?,?,constellationIDBySolarSystem(solarSystemID),regionIDBySolarSystem(solarSystemID))
-					;`,
-			s, struc.SolarSystemId, struc.Name, struc.Position.X, struc.Position.Y, struc.Position.Z)
-		if err != nil {
-			return err
-		}*/
+					ON DUPLICATE KEY UPDATE stationName=VALUE(stationName),solarSystemID=VALUE(solarSystemID),
+					x=VALUE(x),y=VALUE(y),z=VALUE(z),constellationID=VALUE(constellationID), regionID=VALUE(regionID);`,
+		s, struc.SolarSystemId, struc.Name, struc.Position.X, struc.Position.Y, struc.Position.Z)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

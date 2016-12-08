@@ -90,6 +90,24 @@ func GoServer() {
 
 	ctx.ESI = esi.NewAPIClient(ctx.HTTPClient)
 
+	ctx.ESIBootstrapAuthenticator = eveapi.NewSSOAuthenticator(ctx.Conf.CREST.ESIAccessToken.ClientID,
+		ctx.Conf.CREST.ESIAccessToken.SecretKey,
+		ctx.Conf.CREST.ESIAccessToken.RedirectURL,
+		[]string{"esi-universe.read_structures.v1",
+			"esi-search.search_structures.v1"})
+
+	token := &eveapi.CRESTToken{
+		AccessToken:  ctx.Conf.CREST.ESIAccessToken.AccessToken,
+		TokenType:    ctx.Conf.CREST.ESIAccessToken.TokenType,
+		RefreshToken: ctx.Conf.CREST.ESIAccessToken.RefreshToken,
+		Expiry:       ctx.Conf.CREST.ESIAccessToken.Expiry,
+	}
+	ctx.ESIPublicToken, err = ctx.ESIBootstrapAuthenticator.TokenSource(ctx.HTTPClient, token)
+
+	if err != nil {
+		log.Fatalf("Error starting bootstrap ESI client: %v", err)
+	}
+
 	// Create a memcached session store.
 	ctx.Store, err = gsr.NewRediStoreWithPool(&ctx.Cache, []byte(ctx.Conf.Store.Key))
 	if err != nil {

@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"evedata/appContext"
-	"evedata/eveapi"
 	"evedata/server"
 	"fmt"
 	"net/http"
@@ -18,17 +17,7 @@ func init() {
 	evedata.AddRoute("boostrap", "GET", "/boostrapEveSSOAnswer", boostrapEveSSOAnswer)
 }
 
-var tokenAuthenticator *eveapi.SSOAuthenticator
-
 func boostrapEveSSO(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-
-	if tokenAuthenticator == nil {
-		tokenAuthenticator = eveapi.NewSSOAuthenticator(c.Conf.CREST.ESIAccessToken.ClientID,
-			c.Conf.CREST.ESIAccessToken.SecretKey,
-			c.Conf.CREST.ESIAccessToken.RedirectURL,
-			[]string{"esi-universe.read_structures.v1",
-				"esi-search.search_structures.v1"})
-	}
 
 	b := make([]byte, 16)
 	rand.Read(b)
@@ -41,20 +30,12 @@ func boostrapEveSSO(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 		return http.StatusInternalServerError, err
 	}
 
-	url := tokenAuthenticator.AuthorizeURL(state, true)
+	url := c.ESIBootstrapAuthenticator.AuthorizeURL(state, true)
 	http.Redirect(w, r, url, 302)
 	return http.StatusMovedPermanently, nil
 }
 
 func boostrapEveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-
-	if tokenAuthenticator == nil {
-		tokenAuthenticator = eveapi.NewSSOAuthenticator(c.Conf.CREST.ESIAccessToken.ClientID,
-			c.Conf.CREST.ESIAccessToken.SecretKey,
-			c.Conf.CREST.ESIAccessToken.RedirectURL,
-			[]string{"esi-universe.read_structures.v1",
-				"esi-search.search_structures.v1"})
-	}
 
 	code := r.FormValue("code")
 	state := r.FormValue("state")
@@ -64,12 +45,12 @@ func boostrapEveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *ht
 		return http.StatusInternalServerError, errors.New("Invalid State. It is possible that the session cookie is missing. Stop eating the cookies!")
 	}
 
-	tok, err := tokenAuthenticator.TokenExchange(c.HTTPClient, code)
+	tok, err := c.ESIBootstrapAuthenticator.TokenExchange(c.HTTPClient, code)
 	if err != nil {
 		return http.StatusInternalServerError, errors.New("Failed Token Exchange")
 	}
 
-	cli := tokenAuthenticator.GetClientFromToken(c.HTTPClient, tok)
+	cli := c.ESIBootstrapAuthenticator.GetClientFromToken(c.HTTPClient, tok)
 	_, err = cli.Verify()
 	if err != nil {
 		return http.StatusInternalServerError, err
