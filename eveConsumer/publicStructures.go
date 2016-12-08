@@ -52,8 +52,8 @@ func (c *EVEConsumer) updateStructure(s int64) error {
 	_, err = c.ctx.Db.Exec(`INSERT INTO staStations
 					(stationID, solarSystemID, stationName, x, y, z, constellationID, regionID)
 					VALUES(?,?,?,?,?,?,constellationIDBySolarSystem(solarSystemID),regionIDBySolarSystem(solarSystemID))
-					ON DUPLICATE KEY UPDATE stationName=VALUE(stationName),solarSystemID=VALUE(solarSystemID),
-					x=VALUE(x),y=VALUE(y),z=VALUE(z),constellationID=VALUE(constellationID), regionID=VALUE(regionID);`,
+					ON DUPLICATE KEY UPDATE stationName=VALUES(stationName),solarSystemID=VALUES(solarSystemID),
+					x=VALUES(x),y=VALUES(y),z=VALUES(z),constellationID=constellationIDBySolarSystem(VALUES(solarSystemID)),regionID=regionIDBySolarSystem(VALUES(solarSystemID));`,
 		s, struc.SolarSystemId, struc.Name, struc.Position.X, struc.Position.Y, struc.Position.Z)
 	if err != nil {
 		return err
