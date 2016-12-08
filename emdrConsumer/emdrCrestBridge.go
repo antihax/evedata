@@ -1,17 +1,12 @@
 package emdrConsumer
 
 import (
-	"bytes"
 	"evedata/appContext"
 	"evedata/esi"
-	"evedata/eveapi"
 	"evedata/models"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"strings"
-	"time"
 )
 
 var stations map[int64]int64
@@ -37,6 +32,12 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 	type marketOrders struct {
 		regionID int64
 		orders   *[]esi.GetMarketsRegionIdOrders200Ok
+	}
+
+	type marketHistory struct {
+		regionID int64
+		typeID   int64
+		history  *[]esi.GetMarketsRegionIdHistory200Ok
 	}
 
 	// Obtain a list of regions which have market stations
@@ -80,39 +81,14 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 	log.Printf("EMDRCrestBridge: Loaded %d stations", len(stations))
 
 	// Build buffers for posting to the database and
-	postChannel := make(chan []byte, 20)
-	historyChannel := make(chan *eveapi.MarketTypeHistoryCollectionV1, 20)
+	historyChannel := make(chan marketHistory, 20)
 	orderChannel := make(chan marketOrders, 20)
-
-	if c.Conf.EMDRCrestBridge.Upload {
-		for i := 0; i < 10; i++ {
-			// Don't spawn them all at once.
-			time.Sleep(time.Second / 2)
-			go func() {
-				for {
-					msg := <-postChannel
-
-					response, err := http.Post(c.Conf.EMDRCrestBridge.URL, "application/json", bytes.NewBuffer(msg))
-					if err != nil {
-						log.Println("EMDRCrestBridge:", err)
-					} else {
-						if response.Status != "200 OK" {
-							log.Println("EMDRCrestBridge:", string(response.Status))
-						}
-						// Must read everything to close the body and reuse connection
-						ioutil.ReadAll(response.Body)
-						response.Body.Close()
-					}
-				}
-			}()
-		}
-	}
 
 	if c.Conf.EMDRCrestBridge.Import {
 		go func() {
 			for {
 				h := <-historyChannel
-				if len(h.Items) == 0 {
+				if len(*h.history) == 0 {
 					continue
 				}
 
@@ -125,10 +101,10 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 					}
 					var values []string
 
-					for _, e := range h.Items {
+					for _, e := range *h.history {
 						values = append(values, fmt.Sprintf("('%s',%f,%f,%f,%d,%d,%d,%d)",
-							e.Date, e.LowPrice, e.HighPrice, e.AvgPrice,
-							e.Volume, e.OrderCount, h.TypeID, h.RegionID))
+							e.Date, e.Lowest, e.Highest, e.Average,
+							e.Volume, e.OrderCount, h.typeID, h.regionID))
 					}
 
 					stmt := fmt.Sprintf("INSERT IGNORE INTO market_history (date, low, high, mean, quantity, orders, itemID, regionID) VALUES \n %s", strings.Join(values, ",\n"))
@@ -234,17 +210,17 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 				limiter <- true
 				go func(l chan bool) {
 					defer func(l chan bool) { <-l }(l)
-					rk := regionKey{r.RegionID, t.TypeID}
 
 					// Process Market History
-					h, err := c.EVE.MarketTypeHistoryV1ByID(rk.RegionID, rk.TypeID)
+					h, err := c.ESI.MarketApi.GetMarketsRegionIdHistory(r.RegionID, t.TypeID, nil)
+					hist := marketHistory{r.RegionID, t.TypeID, &h}
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
 						return
 					}
 
 					if c.Conf.EMDRCrestBridge.Import {
-						historyChannel <- h
+						historyChannel <- hist
 					}
 				}(limiter)
 			}
