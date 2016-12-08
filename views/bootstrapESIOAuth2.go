@@ -7,6 +7,7 @@ import (
 	"evedata/appContext"
 	"evedata/eveapi"
 	"evedata/server"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -25,7 +26,8 @@ func boostrapEveSSO(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 		tokenAuthenticator = eveapi.NewSSOAuthenticator(c.Conf.CREST.ESIAccessToken.ClientID,
 			c.Conf.CREST.ESIAccessToken.SecretKey,
 			c.Conf.CREST.ESIAccessToken.RedirectURL,
-			[]string{""})
+			[]string{"esi-universe.read_structures.v1",
+				"esi-search.search_structures.v1"})
 	}
 
 	b := make([]byte, 16)
@@ -65,6 +67,8 @@ func boostrapEveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *ht
 	}
 
 	s.Values["BOOTSTRAP"] = tok
+
+	fmt.Fprintf(w, "%+v\n", tok)
 
 	err = s.Save(r, w)
 	if err != nil {
