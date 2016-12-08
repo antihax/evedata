@@ -17,7 +17,7 @@ Method | HTTP request | Description
 
 Get corporation information
 
-Public information about a corporation  ---  Alternate route: `/v2/corporations/{corporation_id}/`  Alternate route: `/dev/corporations/{corporation_id}/`   ---  This route is cached for up to 3600 seconds
+Public information about a corporation  ---  Alternate route: `/v2/corporations/{corporation_id}/`   ---  This route is cached for up to 3600 seconds
 
 
 ### Parameters

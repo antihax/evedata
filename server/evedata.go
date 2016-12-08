@@ -88,7 +88,7 @@ func GoServer() {
 
 	ctx.HTTPClient = &http.Client{Transport: ctx.TransportCache}
 
-	ctx.ESI = esi.NewAPIClient(ctx.HTTPClient)
+	ctx.ESI = esi.NewAPIClient(ctx.HTTPClient, ctx.Conf.UserAgent)
 
 	ctx.ESIBootstrapAuthenticator = eveapi.NewSSOAuthenticator(ctx.Conf.CREST.ESIAccessToken.ClientID,
 		ctx.Conf.CREST.ESIAccessToken.SecretKey,

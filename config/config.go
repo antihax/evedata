@@ -8,7 +8,8 @@ import (
 
 // Config stucture for the EVEData App
 type Config struct {
-	Database struct {
+	UserAgent string
+	Database  struct {
 		Import string
 		Driver string
 		Spec   string

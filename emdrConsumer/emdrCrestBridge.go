@@ -15,28 +15,28 @@ var stations map[int64]int64
 // Optionally import to the database
 func GoEMDRCrestBridge(c *appContext.AppContext) {
 	type regionKey struct {
-		RegionID int64
-		TypeID   int64
+		RegionID int32
+		TypeID   int32
 	}
 
 	type marketRegions struct {
-		RegionID   int64  `db:"regionID"`
+		RegionID   int32  `db:"regionID"`
 		RegionName string `db:"regionName"`
 	}
 
 	type marketTypes struct {
-		TypeID   int64  `db:"typeID"`
+		TypeID   int32  `db:"typeID"`
 		TypeName string `db:"typeName"`
 	}
 
 	type marketOrders struct {
-		regionID int64
+		regionID int32
 		orders   *[]esi.GetMarketsRegionIdOrders200Ok
 	}
 
 	type marketHistory struct {
-		regionID int64
-		typeID   int64
+		regionID int32
+		typeID   int32
 		history  *[]esi.GetMarketsRegionIdHistory200Ok
 	}
 
