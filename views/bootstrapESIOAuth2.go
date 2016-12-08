@@ -47,6 +47,15 @@ func boostrapEveSSO(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 }
 
 func boostrapEveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+
+	if tokenAuthenticator == nil {
+		tokenAuthenticator = eveapi.NewSSOAuthenticator(c.Conf.CREST.ESIAccessToken.ClientID,
+			c.Conf.CREST.ESIAccessToken.SecretKey,
+			c.Conf.CREST.ESIAccessToken.RedirectURL,
+			[]string{"esi-universe.read_structures.v1",
+				"esi-search.search_structures.v1"})
+	}
+
 	code := r.FormValue("code")
 	state := r.FormValue("state")
 
