@@ -1,6 +1,6 @@
 # \LiveApi
 
-All URIs are relative to *https://esi.tech.ccp.is/latest*
+All URIs are relative to **
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------

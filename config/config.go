@@ -1,6 +1,10 @@
 package config
 
-import "github.com/BurntSushi/toml"
+import (
+	"time"
+
+	"github.com/BurntSushi/toml"
+)
 
 // Config stucture for the EVEData App
 type Config struct {
@@ -33,6 +37,16 @@ type Config struct {
 			ClientID    string
 			SecretKey   string
 			RedirectURL string
+		}
+		ESIAccessToken struct {
+			ClientID    string
+			SecretKey   string
+			RedirectURL string
+
+			AccessToken  string
+			RefreshToken string
+			Expiry       time.Time
+			TokenType    string
 		}
 	}
 

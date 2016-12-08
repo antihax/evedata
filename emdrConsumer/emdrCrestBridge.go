@@ -2,15 +2,14 @@ package emdrConsumer
 
 import (
 	"bytes"
-	"encoding/json"
 	"evedata/appContext"
+	"evedata/esi"
 	"evedata/eveapi"
 	"evedata/models"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -33,6 +32,11 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 	type marketTypes struct {
 		TypeID   int64  `db:"typeID"`
 		TypeName string `db:"typeName"`
+	}
+
+	type marketOrders struct {
+		regionID int64
+		orders   *[]esi.GetMarketsRegionIdOrders200Ok
 	}
 
 	// Obtain a list of regions which have market stations
@@ -78,7 +82,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 	// Build buffers for posting to the database and
 	postChannel := make(chan []byte, 20)
 	historyChannel := make(chan *eveapi.MarketTypeHistoryCollectionV1, 20)
-	orderChannel := make(chan *eveapi.MarketOrderCollectionSlimV1, 20)
+	orderChannel := make(chan marketOrders, 20)
 
 	if c.Conf.EMDRCrestBridge.Upload {
 		for i := 0; i < 10; i++ {
@@ -149,7 +153,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 			for {
 				o := <-orderChannel
 				// Add or update orders
-				if len(o.Items) == 0 {
+				if len(*o.orders) == 0 {
 					continue
 				}
 
@@ -161,20 +165,20 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 					}
 
 					var values []string
-					for _, e := range o.Items {
+					for _, e := range *o.orders {
 						var buy byte
-						if e.Buy == true {
+						if e.IsBuyOrder == true {
 							buy = 1
 						} else {
 							buy = 0
 						}
 						values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,'%s',%d,%d,%d,%d,UTC_TIMESTAMP())",
-							e.ID, e.Price, e.Volume, e.Type, e.VolumeEntered, e.MinVolume,
-							buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.StationID, o.RegionID, stations[e.StationID]))
+							e.OrderId, e.Price, e.VolumeRemain, e.TypeId, e.VolumeTotal, e.MinVolume,
+							buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, o.regionID, stations[e.LocationId]))
 					}
 
-					stmt := fmt.Sprintf(`INSERT INTO market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, systemID, reported) 
-						VALUES %s 
+					stmt := fmt.Sprintf(`INSERT INTO market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, systemID, reported)
+						VALUES %s
 						ON DUPLICATE KEY UPDATE price=VALUES(price),
 							remainingVolume=VALUES(remainingVolume),
 							issued=VALUES(issued),
@@ -205,36 +209,28 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 
 	// limit concurrent requests as to not hog the available connections.
 	// Eventually the buffers will become the limiting factors.
-	limiter := make(chan bool, 5)
+	limiter := make(chan bool, 20)
 	for {
 		// loop through all regions
 		for _, r := range regions {
-			limiter <- true
-			go func(l chan bool) {
-				defer func(l chan bool) { <-l }(l)
-				// Process Market Buy Orders
-				b, err := c.EVE.MarketOrdersSlimV1ByID(r.RegionID, 1)
-				if err != nil {
-					log.Printf("EMDRCrestBridge: %s", err)
-					return
-				}
-
-				for ; b != nil; b, err = b.NextPage() {
+			// and each item per region
+			for _, t := range types {
+				limiter <- true
+				go func(l chan bool) {
+					defer func(l chan bool) { <-l }(l)
+					// Process Market Buy Orders
+					b, err := c.ESI.MarketApi.GetMarketsRegionIdOrders(r.RegionID, "all", t.TypeID, nil, nil)
+					order := marketOrders{r.RegionID, &b}
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
 						return
 					}
-					if c.Conf.EMDRCrestBridge.Upload {
-						postOrders(postChannel, b, c)
-					}
-					if c.Conf.EMDRCrestBridge.Import {
-						orderChannel <- b
-					}
-				}
-			}(limiter)
 
-			// and each item per region
-			for _, t := range types {
+					if c.Conf.EMDRCrestBridge.Import {
+						orderChannel <- order
+					}
+				}(limiter)
+
 				limiter <- true
 				go func(l chan bool) {
 					defer func(l chan bool) { <-l }(l)
@@ -247,9 +243,6 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 						return
 					}
 
-					if c.Conf.EMDRCrestBridge.Upload {
-						postHistory(postChannel, h, c)
-					}
 					if c.Conf.EMDRCrestBridge.Import {
 						historyChannel <- h
 					}
@@ -257,137 +250,4 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 			}
 		}
 	}
-}
-
-func postHistory(postChan chan []byte, h *eveapi.MarketTypeHistoryCollectionV1, c *appContext.AppContext) {
-	u := newUUDIFHeader()
-	u.ResultType = "history"
-	u.Columns = []string{"date", "orders", "quantity", "low", "high", "average"}
-
-	rowsets := make(map[int64]rowsetsUUDIF)
-
-	edit := rowsets[h.TypeID]
-	edit.RegionID = h.RegionID
-	edit.TypeID = h.TypeID
-	edit.GeneratedAt = time.Now()
-
-	edit.Rows = make([][]interface{}, len(h.Items))
-
-	for i, e := range h.Items {
-		edit.Rows[i] = make([]interface{}, 6)
-		edit.Rows[i][0] = e.Date + "+00:00"
-		edit.Rows[i][1] = e.OrderCount
-		edit.Rows[i][2] = e.Volume
-		edit.Rows[i][3] = e.LowPrice
-		edit.Rows[i][4] = e.HighPrice
-		edit.Rows[i][5] = e.AvgPrice
-	}
-	rowsets[h.TypeID] = edit
-	for _, v := range rowsets {
-		u.Rowsets = append(u.Rowsets, v)
-	}
-
-	enc, err := json.Marshal(u)
-
-	if err != nil {
-		log.Println("EMDRCrestBridge:", err)
-	} else {
-		postChan <- enc
-	}
-}
-
-func postOrders(postChan chan []byte, o *eveapi.MarketOrderCollectionSlimV1, c *appContext.AppContext) {
-	u := newUUDIFHeader()
-	u.ResultType = "orders"
-	u.Columns = []string{"price", "volRemaining", "range", "orderID", "volEntered", "minVolume", "bid", "issueDate", "duration", "stationID", "solarSystemID"}
-	rowsets := make(map[int64]rowsetsUUDIF)
-
-	for _, e := range o.Items {
-		var r int
-
-		switch {
-		case e.Range == "station":
-			r = -1
-		case e.Range == "solarsystem":
-			r = 0
-		case e.Range == "region":
-			r = 32767
-		default:
-			r, _ = strconv.Atoi(e.Range)
-		}
-
-		edit := rowsets[e.Type]
-		edit.RegionID = o.RegionID
-		edit.GeneratedAt = time.Now()
-		edit.TypeID = e.Type
-		row := make([]interface{}, 11)
-		row[0] = e.Price
-		row[1] = e.Volume
-		row[2] = r
-		row[3] = e.ID
-		row[4] = e.VolumeEntered
-		row[5] = e.MinVolume
-		row[6] = e.Buy
-		row[7] = e.Issued.UTC()
-		row[8] = e.Duration
-		row[9] = e.StationID
-		row[10] = stations[e.StationID]
-		edit.Count++
-		edit.Rows = append(edit.Rows, row)
-		rowsets[e.Type] = edit
-
-	}
-
-	for _, v := range rowsets {
-		u.Rowsets = append(u.Rowsets, v)
-	}
-
-	enc, err := json.Marshal(u)
-	if err != nil {
-		log.Println("EMDRCrestBridge:", err)
-	} else {
-		postChan <- enc
-	}
-}
-
-func newUUDIFHeader() marketUUDIF {
-	n := marketUUDIF{}
-
-	n.Version = "0.2"
-
-	n.Generator.Name = "EveData.Org"
-	n.Generator.Version = "0.2q.343"
-
-	n.UploadKeys = make([]uploadKeysUUDIF, 1)
-	n.UploadKeys[0] = uploadKeysUUDIF{"EveData.Org", "TheCheeseIsBree"}
-
-	n.CurrentTime = time.Now()
-
-	return n
-}
-
-type rowsetsUUDIF struct {
-	GeneratedAt time.Time       `json:"generatedAt"`
-	RegionID    int64           `json:"regionID"`
-	TypeID      int64           `json:"typeID"`
-	Count       int64           `json:"-"`
-	Rows        [][]interface{} `json:"rows"`
-}
-
-type uploadKeysUUDIF struct {
-	Name string `json:"name"`
-	Key  string `json:"key"`
-}
-
-type marketUUDIF struct {
-	ResultType string            `json:"resultType"`
-	Version    string            `json:"version"`
-	UploadKeys []uploadKeysUUDIF `json:"uploadKeys"`
-	Generator  struct {
-		Name    string `json:"name"`
-		Version string `json:"version"`
-	} `json:"generator"`
-	Columns     []string       `json:"columns"`
-	CurrentTime time.Time      `json:"currentTime"`
-	Rowsets     []rowsetsUUDIF `json:"rowsets"`
 }

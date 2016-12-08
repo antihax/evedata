@@ -6,6 +6,7 @@ import (
 	"evedata/config"
 	"evedata/discord"
 	"evedata/emdrConsumer"
+	"evedata/esi"
 	"evedata/eveConsumer"
 	"evedata/eveapi"
 	"evedata/models"
@@ -81,11 +82,13 @@ func GoServer() {
 		ctx.Conf.CREST.Token.RedirectURL,
 		tokenScopes)
 
-	// Create a memcached http client for the CCP APIs.
-	transport := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))
-	transport.Transport = &http.Transport{Proxy: http.ProxyFromEnvironment, MaxIdleConnsPerHost: 5}
+	// Create a Redis http client for the CCP APIs.
+	ctx.TransportCache = httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))
+	ctx.TransportCache.Transport = &http.Transport{Proxy: http.ProxyFromEnvironment, MaxIdleConnsPerHost: 5}
 
-	ctx.HTTPClient = &http.Client{Transport: transport}
+	ctx.HTTPClient = &http.Client{Transport: ctx.TransportCache}
+
+	ctx.ESI = esi.NewAPIClient(ctx.HTTPClient)
 
 	// Create a memcached session store.
 	ctx.Store, err = gsr.NewRediStoreWithPool(&ctx.Cache, []byte(ctx.Conf.Store.Key))

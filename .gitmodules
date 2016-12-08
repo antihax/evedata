@@ -1,3 +1,6 @@
 [submodule "eveapi"]
 	path = eveapi
 	url = https://github.com/antihax/eveapi.git
+[submodule "esi-template"]
+	path = esi-template
+	url = https://github.com/antihax/swagger-esi-goclient.git

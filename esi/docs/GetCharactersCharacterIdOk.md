@@ -3,7 +3,7 @@
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**AncestryId** | **int32** | ancestry_id integer | [default to null]
+**AncestryId** | **int32** | ancestry_id integer | [optional] [default to null]
 **Birthday** | [**time.Time**](time.Time.md) | Creation date of the character | [default to null]
 **BloodlineId** | **int32** | bloodline_id integer | [default to null]
 **CorporationId** | **int32** | The character&#39;s corporation ID | [default to null]

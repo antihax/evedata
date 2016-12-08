@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **Memo** | **string** | memo string | [default to null]
 **Note** | **string** | note string | [default to null]
 **OwnerId** | **int32** | owner_id integer | [default to null]
-**Target** | [**CharacterscharacterIdbookmarksTarget**](characterscharacter_idbookmarks_target.md) |  | [optional] [default to null]
+**Target** | [**GetCharactersCharacterIdBookmarksTarget**](get_characters_character_id_bookmarks_target.md) |  | [optional] [default to null]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 
