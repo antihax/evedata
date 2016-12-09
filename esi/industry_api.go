@@ -25,6 +25,7 @@ package esi
 import (
 	"net/url"
 	"strings"
+	"time"
 
 	"encoding/json"
 )
@@ -39,7 +40,7 @@ type IndustryApiService service
  * @param datasource(string) The server name you would like data from 
  * @return []GetIndustryFacilities200Ok
  */
-func (a IndustryApiService) GetIndustryFacilities(datasource interface{}) ([]GetIndustryFacilities200Ok,  error) {
+func (a IndustryApiService) GetIndustryFacilities(datasource interface{}) ([]GetIndustryFacilities200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -55,7 +56,7 @@ func (a IndustryApiService) GetIndustryFacilities(datasource interface{}) ([]Get
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -75,21 +76,22 @@ func (a IndustryApiService) GetIndustryFacilities(datasource interface{}) ([]Get
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
 
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return *successPayload, time.Now(), err
+	}
 
-	return *successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return *successPayload, expires, err
 }
 
 /**
@@ -99,7 +101,7 @@ func (a IndustryApiService) GetIndustryFacilities(datasource interface{}) ([]Get
  * @param datasource(string) The server name you would like data from 
  * @return []GetIndustrySystems200Ok
  */
-func (a IndustryApiService) GetIndustrySystems(datasource interface{}) ([]GetIndustrySystems200Ok,  error) {
+func (a IndustryApiService) GetIndustrySystems(datasource interface{}) ([]GetIndustrySystems200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -115,7 +117,7 @@ func (a IndustryApiService) GetIndustrySystems(datasource interface{}) ([]GetInd
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -135,20 +137,21 @@ func (a IndustryApiService) GetIndustrySystems(datasource interface{}) ([]GetInd
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
 
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return *successPayload, time.Now(), err
+	}
 
-	return *successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return *successPayload, expires, err
 }
 

@@ -29,7 +29,7 @@ func (c *EVEConsumer) collectStructuresFromESI() error {
 		return nil
 	}
 
-	w, err := c.ctx.ESI.UniverseApi.GetUniverseStructures(nil)
+	w, _, err := c.ctx.ESI.UniverseApi.GetUniverseStructures(nil)
 	if err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func (c *EVEConsumer) collectStructuresFromESI() error {
 }
 
 func (c *EVEConsumer) updateStructure(s int64) error {
-	struc, err := c.ctx.ESI.UniverseApi.GetUniverseStructuresStructureId(c.ctx.ESIPublicToken, s, nil)
+	struc, _, err := c.ctx.ESI.UniverseApi.GetUniverseStructuresStructureId(c.ctx.ESIPublicToken, s, nil)
 	if err != nil {
 		return err
 	}

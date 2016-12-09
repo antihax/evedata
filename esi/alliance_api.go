@@ -25,6 +25,7 @@ package esi
 import (
 	"net/url"
 	"strings"
+	"time"
 
 	"encoding/json"
 	"fmt"
@@ -40,7 +41,7 @@ type AllianceApiService service
  * @param datasource(string) The server name you would like data from 
  * @return []int32
  */
-func (a AllianceApiService) GetAlliances(datasource interface{}) ([]int32,  error) {
+func (a AllianceApiService) GetAlliances(datasource interface{}) ([]int32,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -56,7 +57,7 @@ func (a AllianceApiService) GetAlliances(datasource interface{}) ([]int32,  erro
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -76,21 +77,22 @@ func (a AllianceApiService) GetAlliances(datasource interface{}) ([]int32,  erro
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
 
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return *successPayload, time.Now(), err
+	}
 
-	return *successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return *successPayload, expires, err
 }
 
 /**
@@ -101,7 +103,7 @@ func (a AllianceApiService) GetAlliances(datasource interface{}) ([]int32,  erro
  * @param datasource(string) The server name you would like data from 
  * @return *GetAlliancesAllianceIdOk
  */
-func (a AllianceApiService) GetAlliancesAllianceId(allianceId int32, datasource interface{}) (*GetAlliancesAllianceIdOk,  error) {
+func (a AllianceApiService) GetAlliancesAllianceId(allianceId int32, datasource interface{}) (*GetAlliancesAllianceIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -118,7 +120,7 @@ func (a AllianceApiService) GetAlliancesAllianceId(allianceId int32, datasource 
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -138,21 +140,22 @@ func (a AllianceApiService) GetAlliancesAllianceId(allianceId int32, datasource 
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
 
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return successPayload, time.Now(), err
+	}
 
-	return successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return successPayload, expires, err
 }
 
 /**
@@ -163,7 +166,7 @@ func (a AllianceApiService) GetAlliancesAllianceId(allianceId int32, datasource 
  * @param datasource(string) The server name you would like data from 
  * @return []int32
  */
-func (a AllianceApiService) GetAlliancesAllianceIdCorporations(allianceId int32, datasource interface{}) ([]int32,  error) {
+func (a AllianceApiService) GetAlliancesAllianceIdCorporations(allianceId int32, datasource interface{}) ([]int32,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -180,7 +183,7 @@ func (a AllianceApiService) GetAlliancesAllianceIdCorporations(allianceId int32,
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -200,21 +203,22 @@ func (a AllianceApiService) GetAlliancesAllianceIdCorporations(allianceId int32,
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
 
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return *successPayload, time.Now(), err
+	}
 
-	return *successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return *successPayload, expires, err
 }
 
 /**
@@ -225,7 +229,7 @@ func (a AllianceApiService) GetAlliancesAllianceIdCorporations(allianceId int32,
  * @param datasource(string) The server name you would like data from 
  * @return *GetAlliancesAllianceIdIconsOk
  */
-func (a AllianceApiService) GetAlliancesAllianceIdIcons(allianceId int32, datasource interface{}) (*GetAlliancesAllianceIdIconsOk,  error) {
+func (a AllianceApiService) GetAlliancesAllianceIdIcons(allianceId int32, datasource interface{}) (*GetAlliancesAllianceIdIconsOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -242,7 +246,7 @@ func (a AllianceApiService) GetAlliancesAllianceIdIcons(allianceId int32, dataso
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -262,21 +266,22 @@ func (a AllianceApiService) GetAlliancesAllianceIdIcons(allianceId int32, dataso
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
 
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return successPayload, time.Now(), err
+	}
 
-	return successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return successPayload, expires, err
 }
 
 /**
@@ -287,7 +292,7 @@ func (a AllianceApiService) GetAlliancesAllianceIdIcons(allianceId int32, dataso
  * @param datasource(string) The server name you would like data from 
  * @return []GetAlliancesNames200Ok
  */
-func (a AllianceApiService) GetAlliancesNames(allianceIds []int64, datasource interface{}) ([]GetAlliancesNames200Ok,  error) {
+func (a AllianceApiService) GetAlliancesNames(allianceIds []int64, datasource interface{}) ([]GetAlliancesNames200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -303,7 +308,7 @@ func (a AllianceApiService) GetAlliancesNames(allianceIds []int64, datasource in
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 		localVarQueryParams.Add("alliance_ids", a.client.parameterToString(allianceIds, "csv"))
 	if datasource != nil {
@@ -324,20 +329,21 @@ func (a AllianceApiService) GetAlliancesNames(allianceIds []int64, datasource in
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
 
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return *successPayload, time.Now(), err
+	}
 
-	return *successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return *successPayload, expires, err
 }
 

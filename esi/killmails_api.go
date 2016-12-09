@@ -25,6 +25,7 @@ package esi
 import (
 	"net/url"
 	"strings"
+	"time"
 
 	"encoding/json"
 	"fmt"
@@ -43,7 +44,7 @@ type KillmailsApiService service
  * @param datasource(string) The server name you would like data from 
  * @return []GetCharactersCharacterIdKillmailsRecent200Ok
  */
-func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ts TokenSource, characterId int32, maxCount interface{}, maxKillId interface{}, datasource interface{}) ([]GetCharactersCharacterIdKillmailsRecent200Ok,  error) {
+func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ts TokenSource, characterId int32, maxCount interface{}, maxKillId interface{}, datasource interface{}) ([]GetCharactersCharacterIdKillmailsRecent200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -60,13 +61,13 @@ func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ts TokenSou
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(maxCount, "int32", "maxCount"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(maxKillId, "int32", "maxKillId"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if maxCount != nil {
 		localVarQueryParams.Add("max_count", a.client.parameterToString(maxCount, ""))
@@ -92,12 +93,12 @@ func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ts TokenSou
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
 
 	if ts != nil {
 		if t, err := ts.Token(); err != nil {
-			return *successPayload, err
+			return *successPayload, time.Now(), err
 		} else if t != nil {
 			t.SetAuthHeader(r)
 		}
@@ -105,15 +106,16 @@ func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ts TokenSou
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return *successPayload, time.Now(), err
+	}
 
-	return *successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return *successPayload, expires, err
 }
 
 /**
@@ -125,7 +127,7 @@ func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ts TokenSou
  * @param datasource(string) The server name you would like data from 
  * @return *GetKillmailsKillmailIdKillmailHashOk
  */
-func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32, killmailHash string, datasource interface{}) (*GetKillmailsKillmailIdKillmailHashOk,  error) {
+func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32, killmailHash string, datasource interface{}) (*GetKillmailsKillmailIdKillmailHashOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -143,7 +145,7 @@ func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -163,20 +165,21 @@ func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
 
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return successPayload, time.Now(), err
+	}
 
-	return successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return successPayload, expires, err
 }
 

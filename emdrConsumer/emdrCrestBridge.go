@@ -195,7 +195,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 				go func(l chan bool) {
 					defer func(l chan bool) { <-l }(l)
 					// Process Market Buy Orders
-					b, err := c.ESI.MarketApi.GetMarketsRegionIdOrders(r.RegionID, "all", t.TypeID, nil, nil)
+					b, _, err := c.ESI.MarketApi.GetMarketsRegionIdOrders(r.RegionID, "all", t.TypeID, nil, nil)
 					order := marketOrders{r.RegionID, &b}
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
@@ -212,7 +212,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 					defer func(l chan bool) { <-l }(l)
 
 					// Process Market History
-					h, err := c.ESI.MarketApi.GetMarketsRegionIdHistory(r.RegionID, t.TypeID, nil)
+					h, _, err := c.ESI.MarketApi.GetMarketsRegionIdHistory(r.RegionID, t.TypeID, nil)
 					hist := marketHistory{r.RegionID, t.TypeID, &h}
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)

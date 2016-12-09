@@ -32,6 +32,7 @@ import (
     "golang.org/x/oauth2"
 	"net/http"
 	"net/url"
+	"time"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -196,7 +197,7 @@ func (c *APIClient) prepareRequest (
 	var body *bytes.Buffer
 
 	if postBody != nil {
-		body, err = c.setBody(postBody, localVarHttpContentType)
+		body, err = setBody(postBody, localVarHttpContentType)
 		if err != nil {
 			return nil, err
 		}
@@ -277,7 +278,7 @@ func addFile(w *multipart.Writer, fieldName, path string) error {
 	return err
 }
 
-func (c *APIClient) setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err error) {
+func setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err error) {
 	if bodyBuf == nil {
 		bodyBuf = &bytes.Buffer{}
 	}
@@ -301,4 +302,52 @@ func (c *APIClient) setBody(body interface{}, contentType string) (bodyBuf *byte
 		return nil, err
 	}
 	return bodyBuf, nil
+}
+
+// Ripped from https://github.com/gregjones/httpcache/blob/master/httpcache.go
+type cacheControl map[string]string
+
+func parseCacheControl(headers http.Header) cacheControl {
+	cc := cacheControl{}
+	ccHeader := headers.Get("Cache-Control")
+	for _, part := range strings.Split(ccHeader, ",") {
+		part = strings.Trim(part, " ")
+		if part == "" {
+			continue
+		}
+		if strings.ContainsRune(part, '=') {
+			keyval := strings.Split(part, "=")
+			cc[strings.Trim(keyval[0], " ")] = strings.Trim(keyval[1], ",")
+		} else {
+			cc[part] = ""
+		}
+	}
+	return cc
+}
+
+func cacheExpires(r *http.Response) (time.Time) {
+	// Figure out when the cache expires.
+	var expires time.Time
+	now, err := time.Parse(time.RFC1123, r.Header.Get("date"))
+	if err != nil {
+		return time.Now()
+	}
+	respCacheControl := parseCacheControl(r.Header)
+	
+	if maxAge, ok := respCacheControl["max-age"]; ok {
+		lifetime, err := time.ParseDuration(maxAge + "s")
+		if err != nil {
+			expires = now
+		}
+		expires = now.Add(lifetime)
+	} else {
+		expiresHeader := r.Header.Get("Expires")
+		if expiresHeader != "" {
+			expires, err = time.Parse(time.RFC1123, expiresHeader)
+			if err != nil {
+				expires = now
+			}
+		}
+	}
+	return expires
 }

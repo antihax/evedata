@@ -25,6 +25,7 @@ package esi
 import (
 	"net/url"
 	"strings"
+	"time"
 
 	"encoding/json"
 	"fmt"
@@ -41,7 +42,7 @@ type SkillsApiService service
  * @param datasource(string) The server name you would like data from 
  * @return []GetCharactersCharacterIdSkillqueue200Ok
  */
-func (a SkillsApiService) GetCharactersCharacterIdSkillqueue(ts TokenSource, characterId int32, datasource interface{}) ([]GetCharactersCharacterIdSkillqueue200Ok,  error) {
+func (a SkillsApiService) GetCharactersCharacterIdSkillqueue(ts TokenSource, characterId int32, datasource interface{}) ([]GetCharactersCharacterIdSkillqueue200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -58,7 +59,7 @@ func (a SkillsApiService) GetCharactersCharacterIdSkillqueue(ts TokenSource, cha
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -78,12 +79,12 @@ func (a SkillsApiService) GetCharactersCharacterIdSkillqueue(ts TokenSource, cha
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
 
 	if ts != nil {
 		if t, err := ts.Token(); err != nil {
-			return *successPayload, err
+			return *successPayload, time.Now(), err
 		} else if t != nil {
 			t.SetAuthHeader(r)
 		}
@@ -91,15 +92,16 @@ func (a SkillsApiService) GetCharactersCharacterIdSkillqueue(ts TokenSource, cha
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return *successPayload, time.Now(), err
+	}
 
-	return *successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return *successPayload, expires, err
 }
 
 /**
@@ -110,7 +112,7 @@ func (a SkillsApiService) GetCharactersCharacterIdSkillqueue(ts TokenSource, cha
  * @param datasource(string) The server name you would like data from 
  * @return *GetCharactersCharacterIdSkillsOk
  */
-func (a SkillsApiService) GetCharactersCharacterIdSkills(ts TokenSource, characterId int32, datasource interface{}) (*GetCharactersCharacterIdSkillsOk,  error) {
+func (a SkillsApiService) GetCharactersCharacterIdSkills(ts TokenSource, characterId int32, datasource interface{}) (*GetCharactersCharacterIdSkillsOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -127,7 +129,7 @@ func (a SkillsApiService) GetCharactersCharacterIdSkills(ts TokenSource, charact
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -147,12 +149,12 @@ func (a SkillsApiService) GetCharactersCharacterIdSkills(ts TokenSource, charact
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
 
 	if ts != nil {
 		if t, err := ts.Token(); err != nil {
-			return successPayload, err
+			return successPayload, time.Now(), err
 		} else if t != nil {
 			t.SetAuthHeader(r)
 		}
@@ -160,14 +162,15 @@ func (a SkillsApiService) GetCharactersCharacterIdSkills(ts TokenSource, charact
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return successPayload, time.Now(), err
+	}
 
-	return successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return successPayload, expires, err
 }
 

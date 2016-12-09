@@ -25,6 +25,7 @@ package esi
 import (
 	"net/url"
 	"strings"
+	"time"
 
 	"encoding/json"
 	"fmt"
@@ -45,7 +46,7 @@ type SearchApiService service
  * @param datasource(string) The server name you would like data from 
  * @return *GetCharactersCharacterIdSearchOk
  */
-func (a SearchApiService) GetCharactersCharacterIdSearch(ts TokenSource, characterId int32, search string, categories []string, language interface{}, strict interface{}, datasource interface{}) (*GetCharactersCharacterIdSearchOk,  error) {
+func (a SearchApiService) GetCharactersCharacterIdSearch(ts TokenSource, characterId int32, search string, categories []string, language interface{}, strict interface{}, datasource interface{}) (*GetCharactersCharacterIdSearchOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -62,13 +63,13 @@ func (a SearchApiService) GetCharactersCharacterIdSearch(ts TokenSource, charact
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(language, "string", "language"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(strict, "bool", "strict"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 		localVarQueryParams.Add("search", a.client.parameterToString(search, ""))
 		localVarQueryParams.Add("categories", a.client.parameterToString(categories, "csv"))
@@ -96,12 +97,12 @@ func (a SearchApiService) GetCharactersCharacterIdSearch(ts TokenSource, charact
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
 
 	if ts != nil {
 		if t, err := ts.Token(); err != nil {
-			return successPayload, err
+			return successPayload, time.Now(), err
 		} else if t != nil {
 			t.SetAuthHeader(r)
 		}
@@ -109,15 +110,16 @@ func (a SearchApiService) GetCharactersCharacterIdSearch(ts TokenSource, charact
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return successPayload, time.Now(), err
+	}
 
-	return successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return successPayload, expires, err
 }
 
 /**
@@ -131,7 +133,7 @@ func (a SearchApiService) GetCharactersCharacterIdSearch(ts TokenSource, charact
  * @param datasource(string) The server name you would like data from 
  * @return *GetSearchOk
  */
-func (a SearchApiService) GetSearch(search string, categories []string, language interface{}, strict interface{}, datasource interface{}) (*GetSearchOk,  error) {
+func (a SearchApiService) GetSearch(search string, categories []string, language interface{}, strict interface{}, datasource interface{}) (*GetSearchOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -147,13 +149,13 @@ func (a SearchApiService) GetSearch(search string, categories []string, language
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(language, "string", "language"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(strict, "bool", "strict"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 		localVarQueryParams.Add("search", a.client.parameterToString(search, ""))
 		localVarQueryParams.Add("categories", a.client.parameterToString(categories, "csv"))
@@ -181,20 +183,21 @@ func (a SearchApiService) GetSearch(search string, categories []string, language
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
 
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return successPayload, time.Now(), err
+	}
 
-	return successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return successPayload, expires, err
 }
 

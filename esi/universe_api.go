@@ -25,6 +25,7 @@ package esi
 import (
 	"net/url"
 	"strings"
+	"time"
 
 	"encoding/json"
 	"fmt"
@@ -41,7 +42,7 @@ type UniverseApiService service
  * @param datasource(string) The server name you would like data from 
  * @return *GetUniverseStationsStationIdOk
  */
-func (a UniverseApiService) GetUniverseStationsStationId(stationId int32, datasource interface{}) (*GetUniverseStationsStationIdOk,  error) {
+func (a UniverseApiService) GetUniverseStationsStationId(stationId int32, datasource interface{}) (*GetUniverseStationsStationIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -58,7 +59,7 @@ func (a UniverseApiService) GetUniverseStationsStationId(stationId int32, dataso
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -78,21 +79,22 @@ func (a UniverseApiService) GetUniverseStationsStationId(stationId int32, dataso
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
 
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return successPayload, time.Now(), err
+	}
 
-	return successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return successPayload, expires, err
 }
 
 /**
@@ -102,7 +104,7 @@ func (a UniverseApiService) GetUniverseStationsStationId(stationId int32, dataso
  * @param datasource(string) The server name you would like data from 
  * @return []int64
  */
-func (a UniverseApiService) GetUniverseStructures(datasource interface{}) ([]int64,  error) {
+func (a UniverseApiService) GetUniverseStructures(datasource interface{}) ([]int64,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -118,7 +120,7 @@ func (a UniverseApiService) GetUniverseStructures(datasource interface{}) ([]int
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -138,21 +140,22 @@ func (a UniverseApiService) GetUniverseStructures(datasource interface{}) ([]int
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
 
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return *successPayload, time.Now(), err
+	}
 
-	return *successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return *successPayload, expires, err
 }
 
 /**
@@ -163,7 +166,7 @@ func (a UniverseApiService) GetUniverseStructures(datasource interface{}) ([]int
  * @param datasource(string) The server name you would like data from 
  * @return *GetUniverseStructuresStructureIdOk
  */
-func (a UniverseApiService) GetUniverseStructuresStructureId(ts TokenSource, structureId int64, datasource interface{}) (*GetUniverseStructuresStructureIdOk,  error) {
+func (a UniverseApiService) GetUniverseStructuresStructureId(ts TokenSource, structureId int64, datasource interface{}) (*GetUniverseStructuresStructureIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -180,7 +183,7 @@ func (a UniverseApiService) GetUniverseStructuresStructureId(ts TokenSource, str
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -200,12 +203,12 @@ func (a UniverseApiService) GetUniverseStructuresStructureId(ts TokenSource, str
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
 
 	if ts != nil {
 		if t, err := ts.Token(); err != nil {
-			return successPayload, err
+			return successPayload, time.Now(), err
 		} else if t != nil {
 			t.SetAuthHeader(r)
 		}
@@ -213,15 +216,16 @@ func (a UniverseApiService) GetUniverseStructuresStructureId(ts TokenSource, str
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return successPayload, time.Now(), err
+	}
 
-	return successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return successPayload, expires, err
 }
 
 /**
@@ -232,7 +236,7 @@ func (a UniverseApiService) GetUniverseStructuresStructureId(ts TokenSource, str
  * @param datasource(string) The server name you would like data from 
  * @return *GetUniverseSystemsSystemIdOk
  */
-func (a UniverseApiService) GetUniverseSystemsSystemId(systemId int32, datasource interface{}) (*GetUniverseSystemsSystemIdOk,  error) {
+func (a UniverseApiService) GetUniverseSystemsSystemId(systemId int32, datasource interface{}) (*GetUniverseSystemsSystemIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -249,7 +253,7 @@ func (a UniverseApiService) GetUniverseSystemsSystemId(systemId int32, datasourc
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -269,21 +273,22 @@ func (a UniverseApiService) GetUniverseSystemsSystemId(systemId int32, datasourc
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
 
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return successPayload, time.Now(), err
+	}
 
-	return successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return successPayload, expires, err
 }
 
 /**
@@ -294,7 +299,7 @@ func (a UniverseApiService) GetUniverseSystemsSystemId(systemId int32, datasourc
  * @param datasource(string) The server name you would like data from 
  * @return *GetUniverseTypesTypeIdOk
  */
-func (a UniverseApiService) GetUniverseTypesTypeId(typeId int32, datasource interface{}) (*GetUniverseTypesTypeIdOk,  error) {
+func (a UniverseApiService) GetUniverseTypesTypeId(typeId int32, datasource interface{}) (*GetUniverseTypesTypeIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -311,7 +316,7 @@ func (a UniverseApiService) GetUniverseTypesTypeId(typeId int32, datasource inte
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -331,21 +336,22 @@ func (a UniverseApiService) GetUniverseTypesTypeId(typeId int32, datasource inte
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
 
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, err
+		  return successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return successPayload, time.Now(), err
+	}
 
-	return successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return successPayload, expires, err
 }
 
 /**
@@ -356,7 +362,7 @@ func (a UniverseApiService) GetUniverseTypesTypeId(typeId int32, datasource inte
  * @param datasource(string) The server name you would like data from 
  * @return []PostUniverseNames200Ok
  */
-func (a UniverseApiService) PostUniverseNames(ids PostUniverseNamesIds, datasource interface{}) ([]PostUniverseNames200Ok,  error) {
+func (a UniverseApiService) PostUniverseNames(ids PostUniverseNamesIds, datasource interface{}) ([]PostUniverseNames200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}
@@ -372,7 +378,7 @@ func (a UniverseApiService) PostUniverseNames(ids PostUniverseNamesIds, datasour
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, err
+		return nil, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -394,20 +400,21 @@ func (a UniverseApiService) PostUniverseNames(ids PostUniverseNamesIds, datasour
 
 	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
 
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, err
+		  return *successPayload, time.Now(), err
 	 }
-
 	 defer localVarHttpResponse.Body.Close()
-	 if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return nil, err
-     }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return *successPayload, time.Now(), err
+	}
 
-	return *successPayload, err
+	expires := cacheExpires(localVarHttpResponse)
+	return *successPayload, expires, err
 }
 
