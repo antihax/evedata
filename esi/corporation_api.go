@@ -27,10 +27,12 @@ import (
 	"strings"
 	"time"
 	"errors"
-
+	"golang.org/x/net/context"
 	"encoding/json"
 	"fmt"
 )
+
+var _ context.Context
 
 type CorporationApiService service
 
@@ -78,11 +80,10 @@ func (a CorporationApiService) GetCorporationsCorporationId(corporationId int32,
 	}
 	 var successPayload = new(GetCorporationsCorporationIdOk)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return successPayload, time.Now(), err
 	 }
-
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
@@ -144,11 +145,10 @@ func (a CorporationApiService) GetCorporationsCorporationIdAlliancehistory(corpo
 	}
 	 var successPayload = new([]GetCorporationsCorporationIdAlliancehistory200Ok)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return *successPayload, time.Now(), err
 	 }
-
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
@@ -210,11 +210,10 @@ func (a CorporationApiService) GetCorporationsCorporationIdIcons(corporationId i
 	}
 	 var successPayload = new(GetCorporationsCorporationIdIconsOk)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return successPayload, time.Now(), err
 	 }
-
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
@@ -241,7 +240,7 @@ func (a CorporationApiService) GetCorporationsCorporationIdIcons(corporationId i
  * @param datasource(string) The server name you would like data from 
  * @return []GetCorporationsCorporationIdMembers200Ok
  */
-func (a CorporationApiService) GetCorporationsCorporationIdMembers(ts TokenSource, corporationId int32, datasource interface{}) ([]GetCorporationsCorporationIdMembers200Ok,  time.Time, error) {
+func (a CorporationApiService) GetCorporationsCorporationIdMembers(ctx context.Context, corporationId int32, datasource interface{}) ([]GetCorporationsCorporationIdMembers200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -276,18 +275,10 @@ func (a CorporationApiService) GetCorporationsCorporationIdMembers(ts TokenSourc
 	}
 	 var successPayload = new([]GetCorporationsCorporationIdMembers200Ok)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return *successPayload, time.Now(), err
 	 }
-
-	if ts != nil {
-		if t, err := ts.Token(); err != nil {
-			return *successPayload, time.Now(), err
-		} else if t != nil {
-			t.SetAuthHeader(r)
-		}
-	}
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
@@ -314,7 +305,7 @@ func (a CorporationApiService) GetCorporationsCorporationIdMembers(ts TokenSourc
  * @param datasource(string) The server name you would like data from 
  * @return []GetCorporationsCorporationIdRoles200Ok
  */
-func (a CorporationApiService) GetCorporationsCorporationIdRoles(ts TokenSource, corporationId int32, datasource interface{}) ([]GetCorporationsCorporationIdRoles200Ok,  time.Time, error) {
+func (a CorporationApiService) GetCorporationsCorporationIdRoles(ctx context.Context, corporationId int32, datasource interface{}) ([]GetCorporationsCorporationIdRoles200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -349,18 +340,10 @@ func (a CorporationApiService) GetCorporationsCorporationIdRoles(ts TokenSource,
 	}
 	 var successPayload = new([]GetCorporationsCorporationIdRoles200Ok)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return *successPayload, time.Now(), err
 	 }
-
-	if ts != nil {
-		if t, err := ts.Token(); err != nil {
-			return *successPayload, time.Now(), err
-		} else if t != nil {
-			t.SetAuthHeader(r)
-		}
-	}
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
@@ -422,11 +405,10 @@ func (a CorporationApiService) GetCorporationsNames(corporationIds []int64, data
 	}
 	 var successPayload = new([]GetCorporationsNames200Ok)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return *successPayload, time.Now(), err
 	 }
-
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {

@@ -27,10 +27,12 @@ import (
 	"strings"
 	"time"
 	"errors"
-
+	"golang.org/x/net/context"
 	"encoding/json"
 	"fmt"
 )
+
+var _ context.Context
 
 type BookmarksApiService service
 
@@ -43,7 +45,7 @@ type BookmarksApiService service
  * @param datasource(string) The server name you would like data from 
  * @return []GetCharactersCharacterIdBookmarks200Ok
  */
-func (a BookmarksApiService) GetCharactersCharacterIdBookmarks(ts TokenSource, characterId int32, datasource interface{}) ([]GetCharactersCharacterIdBookmarks200Ok,  time.Time, error) {
+func (a BookmarksApiService) GetCharactersCharacterIdBookmarks(ctx context.Context, characterId int32, datasource interface{}) ([]GetCharactersCharacterIdBookmarks200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -78,18 +80,10 @@ func (a BookmarksApiService) GetCharactersCharacterIdBookmarks(ts TokenSource, c
 	}
 	 var successPayload = new([]GetCharactersCharacterIdBookmarks200Ok)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return *successPayload, time.Now(), err
 	 }
-
-	if ts != nil {
-		if t, err := ts.Token(); err != nil {
-			return *successPayload, time.Now(), err
-		} else if t != nil {
-			t.SetAuthHeader(r)
-		}
-	}
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
@@ -116,7 +110,7 @@ func (a BookmarksApiService) GetCharactersCharacterIdBookmarks(ts TokenSource, c
  * @param datasource(string) The server name you would like data from 
  * @return []GetCharactersCharacterIdBookmarksFolders200Ok
  */
-func (a BookmarksApiService) GetCharactersCharacterIdBookmarksFolders(ts TokenSource, characterId int32, datasource interface{}) ([]GetCharactersCharacterIdBookmarksFolders200Ok,  time.Time, error) {
+func (a BookmarksApiService) GetCharactersCharacterIdBookmarksFolders(ctx context.Context, characterId int32, datasource interface{}) ([]GetCharactersCharacterIdBookmarksFolders200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -151,18 +145,10 @@ func (a BookmarksApiService) GetCharactersCharacterIdBookmarksFolders(ts TokenSo
 	}
 	 var successPayload = new([]GetCharactersCharacterIdBookmarksFolders200Ok)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return *successPayload, time.Now(), err
 	 }
-
-	if ts != nil {
-		if t, err := ts.Token(); err != nil {
-			return *successPayload, time.Now(), err
-		} else if t != nil {
-			t.SetAuthHeader(r)
-		}
-	}
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {

@@ -27,10 +27,12 @@ import (
 	"strings"
 	"time"
 	"errors"
-
+	"golang.org/x/net/context"
 	"encoding/json"
 	"fmt"
 )
+
+var _ context.Context
 
 type WarsApiService service
 
@@ -83,11 +85,10 @@ func (a WarsApiService) GetWars(page interface{}, datasource interface{}) ([]int
 	}
 	 var successPayload = new([]int32)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return *successPayload, time.Now(), err
 	 }
-
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
@@ -149,11 +150,10 @@ func (a WarsApiService) GetWarsWarId(warId int32, datasource interface{}) (*GetW
 	}
 	 var successPayload = new(GetWarsWarIdOk)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return successPayload, time.Now(), err
 	 }
-
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
@@ -222,11 +222,10 @@ func (a WarsApiService) GetWarsWarIdKillmails(warId int32, page interface{}, dat
 	}
 	 var successPayload = new([]GetWarsWarIdKillmails200Ok)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return *successPayload, time.Now(), err
 	 }
-
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {

@@ -27,9 +27,11 @@ import (
 	"strings"
 	"time"
 	"errors"
-
+	"golang.org/x/net/context"
 	"encoding/json"
 )
+
+var _ context.Context
 
 type SovereigntyApiService service
 
@@ -75,11 +77,10 @@ func (a SovereigntyApiService) GetSovereigntyCampaigns(datasource interface{}) (
 	}
 	 var successPayload = new([]GetSovereigntyCampaigns200Ok)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return *successPayload, time.Now(), err
 	 }
-
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
@@ -139,11 +140,10 @@ func (a SovereigntyApiService) GetSovereigntyStructures(datasource interface{}) 
 	}
 	 var successPayload = new([]GetSovereigntyStructures200Ok)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return *successPayload, time.Now(), err
 	 }
-
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {

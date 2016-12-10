@@ -27,10 +27,12 @@ import (
 	"strings"
 	"time"
 	"errors"
-
+	"golang.org/x/net/context"
 	"encoding/json"
 	"fmt"
 )
+
+var _ context.Context
 
 type KillmailsApiService service
 
@@ -45,7 +47,7 @@ type KillmailsApiService service
  * @param datasource(string) The server name you would like data from 
  * @return []GetCharactersCharacterIdKillmailsRecent200Ok
  */
-func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ts TokenSource, characterId int32, maxCount interface{}, maxKillId interface{}, datasource interface{}) ([]GetCharactersCharacterIdKillmailsRecent200Ok,  time.Time, error) {
+func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ctx context.Context, characterId int32, maxCount interface{}, maxKillId interface{}, datasource interface{}) ([]GetCharactersCharacterIdKillmailsRecent200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -92,18 +94,10 @@ func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ts TokenSou
 	}
 	 var successPayload = new([]GetCharactersCharacterIdKillmailsRecent200Ok)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return *successPayload, time.Now(), err
 	 }
-
-	if ts != nil {
-		if t, err := ts.Token(); err != nil {
-			return *successPayload, time.Now(), err
-		} else if t != nil {
-			t.SetAuthHeader(r)
-		}
-	}
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
@@ -167,11 +161,10 @@ func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32
 	}
 	 var successPayload = new(GetKillmailsKillmailIdKillmailHashOk)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return successPayload, time.Now(), err
 	 }
-
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {

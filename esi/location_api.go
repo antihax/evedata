@@ -27,10 +27,12 @@ import (
 	"strings"
 	"time"
 	"errors"
-
+	"golang.org/x/net/context"
 	"encoding/json"
 	"fmt"
 )
+
+var _ context.Context
 
 type LocationApiService service
 
@@ -43,7 +45,7 @@ type LocationApiService service
  * @param datasource(string) The server name you would like data from 
  * @return *GetCharactersCharacterIdLocationOk
  */
-func (a LocationApiService) GetCharactersCharacterIdLocation(ts TokenSource, characterId int32, datasource interface{}) (*GetCharactersCharacterIdLocationOk,  time.Time, error) {
+func (a LocationApiService) GetCharactersCharacterIdLocation(ctx context.Context, characterId int32, datasource interface{}) (*GetCharactersCharacterIdLocationOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -78,18 +80,10 @@ func (a LocationApiService) GetCharactersCharacterIdLocation(ts TokenSource, cha
 	}
 	 var successPayload = new(GetCharactersCharacterIdLocationOk)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return successPayload, time.Now(), err
 	 }
-
-	if ts != nil {
-		if t, err := ts.Token(); err != nil {
-			return successPayload, time.Now(), err
-		} else if t != nil {
-			t.SetAuthHeader(r)
-		}
-	}
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
@@ -116,7 +110,7 @@ func (a LocationApiService) GetCharactersCharacterIdLocation(ts TokenSource, cha
  * @param datasource(string) The server name you would like data from 
  * @return *GetCharactersCharacterIdShipOk
  */
-func (a LocationApiService) GetCharactersCharacterIdShip(ts TokenSource, characterId int32, datasource interface{}) (*GetCharactersCharacterIdShipOk,  time.Time, error) {
+func (a LocationApiService) GetCharactersCharacterIdShip(ctx context.Context, characterId int32, datasource interface{}) (*GetCharactersCharacterIdShipOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -151,18 +145,10 @@ func (a LocationApiService) GetCharactersCharacterIdShip(ts TokenSource, charact
 	}
 	 var successPayload = new(GetCharactersCharacterIdShipOk)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return successPayload, time.Now(), err
 	 }
-
-	if ts != nil {
-		if t, err := ts.Token(); err != nil {
-			return successPayload, time.Now(), err
-		} else if t != nil {
-			t.SetAuthHeader(r)
-		}
-	}
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {

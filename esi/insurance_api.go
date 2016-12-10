@@ -27,9 +27,11 @@ import (
 	"strings"
 	"time"
 	"errors"
-
+	"golang.org/x/net/context"
 	"encoding/json"
 )
+
+var _ context.Context
 
 type InsuranceApiService service
 
@@ -81,11 +83,10 @@ func (a InsuranceApiService) GetInsurancePrices(acceptLanguage interface{}, data
 	localVarHeaderParams["Accept-Language"] = a.client.parameterToString(acceptLanguage, "")
 	 var successPayload = new([]GetInsurancePrices200Ok)
 
-	 r, err := a.client.prepareRequest(localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return *successPayload, time.Now(), err
 	 }
-
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {

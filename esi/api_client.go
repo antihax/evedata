@@ -30,6 +30,7 @@ import (
 	"io"
 	"mime/multipart"
     "golang.org/x/oauth2"
+    "golang.org/x/net/context"
 	"net/http"
 	"net/url"
 	"time"
@@ -42,11 +43,15 @@ import (
 
 type TokenSource oauth2.TokenSource
 
+type ContextAuthKey *oauth2.Token
+
 var (
 	jsonCheck = regexp.MustCompile("(?i:[application|text]/json)")
 
 	errInvalidBody = errors.New("Unsupported 'Body' type/value")
 	errConfigMissingOAuth = errors.New("esi: called an api which requires an oauth token but one is not present")
+	
+	ContextAuth   ContextAuthKey
 )
 
 type APIClient struct {
@@ -185,6 +190,7 @@ func (c *APIClient) typeCheckParameter(obj interface{}, expected string, name st
 }
 
 func (c *APIClient) prepareRequest (
+	ctx context.Context,
 	path string, method string,
 	postBody interface{},
 	headerParams map[string]string,
@@ -254,6 +260,19 @@ func (c *APIClient) prepareRequest (
 	
 	// Add the user agent to the request.
 	request.Header.Add("User-Agent", c.userAgent)
+	
+	// Add OAuth Token to the query.
+	if ctx != nil {
+		if tok, ok := ctx.Value(ContextAuth).(oauth2.TokenSource); ok {
+			// We were able to grab an oauth2 token from the context
+			var latestToken *oauth2.Token
+			if latestToken, err = tok.Token(); err != nil {
+				return nil, err
+			}
+
+			latestToken.SetAuthHeader(request)
+		}
+	}
 	
 	/*	if len(fileBytes) > 0 && fileName != "" {
 		_, fileNm := filepath.Split(fileName)

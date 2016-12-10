@@ -34,8 +34,9 @@ func (c *EVEConsumer) goConsumer() {
 			return
 		default:
 			c.checkPublicStructures()
-			c.checkNPCCorps()
 			c.checkWars()
+
+			c.checkNPCCorps()
 			c.checkEntities()
 		}
 		<-throttle
