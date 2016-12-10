@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// EveConsumer provides the microservice which conducts backend
+// EVEConsumer provides the microservice which conducts backend
 // polling of EVE Crest and XML resources as needed.
 type EVEConsumer struct {
 	ctx                 *appContext.AppContext

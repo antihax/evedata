@@ -1,2 +1,6 @@
 *.ztow
 evedata
+.externalToolBuilders
+.settings
+.vscode
+debug
