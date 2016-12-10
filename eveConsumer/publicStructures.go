@@ -2,7 +2,6 @@ package eveConsumer
 
 import (
 	"evedata/esi"
-	"fmt"
 	"log"
 
 	"golang.org/x/net/context"
@@ -52,7 +51,6 @@ func (c *EVEConsumer) collectStructuresFromESI() error {
 func (c *EVEConsumer) updateStructure(s int64) error {
 	ctx := context.WithValue(context.TODO(), esi.ContextAuth, c.ctx.ESIPublicToken)
 	struc, _, err := c.ctx.ESI.UniverseApi.GetUniverseStructuresStructureId(ctx, s, nil)
-	fmt.Printf("%+v\n", struc)
 	if err != nil {
 		return err
 	}
