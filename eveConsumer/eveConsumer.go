@@ -54,7 +54,6 @@ func (c *EVEConsumer) goTriggers() {
 			return
 		default:
 			c.contactSync()
-			c.updateDatabase()
 		}
 		<-throttle
 	}
