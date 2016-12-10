@@ -10,7 +10,7 @@ import (
 )
 
 func (c *EVEConsumer) checkPublicStructures() {
-	log.Printf("EVEConsumer: collecting structures")
+
 	err := c.collectStructuresFromESI()
 	if err != nil {
 		log.Printf("EVEConsumer: collecting structures: %v", err)
@@ -21,10 +21,11 @@ func (c *EVEConsumer) collectStructuresFromESI() error {
 	nextCheck, _, err := models.GetServiceState("structures")
 	if err != nil {
 		return err
-	} else if nextCheck.Before(time.Now()) {
+	} else if nextCheck.After(time.Now()) {
 		return nil
 	}
 
+	log.Printf("EVEConsumer: collecting structures")
 	w, cache, err := c.ctx.ESI.UniverseApi.GetUniverseStructures(nil)
 	if err != nil {
 		return err

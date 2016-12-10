@@ -46,10 +46,11 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 	nextCheck, page, err := models.GetServiceState("wars")
 	if err != nil {
 		return err
-	} else if nextCheck.Before(time.Now()) {
+	} else if nextCheck.After(time.Now()) {
 		return nil
 	}
 
+	log.Printf("EVEConsumer: collecting wars")
 	w, err := c.ctx.EVE.WarsV1((int)(page))
 	if err != nil {
 		return err

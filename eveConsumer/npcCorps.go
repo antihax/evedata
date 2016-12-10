@@ -17,10 +17,11 @@ func (c *EVEConsumer) collectNPCCorps() error {
 	nextCheck, _, err := models.GetServiceState("npcCorps")
 	if err != nil {
 		return err
-	} else if nextCheck.Before(time.Now()) {
+	} else if nextCheck.After(time.Now()) {
 		return nil
 	}
 
+	log.Printf("EVEConsumer: collecting loyalty Point Store Items")
 	w, err := c.ctx.EVE.NPCCorporationsV1(1)
 	if err != nil {
 		return err
