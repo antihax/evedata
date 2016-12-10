@@ -29,6 +29,7 @@ type IskPerLP struct {
 	ItemCost     float64     `db:"itemCost" json:"itemCost"`
 	IskPerLP     int64       `db:"iskPerLP" json:"iskPerLP"`
 	JitaVolume   int64       `db:"JitaVolume" json:"jitaVolume"`
+	IskVolume    float64     `db:"iskVolume" json:"iskVolume"`
 	Requirements null.String `db:"requirements" json:"requirements"`
 }
 
@@ -36,7 +37,7 @@ type IskPerLP struct {
 func GetISKPerLP(corporationName string) ([]IskPerLP, error) {
 	s := []IskPerLP{}
 	if err := database.Select(&s, `
-		SELECT itemName, Lp.typeID, Lp.typeName, JitaPrice, itemCost, iskPerLP, JitaVolume, GROUP_CONCAT(quantity, " x ", T.typeName SEPARATOR '<br>\n') AS requirements
+		SELECT itemName, Lp.typeID, Lp.typeName, JitaPrice, itemCost, iskPerLP, JitaVolume, JitaVolume*JitaPrice AS iskVolume, GROUP_CONCAT(quantity, " x ", T.typeName SEPARATOR '<br>\n') AS requirements
 			FROM iskPerLp Lp
 			LEFT JOIN lpOfferRequirements R ON Lp.offerID = R.offerID
 			LEFT JOIN invTypes T ON R.typeID = T.typeID
