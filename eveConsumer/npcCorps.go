@@ -25,6 +25,7 @@ func (c *EVEConsumer) collectNPCCorps() error {
 	if err != nil {
 		return err
 	}
+
 	// Update state so we dont have two polling at once.
 	err = models.SetServiceState("npcCorps", w.CacheUntil, 1)
 	if err != nil {

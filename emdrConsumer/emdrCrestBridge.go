@@ -11,6 +11,17 @@ import (
 
 var stations map[int64]int64
 
+type marketOrders struct {
+	regionID int32
+	orders   *[]esi.GetMarketsRegionIdOrders200Ok
+}
+
+type marketHistory struct {
+	regionID int32
+	typeID   int32
+	history  *[]esi.GetMarketsRegionIdHistory200Ok
+}
+
 // Run the bridge between CREST and Eve Market Data Relay.
 // Optionally import to the database
 func GoEMDRCrestBridge(c *appContext.AppContext) {
@@ -27,17 +38,6 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 	type marketTypes struct {
 		TypeID   int32  `db:"typeID"`
 		TypeName string `db:"typeName"`
-	}
-
-	type marketOrders struct {
-		regionID int32
-		orders   *[]esi.GetMarketsRegionIdOrders200Ok
-	}
-
-	type marketHistory struct {
-		regionID int32
-		typeID   int32
-		history  *[]esi.GetMarketsRegionIdHistory200Ok
 	}
 
 	// Obtain a list of regions which have market stations
@@ -81,79 +81,105 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 	log.Printf("EMDRCrestBridge: Loaded %d stations", len(stations))
 
 	// Build buffers for posting to the database and
-	historyChannel := make(chan marketHistory, 5)
-	orderChannel := make(chan marketOrders, 5)
+	historyChannel := make(chan marketHistory, 50)
+	orderChannel := make(chan marketOrders, 50)
 
-	if c.Conf.EMDRCrestBridge.Import {
-		go func() {
-			for {
-				h := <-historyChannel
-				if len(*h.history) == 0 {
-					continue
-				}
+	// Start the consumers.
+	go historyConsumer(historyChannel, c)
+	go orderConsumer(orderChannel, c)
 
-				// Loop until the transaction passes
+	// limit concurrent requests as to not hog the available connections.
+	// Eventually the buffers will become the limiting factors.
+	limiter := make(chan bool, 5)
+	for {
+
+		// Update the market data
+		log.Printf("EMDRCrestBridge: updateMarket.")
+		_, err := c.Db.Exec(`call updateMarket;`)
+		if err != nil {
+			log.Printf("EMDRCrestBridge: Failed updateMarket: %v", err)
+			return
+		}
+
+		// loop through all regions
+		for _, r := range regions {
+			limiter <- true
+			go func(l chan bool) {
+				defer func(l chan bool) { <-l }(l)
+
+				// Start at page 1
+				var page int32 = 1
+				// Process Market Buy Orders
 				for {
-					tx, err := c.Db.Begin()
+					b, _, err := c.ESI.MarketApi.GetMarketsRegionIdOrders(r.RegionID, "all", nil, page, nil)
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
-						break
-					}
-					var values []string
-
-					for _, e := range *h.history {
-						values = append(values, fmt.Sprintf("('%s',%f,%f,%f,%d,%d,%d,%d)",
-							e.Date, e.Lowest, e.Highest, e.Average,
-							e.Volume, e.OrderCount, h.typeID, h.regionID))
-					}
-
-					stmt := fmt.Sprintf("INSERT IGNORE INTO market_history (date, low, high, mean, quantity, orders, itemID, regionID) VALUES \n %s", strings.Join(values, ",\n"))
-
-					_, err = tx.Exec(stmt)
-					if err != nil {
-						tx.Rollback()
-						log.Printf("EMDRCrestBridge: %s", err)
+						return
+					} else if len(b) == 0 { // end of the pages
 						break
 					}
 
-					err = tx.Commit()
-					if err != nil {
-						log.Printf("EMDRCrestBridge: %s", err)
-						break
-					}
-					break // success
+					// Post the orders
+					order := marketOrders{r.RegionID, &b}
+					orderChannel <- order
+
+					// Next page
+					page++
 				}
+			}(limiter)
+			// and each item per region
+			for _, t := range types {
+
+				limiter <- true
+				go func(l chan bool) {
+					defer func(l chan bool) { <-l }(l)
+
+					// Process Market History
+					h, _, err := c.ESI.MarketApi.GetMarketsRegionIdHistory(r.RegionID, t.TypeID, nil)
+
+					if err != nil {
+						log.Printf("EMDRCrestBridge: %s", err)
+						return
+					}
+
+					hist := marketHistory{r.RegionID, t.TypeID, &h}
+					historyChannel <- hist
+				}(limiter)
 			}
-		}()
-		go func() {
+		}
+	}
+}
+
+func orderConsumer(orderChannel chan marketOrders, c *appContext.AppContext) {
+	{
+		for {
+			o := <-orderChannel
+			// Add or update orders
+			if len(*o.orders) == 0 {
+				continue
+			}
+
 			for {
-				o := <-orderChannel
-				// Add or update orders
-				if len(*o.orders) == 0 {
+				tx, err := c.Db.Begin()
+				if err != nil {
+					log.Printf("EMDRCrestBridge: %s", err)
 					continue
 				}
 
-				for {
-					tx, err := c.Db.Begin()
-					if err != nil {
-						log.Printf("EMDRCrestBridge: %s", err)
-						continue
+				var values []string
+				for _, e := range *o.orders {
+					var buy byte
+					if e.IsBuyOrder == true {
+						buy = 1
+					} else {
+						buy = 0
 					}
+					values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,'%s',%d,%d,%d,%d,UTC_TIMESTAMP())",
+						e.OrderId, e.Price, e.VolumeRemain, e.TypeId, e.VolumeTotal, e.MinVolume,
+						buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, o.regionID, stations[e.LocationId]))
+				}
 
-					var values []string
-					for _, e := range *o.orders {
-						var buy byte
-						if e.IsBuyOrder == true {
-							buy = 1
-						} else {
-							buy = 0
-						}
-						values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,'%s',%d,%d,%d,%d,UTC_TIMESTAMP())",
-							e.OrderId, e.Price, e.VolumeRemain, e.TypeId, e.VolumeTotal, e.MinVolume,
-							buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, o.regionID, stations[e.LocationId]))
-					}
-
-					stmt := fmt.Sprintf(`INSERT INTO market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, systemID, reported)
+				stmt := fmt.Sprintf(`INSERT INTO market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, systemID, reported)
 						VALUES %s
 						ON DUPLICATE KEY UPDATE price=VALUES(price),
 							remainingVolume=VALUES(remainingVolume),
@@ -163,67 +189,61 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 							done=0;
 							`, strings.Join(values, ",\n"))
 
-					_, err = tx.Exec(stmt)
+				_, err = tx.Exec(stmt)
 
-					if err != nil {
-						log.Printf("EMDRCrestBridge: %s", err)
-						tx.Rollback()
-						break
-					}
-
-					err = tx.Commit()
-					if err != nil {
-						log.Printf("EMDRCrestBridge: %s", err)
-						continue
-					}
-					break // success
+				if err != nil {
+					log.Printf("EMDRCrestBridge: %s", err)
+					tx.Rollback()
+					break
 				}
 
+				err = tx.Commit()
+				if err != nil {
+					log.Printf("EMDRCrestBridge: %s", err)
+					continue
+				}
+				break // success
 			}
-		}()
+		}
 	}
-
-	// limit concurrent requests as to not hog the available connections.
-	// Eventually the buffers will become the limiting factors.
-	limiter := make(chan bool, 3)
+}
+func historyConsumer(historyChannel chan marketHistory, c *appContext.AppContext) {
 	for {
-		// loop through all regions
-		for _, r := range regions {
-			// and each item per region
-			for _, t := range types {
-				limiter <- true
-				go func(l chan bool) {
-					defer func(l chan bool) { <-l }(l)
-					// Process Market Buy Orders
-					b, _, err := c.ESI.MarketApi.GetMarketsRegionIdOrders(r.RegionID, "all", t.TypeID, nil, nil)
-					order := marketOrders{r.RegionID, &b}
-					if err != nil {
-						log.Printf("EMDRCrestBridge: %s", err)
-						return
-					}
+		h := <-historyChannel
+		if len(*h.history) == 0 {
+			continue
+		}
 
-					if c.Conf.EMDRCrestBridge.Import {
-						orderChannel <- order
-					}
-				}(limiter)
-
-				limiter <- true
-				go func(l chan bool) {
-					defer func(l chan bool) { <-l }(l)
-
-					// Process Market History
-					h, _, err := c.ESI.MarketApi.GetMarketsRegionIdHistory(r.RegionID, t.TypeID, nil)
-					hist := marketHistory{r.RegionID, t.TypeID, &h}
-					if err != nil {
-						log.Printf("EMDRCrestBridge: %s", err)
-						return
-					}
-
-					if c.Conf.EMDRCrestBridge.Import {
-						historyChannel <- hist
-					}
-				}(limiter)
+		// Loop until the transaction passes
+		for {
+			tx, err := c.Db.Begin()
+			if err != nil {
+				log.Printf("EMDRCrestBridge: %s", err)
+				break
 			}
+			var values []string
+
+			for _, e := range *h.history {
+				values = append(values, fmt.Sprintf("('%s',%f,%f,%f,%d,%d,%d,%d)",
+					e.Date, e.Lowest, e.Highest, e.Average,
+					e.Volume, e.OrderCount, h.typeID, h.regionID))
+			}
+
+			stmt := fmt.Sprintf("INSERT IGNORE INTO market_history (date, low, high, mean, quantity, orders, itemID, regionID) VALUES \n %s", strings.Join(values, ",\n"))
+
+			_, err = tx.Exec(stmt)
+			if err != nil {
+				tx.Rollback()
+				log.Printf("EMDRCrestBridge: %s", err)
+				break
+			}
+
+			err = tx.Commit()
+			if err != nil {
+				log.Printf("EMDRCrestBridge: %s", err)
+				break
+			}
+			break // success
 		}
 	}
 }

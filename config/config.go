@@ -20,8 +20,6 @@ type Config struct {
 	}
 	EMDRCrestBridge struct {
 		Enabled bool
-		Import  bool
-		URL     string
 	}
 	EVEConsumer struct {
 		Enabled      bool
