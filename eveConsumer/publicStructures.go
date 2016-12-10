@@ -2,7 +2,9 @@ package eveConsumer
 
 import (
 	"evedata/esi"
+	"evedata/models"
 	"log"
+	"time"
 
 	"golang.org/x/net/context"
 )
@@ -16,31 +18,23 @@ func (c *EVEConsumer) checkPublicStructures() {
 }
 
 func (c *EVEConsumer) collectStructuresFromESI() error {
-	r := struct {
-		Value int
-		Wait  int
-	}{0, 0}
-
-	if err := c.ctx.Db.Get(&r, `
-		SELECT value, TIME_TO_SEC(TIMEDIFF(nextCheck, UTC_TIMESTAMP())) AS wait
-			FROM states 
-			WHERE state = 'structures'
-			LIMIT 1;
-		`); err != nil {
+	nextCheck, _, err := models.GetServiceState("structures")
+	if err != nil {
 		return err
-	}
-
-	if r.Wait >= 0 {
+	} else if nextCheck.Before(time.Now()) {
 		return nil
 	}
 
-	w, _, err := c.ctx.ESI.UniverseApi.GetUniverseStructures(nil)
+	w, cache, err := c.ctx.ESI.UniverseApi.GetUniverseStructures(nil)
 	if err != nil {
 		return err
 	}
 
 	// Update state so we dont have two polling at once.
-	_, err = c.ctx.Db.Exec("UPDATE states SET value = 1, nextCheck =? WHERE state = 'structures' LIMIT 1")
+	err = models.SetServiceState("structures", cache, 1)
+	if err != nil {
+		return err
+	}
 
 	for _, s := range w {
 		c.updateStructure(s)

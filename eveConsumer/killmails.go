@@ -5,7 +5,6 @@ import (
 	"evedata/models"
 	"fmt"
 	"log"
-	"net/http"
 	"strconv"
 	"strings"
 	"sync"
@@ -99,7 +98,7 @@ func (c *EVEConsumer) goZKillConsumer() error {
 	for {
 		k := kill{}
 
-		err := getJSON("https://redisq.zkillboard.com/listen.php", &k)
+		err := c.getJSON("https://redisq.zkillboard.com/listen.php", &k)
 		if err != nil {
 			continue
 		}
@@ -109,20 +108,16 @@ func (c *EVEConsumer) goZKillConsumer() error {
 	}
 }
 
+// Go Routine to collect killmails from ZKill API.
+// Loops collecting one year of kill mails.
 func (c *EVEConsumer) goZKillTemporaryConsumer() error {
-	r := struct {
-		Value int
-		Date  time.Time
-	}{0, time.Now()}
-
-	if err := c.ctx.Db.Get(&r, `
-		SELECT value, date(nextCheck) AS date
-			FROM states 
-			WHERE state = 'zkilltemp'
-			LIMIT 1;
-		`); err != nil {
+	// Start from where we left off.
+	nextCheck, _, err := models.GetServiceState("zkilltemp")
+	if err != nil {
 		return err
 	}
+
+	// Pull one date per minute.
 	rate := time.Second * 60
 	throttle := time.Tick(rate)
 
@@ -130,18 +125,20 @@ func (c *EVEConsumer) goZKillTemporaryConsumer() error {
 		<-throttle
 		k := make(map[string]interface{})
 
-		date := r.Date.Format("20060102")
-		r.Date = r.Date.Add(time.Hour * 24)
+		// Move to the next day
+		date := nextCheck.Format("20060102")
+		nextCheck = nextCheck.Add(time.Hour * 24)
 
-		if r.Date.Sub(time.Now().UTC()) > 0 {
-			r.Date = time.Now().UTC().Add(time.Hour * 24 * -365)
+		// If we are at today, restart from one year ago
+		if nextCheck.Sub(time.Now().UTC()) > 0 {
+			nextCheck = time.Now().UTC().Add(time.Hour * 24 * -365)
 			log.Printf("Delete old killmails")
 			c.ctx.Db.Exec("CALL removeOldKillmails();")
 
-			log.Printf("Restart zKill Consumer to %s", r.Date.String())
+			log.Printf("Restart zKill Consumer to %s", nextCheck.String())
 		}
 
-		err := getJSON(fmt.Sprintf("https://zkillboard.com/api/history/%s/", date), &k)
+		err := c.getJSON(fmt.Sprintf("https://zkillboard.com/api/history/%s/", date), &k)
 		if err != nil {
 			continue
 		}
@@ -150,15 +147,15 @@ func (c *EVEConsumer) goZKillTemporaryConsumer() error {
 			c.addKillmail(fmt.Sprintf(c.ctx.EVE.GetCRESTURI()+"killmails/%s/%s/", id, hash))
 		}
 
-		_, err = c.ctx.Db.Exec("UPDATE states SET value = ?, nextCheck =? WHERE state = 'zkilltemp' LIMIT 1", 1, r.Date)
+		err = models.SetServiceState("zkilltemp", nextCheck, 1)
 		if err != nil {
 			continue
 		}
 	}
 }
 
-func getJSON(url string, target interface{}) error {
-	r, err := http.Get(url)
+func (c *EVEConsumer) getJSON(url string, target interface{}) error {
+	r, err := c.ctx.HTTPClient.Get(url)
 	if err != nil {
 		return err
 	}

@@ -73,39 +73,28 @@ func (c *EVEConsumer) updateEntities() error {
 
 // Collect entity information for new alliances
 func (c *EVEConsumer) collectEntitiesFromCREST() error {
-	r := struct {
-		Value int
-		Wait  int
-	}{0, 0}
 
-	if err := c.ctx.Db.Get(&r, `
-		SELECT value, TIME_TO_SEC(TIMEDIFF(nextCheck, UTC_TIMESTAMP())) AS wait
-			FROM states 
-			WHERE state = 'alliances'
-			LIMIT 1;
-		`); err != nil {
+	nextCheck, _, err := models.GetServiceState("alliances")
+	if err != nil {
 		return err
-	}
-
-	if r.Wait >= 0 {
+	} else if nextCheck.Before(time.Now()) {
 		return nil
 	}
 
 	// Get first page of alliances
-	w, err := c.ctx.EVE.AlliancesV2(r.Value)
+	w, err := c.ctx.EVE.AlliancesV2(1)
+	if err != nil {
+		return err
+	}
+
+	// Update state so we dont have two polling at once.
+	err = models.SetServiceState("alliances", w.CacheUntil, 1)
 	if err != nil {
 		return err
 	}
 
 	// Loop through all of the alliance pages
 	for ; w != nil; w, err = w.NextPage() {
-		if err != nil {
-			return err
-		}
-
-		// Update state so we dont have two polling at once.
-		_, err = c.ctx.Db.Exec("UPDATE states SET value = ?, nextCheck =? WHERE state = 'alliances' LIMIT 1", w.Page, w.CacheUntil)
-
 		if err != nil {
 			return err
 		}

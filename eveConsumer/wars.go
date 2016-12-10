@@ -1,8 +1,10 @@
 package eveConsumer
 
 import (
+	"evedata/models"
 	"fmt"
 	"log"
+	"time"
 )
 
 func (c *EVEConsumer) checkWars() {
@@ -41,36 +43,22 @@ func (c *EVEConsumer) updateWars() error {
 }
 
 func (c *EVEConsumer) collectWarsFromCREST() error {
-	r := struct {
-		Value int
-		Wait  int
-	}{0, 0}
-
-	if err := c.ctx.Db.Get(&r, `
-		SELECT value, TIME_TO_SEC(TIMEDIFF(nextCheck, UTC_TIMESTAMP())) AS wait
-			FROM states 
-			WHERE state = 'wars'
-			LIMIT 1;
-		`); err != nil {
+	nextCheck, page, err := models.GetServiceState("wars")
+	if err != nil {
 		return err
-	}
-
-	if r.Wait >= 0 {
+	} else if nextCheck.Before(time.Now()) {
 		return nil
 	}
 
-	w, err := c.ctx.EVE.WarsV1(r.Value)
-
+	w, err := c.ctx.EVE.WarsV1((int)(page))
 	if err != nil {
 		return err
 	}
 
 	// Loop through all of the pages
 	for ; w != nil; w, err = w.NextPage() {
-
 		// Update state so we dont have two polling at once.
-		_, err = c.ctx.Db.Exec("UPDATE states SET value = ?, nextCheck =? WHERE state = 'wars' LIMIT 1", w.Page, w.CacheUntil)
-
+		err = models.SetServiceState("wars", w.CacheUntil, (int32)(w.Page))
 		if err != nil {
 			continue
 		}

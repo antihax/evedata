@@ -3,6 +3,7 @@ package eveConsumer
 import (
 	"evedata/models"
 	"log"
+	"time"
 )
 
 func (c *EVEConsumer) checkNPCCorps() {
@@ -13,21 +14,10 @@ func (c *EVEConsumer) checkNPCCorps() {
 }
 
 func (c *EVEConsumer) collectNPCCorps() error {
-	r := struct {
-		Value int
-		Wait  int
-	}{0, 0}
-
-	if err := c.ctx.Db.Get(&r, `
-		SELECT value, TIME_TO_SEC(TIMEDIFF(nextCheck, UTC_TIMESTAMP())) AS wait
-			FROM states 
-			WHERE state = 'npcCorps'
-			LIMIT 1;
-		`); err != nil {
+	nextCheck, _, err := models.GetServiceState("npcCorps")
+	if err != nil {
 		return err
-	}
-
-	if r.Wait >= 0 {
+	} else if nextCheck.Before(time.Now()) {
 		return nil
 	}
 
@@ -35,15 +25,14 @@ func (c *EVEConsumer) collectNPCCorps() error {
 	if err != nil {
 		return err
 	}
+	// Update state so we dont have two polling at once.
+	err = models.SetServiceState("npcCorps", w.CacheUntil, 1)
+	if err != nil {
+		return err
+	}
 
 	// Loop through all of the pages
 	for ; w != nil; w, err = w.NextPage() {
-		// Update state so we dont have two polling at once.
-		_, err = c.ctx.Db.Exec("UPDATE states SET nextCheck = DATE_ADD(UTC_TIMESTAMP(), INTERVAL 7 DAY) WHERE state = 'npcCorps' LIMIT 1")
-		if err != nil {
-			return err
-		}
-
 		for _, npcCorp := range w.Items {
 			if npcCorp.LoyaltyStore.Href == "" {
 				continue
