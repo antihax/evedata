@@ -1,6 +1,34 @@
 package models
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
+
+type MarketHistory struct {
+	Date     time.Time `db:"date" json:"date"`
+	Low      float64   `db:"low" json:"low"`
+	High     float64   `db:"high" json:"high"`
+	Open     float64   `db:"open" json:"open"`
+	Close    float64   `db:"close" json:"close"`
+	Quantity int64     `db:"quantity" json:"quantity"`
+}
+
+// [BENCHMARK] 0.407 sec / 0.421 sec [TODO] Optimize
+func GetMarketHistory(itemID int64, regionID int32) ([]MarketHistory, error) {
+	s := []MarketHistory{}
+	if err := database.Select(&s, `
+		SELECT H.date, H.low, H.high, H.mean AS close, Y.mean AS open, H.quantity 
+		FROM market_history H
+		INNER JOIN market_history Y ON H.date = DATE_SUB(Y.date, INTERVAL 1 DAY) 
+			AND H.regionID = Y.regionID 
+			AND H.itemID = Y.itemID
+		WHERE H.regionID = ? AND H.itemID = ? AND H.quantity > 10
+	`, regionID, itemID); err != nil {
+		return nil, err
+	}
+	return s, nil
+}
 
 type ArbitrageCalculatorStations struct {
 	StationName string `db:"stationName" json:"stationName" `

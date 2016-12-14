@@ -1,6 +1,7 @@
 package views
 
 import (
+	"encoding/json"
 	"errors"
 	"evedata/appContext"
 	"evedata/models"
@@ -16,7 +17,7 @@ import (
 
 func init() {
 	evedata.AddRoute("items", "GET", "/item", itemPage)
-
+	evedata.AddRoute("items", "GET", "/J/marketHistory", marketHistory)
 }
 
 func itemPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
@@ -26,7 +27,7 @@ func itemPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, 
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Invalid item  ID. Please provide an ?id=")
+		return http.StatusInternalServerError, errors.New("Invalid item ID. Please provide an ?id=")
 	}
 
 	errc := make(chan error)
@@ -69,4 +70,31 @@ func itemPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, 
 	}
 
 	return http.StatusOK, nil
+}
+
+func marketHistory(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+	setCache(w, 60*240)
+	region := r.FormValue("regionID")
+	item := r.FormValue("itemID")
+
+	itemID, err := strconv.ParseInt(item, 10, 64)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	regionID, err := strconv.Atoi(region)
+
+	v, err := models.GetMarketHistory(itemID, (int32)(regionID))
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	encoder := json.NewEncoder(w)
+	encoder.Encode(v)
+
+	return 200, nil
 }

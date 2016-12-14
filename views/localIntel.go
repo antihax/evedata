@@ -88,8 +88,8 @@ func localIntel(c *appContext.AppContext, w http.ResponseWriter, r *http.Request
 
 // Remove any duplicate characters and delete any invalid entries
 func removeDuplicatesAndValidate(xs []string) []interface{} {
+	var n []interface{}
 	found := make(map[string]bool)
-	n := make([]interface{}, 0)
 
 	for _, x := range xs {
 		if eveapi.ValidCharacterName(x) {
@@ -99,5 +99,6 @@ func removeDuplicatesAndValidate(xs []string) []interface{} {
 			}
 		}
 	}
+
 	return n
 }

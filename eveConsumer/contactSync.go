@@ -56,12 +56,12 @@ func (c *EVEConsumer) contactSync() {
 			cid, _ := strconv.ParseInt(cidS, 10, 64)
 			a, err := c.getClient(source, cid)
 			if err != nil {
-				log.Printf("EVEConsumer: Failed getClient %v", err)
+				log.Printf("EVEConsumer: Failed getClient %d %d %v", source, cid, err)
 				continue
 			}
 			clients[cid] = a
 			if err != nil {
-				log.Printf("EVEConsumer: Failed Getting Contacts: %v", err)
+				log.Printf("EVEConsumer: Failed Getting Contacts: %d %d %v", source, cid, err)
 				continue
 			}
 		}

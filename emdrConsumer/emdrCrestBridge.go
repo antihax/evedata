@@ -13,13 +13,13 @@ var stations map[int64]int64
 
 type marketOrders struct {
 	regionID int32
-	orders   *[]esi.GetMarketsRegionIdOrders200Ok
+	orders   []esi.GetMarketsRegionIdOrders200Ok
 }
 
 type marketHistory struct {
 	regionID int32
 	typeID   int32
-	history  *[]esi.GetMarketsRegionIdHistory200Ok
+	history  []esi.GetMarketsRegionIdHistory200Ok
 }
 
 // Run the bridge between CREST and Eve Market Data Relay.
@@ -90,7 +90,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 
 	// limit concurrent requests as to not hog the available connections.
 	// Eventually the buffers will become the limiting factors.
-	limiter := make(chan bool, 5)
+	limiter := make(chan bool, 10)
 	for {
 
 		// Update the market data
@@ -120,7 +120,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 					}
 
 					// Post the orders
-					order := marketOrders{r.RegionID, &b}
+					order := marketOrders{r.RegionID, b}
 					orderChannel <- order
 
 					// Next page
@@ -142,7 +142,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 						return
 					}
 
-					hist := marketHistory{r.RegionID, t.TypeID, &h}
+					hist := marketHistory{r.RegionID, t.TypeID, h}
 					historyChannel <- hist
 				}(limiter)
 			}
@@ -155,7 +155,7 @@ func orderConsumer(orderChannel chan marketOrders, c *appContext.AppContext) {
 		for {
 			o := <-orderChannel
 			// Add or update orders
-			if len(*o.orders) == 0 {
+			if len(o.orders) == 0 {
 				continue
 			}
 
@@ -167,7 +167,7 @@ func orderConsumer(orderChannel chan marketOrders, c *appContext.AppContext) {
 				}
 
 				var values []string
-				for _, e := range *o.orders {
+				for _, e := range o.orders {
 					var buy byte
 					if e.IsBuyOrder == true {
 						buy = 1
@@ -179,7 +179,7 @@ func orderConsumer(orderChannel chan marketOrders, c *appContext.AppContext) {
 						buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, o.regionID, stations[e.LocationId]))
 				}
 
-				stmt := fmt.Sprintf(`INSERT INTO market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, systemID, reported)
+				stmt := fmt.Sprintf(`INSERT IGNORE INTO market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, systemID, reported)
 						VALUES %s
 						ON DUPLICATE KEY UPDATE price=VALUES(price),
 							remainingVolume=VALUES(remainingVolume),
@@ -210,7 +210,7 @@ func orderConsumer(orderChannel chan marketOrders, c *appContext.AppContext) {
 func historyConsumer(historyChannel chan marketHistory, c *appContext.AppContext) {
 	for {
 		h := <-historyChannel
-		if len(*h.history) == 0 {
+		if len(h.history) == 0 {
 			continue
 		}
 
@@ -223,7 +223,7 @@ func historyConsumer(historyChannel chan marketHistory, c *appContext.AppContext
 			}
 			var values []string
 
-			for _, e := range *h.history {
+			for _, e := range h.history {
 				values = append(values, fmt.Sprintf("('%s',%f,%f,%f,%d,%d,%d,%d)",
 					e.Date, e.Lowest, e.Highest, e.Average,
 					e.Volume, e.OrderCount, h.typeID, h.regionID))
