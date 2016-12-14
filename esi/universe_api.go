@@ -43,14 +43,15 @@ type UniverseApiService service
  *
  * @param stationId An Eve station ID 
  * @param datasource(string) The server name you would like data from 
- * @return *GetUniverseStationsStationIdOk
+ * @return GetUniverseStationsStationIdOk
  */
-func (a UniverseApiService) GetUniverseStationsStationId(stationId int32, datasource interface{}) (*GetUniverseStationsStationIdOk,  time.Time, error) {
+func (a UniverseApiService) GetUniverseStationsStationId(stationId int32, datasource interface{}) (GetUniverseStationsStationIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetUniverseStationsStationIdOk
 	)
 
 	// create path and map variables
@@ -62,7 +63,7 @@ func (a UniverseApiService) GetUniverseStationsStationId(stationId int32, dataso
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -78,7 +79,7 @@ func (a UniverseApiService) GetUniverseStationsStationId(stationId int32, dataso
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetUniverseStationsStationIdOk)
+
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
@@ -115,6 +116,7 @@ func (a UniverseApiService) GetUniverseStructures(datasource interface{}) ([]int
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  []int64
 	)
 
 	// create path and map variables
@@ -125,7 +127,7 @@ func (a UniverseApiService) GetUniverseStructures(datasource interface{}) ([]int
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -141,28 +143,28 @@ func (a UniverseApiService) GetUniverseStructures(datasource interface{}) ([]int
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new([]int64)
+
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return *successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return *successPayload, time.Now(), err
+	 	return successPayload, time.Now(), err
 	}
 
 	expires := cacheExpires(localVarHttpResponse)
-	return *successPayload, expires, err
+	return successPayload, expires, err
 }
 
 /**
@@ -171,14 +173,15 @@ func (a UniverseApiService) GetUniverseStructures(datasource interface{}) ([]int
  *
  * @param structureId An Eve structure ID 
  * @param datasource(string) The server name you would like data from 
- * @return *GetUniverseStructuresStructureIdOk
+ * @return GetUniverseStructuresStructureIdOk
  */
-func (a UniverseApiService) GetUniverseStructuresStructureId(ctx context.Context, structureId int64, datasource interface{}) (*GetUniverseStructuresStructureIdOk,  time.Time, error) {
+func (a UniverseApiService) GetUniverseStructuresStructureId(ctx context.Context, structureId int64, datasource interface{}) (GetUniverseStructuresStructureIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetUniverseStructuresStructureIdOk
 	)
 
 	// create path and map variables
@@ -190,7 +193,7 @@ func (a UniverseApiService) GetUniverseStructuresStructureId(ctx context.Context
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -206,7 +209,7 @@ func (a UniverseApiService) GetUniverseStructuresStructureId(ctx context.Context
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetUniverseStructuresStructureIdOk)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
@@ -236,14 +239,15 @@ func (a UniverseApiService) GetUniverseStructuresStructureId(ctx context.Context
  *
  * @param systemId An Eve solar system ID 
  * @param datasource(string) The server name you would like data from 
- * @return *GetUniverseSystemsSystemIdOk
+ * @return GetUniverseSystemsSystemIdOk
  */
-func (a UniverseApiService) GetUniverseSystemsSystemId(systemId int32, datasource interface{}) (*GetUniverseSystemsSystemIdOk,  time.Time, error) {
+func (a UniverseApiService) GetUniverseSystemsSystemId(systemId int32, datasource interface{}) (GetUniverseSystemsSystemIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetUniverseSystemsSystemIdOk
 	)
 
 	// create path and map variables
@@ -255,7 +259,7 @@ func (a UniverseApiService) GetUniverseSystemsSystemId(systemId int32, datasourc
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -271,7 +275,7 @@ func (a UniverseApiService) GetUniverseSystemsSystemId(systemId int32, datasourc
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetUniverseSystemsSystemIdOk)
+
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
@@ -301,14 +305,15 @@ func (a UniverseApiService) GetUniverseSystemsSystemId(systemId int32, datasourc
  *
  * @param typeId An Eve item type ID 
  * @param datasource(string) The server name you would like data from 
- * @return *GetUniverseTypesTypeIdOk
+ * @return GetUniverseTypesTypeIdOk
  */
-func (a UniverseApiService) GetUniverseTypesTypeId(typeId int32, datasource interface{}) (*GetUniverseTypesTypeIdOk,  time.Time, error) {
+func (a UniverseApiService) GetUniverseTypesTypeId(typeId int32, datasource interface{}) (GetUniverseTypesTypeIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetUniverseTypesTypeIdOk
 	)
 
 	// create path and map variables
@@ -320,7 +325,7 @@ func (a UniverseApiService) GetUniverseTypesTypeId(typeId int32, datasource inte
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -336,7 +341,7 @@ func (a UniverseApiService) GetUniverseTypesTypeId(typeId int32, datasource inte
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetUniverseTypesTypeIdOk)
+
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
@@ -374,6 +379,7 @@ func (a UniverseApiService) PostUniverseNames(ids PostUniverseNamesIds, datasour
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  []PostUniverseNames200Ok
 	)
 
 	// create path and map variables
@@ -384,7 +390,7 @@ func (a UniverseApiService) PostUniverseNames(ids PostUniverseNamesIds, datasour
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -402,27 +408,27 @@ func (a UniverseApiService) PostUniverseNames(ids PostUniverseNamesIds, datasour
 	}
 	// body params
 	 localVarPostBody = &ids
-	 var successPayload = new([]PostUniverseNames200Ok)
+
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return *successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return *successPayload, time.Now(), err
+	 	return successPayload, time.Now(), err
 	}
 
 	expires := cacheExpires(localVarHttpResponse)
-	return *successPayload, expires, err
+	return successPayload, expires, err
 }
 

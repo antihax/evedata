@@ -81,6 +81,7 @@ func (a MailApiService) DeleteCharactersCharacterIdMailMailId(ctx context.Contex
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
+
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
 		  return time.Now(), err
@@ -114,6 +115,7 @@ func (a MailApiService) GetCharactersCharacterIdMail(ctx context.Context, charac
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  []GetCharactersCharacterIdMail200Ok
 	)
 
 	// create path and map variables
@@ -125,10 +127,10 @@ func (a MailApiService) GetCharactersCharacterIdMail(ctx context.Context, charac
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(lastMailId, "int32", "lastMailId"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if labels != nil {
 		localVarQueryParams.Add("labels", a.client.parameterToString(labels, "csv"))
@@ -150,28 +152,28 @@ func (a MailApiService) GetCharactersCharacterIdMail(ctx context.Context, charac
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new([]GetCharactersCharacterIdMail200Ok)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return *successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return *successPayload, time.Now(), err
+	 	return successPayload, time.Now(), err
 	}
 
 	expires := cacheExpires(localVarHttpResponse)
-	return *successPayload, expires, err
+	return successPayload, expires, err
 }
 
 /**
@@ -180,14 +182,15 @@ func (a MailApiService) GetCharactersCharacterIdMail(ctx context.Context, charac
  *
  * @param characterId An EVE character ID 
  * @param datasource(string) The server name you would like data from 
- * @return *GetCharactersCharacterIdMailLabelsOk
+ * @return GetCharactersCharacterIdMailLabelsOk
  */
-func (a MailApiService) GetCharactersCharacterIdMailLabels(ctx context.Context, characterId int32, datasource interface{}) (*GetCharactersCharacterIdMailLabelsOk,  time.Time, error) {
+func (a MailApiService) GetCharactersCharacterIdMailLabels(ctx context.Context, characterId int32, datasource interface{}) (GetCharactersCharacterIdMailLabelsOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetCharactersCharacterIdMailLabelsOk
 	)
 
 	// create path and map variables
@@ -199,7 +202,7 @@ func (a MailApiService) GetCharactersCharacterIdMailLabels(ctx context.Context, 
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -215,7 +218,7 @@ func (a MailApiService) GetCharactersCharacterIdMailLabels(ctx context.Context, 
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetCharactersCharacterIdMailLabelsOk)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
@@ -253,6 +256,7 @@ func (a MailApiService) GetCharactersCharacterIdMailLists(ctx context.Context, c
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  []GetCharactersCharacterIdMailLists200Ok
 	)
 
 	// create path and map variables
@@ -264,7 +268,7 @@ func (a MailApiService) GetCharactersCharacterIdMailLists(ctx context.Context, c
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -280,28 +284,28 @@ func (a MailApiService) GetCharactersCharacterIdMailLists(ctx context.Context, c
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new([]GetCharactersCharacterIdMailLists200Ok)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return *successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return *successPayload, time.Now(), err
+	 	return successPayload, time.Now(), err
 	}
 
 	expires := cacheExpires(localVarHttpResponse)
-	return *successPayload, expires, err
+	return successPayload, expires, err
 }
 
 /**
@@ -311,14 +315,15 @@ func (a MailApiService) GetCharactersCharacterIdMailLists(ctx context.Context, c
  * @param characterId An EVE character ID 
  * @param mailId An EVE mail ID 
  * @param datasource(string) The server name you would like data from 
- * @return *GetCharactersCharacterIdMailMailIdOk
+ * @return GetCharactersCharacterIdMailMailIdOk
  */
-func (a MailApiService) GetCharactersCharacterIdMailMailId(ctx context.Context, characterId int32, mailId int32, datasource interface{}) (*GetCharactersCharacterIdMailMailIdOk,  time.Time, error) {
+func (a MailApiService) GetCharactersCharacterIdMailMailId(ctx context.Context, characterId int32, mailId int32, datasource interface{}) (GetCharactersCharacterIdMailMailIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetCharactersCharacterIdMailMailIdOk
 	)
 
 	// create path and map variables
@@ -331,7 +336,7 @@ func (a MailApiService) GetCharactersCharacterIdMailMailId(ctx context.Context, 
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -347,7 +352,7 @@ func (a MailApiService) GetCharactersCharacterIdMailMailId(ctx context.Context, 
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetCharactersCharacterIdMailMailIdOk)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
@@ -378,14 +383,15 @@ func (a MailApiService) GetCharactersCharacterIdMailMailId(ctx context.Context, 
  * @param characterId The sender&#39;s character ID 
  * @param mail The mail to send 
  * @param datasource(string) The server name you would like data from 
- * @return *int32
+ * @return int32
  */
-func (a MailApiService) PostCharactersCharacterIdMail(ctx context.Context, characterId int32, mail PostCharactersCharacterIdMailMail, datasource interface{}) (*int32,  time.Time, error) {
+func (a MailApiService) PostCharactersCharacterIdMail(ctx context.Context, characterId int32, mail PostCharactersCharacterIdMailMail, datasource interface{}) (int32,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  int32
 	)
 
 	// create path and map variables
@@ -397,7 +403,7 @@ func (a MailApiService) PostCharactersCharacterIdMail(ctx context.Context, chara
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -415,7 +421,7 @@ func (a MailApiService) PostCharactersCharacterIdMail(ctx context.Context, chara
 	}
 	// body params
 	 localVarPostBody = &mail
-	 var successPayload = new(int32)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
@@ -446,14 +452,15 @@ func (a MailApiService) PostCharactersCharacterIdMail(ctx context.Context, chara
  * @param characterId An EVE character ID 
  * @param label Label to create 
  * @param datasource(string) The server name you would like data from 
- * @return *int64
+ * @return int64
  */
-func (a MailApiService) PostCharactersCharacterIdMailLabels(ctx context.Context, characterId int32, label PostCharactersCharacterIdMailLabelsLabel, datasource interface{}) (*int64,  time.Time, error) {
+func (a MailApiService) PostCharactersCharacterIdMailLabels(ctx context.Context, characterId int32, label PostCharactersCharacterIdMailLabelsLabel, datasource interface{}) (int64,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  int64
 	)
 
 	// create path and map variables
@@ -465,7 +472,7 @@ func (a MailApiService) PostCharactersCharacterIdMailLabels(ctx context.Context,
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -483,7 +490,7 @@ func (a MailApiService) PostCharactersCharacterIdMailLabels(ctx context.Context,
 	}
 	// body params
 	 localVarPostBody = &label
-	 var successPayload = new(int64)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
@@ -553,6 +560,7 @@ func (a MailApiService) PutCharactersCharacterIdMailMailId(ctx context.Context, 
 	}
 	// body params
 	 localVarPostBody = &contents
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {

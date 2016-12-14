@@ -43,14 +43,15 @@ type LocationApiService service
  *
  * @param characterId An EVE character ID 
  * @param datasource(string) The server name you would like data from 
- * @return *GetCharactersCharacterIdLocationOk
+ * @return GetCharactersCharacterIdLocationOk
  */
-func (a LocationApiService) GetCharactersCharacterIdLocation(ctx context.Context, characterId int32, datasource interface{}) (*GetCharactersCharacterIdLocationOk,  time.Time, error) {
+func (a LocationApiService) GetCharactersCharacterIdLocation(ctx context.Context, characterId int32, datasource interface{}) (GetCharactersCharacterIdLocationOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetCharactersCharacterIdLocationOk
 	)
 
 	// create path and map variables
@@ -62,7 +63,7 @@ func (a LocationApiService) GetCharactersCharacterIdLocation(ctx context.Context
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -78,7 +79,7 @@ func (a LocationApiService) GetCharactersCharacterIdLocation(ctx context.Context
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetCharactersCharacterIdLocationOk)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
@@ -108,14 +109,15 @@ func (a LocationApiService) GetCharactersCharacterIdLocation(ctx context.Context
  *
  * @param characterId An EVE character ID 
  * @param datasource(string) The server name you would like data from 
- * @return *GetCharactersCharacterIdShipOk
+ * @return GetCharactersCharacterIdShipOk
  */
-func (a LocationApiService) GetCharactersCharacterIdShip(ctx context.Context, characterId int32, datasource interface{}) (*GetCharactersCharacterIdShipOk,  time.Time, error) {
+func (a LocationApiService) GetCharactersCharacterIdShip(ctx context.Context, characterId int32, datasource interface{}) (GetCharactersCharacterIdShipOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetCharactersCharacterIdShipOk
 	)
 
 	// create path and map variables
@@ -127,7 +129,7 @@ func (a LocationApiService) GetCharactersCharacterIdShip(ctx context.Context, ch
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -143,7 +145,7 @@ func (a LocationApiService) GetCharactersCharacterIdShip(ctx context.Context, ch
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetCharactersCharacterIdShipOk)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {

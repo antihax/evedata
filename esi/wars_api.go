@@ -51,6 +51,7 @@ func (a WarsApiService) GetWars(page interface{}, datasource interface{}) ([]int
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  []int32
 	)
 
 	// create path and map variables
@@ -61,10 +62,10 @@ func (a WarsApiService) GetWars(page interface{}, datasource interface{}) ([]int
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(page, "int32", "page"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if page != nil {
 		localVarQueryParams.Add("page", a.client.parameterToString(page, ""))
@@ -83,28 +84,28 @@ func (a WarsApiService) GetWars(page interface{}, datasource interface{}) ([]int
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new([]int32)
+
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return *successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return *successPayload, time.Now(), err
+	 	return successPayload, time.Now(), err
 	}
 
 	expires := cacheExpires(localVarHttpResponse)
-	return *successPayload, expires, err
+	return successPayload, expires, err
 }
 
 /**
@@ -113,14 +114,15 @@ func (a WarsApiService) GetWars(page interface{}, datasource interface{}) ([]int
  *
  * @param warId ID for a war 
  * @param datasource(string) The server name you would like data from 
- * @return *GetWarsWarIdOk
+ * @return GetWarsWarIdOk
  */
-func (a WarsApiService) GetWarsWarId(warId int32, datasource interface{}) (*GetWarsWarIdOk,  time.Time, error) {
+func (a WarsApiService) GetWarsWarId(warId int32, datasource interface{}) (GetWarsWarIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetWarsWarIdOk
 	)
 
 	// create path and map variables
@@ -132,7 +134,7 @@ func (a WarsApiService) GetWarsWarId(warId int32, datasource interface{}) (*GetW
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -148,7 +150,7 @@ func (a WarsApiService) GetWarsWarId(warId int32, datasource interface{}) (*GetW
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetWarsWarIdOk)
+
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
@@ -187,6 +189,7 @@ func (a WarsApiService) GetWarsWarIdKillmails(warId int32, page interface{}, dat
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  []GetWarsWarIdKillmails200Ok
 	)
 
 	// create path and map variables
@@ -198,10 +201,10 @@ func (a WarsApiService) GetWarsWarIdKillmails(warId int32, page interface{}, dat
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(page, "int32", "page"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if page != nil {
 		localVarQueryParams.Add("page", a.client.parameterToString(page, ""))
@@ -220,27 +223,27 @@ func (a WarsApiService) GetWarsWarIdKillmails(warId int32, page interface{}, dat
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new([]GetWarsWarIdKillmails200Ok)
+
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return *successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return *successPayload, time.Now(), err
+	 	return successPayload, time.Now(), err
 	}
 
 	expires := cacheExpires(localVarHttpResponse)
-	return *successPayload, expires, err
+	return successPayload, expires, err
 }
 

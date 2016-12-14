@@ -53,6 +53,7 @@ func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ctx context
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  []GetCharactersCharacterIdKillmailsRecent200Ok
 	)
 
 	// create path and map variables
@@ -64,13 +65,13 @@ func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ctx context
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(maxCount, "int32", "maxCount"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(maxKillId, "int32", "maxKillId"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if maxCount != nil {
 		localVarQueryParams.Add("max_count", a.client.parameterToString(maxCount, ""))
@@ -92,28 +93,28 @@ func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ctx context
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new([]GetCharactersCharacterIdKillmailsRecent200Ok)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return *successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return *successPayload, time.Now(), err
+	 	return successPayload, time.Now(), err
 	}
 
 	expires := cacheExpires(localVarHttpResponse)
-	return *successPayload, expires, err
+	return successPayload, expires, err
 }
 
 /**
@@ -123,14 +124,15 @@ func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ctx context
  * @param killmailId The killmail ID to be queried 
  * @param killmailHash The killmail hash for verification 
  * @param datasource(string) The server name you would like data from 
- * @return *GetKillmailsKillmailIdKillmailHashOk
+ * @return GetKillmailsKillmailIdKillmailHashOk
  */
-func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32, killmailHash string, datasource interface{}) (*GetKillmailsKillmailIdKillmailHashOk,  time.Time, error) {
+func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32, killmailHash string, datasource interface{}) (GetKillmailsKillmailIdKillmailHashOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetKillmailsKillmailIdKillmailHashOk
 	)
 
 	// create path and map variables
@@ -143,7 +145,7 @@ func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -159,7 +161,7 @@ func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetKillmailsKillmailIdKillmailHashOk)
+
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {

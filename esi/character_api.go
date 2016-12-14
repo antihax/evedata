@@ -43,14 +43,15 @@ type CharacterApiService service
  *
  * @param characterId An EVE character ID 
  * @param datasource(string) The server name you would like data from 
- * @return *GetCharactersCharacterIdOk
+ * @return GetCharactersCharacterIdOk
  */
-func (a CharacterApiService) GetCharactersCharacterId(characterId int32, datasource interface{}) (*GetCharactersCharacterIdOk,  time.Time, error) {
+func (a CharacterApiService) GetCharactersCharacterId(characterId int32, datasource interface{}) (GetCharactersCharacterIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetCharactersCharacterIdOk
 	)
 
 	// create path and map variables
@@ -62,7 +63,7 @@ func (a CharacterApiService) GetCharactersCharacterId(characterId int32, datasou
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -78,7 +79,7 @@ func (a CharacterApiService) GetCharactersCharacterId(characterId int32, datasou
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetCharactersCharacterIdOk)
+
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
@@ -116,6 +117,7 @@ func (a CharacterApiService) GetCharactersCharacterIdCorporationhistory(characte
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  []GetCharactersCharacterIdCorporationhistory200Ok
 	)
 
 	// create path and map variables
@@ -127,7 +129,7 @@ func (a CharacterApiService) GetCharactersCharacterIdCorporationhistory(characte
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -143,28 +145,28 @@ func (a CharacterApiService) GetCharactersCharacterIdCorporationhistory(characte
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new([]GetCharactersCharacterIdCorporationhistory200Ok)
+
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return *successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return *successPayload, time.Now(), err
+	 	return successPayload, time.Now(), err
 	}
 
 	expires := cacheExpires(localVarHttpResponse)
-	return *successPayload, expires, err
+	return successPayload, expires, err
 }
 
 /**
@@ -173,14 +175,15 @@ func (a CharacterApiService) GetCharactersCharacterIdCorporationhistory(characte
  *
  * @param characterId An EVE character ID 
  * @param datasource(string) The server name you would like data from 
- * @return *GetCharactersCharacterIdPortraitOk
+ * @return GetCharactersCharacterIdPortraitOk
  */
-func (a CharacterApiService) GetCharactersCharacterIdPortrait(characterId int32, datasource interface{}) (*GetCharactersCharacterIdPortraitOk,  time.Time, error) {
+func (a CharacterApiService) GetCharactersCharacterIdPortrait(characterId int32, datasource interface{}) (GetCharactersCharacterIdPortraitOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetCharactersCharacterIdPortraitOk
 	)
 
 	// create path and map variables
@@ -192,7 +195,7 @@ func (a CharacterApiService) GetCharactersCharacterIdPortrait(characterId int32,
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -208,7 +211,7 @@ func (a CharacterApiService) GetCharactersCharacterIdPortrait(characterId int32,
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetCharactersCharacterIdPortraitOk)
+
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
@@ -246,6 +249,7 @@ func (a CharacterApiService) GetCharactersNames(characterIds []int64, datasource
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  []GetCharactersNames200Ok
 	)
 
 	// create path and map variables
@@ -256,7 +260,7 @@ func (a CharacterApiService) GetCharactersNames(characterIds []int64, datasource
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 		localVarQueryParams.Add("character_ids", a.client.parameterToString(characterIds, "csv"))
 	if datasource != nil {
@@ -273,28 +277,28 @@ func (a CharacterApiService) GetCharactersNames(characterIds []int64, datasource
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new([]GetCharactersNames200Ok)
+
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return *successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return *successPayload, time.Now(), err
+	 	return successPayload, time.Now(), err
 	}
 
 	expires := cacheExpires(localVarHttpResponse)
-	return *successPayload, expires, err
+	return successPayload, expires, err
 }
 
 /**
@@ -304,14 +308,15 @@ func (a CharacterApiService) GetCharactersNames(characterIds []int64, datasource
  * @param characterId An EVE character ID 
  * @param characters The target characters to calculate the charge for 
  * @param datasource(string) The server name you would like data from 
- * @return *PostCharactersCharacterIdCspaCreated
+ * @return PostCharactersCharacterIdCspaCreated
  */
-func (a CharacterApiService) PostCharactersCharacterIdCspa(ctx context.Context, characterId int32, characters PostCharactersCharacterIdCspaCharacters, datasource interface{}) (*PostCharactersCharacterIdCspaCreated,  time.Time, error) {
+func (a CharacterApiService) PostCharactersCharacterIdCspa(ctx context.Context, characterId int32, characters PostCharactersCharacterIdCspaCharacters, datasource interface{}) (PostCharactersCharacterIdCspaCreated,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  PostCharactersCharacterIdCspaCreated
 	)
 
 	// create path and map variables
@@ -323,7 +328,7 @@ func (a CharacterApiService) PostCharactersCharacterIdCspa(ctx context.Context, 
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -341,7 +346,7 @@ func (a CharacterApiService) PostCharactersCharacterIdCspa(ctx context.Context, 
 	}
 	// body params
 	 localVarPostBody = &characters
-	 var successPayload = new(PostCharactersCharacterIdCspaCreated)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {

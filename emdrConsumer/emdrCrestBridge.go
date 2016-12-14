@@ -90,7 +90,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 
 	// limit concurrent requests as to not hog the available connections.
 	// Eventually the buffers will become the limiting factors.
-	limiter := make(chan bool, 10)
+	limiter := make(chan bool, 1)
 	for {
 
 		// Update the market data
@@ -159,27 +159,20 @@ func orderConsumer(orderChannel chan marketOrders, c *appContext.AppContext) {
 				continue
 			}
 
-			for {
-				tx, err := c.Db.Begin()
-				if err != nil {
-					log.Printf("EMDRCrestBridge: %s", err)
-					continue
+			var values []string
+			for _, e := range o.orders {
+				var buy byte
+				if e.IsBuyOrder == true {
+					buy = 1
+				} else {
+					buy = 0
 				}
+				values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,'%s',%d,%d,%d,%d,UTC_TIMESTAMP())",
+					e.OrderId, e.Price, e.VolumeRemain, e.TypeId, e.VolumeTotal, e.MinVolume,
+					buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, o.regionID, stations[e.LocationId]))
+			}
 
-				var values []string
-				for _, e := range o.orders {
-					var buy byte
-					if e.IsBuyOrder == true {
-						buy = 1
-					} else {
-						buy = 0
-					}
-					values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,'%s',%d,%d,%d,%d,UTC_TIMESTAMP())",
-						e.OrderId, e.Price, e.VolumeRemain, e.TypeId, e.VolumeTotal, e.MinVolume,
-						buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, o.regionID, stations[e.LocationId]))
-				}
-
-				stmt := fmt.Sprintf(`INSERT IGNORE INTO market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, systemID, reported)
+			stmt := fmt.Sprintf(`INSERT IGNORE INTO market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, systemID, reported)
 						VALUES %s
 						ON DUPLICATE KEY UPDATE price=VALUES(price),
 							remainingVolume=VALUES(remainingVolume),
@@ -188,13 +181,16 @@ func orderConsumer(orderChannel chan marketOrders, c *appContext.AppContext) {
 							reported=VALUES(reported),
 							done=0;
 							`, strings.Join(values, ",\n"))
-
-				_, err = tx.Exec(stmt)
-
+			for {
+				tx, err := c.Db.Begin()
 				if err != nil {
 					log.Printf("EMDRCrestBridge: %s", err)
-					tx.Rollback()
-					break
+					continue
+				}
+				_, err = tx.Exec(stmt)
+				if err != nil {
+					log.Printf("EMDRCrestBridge: %s", err)
+					continue
 				}
 
 				err = tx.Commit()
@@ -214,34 +210,32 @@ func historyConsumer(historyChannel chan marketHistory, c *appContext.AppContext
 			continue
 		}
 
-		// Loop until the transaction passes
-		for {
+		var values []string
+
+		for _, e := range h.history {
+			values = append(values, fmt.Sprintf("('%s',%f,%f,%f,%d,%d,%d,%d)",
+				e.Date.Format("2006-01-02"), e.Lowest, e.Highest, e.Average,
+				e.Volume, e.OrderCount, h.typeID, h.regionID))
+		}
+
+		stmt := fmt.Sprintf("INSERT IGNORE INTO market_history (date, low, high, mean, quantity, orders, itemID, regionID) VALUES \n %s", strings.Join(values, ",\n"))
+
+		for { // loop until we succeed
 			tx, err := c.Db.Begin()
 			if err != nil {
 				log.Printf("EMDRCrestBridge: %s", err)
-				break
+				continue
 			}
-			var values []string
-
-			for _, e := range h.history {
-				values = append(values, fmt.Sprintf("('%s',%f,%f,%f,%d,%d,%d,%d)",
-					e.Date, e.Lowest, e.Highest, e.Average,
-					e.Volume, e.OrderCount, h.typeID, h.regionID))
-			}
-
-			stmt := fmt.Sprintf("INSERT IGNORE INTO market_history (date, low, high, mean, quantity, orders, itemID, regionID) VALUES \n %s", strings.Join(values, ",\n"))
-
 			_, err = tx.Exec(stmt)
 			if err != nil {
-				tx.Rollback()
 				log.Printf("EMDRCrestBridge: %s", err)
-				break
+				continue
 			}
 
 			err = tx.Commit()
 			if err != nil {
 				log.Printf("EMDRCrestBridge: %s", err)
-				break
+				continue
 			}
 			break // success
 		}

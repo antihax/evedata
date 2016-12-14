@@ -52,6 +52,7 @@ func (a CalendarApiService) GetCharactersCharacterIdCalendar(ctx context.Context
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  []GetCharactersCharacterIdCalendar200Ok
 	)
 
 	// create path and map variables
@@ -63,10 +64,10 @@ func (a CalendarApiService) GetCharactersCharacterIdCalendar(ctx context.Context
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(fromEvent, "int32", "fromEvent"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if fromEvent != nil {
 		localVarQueryParams.Add("from_event", a.client.parameterToString(fromEvent, ""))
@@ -85,28 +86,28 @@ func (a CalendarApiService) GetCharactersCharacterIdCalendar(ctx context.Context
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new([]GetCharactersCharacterIdCalendar200Ok)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return *successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return *successPayload, time.Now(), err
+	 	return successPayload, time.Now(), err
 	}
 
 	expires := cacheExpires(localVarHttpResponse)
-	return *successPayload, expires, err
+	return successPayload, expires, err
 }
 
 /**
@@ -116,14 +117,15 @@ func (a CalendarApiService) GetCharactersCharacterIdCalendar(ctx context.Context
  * @param characterId The character id requesting the event 
  * @param eventId The id of the event requested 
  * @param datasource(string) The server name you would like data from 
- * @return *GetCharactersCharacterIdCalendarEventIdOk
+ * @return GetCharactersCharacterIdCalendarEventIdOk
  */
-func (a CalendarApiService) GetCharactersCharacterIdCalendarEventId(ctx context.Context, characterId int64, eventId int32, datasource interface{}) (*GetCharactersCharacterIdCalendarEventIdOk,  time.Time, error) {
+func (a CalendarApiService) GetCharactersCharacterIdCalendarEventId(ctx context.Context, characterId int64, eventId int32, datasource interface{}) (GetCharactersCharacterIdCalendarEventIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetCharactersCharacterIdCalendarEventIdOk
 	)
 
 	// create path and map variables
@@ -136,7 +138,7 @@ func (a CalendarApiService) GetCharactersCharacterIdCalendarEventId(ctx context.
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -152,7 +154,7 @@ func (a CalendarApiService) GetCharactersCharacterIdCalendarEventId(ctx context.
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetCharactersCharacterIdCalendarEventIdOk)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
@@ -222,6 +224,7 @@ func (a CalendarApiService) PutCharactersCharacterIdCalendarEventId(ctx context.
 	}
 	// body params
 	 localVarPostBody = &response
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {

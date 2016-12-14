@@ -43,14 +43,15 @@ type ClonesApiService service
  *
  * @param characterId An EVE character ID 
  * @param datasource(string) The server name you would like data from 
- * @return *GetCharactersCharacterIdClonesOk
+ * @return GetCharactersCharacterIdClonesOk
  */
-func (a ClonesApiService) GetCharactersCharacterIdClones(ctx context.Context, characterId int32, datasource interface{}) (*GetCharactersCharacterIdClonesOk,  time.Time, error) {
+func (a ClonesApiService) GetCharactersCharacterIdClones(ctx context.Context, characterId int32, datasource interface{}) (GetCharactersCharacterIdClonesOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetCharactersCharacterIdClonesOk
 	)
 
 	// create path and map variables
@@ -62,7 +63,7 @@ func (a ClonesApiService) GetCharactersCharacterIdClones(ctx context.Context, ch
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -78,7 +79,7 @@ func (a ClonesApiService) GetCharactersCharacterIdClones(ctx context.Context, ch
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetCharactersCharacterIdClonesOk)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {

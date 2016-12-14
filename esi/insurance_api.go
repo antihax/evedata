@@ -50,6 +50,7 @@ func (a InsuranceApiService) GetInsurancePrices(acceptLanguage interface{}, data
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  []GetInsurancePrices200Ok
 	)
 
 	// create path and map variables
@@ -60,10 +61,10 @@ func (a InsuranceApiService) GetInsurancePrices(acceptLanguage interface{}, data
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(acceptLanguage, "string", "acceptLanguage"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -81,27 +82,27 @@ func (a InsuranceApiService) GetInsurancePrices(acceptLanguage interface{}, data
 	}
 	// header params "Accept-Language"
 	localVarHeaderParams["Accept-Language"] = a.client.parameterToString(acceptLanguage, "")
-	 var successPayload = new([]GetInsurancePrices200Ok)
+
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return *successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return *successPayload, time.Now(), err
+	 	return successPayload, time.Now(), err
 	}
 
 	expires := cacheExpires(localVarHttpResponse)
-	return *successPayload, expires, err
+	return successPayload, expires, err
 }
 

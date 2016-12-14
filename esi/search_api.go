@@ -47,14 +47,15 @@ type SearchApiService service
  * @param language(string) Search locale 
  * @param strict(bool) Whether the search should be a strict match 
  * @param datasource(string) The server name you would like data from 
- * @return *GetCharactersCharacterIdSearchOk
+ * @return GetCharactersCharacterIdSearchOk
  */
-func (a SearchApiService) GetCharactersCharacterIdSearch(ctx context.Context, characterId int32, search string, categories []string, language interface{}, strict interface{}, datasource interface{}) (*GetCharactersCharacterIdSearchOk,  time.Time, error) {
+func (a SearchApiService) GetCharactersCharacterIdSearch(ctx context.Context, characterId int32, search string, categories []string, language interface{}, strict interface{}, datasource interface{}) (GetCharactersCharacterIdSearchOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetCharactersCharacterIdSearchOk
 	)
 
 	// create path and map variables
@@ -66,13 +67,13 @@ func (a SearchApiService) GetCharactersCharacterIdSearch(ctx context.Context, ch
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(language, "string", "language"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(strict, "bool", "strict"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 		localVarQueryParams.Add("search", a.client.parameterToString(search, ""))
 		localVarQueryParams.Add("categories", a.client.parameterToString(categories, "csv"))
@@ -96,7 +97,7 @@ func (a SearchApiService) GetCharactersCharacterIdSearch(ctx context.Context, ch
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetCharactersCharacterIdSearchOk)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
@@ -129,14 +130,15 @@ func (a SearchApiService) GetCharactersCharacterIdSearch(ctx context.Context, ch
  * @param language(string) Search locale 
  * @param strict(bool) Whether the search should be a strict match 
  * @param datasource(string) The server name you would like data from 
- * @return *GetSearchOk
+ * @return GetSearchOk
  */
-func (a SearchApiService) GetSearch(search string, categories []string, language interface{}, strict interface{}, datasource interface{}) (*GetSearchOk,  time.Time, error) {
+func (a SearchApiService) GetSearch(search string, categories []string, language interface{}, strict interface{}, datasource interface{}) (GetSearchOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetSearchOk
 	)
 
 	// create path and map variables
@@ -147,13 +149,13 @@ func (a SearchApiService) GetSearch(search string, categories []string, language
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(language, "string", "language"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(strict, "bool", "strict"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 		localVarQueryParams.Add("search", a.client.parameterToString(search, ""))
 		localVarQueryParams.Add("categories", a.client.parameterToString(categories, "csv"))
@@ -177,7 +179,7 @@ func (a SearchApiService) GetSearch(search string, categories []string, language
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetSearchOk)
+
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {

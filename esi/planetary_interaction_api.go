@@ -51,6 +51,7 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanets(ctx cont
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  []GetCharactersCharacterIdPlanets200Ok
 	)
 
 	// create path and map variables
@@ -62,7 +63,7 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanets(ctx cont
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -78,28 +79,28 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanets(ctx cont
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new([]GetCharactersCharacterIdPlanets200Ok)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return *successPayload, time.Now(), err
+		  return successPayload, time.Now(), err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return *successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return *successPayload, time.Now(), err
+	 	return successPayload, time.Now(), err
 	}
 
 	expires := cacheExpires(localVarHttpResponse)
-	return *successPayload, expires, err
+	return successPayload, expires, err
 }
 
 /**
@@ -109,14 +110,15 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanets(ctx cont
  * @param characterId Character id of the target character 
  * @param planetId Planet id of the target planet 
  * @param datasource(string) The server name you would like data from 
- * @return *GetCharactersCharacterIdPlanetsPlanetIdOk
+ * @return GetCharactersCharacterIdPlanetsPlanetIdOk
  */
-func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanetsPlanetId(ctx context.Context, characterId int32, planetId int32, datasource interface{}) (*GetCharactersCharacterIdPlanetsPlanetIdOk,  time.Time, error) {
+func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanetsPlanetId(ctx context.Context, characterId int32, planetId int32, datasource interface{}) (GetCharactersCharacterIdPlanetsPlanetIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetCharactersCharacterIdPlanetsPlanetIdOk
 	)
 
 	// create path and map variables
@@ -129,7 +131,7 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanetsPlanetId(
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -145,7 +147,7 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanetsPlanetId(
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetCharactersCharacterIdPlanetsPlanetIdOk)
+
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
@@ -175,14 +177,15 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanetsPlanetId(
  *
  * @param schematicId A PI schematic ID 
  * @param datasource(string) The server name you would like data from 
- * @return *GetUniverseSchematicsSchematicIdOk
+ * @return GetUniverseSchematicsSchematicIdOk
  */
-func (a PlanetaryInteractionApiService) GetUniverseSchematicsSchematicId(schematicId int32, datasource interface{}) (*GetUniverseSchematicsSchematicIdOk,  time.Time, error) {
+func (a PlanetaryInteractionApiService) GetUniverseSchematicsSchematicId(schematicId int32, datasource interface{}) (GetUniverseSchematicsSchematicIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
 		localVarFileName string
 		localVarFileBytes []byte
+	 	successPayload  GetUniverseSchematicsSchematicIdOk
 	)
 
 	// create path and map variables
@@ -194,7 +197,7 @@ func (a PlanetaryInteractionApiService) GetUniverseSchematicsSchematicId(schemat
 	localVarFormParams := url.Values{}
 
 	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return nil, time.Now(), err
+		return successPayload, time.Now(), err
 	}
 	if datasource != nil {
 		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
@@ -210,7 +213,7 @@ func (a PlanetaryInteractionApiService) GetUniverseSchematicsSchematicId(schemat
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	 var successPayload = new(GetUniverseSchematicsSchematicIdOk)
+
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
