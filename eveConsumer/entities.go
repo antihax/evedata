@@ -119,23 +119,23 @@ func (c *EVEConsumer) updateEntity(href string, id int64) error {
 	// Skip this entity if we have touched it recently
 	i, err := redis.Bool(r.Do("EXISTS", "EVEDATA_entity:"+href))
 	if err == nil && i != true {
-		go func() error {
-			if strings.Contains(href, "alliances") {
-				_, err = c.updateAlliance(href)
-			} else if strings.Contains(href, "corporations") {
-				_, err = c.updateCorporation(id)
-			} else if strings.Contains(href, "characters") {
-				_, err = c.updateCharacter(id)
+		go func(h string, i int64) error {
+			if strings.Contains(h, "alliances") {
+				_, err = c.updateAlliance(h)
+			} else if strings.Contains(h, "corporations") {
+				_, err = c.updateCorporation(i)
+			} else if strings.Contains(h, "characters") {
+				_, err = c.updateCharacter(i)
 			}
 			if err != nil {
 				return err
 			}
-			err = models.AddCRESTRef(id, href)
+			err = models.AddCRESTRef(i, h)
 			if err != nil {
 				return err
 			}
 			return nil
-		}()
+		}(href, id)
 
 		// Say we touched the entity and expire after one day
 		r.Do("SETEX", "EVEDATA_entity:"+href, 86400, true)

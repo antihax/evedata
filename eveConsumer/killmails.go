@@ -45,10 +45,10 @@ func (c *EVEConsumer) addKillmail(href string) error {
 	}
 
 	limiter <- true
-	go func(l chan bool) error {
+	go func(l chan bool, h string) error {
 		defer func(l chan bool) { <-l }(l)
 
-		kill, err := c.ctx.EVE.KillmailV1(href)
+		kill, err := c.ctx.EVE.KillmailV1(h)
 		if err != nil {
 			return err
 		}
@@ -81,7 +81,7 @@ func (c *EVEConsumer) addKillmail(href string) error {
 		knownKills[id] = true
 		mapLock.Unlock()
 		return nil
-	}(limiter)
+	}(limiter, href)
 	return nil
 }
 
