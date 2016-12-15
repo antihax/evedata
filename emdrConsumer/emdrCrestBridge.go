@@ -11,11 +11,13 @@ import (
 
 var stations map[int64]int64
 
+// buffer structures
 type marketOrders struct {
 	regionID int32
 	orders   []esi.GetMarketsRegionIdOrders200Ok
 }
 
+// buffer structures
 type marketHistory struct {
 	regionID int32
 	typeID   int32
@@ -25,20 +27,6 @@ type marketHistory struct {
 // Run the bridge between CREST and Eve Market Data Relay.
 // Optionally import to the database
 func GoEMDRCrestBridge(c *appContext.AppContext) {
-	type regionKey struct {
-		RegionID int32
-		TypeID   int32
-	}
-
-	type marketRegions struct {
-		RegionID   int32  `db:"regionID"`
-		RegionName string `db:"regionName"`
-	}
-
-	type marketTypes struct {
-		TypeID   int32  `db:"typeID"`
-		TypeName string `db:"typeName"`
-	}
 
 	// Obtain a list of regions which have market stations
 	regions, err := models.GetMarketRegions()
@@ -46,6 +34,12 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 		log.Fatal("EMDRCrestBridge:", err)
 	}
 	log.Printf("EMDRCrestBridge: Loaded %d Regions", len(regions))
+
+	// Struct to map IDs to
+	type marketTypes struct {
+		TypeID   int32  `db:"typeID"`
+		TypeName string `db:"typeName"`
+	}
 
 	// Obtain list of types available on the market
 	types := []marketTypes{}
@@ -90,7 +84,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 
 	// limit concurrent requests as to not hog the available connections.
 	// Eventually the buffers will become the limiting factors.
-	limiter := make(chan bool, 1)
+	limiter := make(chan bool, 10)
 	for {
 
 		// Update the market data
@@ -104,14 +98,14 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 		// loop through all regions
 		for _, r := range regions {
 			limiter <- true
-			go func(l chan bool) {
+			go func(l chan bool, regionID int32) {
 				defer func(l chan bool) { <-l }(l)
 
 				// Start at page 1
 				var page int32 = 1
 				// Process Market Buy Orders
 				for {
-					b, _, err := c.ESI.MarketApi.GetMarketsRegionIdOrders(r.RegionID, "all", nil, page, nil)
+					b, _, err := c.ESI.MarketApi.GetMarketsRegionIdOrders(regionID, "all", nil, page, nil)
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
 						return
@@ -120,31 +114,31 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 					}
 
 					// Post the orders
-					order := marketOrders{r.RegionID, b}
+					order := marketOrders{regionID, b}
 					orderChannel <- order
 
 					// Next page
 					page++
 				}
-			}(limiter)
+			}(limiter, r.RegionID)
 			// and each item per region
 			for _, t := range types {
 
 				limiter <- true
-				go func(l chan bool) {
+				go func(l chan bool, regionID int32, typeID int32) {
 					defer func(l chan bool) { <-l }(l)
 
 					// Process Market History
-					h, _, err := c.ESI.MarketApi.GetMarketsRegionIdHistory(r.RegionID, t.TypeID, nil)
+					h, _, err := c.ESI.MarketApi.GetMarketsRegionIdHistory(regionID, typeID, nil)
 
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
 						return
 					}
 
-					hist := marketHistory{r.RegionID, t.TypeID, h}
+					hist := marketHistory{regionID, typeID, h}
 					historyChannel <- hist
-				}(limiter)
+				}(limiter, r.RegionID, t.TypeID)
 			}
 		}
 	}
