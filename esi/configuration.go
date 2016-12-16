@@ -21,7 +21,7 @@
  */
 
 package esi
-
+/*
 import (
 	"encoding/base64"
 	"time"
@@ -71,3 +71,4 @@ func (c *Configuration) GetAPIKeyWithPrefix(APIKeyIdentifier string) string {
 
 	return c.APIKey[APIKeyIdentifier]
 }
+*/

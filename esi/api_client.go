@@ -55,7 +55,6 @@ var (
 )
 
 type APIClient struct {
-	Config *Configuration
 	client *http.Client
 	userAgent string
 	common service // Reuse a single struct instead of allocating one for each service on the heap.
@@ -100,7 +99,6 @@ func NewAPIClient(httpClient *http.Client, userAgent string) *APIClient {
 	c.client = httpClient
 	c.userAgent = userAgent
 	c.common.client = c
-	c.Config = NewConfiguration()
 
 	c.AllianceApi = (*AllianceApiService)(&c.common)
 	c.AssetsApi = (*AssetsApiService)(&c.common)
