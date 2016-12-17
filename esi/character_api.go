@@ -24,8 +24,8 @@ package esi
 
 import (
 	"net/url"
+	"net/http"
 	"strings"
-	"time"
 	"errors"
 	"golang.org/x/net/context"
 	"encoding/json"
@@ -47,7 +47,7 @@ type CharacterApiService service
  *     @param "datasource" (string) The server name you would like data from
  * @return GetCharactersCharacterIdOk
  */
-func (a CharacterApiService) GetCharactersCharacterId(characterId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdOk,  time.Time, error) {
+func (a CharacterApiService) GetCharactersCharacterId(characterId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -82,24 +82,24 @@ func (a CharacterApiService) GetCharactersCharacterId(characterId int32, localVa
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -112,7 +112,7 @@ func (a CharacterApiService) GetCharactersCharacterId(characterId int32, localVa
  *     @param "datasource" (string) The server name you would like data from
  * @return []GetCharactersCharacterIdCorporationhistory200Ok
  */
-func (a CharacterApiService) GetCharactersCharacterIdCorporationhistory(characterId int32, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdCorporationhistory200Ok,  time.Time, error) {
+func (a CharacterApiService) GetCharactersCharacterIdCorporationhistory(characterId int32, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdCorporationhistory200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -147,24 +147,24 @@ func (a CharacterApiService) GetCharactersCharacterIdCorporationhistory(characte
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -177,7 +177,7 @@ func (a CharacterApiService) GetCharactersCharacterIdCorporationhistory(characte
  *     @param "datasource" (string) The server name you would like data from
  * @return GetCharactersCharacterIdPortraitOk
  */
-func (a CharacterApiService) GetCharactersCharacterIdPortrait(characterId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdPortraitOk,  time.Time, error) {
+func (a CharacterApiService) GetCharactersCharacterIdPortrait(characterId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdPortraitOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -212,24 +212,24 @@ func (a CharacterApiService) GetCharactersCharacterIdPortrait(characterId int32,
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -242,7 +242,7 @@ func (a CharacterApiService) GetCharactersCharacterIdPortrait(characterId int32,
  *     @param "datasource" (string) The server name you would like data from
  * @return []GetCharactersNames200Ok
  */
-func (a CharacterApiService) GetCharactersNames(characterIds []int64, localVarOptionals map[string]interface{}) ([]GetCharactersNames200Ok,  time.Time, error) {
+func (a CharacterApiService) GetCharactersNames(characterIds []int64, localVarOptionals map[string]interface{}) ([]GetCharactersNames200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -277,24 +277,24 @@ func (a CharacterApiService) GetCharactersNames(characterIds []int64, localVarOp
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -308,7 +308,7 @@ func (a CharacterApiService) GetCharactersNames(characterIds []int64, localVarOp
  *     @param "datasource" (string) The server name you would like data from
  * @return PostCharactersCharacterIdCspaCreated
  */
-func (a CharacterApiService) PostCharactersCharacterIdCspa(ctx context.Context, characterId int32, characters PostCharactersCharacterIdCspaCharacters, localVarOptionals map[string]interface{}) (PostCharactersCharacterIdCspaCreated,  time.Time, error) {
+func (a CharacterApiService) PostCharactersCharacterIdCspa(ctx context.Context, characterId int32, characters PostCharactersCharacterIdCspaCharacters, localVarOptionals map[string]interface{}) (PostCharactersCharacterIdCspaCreated,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}
@@ -345,23 +345,23 @@ func (a CharacterApiService) PostCharactersCharacterIdCspa(ctx context.Context, 
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 

@@ -339,7 +339,8 @@ func parseCacheControl(headers http.Header) cacheControl {
 	return cc
 }
 
-func cacheExpires(r *http.Response) (time.Time) {
+// CacheExpires helper function to determine remaining time before repeating a request.
+func CacheExpires(r *http.Response) (time.Time) {
 	// Figure out when the cache expires.
 	var expires time.Time
 	now, err := time.Parse(time.RFC1123, r.Header.Get("date"))

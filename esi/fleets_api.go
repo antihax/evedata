@@ -24,8 +24,8 @@ package esi
 
 import (
 	"net/url"
+	"net/http"
 	"strings"
-	"time"
 	"errors"
 	"golang.org/x/net/context"
 	"encoding/json"
@@ -48,7 +48,7 @@ type FleetsApiService service
  *     @param "datasource" (string) The server name you would like data from
  * @return 
  */
-func (a FleetsApiService) DeleteFleetsFleetIdMembersMemberId(ctx context.Context, fleetId int64, memberId int32, localVarOptionals map[string]interface{}) ( time.Time, error) {
+func (a FleetsApiService) DeleteFleetsFleetIdMembersMemberId(ctx context.Context, fleetId int64, memberId int32, localVarOptionals map[string]interface{}) ( *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody interface{}
@@ -83,19 +83,19 @@ func (a FleetsApiService) DeleteFleetsFleetIdMembersMemberId(ctx context.Context
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return time.Now(), err
+		  return nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return time.Now(), err
+		  return localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return time.Now(), errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
-	expires := cacheExpires(localVarHttpResponse)
-	return expires, err
+
+	return localVarHttpResponse, err
 }
 
 /**
@@ -109,7 +109,7 @@ func (a FleetsApiService) DeleteFleetsFleetIdMembersMemberId(ctx context.Context
  *     @param "datasource" (string) The server name you would like data from
  * @return 
  */
-func (a FleetsApiService) DeleteFleetsFleetIdSquadsSquadId(ctx context.Context, fleetId int64, squadId int64, localVarOptionals map[string]interface{}) ( time.Time, error) {
+func (a FleetsApiService) DeleteFleetsFleetIdSquadsSquadId(ctx context.Context, fleetId int64, squadId int64, localVarOptionals map[string]interface{}) ( *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody interface{}
@@ -144,19 +144,19 @@ func (a FleetsApiService) DeleteFleetsFleetIdSquadsSquadId(ctx context.Context, 
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return time.Now(), err
+		  return nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return time.Now(), err
+		  return localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return time.Now(), errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
-	expires := cacheExpires(localVarHttpResponse)
-	return expires, err
+
+	return localVarHttpResponse, err
 }
 
 /**
@@ -170,7 +170,7 @@ func (a FleetsApiService) DeleteFleetsFleetIdSquadsSquadId(ctx context.Context, 
  *     @param "datasource" (string) The server name you would like data from
  * @return 
  */
-func (a FleetsApiService) DeleteFleetsFleetIdWingsWingId(ctx context.Context, fleetId int64, wingId int64, localVarOptionals map[string]interface{}) ( time.Time, error) {
+func (a FleetsApiService) DeleteFleetsFleetIdWingsWingId(ctx context.Context, fleetId int64, wingId int64, localVarOptionals map[string]interface{}) ( *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody interface{}
@@ -205,19 +205,19 @@ func (a FleetsApiService) DeleteFleetsFleetIdWingsWingId(ctx context.Context, fl
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return time.Now(), err
+		  return nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return time.Now(), err
+		  return localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return time.Now(), errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
-	expires := cacheExpires(localVarHttpResponse)
-	return expires, err
+
+	return localVarHttpResponse, err
 }
 
 /**
@@ -230,7 +230,7 @@ func (a FleetsApiService) DeleteFleetsFleetIdWingsWingId(ctx context.Context, fl
  *     @param "datasource" (string) The server name you would like data from
  * @return GetFleetsFleetIdOk
  */
-func (a FleetsApiService) GetFleetsFleetId(ctx context.Context, fleetId int64, localVarOptionals map[string]interface{}) (GetFleetsFleetIdOk,  time.Time, error) {
+func (a FleetsApiService) GetFleetsFleetId(ctx context.Context, fleetId int64, localVarOptionals map[string]interface{}) (GetFleetsFleetIdOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -265,24 +265,24 @@ func (a FleetsApiService) GetFleetsFleetId(ctx context.Context, fleetId int64, l
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -296,7 +296,7 @@ func (a FleetsApiService) GetFleetsFleetId(ctx context.Context, fleetId int64, l
  *     @param "datasource" (string) The server name you would like data from
  * @return []GetFleetsFleetIdMembers200Ok
  */
-func (a FleetsApiService) GetFleetsFleetIdMembers(ctx context.Context, fleetId int64, localVarOptionals map[string]interface{}) ([]GetFleetsFleetIdMembers200Ok,  time.Time, error) {
+func (a FleetsApiService) GetFleetsFleetIdMembers(ctx context.Context, fleetId int64, localVarOptionals map[string]interface{}) ([]GetFleetsFleetIdMembers200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -334,24 +334,24 @@ func (a FleetsApiService) GetFleetsFleetIdMembers(ctx context.Context, fleetId i
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -365,7 +365,7 @@ func (a FleetsApiService) GetFleetsFleetIdMembers(ctx context.Context, fleetId i
  *     @param "datasource" (string) The server name you would like data from
  * @return []GetFleetsFleetIdWings200Ok
  */
-func (a FleetsApiService) GetFleetsFleetIdWings(ctx context.Context, fleetId int64, localVarOptionals map[string]interface{}) ([]GetFleetsFleetIdWings200Ok,  time.Time, error) {
+func (a FleetsApiService) GetFleetsFleetIdWings(ctx context.Context, fleetId int64, localVarOptionals map[string]interface{}) ([]GetFleetsFleetIdWings200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -403,24 +403,24 @@ func (a FleetsApiService) GetFleetsFleetIdWings(ctx context.Context, fleetId int
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -434,7 +434,7 @@ func (a FleetsApiService) GetFleetsFleetIdWings(ctx context.Context, fleetId int
  *     @param "datasource" (string) The server name you would like data from
  * @return 
  */
-func (a FleetsApiService) PostFleetsFleetIdMembers(ctx context.Context, fleetId int64, invitation PostFleetsFleetIdMembersInvitation, localVarOptionals map[string]interface{}) ( time.Time, error) {
+func (a FleetsApiService) PostFleetsFleetIdMembers(ctx context.Context, fleetId int64, invitation PostFleetsFleetIdMembersInvitation, localVarOptionals map[string]interface{}) ( *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}
@@ -470,19 +470,19 @@ func (a FleetsApiService) PostFleetsFleetIdMembers(ctx context.Context, fleetId 
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return time.Now(), err
+		  return nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return time.Now(), err
+		  return localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return time.Now(), errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
-	expires := cacheExpires(localVarHttpResponse)
-	return expires, err
+
+	return localVarHttpResponse, err
 }
 
 /**
@@ -495,7 +495,7 @@ func (a FleetsApiService) PostFleetsFleetIdMembers(ctx context.Context, fleetId 
  *     @param "datasource" (string) The server name you would like data from
  * @return PostFleetsFleetIdWingsCreated
  */
-func (a FleetsApiService) PostFleetsFleetIdWings(ctx context.Context, fleetId int64, localVarOptionals map[string]interface{}) (PostFleetsFleetIdWingsCreated,  time.Time, error) {
+func (a FleetsApiService) PostFleetsFleetIdWings(ctx context.Context, fleetId int64, localVarOptionals map[string]interface{}) (PostFleetsFleetIdWingsCreated,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}
@@ -530,24 +530,24 @@ func (a FleetsApiService) PostFleetsFleetIdWings(ctx context.Context, fleetId in
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -561,7 +561,7 @@ func (a FleetsApiService) PostFleetsFleetIdWings(ctx context.Context, fleetId in
  *     @param "datasource" (string) The server name you would like data from
  * @return PostFleetsFleetIdWingsWingIdSquadsCreated
  */
-func (a FleetsApiService) PostFleetsFleetIdWingsWingIdSquads(ctx context.Context, fleetId int64, wingId int64, localVarOptionals map[string]interface{}) (PostFleetsFleetIdWingsWingIdSquadsCreated,  time.Time, error) {
+func (a FleetsApiService) PostFleetsFleetIdWingsWingIdSquads(ctx context.Context, fleetId int64, wingId int64, localVarOptionals map[string]interface{}) (PostFleetsFleetIdWingsWingIdSquadsCreated,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}
@@ -597,24 +597,24 @@ func (a FleetsApiService) PostFleetsFleetIdWingsWingIdSquads(ctx context.Context
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -628,7 +628,7 @@ func (a FleetsApiService) PostFleetsFleetIdWingsWingIdSquads(ctx context.Context
  *     @param "datasource" (string) The server name you would like data from
  * @return 
  */
-func (a FleetsApiService) PutFleetsFleetId(ctx context.Context, fleetId int64, newSettings PutFleetsFleetIdNewSettings, localVarOptionals map[string]interface{}) ( time.Time, error) {
+func (a FleetsApiService) PutFleetsFleetId(ctx context.Context, fleetId int64, newSettings PutFleetsFleetIdNewSettings, localVarOptionals map[string]interface{}) ( *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody interface{}
@@ -664,19 +664,19 @@ func (a FleetsApiService) PutFleetsFleetId(ctx context.Context, fleetId int64, n
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return time.Now(), err
+		  return nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return time.Now(), err
+		  return localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return time.Now(), errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
-	expires := cacheExpires(localVarHttpResponse)
-	return expires, err
+
+	return localVarHttpResponse, err
 }
 
 /**
@@ -691,7 +691,7 @@ func (a FleetsApiService) PutFleetsFleetId(ctx context.Context, fleetId int64, n
  *     @param "datasource" (string) The server name you would like data from
  * @return 
  */
-func (a FleetsApiService) PutFleetsFleetIdMembersMemberId(ctx context.Context, fleetId int64, memberId int32, movement PutFleetsFleetIdMembersMemberIdMovement, localVarOptionals map[string]interface{}) ( time.Time, error) {
+func (a FleetsApiService) PutFleetsFleetIdMembersMemberId(ctx context.Context, fleetId int64, memberId int32, movement PutFleetsFleetIdMembersMemberIdMovement, localVarOptionals map[string]interface{}) ( *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody interface{}
@@ -728,19 +728,19 @@ func (a FleetsApiService) PutFleetsFleetIdMembersMemberId(ctx context.Context, f
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return time.Now(), err
+		  return nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return time.Now(), err
+		  return localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return time.Now(), errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
-	expires := cacheExpires(localVarHttpResponse)
-	return expires, err
+
+	return localVarHttpResponse, err
 }
 
 /**
@@ -755,7 +755,7 @@ func (a FleetsApiService) PutFleetsFleetIdMembersMemberId(ctx context.Context, f
  *     @param "datasource" (string) The server name you would like data from
  * @return 
  */
-func (a FleetsApiService) PutFleetsFleetIdSquadsSquadId(ctx context.Context, fleetId int64, squadId int64, naming PutFleetsFleetIdSquadsSquadIdNaming, localVarOptionals map[string]interface{}) ( time.Time, error) {
+func (a FleetsApiService) PutFleetsFleetIdSquadsSquadId(ctx context.Context, fleetId int64, squadId int64, naming PutFleetsFleetIdSquadsSquadIdNaming, localVarOptionals map[string]interface{}) ( *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody interface{}
@@ -792,19 +792,19 @@ func (a FleetsApiService) PutFleetsFleetIdSquadsSquadId(ctx context.Context, fle
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return time.Now(), err
+		  return nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return time.Now(), err
+		  return localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return time.Now(), errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
-	expires := cacheExpires(localVarHttpResponse)
-	return expires, err
+
+	return localVarHttpResponse, err
 }
 
 /**
@@ -819,7 +819,7 @@ func (a FleetsApiService) PutFleetsFleetIdSquadsSquadId(ctx context.Context, fle
  *     @param "datasource" (string) The server name you would like data from
  * @return 
  */
-func (a FleetsApiService) PutFleetsFleetIdWingsWingId(ctx context.Context, fleetId int64, wingId int64, naming PutFleetsFleetIdWingsWingIdNaming, localVarOptionals map[string]interface{}) ( time.Time, error) {
+func (a FleetsApiService) PutFleetsFleetIdWingsWingId(ctx context.Context, fleetId int64, wingId int64, naming PutFleetsFleetIdWingsWingIdNaming, localVarOptionals map[string]interface{}) ( *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody interface{}
@@ -856,18 +856,18 @@ func (a FleetsApiService) PutFleetsFleetIdWingsWingId(ctx context.Context, fleet
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return time.Now(), err
+		  return nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return time.Now(), err
+		  return localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return time.Now(), errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
-	expires := cacheExpires(localVarHttpResponse)
-	return expires, err
+
+	return localVarHttpResponse, err
 }
 

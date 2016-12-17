@@ -24,8 +24,8 @@ package esi
 
 import (
 	"net/url"
+	"net/http"
 	"strings"
-	"time"
 	"errors"
 	"golang.org/x/net/context"
 	"encoding/json"
@@ -48,7 +48,7 @@ type MailApiService service
  *     @param "datasource" (string) The server name you would like data from
  * @return 
  */
-func (a MailApiService) DeleteCharactersCharacterIdMailMailId(ctx context.Context, characterId int32, mailId int32, localVarOptionals map[string]interface{}) ( time.Time, error) {
+func (a MailApiService) DeleteCharactersCharacterIdMailMailId(ctx context.Context, characterId int32, mailId int32, localVarOptionals map[string]interface{}) ( *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody interface{}
@@ -83,19 +83,19 @@ func (a MailApiService) DeleteCharactersCharacterIdMailMailId(ctx context.Contex
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return time.Now(), err
+		  return nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return time.Now(), err
+		  return localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return time.Now(), errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
-	expires := cacheExpires(localVarHttpResponse)
-	return expires, err
+
+	return localVarHttpResponse, err
 }
 
 /**
@@ -110,7 +110,7 @@ func (a MailApiService) DeleteCharactersCharacterIdMailMailId(ctx context.Contex
  *     @param "datasource" (string) The server name you would like data from
  * @return []GetCharactersCharacterIdMail200Ok
  */
-func (a MailApiService) GetCharactersCharacterIdMail(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdMail200Ok,  time.Time, error) {
+func (a MailApiService) GetCharactersCharacterIdMail(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdMail200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -151,24 +151,24 @@ func (a MailApiService) GetCharactersCharacterIdMail(ctx context.Context, charac
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -181,7 +181,7 @@ func (a MailApiService) GetCharactersCharacterIdMail(ctx context.Context, charac
  *     @param "datasource" (string) The server name you would like data from
  * @return GetCharactersCharacterIdMailLabelsOk
  */
-func (a MailApiService) GetCharactersCharacterIdMailLabels(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdMailLabelsOk,  time.Time, error) {
+func (a MailApiService) GetCharactersCharacterIdMailLabels(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdMailLabelsOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -216,24 +216,24 @@ func (a MailApiService) GetCharactersCharacterIdMailLabels(ctx context.Context, 
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -246,7 +246,7 @@ func (a MailApiService) GetCharactersCharacterIdMailLabels(ctx context.Context, 
  *     @param "datasource" (string) The server name you would like data from
  * @return []GetCharactersCharacterIdMailLists200Ok
  */
-func (a MailApiService) GetCharactersCharacterIdMailLists(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdMailLists200Ok,  time.Time, error) {
+func (a MailApiService) GetCharactersCharacterIdMailLists(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdMailLists200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -281,24 +281,24 @@ func (a MailApiService) GetCharactersCharacterIdMailLists(ctx context.Context, c
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -312,7 +312,7 @@ func (a MailApiService) GetCharactersCharacterIdMailLists(ctx context.Context, c
  *     @param "datasource" (string) The server name you would like data from
  * @return GetCharactersCharacterIdMailMailIdOk
  */
-func (a MailApiService) GetCharactersCharacterIdMailMailId(ctx context.Context, characterId int32, mailId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdMailMailIdOk,  time.Time, error) {
+func (a MailApiService) GetCharactersCharacterIdMailMailId(ctx context.Context, characterId int32, mailId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdMailMailIdOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -348,24 +348,24 @@ func (a MailApiService) GetCharactersCharacterIdMailMailId(ctx context.Context, 
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -379,7 +379,7 @@ func (a MailApiService) GetCharactersCharacterIdMailMailId(ctx context.Context, 
  *     @param "datasource" (string) The server name you would like data from
  * @return int32
  */
-func (a MailApiService) PostCharactersCharacterIdMail(ctx context.Context, characterId int32, mail PostCharactersCharacterIdMailMail, localVarOptionals map[string]interface{}) (int32,  time.Time, error) {
+func (a MailApiService) PostCharactersCharacterIdMail(ctx context.Context, characterId int32, mail PostCharactersCharacterIdMailMail, localVarOptionals map[string]interface{}) (int32,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}
@@ -416,24 +416,24 @@ func (a MailApiService) PostCharactersCharacterIdMail(ctx context.Context, chara
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -447,7 +447,7 @@ func (a MailApiService) PostCharactersCharacterIdMail(ctx context.Context, chara
  *     @param "datasource" (string) The server name you would like data from
  * @return int64
  */
-func (a MailApiService) PostCharactersCharacterIdMailLabels(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) (int64,  time.Time, error) {
+func (a MailApiService) PostCharactersCharacterIdMailLabels(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) (int64,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}
@@ -486,24 +486,24 @@ func (a MailApiService) PostCharactersCharacterIdMailLabels(ctx context.Context,
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -518,7 +518,7 @@ func (a MailApiService) PostCharactersCharacterIdMailLabels(ctx context.Context,
  *     @param "datasource" (string) The server name you would like data from
  * @return 
  */
-func (a MailApiService) PutCharactersCharacterIdMailMailId(ctx context.Context, characterId int32, mailId int32, contents PutCharactersCharacterIdMailMailIdContents, localVarOptionals map[string]interface{}) ( time.Time, error) {
+func (a MailApiService) PutCharactersCharacterIdMailMailId(ctx context.Context, characterId int32, mailId int32, contents PutCharactersCharacterIdMailMailIdContents, localVarOptionals map[string]interface{}) ( *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody interface{}
@@ -555,18 +555,18 @@ func (a MailApiService) PutCharactersCharacterIdMailMailId(ctx context.Context, 
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return time.Now(), err
+		  return nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return time.Now(), err
+		  return localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return time.Now(), errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
-	expires := cacheExpires(localVarHttpResponse)
-	return expires, err
+
+	return localVarHttpResponse, err
 }
 

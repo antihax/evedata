@@ -24,8 +24,8 @@ package esi
 
 import (
 	"net/url"
+	"net/http"
 	"strings"
-	"time"
 	"errors"
 	"golang.org/x/net/context"
 	"encoding/json"
@@ -48,7 +48,7 @@ type CalendarApiService service
  *     @param "datasource" (string) The server name you would like data from
  * @return []GetCharactersCharacterIdCalendar200Ok
  */
-func (a CalendarApiService) GetCharactersCharacterIdCalendar(ctx context.Context, characterId int64, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdCalendar200Ok,  time.Time, error) {
+func (a CalendarApiService) GetCharactersCharacterIdCalendar(ctx context.Context, characterId int64, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdCalendar200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -86,24 +86,24 @@ func (a CalendarApiService) GetCharactersCharacterIdCalendar(ctx context.Context
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -117,7 +117,7 @@ func (a CalendarApiService) GetCharactersCharacterIdCalendar(ctx context.Context
  *     @param "datasource" (string) The server name you would like data from
  * @return GetCharactersCharacterIdCalendarEventIdOk
  */
-func (a CalendarApiService) GetCharactersCharacterIdCalendarEventId(ctx context.Context, characterId int64, eventId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdCalendarEventIdOk,  time.Time, error) {
+func (a CalendarApiService) GetCharactersCharacterIdCalendarEventId(ctx context.Context, characterId int64, eventId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdCalendarEventIdOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -153,24 +153,24 @@ func (a CalendarApiService) GetCharactersCharacterIdCalendarEventId(ctx context.
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -185,7 +185,7 @@ func (a CalendarApiService) GetCharactersCharacterIdCalendarEventId(ctx context.
  *     @param "datasource" (string) The server name you would like data from
  * @return 
  */
-func (a CalendarApiService) PutCharactersCharacterIdCalendarEventId(ctx context.Context, characterId int32, eventId int32, response PutCharactersCharacterIdCalendarEventIdResponse, localVarOptionals map[string]interface{}) ( time.Time, error) {
+func (a CalendarApiService) PutCharactersCharacterIdCalendarEventId(ctx context.Context, characterId int32, eventId int32, response PutCharactersCharacterIdCalendarEventIdResponse, localVarOptionals map[string]interface{}) ( *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody interface{}
@@ -222,18 +222,18 @@ func (a CalendarApiService) PutCharactersCharacterIdCalendarEventId(ctx context.
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return time.Now(), err
+		  return nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return time.Now(), err
+		  return localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return time.Now(), errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
-	expires := cacheExpires(localVarHttpResponse)
-	return expires, err
+
+	return localVarHttpResponse, err
 }
 

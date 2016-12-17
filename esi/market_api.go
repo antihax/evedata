@@ -24,8 +24,8 @@ package esi
 
 import (
 	"net/url"
+	"net/http"
 	"strings"
-	"time"
 	"errors"
 	"golang.org/x/net/context"
 	"encoding/json"
@@ -46,7 +46,7 @@ type MarketApiService service
  *     @param "datasource" (string) The server name you would like data from
  * @return []GetMarketsPrices200Ok
  */
-func (a MarketApiService) GetMarketsPrices(localVarOptionals map[string]interface{}) ([]GetMarketsPrices200Ok,  time.Time, error) {
+func (a MarketApiService) GetMarketsPrices(localVarOptionals map[string]interface{}) ([]GetMarketsPrices200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -80,24 +80,24 @@ func (a MarketApiService) GetMarketsPrices(localVarOptionals map[string]interfac
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -111,7 +111,7 @@ func (a MarketApiService) GetMarketsPrices(localVarOptionals map[string]interfac
  *     @param "datasource" (string) The server name you would like data from
  * @return []GetMarketsRegionIdHistory200Ok
  */
-func (a MarketApiService) GetMarketsRegionIdHistory(regionId int32, typeId int32, localVarOptionals map[string]interface{}) ([]GetMarketsRegionIdHistory200Ok,  time.Time, error) {
+func (a MarketApiService) GetMarketsRegionIdHistory(regionId int32, typeId int32, localVarOptionals map[string]interface{}) ([]GetMarketsRegionIdHistory200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -147,24 +147,24 @@ func (a MarketApiService) GetMarketsRegionIdHistory(regionId int32, typeId int32
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -180,7 +180,7 @@ func (a MarketApiService) GetMarketsRegionIdHistory(regionId int32, typeId int32
  *     @param "datasource" (string) The server name you would like data from
  * @return []GetMarketsRegionIdOrders200Ok
  */
-func (a MarketApiService) GetMarketsRegionIdOrders(regionId int32, orderType string, localVarOptionals map[string]interface{}) ([]GetMarketsRegionIdOrders200Ok,  time.Time, error) {
+func (a MarketApiService) GetMarketsRegionIdOrders(regionId int32, orderType string, localVarOptionals map[string]interface{}) ([]GetMarketsRegionIdOrders200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -222,23 +222,23 @@ func (a MarketApiService) GetMarketsRegionIdOrders(regionId int32, orderType str
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 

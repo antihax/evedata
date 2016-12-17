@@ -24,8 +24,8 @@ package esi
 
 import (
 	"net/url"
+	"net/http"
 	"strings"
-	"time"
 	"errors"
 	"golang.org/x/net/context"
 	"encoding/json"
@@ -47,7 +47,7 @@ type PlanetaryInteractionApiService service
  *     @param "datasource" (string) The server name you would like data from
  * @return []GetCharactersCharacterIdPlanets200Ok
  */
-func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanets(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdPlanets200Ok,  time.Time, error) {
+func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanets(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdPlanets200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -82,24 +82,24 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanets(ctx cont
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -113,7 +113,7 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanets(ctx cont
  *     @param "datasource" (string) The server name you would like data from
  * @return GetCharactersCharacterIdPlanetsPlanetIdOk
  */
-func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanetsPlanetId(ctx context.Context, characterId int32, planetId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdPlanetsPlanetIdOk,  time.Time, error) {
+func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanetsPlanetId(ctx context.Context, characterId int32, planetId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdPlanetsPlanetIdOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -149,24 +149,24 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanetsPlanetId(
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -179,7 +179,7 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanetsPlanetId(
  *     @param "datasource" (string) The server name you would like data from
  * @return GetUniverseSchematicsSchematicIdOk
  */
-func (a PlanetaryInteractionApiService) GetUniverseSchematicsSchematicId(schematicId int32, localVarOptionals map[string]interface{}) (GetUniverseSchematicsSchematicIdOk,  time.Time, error) {
+func (a PlanetaryInteractionApiService) GetUniverseSchematicsSchematicId(schematicId int32, localVarOptionals map[string]interface{}) (GetUniverseSchematicsSchematicIdOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -214,23 +214,23 @@ func (a PlanetaryInteractionApiService) GetUniverseSchematicsSchematicId(schemat
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 

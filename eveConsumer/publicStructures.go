@@ -26,7 +26,8 @@ func (c *EVEConsumer) collectStructuresFromESI() error {
 	}
 
 	log.Printf("EVEConsumer: collecting structures")
-	w, cache, err := c.ctx.ESI.UniverseApi.GetUniverseStructures(nil)
+	w, r, err := c.ctx.ESI.UniverseApi.GetUniverseStructures(nil)
+	cache := esi.CacheExpires(r)
 	if err != nil {
 		return err
 	}

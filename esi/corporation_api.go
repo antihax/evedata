@@ -24,8 +24,8 @@ package esi
 
 import (
 	"net/url"
+	"net/http"
 	"strings"
-	"time"
 	"errors"
 	"golang.org/x/net/context"
 	"encoding/json"
@@ -47,7 +47,7 @@ type CorporationApiService service
  *     @param "datasource" (string) The server name you would like data from
  * @return GetCorporationsCorporationIdOk
  */
-func (a CorporationApiService) GetCorporationsCorporationId(corporationId int32, localVarOptionals map[string]interface{}) (GetCorporationsCorporationIdOk,  time.Time, error) {
+func (a CorporationApiService) GetCorporationsCorporationId(corporationId int32, localVarOptionals map[string]interface{}) (GetCorporationsCorporationIdOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -82,24 +82,24 @@ func (a CorporationApiService) GetCorporationsCorporationId(corporationId int32,
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -112,7 +112,7 @@ func (a CorporationApiService) GetCorporationsCorporationId(corporationId int32,
  *     @param "datasource" (string) The server name you would like data from
  * @return []GetCorporationsCorporationIdAlliancehistory200Ok
  */
-func (a CorporationApiService) GetCorporationsCorporationIdAlliancehistory(corporationId int32, localVarOptionals map[string]interface{}) ([]GetCorporationsCorporationIdAlliancehistory200Ok,  time.Time, error) {
+func (a CorporationApiService) GetCorporationsCorporationIdAlliancehistory(corporationId int32, localVarOptionals map[string]interface{}) ([]GetCorporationsCorporationIdAlliancehistory200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -147,24 +147,24 @@ func (a CorporationApiService) GetCorporationsCorporationIdAlliancehistory(corpo
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -177,7 +177,7 @@ func (a CorporationApiService) GetCorporationsCorporationIdAlliancehistory(corpo
  *     @param "datasource" (string) The server name you would like data from
  * @return GetCorporationsCorporationIdIconsOk
  */
-func (a CorporationApiService) GetCorporationsCorporationIdIcons(corporationId int32, localVarOptionals map[string]interface{}) (GetCorporationsCorporationIdIconsOk,  time.Time, error) {
+func (a CorporationApiService) GetCorporationsCorporationIdIcons(corporationId int32, localVarOptionals map[string]interface{}) (GetCorporationsCorporationIdIconsOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -212,24 +212,24 @@ func (a CorporationApiService) GetCorporationsCorporationIdIcons(corporationId i
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -242,7 +242,7 @@ func (a CorporationApiService) GetCorporationsCorporationIdIcons(corporationId i
  *     @param "datasource" (string) The server name you would like data from
  * @return []GetCorporationsCorporationIdMembers200Ok
  */
-func (a CorporationApiService) GetCorporationsCorporationIdMembers(ctx context.Context, corporationId int32, localVarOptionals map[string]interface{}) ([]GetCorporationsCorporationIdMembers200Ok,  time.Time, error) {
+func (a CorporationApiService) GetCorporationsCorporationIdMembers(ctx context.Context, corporationId int32, localVarOptionals map[string]interface{}) ([]GetCorporationsCorporationIdMembers200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -277,24 +277,24 @@ func (a CorporationApiService) GetCorporationsCorporationIdMembers(ctx context.C
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -307,7 +307,7 @@ func (a CorporationApiService) GetCorporationsCorporationIdMembers(ctx context.C
  *     @param "datasource" (string) The server name you would like data from
  * @return []GetCorporationsCorporationIdRoles200Ok
  */
-func (a CorporationApiService) GetCorporationsCorporationIdRoles(ctx context.Context, corporationId int32, localVarOptionals map[string]interface{}) ([]GetCorporationsCorporationIdRoles200Ok,  time.Time, error) {
+func (a CorporationApiService) GetCorporationsCorporationIdRoles(ctx context.Context, corporationId int32, localVarOptionals map[string]interface{}) ([]GetCorporationsCorporationIdRoles200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -342,24 +342,24 @@ func (a CorporationApiService) GetCorporationsCorporationIdRoles(ctx context.Con
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
 /**
@@ -372,7 +372,7 @@ func (a CorporationApiService) GetCorporationsCorporationIdRoles(ctx context.Con
  *     @param "datasource" (string) The server name you would like data from
  * @return []GetCorporationsNames200Ok
  */
-func (a CorporationApiService) GetCorporationsNames(corporationIds []int64, localVarOptionals map[string]interface{}) ([]GetCorporationsNames200Ok,  time.Time, error) {
+func (a CorporationApiService) GetCorporationsNames(corporationIds []int64, localVarOptionals map[string]interface{}) ([]GetCorporationsNames200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -407,23 +407,23 @@ func (a CorporationApiService) GetCorporationsNames(corporationIds []int64, loca
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
 	 if err != nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, nil, err
 	 }
 
 	 localVarHttpResponse, err := a.client.callAPI(r)
 	 if err != nil || localVarHttpResponse == nil {
-		  return successPayload, time.Now(), err
+		  return successPayload, localVarHttpResponse, err
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, time.Now(), errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
-	 	return successPayload, time.Now(), err
+	 	return successPayload, localVarHttpResponse, err
 	}
 
-	expires := cacheExpires(localVarHttpResponse)
-	return successPayload, expires, err
+
+	return successPayload, localVarHttpResponse, err
 }
 
