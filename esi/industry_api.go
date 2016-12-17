@@ -40,10 +40,12 @@ type IndustryApiService service
  * List industry facilities
  * Return a list of industry facilities  ---  Alternate route: &#x60;/v1/industry/facilities/&#x60;  Alternate route: &#x60;/legacy/industry/facilities/&#x60;  Alternate route: &#x60;/dev/industry/facilities/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param datasource(string) The server name you would like data from 
+
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetIndustryFacilities200Ok
  */
-func (a IndustryApiService) GetIndustryFacilities(datasource interface{}) ([]GetIndustryFacilities200Ok,  time.Time, error) {
+func (a IndustryApiService) GetIndustryFacilities(localVarOptionals map[string]interface{}) ([]GetIndustryFacilities200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -59,11 +61,8 @@ func (a IndustryApiService) GetIndustryFacilities(datasource interface{}) ([]Get
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -104,10 +103,12 @@ func (a IndustryApiService) GetIndustryFacilities(datasource interface{}) ([]Get
  * List solar system cost indices
  * Return cost indices for solar systems  ---  Alternate route: &#x60;/v1/industry/systems/&#x60;  Alternate route: &#x60;/legacy/industry/systems/&#x60;  Alternate route: &#x60;/dev/industry/systems/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param datasource(string) The server name you would like data from 
+
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetIndustrySystems200Ok
  */
-func (a IndustryApiService) GetIndustrySystems(datasource interface{}) ([]GetIndustrySystems200Ok,  time.Time, error) {
+func (a IndustryApiService) GetIndustrySystems(localVarOptionals map[string]interface{}) ([]GetIndustrySystems200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -123,11 +124,8 @@ func (a IndustryApiService) GetIndustrySystems(datasource interface{}) ([]GetInd
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header

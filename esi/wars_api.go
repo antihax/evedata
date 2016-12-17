@@ -41,11 +41,13 @@ type WarsApiService service
  * List wars
  * Return a list of wars  ---  Alternate route: &#x60;/v1/wars/&#x60;  Alternate route: &#x60;/legacy/wars/&#x60;  Alternate route: &#x60;/dev/wars/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param page(int32) Which page to query, starting at 1, 2000 wars per page. 
- * @param datasource(string) The server name you would like data from 
+
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "page" (int32) Which page to query, starting at 1, 2000 wars per page.
+ *     @param "datasource" (string) The server name you would like data from
  * @return []int32
  */
-func (a WarsApiService) GetWars(page interface{}, datasource interface{}) ([]int32,  time.Time, error) {
+func (a WarsApiService) GetWars(localVarOptionals map[string]interface{}) ([]int32,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -61,17 +63,11 @@ func (a WarsApiService) GetWars(page interface{}, datasource interface{}) ([]int
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(page, "int32", "page"); err != nil {
-		return successPayload, time.Now(), err
+	if localVarTempParam, localVarOk := localVarOptionals["page"].(int32); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("page", a.client.parameterToString(localVarTempParam, ""))
 	}
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if page != nil {
-		localVarQueryParams.Add("page", a.client.parameterToString(page, ""))
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -112,11 +108,13 @@ func (a WarsApiService) GetWars(page interface{}, datasource interface{}) ([]int
  * Get war information
  * Return details about a war  ---  Alternate route: &#x60;/v1/wars/{war_id}/&#x60;  Alternate route: &#x60;/legacy/wars/{war_id}/&#x60;  Alternate route: &#x60;/dev/wars/{war_id}/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param warId ID for a war 
- * @param datasource(string) The server name you would like data from 
+
+ * @param warId ID for a war
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetWarsWarIdOk
  */
-func (a WarsApiService) GetWarsWarId(warId int32, datasource interface{}) (GetWarsWarIdOk,  time.Time, error) {
+func (a WarsApiService) GetWarsWarId(warId int32, localVarOptionals map[string]interface{}) (GetWarsWarIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -133,11 +131,8 @@ func (a WarsApiService) GetWarsWarId(warId int32, datasource interface{}) (GetWa
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -178,12 +173,14 @@ func (a WarsApiService) GetWarsWarId(warId int32, datasource interface{}) (GetWa
  * List kills for a war
  * Return a list of kills related to a war  ---  Alternate route: &#x60;/v1/wars/{war_id}/killmails/&#x60;  Alternate route: &#x60;/legacy/wars/{war_id}/killmails/&#x60;  Alternate route: &#x60;/dev/wars/{war_id}/killmails/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param warId A valid war ID 
- * @param page(int32) Which page to query, starting at 1, 2000 killmails per page. 
- * @param datasource(string) The server name you would like data from 
+
+ * @param warId A valid war ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "page" (int32) Which page to query, starting at 1, 2000 killmails per page.
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetWarsWarIdKillmails200Ok
  */
-func (a WarsApiService) GetWarsWarIdKillmails(warId int32, page interface{}, datasource interface{}) ([]GetWarsWarIdKillmails200Ok,  time.Time, error) {
+func (a WarsApiService) GetWarsWarIdKillmails(warId int32, localVarOptionals map[string]interface{}) ([]GetWarsWarIdKillmails200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -200,17 +197,11 @@ func (a WarsApiService) GetWarsWarIdKillmails(warId int32, page interface{}, dat
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(page, "int32", "page"); err != nil {
-		return successPayload, time.Now(), err
+	if localVarTempParam, localVarOk := localVarOptionals["page"].(int32); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("page", a.client.parameterToString(localVarTempParam, ""))
 	}
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if page != nil {
-		localVarQueryParams.Add("page", a.client.parameterToString(page, ""))
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header

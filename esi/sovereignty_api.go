@@ -40,10 +40,12 @@ type SovereigntyApiService service
  * List sovereignty campaigns
  * Shows sovereignty data for campaigns.  ---  Alternate route: &#x60;/v1/sovereignty/campaigns/&#x60;  Alternate route: &#x60;/legacy/sovereignty/campaigns/&#x60;  Alternate route: &#x60;/dev/sovereignty/campaigns/&#x60;   ---  This route is cached for up to 5 seconds
  *
- * @param datasource(string) The server name you would like data from 
+
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetSovereigntyCampaigns200Ok
  */
-func (a SovereigntyApiService) GetSovereigntyCampaigns(datasource interface{}) ([]GetSovereigntyCampaigns200Ok,  time.Time, error) {
+func (a SovereigntyApiService) GetSovereigntyCampaigns(localVarOptionals map[string]interface{}) ([]GetSovereigntyCampaigns200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -59,11 +61,8 @@ func (a SovereigntyApiService) GetSovereigntyCampaigns(datasource interface{}) (
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -104,10 +103,12 @@ func (a SovereigntyApiService) GetSovereigntyCampaigns(datasource interface{}) (
  * List sovereignty structures
  * Shows sovereignty data for structures.  ---  Alternate route: &#x60;/v1/sovereignty/structures/&#x60;  Alternate route: &#x60;/legacy/sovereignty/structures/&#x60;  Alternate route: &#x60;/dev/sovereignty/structures/&#x60;   ---  This route is cached for up to 120 seconds
  *
- * @param datasource(string) The server name you would like data from 
+
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetSovereigntyStructures200Ok
  */
-func (a SovereigntyApiService) GetSovereigntyStructures(datasource interface{}) ([]GetSovereigntyStructures200Ok,  time.Time, error) {
+func (a SovereigntyApiService) GetSovereigntyStructures(localVarOptionals map[string]interface{}) ([]GetSovereigntyStructures200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -123,11 +124,8 @@ func (a SovereigntyApiService) GetSovereigntyStructures(datasource interface{}) 
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header

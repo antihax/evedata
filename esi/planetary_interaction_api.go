@@ -41,11 +41,13 @@ type PlanetaryInteractionApiService service
  * Get colonies
  * Returns a list of all planetary colonies owned by a character.  ---  Alternate route: &#x60;/v1/characters/{character_id}/planets/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/planets/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/planets/&#x60;   ---  This route is cached for up to 600 seconds
  *
- * @param characterId Character id of the target character 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param characterId Character id of the target character
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetCharactersCharacterIdPlanets200Ok
  */
-func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanets(ctx context.Context, characterId int32, datasource interface{}) ([]GetCharactersCharacterIdPlanets200Ok,  time.Time, error) {
+func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanets(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdPlanets200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -62,11 +64,8 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanets(ctx cont
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -107,12 +106,14 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanets(ctx cont
  * Get colony layout
  * Returns full details on the layout of a single planetary colony, including links, pins and routes. Note: Planetary information is only recalculated when the colony is viewed through the client. Information on this endpoint will not update until this criteria is met.  ---  Alternate route: &#x60;/v1/characters/{character_id}/planets/{planet_id}/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/planets/{planet_id}/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/planets/{planet_id}/&#x60;   ---  This route is cached for up to 600 seconds
  *
- * @param characterId Character id of the target character 
- * @param planetId Planet id of the target planet 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param characterId Character id of the target character
+ * @param planetId Planet id of the target planet
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetCharactersCharacterIdPlanetsPlanetIdOk
  */
-func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanetsPlanetId(ctx context.Context, characterId int32, planetId int32, datasource interface{}) (GetCharactersCharacterIdPlanetsPlanetIdOk,  time.Time, error) {
+func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanetsPlanetId(ctx context.Context, characterId int32, planetId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdPlanetsPlanetIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -130,11 +131,8 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanetsPlanetId(
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -175,11 +173,13 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanetsPlanetId(
  * Get schematic information
  * Get information on a planetary factory schematic  ---  Alternate route: &#x60;/v1/universe/schematics/{schematic_id}/&#x60;  Alternate route: &#x60;/legacy/universe/schematics/{schematic_id}/&#x60;  Alternate route: &#x60;/dev/universe/schematics/{schematic_id}/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param schematicId A PI schematic ID 
- * @param datasource(string) The server name you would like data from 
+
+ * @param schematicId A PI schematic ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetUniverseSchematicsSchematicIdOk
  */
-func (a PlanetaryInteractionApiService) GetUniverseSchematicsSchematicId(schematicId int32, datasource interface{}) (GetUniverseSchematicsSchematicIdOk,  time.Time, error) {
+func (a PlanetaryInteractionApiService) GetUniverseSchematicsSchematicId(schematicId int32, localVarOptionals map[string]interface{}) (GetUniverseSchematicsSchematicIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -196,11 +196,8 @@ func (a PlanetaryInteractionApiService) GetUniverseSchematicsSchematicId(schemat
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header

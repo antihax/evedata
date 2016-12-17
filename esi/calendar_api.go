@@ -41,12 +41,14 @@ type CalendarApiService service
  * List calendar event summaries
  * Get 50 event summaries from the calendar. If no event ID is given, the resource will return the next 50 chronological event summaries from now. If an event ID is specified, it will return the next 50 chronological event summaries from after that event.   ---  Alternate route: &#x60;/v1/characters/{character_id}/calendar/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/calendar/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/calendar/&#x60;   ---  This route is cached for up to 5 seconds
  *
- * @param characterId The character to retrieve events from 
- * @param fromEvent(int32) The event ID to retrieve events from 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param characterId The character to retrieve events from
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "fromEvent" (int32) The event ID to retrieve events from
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetCharactersCharacterIdCalendar200Ok
  */
-func (a CalendarApiService) GetCharactersCharacterIdCalendar(ctx context.Context, characterId int64, fromEvent interface{}, datasource interface{}) ([]GetCharactersCharacterIdCalendar200Ok,  time.Time, error) {
+func (a CalendarApiService) GetCharactersCharacterIdCalendar(ctx context.Context, characterId int64, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdCalendar200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -63,17 +65,11 @@ func (a CalendarApiService) GetCharactersCharacterIdCalendar(ctx context.Context
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(fromEvent, "int32", "fromEvent"); err != nil {
-		return successPayload, time.Now(), err
+	if localVarTempParam, localVarOk := localVarOptionals["fromEvent"].(int32); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("from_event", a.client.parameterToString(localVarTempParam, ""))
 	}
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if fromEvent != nil {
-		localVarQueryParams.Add("from_event", a.client.parameterToString(fromEvent, ""))
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -114,12 +110,14 @@ func (a CalendarApiService) GetCharactersCharacterIdCalendar(ctx context.Context
  * Get an event
  * Get all the information for a specific event  ---  Alternate route: &#x60;/v3/characters/{character_id}/calendar/{event_id}/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/calendar/{event_id}/&#x60;   ---  This route is cached for up to 5 seconds
  *
- * @param characterId The character id requesting the event 
- * @param eventId The id of the event requested 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param characterId The character id requesting the event
+ * @param eventId The id of the event requested
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetCharactersCharacterIdCalendarEventIdOk
  */
-func (a CalendarApiService) GetCharactersCharacterIdCalendarEventId(ctx context.Context, characterId int64, eventId int32, datasource interface{}) (GetCharactersCharacterIdCalendarEventIdOk,  time.Time, error) {
+func (a CalendarApiService) GetCharactersCharacterIdCalendarEventId(ctx context.Context, characterId int64, eventId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdCalendarEventIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -137,11 +135,8 @@ func (a CalendarApiService) GetCharactersCharacterIdCalendarEventId(ctx context.
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -182,13 +177,15 @@ func (a CalendarApiService) GetCharactersCharacterIdCalendarEventId(ctx context.
  * Respond to an event
  * Set your response status to an event  ---  Alternate route: &#x60;/v3/characters/{character_id}/calendar/{event_id}/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/calendar/{event_id}/&#x60; 
  *
- * @param characterId The character ID requesting the event 
- * @param eventId The ID of the event requested 
- * @param response The response value to set, overriding current value. 
- * @param datasource(string) The server name you would like data from 
- * @return nil
+ * @param ctx context.Context Authentication Context 
+ * @param characterId The character ID requesting the event
+ * @param eventId The ID of the event requested
+ * @param response The response value to set, overriding current value.
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
+ * @return 
  */
-func (a CalendarApiService) PutCharactersCharacterIdCalendarEventId(ctx context.Context, characterId int32, eventId int32, response PutCharactersCharacterIdCalendarEventIdResponse, datasource interface{}) ( time.Time, error) {
+func (a CalendarApiService) PutCharactersCharacterIdCalendarEventId(ctx context.Context, characterId int32, eventId int32, response PutCharactersCharacterIdCalendarEventIdResponse, localVarOptionals map[string]interface{}) ( time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody interface{}
@@ -205,11 +202,8 @@ func (a CalendarApiService) PutCharactersCharacterIdCalendarEventId(ctx context.
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header

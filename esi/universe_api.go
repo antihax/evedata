@@ -41,11 +41,13 @@ type UniverseApiService service
  * Get station information
  * Public information on stations  ---  Alternate route: &#x60;/v1/universe/stations/{station_id}/&#x60;  Alternate route: &#x60;/legacy/universe/stations/{station_id}/&#x60;  Alternate route: &#x60;/dev/universe/stations/{station_id}/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param stationId An Eve station ID 
- * @param datasource(string) The server name you would like data from 
+
+ * @param stationId An Eve station ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetUniverseStationsStationIdOk
  */
-func (a UniverseApiService) GetUniverseStationsStationId(stationId int32, datasource interface{}) (GetUniverseStationsStationIdOk,  time.Time, error) {
+func (a UniverseApiService) GetUniverseStationsStationId(stationId int32, localVarOptionals map[string]interface{}) (GetUniverseStationsStationIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -62,11 +64,8 @@ func (a UniverseApiService) GetUniverseStationsStationId(stationId int32, dataso
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -107,10 +106,12 @@ func (a UniverseApiService) GetUniverseStationsStationId(stationId int32, dataso
  * List all public structures
  * List all public structures  ---  Alternate route: &#x60;/v1/universe/structures/&#x60;  Alternate route: &#x60;/legacy/universe/structures/&#x60;  Alternate route: &#x60;/dev/universe/structures/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param datasource(string) The server name you would like data from 
+
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []int64
  */
-func (a UniverseApiService) GetUniverseStructures(datasource interface{}) ([]int64,  time.Time, error) {
+func (a UniverseApiService) GetUniverseStructures(localVarOptionals map[string]interface{}) ([]int64,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -126,11 +127,8 @@ func (a UniverseApiService) GetUniverseStructures(datasource interface{}) ([]int
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -171,11 +169,13 @@ func (a UniverseApiService) GetUniverseStructures(datasource interface{}) ([]int
  * Get structure information
  * Returns information on requested structure, if you are on the ACL. Otherwise, returns \&quot;Forbidden\&quot; for all inputs.  ---  Alternate route: &#x60;/v1/universe/structures/{structure_id}/&#x60;  Alternate route: &#x60;/legacy/universe/structures/{structure_id}/&#x60;  Alternate route: &#x60;/dev/universe/structures/{structure_id}/&#x60; 
  *
- * @param structureId An Eve structure ID 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param structureId An Eve structure ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetUniverseStructuresStructureIdOk
  */
-func (a UniverseApiService) GetUniverseStructuresStructureId(ctx context.Context, structureId int64, datasource interface{}) (GetUniverseStructuresStructureIdOk,  time.Time, error) {
+func (a UniverseApiService) GetUniverseStructuresStructureId(ctx context.Context, structureId int64, localVarOptionals map[string]interface{}) (GetUniverseStructuresStructureIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -192,11 +192,8 @@ func (a UniverseApiService) GetUniverseStructuresStructureId(ctx context.Context
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -237,11 +234,13 @@ func (a UniverseApiService) GetUniverseStructuresStructureId(ctx context.Context
  * Get solar system information
  * Information on solar systems  ---  Alternate route: &#x60;/v1/universe/systems/{system_id}/&#x60;  Alternate route: &#x60;/legacy/universe/systems/{system_id}/&#x60;  Alternate route: &#x60;/dev/universe/systems/{system_id}/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param systemId An Eve solar system ID 
- * @param datasource(string) The server name you would like data from 
+
+ * @param systemId An Eve solar system ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetUniverseSystemsSystemIdOk
  */
-func (a UniverseApiService) GetUniverseSystemsSystemId(systemId int32, datasource interface{}) (GetUniverseSystemsSystemIdOk,  time.Time, error) {
+func (a UniverseApiService) GetUniverseSystemsSystemId(systemId int32, localVarOptionals map[string]interface{}) (GetUniverseSystemsSystemIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -258,11 +257,8 @@ func (a UniverseApiService) GetUniverseSystemsSystemId(systemId int32, datasourc
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -303,11 +299,13 @@ func (a UniverseApiService) GetUniverseSystemsSystemId(systemId int32, datasourc
  * Get type information
  * Get information on a type  ---  Alternate route: &#x60;/v1/universe/types/{type_id}/&#x60;  Alternate route: &#x60;/legacy/universe/types/{type_id}/&#x60;  Alternate route: &#x60;/dev/universe/types/{type_id}/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param typeId An Eve item type ID 
- * @param datasource(string) The server name you would like data from 
+
+ * @param typeId An Eve item type ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetUniverseTypesTypeIdOk
  */
-func (a UniverseApiService) GetUniverseTypesTypeId(typeId int32, datasource interface{}) (GetUniverseTypesTypeIdOk,  time.Time, error) {
+func (a UniverseApiService) GetUniverseTypesTypeId(typeId int32, localVarOptionals map[string]interface{}) (GetUniverseTypesTypeIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -324,11 +322,8 @@ func (a UniverseApiService) GetUniverseTypesTypeId(typeId int32, datasource inte
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -369,11 +364,13 @@ func (a UniverseApiService) GetUniverseTypesTypeId(typeId int32, datasource inte
  * Get names and categories for a set of ID&#39;s
  * Resolve a set of IDs to names and categories. Supported ID&#39;s for resolving are: Characters, Corporations, Alliances, Stations, Solar Systems, Constellations, Regions, Types.  ---  Alternate route: &#x60;/v1/universe/names/&#x60;  Alternate route: &#x60;/legacy/universe/names/&#x60; 
  *
- * @param ids The ids to resolve 
- * @param datasource(string) The server name you would like data from 
+
+ * @param ids The ids to resolve
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []PostUniverseNames200Ok
  */
-func (a UniverseApiService) PostUniverseNames(ids PostUniverseNamesIds, datasource interface{}) ([]PostUniverseNames200Ok,  time.Time, error) {
+func (a UniverseApiService) PostUniverseNames(ids PostUniverseNamesIds, localVarOptionals map[string]interface{}) ([]PostUniverseNames200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}
@@ -389,11 +386,8 @@ func (a UniverseApiService) PostUniverseNames(ids PostUniverseNamesIds, datasour
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header

@@ -40,10 +40,12 @@ type IncursionsApiService service
  * List incursions
  * Return a list of current incursions  ---  Alternate route: &#x60;/v1/incursions/&#x60;  Alternate route: &#x60;/legacy/incursions/&#x60;  Alternate route: &#x60;/dev/incursions/&#x60;   ---  This route is cached for up to 300 seconds
  *
- * @param datasource(string) The server name you would like data from 
+
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetIncursions200Ok
  */
-func (a IncursionsApiService) GetIncursions(datasource interface{}) ([]GetIncursions200Ok,  time.Time, error) {
+func (a IncursionsApiService) GetIncursions(localVarOptionals map[string]interface{}) ([]GetIncursions200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -59,11 +61,8 @@ func (a IncursionsApiService) GetIncursions(datasource interface{}) ([]GetIncurs
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header

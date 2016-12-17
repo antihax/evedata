@@ -41,10 +41,12 @@ type AllianceApiService service
  * List all alliances
  * List all active player alliances  ---  Alternate route: &#x60;/v1/alliances/&#x60;  Alternate route: &#x60;/legacy/alliances/&#x60;  Alternate route: &#x60;/dev/alliances/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param datasource(string) The server name you would like data from 
+
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []int32
  */
-func (a AllianceApiService) GetAlliances(datasource interface{}) ([]int32,  time.Time, error) {
+func (a AllianceApiService) GetAlliances(localVarOptionals map[string]interface{}) ([]int32,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -60,11 +62,8 @@ func (a AllianceApiService) GetAlliances(datasource interface{}) ([]int32,  time
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -105,11 +104,13 @@ func (a AllianceApiService) GetAlliances(datasource interface{}) ([]int32,  time
  * Get alliance information
  * Public information about an alliance  ---  Alternate route: &#x60;/v2/alliances/{alliance_id}/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param allianceId An Eve alliance ID 
- * @param datasource(string) The server name you would like data from 
+
+ * @param allianceId An Eve alliance ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetAlliancesAllianceIdOk
  */
-func (a AllianceApiService) GetAlliancesAllianceId(allianceId int32, datasource interface{}) (GetAlliancesAllianceIdOk,  time.Time, error) {
+func (a AllianceApiService) GetAlliancesAllianceId(allianceId int32, localVarOptionals map[string]interface{}) (GetAlliancesAllianceIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -126,11 +127,8 @@ func (a AllianceApiService) GetAlliancesAllianceId(allianceId int32, datasource 
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -171,11 +169,13 @@ func (a AllianceApiService) GetAlliancesAllianceId(allianceId int32, datasource 
  * List alliance&#39;s corporations
  * List all current member corporations of an alliance  ---  Alternate route: &#x60;/v1/alliances/{alliance_id}/corporations/&#x60;  Alternate route: &#x60;/legacy/alliances/{alliance_id}/corporations/&#x60;  Alternate route: &#x60;/dev/alliances/{alliance_id}/corporations/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param allianceId An EVE alliance ID 
- * @param datasource(string) The server name you would like data from 
+
+ * @param allianceId An EVE alliance ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []int32
  */
-func (a AllianceApiService) GetAlliancesAllianceIdCorporations(allianceId int32, datasource interface{}) ([]int32,  time.Time, error) {
+func (a AllianceApiService) GetAlliancesAllianceIdCorporations(allianceId int32, localVarOptionals map[string]interface{}) ([]int32,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -192,11 +192,8 @@ func (a AllianceApiService) GetAlliancesAllianceIdCorporations(allianceId int32,
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -237,11 +234,13 @@ func (a AllianceApiService) GetAlliancesAllianceIdCorporations(allianceId int32,
  * Get alliance icon
  * Get the icon urls for a alliance  ---  Alternate route: &#x60;/v1/alliances/{alliance_id}/icons/&#x60;  Alternate route: &#x60;/legacy/alliances/{alliance_id}/icons/&#x60;  Alternate route: &#x60;/dev/alliances/{alliance_id}/icons/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param allianceId An EVE alliance ID 
- * @param datasource(string) The server name you would like data from 
+
+ * @param allianceId An EVE alliance ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetAlliancesAllianceIdIconsOk
  */
-func (a AllianceApiService) GetAlliancesAllianceIdIcons(allianceId int32, datasource interface{}) (GetAlliancesAllianceIdIconsOk,  time.Time, error) {
+func (a AllianceApiService) GetAlliancesAllianceIdIcons(allianceId int32, localVarOptionals map[string]interface{}) (GetAlliancesAllianceIdIconsOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -258,11 +257,8 @@ func (a AllianceApiService) GetAlliancesAllianceIdIcons(allianceId int32, dataso
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -303,11 +299,13 @@ func (a AllianceApiService) GetAlliancesAllianceIdIcons(allianceId int32, dataso
  * Get alliance names
  * Resolve a set of alliance IDs to alliance names  ---  Alternate route: &#x60;/v1/alliances/names/&#x60;  Alternate route: &#x60;/legacy/alliances/names/&#x60;  Alternate route: &#x60;/dev/alliances/names/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param allianceIds A comma separated list of alliance IDs 
- * @param datasource(string) The server name you would like data from 
+
+ * @param allianceIds A comma separated list of alliance IDs
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetAlliancesNames200Ok
  */
-func (a AllianceApiService) GetAlliancesNames(allianceIds []int64, datasource interface{}) ([]GetAlliancesNames200Ok,  time.Time, error) {
+func (a AllianceApiService) GetAlliancesNames(allianceIds []int64, localVarOptionals map[string]interface{}) ([]GetAlliancesNames200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -323,12 +321,9 @@ func (a AllianceApiService) GetAlliancesNames(allianceIds []int64, datasource in
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-		localVarQueryParams.Add("alliance_ids", a.client.parameterToString(allianceIds, "csv"))
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	localVarQueryParams.Add("alliance_ids", a.client.parameterToString(allianceIds, "csv"))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header

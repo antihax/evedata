@@ -41,12 +41,14 @@ type FleetsApiService service
  * Kick fleet member
  * Kick a fleet member  ---  Alternate route: &#x60;/v1/fleets/{fleet_id}/members/{member_id}/&#x60;  Alternate route: &#x60;/legacy/fleets/{fleet_id}/members/{member_id}/&#x60;  Alternate route: &#x60;/dev/fleets/{fleet_id}/members/{member_id}/&#x60; 
  *
- * @param fleetId ID for a fleet 
- * @param memberId The character ID of a member in this fleet 
- * @param datasource(string) The server name you would like data from 
- * @return nil
+ * @param ctx context.Context Authentication Context 
+ * @param fleetId ID for a fleet
+ * @param memberId The character ID of a member in this fleet
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
+ * @return 
  */
-func (a FleetsApiService) DeleteFleetsFleetIdMembersMemberId(ctx context.Context, fleetId int64, memberId int32, datasource interface{}) ( time.Time, error) {
+func (a FleetsApiService) DeleteFleetsFleetIdMembersMemberId(ctx context.Context, fleetId int64, memberId int32, localVarOptionals map[string]interface{}) ( time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody interface{}
@@ -63,11 +65,8 @@ func (a FleetsApiService) DeleteFleetsFleetIdMembersMemberId(ctx context.Context
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -103,12 +102,14 @@ func (a FleetsApiService) DeleteFleetsFleetIdMembersMemberId(ctx context.Context
  * Delete fleet squad
  * Delete a fleet squad, only empty squads can be deleted  ---  Alternate route: &#x60;/v1/fleets/{fleet_id}/squads/{squad_id}/&#x60;  Alternate route: &#x60;/legacy/fleets/{fleet_id}/squads/{squad_id}/&#x60;  Alternate route: &#x60;/dev/fleets/{fleet_id}/squads/{squad_id}/&#x60; 
  *
- * @param fleetId ID for a fleet 
- * @param squadId The squad to delete 
- * @param datasource(string) The server name you would like data from 
- * @return nil
+ * @param ctx context.Context Authentication Context 
+ * @param fleetId ID for a fleet
+ * @param squadId The squad to delete
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
+ * @return 
  */
-func (a FleetsApiService) DeleteFleetsFleetIdSquadsSquadId(ctx context.Context, fleetId int64, squadId int64, datasource interface{}) ( time.Time, error) {
+func (a FleetsApiService) DeleteFleetsFleetIdSquadsSquadId(ctx context.Context, fleetId int64, squadId int64, localVarOptionals map[string]interface{}) ( time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody interface{}
@@ -125,11 +126,8 @@ func (a FleetsApiService) DeleteFleetsFleetIdSquadsSquadId(ctx context.Context, 
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -165,12 +163,14 @@ func (a FleetsApiService) DeleteFleetsFleetIdSquadsSquadId(ctx context.Context, 
  * Delete fleet wing
  * Delete a fleet wing, only empty wings can be deleted. The wing may contain squads, but the squads must be empty  ---  Alternate route: &#x60;/v1/fleets/{fleet_id}/wings/{wing_id}/&#x60;  Alternate route: &#x60;/legacy/fleets/{fleet_id}/wings/{wing_id}/&#x60;  Alternate route: &#x60;/dev/fleets/{fleet_id}/wings/{wing_id}/&#x60; 
  *
- * @param fleetId ID for a fleet 
- * @param wingId The wing to delete 
- * @param datasource(string) The server name you would like data from 
- * @return nil
+ * @param ctx context.Context Authentication Context 
+ * @param fleetId ID for a fleet
+ * @param wingId The wing to delete
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
+ * @return 
  */
-func (a FleetsApiService) DeleteFleetsFleetIdWingsWingId(ctx context.Context, fleetId int64, wingId int64, datasource interface{}) ( time.Time, error) {
+func (a FleetsApiService) DeleteFleetsFleetIdWingsWingId(ctx context.Context, fleetId int64, wingId int64, localVarOptionals map[string]interface{}) ( time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody interface{}
@@ -187,11 +187,8 @@ func (a FleetsApiService) DeleteFleetsFleetIdWingsWingId(ctx context.Context, fl
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -227,11 +224,13 @@ func (a FleetsApiService) DeleteFleetsFleetIdWingsWingId(ctx context.Context, fl
  * Get fleet information
  * Return details about a fleet  ---  Alternate route: &#x60;/v1/fleets/{fleet_id}/&#x60;  Alternate route: &#x60;/legacy/fleets/{fleet_id}/&#x60;  Alternate route: &#x60;/dev/fleets/{fleet_id}/&#x60;   ---  This route is cached for up to 5 seconds
  *
- * @param fleetId ID for a fleet 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param fleetId ID for a fleet
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetFleetsFleetIdOk
  */
-func (a FleetsApiService) GetFleetsFleetId(ctx context.Context, fleetId int64, datasource interface{}) (GetFleetsFleetIdOk,  time.Time, error) {
+func (a FleetsApiService) GetFleetsFleetId(ctx context.Context, fleetId int64, localVarOptionals map[string]interface{}) (GetFleetsFleetIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -248,11 +247,8 @@ func (a FleetsApiService) GetFleetsFleetId(ctx context.Context, fleetId int64, d
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -293,12 +289,14 @@ func (a FleetsApiService) GetFleetsFleetId(ctx context.Context, fleetId int64, d
  * Get fleet members
  * Return information about fleet members  ---  Alternate route: &#x60;/v1/fleets/{fleet_id}/members/&#x60;  Alternate route: &#x60;/legacy/fleets/{fleet_id}/members/&#x60;  Alternate route: &#x60;/dev/fleets/{fleet_id}/members/&#x60;   ---  This route is cached for up to 5 seconds
  *
- * @param fleetId ID for a fleet 
- * @param acceptLanguage(string) Language to use in the response 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param fleetId ID for a fleet
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "acceptLanguage" (string) Language to use in the response
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetFleetsFleetIdMembers200Ok
  */
-func (a FleetsApiService) GetFleetsFleetIdMembers(ctx context.Context, fleetId int64, acceptLanguage interface{}, datasource interface{}) ([]GetFleetsFleetIdMembers200Ok,  time.Time, error) {
+func (a FleetsApiService) GetFleetsFleetIdMembers(ctx context.Context, fleetId int64, localVarOptionals map[string]interface{}) ([]GetFleetsFleetIdMembers200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -315,14 +313,8 @@ func (a FleetsApiService) GetFleetsFleetIdMembers(ctx context.Context, fleetId i
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(acceptLanguage, "string", "acceptLanguage"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -335,8 +327,9 @@ func (a FleetsApiService) GetFleetsFleetIdMembers(ctx context.Context, fleetId i
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	// header params "Accept-Language"
-	localVarHeaderParams["Accept-Language"] = a.client.parameterToString(acceptLanguage, "")
+	if localVarTempParam, localVarOk := localVarOptionals["acceptLanguage"].(string); localVarOptionals != nil && localVarOk {
+		localVarHeaderParams["Accept-Language"] = a.client.parameterToString(localVarTempParam, "")
+	}
 
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
@@ -365,12 +358,14 @@ func (a FleetsApiService) GetFleetsFleetIdMembers(ctx context.Context, fleetId i
  * Get fleet wings
  * Return information about wings in a fleet  ---  Alternate route: &#x60;/v1/fleets/{fleet_id}/wings/&#x60;  Alternate route: &#x60;/legacy/fleets/{fleet_id}/wings/&#x60;  Alternate route: &#x60;/dev/fleets/{fleet_id}/wings/&#x60;   ---  This route is cached for up to 5 seconds
  *
- * @param fleetId ID for a fleet 
- * @param acceptLanguage(string) Language to use in the response 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param fleetId ID for a fleet
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "acceptLanguage" (string) Language to use in the response
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetFleetsFleetIdWings200Ok
  */
-func (a FleetsApiService) GetFleetsFleetIdWings(ctx context.Context, fleetId int64, acceptLanguage interface{}, datasource interface{}) ([]GetFleetsFleetIdWings200Ok,  time.Time, error) {
+func (a FleetsApiService) GetFleetsFleetIdWings(ctx context.Context, fleetId int64, localVarOptionals map[string]interface{}) ([]GetFleetsFleetIdWings200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -387,14 +382,8 @@ func (a FleetsApiService) GetFleetsFleetIdWings(ctx context.Context, fleetId int
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(acceptLanguage, "string", "acceptLanguage"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -407,8 +396,9 @@ func (a FleetsApiService) GetFleetsFleetIdWings(ctx context.Context, fleetId int
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	// header params "Accept-Language"
-	localVarHeaderParams["Accept-Language"] = a.client.parameterToString(acceptLanguage, "")
+	if localVarTempParam, localVarOk := localVarOptionals["acceptLanguage"].(string); localVarOptionals != nil && localVarOk {
+		localVarHeaderParams["Accept-Language"] = a.client.parameterToString(localVarTempParam, "")
+	}
 
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
@@ -437,12 +427,14 @@ func (a FleetsApiService) GetFleetsFleetIdWings(ctx context.Context, fleetId int
  * Create fleet invitation
  * Invite a character into the fleet, if a character has a CSPA charge set, it is not possible to invite them to the fleet using ESI  ---  Alternate route: &#x60;/v1/fleets/{fleet_id}/members/&#x60;  Alternate route: &#x60;/legacy/fleets/{fleet_id}/members/&#x60;  Alternate route: &#x60;/dev/fleets/{fleet_id}/members/&#x60; 
  *
- * @param fleetId ID for a fleet 
- * @param invitation Details of the invitation 
- * @param datasource(string) The server name you would like data from 
- * @return nil
+ * @param ctx context.Context Authentication Context 
+ * @param fleetId ID for a fleet
+ * @param invitation Details of the invitation
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
+ * @return 
  */
-func (a FleetsApiService) PostFleetsFleetIdMembers(ctx context.Context, fleetId int64, invitation PostFleetsFleetIdMembersInvitation, datasource interface{}) ( time.Time, error) {
+func (a FleetsApiService) PostFleetsFleetIdMembers(ctx context.Context, fleetId int64, invitation PostFleetsFleetIdMembersInvitation, localVarOptionals map[string]interface{}) ( time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}
@@ -458,11 +450,8 @@ func (a FleetsApiService) PostFleetsFleetIdMembers(ctx context.Context, fleetId 
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -500,11 +489,13 @@ func (a FleetsApiService) PostFleetsFleetIdMembers(ctx context.Context, fleetId 
  * Create fleet wing
  * Create a new wing in a fleet  ---  Alternate route: &#x60;/v1/fleets/{fleet_id}/wings/&#x60;  Alternate route: &#x60;/legacy/fleets/{fleet_id}/wings/&#x60;  Alternate route: &#x60;/dev/fleets/{fleet_id}/wings/&#x60; 
  *
- * @param fleetId ID for a fleet 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param fleetId ID for a fleet
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return PostFleetsFleetIdWingsCreated
  */
-func (a FleetsApiService) PostFleetsFleetIdWings(ctx context.Context, fleetId int64, datasource interface{}) (PostFleetsFleetIdWingsCreated,  time.Time, error) {
+func (a FleetsApiService) PostFleetsFleetIdWings(ctx context.Context, fleetId int64, localVarOptionals map[string]interface{}) (PostFleetsFleetIdWingsCreated,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}
@@ -521,11 +512,8 @@ func (a FleetsApiService) PostFleetsFleetIdWings(ctx context.Context, fleetId in
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -566,12 +554,14 @@ func (a FleetsApiService) PostFleetsFleetIdWings(ctx context.Context, fleetId in
  * Create fleet squad
  * Create a new squad in a fleet  ---  Alternate route: &#x60;/v1/fleets/{fleet_id}/wings/{wing_id}/squads/&#x60;  Alternate route: &#x60;/legacy/fleets/{fleet_id}/wings/{wing_id}/squads/&#x60;  Alternate route: &#x60;/dev/fleets/{fleet_id}/wings/{wing_id}/squads/&#x60; 
  *
- * @param fleetId ID for a fleet 
- * @param wingId The wing_id to create squad in 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param fleetId ID for a fleet
+ * @param wingId The wing_id to create squad in
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return PostFleetsFleetIdWingsWingIdSquadsCreated
  */
-func (a FleetsApiService) PostFleetsFleetIdWingsWingIdSquads(ctx context.Context, fleetId int64, wingId int64, datasource interface{}) (PostFleetsFleetIdWingsWingIdSquadsCreated,  time.Time, error) {
+func (a FleetsApiService) PostFleetsFleetIdWingsWingIdSquads(ctx context.Context, fleetId int64, wingId int64, localVarOptionals map[string]interface{}) (PostFleetsFleetIdWingsWingIdSquadsCreated,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}
@@ -589,11 +579,8 @@ func (a FleetsApiService) PostFleetsFleetIdWingsWingIdSquads(ctx context.Context
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -634,12 +621,14 @@ func (a FleetsApiService) PostFleetsFleetIdWingsWingIdSquads(ctx context.Context
  * Update fleet
  * Update settings about a fleet  ---  Alternate route: &#x60;/v1/fleets/{fleet_id}/&#x60;  Alternate route: &#x60;/legacy/fleets/{fleet_id}/&#x60;  Alternate route: &#x60;/dev/fleets/{fleet_id}/&#x60; 
  *
- * @param fleetId ID for a fleet 
- * @param newSettings What to update for this fleet 
- * @param datasource(string) The server name you would like data from 
- * @return nil
+ * @param ctx context.Context Authentication Context 
+ * @param fleetId ID for a fleet
+ * @param newSettings What to update for this fleet
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
+ * @return 
  */
-func (a FleetsApiService) PutFleetsFleetId(ctx context.Context, fleetId int64, newSettings PutFleetsFleetIdNewSettings, datasource interface{}) ( time.Time, error) {
+func (a FleetsApiService) PutFleetsFleetId(ctx context.Context, fleetId int64, newSettings PutFleetsFleetIdNewSettings, localVarOptionals map[string]interface{}) ( time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody interface{}
@@ -655,11 +644,8 @@ func (a FleetsApiService) PutFleetsFleetId(ctx context.Context, fleetId int64, n
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -697,13 +683,15 @@ func (a FleetsApiService) PutFleetsFleetId(ctx context.Context, fleetId int64, n
  * Move fleet member
  * Move a fleet member around  ---  Alternate route: &#x60;/v1/fleets/{fleet_id}/members/{member_id}/&#x60;  Alternate route: &#x60;/legacy/fleets/{fleet_id}/members/{member_id}/&#x60;  Alternate route: &#x60;/dev/fleets/{fleet_id}/members/{member_id}/&#x60; 
  *
- * @param fleetId ID for a fleet 
- * @param memberId The character ID of a member in this fleet 
- * @param movement Details of the invitation 
- * @param datasource(string) The server name you would like data from 
- * @return nil
+ * @param ctx context.Context Authentication Context 
+ * @param fleetId ID for a fleet
+ * @param memberId The character ID of a member in this fleet
+ * @param movement Details of the invitation
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
+ * @return 
  */
-func (a FleetsApiService) PutFleetsFleetIdMembersMemberId(ctx context.Context, fleetId int64, memberId int32, movement PutFleetsFleetIdMembersMemberIdMovement, datasource interface{}) ( time.Time, error) {
+func (a FleetsApiService) PutFleetsFleetIdMembersMemberId(ctx context.Context, fleetId int64, memberId int32, movement PutFleetsFleetIdMembersMemberIdMovement, localVarOptionals map[string]interface{}) ( time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody interface{}
@@ -720,11 +708,8 @@ func (a FleetsApiService) PutFleetsFleetIdMembersMemberId(ctx context.Context, f
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -762,13 +747,15 @@ func (a FleetsApiService) PutFleetsFleetIdMembersMemberId(ctx context.Context, f
  * Rename fleet squad
  * Rename a fleet squad  ---  Alternate route: &#x60;/v1/fleets/{fleet_id}/squads/{squad_id}/&#x60;  Alternate route: &#x60;/legacy/fleets/{fleet_id}/squads/{squad_id}/&#x60;  Alternate route: &#x60;/dev/fleets/{fleet_id}/squads/{squad_id}/&#x60; 
  *
- * @param fleetId ID for a fleet 
- * @param squadId The squad to rename 
- * @param naming New name of the squad 
- * @param datasource(string) The server name you would like data from 
- * @return nil
+ * @param ctx context.Context Authentication Context 
+ * @param fleetId ID for a fleet
+ * @param squadId The squad to rename
+ * @param naming New name of the squad
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
+ * @return 
  */
-func (a FleetsApiService) PutFleetsFleetIdSquadsSquadId(ctx context.Context, fleetId int64, squadId int64, naming PutFleetsFleetIdSquadsSquadIdNaming, datasource interface{}) ( time.Time, error) {
+func (a FleetsApiService) PutFleetsFleetIdSquadsSquadId(ctx context.Context, fleetId int64, squadId int64, naming PutFleetsFleetIdSquadsSquadIdNaming, localVarOptionals map[string]interface{}) ( time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody interface{}
@@ -785,11 +772,8 @@ func (a FleetsApiService) PutFleetsFleetIdSquadsSquadId(ctx context.Context, fle
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -827,13 +811,15 @@ func (a FleetsApiService) PutFleetsFleetIdSquadsSquadId(ctx context.Context, fle
  * Rename fleet wing
  * Rename a fleet wing  ---  Alternate route: &#x60;/v1/fleets/{fleet_id}/wings/{wing_id}/&#x60;  Alternate route: &#x60;/legacy/fleets/{fleet_id}/wings/{wing_id}/&#x60;  Alternate route: &#x60;/dev/fleets/{fleet_id}/wings/{wing_id}/&#x60; 
  *
- * @param fleetId ID for a fleet 
- * @param wingId The wing to rename 
- * @param naming New name of the wing 
- * @param datasource(string) The server name you would like data from 
- * @return nil
+ * @param ctx context.Context Authentication Context 
+ * @param fleetId ID for a fleet
+ * @param wingId The wing to rename
+ * @param naming New name of the wing
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
+ * @return 
  */
-func (a FleetsApiService) PutFleetsFleetIdWingsWingId(ctx context.Context, fleetId int64, wingId int64, naming PutFleetsFleetIdWingsWingIdNaming, datasource interface{}) ( time.Time, error) {
+func (a FleetsApiService) PutFleetsFleetIdWingsWingId(ctx context.Context, fleetId int64, wingId int64, naming PutFleetsFleetIdWingsWingIdNaming, localVarOptionals map[string]interface{}) ( time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody interface{}
@@ -850,11 +836,8 @@ func (a FleetsApiService) PutFleetsFleetIdWingsWingId(ctx context.Context, fleet
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header

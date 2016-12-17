@@ -41,11 +41,13 @@ type LocationApiService service
  * Get character location
  * Information about the characters current location. Returns the current solar system id, and also the current station or structure ID if applicable.  ---  Alternate route: &#x60;/v1/characters/{character_id}/location/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/location/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/location/&#x60;   ---  This route is cached for up to 5 seconds
  *
- * @param characterId An EVE character ID 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param characterId An EVE character ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetCharactersCharacterIdLocationOk
  */
-func (a LocationApiService) GetCharactersCharacterIdLocation(ctx context.Context, characterId int32, datasource interface{}) (GetCharactersCharacterIdLocationOk,  time.Time, error) {
+func (a LocationApiService) GetCharactersCharacterIdLocation(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdLocationOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -62,11 +64,8 @@ func (a LocationApiService) GetCharactersCharacterIdLocation(ctx context.Context
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -107,11 +106,13 @@ func (a LocationApiService) GetCharactersCharacterIdLocation(ctx context.Context
  * Get current ship
  * Get the current ship type, name and id  ---  Alternate route: &#x60;/v1/characters/{character_id}/ship/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/ship/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/ship/&#x60;   ---  This route is cached for up to 5 seconds
  *
- * @param characterId An EVE character ID 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param characterId An EVE character ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetCharactersCharacterIdShipOk
  */
-func (a LocationApiService) GetCharactersCharacterIdShip(ctx context.Context, characterId int32, datasource interface{}) (GetCharactersCharacterIdShipOk,  time.Time, error) {
+func (a LocationApiService) GetCharactersCharacterIdShip(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdShipOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -128,11 +129,8 @@ func (a LocationApiService) GetCharactersCharacterIdShip(ctx context.Context, ch
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header

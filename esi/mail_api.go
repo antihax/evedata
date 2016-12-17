@@ -41,12 +41,14 @@ type MailApiService service
  * Delete a mail
  * Delete a mail  ---  Alternate route: &#x60;/v1/characters/{character_id}/mail/{mail_id}/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/mail/{mail_id}/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/mail/{mail_id}/&#x60; 
  *
- * @param characterId An EVE character ID 
- * @param mailId An EVE mail ID 
- * @param datasource(string) The server name you would like data from 
- * @return nil
+ * @param ctx context.Context Authentication Context 
+ * @param characterId An EVE character ID
+ * @param mailId An EVE mail ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
+ * @return 
  */
-func (a MailApiService) DeleteCharactersCharacterIdMailMailId(ctx context.Context, characterId int32, mailId int32, datasource interface{}) ( time.Time, error) {
+func (a MailApiService) DeleteCharactersCharacterIdMailMailId(ctx context.Context, characterId int32, mailId int32, localVarOptionals map[string]interface{}) ( time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Delete")
 		localVarPostBody interface{}
@@ -63,11 +65,8 @@ func (a MailApiService) DeleteCharactersCharacterIdMailMailId(ctx context.Contex
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -103,13 +102,15 @@ func (a MailApiService) DeleteCharactersCharacterIdMailMailId(ctx context.Contex
  * Return mail headers
  * Return the 50 most recent mail headers belonging to the character that match the query criteria. Queries can be filtered by label, and last_mail_id can be used to paginate backwards.  ---  Alternate route: &#x60;/v1/characters/{character_id}/mail/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/mail/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/mail/&#x60;   ---  This route is cached for up to 30 seconds
  *
- * @param characterId An EVE character ID 
- * @param labels Fetch only mails that match one or more of the given labels 
- * @param lastMailId(int32) List only mail with an ID lower than the given ID, if present 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param characterId An EVE character ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "labels" ([]int64) Fetch only mails that match one or more of the given labels
+ *     @param "lastMailId" (int32) List only mail with an ID lower than the given ID, if present
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetCharactersCharacterIdMail200Ok
  */
-func (a MailApiService) GetCharactersCharacterIdMail(ctx context.Context, characterId int32, labels []int64, lastMailId interface{}, datasource interface{}) ([]GetCharactersCharacterIdMail200Ok,  time.Time, error) {
+func (a MailApiService) GetCharactersCharacterIdMail(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdMail200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -126,20 +127,14 @@ func (a MailApiService) GetCharactersCharacterIdMail(ctx context.Context, charac
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(lastMailId, "int32", "lastMailId"); err != nil {
-		return successPayload, time.Now(), err
+	if localVarTempParam, localVarOk := localVarOptionals["labels"].([]int64); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("labels", a.client.parameterToString(localVarTempParam, "csv"))
 	}
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
+	if localVarTempParam, localVarOk := localVarOptionals["lastMailId"].(int32); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("last_mail_id", a.client.parameterToString(localVarTempParam, ""))
 	}
-	if labels != nil {
-		localVarQueryParams.Add("labels", a.client.parameterToString(labels, "csv"))
-	}
-	if lastMailId != nil {
-		localVarQueryParams.Add("last_mail_id", a.client.parameterToString(lastMailId, ""))
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -180,11 +175,13 @@ func (a MailApiService) GetCharactersCharacterIdMail(ctx context.Context, charac
  * Get mail labels and unread counts
  * Return a list of the users mail labels, unread counts for each label and a total unread count.  ---  Alternate route: &#x60;/v3/characters/{character_id}/mail/labels/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/mail/labels/&#x60;   ---  This route is cached for up to 30 seconds
  *
- * @param characterId An EVE character ID 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param characterId An EVE character ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetCharactersCharacterIdMailLabelsOk
  */
-func (a MailApiService) GetCharactersCharacterIdMailLabels(ctx context.Context, characterId int32, datasource interface{}) (GetCharactersCharacterIdMailLabelsOk,  time.Time, error) {
+func (a MailApiService) GetCharactersCharacterIdMailLabels(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdMailLabelsOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -201,11 +198,8 @@ func (a MailApiService) GetCharactersCharacterIdMailLabels(ctx context.Context, 
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -246,11 +240,13 @@ func (a MailApiService) GetCharactersCharacterIdMailLabels(ctx context.Context, 
  * Return mailing list subscriptions
  * Return all mailing lists that the character is subscribed to   ---  Alternate route: &#x60;/v1/characters/{character_id}/mail/lists/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/mail/lists/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/mail/lists/&#x60;   ---  This route is cached for up to 120 seconds
  *
- * @param characterId An EVE character ID 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param characterId An EVE character ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetCharactersCharacterIdMailLists200Ok
  */
-func (a MailApiService) GetCharactersCharacterIdMailLists(ctx context.Context, characterId int32, datasource interface{}) ([]GetCharactersCharacterIdMailLists200Ok,  time.Time, error) {
+func (a MailApiService) GetCharactersCharacterIdMailLists(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdMailLists200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -267,11 +263,8 @@ func (a MailApiService) GetCharactersCharacterIdMailLists(ctx context.Context, c
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -312,12 +305,14 @@ func (a MailApiService) GetCharactersCharacterIdMailLists(ctx context.Context, c
  * Return a mail
  * Return the contents of an EVE mail  ---  Alternate route: &#x60;/v1/characters/{character_id}/mail/{mail_id}/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/mail/{mail_id}/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/mail/{mail_id}/&#x60;   ---  This route is cached for up to 30 seconds
  *
- * @param characterId An EVE character ID 
- * @param mailId An EVE mail ID 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param characterId An EVE character ID
+ * @param mailId An EVE mail ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetCharactersCharacterIdMailMailIdOk
  */
-func (a MailApiService) GetCharactersCharacterIdMailMailId(ctx context.Context, characterId int32, mailId int32, datasource interface{}) (GetCharactersCharacterIdMailMailIdOk,  time.Time, error) {
+func (a MailApiService) GetCharactersCharacterIdMailMailId(ctx context.Context, characterId int32, mailId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdMailMailIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -335,11 +330,8 @@ func (a MailApiService) GetCharactersCharacterIdMailMailId(ctx context.Context, 
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -380,12 +372,14 @@ func (a MailApiService) GetCharactersCharacterIdMailMailId(ctx context.Context, 
  * Send a new mail
  * Create and send a new mail  ---  Alternate route: &#x60;/v1/characters/{character_id}/mail/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/mail/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/mail/&#x60; 
  *
- * @param characterId The sender&#39;s character ID 
- * @param mail The mail to send 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param characterId The sender&#39;s character ID
+ * @param mail The mail to send
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return int32
  */
-func (a MailApiService) PostCharactersCharacterIdMail(ctx context.Context, characterId int32, mail PostCharactersCharacterIdMailMail, datasource interface{}) (int32,  time.Time, error) {
+func (a MailApiService) PostCharactersCharacterIdMail(ctx context.Context, characterId int32, mail PostCharactersCharacterIdMailMail, localVarOptionals map[string]interface{}) (int32,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}
@@ -402,11 +396,8 @@ func (a MailApiService) PostCharactersCharacterIdMail(ctx context.Context, chara
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -449,12 +440,14 @@ func (a MailApiService) PostCharactersCharacterIdMail(ctx context.Context, chara
  * Create a mail label
  * Create a mail label  ---  Alternate route: &#x60;/v2/characters/{character_id}/mail/labels/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/mail/labels/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/mail/labels/&#x60; 
  *
- * @param characterId An EVE character ID 
- * @param label Label to create 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param characterId An EVE character ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "label" (PostCharactersCharacterIdMailLabelsLabel) Label to create
+ *     @param "datasource" (string) The server name you would like data from
  * @return int64
  */
-func (a MailApiService) PostCharactersCharacterIdMailLabels(ctx context.Context, characterId int32, label PostCharactersCharacterIdMailLabelsLabel, datasource interface{}) (int64,  time.Time, error) {
+func (a MailApiService) PostCharactersCharacterIdMailLabels(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) (int64,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}
@@ -471,11 +464,8 @@ func (a MailApiService) PostCharactersCharacterIdMailLabels(ctx context.Context,
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -489,7 +479,9 @@ func (a MailApiService) PostCharactersCharacterIdMailLabels(ctx context.Context,
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 	// body params
-	 localVarPostBody = &label
+	if localVarTempParam, localVarOk := localVarOptionals["label"].(PostCharactersCharacterIdMailLabelsLabel); localVarOptionals != nil && localVarOk {
+		localVarPostBody = &localVarTempParam
+	}
 
 
 	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
@@ -518,13 +510,15 @@ func (a MailApiService) PostCharactersCharacterIdMailLabels(ctx context.Context,
  * Update metadata about a mail
  * Update metadata about a mail  ---  Alternate route: &#x60;/v1/characters/{character_id}/mail/{mail_id}/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/mail/{mail_id}/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/mail/{mail_id}/&#x60; 
  *
- * @param characterId An EVE character ID 
- * @param mailId An EVE mail ID 
- * @param contents Data used to update the mail 
- * @param datasource(string) The server name you would like data from 
- * @return nil
+ * @param ctx context.Context Authentication Context 
+ * @param characterId An EVE character ID
+ * @param mailId An EVE mail ID
+ * @param contents Data used to update the mail
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
+ * @return 
  */
-func (a MailApiService) PutCharactersCharacterIdMailMailId(ctx context.Context, characterId int32, mailId int32, contents PutCharactersCharacterIdMailMailIdContents, datasource interface{}) ( time.Time, error) {
+func (a MailApiService) PutCharactersCharacterIdMailMailId(ctx context.Context, characterId int32, mailId int32, contents PutCharactersCharacterIdMailMailIdContents, localVarOptionals map[string]interface{}) ( time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Put")
 		localVarPostBody interface{}
@@ -541,11 +535,8 @@ func (a MailApiService) PutCharactersCharacterIdMailMailId(ctx context.Context, 
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header

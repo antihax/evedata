@@ -105,7 +105,7 @@ func GoEMDRCrestBridge(c *appContext.AppContext) {
 				var page int32 = 1
 				// Process Market Buy Orders
 				for {
-					b, _, err := c.ESI.MarketApi.GetMarketsRegionIdOrders(regionID, "all", nil, page, nil)
+					b, _, err := c.ESI.MarketApi.GetMarketsRegionIdOrders(regionID, "all", map[string]interface{}{"page": page})
 					if err != nil {
 						log.Printf("EMDRCrestBridge: %s", err)
 						return

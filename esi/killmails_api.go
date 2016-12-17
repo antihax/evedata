@@ -41,13 +41,15 @@ type KillmailsApiService service
  * List kills and losses
  * Return a list of character&#39;s recent kills and losses  ---  Alternate route: &#x60;/v1/characters/{character_id}/killmails/recent/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/killmails/recent/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/killmails/recent/&#x60;   ---  This route is cached for up to 120 seconds
  *
- * @param characterId An EVE character ID 
- * @param maxCount(int32) How many killmails to return at maximum 
- * @param maxKillId(int32) Only return killmails with ID smaller than this.  
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param characterId An EVE character ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "maxCount" (int32) How many killmails to return at maximum
+ *     @param "maxKillId" (int32) Only return killmails with ID smaller than this. 
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetCharactersCharacterIdKillmailsRecent200Ok
  */
-func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ctx context.Context, characterId int32, maxCount interface{}, maxKillId interface{}, datasource interface{}) ([]GetCharactersCharacterIdKillmailsRecent200Ok,  time.Time, error) {
+func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdKillmailsRecent200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -64,23 +66,14 @@ func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ctx context
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(maxCount, "int32", "maxCount"); err != nil {
-		return successPayload, time.Now(), err
+	if localVarTempParam, localVarOk := localVarOptionals["maxCount"].(int32); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("max_count", a.client.parameterToString(localVarTempParam, ""))
 	}
-	if err := a.client.typeCheckParameter(maxKillId, "int32", "maxKillId"); err != nil {
-		return successPayload, time.Now(), err
+	if localVarTempParam, localVarOk := localVarOptionals["maxKillId"].(int32); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("max_kill_id", a.client.parameterToString(localVarTempParam, ""))
 	}
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if maxCount != nil {
-		localVarQueryParams.Add("max_count", a.client.parameterToString(maxCount, ""))
-	}
-	if maxKillId != nil {
-		localVarQueryParams.Add("max_kill_id", a.client.parameterToString(maxKillId, ""))
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -121,12 +114,14 @@ func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ctx context
  * Get a single killmail
  * Return a single killmail from its ID and hash  ---  Alternate route: &#x60;/v1/killmails/{killmail_id}/{killmail_hash}/&#x60;  Alternate route: &#x60;/legacy/killmails/{killmail_id}/{killmail_hash}/&#x60;  Alternate route: &#x60;/dev/killmails/{killmail_id}/{killmail_hash}/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param killmailId The killmail ID to be queried 
- * @param killmailHash The killmail hash for verification 
- * @param datasource(string) The server name you would like data from 
+
+ * @param killmailId The killmail ID to be queried
+ * @param killmailHash The killmail hash for verification
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetKillmailsKillmailIdKillmailHashOk
  */
-func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32, killmailHash string, datasource interface{}) (GetKillmailsKillmailIdKillmailHashOk,  time.Time, error) {
+func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32, killmailHash string, localVarOptionals map[string]interface{}) (GetKillmailsKillmailIdKillmailHashOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -144,11 +139,8 @@ func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header

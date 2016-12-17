@@ -41,11 +41,13 @@ type CorporationApiService service
  * Get corporation information
  * Public information about a corporation  ---  Alternate route: &#x60;/v2/corporations/{corporation_id}/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param corporationId An Eve corporation ID 
- * @param datasource(string) The server name you would like data from 
+
+ * @param corporationId An Eve corporation ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetCorporationsCorporationIdOk
  */
-func (a CorporationApiService) GetCorporationsCorporationId(corporationId int32, datasource interface{}) (GetCorporationsCorporationIdOk,  time.Time, error) {
+func (a CorporationApiService) GetCorporationsCorporationId(corporationId int32, localVarOptionals map[string]interface{}) (GetCorporationsCorporationIdOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -62,11 +64,8 @@ func (a CorporationApiService) GetCorporationsCorporationId(corporationId int32,
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -107,11 +106,13 @@ func (a CorporationApiService) GetCorporationsCorporationId(corporationId int32,
  * Get alliance history
  * Get a list of all the alliances a corporation has been a member of  ---  Alternate route: &#x60;/v1/corporations/{corporation_id}/alliancehistory/&#x60;  Alternate route: &#x60;/legacy/corporations/{corporation_id}/alliancehistory/&#x60;  Alternate route: &#x60;/dev/corporations/{corporation_id}/alliancehistory/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param corporationId An EVE corporation ID 
- * @param datasource(string) The server name you would like data from 
+
+ * @param corporationId An EVE corporation ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetCorporationsCorporationIdAlliancehistory200Ok
  */
-func (a CorporationApiService) GetCorporationsCorporationIdAlliancehistory(corporationId int32, datasource interface{}) ([]GetCorporationsCorporationIdAlliancehistory200Ok,  time.Time, error) {
+func (a CorporationApiService) GetCorporationsCorporationIdAlliancehistory(corporationId int32, localVarOptionals map[string]interface{}) ([]GetCorporationsCorporationIdAlliancehistory200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -128,11 +129,8 @@ func (a CorporationApiService) GetCorporationsCorporationIdAlliancehistory(corpo
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -173,11 +171,13 @@ func (a CorporationApiService) GetCorporationsCorporationIdAlliancehistory(corpo
  * Get corporation icon
  * Get the icon urls for a corporation  ---  Alternate route: &#x60;/v1/corporations/{corporation_id}/icons/&#x60;  Alternate route: &#x60;/legacy/corporations/{corporation_id}/icons/&#x60;  Alternate route: &#x60;/dev/corporations/{corporation_id}/icons/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param corporationId An EVE corporation ID 
- * @param datasource(string) The server name you would like data from 
+
+ * @param corporationId An EVE corporation ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetCorporationsCorporationIdIconsOk
  */
-func (a CorporationApiService) GetCorporationsCorporationIdIcons(corporationId int32, datasource interface{}) (GetCorporationsCorporationIdIconsOk,  time.Time, error) {
+func (a CorporationApiService) GetCorporationsCorporationIdIcons(corporationId int32, localVarOptionals map[string]interface{}) (GetCorporationsCorporationIdIconsOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -194,11 +194,8 @@ func (a CorporationApiService) GetCorporationsCorporationIdIcons(corporationId i
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -239,11 +236,13 @@ func (a CorporationApiService) GetCorporationsCorporationIdIcons(corporationId i
  * Get corporation members
  * Read the current list of members if the calling character is a member.  ---  Alternate route: &#x60;/v2/corporations/{corporation_id}/members/&#x60;  Alternate route: &#x60;/legacy/corporations/{corporation_id}/members/&#x60;  Alternate route: &#x60;/dev/corporations/{corporation_id}/members/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param corporationId A corporation ID 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param corporationId A corporation ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetCorporationsCorporationIdMembers200Ok
  */
-func (a CorporationApiService) GetCorporationsCorporationIdMembers(ctx context.Context, corporationId int32, datasource interface{}) ([]GetCorporationsCorporationIdMembers200Ok,  time.Time, error) {
+func (a CorporationApiService) GetCorporationsCorporationIdMembers(ctx context.Context, corporationId int32, localVarOptionals map[string]interface{}) ([]GetCorporationsCorporationIdMembers200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -260,11 +259,8 @@ func (a CorporationApiService) GetCorporationsCorporationIdMembers(ctx context.C
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -305,11 +301,13 @@ func (a CorporationApiService) GetCorporationsCorporationIdMembers(ctx context.C
  * Get corporation member roles
  * Return the roles of all members if the character has the personnel manager role or any grantable role.  ---  Alternate route: &#x60;/v1/corporations/{corporation_id}/roles/&#x60;  Alternate route: &#x60;/legacy/corporations/{corporation_id}/roles/&#x60;  Alternate route: &#x60;/dev/corporations/{corporation_id}/roles/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param corporationId A corporation ID 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param corporationId A corporation ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetCorporationsCorporationIdRoles200Ok
  */
-func (a CorporationApiService) GetCorporationsCorporationIdRoles(ctx context.Context, corporationId int32, datasource interface{}) ([]GetCorporationsCorporationIdRoles200Ok,  time.Time, error) {
+func (a CorporationApiService) GetCorporationsCorporationIdRoles(ctx context.Context, corporationId int32, localVarOptionals map[string]interface{}) ([]GetCorporationsCorporationIdRoles200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -326,11 +324,8 @@ func (a CorporationApiService) GetCorporationsCorporationIdRoles(ctx context.Con
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -371,11 +366,13 @@ func (a CorporationApiService) GetCorporationsCorporationIdRoles(ctx context.Con
  * Get corporation names
  * Resolve a set of corporation IDs to corporation names  ---  Alternate route: &#x60;/v1/corporations/names/&#x60;  Alternate route: &#x60;/legacy/corporations/names/&#x60;  Alternate route: &#x60;/dev/corporations/names/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param corporationIds A comma separated list of corporation IDs 
- * @param datasource(string) The server name you would like data from 
+
+ * @param corporationIds A comma separated list of corporation IDs
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetCorporationsNames200Ok
  */
-func (a CorporationApiService) GetCorporationsNames(corporationIds []int64, datasource interface{}) ([]GetCorporationsNames200Ok,  time.Time, error) {
+func (a CorporationApiService) GetCorporationsNames(corporationIds []int64, localVarOptionals map[string]interface{}) ([]GetCorporationsNames200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -391,12 +388,9 @@ func (a CorporationApiService) GetCorporationsNames(corporationIds []int64, data
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-		localVarQueryParams.Add("corporation_ids", a.client.parameterToString(corporationIds, "csv"))
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	localVarQueryParams.Add("corporation_ids", a.client.parameterToString(corporationIds, "csv"))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header

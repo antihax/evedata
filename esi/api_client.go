@@ -41,17 +41,11 @@ import (
 	"strings"
 )
 
-type TokenSource oauth2.TokenSource
-
-type ContextAuthKey *oauth2.Token
-
 var (
 	jsonCheck = regexp.MustCompile("(?i:[application|text]/json)")
 
 	errInvalidBody = errors.New("Unsupported 'Body' type/value")
 	errConfigMissingOAuth = errors.New("esi: called an api which requires an oauth token but one is not present")
-	
-	ContextAuth   ContextAuthKey
 )
 
 type APIClient struct {
@@ -196,7 +190,7 @@ func (c *APIClient) prepareRequest (
 	formParams url.Values,
 	fileName string,
 	fileBytes []byte,
-	localVarHttpContentType string) (request *http.Request, err error) {
+	localVarHttpContentType string) (localVarRequest *http.Request, err error) {
 
 	var body *bytes.Buffer
 
@@ -239,9 +233,9 @@ func (c *APIClient) prepareRequest (
 	url.RawQuery = query.Encode()
 
 	if body != nil {
-		request, err = http.NewRequest(method, url.String(), body)
+		localVarRequest, err = http.NewRequest(method, url.String(), body)
 	} else {
-		request, err = http.NewRequest(method, url.String(), nil)
+		localVarRequest, err = http.NewRequest(method, url.String(), nil)
 	}
 	if err != nil {
 		return nil, err
@@ -253,30 +247,33 @@ func (c *APIClient) prepareRequest (
 		for h, v := range headerParams {
 			headers.Set(h, v)
 		}
-		request.Header = headers
+		localVarRequest.Header = headers
 	}
 	
 	// Add the user agent to the request.
-	request.Header.Add("User-Agent", c.userAgent)
+	localVarRequest.Header.Add("User-Agent", c.userAgent)
 	
 	// Add OAuth Token to the query.
 	if ctx != nil {
-		if tok, ok := ctx.Value(ContextAuth).(oauth2.TokenSource); ok {
+		if tok, ok := ctx.Value(ContextOAuth2).(oauth2.TokenSource); ok {
 			// We were able to grab an oauth2 token from the context
 			var latestToken *oauth2.Token
 			if latestToken, err = tok.Token(); err != nil {
 				return nil, err
 			}
 
-			latestToken.SetAuthHeader(request)
+			latestToken.SetAuthHeader(localVarRequest)
+		}
+		if auth, ok := ctx.Value(ContextBasicAuth).(BasicAuth); ok {
+			localVarRequest.SetBasicAuth(auth.UserName, auth.Password)
 		}
 	}
 	
 	/*	if len(fileBytes) > 0 && fileName != "" {
 		_, fileNm := filepath.Split(fileName)
-		request.SetFileReader("file", fileNm, bytes.NewReader(fileBytes))
+		localVarRequest.SetFileReader("file", fileNm, bytes.NewReader(fileBytes))
 	}*/
-	return request, nil
+	return localVarRequest, nil
 }
 
 func addFile(w *multipart.Writer, fieldName, path string) error {

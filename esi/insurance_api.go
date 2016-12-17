@@ -40,11 +40,13 @@ type InsuranceApiService service
  * List insurance levels
  * Return available insurance levels for all ship types  ---  Alternate route: &#x60;/v1/insurance/prices/&#x60;  Alternate route: &#x60;/legacy/insurance/prices/&#x60;  Alternate route: &#x60;/dev/insurance/prices/&#x60;   ---  This route is cached for up to 3600 seconds
  *
- * @param acceptLanguage(string) Language to use in the response 
- * @param datasource(string) The server name you would like data from 
+
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "acceptLanguage" (string) Language to use in the response
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetInsurancePrices200Ok
  */
-func (a InsuranceApiService) GetInsurancePrices(acceptLanguage interface{}, datasource interface{}) ([]GetInsurancePrices200Ok,  time.Time, error) {
+func (a InsuranceApiService) GetInsurancePrices(localVarOptionals map[string]interface{}) ([]GetInsurancePrices200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -60,14 +62,8 @@ func (a InsuranceApiService) GetInsurancePrices(acceptLanguage interface{}, data
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(acceptLanguage, "string", "acceptLanguage"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -80,8 +76,9 @@ func (a InsuranceApiService) GetInsurancePrices(acceptLanguage interface{}, data
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	// header params "Accept-Language"
-	localVarHeaderParams["Accept-Language"] = a.client.parameterToString(acceptLanguage, "")
+	if localVarTempParam, localVarOk := localVarOptionals["acceptLanguage"].(string); localVarOptionals != nil && localVarOk {
+		localVarHeaderParams["Accept-Language"] = a.client.parameterToString(localVarTempParam, "")
+	}
 
 
 	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")

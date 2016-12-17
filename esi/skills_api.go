@@ -41,11 +41,13 @@ type SkillsApiService service
  * Get character&#39;s skill queue
  * List the configured skill queue for the given character  ---  Alternate route: &#x60;/v2/characters/{character_id}/skillqueue/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/skillqueue/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/skillqueue/&#x60;   ---  This route is cached for up to 120 seconds
  *
- * @param characterId Character id of the target character 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param characterId Character id of the target character
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return []GetCharactersCharacterIdSkillqueue200Ok
  */
-func (a SkillsApiService) GetCharactersCharacterIdSkillqueue(ctx context.Context, characterId int32, datasource interface{}) ([]GetCharactersCharacterIdSkillqueue200Ok,  time.Time, error) {
+func (a SkillsApiService) GetCharactersCharacterIdSkillqueue(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdSkillqueue200Ok,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -62,11 +64,8 @@ func (a SkillsApiService) GetCharactersCharacterIdSkillqueue(ctx context.Context
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header
@@ -107,11 +106,13 @@ func (a SkillsApiService) GetCharactersCharacterIdSkillqueue(ctx context.Context
  * Get character skills
  * List all trained skills for the given character  ---  Alternate route: &#x60;/v3/characters/{character_id}/skills/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/skills/&#x60;   ---  This route is cached for up to 120 seconds
  *
- * @param characterId An EVE character ID 
- * @param datasource(string) The server name you would like data from 
+ * @param ctx context.Context Authentication Context 
+ * @param characterId An EVE character ID
+ * @param optional (nil or map[string]interface{}) with one or more of:
+ *     @param "datasource" (string) The server name you would like data from
  * @return GetCharactersCharacterIdSkillsOk
  */
-func (a SkillsApiService) GetCharactersCharacterIdSkills(ctx context.Context, characterId int32, datasource interface{}) (GetCharactersCharacterIdSkillsOk,  time.Time, error) {
+func (a SkillsApiService) GetCharactersCharacterIdSkills(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdSkillsOk,  time.Time, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
 		localVarPostBody interface{}
@@ -128,11 +129,8 @@ func (a SkillsApiService) GetCharactersCharacterIdSkills(ctx context.Context, ch
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if err := a.client.typeCheckParameter(datasource, "string", "datasource"); err != nil {
-		return successPayload, time.Now(), err
-	}
-	if datasource != nil {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(datasource, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
+		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
 	}
 
 	// to determine the Accept header

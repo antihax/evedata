@@ -44,7 +44,7 @@ func (c *EVEConsumer) collectStructuresFromESI() error {
 }
 
 func (c *EVEConsumer) updateStructure(s int64) error {
-	ctx := context.WithValue(context.TODO(), esi.ContextAuth, c.ctx.ESIPublicToken)
+	ctx := context.WithValue(context.TODO(), esi.ContextOAuth2, c.ctx.ESIPublicToken)
 	struc, _, err := c.ctx.ESI.UniverseApi.GetUniverseStructuresStructureId(ctx, s, nil)
 	if err != nil {
 		return err
