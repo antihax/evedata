@@ -37,18 +37,16 @@ var _ context.Context
 type KillmailsApiService service
 
 
-/**
- * List kills and losses
- * Return a list of character&#39;s recent kills and losses  ---  Alternate route: &#x60;/v1/characters/{character_id}/killmails/recent/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/killmails/recent/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/killmails/recent/&#x60;   ---  This route is cached for up to 120 seconds
- *
- * @param ctx context.Context Authentication Context 
- * @param characterId An EVE character ID
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "maxCount" (int32) How many killmails to return at maximum
- *     @param "maxKillId" (int32) Only return killmails with ID smaller than this. 
- *     @param "datasource" (string) The server name you would like data from
- * @return []GetCharactersCharacterIdKillmailsRecent200Ok
- */
+// KillmailsApiService List kills and losses
+// Return a list of character&#39;s recent kills and losses  ---  Alternate route: &#x60;/v1/characters/{character_id}/killmails/recent/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/killmails/recent/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/killmails/recent/&#x60;   ---  This route is cached for up to 120 seconds
+//
+// * @param ctx context.Context Authentication Context 
+// @param characterId An EVE character ID
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "maxCount" (int32) How many killmails to return at maximum
+//     @param "maxKillId" (int32) Only return killmails with ID smaller than this. 
+//     @param "datasource" (string) The server name you would like data from
+// @return []GetCharactersCharacterIdKillmailsRecent200Ok
 func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdKillmailsRecent200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -66,14 +64,23 @@ func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ctx context
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarTempParam, localVarOk := localVarOptionals["maxCount"].(int32); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("max_count", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["maxCount"].(int32); localVarOk {
+		localVarQueryParams.Add("max_count", parameterToString(localVarTempParam, ""))
 	}
-	if localVarTempParam, localVarOk := localVarOptionals["maxKillId"].(int32); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("max_kill_id", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["maxKillId"].(int32); localVarOk {
+		localVarQueryParams.Add("max_kill_id", parameterToString(localVarTempParam, ""))
 	}
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -82,13 +89,12 @@ func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ctx context
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }
@@ -110,17 +116,15 @@ func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ctx context
 	return successPayload, localVarHttpResponse, err
 }
 
-/**
- * Get a single killmail
- * Return a single killmail from its ID and hash  ---  Alternate route: &#x60;/v1/killmails/{killmail_id}/{killmail_hash}/&#x60;  Alternate route: &#x60;/legacy/killmails/{killmail_id}/{killmail_hash}/&#x60;  Alternate route: &#x60;/dev/killmails/{killmail_id}/{killmail_hash}/&#x60;   ---  This route is cached for up to 3600 seconds
- *
-
- * @param killmailId The killmail ID to be queried
- * @param killmailHash The killmail hash for verification
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "datasource" (string) The server name you would like data from
- * @return GetKillmailsKillmailIdKillmailHashOk
- */
+// KillmailsApiService Get a single killmail
+// Return a single killmail from its ID and hash  ---  Alternate route: &#x60;/v1/killmails/{killmail_id}/{killmail_hash}/&#x60;  Alternate route: &#x60;/legacy/killmails/{killmail_id}/{killmail_hash}/&#x60;  Alternate route: &#x60;/dev/killmails/{killmail_id}/{killmail_hash}/&#x60;   ---  This route is cached for up to 3600 seconds
+//
+//
+// @param killmailId The killmail ID to be queried
+// @param killmailHash The killmail hash for verification
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "datasource" (string) The server name you would like data from
+// @return GetKillmailsKillmailIdKillmailHashOk
 func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32, killmailHash string, localVarOptionals map[string]interface{}) (GetKillmailsKillmailIdKillmailHashOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -139,8 +143,17 @@ func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -149,13 +162,12 @@ func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }

@@ -25,8 +25,9 @@ package esi
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
+	"encoding/xml"
 	"fmt"
+	"errors"
 	"io"
 	"mime/multipart"
     "golang.org/x/oauth2"
@@ -43,15 +44,15 @@ import (
 
 var (
 	jsonCheck = regexp.MustCompile("(?i:[application|text]/json)")
-
-	errInvalidBody = errors.New("Unsupported 'Body' type/value")
-	errConfigMissingOAuth = errors.New("esi: called an api which requires an oauth token but one is not present")
+	xmlCheck = regexp.MustCompile("(?i:[application|text]/xml)")
 )
 
+// APIClient manages communication with the EVE Swagger Interface API v0.3.2.dev3
+// In most cases there should be only one, shared, APIClient.
 type APIClient struct {
-	client *http.Client
-	userAgent string
-	common service // Reuse a single struct instead of allocating one for each service on the heap.
+	client *http.Client // The HTTP client.
+	userAgent string	// User Agent
+	common service 		// Reuse a single struct instead of allocating one for each service on the heap.
 
 	 // API Services
 	AllianceApi	*AllianceApiService
@@ -82,11 +83,11 @@ type service struct {
 	client *APIClient
 }
 
-// NewAPIClient create a new API client. Requires a userAgent describing your application.
-// optionally a http.Client can be passed also to allow for caching clients.
+// NewAPIClient creates a new API client. Requires a userAgent string describing your application.
+// optionally a custom http.Client to allow for advanced features such as caching.
 func NewAPIClient(httpClient *http.Client, userAgent string) *APIClient {
 	if httpClient == nil {
-		httpClient = &http.Client{}
+		httpClient = http.DefaultClient
 	}
 
 	c := &APIClient{}
@@ -94,33 +95,68 @@ func NewAPIClient(httpClient *http.Client, userAgent string) *APIClient {
 	c.userAgent = userAgent
 	c.common.client = c
 
+	// API Services
 	c.AllianceApi = (*AllianceApiService)(&c.common)
+	// API Services
 	c.AssetsApi = (*AssetsApiService)(&c.common)
+	// API Services
 	c.BookmarksApi = (*BookmarksApiService)(&c.common)
+	// API Services
 	c.CalendarApi = (*CalendarApiService)(&c.common)
+	// API Services
 	c.CharacterApi = (*CharacterApiService)(&c.common)
+	// API Services
 	c.ClonesApi = (*ClonesApiService)(&c.common)
+	// API Services
 	c.CorporationApi = (*CorporationApiService)(&c.common)
+	// API Services
 	c.FleetsApi = (*FleetsApiService)(&c.common)
+	// API Services
 	c.IncursionsApi = (*IncursionsApiService)(&c.common)
+	// API Services
 	c.IndustryApi = (*IndustryApiService)(&c.common)
+	// API Services
 	c.InsuranceApi = (*InsuranceApiService)(&c.common)
+	// API Services
 	c.KillmailsApi = (*KillmailsApiService)(&c.common)
+	// API Services
 	c.LocationApi = (*LocationApiService)(&c.common)
+	// API Services
 	c.MailApi = (*MailApiService)(&c.common)
+	// API Services
 	c.MarketApi = (*MarketApiService)(&c.common)
+	// API Services
 	c.PlanetaryInteractionApi = (*PlanetaryInteractionApiService)(&c.common)
+	// API Services
 	c.SearchApi = (*SearchApiService)(&c.common)
+	// API Services
 	c.SkillsApi = (*SkillsApiService)(&c.common)
+	// API Services
 	c.SovereigntyApi = (*SovereigntyApiService)(&c.common)
+	// API Services
 	c.UniverseApi = (*UniverseApiService)(&c.common)
+	// API Services
 	c.WalletApi = (*WalletApiService)(&c.common)
+	// API Services
 	c.WarsApi = (*WarsApiService)(&c.common)
 
 	return c
 }
 
-func (c *APIClient) SelectHeaderAccept(accepts []string) string {
+
+// selectHeaderContentType select a content type from the available list.
+func  selectHeaderContentType(contentTypes []string) string {
+	if len(contentTypes) == 0 {
+		return ""
+	}
+	if contains(contentTypes, "application/json") {
+		return "application/json"
+	}
+	return contentTypes[0] // use the first content type specified in 'consumes'
+}
+
+// selectHeaderAccept join all accept types and return
+func  selectHeaderAccept(accepts []string) string {
 	if len(accepts) == 0 {
 		return ""
 	}
@@ -142,11 +178,8 @@ func contains(haystack []string, needle string) bool {
 	return false
 }
 
-func (c *APIClient) callAPI(request *http.Request) (*http.Response, error) {
-	 return c.client.Do(request)
-}
-
-func (c *APIClient) parameterToString(obj interface{}, collectionFormat string) string {
+// parameterToString convert interface{} parameters to string, using a delimiter if format is provided.
+func parameterToString(obj interface{}, collectionFormat string) string {
 	var delimiter string
 
 	switch collectionFormat {
@@ -167,20 +200,12 @@ func (c *APIClient) parameterToString(obj interface{}, collectionFormat string) 
 	return fmt.Sprintf("%v", obj)
 }
 
-// Verify optional parameters are of the correct type.
-func (c *APIClient) typeCheckParameter(obj interface{}, expected string, name string) error {
-	// Make sure there is an object.
-	if obj == nil {
-		return nil
-	}
-
-	// Check the type is as expected.
-	if reflect.TypeOf(obj).String() != expected {
-		return fmt.Errorf("Expected %s to be of type %s but received %s.", name, expected, reflect.TypeOf(obj).String())
-	}
-	return nil
+// callAPI do the request. 
+func (c *APIClient) callAPI(request *http.Request) (*http.Response, error) {
+	 return c.client.Do(request)
 }
 
+// prepareRequest build the request
 func (c *APIClient) prepareRequest (
 	ctx context.Context,
 	path string, method string,
@@ -189,19 +214,30 @@ func (c *APIClient) prepareRequest (
 	queryParams url.Values,
 	formParams url.Values,
 	fileName string,
-	fileBytes []byte,
-	localVarHttpContentType string) (localVarRequest *http.Request, err error) {
+	fileBytes []byte) (localVarRequest *http.Request, err error) {
 
 	var body *bytes.Buffer
 
+	// Detect postBody type and post.
 	if postBody != nil {
-		body, err = setBody(postBody, localVarHttpContentType)
+		contentType := headerParams["Content-Type"]
+		if contentType == "" {
+			contentType = detectContentType(postBody)
+			headerParams["Content-Type"] = contentType
+		}
+
+		body, err = setBody(postBody, contentType)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	if len(formParams) > 0 {
+	// add form paramters and file if available.
+	if len(formParams) > 0 || (len(fileBytes) > 0 && fileName != "") {
+		if body != nil {
+			return nil, errors.New("Cannot specify postBody and multipart form at the same time.")
+		}
+		body = &bytes.Buffer{}
 		w := multipart.NewWriter(body)
 
 		for k, v := range formParams {
@@ -216,8 +252,27 @@ func (c *APIClient) prepareRequest (
 				}
 			}
 		}
+		if len(fileBytes) > 0 && fileName != "" {
+			w.Boundary()
+			//_, fileNm := filepath.Split(fileName)
+			part, err := w.CreateFormFile("file", filepath.Base(fileName))
+			if err != nil {
+				return nil, err
+			}
+			_, err = part.Write(fileBytes)
+			if err != nil {
+				return nil, err
+			}
+			// Set the Boundary in the Content-Type
+			headerParams["Content-Type"] = w.FormDataContentType()
+		}
+		
+		// Set Content-Length
+		headerParams["Content-Length"] = fmt.Sprintf("%d", body.Len())
+		w.Close()
 	}
 
+	// Setup path and query paramters
 	url, err := url.Parse(path)
 	if err != nil {
 		return nil, err
@@ -230,8 +285,11 @@ func (c *APIClient) prepareRequest (
 			query.Add(k, iv)
 		}
 	}
+
+	// Encode the parameters.
 	url.RawQuery = query.Encode()
 
+	// Generate a new request
 	if body != nil {
 		localVarRequest, err = http.NewRequest(method, url.String(), body)
 	} else {
@@ -253,8 +311,9 @@ func (c *APIClient) prepareRequest (
 	// Add the user agent to the request.
 	localVarRequest.Header.Add("User-Agent", c.userAgent)
 	
-	// Add OAuth Token to the query.
+	// Walk through any authentication.
 	if ctx != nil {
+		// OAuth2 authentication
 		if tok, ok := ctx.Value(ContextOAuth2).(oauth2.TokenSource); ok {
 			// We were able to grab an oauth2 token from the context
 			var latestToken *oauth2.Token
@@ -264,18 +323,20 @@ func (c *APIClient) prepareRequest (
 
 			latestToken.SetAuthHeader(localVarRequest)
 		}
+
+		// Basic HTTP Authentication
 		if auth, ok := ctx.Value(ContextBasicAuth).(BasicAuth); ok {
 			localVarRequest.SetBasicAuth(auth.UserName, auth.Password)
 		}
+
+		// [TODO] API Key Authentication
 	}
 	
-	/*	if len(fileBytes) > 0 && fileName != "" {
-		_, fileNm := filepath.Split(fileName)
-		localVarRequest.SetFileReader("file", fileNm, bytes.NewReader(fileBytes))
-	}*/
 	return localVarRequest, nil
 }
 
+
+// Add a file to the multipart request
 func addFile(w *multipart.Writer, fieldName, path string) error {
 	file, err := os.Open(path)
 	if err != nil {
@@ -292,6 +353,7 @@ func addFile(w *multipart.Writer, fieldName, path string) error {
 	return err
 }
 
+// Set request body from an interface{}
 func setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err error) {
 	if bodyBuf == nil {
 		bodyBuf = &bytes.Buffer{}
@@ -305,6 +367,8 @@ func setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err e
 		_, err = bodyBuf.WriteString(s)
 	} else if jsonCheck.MatchString(contentType) {
 		err = json.NewEncoder(bodyBuf).Encode(body)
+	} else if xmlCheck.MatchString(contentType) {
+		xml.NewEncoder(bodyBuf).Encode(body)
 	}
 
 	if err != nil {
@@ -312,11 +376,33 @@ func setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err e
 	}
 
 	if bodyBuf.Len() == 0 {
-		err = errInvalidBody
+		err = fmt.Errorf("Invalid body type %s\n", contentType)
 		return nil, err
 	}
 	return bodyBuf, nil
 }
+
+// detectContentType method is used to figure out `Request.Body` content type for request header
+func detectContentType(body interface{}) string {
+	contentType := "text/plain; charset=utf-8"
+	kind := reflect.TypeOf(body).Kind()
+	
+	switch kind {
+	case reflect.Struct, reflect.Map, reflect.Ptr:
+		contentType = "application/json; charset=utf-8"
+	case reflect.String:
+		contentType = "text/plain; charset=utf-8"
+	default:
+		if b, ok := body.([]byte); ok {
+			contentType = http.DetectContentType(b)
+		} else if kind == reflect.Slice {
+			contentType = "application/json; charset=utf-8"
+		}
+	}
+
+	return contentType
+}
+
 
 // Ripped from https://github.com/gregjones/httpcache/blob/master/httpcache.go
 type cacheControl map[string]string

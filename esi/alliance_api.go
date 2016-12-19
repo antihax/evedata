@@ -37,15 +37,13 @@ var _ context.Context
 type AllianceApiService service
 
 
-/**
- * List all alliances
- * List all active player alliances  ---  Alternate route: &#x60;/v1/alliances/&#x60;  Alternate route: &#x60;/legacy/alliances/&#x60;  Alternate route: &#x60;/dev/alliances/&#x60;   ---  This route is cached for up to 3600 seconds
- *
-
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "datasource" (string) The server name you would like data from
- * @return []int32
- */
+// AllianceApiService List all alliances
+// List all active player alliances  ---  Alternate route: &#x60;/v1/alliances/&#x60;  Alternate route: &#x60;/legacy/alliances/&#x60;  Alternate route: &#x60;/dev/alliances/&#x60;   ---  This route is cached for up to 3600 seconds
+//
+//
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "datasource" (string) The server name you would like data from
+// @return []int32
 func (a AllianceApiService) GetAlliances(localVarOptionals map[string]interface{}) ([]int32,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -62,8 +60,17 @@ func (a AllianceApiService) GetAlliances(localVarOptionals map[string]interface{
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -72,13 +79,12 @@ func (a AllianceApiService) GetAlliances(localVarOptionals map[string]interface{
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }
@@ -100,16 +106,14 @@ func (a AllianceApiService) GetAlliances(localVarOptionals map[string]interface{
 	return successPayload, localVarHttpResponse, err
 }
 
-/**
- * Get alliance information
- * Public information about an alliance  ---  Alternate route: &#x60;/v2/alliances/{alliance_id}/&#x60;   ---  This route is cached for up to 3600 seconds
- *
-
- * @param allianceId An Eve alliance ID
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "datasource" (string) The server name you would like data from
- * @return GetAlliancesAllianceIdOk
- */
+// AllianceApiService Get alliance information
+// Public information about an alliance  ---  Alternate route: &#x60;/v2/alliances/{alliance_id}/&#x60;   ---  This route is cached for up to 3600 seconds
+//
+//
+// @param allianceId An Eve alliance ID
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "datasource" (string) The server name you would like data from
+// @return GetAlliancesAllianceIdOk
 func (a AllianceApiService) GetAlliancesAllianceId(allianceId int32, localVarOptionals map[string]interface{}) (GetAlliancesAllianceIdOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -127,8 +131,17 @@ func (a AllianceApiService) GetAlliancesAllianceId(allianceId int32, localVarOpt
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -137,13 +150,12 @@ func (a AllianceApiService) GetAlliancesAllianceId(allianceId int32, localVarOpt
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }
@@ -165,16 +177,14 @@ func (a AllianceApiService) GetAlliancesAllianceId(allianceId int32, localVarOpt
 	return successPayload, localVarHttpResponse, err
 }
 
-/**
- * List alliance&#39;s corporations
- * List all current member corporations of an alliance  ---  Alternate route: &#x60;/v1/alliances/{alliance_id}/corporations/&#x60;  Alternate route: &#x60;/legacy/alliances/{alliance_id}/corporations/&#x60;  Alternate route: &#x60;/dev/alliances/{alliance_id}/corporations/&#x60;   ---  This route is cached for up to 3600 seconds
- *
-
- * @param allianceId An EVE alliance ID
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "datasource" (string) The server name you would like data from
- * @return []int32
- */
+// AllianceApiService List alliance&#39;s corporations
+// List all current member corporations of an alliance  ---  Alternate route: &#x60;/v1/alliances/{alliance_id}/corporations/&#x60;  Alternate route: &#x60;/legacy/alliances/{alliance_id}/corporations/&#x60;  Alternate route: &#x60;/dev/alliances/{alliance_id}/corporations/&#x60;   ---  This route is cached for up to 3600 seconds
+//
+//
+// @param allianceId An EVE alliance ID
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "datasource" (string) The server name you would like data from
+// @return []int32
 func (a AllianceApiService) GetAlliancesAllianceIdCorporations(allianceId int32, localVarOptionals map[string]interface{}) ([]int32,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -192,8 +202,17 @@ func (a AllianceApiService) GetAlliancesAllianceIdCorporations(allianceId int32,
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -202,13 +221,12 @@ func (a AllianceApiService) GetAlliancesAllianceIdCorporations(allianceId int32,
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }
@@ -230,16 +248,14 @@ func (a AllianceApiService) GetAlliancesAllianceIdCorporations(allianceId int32,
 	return successPayload, localVarHttpResponse, err
 }
 
-/**
- * Get alliance icon
- * Get the icon urls for a alliance  ---  Alternate route: &#x60;/v1/alliances/{alliance_id}/icons/&#x60;  Alternate route: &#x60;/legacy/alliances/{alliance_id}/icons/&#x60;  Alternate route: &#x60;/dev/alliances/{alliance_id}/icons/&#x60;   ---  This route is cached for up to 3600 seconds
- *
-
- * @param allianceId An EVE alliance ID
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "datasource" (string) The server name you would like data from
- * @return GetAlliancesAllianceIdIconsOk
- */
+// AllianceApiService Get alliance icon
+// Get the icon urls for a alliance  ---  Alternate route: &#x60;/v1/alliances/{alliance_id}/icons/&#x60;  Alternate route: &#x60;/legacy/alliances/{alliance_id}/icons/&#x60;  Alternate route: &#x60;/dev/alliances/{alliance_id}/icons/&#x60;   ---  This route is cached for up to 3600 seconds
+//
+//
+// @param allianceId An EVE alliance ID
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "datasource" (string) The server name you would like data from
+// @return GetAlliancesAllianceIdIconsOk
 func (a AllianceApiService) GetAlliancesAllianceIdIcons(allianceId int32, localVarOptionals map[string]interface{}) (GetAlliancesAllianceIdIconsOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -257,8 +273,17 @@ func (a AllianceApiService) GetAlliancesAllianceIdIcons(allianceId int32, localV
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -267,13 +292,12 @@ func (a AllianceApiService) GetAlliancesAllianceIdIcons(allianceId int32, localV
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }
@@ -295,16 +319,14 @@ func (a AllianceApiService) GetAlliancesAllianceIdIcons(allianceId int32, localV
 	return successPayload, localVarHttpResponse, err
 }
 
-/**
- * Get alliance names
- * Resolve a set of alliance IDs to alliance names  ---  Alternate route: &#x60;/v1/alliances/names/&#x60;  Alternate route: &#x60;/legacy/alliances/names/&#x60;  Alternate route: &#x60;/dev/alliances/names/&#x60;   ---  This route is cached for up to 3600 seconds
- *
-
- * @param allianceIds A comma separated list of alliance IDs
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "datasource" (string) The server name you would like data from
- * @return []GetAlliancesNames200Ok
- */
+// AllianceApiService Get alliance names
+// Resolve a set of alliance IDs to alliance names  ---  Alternate route: &#x60;/v1/alliances/names/&#x60;  Alternate route: &#x60;/legacy/alliances/names/&#x60;  Alternate route: &#x60;/dev/alliances/names/&#x60;   ---  This route is cached for up to 3600 seconds
+//
+//
+// @param allianceIds A comma separated list of alliance IDs
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "datasource" (string) The server name you would like data from
+// @return []GetAlliancesNames200Ok
 func (a AllianceApiService) GetAlliancesNames(allianceIds []int64, localVarOptionals map[string]interface{}) ([]GetAlliancesNames200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -321,9 +343,18 @@ func (a AllianceApiService) GetAlliancesNames(allianceIds []int64, localVarOptio
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	localVarQueryParams.Add("alliance_ids", a.client.parameterToString(allianceIds, "csv"))
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	localVarQueryParams.Add("alliance_ids", parameterToString(allianceIds, "csv"))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -332,13 +363,12 @@ func (a AllianceApiService) GetAlliancesNames(allianceIds []int64, localVarOptio
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }

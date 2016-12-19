@@ -359,7 +359,7 @@ Class | Method | HTTP request | Description
 
 - **Type**: OAuth
 - **Flow**: implicit
-- **Authorizatoin URL**: https://login.eveonline.com/oauth/authorize
+- **Autorization URL**: https://login.eveonline.com/oauth/authorize
 - **Scopes**: 
  - **esi-assets.read_assets.v1**: EVE SSO scope esi-assets.read_assets.v1
  - **esi-bookmarks.read_character_bookmarks.v1**: EVE SSO scope esi-bookmarks.read_character_bookmarks.v1
@@ -386,5 +386,14 @@ Class | Method | HTTP request | Description
 
 ## Author
 
+
+
+
+## Credits
+https://github.com/go-resty/resty (MIT license) Copyright Â© 2015-2016 Jeevanandam M (jeeva@myjeeva.com)
+ - Uses modified setBody and detectContentType
+
+https://github.com/gregjones/httpcache (MIT license) Copyright Â© 2012 Greg Jones (greg.jones@gmail.com)
+  - Uses parseCacheControl and CacheExpires as a helper function
 
 

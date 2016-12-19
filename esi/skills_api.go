@@ -37,16 +37,14 @@ var _ context.Context
 type SkillsApiService service
 
 
-/**
- * Get character&#39;s skill queue
- * List the configured skill queue for the given character  ---  Alternate route: &#x60;/v2/characters/{character_id}/skillqueue/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/skillqueue/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/skillqueue/&#x60;   ---  This route is cached for up to 120 seconds
- *
- * @param ctx context.Context Authentication Context 
- * @param characterId Character id of the target character
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "datasource" (string) The server name you would like data from
- * @return []GetCharactersCharacterIdSkillqueue200Ok
- */
+// SkillsApiService Get character&#39;s skill queue
+// List the configured skill queue for the given character  ---  Alternate route: &#x60;/v2/characters/{character_id}/skillqueue/&#x60;  Alternate route: &#x60;/legacy/characters/{character_id}/skillqueue/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/skillqueue/&#x60;   ---  This route is cached for up to 120 seconds
+//
+// * @param ctx context.Context Authentication Context 
+// @param characterId Character id of the target character
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "datasource" (string) The server name you would like data from
+// @return []GetCharactersCharacterIdSkillqueue200Ok
 func (a SkillsApiService) GetCharactersCharacterIdSkillqueue(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) ([]GetCharactersCharacterIdSkillqueue200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -64,8 +62,17 @@ func (a SkillsApiService) GetCharactersCharacterIdSkillqueue(ctx context.Context
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -74,13 +81,12 @@ func (a SkillsApiService) GetCharactersCharacterIdSkillqueue(ctx context.Context
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }
@@ -102,16 +108,14 @@ func (a SkillsApiService) GetCharactersCharacterIdSkillqueue(ctx context.Context
 	return successPayload, localVarHttpResponse, err
 }
 
-/**
- * Get character skills
- * List all trained skills for the given character  ---  Alternate route: &#x60;/v3/characters/{character_id}/skills/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/skills/&#x60;   ---  This route is cached for up to 120 seconds
- *
- * @param ctx context.Context Authentication Context 
- * @param characterId An EVE character ID
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "datasource" (string) The server name you would like data from
- * @return GetCharactersCharacterIdSkillsOk
- */
+// SkillsApiService Get character skills
+// List all trained skills for the given character  ---  Alternate route: &#x60;/v3/characters/{character_id}/skills/&#x60;  Alternate route: &#x60;/dev/characters/{character_id}/skills/&#x60;   ---  This route is cached for up to 120 seconds
+//
+// * @param ctx context.Context Authentication Context 
+// @param characterId An EVE character ID
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "datasource" (string) The server name you would like data from
+// @return GetCharactersCharacterIdSkillsOk
 func (a SkillsApiService) GetCharactersCharacterIdSkills(ctx context.Context, characterId int32, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdSkillsOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -129,8 +133,17 @@ func (a SkillsApiService) GetCharactersCharacterIdSkills(ctx context.Context, ch
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -139,13 +152,12 @@ func (a SkillsApiService) GetCharactersCharacterIdSkills(ctx context.Context, ch
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }

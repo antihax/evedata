@@ -37,15 +37,13 @@ var _ context.Context
 type MarketApiService service
 
 
-/**
- * List market prices
- * Return a list of prices  ---  Alternate route: &#x60;/v1/markets/prices/&#x60;  Alternate route: &#x60;/legacy/markets/prices/&#x60;  Alternate route: &#x60;/dev/markets/prices/&#x60;   ---  This route is cached for up to 3600 seconds
- *
-
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "datasource" (string) The server name you would like data from
- * @return []GetMarketsPrices200Ok
- */
+// MarketApiService List market prices
+// Return a list of prices  ---  Alternate route: &#x60;/v1/markets/prices/&#x60;  Alternate route: &#x60;/legacy/markets/prices/&#x60;  Alternate route: &#x60;/dev/markets/prices/&#x60;   ---  This route is cached for up to 3600 seconds
+//
+//
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "datasource" (string) The server name you would like data from
+// @return []GetMarketsPrices200Ok
 func (a MarketApiService) GetMarketsPrices(localVarOptionals map[string]interface{}) ([]GetMarketsPrices200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -62,8 +60,17 @@ func (a MarketApiService) GetMarketsPrices(localVarOptionals map[string]interfac
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -72,13 +79,12 @@ func (a MarketApiService) GetMarketsPrices(localVarOptionals map[string]interfac
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }
@@ -100,17 +106,15 @@ func (a MarketApiService) GetMarketsPrices(localVarOptionals map[string]interfac
 	return successPayload, localVarHttpResponse, err
 }
 
-/**
- * List historical market statistics in a region
- * Return a list of historical market statistics for the specified type in a region  ---  Alternate route: &#x60;/v1/markets/{region_id}/history/&#x60;  Alternate route: &#x60;/legacy/markets/{region_id}/history/&#x60;  Alternate route: &#x60;/dev/markets/{region_id}/history/&#x60;   ---  This route is cached for up to 300 seconds
- *
-
- * @param regionId Return statistics in this region
- * @param typeId Return statistics for this type
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "datasource" (string) The server name you would like data from
- * @return []GetMarketsRegionIdHistory200Ok
- */
+// MarketApiService List historical market statistics in a region
+// Return a list of historical market statistics for the specified type in a region  ---  Alternate route: &#x60;/v1/markets/{region_id}/history/&#x60;  Alternate route: &#x60;/legacy/markets/{region_id}/history/&#x60;  Alternate route: &#x60;/dev/markets/{region_id}/history/&#x60;   ---  This route is cached for up to 300 seconds
+//
+//
+// @param regionId Return statistics in this region
+// @param typeId Return statistics for this type
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "datasource" (string) The server name you would like data from
+// @return []GetMarketsRegionIdHistory200Ok
 func (a MarketApiService) GetMarketsRegionIdHistory(regionId int32, typeId int32, localVarOptionals map[string]interface{}) ([]GetMarketsRegionIdHistory200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -128,9 +132,18 @@ func (a MarketApiService) GetMarketsRegionIdHistory(regionId int32, typeId int32
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	localVarQueryParams.Add("type_id", a.client.parameterToString(typeId, ""))
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	localVarQueryParams.Add("type_id", parameterToString(typeId, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -139,13 +152,12 @@ func (a MarketApiService) GetMarketsRegionIdHistory(regionId int32, typeId int32
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }
@@ -167,19 +179,17 @@ func (a MarketApiService) GetMarketsRegionIdHistory(regionId int32, typeId int32
 	return successPayload, localVarHttpResponse, err
 }
 
-/**
- * List orders in a region
- * Return a list of orders in a region  ---  Alternate route: &#x60;/v1/markets/{region_id}/orders/&#x60;  Alternate route: &#x60;/legacy/markets/{region_id}/orders/&#x60;  Alternate route: &#x60;/dev/markets/{region_id}/orders/&#x60;   ---  This route is cached for up to 300 seconds
- *
-
- * @param regionId Return orders in this region
- * @param orderType Filter buy/sell orders, return all orders by default. If you query without type_id, we always return both buy and sell orders. 
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "typeId" (int32) Return orders only for this type
- *     @param "page" (int32) Which page to query, only used for querying without type_id. Starting at 1 
- *     @param "datasource" (string) The server name you would like data from
- * @return []GetMarketsRegionIdOrders200Ok
- */
+// MarketApiService List orders in a region
+// Return a list of orders in a region  ---  Alternate route: &#x60;/v1/markets/{region_id}/orders/&#x60;  Alternate route: &#x60;/legacy/markets/{region_id}/orders/&#x60;  Alternate route: &#x60;/dev/markets/{region_id}/orders/&#x60;   ---  This route is cached for up to 300 seconds
+//
+//
+// @param regionId Return orders in this region
+// @param orderType Filter buy/sell orders, return all orders by default. If you query without type_id, we always return both buy and sell orders. 
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "typeId" (int32) Return orders only for this type
+//     @param "page" (int32) Which page to query, only used for querying without type_id. Starting at 1 
+//     @param "datasource" (string) The server name you would like data from
+// @return []GetMarketsRegionIdOrders200Ok
 func (a MarketApiService) GetMarketsRegionIdOrders(regionId int32, orderType string, localVarOptionals map[string]interface{}) ([]GetMarketsRegionIdOrders200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -197,15 +207,24 @@ func (a MarketApiService) GetMarketsRegionIdOrders(regionId int32, orderType str
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarTempParam, localVarOk := localVarOptionals["typeId"].(int32); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("type_id", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["typeId"].(int32); localVarOk {
+		localVarQueryParams.Add("type_id", parameterToString(localVarTempParam, ""))
 	}
-	localVarQueryParams.Add("order_type", a.client.parameterToString(orderType, ""))
-	if localVarTempParam, localVarOk := localVarOptionals["page"].(int32); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("page", a.client.parameterToString(localVarTempParam, ""))
+	localVarQueryParams.Add("order_type", parameterToString(orderType, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["page"].(int32); localVarOk {
+		localVarQueryParams.Add("page", parameterToString(localVarTempParam, ""))
 	}
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -214,13 +233,12 @@ func (a MarketApiService) GetMarketsRegionIdOrders(regionId int32, orderType str
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }

@@ -37,20 +37,18 @@ var _ context.Context
 type SearchApiService service
 
 
-/**
- * Search on a string
- * Search for entities that match a given sub-string.  ---  Alternate route: &#x60;/v2/characters/{character_id}/search/&#x60;   ---  This route is cached for up to 3600 seconds
- *
- * @param ctx context.Context Authentication Context 
- * @param characterId An EVE character ID
- * @param search The string to search on
- * @param categories Type of entities to search for
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "language" (string) Search locale
- *     @param "strict" (bool) Whether the search should be a strict match
- *     @param "datasource" (string) The server name you would like data from
- * @return GetCharactersCharacterIdSearchOk
- */
+// SearchApiService Search on a string
+// Search for entities that match a given sub-string.  ---  Alternate route: &#x60;/v2/characters/{character_id}/search/&#x60;   ---  This route is cached for up to 3600 seconds
+//
+// * @param ctx context.Context Authentication Context 
+// @param characterId An EVE character ID
+// @param search The string to search on
+// @param categories Type of entities to search for
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "language" (string) Search locale
+//     @param "strict" (bool) Whether the search should be a strict match
+//     @param "datasource" (string) The server name you would like data from
+// @return GetCharactersCharacterIdSearchOk
 func (a SearchApiService) GetCharactersCharacterIdSearch(ctx context.Context, characterId int32, search string, categories []string, localVarOptionals map[string]interface{}) (GetCharactersCharacterIdSearchOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -68,16 +66,25 @@ func (a SearchApiService) GetCharactersCharacterIdSearch(ctx context.Context, ch
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	localVarQueryParams.Add("search", a.client.parameterToString(search, ""))
-	localVarQueryParams.Add("categories", a.client.parameterToString(categories, "csv"))
-	if localVarTempParam, localVarOk := localVarOptionals["language"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("language", a.client.parameterToString(localVarTempParam, ""))
+	localVarQueryParams.Add("search", parameterToString(search, ""))
+	localVarQueryParams.Add("categories", parameterToString(categories, "csv"))
+	if localVarTempParam, localVarOk := localVarOptionals["language"].(string); localVarOk {
+		localVarQueryParams.Add("language", parameterToString(localVarTempParam, ""))
 	}
-	if localVarTempParam, localVarOk := localVarOptionals["strict"].(bool); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("strict", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["strict"].(bool); localVarOk {
+		localVarQueryParams.Add("strict", parameterToString(localVarTempParam, ""))
 	}
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -86,13 +93,12 @@ func (a SearchApiService) GetCharactersCharacterIdSearch(ctx context.Context, ch
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }
@@ -114,19 +120,17 @@ func (a SearchApiService) GetCharactersCharacterIdSearch(ctx context.Context, ch
 	return successPayload, localVarHttpResponse, err
 }
 
-/**
- * Search on a string
- * Search for entities that match a given sub-string.  ---  Alternate route: &#x60;/v1/search/&#x60;  Alternate route: &#x60;/legacy/search/&#x60;   ---  This route is cached for up to 3600 seconds
- *
-
- * @param search The string to search on
- * @param categories Type of entities to search for
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "language" (string) Search locale
- *     @param "strict" (bool) Whether the search should be a strict match
- *     @param "datasource" (string) The server name you would like data from
- * @return GetSearchOk
- */
+// SearchApiService Search on a string
+// Search for entities that match a given sub-string.  ---  Alternate route: &#x60;/v1/search/&#x60;  Alternate route: &#x60;/legacy/search/&#x60;   ---  This route is cached for up to 3600 seconds
+//
+//
+// @param search The string to search on
+// @param categories Type of entities to search for
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "language" (string) Search locale
+//     @param "strict" (bool) Whether the search should be a strict match
+//     @param "datasource" (string) The server name you would like data from
+// @return GetSearchOk
 func (a SearchApiService) GetSearch(search string, categories []string, localVarOptionals map[string]interface{}) (GetSearchOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -143,16 +147,25 @@ func (a SearchApiService) GetSearch(search string, categories []string, localVar
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	localVarQueryParams.Add("search", a.client.parameterToString(search, ""))
-	localVarQueryParams.Add("categories", a.client.parameterToString(categories, "csv"))
-	if localVarTempParam, localVarOk := localVarOptionals["language"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("language", a.client.parameterToString(localVarTempParam, ""))
+	localVarQueryParams.Add("search", parameterToString(search, ""))
+	localVarQueryParams.Add("categories", parameterToString(categories, "csv"))
+	if localVarTempParam, localVarOk := localVarOptionals["language"].(string); localVarOk {
+		localVarQueryParams.Add("language", parameterToString(localVarTempParam, ""))
 	}
-	if localVarTempParam, localVarOk := localVarOptionals["strict"].(bool); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("strict", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["strict"].(bool); localVarOk {
+		localVarQueryParams.Add("strict", parameterToString(localVarTempParam, ""))
 	}
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -161,13 +174,12 @@ func (a SearchApiService) GetSearch(search string, categories []string, localVar
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }

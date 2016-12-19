@@ -37,16 +37,14 @@ var _ context.Context
 type WarsApiService service
 
 
-/**
- * List wars
- * Return a list of wars  ---  Alternate route: &#x60;/v1/wars/&#x60;  Alternate route: &#x60;/legacy/wars/&#x60;  Alternate route: &#x60;/dev/wars/&#x60;   ---  This route is cached for up to 3600 seconds
- *
-
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "page" (int32) Which page to query, starting at 1, 2000 wars per page.
- *     @param "datasource" (string) The server name you would like data from
- * @return []int32
- */
+// WarsApiService List wars
+// Return a list of wars  ---  Alternate route: &#x60;/v1/wars/&#x60;  Alternate route: &#x60;/legacy/wars/&#x60;  Alternate route: &#x60;/dev/wars/&#x60;   ---  This route is cached for up to 3600 seconds
+//
+//
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "page" (int32) Which page to query, starting at 1, 2000 wars per page.
+//     @param "datasource" (string) The server name you would like data from
+// @return []int32
 func (a WarsApiService) GetWars(localVarOptionals map[string]interface{}) ([]int32,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -63,11 +61,20 @@ func (a WarsApiService) GetWars(localVarOptionals map[string]interface{}) ([]int
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarTempParam, localVarOk := localVarOptionals["page"].(int32); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("page", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["page"].(int32); localVarOk {
+		localVarQueryParams.Add("page", parameterToString(localVarTempParam, ""))
 	}
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -76,13 +83,12 @@ func (a WarsApiService) GetWars(localVarOptionals map[string]interface{}) ([]int
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }
@@ -104,16 +110,14 @@ func (a WarsApiService) GetWars(localVarOptionals map[string]interface{}) ([]int
 	return successPayload, localVarHttpResponse, err
 }
 
-/**
- * Get war information
- * Return details about a war  ---  Alternate route: &#x60;/v1/wars/{war_id}/&#x60;  Alternate route: &#x60;/legacy/wars/{war_id}/&#x60;  Alternate route: &#x60;/dev/wars/{war_id}/&#x60;   ---  This route is cached for up to 3600 seconds
- *
-
- * @param warId ID for a war
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "datasource" (string) The server name you would like data from
- * @return GetWarsWarIdOk
- */
+// WarsApiService Get war information
+// Return details about a war  ---  Alternate route: &#x60;/v1/wars/{war_id}/&#x60;  Alternate route: &#x60;/legacy/wars/{war_id}/&#x60;  Alternate route: &#x60;/dev/wars/{war_id}/&#x60;   ---  This route is cached for up to 3600 seconds
+//
+//
+// @param warId ID for a war
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "datasource" (string) The server name you would like data from
+// @return GetWarsWarIdOk
 func (a WarsApiService) GetWarsWarId(warId int32, localVarOptionals map[string]interface{}) (GetWarsWarIdOk,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -131,8 +135,17 @@ func (a WarsApiService) GetWarsWarId(warId int32, localVarOptionals map[string]i
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -141,13 +154,12 @@ func (a WarsApiService) GetWarsWarId(warId int32, localVarOptionals map[string]i
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }
@@ -169,17 +181,15 @@ func (a WarsApiService) GetWarsWarId(warId int32, localVarOptionals map[string]i
 	return successPayload, localVarHttpResponse, err
 }
 
-/**
- * List kills for a war
- * Return a list of kills related to a war  ---  Alternate route: &#x60;/v1/wars/{war_id}/killmails/&#x60;  Alternate route: &#x60;/legacy/wars/{war_id}/killmails/&#x60;  Alternate route: &#x60;/dev/wars/{war_id}/killmails/&#x60;   ---  This route is cached for up to 3600 seconds
- *
-
- * @param warId A valid war ID
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "page" (int32) Which page to query, starting at 1, 2000 killmails per page.
- *     @param "datasource" (string) The server name you would like data from
- * @return []GetWarsWarIdKillmails200Ok
- */
+// WarsApiService List kills for a war
+// Return a list of kills related to a war  ---  Alternate route: &#x60;/v1/wars/{war_id}/killmails/&#x60;  Alternate route: &#x60;/legacy/wars/{war_id}/killmails/&#x60;  Alternate route: &#x60;/dev/wars/{war_id}/killmails/&#x60;   ---  This route is cached for up to 3600 seconds
+//
+//
+// @param warId A valid war ID
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "page" (int32) Which page to query, starting at 1, 2000 killmails per page.
+//     @param "datasource" (string) The server name you would like data from
+// @return []GetWarsWarIdKillmails200Ok
 func (a WarsApiService) GetWarsWarIdKillmails(warId int32, localVarOptionals map[string]interface{}) ([]GetWarsWarIdKillmails200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -197,11 +207,20 @@ func (a WarsApiService) GetWarsWarIdKillmails(warId int32, localVarOptionals map
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarTempParam, localVarOk := localVarOptionals["page"].(int32); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("page", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["page"].(int32); localVarOk {
+		localVarQueryParams.Add("page", parameterToString(localVarTempParam, ""))
 	}
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -210,13 +229,12 @@ func (a WarsApiService) GetWarsWarIdKillmails(warId int32, localVarOptionals map
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 
-
-	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }

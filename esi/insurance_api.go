@@ -36,16 +36,14 @@ var _ context.Context
 type InsuranceApiService service
 
 
-/**
- * List insurance levels
- * Return available insurance levels for all ship types  ---  Alternate route: &#x60;/v1/insurance/prices/&#x60;  Alternate route: &#x60;/legacy/insurance/prices/&#x60;  Alternate route: &#x60;/dev/insurance/prices/&#x60;   ---  This route is cached for up to 3600 seconds
- *
-
- * @param optional (nil or map[string]interface{}) with one or more of:
- *     @param "acceptLanguage" (string) Language to use in the response
- *     @param "datasource" (string) The server name you would like data from
- * @return []GetInsurancePrices200Ok
- */
+// InsuranceApiService List insurance levels
+// Return available insurance levels for all ship types  ---  Alternate route: &#x60;/v1/insurance/prices/&#x60;  Alternate route: &#x60;/legacy/insurance/prices/&#x60;  Alternate route: &#x60;/dev/insurance/prices/&#x60;   ---  This route is cached for up to 3600 seconds
+//
+//
+// @param optional (nil or map[string]interface{}) with one or more of:
+//     @param "acceptLanguage" (string) Language to use in the response
+//     @param "datasource" (string) The server name you would like data from
+// @return []GetInsurancePrices200Ok
 func (a InsuranceApiService) GetInsurancePrices(localVarOptionals map[string]interface{}) ([]GetInsurancePrices200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Get")
@@ -62,8 +60,17 @@ func (a InsuranceApiService) GetInsurancePrices(localVarOptionals map[string]int
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOptionals != nil && localVarOk {
-		localVarQueryParams.Add("datasource", a.client.parameterToString(localVarTempParam, ""))
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
 	}
 
 	// to determine the Accept header
@@ -72,16 +79,15 @@ func (a InsuranceApiService) GetInsurancePrices(localVarOptionals map[string]int
 		}
 
 	// set Accept header
-	localVarHttpHeaderAccept := a.client.SelectHeaderAccept(localVarHttpHeaderAccepts)
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
-	if localVarTempParam, localVarOk := localVarOptionals["acceptLanguage"].(string); localVarOptionals != nil && localVarOk {
-		localVarHeaderParams["Accept-Language"] = a.client.parameterToString(localVarTempParam, "")
+	if localVarTempParam, localVarOk := localVarOptionals["acceptLanguage"].(string); localVarOk {
+		localVarHeaderParams["Accept-Language"] = parameterToString(localVarTempParam, "")
 	}
 
-
-	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes, "application/json")
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	 if err != nil {
 		  return successPayload, nil, err
 	 }
