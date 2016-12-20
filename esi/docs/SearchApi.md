@@ -9,23 +9,31 @@ Method | HTTP request | Description
 
 
 # **GetCharactersCharacterIdSearch**
-> GetCharactersCharacterIdSearchOk GetCharactersCharacterIdSearch($characterId, $search, $categories, $language, $strict, $datasource)
+> GetCharactersCharacterIdSearchOk GetCharactersCharacterIdSearch(ctx, characterId, search, categories, optional)
 
 Search on a string
 
 Search for entities that match a given sub-string.  ---  Alternate route: `/v2/characters/{character_id}/search/`   ---  This route is cached for up to 3600 seconds
 
+### Required Parameters
 
-### Parameters
+
+
+
+
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **characterId** | **int32**| An EVE character ID | 
- **search** | **string**| The string to search on | 
- **categories** | [**[]string**](string.md)| Type of entities to search for | 
- **language** | **string**| Search locale | [optional] [default to en-us]
- **strict** | **bool**| Whether the search should be a strict match | [optional] [default to false]
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
+ **characterId** | **int32**| An EVE character ID |  **search** | **string**| The string to search on |  **categories** | [**[]string**](string.md)| Type of entities to search for | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **language** | **string**| Search locale | [optional] [default to en-us] **strict** | **bool**| Whether the search should be a strict match | [optional] [default to false] **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
@@ -43,22 +51,30 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **GetSearch**
-> GetSearchOk GetSearch($search, $categories, $language, $strict, $datasource)
+> GetSearchOk GetSearch(search, categories, optional)
 
 Search on a string
 
 Search for entities that match a given sub-string.  ---  Alternate route: `/v1/search/`  Alternate route: `/legacy/search/`   ---  This route is cached for up to 3600 seconds
 
+### Required Parameters
 
-### Parameters
+
+
+
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **search** | **string**| The string to search on | 
- **categories** | [**[]string**](string.md)| Type of entities to search for | 
- **language** | **string**| Search locale | [optional] [default to en-us]
- **strict** | **bool**| Whether the search should be a strict match | [optional] [default to false]
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+
+ **search** | **string**| The string to search on |  **categories** | [**[]string**](string.md)| Type of entities to search for | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **language** | **string**| Search locale | [optional] [default to en-us] **strict** | **bool**| Whether the search should be a strict match | [optional] [default to false] **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 

@@ -359,7 +359,7 @@ Class | Method | HTTP request | Description
 
 - **Type**: OAuth
 - **Flow**: implicit
-- **Autorization URL**: https://login.eveonline.com/oauth/authorize
+- **Authorization URL**: https://login.eveonline.com/oauth/authorize
 - **Scopes**: 
  - **esi-assets.read_assets.v1**: EVE SSO scope esi-assets.read_assets.v1
  - **esi-bookmarks.read_character_bookmarks.v1**: EVE SSO scope esi-bookmarks.read_character_bookmarks.v1

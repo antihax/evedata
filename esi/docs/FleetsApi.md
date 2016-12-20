@@ -20,24 +20,32 @@ Method | HTTP request | Description
 
 
 # **DeleteFleetsFleetIdMembersMemberId**
-> DeleteFleetsFleetIdMembersMemberId($fleetId, $memberId, $datasource)
+> DeleteFleetsFleetIdMembersMemberId(ctx, fleetId, memberId, optional)
 
 Kick fleet member
 
 Kick a fleet member  ---  Alternate route: `/v1/fleets/{fleet_id}/members/{member_id}/`  Alternate route: `/legacy/fleets/{fleet_id}/members/{member_id}/`  Alternate route: `/dev/fleets/{fleet_id}/members/{member_id}/` 
 
+### Required Parameters
 
-### Parameters
+
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **fleetId** | **int64**| ID for a fleet | 
- **memberId** | **int32**| The character ID of a member in this fleet | 
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
+ **fleetId** | **int64**| ID for a fleet |  **memberId** | **int32**| The character ID of a member in this fleet | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
-void (empty response body)
+ (empty response body)
 
 ### Authorization
 
@@ -51,24 +59,32 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **DeleteFleetsFleetIdSquadsSquadId**
-> DeleteFleetsFleetIdSquadsSquadId($fleetId, $squadId, $datasource)
+> DeleteFleetsFleetIdSquadsSquadId(ctx, fleetId, squadId, optional)
 
 Delete fleet squad
 
 Delete a fleet squad, only empty squads can be deleted  ---  Alternate route: `/v1/fleets/{fleet_id}/squads/{squad_id}/`  Alternate route: `/legacy/fleets/{fleet_id}/squads/{squad_id}/`  Alternate route: `/dev/fleets/{fleet_id}/squads/{squad_id}/` 
 
+### Required Parameters
 
-### Parameters
+
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **fleetId** | **int64**| ID for a fleet | 
- **squadId** | **int64**| The squad to delete | 
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
+ **fleetId** | **int64**| ID for a fleet |  **squadId** | **int64**| The squad to delete | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
-void (empty response body)
+ (empty response body)
 
 ### Authorization
 
@@ -82,24 +98,32 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **DeleteFleetsFleetIdWingsWingId**
-> DeleteFleetsFleetIdWingsWingId($fleetId, $wingId, $datasource)
+> DeleteFleetsFleetIdWingsWingId(ctx, fleetId, wingId, optional)
 
 Delete fleet wing
 
 Delete a fleet wing, only empty wings can be deleted. The wing may contain squads, but the squads must be empty  ---  Alternate route: `/v1/fleets/{fleet_id}/wings/{wing_id}/`  Alternate route: `/legacy/fleets/{fleet_id}/wings/{wing_id}/`  Alternate route: `/dev/fleets/{fleet_id}/wings/{wing_id}/` 
 
+### Required Parameters
 
-### Parameters
+
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **fleetId** | **int64**| ID for a fleet | 
- **wingId** | **int64**| The wing to delete | 
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
+ **fleetId** | **int64**| ID for a fleet |  **wingId** | **int64**| The wing to delete | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
-void (empty response body)
+ (empty response body)
 
 ### Authorization
 
@@ -113,18 +137,26 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **GetFleetsFleetId**
-> GetFleetsFleetIdOk GetFleetsFleetId($fleetId, $datasource)
+> GetFleetsFleetIdOk GetFleetsFleetId(ctx, fleetId, optional)
 
 Get fleet information
 
 Return details about a fleet  ---  Alternate route: `/v1/fleets/{fleet_id}/`  Alternate route: `/legacy/fleets/{fleet_id}/`  Alternate route: `/dev/fleets/{fleet_id}/`   ---  This route is cached for up to 5 seconds
 
+### Required Parameters
 
-### Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
  **fleetId** | **int64**| ID for a fleet | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
@@ -143,20 +175,28 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **GetFleetsFleetIdMembers**
-> []GetFleetsFleetIdMembers200Ok GetFleetsFleetIdMembers($fleetId, $acceptLanguage, $datasource)
+> []GetFleetsFleetIdMembers200Ok GetFleetsFleetIdMembers(ctx, fleetId, optional)
 
 Get fleet members
 
 Return information about fleet members  ---  Alternate route: `/v1/fleets/{fleet_id}/members/`  Alternate route: `/legacy/fleets/{fleet_id}/members/`  Alternate route: `/dev/fleets/{fleet_id}/members/`   ---  This route is cached for up to 5 seconds
 
+### Required Parameters
 
-### Parameters
+
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
  **fleetId** | **int64**| ID for a fleet | 
- **acceptLanguage** | **string**| Language to use in the response | [optional] [default to en]
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **acceptLanguage** | **string**| Language to use in the response | [optional] [default to en] **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
@@ -174,20 +214,28 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **GetFleetsFleetIdWings**
-> []GetFleetsFleetIdWings200Ok GetFleetsFleetIdWings($fleetId, $acceptLanguage, $datasource)
+> []GetFleetsFleetIdWings200Ok GetFleetsFleetIdWings(ctx, fleetId, optional)
 
 Get fleet wings
 
 Return information about wings in a fleet  ---  Alternate route: `/v1/fleets/{fleet_id}/wings/`  Alternate route: `/legacy/fleets/{fleet_id}/wings/`  Alternate route: `/dev/fleets/{fleet_id}/wings/`   ---  This route is cached for up to 5 seconds
 
+### Required Parameters
 
-### Parameters
+
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
  **fleetId** | **int64**| ID for a fleet | 
- **acceptLanguage** | **string**| Language to use in the response | [optional] [default to en]
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **acceptLanguage** | **string**| Language to use in the response | [optional] [default to en] **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
@@ -205,24 +253,32 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **PostFleetsFleetIdMembers**
-> PostFleetsFleetIdMembers($fleetId, $invitation, $datasource)
+> PostFleetsFleetIdMembers(ctx, fleetId, invitation, optional)
 
 Create fleet invitation
 
 Invite a character into the fleet, if a character has a CSPA charge set, it is not possible to invite them to the fleet using ESI  ---  Alternate route: `/v1/fleets/{fleet_id}/members/`  Alternate route: `/legacy/fleets/{fleet_id}/members/`  Alternate route: `/dev/fleets/{fleet_id}/members/` 
 
+### Required Parameters
 
-### Parameters
+
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **fleetId** | **int64**| ID for a fleet | 
- **invitation** | [**PostFleetsFleetIdMembersInvitation**](PostFleetsFleetIdMembersInvitation.md)| Details of the invitation | 
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
+ **fleetId** | **int64**| ID for a fleet |  **invitation** | [**PostFleetsFleetIdMembersInvitation**](PostFleetsFleetIdMembersInvitation.md)| Details of the invitation | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
-void (empty response body)
+ (empty response body)
 
 ### Authorization
 
@@ -236,18 +292,26 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **PostFleetsFleetIdWings**
-> PostFleetsFleetIdWingsCreated PostFleetsFleetIdWings($fleetId, $datasource)
+> PostFleetsFleetIdWingsCreated PostFleetsFleetIdWings(ctx, fleetId, optional)
 
 Create fleet wing
 
 Create a new wing in a fleet  ---  Alternate route: `/v1/fleets/{fleet_id}/wings/`  Alternate route: `/legacy/fleets/{fleet_id}/wings/`  Alternate route: `/dev/fleets/{fleet_id}/wings/` 
 
+### Required Parameters
 
-### Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
  **fleetId** | **int64**| ID for a fleet | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
@@ -266,19 +330,27 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **PostFleetsFleetIdWingsWingIdSquads**
-> PostFleetsFleetIdWingsWingIdSquadsCreated PostFleetsFleetIdWingsWingIdSquads($fleetId, $wingId, $datasource)
+> PostFleetsFleetIdWingsWingIdSquadsCreated PostFleetsFleetIdWingsWingIdSquads(ctx, fleetId, wingId, optional)
 
 Create fleet squad
 
 Create a new squad in a fleet  ---  Alternate route: `/v1/fleets/{fleet_id}/wings/{wing_id}/squads/`  Alternate route: `/legacy/fleets/{fleet_id}/wings/{wing_id}/squads/`  Alternate route: `/dev/fleets/{fleet_id}/wings/{wing_id}/squads/` 
 
+### Required Parameters
 
-### Parameters
+
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **fleetId** | **int64**| ID for a fleet | 
- **wingId** | **int64**| The wing_id to create squad in | 
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
+ **fleetId** | **int64**| ID for a fleet |  **wingId** | **int64**| The wing_id to create squad in | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
@@ -297,24 +369,32 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **PutFleetsFleetId**
-> PutFleetsFleetId($fleetId, $newSettings, $datasource)
+> PutFleetsFleetId(ctx, fleetId, newSettings, optional)
 
 Update fleet
 
 Update settings about a fleet  ---  Alternate route: `/v1/fleets/{fleet_id}/`  Alternate route: `/legacy/fleets/{fleet_id}/`  Alternate route: `/dev/fleets/{fleet_id}/` 
 
+### Required Parameters
 
-### Parameters
+
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **fleetId** | **int64**| ID for a fleet | 
- **newSettings** | [**PutFleetsFleetIdNewSettings**](PutFleetsFleetIdNewSettings.md)| What to update for this fleet | 
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
+ **fleetId** | **int64**| ID for a fleet |  **newSettings** | [**PutFleetsFleetIdNewSettings**](PutFleetsFleetIdNewSettings.md)| What to update for this fleet | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
-void (empty response body)
+ (empty response body)
 
 ### Authorization
 
@@ -328,25 +408,33 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **PutFleetsFleetIdMembersMemberId**
-> PutFleetsFleetIdMembersMemberId($fleetId, $memberId, $movement, $datasource)
+> PutFleetsFleetIdMembersMemberId(ctx, fleetId, memberId, movement, optional)
 
 Move fleet member
 
 Move a fleet member around  ---  Alternate route: `/v1/fleets/{fleet_id}/members/{member_id}/`  Alternate route: `/legacy/fleets/{fleet_id}/members/{member_id}/`  Alternate route: `/dev/fleets/{fleet_id}/members/{member_id}/` 
 
+### Required Parameters
 
-### Parameters
+
+
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **fleetId** | **int64**| ID for a fleet | 
- **memberId** | **int32**| The character ID of a member in this fleet | 
- **movement** | [**PutFleetsFleetIdMembersMemberIdMovement**](PutFleetsFleetIdMembersMemberIdMovement.md)| Details of the invitation | 
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
+ **fleetId** | **int64**| ID for a fleet |  **memberId** | **int32**| The character ID of a member in this fleet |  **movement** | [**PutFleetsFleetIdMembersMemberIdMovement**](PutFleetsFleetIdMembersMemberIdMovement.md)| Details of the invitation | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
-void (empty response body)
+ (empty response body)
 
 ### Authorization
 
@@ -360,25 +448,33 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **PutFleetsFleetIdSquadsSquadId**
-> PutFleetsFleetIdSquadsSquadId($fleetId, $squadId, $naming, $datasource)
+> PutFleetsFleetIdSquadsSquadId(ctx, fleetId, squadId, naming, optional)
 
 Rename fleet squad
 
 Rename a fleet squad  ---  Alternate route: `/v1/fleets/{fleet_id}/squads/{squad_id}/`  Alternate route: `/legacy/fleets/{fleet_id}/squads/{squad_id}/`  Alternate route: `/dev/fleets/{fleet_id}/squads/{squad_id}/` 
 
+### Required Parameters
 
-### Parameters
+
+
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **fleetId** | **int64**| ID for a fleet | 
- **squadId** | **int64**| The squad to rename | 
- **naming** | [**PutFleetsFleetIdSquadsSquadIdNaming**](PutFleetsFleetIdSquadsSquadIdNaming.md)| New name of the squad | 
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
+ **fleetId** | **int64**| ID for a fleet |  **squadId** | **int64**| The squad to rename |  **naming** | [**PutFleetsFleetIdSquadsSquadIdNaming**](PutFleetsFleetIdSquadsSquadIdNaming.md)| New name of the squad | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
-void (empty response body)
+ (empty response body)
 
 ### Authorization
 
@@ -392,25 +488,33 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **PutFleetsFleetIdWingsWingId**
-> PutFleetsFleetIdWingsWingId($fleetId, $wingId, $naming, $datasource)
+> PutFleetsFleetIdWingsWingId(ctx, fleetId, wingId, naming, optional)
 
 Rename fleet wing
 
 Rename a fleet wing  ---  Alternate route: `/v1/fleets/{fleet_id}/wings/{wing_id}/`  Alternate route: `/legacy/fleets/{fleet_id}/wings/{wing_id}/`  Alternate route: `/dev/fleets/{fleet_id}/wings/{wing_id}/` 
 
+### Required Parameters
 
-### Parameters
+
+
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **fleetId** | **int64**| ID for a fleet | 
- **wingId** | **int64**| The wing to rename | 
- **naming** | [**PutFleetsFleetIdWingsWingIdNaming**](PutFleetsFleetIdWingsWingIdNaming.md)| New name of the wing | 
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
+ **fleetId** | **int64**| ID for a fleet |  **wingId** | **int64**| The wing to rename |  **naming** | [**PutFleetsFleetIdWingsWingIdNaming**](PutFleetsFleetIdWingsWingIdNaming.md)| New name of the wing | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
-void (empty response body)
+ (empty response body)
 
 ### Authorization
 

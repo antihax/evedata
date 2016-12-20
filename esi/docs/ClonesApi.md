@@ -8,18 +8,26 @@ Method | HTTP request | Description
 
 
 # **GetCharactersCharacterIdClones**
-> GetCharactersCharacterIdClonesOk GetCharactersCharacterIdClones($characterId, $datasource)
+> GetCharactersCharacterIdClonesOk GetCharactersCharacterIdClones(ctx, characterId, optional)
 
 Get clones
 
 A list of the character's clones  ---  Alternate route: `/v2/characters/{character_id}/clones/`  Alternate route: `/dev/characters/{character_id}/clones/`   ---  This route is cached for up to 120 seconds
 
+### Required Parameters
 
-### Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
  **characterId** | **int32**| An EVE character ID | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type

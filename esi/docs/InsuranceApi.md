@@ -8,19 +8,27 @@ Method | HTTP request | Description
 
 
 # **GetInsurancePrices**
-> []GetInsurancePrices200Ok GetInsurancePrices($acceptLanguage, $datasource)
+> []GetInsurancePrices200Ok GetInsurancePrices(optional)
 
 List insurance levels
 
 Return available insurance levels for all ship types  ---  Alternate route: `/v1/insurance/prices/`  Alternate route: `/legacy/insurance/prices/`  Alternate route: `/dev/insurance/prices/`   ---  This route is cached for up to 3600 seconds
 
+### Required Parameters
 
-### Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **acceptLanguage** | **string**| Language to use in the response | [optional] [default to en]
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+
+
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **acceptLanguage** | **string**| Language to use in the response | [optional] [default to en] **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 

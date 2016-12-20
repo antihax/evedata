@@ -10,19 +10,27 @@ Method | HTTP request | Description
 
 
 # **GetWars**
-> []int32 GetWars($page, $datasource)
+> []int32 GetWars(optional)
 
 List wars
 
 Return a list of wars  ---  Alternate route: `/v1/wars/`  Alternate route: `/legacy/wars/`  Alternate route: `/dev/wars/`   ---  This route is cached for up to 3600 seconds
 
+### Required Parameters
 
-### Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **page** | **int32**| Which page to query, starting at 1, 2000 wars per page. | [optional] [default to 1]
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+
+
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **page** | **int32**| Which page to query, starting at 1, 2000 wars per page. | [optional] [default to 1] **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
@@ -40,18 +48,26 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **GetWarsWarId**
-> GetWarsWarIdOk GetWarsWarId($warId, $datasource)
+> GetWarsWarIdOk GetWarsWarId(warId, optional)
 
 Get war information
 
 Return details about a war  ---  Alternate route: `/v1/wars/{war_id}/`  Alternate route: `/legacy/wars/{war_id}/`  Alternate route: `/dev/wars/{war_id}/`   ---  This route is cached for up to 3600 seconds
 
+### Required Parameters
 
-### Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **warId** | **int32**| ID for a war | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
@@ -70,20 +86,28 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **GetWarsWarIdKillmails**
-> []GetWarsWarIdKillmails200Ok GetWarsWarIdKillmails($warId, $page, $datasource)
+> []GetWarsWarIdKillmails200Ok GetWarsWarIdKillmails(warId, optional)
 
 List kills for a war
 
 Return a list of kills related to a war  ---  Alternate route: `/v1/wars/{war_id}/killmails/`  Alternate route: `/legacy/wars/{war_id}/killmails/`  Alternate route: `/dev/wars/{war_id}/killmails/`   ---  This route is cached for up to 3600 seconds
 
+### Required Parameters
 
-### Parameters
+
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **warId** | **int32**| A valid war ID | 
- **page** | **int32**| Which page to query, starting at 1, 2000 killmails per page. | [optional] [default to 1]
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **page** | **int32**| Which page to query, starting at 1, 2000 killmails per page. | [optional] [default to 1] **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 

@@ -9,21 +9,29 @@ Method | HTTP request | Description
 
 
 # **GetCharactersCharacterIdKillmailsRecent**
-> []GetCharactersCharacterIdKillmailsRecent200Ok GetCharactersCharacterIdKillmailsRecent($characterId, $maxCount, $maxKillId, $datasource)
+> []GetCharactersCharacterIdKillmailsRecent200Ok GetCharactersCharacterIdKillmailsRecent(ctx, characterId, optional)
 
 List kills and losses
 
 Return a list of character's recent kills and losses  ---  Alternate route: `/v1/characters/{character_id}/killmails/recent/`  Alternate route: `/legacy/characters/{character_id}/killmails/recent/`  Alternate route: `/dev/characters/{character_id}/killmails/recent/`   ---  This route is cached for up to 120 seconds
 
+### Required Parameters
 
-### Parameters
+
+
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
  **characterId** | **int32**| An EVE character ID | 
- **maxCount** | **int32**| How many killmails to return at maximum | [optional] [default to 50]
- **maxKillId** | **int32**| Only return killmails with ID smaller than this.  | [optional] 
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **maxCount** | **int32**| How many killmails to return at maximum | [optional] [default to 50] **maxKillId** | **int32**| Only return killmails with ID smaller than this.  | [optional]  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
@@ -41,19 +49,27 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **GetKillmailsKillmailIdKillmailHash**
-> GetKillmailsKillmailIdKillmailHashOk GetKillmailsKillmailIdKillmailHash($killmailId, $killmailHash, $datasource)
+> GetKillmailsKillmailIdKillmailHashOk GetKillmailsKillmailIdKillmailHash(killmailId, killmailHash, optional)
 
 Get a single killmail
 
 Return a single killmail from its ID and hash  ---  Alternate route: `/v1/killmails/{killmail_id}/{killmail_hash}/`  Alternate route: `/legacy/killmails/{killmail_id}/{killmail_hash}/`  Alternate route: `/dev/killmails/{killmail_id}/{killmail_hash}/`   ---  This route is cached for up to 3600 seconds
 
+### Required Parameters
 
-### Parameters
+
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **killmailId** | **int32**| The killmail ID to be queried | 
- **killmailHash** | **string**| The killmail hash for verification | 
+
+ **killmailId** | **int32**| The killmail ID to be queried |  **killmailHash** | **string**| The killmail hash for verification | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type

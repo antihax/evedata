@@ -8,14 +8,22 @@ Method | HTTP request | Description
 
 
 # **GetIncursions**
-> []GetIncursions200Ok GetIncursions($datasource)
+> []GetIncursions200Ok GetIncursions(optional)
 
 List incursions
 
 Return a list of current incursions  ---  Alternate route: `/v1/incursions/`  Alternate route: `/legacy/incursions/`  Alternate route: `/dev/incursions/`   ---  This route is cached for up to 300 seconds
 
+### Required Parameters
 
-### Parameters
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
