@@ -29,7 +29,10 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **language** | **string**| Search locale | [optional] [default to en-us] **strict** | **bool**| Whether the search should be a strict match | [optional] [default to false] **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+
+ **language** | **string**| Search locale | [optional] [default to en-us]
+ **strict** | **bool**| Whether the search should be a strict match | [optional] [default to false]
+ **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
@@ -65,7 +68,10 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **language** | **string**| Search locale | [optional] [default to en-us] **strict** | **bool**| Whether the search should be a strict match | [optional] [default to false] **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+
+ **language** | **string**| Search locale | [optional] [default to en-us]
+ **strict** | **bool**| Whether the search should be a strict match | [optional] [default to false]
+ **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 

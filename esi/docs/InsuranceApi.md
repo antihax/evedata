@@ -24,7 +24,9 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **acceptLanguage** | **string**| Language to use in the response | [optional] [default to en] **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+
+ **acceptLanguage** | **string**| Language to use in the response | [optional] [default to en]
+ **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 

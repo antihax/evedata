@@ -30,6 +30,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
@@ -65,6 +66,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
@@ -100,6 +102,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
@@ -136,6 +139,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
@@ -172,6 +176,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
@@ -207,6 +212,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type

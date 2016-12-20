@@ -27,7 +27,10 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **maxCount** | **int32**| How many killmails to return at maximum | [optional] [default to 50] **maxKillId** | **int32**| Only return killmails with ID smaller than this.  | [optional]  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+
+ **maxCount** | **int32**| How many killmails to return at maximum | [optional] [default to 50]
+ **maxKillId** | **int32**| Only return killmails with ID smaller than this.  | [optional] 
+ **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
@@ -63,6 +66,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type

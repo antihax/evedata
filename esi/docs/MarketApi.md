@@ -26,6 +26,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
@@ -62,6 +63,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
@@ -98,7 +100,10 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **typeId** | **int32**| Return orders only for this type | [optional]  **page** | **int32**| Which page to query, only used for querying without type_id. Starting at 1  | [optional] [default to 1] **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+
+ **typeId** | **int32**| Return orders only for this type | [optional] 
+ **page** | **int32**| Which page to query, only used for querying without type_id. Starting at 1  | [optional] [default to 1]
+ **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 

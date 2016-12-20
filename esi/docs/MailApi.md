@@ -34,6 +34,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
@@ -70,7 +71,10 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **labels** | [**[]int64**](int64.md)| Fetch only mails that match one or more of the given labels | [optional]  **lastMailId** | **int32**| List only mail with an ID lower than the given ID, if present | [optional]  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+
+ **labels** | [**[]int64**](int64.md)| Fetch only mails that match one or more of the given labels | [optional] 
+ **lastMailId** | **int32**| List only mail with an ID lower than the given ID, if present | [optional] 
+ **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
@@ -106,6 +110,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
@@ -142,6 +147,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
@@ -179,6 +185,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
@@ -216,6 +223,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
@@ -252,7 +260,9 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **label** | [**PostCharactersCharacterIdMailLabelsLabel**](PostCharactersCharacterIdMailLabelsLabel.md)| Label to create | [optional]  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+
+ **label** | [**PostCharactersCharacterIdMailLabelsLabel**](PostCharactersCharacterIdMailLabelsLabel.md)| Label to create | [optional] 
+ **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
 
@@ -290,6 +300,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
  **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
 
 ### Return type
