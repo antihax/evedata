@@ -15,6 +15,19 @@ Put the package under your project folder and add the following in import:
     "./esi"
 ```
 
+## New Client
+```
+  client, err := esi.NewClient(*http.Client, userAgent string)
+```
+
+One client should be created that will serve as an agent for all requests. This allows http2 multiplexing and keep-alive be used to optimize connections.
+It is also good manners to provide a user-agent describing the point of use of the API.
+
+```
+  client, err := esi.NewClient(nil, "esi client http://mysite.com")
+  result, response, err := client.Endpoint.Operation(parameters)
+```
+
 ## Documentation for API Endpoints
 
 All URIs are relative to *https://esi.tech.ccp.is/latest*
