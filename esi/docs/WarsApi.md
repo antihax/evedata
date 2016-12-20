@@ -11,18 +11,14 @@ Method | HTTP request | Description
 
 # **GetWars**
 > []int32 GetWars(optional)
-
 List wars
 
 Return a list of wars  ---  Alternate route: `/v1/wars/`  Alternate route: `/legacy/wars/`  Alternate route: `/dev/wars/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
-
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
-
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters
@@ -49,18 +45,15 @@ No authorization required
 
 # **GetWarsWarId**
 > GetWarsWarIdOk GetWarsWarId(warId, optional)
-
 Get war information
 
 Return details about a war  ---  Alternate route: `/v1/wars/{war_id}/`  Alternate route: `/legacy/wars/{war_id}/`  Alternate route: `/dev/wars/{war_id}/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
-
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **warId** | **int32**| ID for a war | 
+  **warId** | **int32**| ID for a war | 
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters
@@ -87,19 +80,15 @@ No authorization required
 
 # **GetWarsWarIdKillmails**
 > []GetWarsWarIdKillmails200Ok GetWarsWarIdKillmails(warId, optional)
-
 List kills for a war
 
 Return a list of kills related to a war  ---  Alternate route: `/v1/wars/{war_id}/killmails/`  Alternate route: `/legacy/wars/{war_id}/killmails/`  Alternate route: `/dev/wars/{war_id}/killmails/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
-
-
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **warId** | **int32**| A valid war ID | 
+  **warId** | **int32**| A valid war ID | 
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters

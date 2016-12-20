@@ -10,7 +10,6 @@ Method | HTTP request | Description
 
 # **GetIndustryFacilities**
 > []GetIndustryFacilities200Ok GetIndustryFacilities(optional)
-
 List industry facilities
 
 Return a list of industry facilities  ---  Alternate route: `/v1/industry/facilities/`  Alternate route: `/legacy/industry/facilities/`  Alternate route: `/dev/industry/facilities/`   ---  This route is cached for up to 3600 seconds
@@ -19,8 +18,6 @@ Return a list of industry facilities  ---  Alternate route: `/v1/industry/facili
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
-
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters
@@ -47,7 +44,6 @@ No authorization required
 
 # **GetIndustrySystems**
 > []GetIndustrySystems200Ok GetIndustrySystems(optional)
-
 List solar system cost indices
 
 Return cost indices for solar systems  ---  Alternate route: `/v1/industry/systems/`  Alternate route: `/legacy/industry/systems/`  Alternate route: `/dev/industry/systems/`   ---  This route is cached for up to 3600 seconds
@@ -56,8 +52,6 @@ Return cost indices for solar systems  ---  Alternate route: `/v1/industry/syste
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
-
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters

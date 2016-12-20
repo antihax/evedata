@@ -11,7 +11,6 @@ Method | HTTP request | Description
 
 # **GetMarketsPrices**
 > []GetMarketsPrices200Ok GetMarketsPrices(optional)
-
 List market prices
 
 Return a list of prices  ---  Alternate route: `/v1/markets/prices/`  Alternate route: `/legacy/markets/prices/`  Alternate route: `/dev/markets/prices/`   ---  This route is cached for up to 3600 seconds
@@ -20,8 +19,6 @@ Return a list of prices  ---  Alternate route: `/v1/markets/prices/`  Alternate 
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
-
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters
@@ -48,19 +45,16 @@ No authorization required
 
 # **GetMarketsRegionIdHistory**
 > []GetMarketsRegionIdHistory200Ok GetMarketsRegionIdHistory(regionId, typeId, optional)
-
 List historical market statistics in a region
 
 Return a list of historical market statistics for the specified type in a region  ---  Alternate route: `/v1/markets/{region_id}/history/`  Alternate route: `/legacy/markets/{region_id}/history/`  Alternate route: `/dev/markets/{region_id}/history/`   ---  This route is cached for up to 300 seconds
 
 ### Required Parameters
 
-
-
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **regionId** | **int32**| Return statistics in this region |  **typeId** | **int32**| Return statistics for this type | 
+  **regionId** | **int32**| Return statistics in this region | 
+  **typeId** | **int32**| Return statistics for this type | 
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters
@@ -87,21 +81,16 @@ No authorization required
 
 # **GetMarketsRegionIdOrders**
 > []GetMarketsRegionIdOrders200Ok GetMarketsRegionIdOrders(regionId, orderType, optional)
-
 List orders in a region
 
 Return a list of orders in a region  ---  Alternate route: `/v1/markets/{region_id}/orders/`  Alternate route: `/legacy/markets/{region_id}/orders/`  Alternate route: `/dev/markets/{region_id}/orders/`   ---  This route is cached for up to 300 seconds
 
 ### Required Parameters
 
-
-
-
-
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **regionId** | **int32**| Return orders in this region |  **orderType** | **string**| Filter buy/sell orders, return all orders by default. If you query without type_id, we always return both buy and sell orders.  | [default to all]
+  **regionId** | **int32**| Return orders in this region | 
+  **orderType** | **string**| Filter buy/sell orders, return all orders by default. If you query without type_id, we always return both buy and sell orders.  | [default to all]
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters

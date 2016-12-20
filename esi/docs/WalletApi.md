@@ -9,18 +9,16 @@ Method | HTTP request | Description
 
 # **GetCharactersCharacterIdWallets**
 > []GetCharactersCharacterIdWallets200Ok GetCharactersCharacterIdWallets(ctx, characterId, optional)
-
 List wallets and balances
 
 List your wallets and their balances. Characters typically have only one wallet, with wallet_id 1000 being the master wallet.  ---  Alternate route: `/v1/characters/{character_id}/wallets/`  Alternate route: `/legacy/characters/{character_id}/wallets/`  Alternate route: `/dev/characters/{character_id}/wallets/`   ---  This route is cached for up to 120 seconds
 
 ### Required Parameters
 
-
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context containing the authentication | nil if no authentication
- **characterId** | **int32**| An EVE character ID | 
+  **characterId** | **int32**| An EVE character ID | 
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters

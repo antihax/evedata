@@ -9,18 +9,14 @@ Method | HTTP request | Description
 
 # **GetInsurancePrices**
 > []GetInsurancePrices200Ok GetInsurancePrices(optional)
-
 List insurance levels
 
 Return available insurance levels for all ship types  ---  Alternate route: `/v1/insurance/prices/`  Alternate route: `/legacy/insurance/prices/`  Alternate route: `/dev/insurance/prices/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
-
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
-
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters

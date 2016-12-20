@@ -10,18 +10,16 @@ Method | HTTP request | Description
 
 # **GetCharactersCharacterIdSkillqueue**
 > []GetCharactersCharacterIdSkillqueue200Ok GetCharactersCharacterIdSkillqueue(ctx, characterId, optional)
-
 Get character's skill queue
 
 List the configured skill queue for the given character  ---  Alternate route: `/v2/characters/{character_id}/skillqueue/`  Alternate route: `/legacy/characters/{character_id}/skillqueue/`  Alternate route: `/dev/characters/{character_id}/skillqueue/`   ---  This route is cached for up to 120 seconds
 
 ### Required Parameters
 
-
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context containing the authentication | nil if no authentication
- **characterId** | **int32**| Character id of the target character | 
+  **characterId** | **int32**| Character id of the target character | 
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters
@@ -48,18 +46,16 @@ Name | Type | Description  | Notes
 
 # **GetCharactersCharacterIdSkills**
 > GetCharactersCharacterIdSkillsOk GetCharactersCharacterIdSkills(ctx, characterId, optional)
-
 Get character skills
 
 List all trained skills for the given character  ---  Alternate route: `/v3/characters/{character_id}/skills/`  Alternate route: `/dev/characters/{character_id}/skills/`   ---  This route is cached for up to 120 seconds
 
 ### Required Parameters
 
-
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context containing the authentication | nil if no authentication
- **characterId** | **int32**| An EVE character ID | 
+  **characterId** | **int32**| An EVE character ID | 
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters

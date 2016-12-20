@@ -10,7 +10,6 @@ Method | HTTP request | Description
 
 # **GetSovereigntyCampaigns**
 > []GetSovereigntyCampaigns200Ok GetSovereigntyCampaigns(optional)
-
 List sovereignty campaigns
 
 Shows sovereignty data for campaigns.  ---  Alternate route: `/v1/sovereignty/campaigns/`  Alternate route: `/legacy/sovereignty/campaigns/`  Alternate route: `/dev/sovereignty/campaigns/`   ---  This route is cached for up to 5 seconds
@@ -19,8 +18,6 @@ Shows sovereignty data for campaigns.  ---  Alternate route: `/v1/sovereignty/ca
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
-
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters
@@ -47,7 +44,6 @@ No authorization required
 
 # **GetSovereigntyStructures**
 > []GetSovereigntyStructures200Ok GetSovereigntyStructures(optional)
-
 List sovereignty structures
 
 Shows sovereignty data for structures.  ---  Alternate route: `/v1/sovereignty/structures/`  Alternate route: `/legacy/sovereignty/structures/`  Alternate route: `/dev/sovereignty/structures/`   ---  This route is cached for up to 120 seconds
@@ -56,8 +52,6 @@ Shows sovereignty data for structures.  ---  Alternate route: `/v1/sovereignty/s
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
-
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters

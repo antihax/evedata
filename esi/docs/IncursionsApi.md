@@ -9,7 +9,6 @@ Method | HTTP request | Description
 
 # **GetIncursions**
 > []GetIncursions200Ok GetIncursions(optional)
-
 List incursions
 
 Return a list of current incursions  ---  Alternate route: `/v1/incursions/`  Alternate route: `/legacy/incursions/`  Alternate route: `/dev/incursions/`   ---  This route is cached for up to 300 seconds
@@ -18,8 +17,6 @@ Return a list of current incursions  ---  Alternate route: `/v1/incursions/`  Al
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
-
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters

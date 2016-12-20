@@ -10,22 +10,18 @@ Method | HTTP request | Description
 
 # **GetCharactersCharacterIdSearch**
 > GetCharactersCharacterIdSearchOk GetCharactersCharacterIdSearch(ctx, characterId, search, categories, optional)
-
 Search on a string
 
 Search for entities that match a given sub-string.  ---  Alternate route: `/v2/characters/{character_id}/search/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
-
-
-
-
-
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context containing the authentication | nil if no authentication
- **characterId** | **int32**| An EVE character ID |  **search** | **string**| The string to search on |  **categories** | [**[]string**](string.md)| Type of entities to search for | 
+  **characterId** | **int32**| An EVE character ID | 
+  **search** | **string**| The string to search on | 
+  **categories** | [**[]string**](string.md)| Type of entities to search for | 
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters
@@ -52,21 +48,16 @@ Name | Type | Description  | Notes
 
 # **GetSearch**
 > GetSearchOk GetSearch(search, categories, optional)
-
 Search on a string
 
 Search for entities that match a given sub-string.  ---  Alternate route: `/v1/search/`  Alternate route: `/legacy/search/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
-
-
-
-
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **search** | **string**| The string to search on |  **categories** | [**[]string**](string.md)| Type of entities to search for | 
+  **search** | **string**| The string to search on | 
+  **categories** | [**[]string**](string.md)| Type of entities to search for | 
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters

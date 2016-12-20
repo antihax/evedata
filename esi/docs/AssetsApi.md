@@ -9,18 +9,16 @@ Method | HTTP request | Description
 
 # **GetCharactersCharacterIdAssets**
 > []GetCharactersCharacterIdAssets200Ok GetCharactersCharacterIdAssets(ctx, characterId, optional)
-
 Get character assets
 
 Return a list of the characters assets  ---  Alternate route: `/v1/characters/{character_id}/assets/`  Alternate route: `/legacy/characters/{character_id}/assets/`  Alternate route: `/dev/characters/{character_id}/assets/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
-
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context containing the authentication | nil if no authentication
- **characterId** | **int32**| Character id of the target character | 
+  **characterId** | **int32**| Character id of the target character | 
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters
