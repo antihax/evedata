@@ -26,8 +26,8 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **characterId** | **int32**| Character id of the target character | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 

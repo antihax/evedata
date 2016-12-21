@@ -39,8 +39,9 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **fleetId** | **int64**| ID for a fleet | 
+ **memberId** | **int32**| The character ID of a member in this fleet | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -77,8 +78,9 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **fleetId** | **int64**| ID for a fleet | 
+ **squadId** | **int64**| The squad to delete | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -115,8 +117,9 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **fleetId** | **int64**| ID for a fleet | 
+ **wingId** | **int64**| The wing to delete | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -152,8 +155,8 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **fleetId** | **int64**| ID for a fleet | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -189,9 +192,9 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **acceptLanguage** | **string**| Language to use in the response | [optional] [default to en]
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **fleetId** | **int64**| ID for a fleet | 
+ **acceptLanguage** | **string**| Language to use in the response | [default to en]
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -227,9 +230,9 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **acceptLanguage** | **string**| Language to use in the response | [optional] [default to en]
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **fleetId** | **int64**| ID for a fleet | 
+ **acceptLanguage** | **string**| Language to use in the response | [default to en]
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -266,8 +269,9 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **fleetId** | **int64**| ID for a fleet | 
+ **invitation** | [**PostFleetsFleetIdMembersInvitation**](PostFleetsFleetIdMembersInvitation.md)| Details of the invitation | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -303,8 +307,8 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **fleetId** | **int64**| ID for a fleet | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -341,8 +345,9 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **fleetId** | **int64**| ID for a fleet | 
+ **wingId** | **int64**| The wing_id to create squad in | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -379,8 +384,9 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **fleetId** | **int64**| ID for a fleet | 
+ **newSettings** | [**PutFleetsFleetIdNewSettings**](PutFleetsFleetIdNewSettings.md)| What to update for this fleet | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -418,8 +424,10 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **fleetId** | **int64**| ID for a fleet | 
+ **memberId** | **int32**| The character ID of a member in this fleet | 
+ **movement** | [**PutFleetsFleetIdMembersMemberIdMovement**](PutFleetsFleetIdMembersMemberIdMovement.md)| Details of the invitation | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -457,8 +465,10 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **fleetId** | **int64**| ID for a fleet | 
+ **squadId** | **int64**| The squad to rename | 
+ **naming** | [**PutFleetsFleetIdSquadsSquadIdNaming**](PutFleetsFleetIdSquadsSquadIdNaming.md)| New name of the squad | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -496,8 +506,10 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **fleetId** | **int64**| ID for a fleet | 
+ **wingId** | **int64**| The wing to rename | 
+ **naming** | [**PutFleetsFleetIdWingsWingIdNaming**](PutFleetsFleetIdWingsWingIdNaming.md)| New name of the wing | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 

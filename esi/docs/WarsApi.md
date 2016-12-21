@@ -26,9 +26,8 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **page** | **int32**| Which page to query, starting at 1, 2000 wars per page. | [optional] [default to 1]
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **page** | **int32**| Which page to query, starting at 1, 2000 wars per page. | [default to 1]
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -63,8 +62,8 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **warId** | **int32**| ID for a war | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -99,9 +98,9 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **page** | **int32**| Which page to query, starting at 1, 2000 killmails per page. | [optional] [default to 1]
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **warId** | **int32**| A valid war ID | 
+ **page** | **int32**| Which page to query, starting at 1, 2000 killmails per page. | [default to 1]
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 

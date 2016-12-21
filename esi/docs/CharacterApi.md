@@ -29,8 +29,8 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **characterId** | **int32**| An EVE character ID | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -65,8 +65,8 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **characterId** | **int32**| An EVE character ID | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -101,8 +101,8 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **characterId** | **int32**| An EVE character ID | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -137,8 +137,8 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **characterIds** | [**[]int64**](int64.md)| A comma separated list of character IDs | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -175,8 +175,9 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **characterId** | **int32**| An EVE character ID | 
+ **characters** | [**PostCharactersCharacterIdCspaCharacters**](PostCharactersCharacterIdCspaCharacters.md)| The target characters to calculate the charge for | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 

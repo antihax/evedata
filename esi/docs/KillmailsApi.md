@@ -27,10 +27,10 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **maxCount** | **int32**| How many killmails to return at maximum | [optional] [default to 50]
- **maxKillId** | **int32**| Only return killmails with ID smaller than this.  | [optional] 
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **characterId** | **int32**| An EVE character ID | 
+ **maxCount** | **int32**| How many killmails to return at maximum | [default to 50]
+ **maxKillId** | **int32**| Only return killmails with ID smaller than this.  | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -66,8 +66,9 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **killmailId** | **int32**| The killmail ID to be queried | 
+ **killmailHash** | **string**| The killmail hash for verification | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 

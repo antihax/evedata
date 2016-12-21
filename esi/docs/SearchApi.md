@@ -29,10 +29,12 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **language** | **string**| Search locale | [optional] [default to en-us]
- **strict** | **bool**| Whether the search should be a strict match | [optional] [default to false]
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **characterId** | **int32**| An EVE character ID | 
+ **search** | **string**| The string to search on | 
+ **categories** | [**[]string**](string.md)| Type of entities to search for | 
+ **language** | **string**| Search locale | [default to en-us]
+ **strict** | **bool**| Whether the search should be a strict match | [default to false]
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -68,10 +70,11 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **language** | **string**| Search locale | [optional] [default to en-us]
- **strict** | **bool**| Whether the search should be a strict match | [optional] [default to false]
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **search** | **string**| The string to search on | 
+ **categories** | [**[]string**](string.md)| Type of entities to search for | 
+ **language** | **string**| Search locale | [default to en-us]
+ **strict** | **bool**| Whether the search should be a strict match | [default to false]
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 

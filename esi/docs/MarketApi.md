@@ -26,8 +26,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -63,8 +62,9 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **regionId** | **int32**| Return statistics in this region | 
+ **typeId** | **int32**| Return statistics for this type | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -100,10 +100,11 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **typeId** | **int32**| Return orders only for this type | [optional] 
- **page** | **int32**| Which page to query, only used for querying without type_id. Starting at 1  | [optional] [default to 1]
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **regionId** | **int32**| Return orders in this region | 
+ **orderType** | **string**| Filter buy/sell orders, return all orders by default. If you query without type_id, we always return both buy and sell orders.  | [default to all]
+ **typeId** | **int32**| Return orders only for this type | 
+ **page** | **int32**| Which page to query, only used for querying without type_id. Starting at 1  | [default to 1]
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 

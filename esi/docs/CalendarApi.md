@@ -28,9 +28,9 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **fromEvent** | **int32**| The event ID to retrieve events from | [optional] 
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **characterId** | **int64**| The character to retrieve events from | 
+ **fromEvent** | **int32**| The event ID to retrieve events from | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -67,8 +67,9 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **characterId** | **int64**| The character id requesting the event | 
+ **eventId** | **int32**| The id of the event requested | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
@@ -106,8 +107,10 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-
- **datasource** | **string**| The server name you would like data from | [optional] [default to tranquility]
+ **characterId** | **int32**| The character ID requesting the event | 
+ **eventId** | **int32**| The ID of the event requested | 
+ **response** | [**PutCharactersCharacterIdCalendarEventIdResponse**](PutCharactersCharacterIdCalendarEventIdResponse.md)| The response value to set, overriding current value. | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
 
