@@ -25,7 +25,10 @@ It is also good manners to provide a user-agent describing the point of use of t
 
 ```
   client, err := esi.NewClient(nil, "esi client http://mysite.com")
-  result, response, err := client.Endpoint.Operation(parameters)
+  result, response, err := client.Endpoint.Operation(requiredParam, map[string]interface{} { 
+                                                                        "optionalParam1": "stringParam",
+                                                                        "optionalParam2": 1234.56
+                                                                    })
 ```
 
 ## Documentation for API Endpoints
@@ -431,6 +434,21 @@ Class | Method | HTTP request | Description
  - **esi-ui.write_waypoint.v1**: EVE SSO scope esi-ui.write_waypoint.v1
  - **esi-universe.read_structures.v1**: EVE SSO scope esi-universe.read_structures.v1
  - **esi-wallet.read_character_wallet.v1**: EVE SSO scope esi-wallet.read_character_wallet.v1
+
+Example:
+```
+  auth, err = oauth2conf.TokenSource(http.Client, token) // Access and Refresh token structure
+
+  client, err := esi.NewClient(nil, "esi client http://mysite.com")
+  ctx := context.WithValue(context.TODO(), esi.ContextOAuth2, auth)
+  result, response, err := client.Endpoint.AuthenticatedOperation(  ctx, 
+                                                                    requiredParam, 
+                                                                    map[string]interface{} { 
+                                                                       "optionalParam1": "stringParam",
+                                                                       "optionalParam2": 1234.56
+                                                                    })
+```
+
 
 
 ## Author
