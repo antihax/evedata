@@ -75,6 +75,8 @@ func GoServer() {
 	tokenScopes := []string{
 		eveapi.ScopeCharacterContactsRead,
 		eveapi.ScopeCharacterContactsWrite,
+		"esi-characters.read_contacts.v1",
+		"esi-characters.write_contacts.v1",
 	}
 
 	ctx.TokenAuthenticator = eveapi.NewSSOAuthenticator(ctx.Conf.CREST.Token.ClientID,

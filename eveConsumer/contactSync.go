@@ -1,16 +1,21 @@
 package eveConsumer
 
 import (
+	"context"
+	"evedata/esi"
 	"evedata/eveapi"
 	"evedata/models"
 	"log"
+	"net/http/httputil"
 	"strconv"
 	"strings"
+
+	"golang.org/x/oauth2"
 )
 
 // Perform contact sync for wardecs
 func (c *EVEConsumer) contactSync() {
-
+	log.Printf("Running Contact Sync\n")
 	// Gather characters for update. Group for optimized updating.
 	rows, err := c.ctx.Db.Query(
 		`SELECT source, group_concat(destination)
@@ -28,8 +33,8 @@ func (c *EVEConsumer) contactSync() {
 	// Loop updatable characters
 	for rows.Next() {
 		var (
-			source int64
-			dest   string
+			source int64  // Source char
+			dest   string // List of destination chars
 		)
 
 		err = rows.Scan(&source, &dest)
@@ -48,30 +53,31 @@ func (c *EVEConsumer) contactSync() {
 			continue
 		}
 
-		// Authenticated Clients
-		clients := make(map[int64]*eveapi.AuthenticatedClient)
-
-		// Get authenticated clients for our destinations
-		for _, cidS := range destinations {
-			cid, _ := strconv.ParseInt(cidS, 10, 64)
-			a, err := c.getClient(source, cid)
-			if err != nil {
-				log.Printf("EVEConsumer: Failed getClient %d %d %v", source, cid, err)
-				continue
-			}
-			clients[cid] = a
-			if err != nil {
-				log.Printf("EVEConsumer: Failed Getting Contacts: %d %d %v", source, cid, err)
-				continue
-			}
-		}
-
-		// Find the ID to search for wars.
+		// Find the Entity ID to search for wars.
 		var searchID int64
 		if char.AllianceID > 0 {
 			searchID = char.AllianceID
 		} else {
 			searchID = char.CharacterID
+		}
+
+		// Map of tokens
+		type characterToken struct {
+			token *oauth2.TokenSource
+			cid   int64
+		}
+		tokens := make(map[int64]characterToken)
+
+		// Get the tokens for our destinations
+		for _, cidS := range destinations {
+			cid, _ := strconv.ParseInt(cidS, 10, 64)
+			a, err := c.getToken(source, cid)
+			if err != nil {
+				log.Printf("EVEConsumer: Failed getClient %d %d %v", source, cid, err)
+				continue
+			}
+			// Save the token.
+			tokens[cid] = characterToken{token: &a, cid: cid}
 		}
 
 		// Active Wars
@@ -88,86 +94,80 @@ func (c *EVEConsumer) contactSync() {
 			continue
 		}
 
-		type toAdd struct {
-			id       int64
-			ref      string
-			standing float64
-		}
-
 		// Make a list of contacts to add.
-		contactsToAdd := make(map[int64]*toAdd)
-
+		var pending []int32
+		var active []int32
+		pendingToAdd := make(map[int32]int32)
+		activeToAdd := make(map[int32]int32)
 		for _, war := range activeWars {
-			con := &toAdd{standing: -10} // -10 for active wars
-			con.id = war.ID
-			con.ref = war.CrestRef
-			contactsToAdd[con.id] = con
+			activeToAdd[(int32)(war.ID)] = (int32)(war.ID)
+			active = append(active, (int32)(war.ID))
 		}
-
 		for _, war := range pendingWars {
-			con := &toAdd{standing: -5} // -5 for pending wars
-			con.id = war.ID
-			con.ref = war.CrestRef
-			contactsToAdd[con.id] = con
+			pendingToAdd[(int32)(war.ID)] = (int32)(war.ID)
+			pending = append(pending, (int32)(war.ID))
 		}
 
-		for _, client := range clients {
-			if client == nil {
-				continue
-			}
+		// Loop through all the destinations
+		for _, token := range tokens {
+			// authentication token context for destination char
+			auth := context.WithValue(context.TODO(), esi.ContextOAuth2, *token.token)
 
-			// Copy the contactsToAdd map
-			toProcess := make(map[int64]*toAdd)
-			for k, v := range contactsToAdd {
-				toProcess[k] = v
-			}
+			// Get current contacts
+			contacts, r, err := c.ctx.ESI.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid), nil)
 
-			// Get the clients current contacts
-			con, err := client.ContactsV1()
 			if err != nil {
-				log.Printf("EVEConsumer: Failed Getting Client Contacts: %v", err)
-				continue
-			}
-
-			contactSync := &models.ContactSync{Source: source, Destination: client.GetCharacterID()}
-			contactSync.Updated(con.CacheUntil)
-			// Loop through all contact pages
-			for ; con != nil; con, err = con.NextPage() {
-				for _, contact := range con.Items {
-					// skip anything > -0.4
-					if contact.Standing > -0.4 {
-						continue
-					}
-
-					add := toProcess[contact.Contact.ID]
-					if add != nil {
-						// Contact is already listed.
-						if contact.Standing != add.standing {
-							err = client.ContactSetV1(add.id, add.ref, add.standing)
-							if err != nil {
-								log.Printf("EVEConsumer: Failed SetContact: %v", err)
-								continue
-							}
-						}
-						// Don't need to do anything to this contact.
-						// lets remove it from the list
-						delete(toProcess, contact.Contact.ID)
-					} else {
-						// No longer at war... delete the contact
-						err = client.ContactDeleteV1(contact.Contact.ID, contact.Contact.Href)
-						if err != nil {
-							log.Printf("EVEConsumer: Failed DeleteContact: %v", err)
-							continue
-						}
-					}
+				var d []uint8
+				if r != nil {
+					d, _ = httputil.DumpRequest(r.Request, true)
 				}
 
-				// Add the remaining contacts
-				for _, contact := range toProcess {
-					err = client.ContactSetV1(contact.id, contact.ref, contact.standing)
+				log.Printf("EVEConsumer: Failed Getting Client Contacts: %v %s", err, d)
+				continue
+			}
+
+			// Update cache time.
+			contactSync := &models.ContactSync{Source: source, Destination: token.cid}
+			contactSync.Updated(esi.CacheExpires(r))
+
+			var erase []int32
+
+			// Loop through all current contacts
+			for _, contact := range contacts {
+				// skip anything > -0.4
+				if contact.Standing > -0.4 {
+					continue
+				}
+
+				if _, ok := pendingToAdd[contact.ContactId]; !ok {
+					erase = append(erase, (int32)(contact.ContactId))
+				}
+			}
+
+			if len(erase) > 0 {
+				for start := 0; start < len(erase); start = start + 20 {
+					end := min(start+20, len(erase))
+					r, err = c.ctx.ESI.ContactsApi.DeleteCharactersCharacterIdContacts(auth, (int32)(token.cid), erase[start:end], nil)
 					if err != nil {
-						log.Printf("EVEConsumer: Failed SetContact: %v", err)
-						continue
+						log.Printf("EVEConsumer: Failed Deleting Contacts: %v \n", err)
+					}
+				}
+			}
+			if len(active) > 0 {
+				for start := 0; start < len(active); start = start + 20 {
+					end := min(start+20, len(active))
+					_, r, err = c.ctx.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), -10, active[start:end], nil)
+					if err != nil {
+						log.Printf("EVEConsumer: Failed Adding Active Contacts: %v \n", err)
+					}
+				}
+			}
+			if len(pending) > 0 {
+				for start := 0; start < len(pending); start = start + 20 {
+					end := min(start+20, len(pending))
+					_, r, err = c.ctx.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), -0.5, pending[start:end], nil)
+					if err != nil {
+						log.Printf("EVEConsumer: Failed Adding Pending Contacts: %v", err)
 					}
 				}
 			}
@@ -176,7 +176,7 @@ func (c *EVEConsumer) contactSync() {
 }
 
 // Obtain an authenticated client from a stored access/refresh token.
-func (c *EVEConsumer) getClient(characterID int64, tokenCharacterID int64) (*eveapi.AuthenticatedClient, error) {
+func (c *EVEConsumer) getToken(characterID int64, tokenCharacterID int64) (oauth2.TokenSource, error) {
 	tok := models.CRESTToken{}
 	if err := c.ctx.Db.QueryRowx(
 		`SELECT expiry, tokenType, accessToken, refreshToken, tokenCharacterID, characterID
@@ -189,7 +189,14 @@ func (c *EVEConsumer) getClient(characterID int64, tokenCharacterID int64) (*eve
 	}
 
 	token := &eveapi.CRESTToken{Expiry: tok.Expiry, AccessToken: tok.AccessToken, RefreshToken: tok.RefreshToken, TokenType: tok.TokenType}
-	n := c.ctx.TokenAuthenticator.GetClientFromToken(c.ctx.HTTPClient, token)
+	n, err := c.ctx.TokenAuthenticator.TokenSource(c.ctx.HTTPClient, token)
 
-	return n, nil
+	return n, err
+}
+
+func min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
 }
