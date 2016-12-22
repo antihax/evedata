@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"golang.org/x/context"
+	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 )
 
