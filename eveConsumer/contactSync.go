@@ -1,7 +1,6 @@
 package eveConsumer
 
 import (
-	"context"
 	"evedata/esi"
 	"evedata/eveapi"
 	"evedata/models"
@@ -10,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"golang.org/x/context"
 	"golang.org/x/oauth2"
 )
 
