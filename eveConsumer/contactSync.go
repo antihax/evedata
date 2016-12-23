@@ -5,7 +5,7 @@ import (
 	"evedata/eveapi"
 	"evedata/models"
 	"log"
-	"net/http/httputil"
+	"net/http"
 	"strconv"
 	"strings"
 
@@ -112,23 +112,35 @@ func (c *EVEConsumer) contactSync() {
 		for _, token := range tokens {
 			// authentication token context for destination char
 			auth := context.WithValue(context.TODO(), esi.ContextOAuth2, *token.token)
-
+			var (
+				contacts []esi.GetCharactersCharacterIdContacts200Ok
+				r        *http.Response
+				err      error
+			)
 			// Get current contacts
-			contacts, r, err := c.ctx.ESI.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid), nil)
+			for i := 1; ; i++ {
+				var con []esi.GetCharactersCharacterIdContacts200Ok
+				con, r, err = c.ctx.ESI.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid), map[string]interface{}{"page": (int32)(i)})
+				if err != nil {
+					if r != nil {
+						syncError(source, token.cid, r.StatusCode, r.Status)
+					} else {
+						syncError(source, token.cid, 999, err.Error())
+					}
 
-			if err != nil {
-				var d []uint8
-				if r != nil {
-					d, _ = httputil.DumpRequest(r.Request, true)
+					break
 				}
-
-				log.Printf("EVEConsumer: Failed Getting Client Contacts: %v %s", err, d)
-				continue
+				if len(con) == 0 {
+					break
+				}
+				contacts = append(contacts, con...)
 			}
 
 			// Update cache time.
-			contactSync := &models.ContactSync{Source: source, Destination: token.cid}
-			contactSync.Updated(esi.CacheExpires(r))
+			if r != nil {
+				contactSync := &models.ContactSync{Source: source, Destination: token.cid}
+				contactSync.Updated(esi.CacheExpires(r))
+			}
 
 			var erase []int32
 
@@ -149,7 +161,11 @@ func (c *EVEConsumer) contactSync() {
 					end := min(start+20, len(erase))
 					r, err = c.ctx.ESI.ContactsApi.DeleteCharactersCharacterIdContacts(auth, (int32)(token.cid), erase[start:end], nil)
 					if err != nil {
-						log.Printf("EVEConsumer: Failed Deleting Contacts: %v \n", err)
+						if r != nil {
+							syncError(source, token.cid, r.StatusCode, r.Status)
+						} else {
+							syncError(source, token.cid, 999, err.Error())
+						}
 					}
 				}
 			}
@@ -158,7 +174,11 @@ func (c *EVEConsumer) contactSync() {
 					end := min(start+20, len(active))
 					_, r, err = c.ctx.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), -10, active[start:end], nil)
 					if err != nil {
-						log.Printf("EVEConsumer: Failed Adding Active Contacts: %v \n", err)
+						if r != nil {
+							syncError(source, token.cid, r.StatusCode, r.Status)
+						} else {
+							syncError(source, token.cid, 999, err.Error())
+						}
 					}
 				}
 			}
@@ -167,10 +187,15 @@ func (c *EVEConsumer) contactSync() {
 					end := min(start+20, len(pending))
 					_, r, err = c.ctx.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), -0.5, pending[start:end], nil)
 					if err != nil {
-						log.Printf("EVEConsumer: Failed Adding Pending Contacts: %v", err)
+						if r != nil {
+							syncError(source, token.cid, r.StatusCode, r.Status)
+						} else {
+							syncError(source, token.cid, 999, err.Error())
+						}
 					}
 				}
 			}
+			syncSuccess(source, token.cid, 200, "OK")
 		}
 	}
 }
@@ -199,4 +224,13 @@ func min(x, y int) int {
 		return x
 	}
 	return y
+}
+
+func syncError(cid int64, tcid int64, code int, status string) {
+	log.Printf("Contact Sync: %d %d %s", cid, tcid, status)
+	models.SetTokenError(cid, tcid, code, status)
+}
+
+func syncSuccess(cid int64, tcid int64, code int, status string) {
+	models.SetTokenError(cid, tcid, code, status)
 }

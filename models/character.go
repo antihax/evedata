@@ -41,6 +41,15 @@ func GetCRESTTokens(characterID int64) ([]CRESTToken, error) {
 	return tokens, nil
 }
 
+func SetTokenError(characterID int64, tokenCharacterID int64, code int, status string) error {
+	if _, err := database.Exec(`
+		UPDATE crestTokens SET lastCode = ?, lastStatus = ? WHERE characterID = ? AND tokenCharacterID = ?`,
+		code, status, characterID, tokenCharacterID); err != nil {
+		return err
+	}
+	return nil
+}
+
 func AddCRESTToken(characterID int64, tokenCharacterID int64, characterName string, tok *eveapi.CRESTToken) error {
 	if _, err := database.Exec(`
 		INSERT INTO crestTokens	(characterID, tokenCharacterID, accessToken, refreshToken, expiry, tokenType, characterName)

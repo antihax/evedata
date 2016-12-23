@@ -176,7 +176,6 @@ func (a ContactsApiService) GetCharactersCharacterIdContacts(ctx context.Context
 	 	return successPayload, localVarHttpResponse, err
 	}
 
-
 	return successPayload, localVarHttpResponse, err
 }
 
