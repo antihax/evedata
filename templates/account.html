@@ -1,12 +1,10 @@
 {{define "body"}} 
 	{{ if .CharacterID }} 
-		You are logged in with <br>{{ .CharacterID }}
-
 	    <div class="table-responsive">
-	        <p class="toolbar cresttokenToolbar" id="cresttokenToolbar">CREST Tokens <a class="addcrest btn btn-default" href=
-	        "javascript:">Add CREST Token</a></p>
+	        <p class="toolbar cresttokenToolbar" id="cresttokenToolbar">Characters <a class="addcrest btn btn-default" href=
+	        "javascript:">Add Character</a></p>
 	        <table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".cresttokenToolbar"
-	        data-url="/U/CRESTTokens" id="cresttable">
+	        	data-url="/U/CRESTTokens" id="cresttable">
 	            <thead>
 	                <tr>
 	                    <th data-field="characterName">Name</th>
@@ -18,7 +16,7 @@
 	                </tr>
 	            </thead>
 	        </table>
-	    <p style="font-size: 12px">Note: You will need to press CANCEL on the EVE Logon to relog on and add CREST Tokens for characters from alternate accounts.</p>
+	    <p style="font-size: 12px">Note: You will need to press CANCEL on the EVE Logon to relog on and add characters from alternate accounts.</p>
 	  
 	    </div>
 
