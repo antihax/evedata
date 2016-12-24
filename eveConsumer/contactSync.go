@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 
+	"net/http/httputil"
+
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 )
@@ -117,17 +119,15 @@ func (c *EVEConsumer) contactSync() {
 				r        *http.Response
 				err      error
 			)
+
+			syncSuccess(source, token.cid, 200, "OK")
+
 			// Get current contacts
 			for i := 1; ; i++ {
 				var con []esi.GetCharactersCharacterIdContacts200Ok
 				con, r, err = c.ctx.ESI.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid), map[string]interface{}{"page": (int32)(i)})
 				if err != nil {
-					if r != nil {
-						syncError(source, token.cid, r.StatusCode, r.Status)
-					} else {
-						syncError(source, token.cid, 999, err.Error())
-					}
-
+					syncError(source, token.cid, r, err)
 					break
 				}
 				if len(con) == 0 {
@@ -152,7 +152,9 @@ func (c *EVEConsumer) contactSync() {
 				}
 
 				if _, ok := pendingToAdd[contact.ContactId]; !ok {
-					erase = append(erase, (int32)(contact.ContactId))
+					if _, ok := activeToAdd[contact.ContactId]; !ok {
+						erase = append(erase, (int32)(contact.ContactId))
+					}
 				}
 			}
 
@@ -161,11 +163,8 @@ func (c *EVEConsumer) contactSync() {
 					end := min(start+20, len(erase))
 					r, err = c.ctx.ESI.ContactsApi.DeleteCharactersCharacterIdContacts(auth, (int32)(token.cid), erase[start:end], nil)
 					if err != nil {
-						if r != nil {
-							syncError(source, token.cid, r.StatusCode, r.Status)
-						} else {
-							syncError(source, token.cid, 999, err.Error())
-						}
+						syncError(source, token.cid, r, err)
+						break
 					}
 				}
 			}
@@ -174,28 +173,21 @@ func (c *EVEConsumer) contactSync() {
 					end := min(start+20, len(active))
 					_, r, err = c.ctx.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), -10, active[start:end], nil)
 					if err != nil {
-						if r != nil {
-							syncError(source, token.cid, r.StatusCode, r.Status)
-						} else {
-							syncError(source, token.cid, 999, err.Error())
-						}
+						syncError(source, token.cid, r, err)
+						break
 					}
 				}
 			}
 			if len(pending) > 0 {
 				for start := 0; start < len(pending); start = start + 20 {
 					end := min(start+20, len(pending))
-					_, r, err = c.ctx.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), -0.5, pending[start:end], nil)
+					_, r, err = c.ctx.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), -5, pending[start:end], nil)
 					if err != nil {
-						if r != nil {
-							syncError(source, token.cid, r.StatusCode, r.Status)
-						} else {
-							syncError(source, token.cid, 999, err.Error())
-						}
+						syncError(source, token.cid, r, err)
+						break
 					}
 				}
 			}
-			syncSuccess(source, token.cid, 200, "OK")
 		}
 	}
 }
@@ -226,11 +218,23 @@ func min(x, y int) int {
 	return y
 }
 
-func syncError(cid int64, tcid int64, code int, status string) {
-	log.Printf("Contact Sync: %d %d %s", cid, tcid, status)
-	models.SetTokenError(cid, tcid, code, status)
+func syncError(cid int64, tcid int64, r *http.Response, err error) {
+	if r != nil {
+		req, _ := httputil.DumpRequest(r.Request, true)
+		res, _ := httputil.DumpResponse(r, true)
+		e := models.SetTokenError(cid, tcid, r.StatusCode, r.Status, req, res)
+		if e != nil {
+			log.Println(e)
+		}
+	} else {
+		e := models.SetTokenError(cid, tcid, 999, err.Error(), []byte{}, []byte{})
+		if e != nil {
+			log.Println(e)
+		}
+	}
+	log.Printf("Contact Sync: %d %d %s", cid, tcid, err.Error())
 }
 
 func syncSuccess(cid int64, tcid int64, code int, status string) {
-	models.SetTokenError(cid, tcid, code, status)
+	models.SetTokenError(cid, tcid, code, status, []byte{}, []byte{})
 }

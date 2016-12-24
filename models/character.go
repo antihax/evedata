@@ -41,10 +41,11 @@ func GetCRESTTokens(characterID int64) ([]CRESTToken, error) {
 	return tokens, nil
 }
 
-func SetTokenError(characterID int64, tokenCharacterID int64, code int, status string) error {
+func SetTokenError(characterID int64, tokenCharacterID int64, code int, status string, req []byte, res []byte) error {
 	if _, err := database.Exec(`
-		UPDATE crestTokens SET lastCode = ?, lastStatus = ? WHERE characterID = ? AND tokenCharacterID = ?`,
-		code, status, characterID, tokenCharacterID); err != nil {
+		UPDATE crestTokens SET lastCode = ?, lastStatus = ?, request = ?, response = ? 
+		WHERE characterID = ? AND tokenCharacterID = ? `,
+		code, status, req, res, characterID, tokenCharacterID); err != nil {
 		return err
 	}
 	return nil
