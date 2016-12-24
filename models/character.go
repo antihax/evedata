@@ -53,13 +53,14 @@ func SetTokenError(characterID int64, tokenCharacterID int64, code int, status s
 
 func AddCRESTToken(characterID int64, tokenCharacterID int64, characterName string, tok *eveapi.CRESTToken) error {
 	if _, err := database.Exec(`
-		INSERT INTO crestTokens	(characterID, tokenCharacterID, accessToken, refreshToken, expiry, tokenType, characterName)
-			VALUES		(?,?,?,?,?,?,?)
+		INSERT INTO crestTokens	(characterID, tokenCharacterID, accessToken, refreshToken, expiry, tokenType, characterName, lastStatus)
+			VALUES		(?,?,?,?,?,?,?,"Unused")
 			ON DUPLICATE KEY UPDATE 
 				accessToken 	= VALUES(accessToken),
 				refreshToken 	= VALUES(refreshToken),
 				expiry 			= VALUES(expiry),
-				tokenType 		= VALUES(tokenType)`,
+				tokenType 		= VALUES(tokenType),
+				lastStatus		= "Unused"`,
 		characterID, tokenCharacterID, tok.AccessToken, tok.RefreshToken, tok.Expiry, tok.TokenType, characterName); err != nil {
 
 		return err
