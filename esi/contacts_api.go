@@ -26,7 +26,6 @@ import (
 	"net/url"
 	"net/http"
 	"strings"
-	"errors"
 	"golang.org/x/net/context"
 	"encoding/json"
 	"fmt"
@@ -61,6 +60,10 @@ func (a ContactsApiService) DeleteCharactersCharacterIdContacts(ctx context.Cont
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return nil, err
+	}
 
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
@@ -99,7 +102,7 @@ func (a ContactsApiService) DeleteCharactersCharacterIdContacts(ctx context.Cont
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 
 	return localVarHttpResponse, err
@@ -130,6 +133,13 @@ func (a ContactsApiService) GetCharactersCharacterIdContacts(ctx context.Context
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["page"], "int32", "page"); err != nil {
+		return successPayload, nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
 
 	if localVarTempParam, localVarOk := localVarOptionals["page"].(int32); localVarOk {
 		localVarQueryParams.Add("page", parameterToString(localVarTempParam, ""))
@@ -169,12 +179,13 @@ func (a ContactsApiService) GetCharactersCharacterIdContacts(ctx context.Context
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
 	 	return successPayload, localVarHttpResponse, err
 	}
+
 
 	return successPayload, localVarHttpResponse, err
 }
@@ -203,6 +214,10 @@ func (a ContactsApiService) GetCharactersCharacterIdContactsLabels(ctx context.C
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
 
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
@@ -239,7 +254,7 @@ func (a ContactsApiService) GetCharactersCharacterIdContactsLabels(ctx context.C
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
@@ -278,6 +293,16 @@ func (a ContactsApiService) PostCharactersCharacterIdContacts(ctx context.Contex
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["watched"], "bool", "watched"); err != nil {
+		return successPayload, nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["labelId"], "int64", "labelId"); err != nil {
+		return successPayload, nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
 
 	localVarQueryParams.Add("standing", parameterToString(standing, ""))
 	if localVarTempParam, localVarOk := localVarOptionals["watched"].(bool); localVarOk {
@@ -323,7 +348,7 @@ func (a ContactsApiService) PostCharactersCharacterIdContacts(ctx context.Contex
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
@@ -361,6 +386,10 @@ func (a ContactsApiService) PutCharactersCharacterIdContacts(ctx context.Context
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return nil, err
+	}
 
 	localVarQueryParams.Add("standing", parameterToString(standing, ""))
 	localVarQueryParams.Add("watched", parameterToString(watched, ""))
@@ -402,7 +431,7 @@ func (a ContactsApiService) PutCharactersCharacterIdContacts(ctx context.Context
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 
 	return localVarHttpResponse, err

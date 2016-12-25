@@ -26,7 +26,6 @@ import (
 	"net/url"
 	"net/http"
 	"strings"
-	"errors"
 	"golang.org/x/net/context"
 	"encoding/json"
 	"fmt"
@@ -62,6 +61,10 @@ func (a SkillsApiService) GetCharactersCharacterIdSkillqueue(ctx context.Context
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
+
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
 	}
@@ -97,7 +100,7 @@ func (a SkillsApiService) GetCharactersCharacterIdSkillqueue(ctx context.Context
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
@@ -133,6 +136,10 @@ func (a SkillsApiService) GetCharactersCharacterIdSkills(ctx context.Context, ch
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
+
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
 	}
@@ -168,7 +175,7 @@ func (a SkillsApiService) GetCharactersCharacterIdSkills(ctx context.Context, ch
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {

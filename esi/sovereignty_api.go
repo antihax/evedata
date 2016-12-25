@@ -26,7 +26,6 @@ import (
 	"net/url"
 	"net/http"
 	"strings"
-	"errors"
 	"golang.org/x/net/context"
 	"encoding/json"
 )
@@ -58,6 +57,10 @@ func (a SovereigntyApiService) GetSovereigntyCampaigns(localVarOptionals map[str
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
 
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
@@ -94,7 +97,7 @@ func (a SovereigntyApiService) GetSovereigntyCampaigns(localVarOptionals map[str
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
@@ -128,6 +131,10 @@ func (a SovereigntyApiService) GetSovereigntyStructures(localVarOptionals map[st
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
+
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
 	}
@@ -163,7 +170,7 @@ func (a SovereigntyApiService) GetSovereigntyStructures(localVarOptionals map[st
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {

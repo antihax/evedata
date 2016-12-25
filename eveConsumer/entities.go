@@ -1,6 +1,7 @@
 package eveConsumer
 
 import (
+	"evedata/esi"
 	"evedata/models"
 	"fmt"
 	"log"
@@ -121,7 +122,7 @@ func (c *EVEConsumer) updateEntity(href string, id int64) error {
 	if err == nil && i != true {
 		go func(h string, i int64) error {
 			if strings.Contains(h, "alliances") {
-				_, err = c.updateAlliance(h)
+				_, err = c.updateAlliance(i)
 			} else if strings.Contains(h, "corporations") {
 				_, err = c.updateCorporation(i)
 			} else if strings.Contains(h, "characters") {
@@ -146,8 +147,52 @@ func (c *EVEConsumer) updateEntity(href string, id int64) error {
 	return err
 }
 
-func (c *EVEConsumer) updateAlliance(href string) (time.Duration, error) {
+// [TODO] Rewrite this as ESI matures
+// [TODO] bulk pull IDs
+func (c *EVEConsumer) updateESIEntitys(id int32) error {
 
+	r := c.ctx.Cache.Get()
+	defer r.Close()
+
+	// Skip this entity if we have touched it recently
+	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", id)
+	i, err := redis.Bool(r.Do("EXISTS", key))
+	if err == nil && i != true {
+		go func(i int32) {
+			entity, _, err := c.ctx.ESI.UniverseApi.PostUniverseNames(esi.PostUniverseNamesIds{Ids: []int32{id}}, nil)
+
+			for _, e := range entity {
+				h := "https://crest-tq.eveonline.com/" + fmt.Sprintf("%ss/%d/", e.Category, id)
+				if e.Category == "alliance" {
+					_, err = c.updateAlliance((int64)(e.Id))
+				} else if e.Category == "corporation" {
+					_, err = c.updateCorporation((int64)(e.Id))
+				} else if e.Category == "character" {
+					_, err = c.updateCharacter((int64)(e.Id))
+				}
+
+				if err != nil {
+					return
+				}
+				err = models.AddCRESTRef(((int64)(e.Id)), h)
+				if err != nil {
+					return
+				}
+			}
+			return
+		}(id)
+
+		// Say we touched the entity and expire after one day
+		r.Do("SETEX", key, 86400, true)
+	} else {
+		return nil
+	}
+
+	return err
+}
+
+func (c *EVEConsumer) updateAlliance(id int64) (time.Duration, error) {
+	href := "https://crest-tq.eveonline.com/" + fmt.Sprintf("alliances/%d/", id)
 	a, err := c.ctx.EVE.Alliance(href)
 	if err != nil {
 		return 1, err

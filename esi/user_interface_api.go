@@ -26,7 +26,6 @@ import (
 	"net/url"
 	"net/http"
 	"strings"
-	"errors"
 	"golang.org/x/net/context"
 )
 
@@ -59,6 +58,10 @@ func (a UserInterfaceApiService) PostUiAutopilotWaypoint(ctx context.Context, de
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return nil, err
+	}
 
 	localVarQueryParams.Add("destination_id", parameterToString(destinationId, ""))
 	localVarQueryParams.Add("clear_other_waypoints", parameterToString(clearOtherWaypoints, ""))
@@ -98,7 +101,7 @@ func (a UserInterfaceApiService) PostUiAutopilotWaypoint(ctx context.Context, de
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 
 	return localVarHttpResponse, err
@@ -126,6 +129,10 @@ func (a UserInterfaceApiService) PostUiOpenwindowContract(ctx context.Context, c
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return nil, err
+	}
 
 	localVarQueryParams.Add("contract_id", parameterToString(contractId, ""))
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
@@ -163,7 +170,7 @@ func (a UserInterfaceApiService) PostUiOpenwindowContract(ctx context.Context, c
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 
 	return localVarHttpResponse, err
@@ -191,6 +198,10 @@ func (a UserInterfaceApiService) PostUiOpenwindowInformation(ctx context.Context
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return nil, err
+	}
 
 	localVarQueryParams.Add("target_id", parameterToString(targetId, ""))
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
@@ -228,7 +239,7 @@ func (a UserInterfaceApiService) PostUiOpenwindowInformation(ctx context.Context
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 
 	return localVarHttpResponse, err
@@ -256,6 +267,10 @@ func (a UserInterfaceApiService) PostUiOpenwindowMarketdetails(ctx context.Conte
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return nil, err
+	}
 
 	localVarQueryParams.Add("type_id", parameterToString(typeId, ""))
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
@@ -293,7 +308,7 @@ func (a UserInterfaceApiService) PostUiOpenwindowMarketdetails(ctx context.Conte
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 
 	return localVarHttpResponse, err
@@ -321,6 +336,10 @@ func (a UserInterfaceApiService) PostUiOpenwindowNewmail(ctx context.Context, ne
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return nil, err
+	}
 
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
@@ -359,7 +378,7 @@ func (a UserInterfaceApiService) PostUiOpenwindowNewmail(ctx context.Context, ne
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 
 	return localVarHttpResponse, err

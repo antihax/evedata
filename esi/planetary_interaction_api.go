@@ -26,7 +26,6 @@ import (
 	"net/url"
 	"net/http"
 	"strings"
-	"errors"
 	"golang.org/x/net/context"
 	"encoding/json"
 	"fmt"
@@ -61,6 +60,10 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanets(ctx cont
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
 
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
@@ -97,7 +100,7 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanets(ctx cont
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
@@ -135,6 +138,10 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanetsPlanetId(
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
+
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
 	}
@@ -170,7 +177,7 @@ func (a PlanetaryInteractionApiService) GetCharactersCharacterIdPlanetsPlanetId(
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
@@ -205,6 +212,10 @@ func (a PlanetaryInteractionApiService) GetUniverseSchematicsSchematicId(schemat
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
 
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
@@ -241,7 +252,7 @@ func (a PlanetaryInteractionApiService) GetUniverseSchematicsSchematicId(schemat
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {

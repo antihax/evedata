@@ -26,7 +26,6 @@ import (
 	"net/url"
 	"net/http"
 	"strings"
-	"errors"
 	"golang.org/x/net/context"
 	"encoding/json"
 	"fmt"
@@ -63,6 +62,16 @@ func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ctx context
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["maxCount"], "int32", "maxCount"); err != nil {
+		return successPayload, nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["maxKillId"], "int32", "maxKillId"); err != nil {
+		return successPayload, nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
 
 	if localVarTempParam, localVarOk := localVarOptionals["maxCount"].(int32); localVarOk {
 		localVarQueryParams.Add("max_count", parameterToString(localVarTempParam, ""))
@@ -105,7 +114,7 @@ func (a KillmailsApiService) GetCharactersCharacterIdKillmailsRecent(ctx context
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
@@ -143,6 +152,10 @@ func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
+
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
 	}
@@ -178,7 +191,7 @@ func (a KillmailsApiService) GetKillmailsKillmailIdKillmailHash(killmailId int32
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {

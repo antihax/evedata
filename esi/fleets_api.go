@@ -26,7 +26,6 @@ import (
 	"net/url"
 	"net/http"
 	"strings"
-	"errors"
 	"golang.org/x/net/context"
 	"encoding/json"
 	"fmt"
@@ -63,6 +62,10 @@ func (a FleetsApiService) DeleteFleetsFleetIdMembersMemberId(ctx context.Context
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return nil, err
+	}
+
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
 	}
@@ -98,7 +101,7 @@ func (a FleetsApiService) DeleteFleetsFleetIdMembersMemberId(ctx context.Context
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 
 	return localVarHttpResponse, err
@@ -130,6 +133,10 @@ func (a FleetsApiService) DeleteFleetsFleetIdSquadsSquadId(ctx context.Context, 
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return nil, err
+	}
+
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
 	}
@@ -165,7 +172,7 @@ func (a FleetsApiService) DeleteFleetsFleetIdSquadsSquadId(ctx context.Context, 
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 
 	return localVarHttpResponse, err
@@ -197,6 +204,10 @@ func (a FleetsApiService) DeleteFleetsFleetIdWingsWingId(ctx context.Context, fl
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return nil, err
+	}
+
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
 	}
@@ -232,7 +243,7 @@ func (a FleetsApiService) DeleteFleetsFleetIdWingsWingId(ctx context.Context, fl
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 
 	return localVarHttpResponse, err
@@ -262,6 +273,10 @@ func (a FleetsApiService) GetFleetsFleetId(ctx context.Context, fleetId int64, l
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
 
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
@@ -298,7 +313,7 @@ func (a FleetsApiService) GetFleetsFleetId(ctx context.Context, fleetId int64, l
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
@@ -335,6 +350,13 @@ func (a FleetsApiService) GetFleetsFleetIdMembers(ctx context.Context, fleetId i
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if err := typeCheckParameter(localVarOptionals["acceptLanguage"], "string", "acceptLanguage"); err != nil {
+		return successPayload, nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
+
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
 	}
@@ -373,7 +395,7 @@ func (a FleetsApiService) GetFleetsFleetIdMembers(ctx context.Context, fleetId i
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
@@ -410,6 +432,13 @@ func (a FleetsApiService) GetFleetsFleetIdWings(ctx context.Context, fleetId int
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if err := typeCheckParameter(localVarOptionals["acceptLanguage"], "string", "acceptLanguage"); err != nil {
+		return successPayload, nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
+
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
 	}
@@ -448,7 +477,7 @@ func (a FleetsApiService) GetFleetsFleetIdWings(ctx context.Context, fleetId int
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
@@ -483,6 +512,10 @@ func (a FleetsApiService) PostFleetsFleetIdMembers(ctx context.Context, fleetId 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return nil, err
+	}
 
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
@@ -521,7 +554,7 @@ func (a FleetsApiService) PostFleetsFleetIdMembers(ctx context.Context, fleetId 
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 
 	return localVarHttpResponse, err
@@ -551,6 +584,10 @@ func (a FleetsApiService) PostFleetsFleetIdWings(ctx context.Context, fleetId in
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
 
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
@@ -587,7 +624,7 @@ func (a FleetsApiService) PostFleetsFleetIdWings(ctx context.Context, fleetId in
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
@@ -625,6 +662,10 @@ func (a FleetsApiService) PostFleetsFleetIdWingsWingIdSquads(ctx context.Context
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
+
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
 	}
@@ -660,7 +701,7 @@ func (a FleetsApiService) PostFleetsFleetIdWingsWingIdSquads(ctx context.Context
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
@@ -695,6 +736,10 @@ func (a FleetsApiService) PutFleetsFleetId(ctx context.Context, fleetId int64, n
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return nil, err
+	}
 
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
@@ -733,7 +778,7 @@ func (a FleetsApiService) PutFleetsFleetId(ctx context.Context, fleetId int64, n
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 
 	return localVarHttpResponse, err
@@ -765,6 +810,10 @@ func (a FleetsApiService) PutFleetsFleetIdMembersMemberId(ctx context.Context, f
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return nil, err
+	}
 
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
@@ -803,7 +852,7 @@ func (a FleetsApiService) PutFleetsFleetIdMembersMemberId(ctx context.Context, f
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 
 	return localVarHttpResponse, err
@@ -836,6 +885,10 @@ func (a FleetsApiService) PutFleetsFleetIdSquadsSquadId(ctx context.Context, fle
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return nil, err
+	}
+
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
 	}
@@ -873,7 +926,7 @@ func (a FleetsApiService) PutFleetsFleetIdSquadsSquadId(ctx context.Context, fle
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 
 	return localVarHttpResponse, err
@@ -906,6 +959,10 @@ func (a FleetsApiService) PutFleetsFleetIdWingsWingId(ctx context.Context, fleet
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return nil, err
+	}
+
 	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
 		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
 	}
@@ -943,7 +1000,7 @@ func (a FleetsApiService) PutFleetsFleetIdWingsWingId(ctx context.Context, fleet
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 
 	return localVarHttpResponse, err

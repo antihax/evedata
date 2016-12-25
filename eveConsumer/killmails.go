@@ -48,33 +48,33 @@ func (c *EVEConsumer) addKillmail(href string) error {
 	go func(l chan bool, h string) error {
 		defer func(l chan bool) { <-l }(l)
 
-		kill, err := c.ctx.EVE.KillmailV1(h)
+		kill, _, err := c.ctx.ESI.KillmailsApi.GetKillmailsKillmailIdKillmailHash((int32)(id), hash, nil)
 		if err != nil {
 			return err
 		}
-		c.updateEntity(kill.Victim.Character.Href, kill.Victim.Character.ID)
-		c.updateEntity(kill.Victim.Corporation.Href, kill.Victim.Corporation.ID)
-		if kill.Victim.Alliance.ID != 0 {
-			c.updateEntity(kill.Victim.Alliance.Href, kill.Victim.Alliance.ID)
+		c.updateESIEntitys(kill.Victim.CharacterId)
+		c.updateESIEntitys(kill.Victim.CorporationId)
+		if kill.Victim.AllianceId != 0 {
+			c.updateESIEntitys(kill.Victim.AllianceId)
 		}
-		models.AddKillmail(kill.KillID, kill.SolarSystem.ID, kill.KillTime.UTC(), kill.Victim.Character.ID,
-			kill.Victim.Corporation.ID, kill.Victim.Alliance.ID, hash, kill.AttackerCount, kill.Victim.DamageTaken,
-			kill.Victim.Position.X, kill.Victim.Position.Y, kill.Victim.Position.Z, kill.Victim.ShipType.ID,
-			kill.War.ID)
+		models.AddKillmail(kill.KillmailId, kill.SolarSystemId, kill.KillmailTime.UTC(), kill.Victim.CharacterId,
+			kill.Victim.CorporationId, kill.Victim.AllianceId, hash, len(kill.Attackers), kill.Victim.DamageTaken,
+			kill.Victim.Position.X, kill.Victim.Position.Y, kill.Victim.Position.Z, kill.Victim.ShipTypeId,
+			kill.WarId)
 
 		for _, item := range kill.Victim.Items {
-			models.AddKillmailItems(kill.KillID, item.ItemType.ID, item.Flag, item.QuantityDestroyed,
+			models.AddKillmailItems(kill.KillmailId, item.ItemTypeId, item.Flag, item.QuantityDestroyed,
 				item.QuantityDropped, item.Singleton)
 		}
 
 		for _, attacker := range kill.Attackers {
-			c.updateEntity(attacker.Character.Href, attacker.Character.ID)
-			c.updateEntity(attacker.Corporation.Href, attacker.Corporation.ID)
-			if attacker.Alliance.ID != 0 {
-				c.updateEntity(attacker.Alliance.Href, attacker.Alliance.ID)
+			c.updateESIEntitys(attacker.CharacterId)
+			c.updateESIEntitys(attacker.CorporationId)
+			if attacker.AllianceId != 0 {
+				c.updateESIEntitys(attacker.AllianceId)
 			}
-			models.AddKillmailAttacker(kill.KillID, attacker.Character.ID, attacker.Corporation.ID, attacker.Alliance.ID,
-				attacker.ShipType.ID, attacker.FinalBlow, attacker.DamageDone, attacker.WeaponType.ID,
+			models.AddKillmailAttacker(kill.KillmailId, attacker.CharacterId, attacker.CorporationId, attacker.AllianceId,
+				attacker.ShipTypeId, attacker.FinalBlow, attacker.DamageDone, attacker.WeaponTypeId,
 				attacker.SecurityStatus)
 		}
 		mapLock.Lock()

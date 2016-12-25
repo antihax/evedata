@@ -5,9 +5,9 @@ import (
 	"time"
 )
 
-func AddKillmail(id int64, solarSystemID int64, killTime time.Time, victimCharacterID int64, victimCorporationID int64,
-	victimAllianceID int64, hash string, attackerCount int64, damageTaken int64, x float64, y float64, z float64,
-	shipType int64, warID int64) error {
+func AddKillmail(id int32, solarSystemID int32, killTime time.Time, victimCharacterID int32, victimCorporationID int32,
+	victimAllianceID int32, hash string, attackerCount int, damageTaken int32, x float32, y float32, z float32,
+	shipType int32, warID int32) error {
 	if _, err := database.Exec(`
 		INSERT INTO killmails
 			(id,solarSystemID,killTime,victimCharacterID,victimCorporationID,victimAllianceID,hash,
@@ -20,8 +20,8 @@ func AddKillmail(id int64, solarSystemID int64, killTime time.Time, victimCharac
 	return nil
 }
 
-func AddKillmailAttacker(id int64, characterID int64, corporationID int64, allianceID int64, shipType int64,
-	finalBlow bool, damageDone int64, weaponType int64, securityStatus float64) error {
+func AddKillmailAttacker(id int32, characterID int32, corporationID int32, allianceID int32, shipType int32,
+	finalBlow bool, damageDone int32, weaponType int32, securityStatus float32) error {
 	if _, err := database.Exec(`
 		INSERT INTO killmailAttackers
 			(id,characterID,corporationID,allianceID,shipType,finalBlow,damageDone,weaponType,securityStatus)
@@ -32,7 +32,7 @@ func AddKillmailAttacker(id int64, characterID int64, corporationID int64, allia
 	return nil
 }
 
-func AddKillmailItems(id int64, itemType int64, flag int64, quantityDestroyed int64, quantityDropped int64, singleton int64) error {
+func AddKillmailItems(id int32, itemType int32, flag int32, quantityDestroyed int64, quantityDropped int64, singleton int32) error {
 	if _, err := database.Exec(`
 		INSERT INTO killmailItems
 			(id,itemType,flag,quantityDestroyed,quantityDropped,singleton)

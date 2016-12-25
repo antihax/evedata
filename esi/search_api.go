@@ -26,7 +26,6 @@ import (
 	"net/url"
 	"net/http"
 	"strings"
-	"errors"
 	"golang.org/x/net/context"
 	"encoding/json"
 	"fmt"
@@ -65,6 +64,19 @@ func (a SearchApiService) GetCharactersCharacterIdSearch(ctx context.Context, ch
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if len(categories) < 1 {
+			return successPayload, nil, reportError("categories must have at least %d elements",1)
+	}
+	if err := typeCheckParameter(localVarOptionals["language"], "string", "language"); err != nil {
+		return successPayload, nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["strict"], "bool", "strict"); err != nil {
+		return successPayload, nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
 
 	localVarQueryParams.Add("search", parameterToString(search, ""))
 	localVarQueryParams.Add("categories", parameterToString(categories, "csv"))
@@ -109,7 +121,7 @@ func (a SearchApiService) GetCharactersCharacterIdSearch(ctx context.Context, ch
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
@@ -146,6 +158,19 @@ func (a SearchApiService) GetSearch(search string, categories []string, localVar
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
+
+	if len(categories) < 1 {
+			return successPayload, nil, reportError("categories must have at least %d elements",1)
+	}
+	if err := typeCheckParameter(localVarOptionals["language"], "string", "language"); err != nil {
+		return successPayload, nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["strict"], "bool", "strict"); err != nil {
+		return successPayload, nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
 
 	localVarQueryParams.Add("search", parameterToString(search, ""))
 	localVarQueryParams.Add("categories", parameterToString(categories, "csv"))
@@ -190,7 +215,7 @@ func (a SearchApiService) GetSearch(search string, categories []string, localVar
 	 }
 	 defer localVarHttpResponse.Body.Close()
 	 if localVarHttpResponse.StatusCode >= 300 {
-		return successPayload, localVarHttpResponse, errors.New(localVarHttpResponse.Status)
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
 	 }
 	
 	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
