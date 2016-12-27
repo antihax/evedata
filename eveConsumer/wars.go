@@ -31,7 +31,6 @@ func (c *EVEConsumer) updateWars() error {
 	defer rows.Close()
 
 	for rows.Next() {
-
 		var id int
 		err = rows.Scan(&id)
 		if err != nil {
@@ -113,16 +112,27 @@ func (c *EVEConsumer) updateWar(href string) error {
 		}
 	}
 
-	kills, err := war.KillmailsV1()
-	if err != nil {
-		return err
-	}
-	for _, kills := range kills.Items {
-		err := c.addKillmail(kills.HRef)
+	// Loop through all the killmail pages
+	for i := 1; ; i++ {
+		kills, _, err := c.ctx.ESI.WarsApi.GetWarsWarIdKillmails((int32)(war.ID), map[string]interface{}{"page": (int32)(i)})
 		if err != nil {
 			return err
 		}
+
+		// No more kills to get, let`s get out of the loop.
+		if len(kills) == 0 {
+			break
+		}
+
+		// Add mails to the queue (queue will handle known mails)
+		for _, k := range kills {
+			err := c.killmailAddToQueue(k.KillmailId, k.KillmailHash)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
+	// All good bro.
 	return nil
 }

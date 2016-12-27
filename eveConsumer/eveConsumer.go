@@ -61,9 +61,9 @@ func (c *EVEConsumer) goTriggers() {
 
 // RunConsumer starts the consumer and returns.
 func (c *EVEConsumer) RunConsumer() {
-	c.initKillConsumer()
-	go c.goConsumer()
-	go c.goTriggers()
+	go c.initKillConsumer() // Load known mails into redis
+	go c.goConsumer()       // Run consumers in a loop
+	go c.goTriggers()       // Time triggered consumers
 	if c.ctx.Conf.EVEConsumer.ZKillEnabled == true {
 		go c.goZKillConsumer()
 		go c.goZKillTemporaryConsumer()

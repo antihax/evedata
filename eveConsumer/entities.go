@@ -150,7 +150,6 @@ func (c *EVEConsumer) updateEntity(href string, id int64) error {
 // [TODO] Rewrite this as ESI matures
 // [TODO] bulk pull IDs
 func (c *EVEConsumer) updateESIEntitys(id int32) error {
-
 	r := c.ctx.Cache.Get()
 	defer r.Close()
 
