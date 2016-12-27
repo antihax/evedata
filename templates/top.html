@@ -6,7 +6,7 @@
        updateTextBlock();
     });
     function updateTextBlock() {
-        setTimeout("updateTextBlock();", 5000);
+        setTimeout("updateTextBlock();", 2500);
         $.get("/X/topStatistics", function( data ) {
             $("#textblock").text(data);
         });
