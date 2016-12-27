@@ -36,6 +36,11 @@ func (c *EVEConsumer) killmailGoQueueConsumer() error {
 			log.Printf("Killmail error: %v\n", err)
 			continue
 		}
+		// We know this kill. Early out.
+		i, err := redis.Int(r.Do("SISMEMBER", "EVEDATA_knownKills", id))
+		if err == nil && i == 1 {
+			continue
+		}
 		err = c.killmailGetAndSave((int32)(id), split[1])
 		if err != nil {
 			log.Printf("Killmail error: %v\n", err)
@@ -52,7 +57,7 @@ func (c *EVEConsumer) killmailAddToQueue(id int32, hash string) error {
 	key := fmt.Sprintf("%d:%s", id, hash)
 
 	// We know this kill. Early out.
-	i, err := redis.Int(r.Do("SISMEMBER", "EVEDATA_killQueue", key))
+	i, err := redis.Int(r.Do("SISMEMBER", "EVEDATA_knownKills", id))
 	if err == nil && i == 1 {
 		return err
 	}
@@ -95,7 +100,9 @@ func (c *EVEConsumer) initKillConsumer() {
 	log.Printf("Loaded %d known killmails\n", len(k))
 
 	// Start the killmail queue consumer.
-	go c.killmailGoQueueConsumer()
+	for i := 0; i < 25; i++ {
+		go c.killmailGoQueueConsumer()
+	}
 }
 
 // Go get the killmail from CCP. Called from the queue consumer.
