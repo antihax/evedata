@@ -22,12 +22,17 @@ import (
 	gsr "gopkg.in/boj/redistore.v1"
 )
 
+var ctx appContext.AppContext
+
+func GetContext() *appContext.AppContext {
+	return &ctx
+}
+
 // Load the server
 func GoServer() {
 	var err error
 
 	// Make a new app context.
-	ctx := &appContext.AppContext{}
 
 	// Read configuation.
 	if ctx.Conf, err = config.ReadConfig(); err != nil {
@@ -35,7 +40,7 @@ func GoServer() {
 	}
 
 	// Build the redis pool
-	ctx.Cache = redis.Pool{
+	ctx.Cache = &redis.Pool{
 		MaxIdle:     10,
 		IdleTimeout: 60 * time.Second,
 		Dial: func() (redis.Conn, error) {
@@ -130,7 +135,7 @@ func GoServer() {
 	}
 
 	// Create a memcached session store.
-	ctx.Store, err = gsr.NewRediStoreWithPool(&ctx.Cache, []byte(ctx.Conf.Store.Key))
+	ctx.Store, err = gsr.NewRediStoreWithPool(ctx.Cache, []byte(ctx.Conf.Store.Key))
 	if err != nil {
 		log.Fatalf("Cannot build database pool: %v", err)
 	}
@@ -150,22 +155,22 @@ func GoServer() {
 
 	if ctx.Conf.EMDRCrestBridge.Enabled {
 		log.Println("Starting EMDR <- CREST Bridge")
-		go emdrConsumer.GoEMDRCrestBridge(ctx)
+		go emdrConsumer.GoEMDRCrestBridge(&ctx)
 	}
 
 	if ctx.Conf.EVEConsumer.Enabled {
 		log.Println("Starting EVE Consumer")
-		eC := eveConsumer.NewEVEConsumer(ctx)
+		eC := eveConsumer.NewEVEConsumer(&ctx)
 		eC.RunConsumer()
 		defer eC.StopConsumer()
 	}
 
 	if ctx.Conf.Discord.Enabled {
-		go discord.GoDiscordBot(ctx)
+		go discord.GoDiscordBot(&ctx)
 	}
 
 	// Allocate the routes
-	rtr := NewRouter(ctx)
+	rtr := NewRouter(&ctx)
 
 	log.Printf("EveData Listening port 3000...\n")
 	http.ListenAndServe(":3000", context.ClearHandler(rtr))

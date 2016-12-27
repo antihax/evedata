@@ -1,0 +1,15 @@
+{{define "body"}}
+  <pre id="textblock"></pre>
+
+  <script type="text/javascript">
+    $( document ).ready(function() { 
+       updateTextBlock();
+    });
+    function updateTextBlock() {
+        setTimeout("updateTextBlock();", 5000);
+        $.get("/J/topStatistics", function( data ) {
+            $("#textblock").text(data);
+        });
+    }
+  </script>
+{{end}}

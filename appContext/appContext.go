@@ -23,7 +23,7 @@ type AppContext struct {
 	EVE            *eveapi.AnonymousClient // EVE API Client
 	HTTPClient     *http.Client            // Redis Cached HTTP client
 	TransportCache *httpcache.Transport
-	Cache          redis.Pool // Redis connection Pool for HTTP Cache and session store.
+	Cache          *redis.Pool // Redis connection Pool for HTTP Cache and session store.
 	ESI            *esi.APIClient
 	ESIPublicToken oauth2.TokenSource
 
