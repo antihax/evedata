@@ -20,7 +20,7 @@ import (
 
 func init() {
 	evedata.AddRoute("top", "GET", "/top", topPage)
-	evedata.AddRoute("top", "GET", "/J/topStatistics", topStatisticsTxt)
+	evedata.AddRoute("top", "GET", "/X/topStatistics", topStatisticsTxt)
 	go GenerateStatistics(evedata.GetContext())
 	statisticsLast = make(map[string]int)
 }
