@@ -81,7 +81,7 @@ func topPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s
 }
 
 func topStatisticsTxt(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-	setCache(w, 3)
+	setCache(w, 0)
 	w.Write(statisticsTxt)
 	return http.StatusOK, nil
 }
