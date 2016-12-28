@@ -5,7 +5,6 @@ import (
 	"evedata/models"
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/garyburd/redigo/redis"
@@ -51,7 +50,7 @@ func (c *EVEConsumer) updateEntities() error {
 	// Loop the entities
 	for entities.Next() {
 		var (
-			id      int64
+			id      int32
 			href    string
 			nothing string
 		)
@@ -62,7 +61,7 @@ func (c *EVEConsumer) updateEntities() error {
 		}
 
 		// Recursively update expired information
-		if err = c.updateEntity(href, id); err != nil {
+		if err = c.entityAddToQueue(id); err != nil {
 			return err
 		}
 
@@ -102,7 +101,7 @@ func (c *EVEConsumer) collectEntitiesFromCREST() error {
 
 		// Recursively update expired information
 		for _, r := range w.Items {
-			if err = c.updateEntity(r.HRef, r.ID); err != nil {
+			if err = c.entityAddToQueue((int32)(r.ID)); err != nil {
 				return err
 			}
 		}
@@ -110,145 +109,144 @@ func (c *EVEConsumer) collectEntitiesFromCREST() error {
 	return nil
 }
 
-func (c *EVEConsumer) updateEntity(href string, id int64) error {
-	var (
-		err error
-	)
-	r := c.ctx.Cache.Get()
-	defer r.Close()
-
+// Consume an entity from the queue
+func (c *EVEConsumer) entityConsume(v int32, r redis.Conn) error {
 	// Skip this entity if we have touched it recently
-	i, err := redis.Bool(r.Do("EXISTS", "EVEDATA_entity:"+href))
-	if err == nil && i != true {
-		go func(h string, i int64) error {
-			if strings.Contains(h, "alliances") {
-				_, err = c.updateAlliance(i)
-			} else if strings.Contains(h, "corporations") {
-				_, err = c.updateCorporation(i)
-			} else if strings.Contains(h, "characters") {
-				_, err = c.updateCharacter(i)
-			}
-			if err != nil {
-				return err
-			}
-			err = models.AddCRESTRef(i, h)
-			if err != nil {
-				return err
-			}
-			return nil
-		}(href, id)
-
-		// Say we touched the entity and expire after one day
-		r.Do("SETEX", "EVEDATA_entity:"+href, 86400, true)
-	} else {
-		return nil
+	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", v)
+	i, err := redis.Bool(r.Do("EXISTS", key))
+	if err != nil || i == true {
+		return err
 	}
 
+	err = c.entityGetAndSave(v)
 	return err
 }
 
-// [TODO] Rewrite this as ESI matures
-// [TODO] bulk pull IDs
-func (c *EVEConsumer) updateESIEntitys(id int32) error {
+func (c *EVEConsumer) entityAddToQueue(id int32) error {
 	r := c.ctx.Cache.Get()
 	defer r.Close()
 
 	// Skip this entity if we have touched it recently
 	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", id)
 	i, err := redis.Bool(r.Do("EXISTS", key))
-	if err == nil && i != true {
-		go func(i int32) {
-			entity, _, err := c.ctx.ESI.UniverseApi.PostUniverseNames(esi.PostUniverseNamesIds{Ids: []int32{id}}, nil)
-
-			for _, e := range entity {
-				h := "https://crest-tq.eveonline.com/" + fmt.Sprintf("%ss/%d/", e.Category, id)
-				if e.Category == "alliance" {
-					_, err = c.updateAlliance((int64)(e.Id))
-				} else if e.Category == "corporation" {
-					_, err = c.updateCorporation((int64)(e.Id))
-				} else if e.Category == "character" {
-					_, err = c.updateCharacter((int64)(e.Id))
-				}
-
-				if err != nil {
-					return
-				}
-				err = models.AddCRESTRef(((int64)(e.Id)), h)
-				if err != nil {
-					return
-				}
-			}
-			return
-		}(id)
-
-		// Say we touched the entity and expire after one day
-		r.Do("SETEX", key, 86400, true)
-	} else {
-		return nil
+	if err != nil || i == true {
+		return err
 	}
 
+	// Add the entity to the queue
+	_, err = r.Do("SADD", "EVEDATA_entityQueue", id)
 	return err
 }
 
-func (c *EVEConsumer) updateAlliance(id int64) (time.Duration, error) {
+func (c *EVEConsumer) entityCheckQueue(r redis.Conn) (int32, error) {
+	ret, err := r.Do("SPOP", "EVEDATA_entityQueue")
+	if err != nil {
+		return 0, err
+	} else if ret == nil {
+		return 0, nil
+	}
+	v, err := redis.Int(ret, err)
+	return (int32)(v), err
+}
+
+// Say we touched the entity and expire after one day
+func (c *EVEConsumer) entitySetKnown(id int32) error {
+	go func() {
+		key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", id)
+		r := c.ctx.Cache.Get()
+		defer r.Close()
+		r.Do("SETEX", key, 86400, true)
+	}()
+	return nil
+}
+
+// [TODO] Rewrite this as ESI matures
+// [TODO] bulk pull IDs
+func (c *EVEConsumer) entityGetAndSave(id int32) error {
+
+	entity, _, err := c.ctx.ESI.UniverseApi.PostUniverseNames(esi.PostUniverseNamesIds{Ids: []int32{id}}, nil)
+	if err != nil {
+		return err
+	}
+
+	for _, e := range entity {
+		h := "https://crest-tq.eveonline.com/" + fmt.Sprintf("%ss/%d/", e.Category, id)
+		if e.Category == "alliance" {
+			err = c.updateAlliance((int64)(e.Id))
+		} else if e.Category == "corporation" {
+			err = c.updateCorporation((int64)(e.Id))
+		} else if e.Category == "character" {
+			err = c.updateCharacter((int64)(e.Id))
+		}
+
+		if err != nil {
+			return err
+		}
+		err = models.AddCRESTRef(((int64)(e.Id)), h)
+		if err != nil {
+			return err
+		}
+	}
+	return err
+}
+
+func (c *EVEConsumer) updateAlliance(id int64) error {
 	href := "https://crest-tq.eveonline.com/" + fmt.Sprintf("alliances/%d/", id)
 	a, err := c.ctx.EVE.Alliance(href)
 	if err != nil {
-		return 1, err
+		return err
 	}
 
 	err = models.UpdateAlliance(a.ID, a.Name, a.CorporationsCount, a.ShortName, a.ExecutorCorporation.ID,
 		a.StartDate.UTC(), a.Deleted, a.Description, a.CreatorCorporation.ID, a.CreatorCharacter.ID, a.CacheUntil.UTC())
 	if err != nil {
-		return 1, err
+		return err
 	}
-	err = c.updateEntity(a.CreatorCharacter.Href, a.CreatorCharacter.ID)
+	err = c.entityAddToQueue((int32)(a.CreatorCharacter.ID))
 	if err != nil {
-		return 1, err
+		return err
 	}
 
 	for _, corp := range a.Corporations {
-		err = c.updateEntity(corp.Href, corp.ID)
+		err = c.entityAddToQueue((int32)(corp.ID))
 		if err != nil {
-			return 1, err
+			return err
 		}
 	}
-	t := a.CacheUntil.Sub(time.Now().UTC())
-	return t, nil
+
+	return nil
 }
 
-func (c *EVEConsumer) updateCorporation(id int64) (time.Duration, error) {
-
+func (c *EVEConsumer) updateCorporation(id int64) error {
 	a, err := c.ctx.EVE.CorporationPublicSheetXML(id)
 	if err != nil {
-		return 1, err
+		return err
 	}
 
 	err = models.UpdateCorporation(a.CorporationID, a.CorporationName, a.Ticker, a.CEOID, a.StationID,
 		a.Description, a.AllianceID, a.FactionID, a.URL, a.MemberCount, a.Shares, a.CachedUntil.UTC())
 	if err != nil {
-		return 1, err
+		return err
+	}
+	if a.CEOID > 1 {
+		err = c.entityAddToQueue((int32)(a.CEOID))
+		if err != nil {
+			return err
+		}
 	}
 
-	chref := "https://crest-tq.eveonline.com/" + fmt.Sprintf("characters/%d/", a.CEOID)
-	err = c.updateEntity(chref, a.CEOID)
-	if err != nil {
-		return 1, err
-	}
-
-	t := a.CachedUntil.Sub(time.Now().UTC())
-	return t, nil
+	return nil
 }
 
-func (c *EVEConsumer) updateCharacter(id int64) (time.Duration, error) {
+func (c *EVEConsumer) updateCharacter(id int64) error {
 	a, err := c.ctx.EVE.CharacterInfoXML(id)
 	if err != nil {
-		return 1, err
+		return err
 	}
 	err = models.UpdateCharacter(a.CharacterID, a.CharacterName, a.BloodlineID, a.AncestryID, a.CorporationID, a.AllianceID, a.Race, a.SecurityStatus, a.CachedUntil.UTC())
 	if err != nil {
-		return 1, err
+		return err
 	}
-	t := a.CachedUntil.Sub(time.Now().UTC())
-	return t, nil
+
+	return nil
 }

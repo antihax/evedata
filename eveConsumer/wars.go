@@ -91,12 +91,12 @@ func (c *EVEConsumer) updateWar(href string) error {
 		return err
 	}
 
-	err = c.updateEntity(war.Aggressor.HRef, war.Aggressor.ID)
+	err = c.entityAddToQueue((int32)(war.Aggressor.ID))
 	if err != nil {
 		return err
 	}
 
-	err = c.updateEntity(war.Defender.HRef, war.Defender.ID)
+	err = c.entityAddToQueue((int32)(war.Defender.ID))
 	if err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ func (c *EVEConsumer) updateWar(href string) error {
 			return err
 		}
 
-		if err = c.updateEntity(a.HRef, a.ID); err != nil {
+		if err = c.entityAddToQueue((int32)(a.ID)); err != nil {
 			return err
 		}
 	}

@@ -7,7 +7,7 @@ func UpdateAlliance(allianceID int64, name string, memberCount int64, shortName 
 	startDate time.Time, deleted bool, description string, creatorCorp int64, creatorCharacter int64,
 	cacheUntil time.Time) error {
 
-	cacheUntil = time.Now().UTC().Add(time.Hour * 24 * 5)
+	cacheUntil = time.Now().UTC().Add(time.Hour * 24 * 1)
 	if _, err := database.Exec(`
 		INSERT INTO alliances 
 			(

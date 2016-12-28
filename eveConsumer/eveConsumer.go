@@ -17,29 +17,45 @@ type EVEConsumer struct {
 // NewEVEConsumer creates a new EveConsumer
 func NewEVEConsumer(ctx *appContext.AppContext) *EVEConsumer {
 	e := &EVEConsumer{ctx, make(chan bool), make(chan bool)}
-
 	return e
 }
 
 func (c *EVEConsumer) goConsumer() {
-	log.Printf("EVEConsumer: Running Consumer\n")
+	r := c.ctx.Cache.Get()
+	defer r.Close()
 
-	rate := time.Second * 60 * 15
-	throttle := time.Tick(rate)
+	// Run Phase
 	for {
-
+		workDone := false
 		select {
 		case <-c.consumerStopChannel:
-			log.Printf("EVEConsumer: Shutting Down\n")
 			return
 		default:
-			c.checkWars()
-			c.checkPublicStructures()
+			if v, err := c.killmailCheckQueue(r); v != "" && err == nil {
+				err := c.killmailConsume(v, r)
+				workDone = true
+				if err != nil {
+					log.Printf("EVEConsumer: %v\n", err)
+				}
+			} else if err != nil {
+				log.Printf("EVEConsumer: %v\n", err)
+			}
 
-			c.checkNPCCorps()
-			c.checkEntities()
+			if v, err := c.entityCheckQueue(r); v > 0 && err == nil {
+				err := c.entityConsume(v, r)
+				workDone = true
+				if err != nil {
+					log.Printf("EVEConsumer: %v\n", err)
+				}
+			} else if err != nil {
+				log.Printf("EVEConsumer: %v\n", err)
+			}
 		}
-		<-throttle
+
+		// Sleep a brief bit if we didnt do anything
+		if workDone == false {
+			time.Sleep(time.Second * 5)
+		}
 	}
 }
 
@@ -54,16 +70,33 @@ func (c *EVEConsumer) goTriggers() {
 			return
 		default:
 			c.contactSync()
+			c.checkWars()
+			c.checkPublicStructures()
+			c.checkNPCCorps()
+			c.checkEntities()
 		}
 		<-throttle
 	}
 }
 
+// Load deferrable data.
+func (c *EVEConsumer) initConsumer() {
+	r := c.ctx.Cache.Get()
+	defer r.Close()
+	// Load Phase
+	c.initKillConsumer(r)
+}
+
 // RunConsumer starts the consumer and returns.
 func (c *EVEConsumer) RunConsumer() {
-	go c.initKillConsumer() // Load known mails into redis
-	go c.goConsumer()       // Run consumers in a loop
-	go c.goTriggers()       // Time triggered consumers
+	// Load deferrable data.
+	go c.initConsumer()
+
+	for i := 0; i < c.ctx.Conf.EVEConsumer.Consumers; i++ {
+		go c.goConsumer() // Run consumers in a loop
+	}
+
+	go c.goTriggers() // Time triggered queries
 	if c.ctx.Conf.EVEConsumer.ZKillEnabled == true {
 		go c.goZKillConsumer()
 		go c.goZKillTemporaryConsumer()
@@ -75,7 +108,9 @@ func (c *EVEConsumer) RunConsumer() {
 // StopConsumer shuts down any running go routines and returns.
 func (c *EVEConsumer) StopConsumer() {
 	log.Printf("EVEConsumer: Stopping Consumer\n")
-	c.consumerStopChannel <- true
+	for i := 0; i > c.ctx.Conf.EVEConsumer.Consumers; i++ {
+		c.consumerStopChannel <- true
+	}
 	c.triggersStopChannel <- true
 	log.Printf("EVEConsumer: Stopped\n")
 }

@@ -158,17 +158,16 @@ func GoServer() {
 		go emdrConsumer.GoEMDRCrestBridge(&ctx)
 	}
 
+	if ctx.Conf.Discord.Enabled {
+		go discord.GoDiscordBot(&ctx)
+	}
+
 	if ctx.Conf.EVEConsumer.Enabled {
 		log.Println("Starting EVE Consumer")
 		eC := eveConsumer.NewEVEConsumer(&ctx)
 		eC.RunConsumer()
 		defer eC.StopConsumer()
 	}
-
-	if ctx.Conf.Discord.Enabled {
-		go discord.GoDiscordBot(&ctx)
-	}
-
 	// Allocate the routes
 	rtr := NewRouter(&ctx)
 

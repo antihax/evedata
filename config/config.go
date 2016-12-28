@@ -24,6 +24,7 @@ type Config struct {
 	EVEConsumer struct {
 		Enabled      bool
 		ZKillEnabled bool
+		Consumers    int
 	}
 	CREST struct {
 		SSO struct {

@@ -2,6 +2,7 @@ package eveConsumer
 
 import (
 	"encoding/json"
+	"errors"
 	"evedata/models"
 	"fmt"
 	"log"
@@ -12,42 +13,39 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-// Add a killmail to the queue
-func (c *EVEConsumer) killmailGoQueueConsumer() error {
-	r := c.ctx.Cache.Get()
-	defer r.Close()
-	for {
-		// Pop off an element from the queue.
-		ret, err := r.Do("SPOP", "EVEDATA_killQueue")
-		if ret == nil {
-			// Let's sleep for a bit.
-			time.Sleep(time.Second * 20)
-			continue
-		}
-		v, err := redis.String(ret, err)
-
-		split := strings.Split(v, ":")
-		if len(split) != 2 {
-			log.Printf("Killmail error: invalid format\n", err)
-			continue
-		}
-		id, err := strconv.ParseInt(split[0], 10, 32)
-		if err != nil {
-			log.Printf("Killmail error: %v\n", err)
-			continue
-		}
-		// We know this kill. Early out.
-		i, err := redis.Int(r.Do("SISMEMBER", "EVEDATA_knownKills", id))
-		if err == nil && i == 1 {
-			continue
-		}
-		err = c.killmailGetAndSave((int32)(id), split[1])
-		if err != nil {
-			log.Printf("Killmail error: %v\n", err)
-			continue
-		}
-
+func (c *EVEConsumer) killmailCheckQueue(r redis.Conn) (string, error) {
+	ret, err := r.Do("SPOP", "EVEDATA_killQueue")
+	if err != nil {
+		return "", err
+	} else if ret == nil {
+		return "", nil
 	}
+	v, err := redis.String(ret, err)
+	return v, err
+}
+
+// Consume a killmail from the queue
+func (c *EVEConsumer) killmailConsume(v string, r redis.Conn) error {
+	// split id:hash
+	split := strings.Split(v, ":")
+	if len(split) != 2 {
+		return errors.New("string must be id:hash")
+	}
+	// convert ID to int64
+	id, err := strconv.ParseInt(split[0], 10, 32)
+	if err != nil {
+		return err
+	}
+
+	// We know this kill. Early out.
+	i, err := redis.Int(r.Do("SISMEMBER", "EVEDATA_knownKills", (int32)(id)))
+	if err == nil && i == 1 {
+		return err
+	}
+
+	err = c.killmailGetAndSave((int32)(id), split[1])
+	return err
+
 }
 
 // Add a killmail to the queue
@@ -78,11 +76,7 @@ func (c *EVEConsumer) killmailSetKnown(id int32) error {
 }
 
 // Launched in go routine
-func (c *EVEConsumer) initKillConsumer() {
-	// Get a redis connection from the pool
-	r := c.ctx.Cache.Get()
-	defer r.Close()
-
+func (c *EVEConsumer) initKillConsumer(r redis.Conn) {
 	// get the list of know killmails
 	k, err := models.GetKnownKillmails()
 	if err != nil {
@@ -98,24 +92,29 @@ func (c *EVEConsumer) initKillConsumer() {
 	r.Flush()
 
 	log.Printf("Loaded %d known killmails\n", len(k))
-
-	// Start the killmail queue consumer.
-	for i := 0; i < 25; i++ {
-		go c.killmailGoQueueConsumer()
-	}
 }
 
 // Go get the killmail from CCP. Called from the queue consumer.
 func (c *EVEConsumer) killmailGetAndSave(id int32, hash string) error {
 	// Get the killmail from CCP
-	kill, _, err := c.ctx.ESI.KillmailsApi.GetKillmailsKillmailIdKillmailHash(id, hash, nil)
+	kill, r, err := c.ctx.ESI.KillmailsApi.GetKillmailsKillmailIdKillmailHash(id, hash, nil)
+
+	// If we get a 500 error, add the mail back to the queue so we can try again later.
+	if r != nil {
+		if r.StatusCode >= 500 {
+			c.killmailAddToQueue(id, hash)
+			return err
+		}
+	}
+
 	if err != nil {
 		return err
 	}
-	c.updateESIEntitys(kill.Victim.CharacterId)
-	c.updateESIEntitys(kill.Victim.CorporationId)
+
+	c.entityAddToQueue(kill.Victim.CharacterId)
+	c.entityAddToQueue(kill.Victim.CorporationId)
 	if kill.Victim.AllianceId != 0 {
-		c.updateESIEntitys(kill.Victim.AllianceId)
+		c.entityAddToQueue(kill.Victim.AllianceId)
 	}
 	models.AddKillmail(kill.KillmailId, kill.SolarSystemId, kill.KillmailTime.UTC(), kill.Victim.CharacterId,
 		kill.Victim.CorporationId, kill.Victim.AllianceId, hash, len(kill.Attackers), kill.Victim.DamageTaken,
@@ -128,10 +127,10 @@ func (c *EVEConsumer) killmailGetAndSave(id int32, hash string) error {
 	}
 
 	for _, attacker := range kill.Attackers {
-		c.updateESIEntitys(attacker.CharacterId)
-		c.updateESIEntitys(attacker.CorporationId)
+		c.entityAddToQueue(attacker.CharacterId)
+		c.entityAddToQueue(attacker.CorporationId)
 		if attacker.AllianceId != 0 {
-			c.updateESIEntitys(attacker.AllianceId)
+			c.entityAddToQueue(attacker.AllianceId)
 		}
 		models.AddKillmailAttacker(kill.KillmailId, attacker.CharacterId, attacker.CorporationId, attacker.AllianceId,
 			attacker.ShipTypeId, attacker.FinalBlow, attacker.DamageDone, attacker.WeaponTypeId,
@@ -151,6 +150,8 @@ func (c *EVEConsumer) goZKillConsumer() error {
 			}
 		}
 	}
+
+	time.Sleep(time.Second * 5)
 
 	for {
 		k := kill{}

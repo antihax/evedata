@@ -40,7 +40,7 @@ func (c *EVEConsumer) collectNPCCorps() error {
 				continue
 			}
 
-			c.updateEntity(npcCorp.Href, npcCorp.ID)
+			c.entityAddToQueue((int32)(npcCorp.ID))
 			store, err := c.ctx.EVE.LoyaltyPointStoreV1(npcCorp.LoyaltyStore.Href)
 			if err != nil {
 				continue

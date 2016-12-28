@@ -16,6 +16,10 @@ import (
 	humanize "github.com/dustin/go-humanize"
 	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/sessions"
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/host"
+	"github.com/shirou/gopsutil/load"
+	"github.com/shirou/gopsutil/mem"
 )
 
 func init() {
@@ -29,6 +33,22 @@ var (
 	statisticsTxt  []byte
 	statisticsLast map[string]int
 )
+
+func statisticsLoadHostStats(r redis.Conn) {
+	l, _ := load.Avg()
+	i, _ := host.Info()
+	m, _ := mem.VirtualMemory()
+	cpuPercent, _ := cpu.Percent(0, false)
+
+	// Remove old entries
+	r.Do("ZREMRANGEBYSCORE", "EVEDATA_HOST", 0, time.Now().UTC().Unix())
+
+	data := fmt.Sprintf("%s: Load: %.2f %.2f %.2f  CPU: %.1f%%  Memory: %d/%d GiB  ", i.Hostname, l.Load1, l.Load5, l.Load15, cpuPercent[0], m.Used/1024/1024/1024, m.Total/1024/1024/1024)
+
+	r.Do("ZADD", "EVEDATA_HOST", time.Now().UTC().Unix()+5, data)
+
+	return
+}
 
 func statisticsChange(t string, v int) (out string) {
 	l := statisticsLast[t]
@@ -46,18 +66,46 @@ func GenerateStatistics(c *appContext.AppContext) {
 	} // Stupid
 	log.Printf("Start collecting statistics\n")
 	red := c.Cache.Get()
+	defer red.Close()
 	tick := time.NewTicker(time.Second * 5)
 
 	for {
+		statisticsLoadHostStats(red)
+
 		w := bytes.NewBuffer(statisticsTxt)
 		w.Reset()
 
 		out := tabwriter.NewWriter(w, 40, 4, 2, ' ', tabwriter.AlignRight)
 
+		// here we'll store our iterator value
+		iter := 0
+
+		// this will store the keys of each iteration
+		var host []string
+		for {
+			if arr, err := redis.MultiBulk(red.Do("ZSCAN", "EVEDATA_HOST", iter)); err != nil {
+				fmt.Println(err)
+			} else {
+				iter, _ = redis.Int(arr[0], nil)
+				host, _ = redis.Strings(arr[1], nil)
+			}
+
+			fmt.Fprintf(out, "%s\n", host[0])
+
+			// Stop if empty
+			if iter == 0 {
+				break
+			}
+		}
+
+		fmt.Fprintln(out)
+
 		kills, _ := redis.Int(red.Do("SCARD", "EVEDATA_knownKills"))
 		fmt.Fprintf(out, "%s \tKnown Kills %s\n", humanize.Comma((int64)(kills)), statisticsChange("kills", kills))
 		killq, _ := redis.Int(red.Do("SCARD", "EVEDATA_killQueue"))
 		fmt.Fprintf(out, "%s \tKills in Queue %s\n", humanize.Comma((int64)(killq)), statisticsChange("killq", killq))
+		entityq, _ := redis.Int(red.Do("SCARD", "EVEDATA_entityQueue"))
+		fmt.Fprintf(out, "%s \tEntities in Queue %s\n", humanize.Comma((int64)(entityq)), statisticsChange("entityq", entityq))
 
 		err := out.Flush()
 		statisticsTxt = w.Bytes()
