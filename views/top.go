@@ -39,11 +39,12 @@ func statisticsLoadHostStats(r redis.Conn) {
 	i, _ := host.Info()
 	m, _ := mem.VirtualMemory()
 	cpuPercent, _ := cpu.Percent(0, false)
+	cpus, _ := cpu.Counts(true)
 
 	// Remove old entries
 	r.Do("ZREMRANGEBYSCORE", "EVEDATA_HOST", 0, time.Now().UTC().Unix())
 
-	data := fmt.Sprintf("%s: Load: %.2f %.2f %.2f  CPU: %.1f%%  Memory: %d/%d GiB  ", i.Hostname, l.Load1, l.Load5, l.Load15, cpuPercent[0], m.Used/1024/1024/1024, m.Total/1024/1024/1024)
+	data := fmt.Sprintf("%s: Load: %.2f %.2f %.2f  CPU(%d cores): %.1f%%  Memory: %d/%d GiB  ", i.Hostname, l.Load1, l.Load5, l.Load15, cpus, cpuPercent[0], m.Used/1024/1024/1024, m.Total/1024/1024/1024)
 
 	r.Do("ZADD", "EVEDATA_HOST", time.Now().UTC().Unix()+5, data)
 
@@ -89,8 +90,9 @@ func GenerateStatistics(c *appContext.AppContext) {
 				iter, _ = redis.Int(arr[0], nil)
 				host, _ = redis.Strings(arr[1], nil)
 			}
-
-			fmt.Fprintf(out, "%s\n", host[0])
+			for i := 0; i < len(host); i = i + 2 {
+				fmt.Fprintf(out, "%s\n", host[i])
+			}
 
 			// Stop if empty
 			if iter == 0 {
