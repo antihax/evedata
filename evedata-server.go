@@ -1,8 +1,8 @@
 package main
 
 import (
-	"evedata/server"
-	_ "evedata/views"
+	evedata "github.com/antihax/evedata/server"
+	_ "github.com/antihax/evedata/views"
 )
 
 // bootstrap interface

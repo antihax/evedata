@@ -3,13 +3,13 @@ package eveConsumer
 import (
 	"encoding/json"
 	"errors"
-	"evedata/models"
 	"fmt"
 	"log"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/antihax/evedata/models"
 	"github.com/garyburd/redigo/redis"
 )
 

@@ -2,15 +2,15 @@ package views
 
 import (
 	"errors"
-	"evedata/appContext"
-	"evedata/models"
-	"evedata/server"
-	"evedata/strip"
-	"evedata/templates"
 	"html/template"
 	"net/http"
 	"strconv"
 
+	"github.com/antihax/evedata/appContext"
+	"github.com/antihax/evedata/models"
+	"github.com/antihax/evedata/server"
+	"github.com/antihax/evedata/strip"
+	"github.com/antihax/evedata/templates"
 	"github.com/gorilla/sessions"
 )
 

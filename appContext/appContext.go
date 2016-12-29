@@ -1,10 +1,11 @@
 package appContext
 
 import (
-	"evedata/config"
-	"evedata/esi"
-	"evedata/eveapi"
 	"net/http"
+
+	"github.com/antihax/evedata/config"
+	"github.com/antihax/evedata/esi"
+	"github.com/antihax/evedata/eveapi"
 
 	"golang.org/x/oauth2"
 

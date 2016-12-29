@@ -2,11 +2,11 @@ package discord
 
 import (
 	"errors"
-	"evedata/appContext"
 	"fmt"
 	"log"
 	"time"
 
+	"github.com/antihax/evedata/appContext"
 	"github.com/bwmarrin/discordgo"
 	"github.com/garyburd/redigo/redis"
 )
@@ -85,7 +85,7 @@ func goKillmailHunter(ctx *appContext.AppContext) {
 		for rows.Next() {
 			var killID int64
 			if err := rows.Scan(&killID); err != nil {
-				log.Printf("EMDRCrestBridge: ", err)
+				log.Printf("EMDRCrestBridge: %v", err)
 			}
 			// Say we touched the entity and expire after one day
 			r.Do("SET", "EVEDATA_killqueue:99006652", killID)

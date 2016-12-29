@@ -1,13 +1,14 @@
 package eveConsumer
 
 import (
-	"evedata/esi"
-	"evedata/eveapi"
-	"evedata/models"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/antihax/evedata/esi"
+	"github.com/antihax/evedata/eveapi"
+	"github.com/antihax/evedata/models"
 
 	"net/http/httputil"
 

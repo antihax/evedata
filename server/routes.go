@@ -1,11 +1,11 @@
 package evedata
 
 import (
-	"evedata/appContext"
 	"log"
 	"mime"
 	"net/http"
 
+	"github.com/antihax/evedata/appContext"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"

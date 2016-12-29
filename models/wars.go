@@ -1,8 +1,9 @@
 package models
 
 import (
-	"evedata/null"
 	"time"
+
+	"github.com/antihax/evedata/null"
 )
 
 // [BENCHMARK] 0.000 sec / 0.000 sec

@@ -1,8 +1,9 @@
 package models
 
 import (
-	"evedata/null"
 	"time"
+
+	"github.com/antihax/evedata/null"
 )
 
 func UpdateCorporation(corporationID int64, name string, ticker string, ceoID int64, stationID int64,

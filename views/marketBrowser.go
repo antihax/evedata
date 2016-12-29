@@ -3,12 +3,13 @@ package views
 import (
 	"encoding/json"
 	"errors"
-	"evedata/appContext"
-	"evedata/server"
-	"evedata/templates"
 	"html/template"
 	"net/http"
 	"strconv"
+
+	"github.com/antihax/evedata/appContext"
+	"github.com/antihax/evedata/server"
+	"github.com/antihax/evedata/templates"
 
 	"github.com/gorilla/sessions"
 )

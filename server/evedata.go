@@ -2,17 +2,18 @@ package evedata
 
 import (
 	"encoding/gob"
-	"evedata/appContext"
-	"evedata/config"
-	"evedata/discord"
-	"evedata/emdrConsumer"
-	"evedata/esi"
-	"evedata/eveConsumer"
-	"evedata/eveapi"
-	"evedata/models"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/antihax/evedata/appContext"
+	"github.com/antihax/evedata/config"
+	"github.com/antihax/evedata/discord"
+	"github.com/antihax/evedata/emdrConsumer"
+	"github.com/antihax/evedata/esi"
+	"github.com/antihax/evedata/eveConsumer"
+	"github.com/antihax/evedata/eveapi"
+	"github.com/antihax/evedata/models"
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/context"

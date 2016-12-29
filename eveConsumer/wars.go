@@ -1,10 +1,11 @@
 package eveConsumer
 
 import (
-	"evedata/models"
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/antihax/evedata/models"
 )
 
 func (c *EVEConsumer) checkWars() {

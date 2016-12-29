@@ -1,9 +1,10 @@
 package models
 
 import (
-	"evedata/eveapi"
-	"evedata/null"
 	"time"
+
+	"github.com/antihax/evedata/eveapi"
+	"github.com/antihax/evedata/null"
 )
 
 type ApiKey struct {

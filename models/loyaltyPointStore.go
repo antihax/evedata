@@ -1,6 +1,6 @@
 package models
 
-import "evedata/null"
+import "github.com/antihax/evedata/null"
 
 func AddLPOffer(offerID int64, corporationID int64, typeID int64, quantity int64, lpCost int64, akCost, iskCost int64) error {
 	if _, err := database.Exec(`

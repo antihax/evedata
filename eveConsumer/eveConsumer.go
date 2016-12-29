@@ -1,9 +1,10 @@
 package eveConsumer
 
 import (
-	"evedata/appContext"
 	"log"
 	"time"
+
+	"github.com/antihax/evedata/appContext"
 )
 
 // EVEConsumer provides the microservice which conducts backend

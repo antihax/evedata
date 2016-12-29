@@ -1,12 +1,13 @@
 package emdrConsumer
 
 import (
-	"evedata/appContext"
-	"evedata/esi"
-	"evedata/models"
 	"fmt"
 	"log"
 	"strings"
+
+	"github.com/antihax/evedata/appContext"
+	"github.com/antihax/evedata/esi"
+	"github.com/antihax/evedata/models"
 )
 
 var stations map[int64]int64

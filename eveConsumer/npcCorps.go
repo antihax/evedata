@@ -1,9 +1,10 @@
 package eveConsumer
 
 import (
-	"evedata/models"
 	"log"
 	"time"
+
+	"github.com/antihax/evedata/models"
 )
 
 func (c *EVEConsumer) checkNPCCorps() {

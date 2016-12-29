@@ -1,12 +1,12 @@
 package views
 
 import (
-	"evedata/appContext"
-	"evedata/server"
-	"evedata/templates"
 	"html/template"
 	"net/http"
 
+	"github.com/antihax/evedata/appContext"
+	"github.com/antihax/evedata/server"
+	"github.com/antihax/evedata/templates"
 	"github.com/gorilla/sessions"
 )
 

@@ -2,16 +2,18 @@ package views
 
 import (
 	"bytes"
-	"evedata/appContext"
-	evedata "evedata/server"
 	"time"
 
-	"evedata/templates"
+	"github.com/antihax/evedata/appContext"
+	evedata "github.com/antihax/evedata/server"
+
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"text/tabwriter"
+
+	"github.com/antihax/evedata/templates"
 
 	humanize "github.com/dustin/go-humanize"
 	"github.com/garyburd/redigo/redis"

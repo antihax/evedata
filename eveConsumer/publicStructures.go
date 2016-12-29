@@ -1,10 +1,11 @@
 package eveConsumer
 
 import (
-	"evedata/esi"
-	"evedata/models"
 	"log"
 	"time"
+
+	"github.com/antihax/evedata/esi"
+	"github.com/antihax/evedata/models"
 
 	"golang.org/x/net/context"
 )

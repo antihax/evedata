@@ -4,11 +4,11 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
-	"evedata/appContext"
-	"evedata/models"
-	"evedata/server"
 	"net/http"
 
+	"github.com/antihax/evedata/appContext"
+	"github.com/antihax/evedata/models"
+	"github.com/antihax/evedata/server"
 	"github.com/gorilla/sessions"
 )
 

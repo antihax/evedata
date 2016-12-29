@@ -2,8 +2,9 @@ package models
 
 import (
 	"errors"
-	"evedata/null"
 	"time"
+
+	"github.com/antihax/evedata/null"
 )
 
 type ContactSync struct {
