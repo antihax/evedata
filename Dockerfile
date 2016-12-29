@@ -1,9 +1,9 @@
 FROM golang:latest
 
-ADD . /go/src/github.com/shijuvar/golang-docker
+ADD . /go/src/github.com/antihax/evedata
 
 RUN go install github.com/antihax/evedata
 
-ENTRYPOINT /go/bin/golang-docker
+ENTRYPOINT /go/bin/evedata-server
 
 EXPOSE 3000
