@@ -151,14 +151,13 @@ func (c *EVEConsumer) contactSync() {
 				if contact.Standing > -0.4 {
 					continue
 				}
-
-				if _, ok := pendingToAdd[contact.ContactId]; !ok {
+				erase = append(erase, (int32)(contact.ContactId))
+				/*if _, ok := pendingToAdd[contact.ContactId]; !ok {
 					if _, ok := activeToAdd[contact.ContactId]; !ok {
 						erase = append(erase, (int32)(contact.ContactId))
 					}
-				}
+				}*/
 			}
-
 			if len(erase) > 0 {
 				for start := 0; start < len(erase); start = start + 20 {
 					end := min(start+20, len(erase))
