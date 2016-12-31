@@ -18,9 +18,7 @@ type Config struct {
 		Key    string
 		Domain string
 	}
-	EMDRCrestBridge struct {
-		Enabled bool
-	}
+
 	EVEConsumer struct {
 		Enabled      bool
 		ZKillEnabled bool

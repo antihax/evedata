@@ -9,7 +9,6 @@ import (
 	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/config"
 	"github.com/antihax/evedata/discord"
-	"github.com/antihax/evedata/emdrConsumer"
 	"github.com/antihax/evedata/esi"
 	"github.com/antihax/evedata/eveConsumer"
 	"github.com/antihax/evedata/eveapi"
@@ -153,11 +152,6 @@ func GoServer() {
 
 	// Set our logging flags
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-
-	if ctx.Conf.EMDRCrestBridge.Enabled {
-		log.Println("Starting EMDR <- CREST Bridge")
-		go emdrConsumer.GoEMDRCrestBridge(&ctx)
-	}
 
 	if ctx.Conf.Discord.Enabled {
 		go discord.GoDiscordBot(&ctx)

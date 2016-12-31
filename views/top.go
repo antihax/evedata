@@ -15,6 +15,8 @@ import (
 
 	"github.com/antihax/evedata/templates"
 
+	"sort"
+
 	humanize "github.com/dustin/go-humanize"
 	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/sessions"
@@ -92,7 +94,8 @@ func GenerateStatistics(c *appContext.AppContext) {
 				iter, _ = redis.Int(arr[0], nil)
 				host, _ = redis.Strings(arr[1], nil)
 			}
-			for i := 0; i < len(host); i = i + 2 {
+			sort.Strings(host)
+			for i := len(host) / 2; i < len(host); i++ {
 				fmt.Fprintf(out, "%s\n", host[i])
 			}
 
@@ -110,6 +113,13 @@ func GenerateStatistics(c *appContext.AppContext) {
 		fmt.Fprintf(out, "%s \tKills in Queue %s\n", humanize.Comma((int64)(killq)), statisticsChange("killq", killq))
 		entityq, _ := redis.Int(red.Do("SCARD", "EVEDATA_entityQueue"))
 		fmt.Fprintf(out, "%s \tEntities in Queue %s\n", humanize.Comma((int64)(entityq)), statisticsChange("entityq", entityq))
+		fmt.Fprintln(out)
+		history, _ := redis.Int(red.Do("SCARD", "EVEDATA_marketHistory"))
+		fmt.Fprintf(out, "%s \tMarket History in Queue %s\n", humanize.Comma((int64)(history)), statisticsChange("history", history))
+		orders, _ := redis.Int(red.Do("SCARD", "EVEDATA_marketOrders"))
+		fmt.Fprintf(out, "%s \tMarket Orders in Queue %s\n", humanize.Comma((int64)(orders)), statisticsChange("orders", orders))
+		regions, _ := redis.Int(red.Do("ZCARD", "EVEDATA_marketRegions"))
+		fmt.Fprintf(out, "%s \tMarket Regions %s\n", humanize.Comma((int64)(regions)), statisticsChange("regions", regions))
 
 		err := out.Flush()
 		statisticsTxt = w.Bytes()

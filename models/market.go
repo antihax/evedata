@@ -158,7 +158,27 @@ func GetMarketRegions() ([]MarketRegion, error) {
 	v := []MarketRegion{}
 	err := database.Select(&v, `
 		SELECT 	regionID, regionName 
-		FROM 	mapRegions ;
+		FROM 	mapRegions 
+		WHERE regionID < 11000000;
+	`)
+	if err != nil {
+		return nil, err
+	}
+	return v, nil
+}
+
+type MarketType struct {
+	TypeID   int32  `db:"typeID"`
+	TypeName string `db:"typeName"`
+}
+
+// [BENCHMARK] 0.000 sec / 0.047 sec
+func GetMarketTypes() ([]MarketType, error) {
+	v := []MarketType{}
+	err := database.Select(&v, `
+		SELECT 	typeID, typeName 
+		FROM 	invTypes 
+		WHERE 	marketGroupID IS NOT NULL
 	`)
 	if err != nil {
 		return nil, err

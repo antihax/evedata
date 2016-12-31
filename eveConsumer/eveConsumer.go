@@ -51,6 +51,31 @@ func (c *EVEConsumer) goConsumer() {
 			} else if err != nil {
 				log.Printf("EVEConsumer: %v\n", err)
 			}
+
+			if v, err := c.marketOrderCheckQueue(r); v > 0 && err == nil {
+				err := c.marketOrderConsume(v, r)
+				workDone = true
+				if err != nil {
+					log.Printf("EVEConsumer: %v\n", err)
+				}
+			} else if err != nil {
+				log.Printf("EVEConsumer: %v\n", err)
+			}
+
+			if v, err := c.marketHistoryCheckQueue(r); v != "" && err == nil {
+				err := c.marketHistoryConsume(v, r)
+				workDone = true
+				if err != nil {
+					log.Printf("EVEConsumer: %v\n", err)
+				}
+			} else if err != nil {
+				log.Printf("EVEConsumer: %v\n", err)
+			}
+
+			// This really isnt much work.
+			if err := c.marketRegionCheckQueue(r); err != nil {
+				log.Printf("EVEConsumer: %v\n", err)
+			}
 		}
 
 		// Sleep a brief bit if we didnt do anything
@@ -70,6 +95,7 @@ func (c *EVEConsumer) goTriggers() {
 			log.Printf("EVEConsumer: Shutting Down\n")
 			return
 		default:
+			c.marketHistoryUpdateTrigger()
 			c.contactSync()
 			c.checkWars()
 			c.checkPublicStructures()
