@@ -6,7 +6,7 @@ import "time"
 func SetServiceState(state string, cacheUntil time.Time, page int32) error {
 	if _, err := database.Exec(`
 		UPDATE states SET nextCheck = ?, value = ? WHERE state = ? LIMIT 1
-	`, cacheUntil.UTC().String(), page, state); err != nil {
+	`, cacheUntil.UTC(), page, state); err != nil {
 		return err
 	}
 	return nil

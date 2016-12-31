@@ -25,7 +25,12 @@ func (c *EVEConsumer) marketHistoryUpdateTrigger() error {
 	if cacheUntilTime.Before(curTime) {
 		// We wont repeat this for 24 hours just after it updates.
 		curTime = curTime.Add(time.Hour * 24)
-		err = models.SetServiceState("marketHistory", time.Date(curTime.Year(), curTime.Month(), curTime.Day(), 0, 30, 0, 1, time.UTC), 1)
+		newTime := time.Date(curTime.Year(), curTime.Month(), curTime.Day(), 0, 30, 0, 0, time.UTC)
+
+		err = models.SetServiceState("marketHistory", newTime, 1)
+		if err != nil {
+			return err
+		}
 
 		// Get lists to build our requests
 		regions, err := models.GetMarketRegions()
