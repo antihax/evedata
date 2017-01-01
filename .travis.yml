@@ -6,3 +6,4 @@ install:
 
 script:
   - go install -v ./
+  - go test -v ./
