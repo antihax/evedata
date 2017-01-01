@@ -95,7 +95,7 @@ func GenerateStatistics(c *appContext.AppContext) {
 					host, _ = redis.Strings(arr[1], nil)
 				}
 				sort.Strings(host)
-				for i := len(host) / 2; i < len(host); i++ {
+				for i := 0; i < len(host); i++ {
 					fmt.Fprintf(out, "%s\n", host[i])
 				}
 
