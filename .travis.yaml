@@ -1,0 +1,10 @@
+language: go
+
+go:
+  - master
+
+  install:
+  - go get -u -d -v .
+
+script:
+  - go install -v ./
