@@ -2,9 +2,7 @@ package evedata
 
 import (
 	"crypto/rand"
-	"fmt"
 	"net/http"
-	"net/http/httptrace"
 	"time"
 
 	"github.com/antihax/evedata/appContext"
@@ -34,10 +32,4 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 		models.AddHTTPError(req, res)
 	}
 	return res, err
-}
-
-// GotConn prints whether the connection has been used previously
-// for the current request.
-func (t *transport) GotConn(info httptrace.GotConnInfo) {
-	fmt.Printf("Connection reused  %v\n", info.Reused)
 }
