@@ -1,9 +1,19 @@
+sudo: required
 language: go
 go: master
 
+services:
+  - docker
+  - redis-server
+  - mysql
+
 install:
   - go get -d -v .
+  - docker build -t evedata .
+  - docker run -d -p 127.0.0.1:80:3000 evedata
 
 script:
+  - docker ps | grep -q evedata
   - go install -v ./
   - go test -v ./
+
