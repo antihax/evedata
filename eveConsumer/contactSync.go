@@ -24,8 +24,9 @@ func (c *EVEConsumer) contactSync() {
 		`SELECT source, group_concat(destination)
 			FROM contactSyncs S  
             INNER JOIN crestTokens T ON T.tokenCharacterID = destination
+            WHERE lastStatus NOT LIKE "%Invalid refresh token%"
 		    GROUP BY source
-            HAVING max(nextSync) < UTC_TIMESTAMP()`)
+            HAVING max(nextSync) < UTC_TIMESTAMP();`)
 	if err != nil {
 		log.Printf("EVEConsumer: Failed query: %v", err)
 		return

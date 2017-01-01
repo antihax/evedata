@@ -95,9 +95,9 @@ func (c *EVEConsumer) goTriggers() {
 			log.Printf("EVEConsumer: Shutting Down\n")
 			return
 		default:
+			c.checkWars()
 			c.marketHistoryUpdateTrigger()
 			c.contactSync()
-			c.checkWars()
 			c.checkPublicStructures()
 			c.checkNPCCorps()
 			c.checkEntities()

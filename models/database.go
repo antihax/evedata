@@ -2,7 +2,10 @@ package models
 
 import "github.com/jmoiron/sqlx"
 
-var database *sqlx.DB
+var (
+	database      *sqlx.DB
+	SQLTimeFormat = "2006-01-02 15:04:05"
+)
 
 // Set Database handle
 func SetDatabase(DB *sqlx.DB) {

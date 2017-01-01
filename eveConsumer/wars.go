@@ -85,7 +85,7 @@ func (c *EVEConsumer) updateWar(href string) error {
 					openForAllies=VALUES(openForAllies), 
 					mutual=VALUES(mutual), 
 					cacheUntil=VALUES(cacheUntil);`,
-		war.ID, war.TimeFinished.String(), war.TimeStarted.String(), war.TimeDeclared.String(),
+		war.ID, war.TimeFinished.Format(models.SQLTimeFormat), war.TimeStarted.Format(models.SQLTimeFormat), war.TimeDeclared.Format(models.SQLTimeFormat),
 		war.OpenForAllies, war.CacheUntil, war.Aggressor.ID,
 		war.Defender.ID, war.Mutual)
 	if err != nil {
