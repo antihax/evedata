@@ -1,9 +1,7 @@
 language: go
+go: master
 
-go:
-  - master
-
-  install:
+install:
   - go get -u -d -v .
 
 script:
