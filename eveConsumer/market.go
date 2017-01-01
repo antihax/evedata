@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/antihax/evedata/esi"
 	"github.com/antihax/evedata/models"
 	"github.com/garyburd/redigo/redis"
 )
@@ -69,7 +70,7 @@ func (c *EVEConsumer) marketOrderConsume(v int, r redis.Conn) error {
 	var page int32 = 1
 	for {
 
-		b, _, err := c.ctx.ESI.MarketApi.GetMarketsRegionIdOrders((int32)(v), "all", map[string]interface{}{"page": page})
+		b, res, err := c.ctx.ESI.MarketApi.GetMarketsRegionIdOrders((int32)(v), "all", map[string]interface{}{"page": page})
 		if err != nil {
 			c.marketRegionAddRegion(v, time.Now().UTC().Unix()+60, r)
 			return err
@@ -117,7 +118,7 @@ func (c *EVEConsumer) marketOrderConsume(v int, r redis.Conn) error {
 			}
 			break // success
 		}
-		c.marketRegionAddRegion(v, time.Now().UTC().Unix()+60*60, r)
+		c.marketRegionAddRegion(v, esi.CacheExpires(res).UTC().Unix(), r)
 		// Next page
 		page++
 	}

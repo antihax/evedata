@@ -12,7 +12,6 @@ import (
 	redistore "gopkg.in/boj/redistore.v1"
 
 	"github.com/garyburd/redigo/redis"
-	"github.com/gregjones/httpcache"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -23,8 +22,7 @@ type AppContext struct {
 	Store          *redistore.RediStore    // Redis session store.
 	EVE            *eveapi.AnonymousClient // EVE API Client
 	HTTPClient     *http.Client            // Redis Cached HTTP client
-	TransportCache *httpcache.Transport
-	Cache          *redis.Pool // Redis connection Pool for HTTP Cache and session store.
+	Cache          *redis.Pool             // Redis connection Pool for HTTP Cache and session store.
 	ESI            *esi.APIClient
 	ESIPublicToken oauth2.TokenSource
 

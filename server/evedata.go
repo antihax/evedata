@@ -2,6 +2,7 @@ package evedata
 
 import (
 	"encoding/gob"
+
 	"log"
 	"net/http"
 	"time"
@@ -109,19 +110,29 @@ func GoServer() {
 		tokenScopes)
 
 	// Create a Redis http client for the CCP APIs.
-	ctx.TransportCache = httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))
-	ctx.TransportCache.Transport = &http.Transport{Proxy: http.ProxyFromEnvironment, MaxIdleConnsPerHost: 5}
+	transportCache := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))
 
-	ctx.HTTPClient = &http.Client{Transport: ctx.TransportCache}
+	// Attach a basic transport with our chained custom transport.
+	transportCache.Transport = &transport{&http.Transport{Proxy: http.ProxyFromEnvironment, MaxIdleConnsPerHost: 5}, &ctx}
 
+	// Build a HTTP Client pool this client will be shared with APIs for:
+	//   - ESI
+	//   - ZKillboard
+	//   - EVE SSO
+	//   - EVE CREST and XML
+	ctx.HTTPClient = &http.Client{Transport: transportCache}
+
+	// Setup the EVE ESI Client
 	ctx.ESI = esi.NewAPIClient(ctx.HTTPClient, ctx.Conf.UserAgent)
 
+	// Setup the bootstrap authenticator. This is needed to update the site main token.
 	ctx.ESIBootstrapAuthenticator = eveapi.NewSSOAuthenticator(ctx.Conf.CREST.ESIAccessToken.ClientID,
 		ctx.Conf.CREST.ESIAccessToken.SecretKey,
 		ctx.Conf.CREST.ESIAccessToken.RedirectURL,
 		[]string{"esi-universe.read_structures.v1",
 			"esi-search.search_structures.v1"})
 
+	// Get the token from config and build a TokenSource (refreshes the token if needed.)
 	token := &eveapi.CRESTToken{
 		AccessToken:  ctx.Conf.CREST.ESIAccessToken.AccessToken,
 		TokenType:    ctx.Conf.CREST.ESIAccessToken.TokenType,
@@ -129,7 +140,6 @@ func GoServer() {
 		Expiry:       ctx.Conf.CREST.ESIAccessToken.Expiry,
 	}
 	ctx.ESIPublicToken, err = ctx.ESIBootstrapAuthenticator.TokenSource(ctx.HTTPClient, token)
-
 	if err != nil {
 		log.Fatalf("Error starting bootstrap ESI client: %v", err)
 	}

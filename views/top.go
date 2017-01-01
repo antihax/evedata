@@ -76,55 +76,70 @@ func GenerateStatistics(c *appContext.AppContext) {
 
 	for {
 		statisticsLoadHostStats(red)
+		if c.Conf.GenerateStats {
+			w := bytes.NewBuffer(statisticsTxt)
+			w.Reset()
 
-		w := bytes.NewBuffer(statisticsTxt)
-		w.Reset()
+			out := tabwriter.NewWriter(w, 40, 4, 2, ' ', tabwriter.AlignRight)
 
-		out := tabwriter.NewWriter(w, 40, 4, 2, ' ', tabwriter.AlignRight)
+			// here we'll store our iterator value
+			iter := 0
 
-		// here we'll store our iterator value
-		iter := 0
+			// this will store the keys of each iteration
+			var host []string
+			for {
+				if arr, err := redis.MultiBulk(red.Do("ZSCAN", "EVEDATA_HOST", iter)); err != nil {
+					fmt.Println(err)
+				} else {
+					iter, _ = redis.Int(arr[0], nil)
+					host, _ = redis.Strings(arr[1], nil)
+				}
+				sort.Strings(host)
+				for i := len(host) / 2; i < len(host); i++ {
+					fmt.Fprintf(out, "%s\n", host[i])
+				}
 
-		// this will store the keys of each iteration
-		var host []string
-		for {
-			if arr, err := redis.MultiBulk(red.Do("ZSCAN", "EVEDATA_HOST", iter)); err != nil {
-				fmt.Println(err)
-			} else {
-				iter, _ = redis.Int(arr[0], nil)
-				host, _ = redis.Strings(arr[1], nil)
+				// Stop if empty
+				if iter == 0 {
+					break
+				}
 			}
-			sort.Strings(host)
-			for i := len(host) / 2; i < len(host); i++ {
-				fmt.Fprintf(out, "%s\n", host[i])
+
+			fmt.Fprintln(out)
+
+			kills, _ := redis.Int(red.Do("SCARD", "EVEDATA_knownKills"))
+			fmt.Fprintf(out, "%s \tKnown Kills %s\n", humanize.Comma((int64)(kills)), statisticsChange("kills", kills))
+			killq, _ := redis.Int(red.Do("SCARD", "EVEDATA_killQueue"))
+			fmt.Fprintf(out, "%s \tKills in Queue %s\n", humanize.Comma((int64)(killq)), statisticsChange("killq", killq))
+			entityq, _ := redis.Int(red.Do("SCARD", "EVEDATA_entityQueue"))
+			fmt.Fprintf(out, "%s \tEntities in Queue %s\n", humanize.Comma((int64)(entityq)), statisticsChange("entityq", entityq))
+			fmt.Fprintln(out)
+			history, _ := redis.Int(red.Do("SCARD", "EVEDATA_marketHistory"))
+			fmt.Fprintf(out, "%s \tMarket History in Queue %s\n", humanize.Comma((int64)(history)), statisticsChange("history", history))
+			orders, _ := redis.Int(red.Do("SCARD", "EVEDATA_marketOrders"))
+			fmt.Fprintf(out, "%s \tMarket Orders in Queue %s\n", humanize.Comma((int64)(orders)), statisticsChange("orders", orders))
+			regions, _ := redis.Int(red.Do("ZCARD", "EVEDATA_marketRegions"))
+			fmt.Fprintf(out, "%s \tMarket Regions %s\n", humanize.Comma((int64)(regions)), statisticsChange("regions", regions))
+
+			// HTTP Statistics
+			fmt.Fprintln(out)
+
+			httpcount, _ := redis.Int(red.Do("ZCARD", "EVEDATA_HTTPCount"))
+			red.Do("ZREMRANGEBYSCORE", "EVEDATA_HTTPCount", 0, time.Now().UTC().Unix())
+			fmt.Fprintf(out, "%s \tHTTP Requests (%d rps) %s\n", humanize.Comma((int64)(httpcount)), httpcount/5, statisticsChange("httpcount", httpcount))
+
+			httperr, _ := redis.Int(red.Do("ZCARD", "EVEDATA_HTTPErrorCount"))
+			red.Do("ZREMRANGEBYSCORE", "EVEDATA_HTTPErrorCount", 0, time.Now().UTC().Unix())
+			fmt.Fprintf(out, "%s \tHTTP Errors %s\n", humanize.Comma((int64)(httperr)), statisticsChange("httperr", httperr))
+
+			// Write out the stats
+			err := out.Flush()
+			statisticsTxt = w.Bytes()
+
+			red.Do("SET", "EVEDATA_statistics", statisticsTxt)
+			if err != nil {
+				log.Printf("top error: %v\n", err)
 			}
-
-			// Stop if empty
-			if iter == 0 {
-				break
-			}
-		}
-
-		fmt.Fprintln(out)
-
-		kills, _ := redis.Int(red.Do("SCARD", "EVEDATA_knownKills"))
-		fmt.Fprintf(out, "%s \tKnown Kills %s\n", humanize.Comma((int64)(kills)), statisticsChange("kills", kills))
-		killq, _ := redis.Int(red.Do("SCARD", "EVEDATA_killQueue"))
-		fmt.Fprintf(out, "%s \tKills in Queue %s\n", humanize.Comma((int64)(killq)), statisticsChange("killq", killq))
-		entityq, _ := redis.Int(red.Do("SCARD", "EVEDATA_entityQueue"))
-		fmt.Fprintf(out, "%s \tEntities in Queue %s\n", humanize.Comma((int64)(entityq)), statisticsChange("entityq", entityq))
-		fmt.Fprintln(out)
-		history, _ := redis.Int(red.Do("SCARD", "EVEDATA_marketHistory"))
-		fmt.Fprintf(out, "%s \tMarket History in Queue %s\n", humanize.Comma((int64)(history)), statisticsChange("history", history))
-		orders, _ := redis.Int(red.Do("SCARD", "EVEDATA_marketOrders"))
-		fmt.Fprintf(out, "%s \tMarket Orders in Queue %s\n", humanize.Comma((int64)(orders)), statisticsChange("orders", orders))
-		regions, _ := redis.Int(red.Do("ZCARD", "EVEDATA_marketRegions"))
-		fmt.Fprintf(out, "%s \tMarket Regions %s\n", humanize.Comma((int64)(regions)), statisticsChange("regions", regions))
-
-		err := out.Flush()
-		statisticsTxt = w.Bytes()
-		if err != nil {
-			log.Printf("top error: %v\n", err)
 		}
 		<-tick.C
 	}
@@ -144,6 +159,9 @@ func topPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s
 
 func topStatisticsTxt(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	setCache(w, 0)
-	w.Write(statisticsTxt)
+	redisConn := c.Cache.Get()
+	defer redisConn.Close()
+	stats, _ := redis.Bytes(redisConn.Do("GET", "EVEDATA_statistics"))
+	w.Write(stats)
 	return http.StatusOK, nil
 }
