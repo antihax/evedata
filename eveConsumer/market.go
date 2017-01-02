@@ -61,18 +61,16 @@ func (c *EVEConsumer) marketHistoryUpdateTrigger() error {
 		// Send the request to add
 		red.Flush()
 	}
-
 	return err
 }
 
 // Consume an entity from the queue
 func (c *EVEConsumer) marketOrderConsume(v int, r redis.Conn) error {
 	var page int32 = 1
+	c.marketRegionAddRegion(v, time.Now().UTC().Unix()+(60*60), r)
 	for {
-
 		b, res, err := c.ctx.ESI.MarketApi.GetMarketsRegionIdOrders((int32)(v), "all", map[string]interface{}{"page": page})
 		if err != nil {
-			c.marketRegionAddRegion(v, time.Now().UTC().Unix()+60, r)
 			return err
 		} else if len(b) == 0 { // end of the pages
 			break
@@ -99,6 +97,7 @@ func (c *EVEConsumer) marketOrderConsume(v int, r redis.Conn) error {
 							reported=VALUES(reported),
 							done=0;
 							`, strings.Join(values, ",\n"))
+
 		for {
 			tx, err := c.ctx.Db.Begin()
 			if err != nil {
