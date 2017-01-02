@@ -9,8 +9,8 @@ services:
 
 install:
   - go get -d -v .
-  - docker build -t evedata .
-  - docker run -d -p 127.0.0.1:80:3000 --name evedata evedata
+  - docker build -t antihax/evedata .
+  - docker run -d -p 127.0.0.1:80:3000 --name evedata antihax/evedata
 
 script:
   - go install -v ./
