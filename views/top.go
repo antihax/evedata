@@ -82,27 +82,17 @@ func GenerateStatistics(c *appContext.AppContext) {
 
 			out := tabwriter.NewWriter(w, 40, 4, 2, ' ', tabwriter.AlignRight)
 
-			// here we'll store our iterator value
-			iter := 0
-
 			// this will store the keys of each iteration
 			var host []string
-			for {
-				if arr, err := redis.MultiBulk(red.Do("ZSCAN", "EVEDATA_HOST", iter)); err != nil {
-					fmt.Println(err)
-				} else {
-					iter, _ = redis.Int(arr[0], nil)
-					host, _ = redis.Strings(arr[1], nil)
-				}
-				sort.Strings(host)
-				for i := len(host) / 2; i < len(host); i++ {
-					fmt.Fprintf(out, "%s\n", host[i])
-				}
 
-				// Stop if empty
-				if iter == 0 {
-					break
-				}
+			if arr, err := redis.MultiBulk(red.Do("ZRANGEBYSCORE", "EVEDATA_HOST", 0, "inf")); err != nil {
+				fmt.Println(err)
+			} else {
+				host, _ = redis.Strings(arr, nil)
+			}
+			sort.Strings(host)
+			for i := 0; i < len(host); i++ {
+				fmt.Fprintf(out, "%s\n", host[i])
 			}
 
 			fmt.Fprintln(out)
@@ -135,6 +125,8 @@ func GenerateStatistics(c *appContext.AppContext) {
 			// Write out the stats
 			err := out.Flush()
 			statisticsTxt = w.Bytes()
+
+			fmt.Printf("%s\n", statisticsTxt)
 
 			red.Do("SET", "EVEDATA_statistics", statisticsTxt)
 			if err != nil {
