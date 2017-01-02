@@ -36,6 +36,7 @@ func (c *EVEConsumer) goConsumer() {
 				err := c.killmailConsume(v, r)
 				workDone = true
 				if err != nil {
+					workDone = false
 					log.Printf("EVEConsumer: %v\n", err)
 				}
 			} else if err != nil {
@@ -46,6 +47,7 @@ func (c *EVEConsumer) goConsumer() {
 				err := c.entityConsume(v, r)
 				workDone = true
 				if err != nil {
+					workDone = false
 					log.Printf("EVEConsumer: %v\n", err)
 				}
 			} else if err != nil {
@@ -56,6 +58,7 @@ func (c *EVEConsumer) goConsumer() {
 				err := c.marketOrderConsume(v, r)
 				workDone = true
 				if err != nil {
+					workDone = false
 					log.Printf("EVEConsumer: %v\n", err)
 				}
 			} else if err != nil {
@@ -66,6 +69,7 @@ func (c *EVEConsumer) goConsumer() {
 				err := c.marketHistoryConsume(v, r)
 				workDone = true
 				if err != nil {
+					workDone = false
 					log.Printf("EVEConsumer: %v\n", err)
 				}
 			} else if err != nil {
