@@ -126,8 +126,6 @@ func GenerateStatistics(c *appContext.AppContext) {
 			err := out.Flush()
 			statisticsTxt = w.Bytes()
 
-			fmt.Printf("%s\n", statisticsTxt)
-
 			red.Do("SET", "EVEDATA_statistics", statisticsTxt)
 			if err != nil {
 				log.Printf("top error: %v\n", err)

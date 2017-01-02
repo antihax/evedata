@@ -38,6 +38,7 @@ func (c *EVEConsumer) goConsumer() {
 				if err != nil {
 					workDone = false
 					log.Printf("EVEConsumer: %v\n", err)
+					break
 				}
 			} else if err != nil {
 				log.Printf("EVEConsumer: %v\n", err)
@@ -49,6 +50,7 @@ func (c *EVEConsumer) goConsumer() {
 				if err != nil {
 					workDone = false
 					log.Printf("EVEConsumer: %v\n", err)
+					break
 				}
 			} else if err != nil {
 				log.Printf("EVEConsumer: %v\n", err)
@@ -60,6 +62,7 @@ func (c *EVEConsumer) goConsumer() {
 				if err != nil {
 					workDone = false
 					log.Printf("EVEConsumer: %v\n", err)
+					break
 				}
 			} else if err != nil {
 				log.Printf("EVEConsumer: %v\n", err)
@@ -71,6 +74,7 @@ func (c *EVEConsumer) goConsumer() {
 				if err != nil {
 					workDone = false
 					log.Printf("EVEConsumer: %v\n", err)
+					break
 				}
 			} else if err != nil {
 				log.Printf("EVEConsumer: %v\n", err)
