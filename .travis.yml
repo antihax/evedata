@@ -10,7 +10,7 @@ services:
 install:
   - go get -d -v .
   - docker build -t evedata .
-  - docker run -d -p 127.0.0.1:80:3000 -name evedata evedata
+  - docker run -d -p 127.0.0.1:80:3000 --name evedata evedata
 
 script:
   - docker ps | grep -q evedata
