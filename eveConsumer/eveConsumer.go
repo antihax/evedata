@@ -32,51 +32,38 @@ func (c *EVEConsumer) goConsumer() {
 		case <-c.consumerStopChannel:
 			return
 		default:
-			if v, err := c.killmailCheckQueue(r); v != "" && err == nil {
-				err := c.killmailConsume(v, r)
+			if err := c.contactSyncCheckQueue(r); err == nil {
 				workDone = true
-				if err != nil {
-					workDone = false
-					log.Printf("EVEConsumer: %v\n", err)
-					break
-				}
 			} else if err != nil {
+				workDone = false
+				log.Printf("ContactSync comsumer: %v\n", err)
+			}
+
+			if err := c.killmailCheckQueue(r); err == nil {
+				workDone = true
+			} else if err != nil {
+				workDone = false
+				log.Printf("Killmail comsumer: %v\n", err)
+			}
+
+			if err := c.entityCheckQueue(r); err == nil {
+				workDone = true
+			} else if err != nil {
+				workDone = false
 				log.Printf("EVEConsumer: %v\n", err)
 			}
 
-			if v, err := c.entityCheckQueue(r); v > 0 && err == nil {
-				err := c.entityConsume(v, r)
+			if err := c.marketOrderCheckQueue(r); err == nil {
 				workDone = true
-				if err != nil {
-					workDone = false
-					log.Printf("EVEConsumer: %v\n", err)
-					break
-				}
 			} else if err != nil {
+				workDone = false
 				log.Printf("EVEConsumer: %v\n", err)
 			}
 
-			if v, err := c.marketOrderCheckQueue(r); v > 0 && err == nil {
-				err := c.marketOrderConsume(v, r)
+			if err := c.marketHistoryCheckQueue(r); err == nil {
 				workDone = true
-				if err != nil {
-					workDone = false
-					log.Printf("EVEConsumer: %v\n", err)
-					break
-				}
 			} else if err != nil {
-				log.Printf("EVEConsumer: %v\n", err)
-			}
-
-			if v, err := c.marketHistoryCheckQueue(r); v != "" && err == nil {
-				err := c.marketHistoryConsume(v, r)
-				workDone = true
-				if err != nil {
-					workDone = false
-					log.Printf("EVEConsumer: %v\n", err)
-					break
-				}
-			} else if err != nil {
+				workDone = false
 				log.Printf("EVEConsumer: %v\n", err)
 			}
 
@@ -103,9 +90,9 @@ func (c *EVEConsumer) goTriggers() {
 			log.Printf("EVEConsumer: Shutting Down\n")
 			return
 		default:
+			c.contactSync()
 			c.checkWars()
 			c.marketHistoryUpdateTrigger()
-			c.contactSync()
 			c.checkPublicStructures()
 			c.checkNPCCorps()
 			c.checkEntities()

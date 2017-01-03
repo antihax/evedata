@@ -109,8 +109,18 @@ func (c *EVEConsumer) collectEntitiesFromCREST() error {
 	return nil
 }
 
-// Consume an entity from the queue
-func (c *EVEConsumer) entityConsume(v int32, r redis.Conn) error {
+func (c *EVEConsumer) entityCheckQueue(r redis.Conn) error {
+	ret, err := r.Do("SPOP", "EVEDATA_entityQueue")
+	if err != nil {
+		return err
+	} else if ret == nil {
+		return nil
+	}
+	v, err := redis.Int(ret, err)
+	if err != nil {
+		return err
+	}
+
 	// Skip this entity if we have touched it recently
 	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", v)
 	i, err := redis.Bool(r.Do("EXISTS", key))
@@ -118,7 +128,7 @@ func (c *EVEConsumer) entityConsume(v int32, r redis.Conn) error {
 		return err
 	}
 
-	err = c.entityGetAndSave(v)
+	err = c.entityGetAndSave((int32)(v))
 	return err
 }
 
@@ -136,17 +146,6 @@ func (c *EVEConsumer) entityAddToQueue(id int32) error {
 	// Add the entity to the queue
 	_, err = r.Do("SADD", "EVEDATA_entityQueue", id)
 	return err
-}
-
-func (c *EVEConsumer) entityCheckQueue(r redis.Conn) (int32, error) {
-	ret, err := r.Do("SPOP", "EVEDATA_entityQueue")
-	if err != nil {
-		return 0, err
-	} else if ret == nil {
-		return 0, nil
-	}
-	v, err := redis.Int(ret, err)
-	return (int32)(v), err
 }
 
 // Say we touched the entity and expire after one day

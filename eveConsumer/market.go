@@ -64,8 +64,18 @@ func (c *EVEConsumer) marketHistoryUpdateTrigger() error {
 	return err
 }
 
-// Consume an entity from the queue
-func (c *EVEConsumer) marketOrderConsume(v int, r redis.Conn) error {
+func (c *EVEConsumer) marketOrderCheckQueue(r redis.Conn) error {
+	ret, err := r.Do("SPOP", "EVEDATA_marketOrders")
+	if err != nil {
+		return err
+	} else if ret == nil {
+		return nil
+	}
+	v, err := redis.Int(ret, err)
+	if err != nil {
+		return err
+	}
+
 	var page int32 = 1
 	c.marketRegionAddRegion(v, time.Now().UTC().Unix()+(60*60), r)
 	for {
@@ -128,30 +138,17 @@ func (c *EVEConsumer) marketRegionAddRegion(v int, t int64, r redis.Conn) {
 	r.Do("ZADD", "EVEDATA_marketRegions", t, v)
 }
 
-func (c *EVEConsumer) marketOrderCheckQueue(r redis.Conn) (int, error) {
-	ret, err := r.Do("SPOP", "EVEDATA_marketOrders")
-	if err != nil {
-		return 0, err
-	} else if ret == nil {
-		return 0, nil
-	}
-	v, err := redis.Int(ret, err)
-	return v, err
-}
-
-func (c *EVEConsumer) marketHistoryCheckQueue(r redis.Conn) (string, error) {
+func (c *EVEConsumer) marketHistoryCheckQueue(r redis.Conn) error {
 	ret, err := r.Do("SPOP", "EVEDATA_marketHistory")
 	if err != nil {
-		return "", err
+		return err
 	} else if ret == nil {
-		return "", nil
+		return nil
 	}
 	v, err := redis.String(ret, err)
-	return v, err
-}
-
-// Consume an entity from the queue
-func (c *EVEConsumer) marketHistoryConsume(v string, r redis.Conn) error {
+	if err != nil {
+		return err
+	}
 
 	data := strings.Split(v, ":")
 	regionID, err := strconv.Atoi(data[0])

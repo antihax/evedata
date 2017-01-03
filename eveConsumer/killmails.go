@@ -13,19 +13,19 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-func (c *EVEConsumer) killmailCheckQueue(r redis.Conn) (string, error) {
+func (c *EVEConsumer) killmailCheckQueue(r redis.Conn) error {
 	ret, err := r.Do("SPOP", "EVEDATA_killQueue")
 	if err != nil {
-		return "", err
+		return err
 	} else if ret == nil {
-		return "", nil
+		return nil
 	}
-	v, err := redis.String(ret, err)
-	return v, err
-}
 
-// Consume a killmail from the queue
-func (c *EVEConsumer) killmailConsume(v string, r redis.Conn) error {
+	v, err := redis.String(ret, err)
+	if err != nil {
+		return err
+	}
+
 	// split id:hash
 	split := strings.Split(v, ":")
 	if len(split) != 2 {
