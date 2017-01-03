@@ -1,9 +1,11 @@
 package evedata
 
 import (
+	"crypto/rand"
 	"log"
 	"mime"
 	"net/http"
+	"time"
 
 	"github.com/antihax/evedata/appContext"
 	_ "github.com/go-sql-driver/mysql"
@@ -41,7 +43,14 @@ type appHandler struct {
 }
 
 func (a appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	redisCon := ctx.Cache.Get()
+	defer redisCon.Close()
 
+	// Make a random hash to store the time to redis
+	b := make([]byte, 32)
+	rand.Read(b)
+
+	redisCon.Do("ZADD", "EVEDATA_HTTPRequest", time.Now().UTC().Unix(), b)
 	s, _ := a.AppContext.Store.Get(r, "session")
 
 	status, err := a.h(a.AppContext, w, r, s)
