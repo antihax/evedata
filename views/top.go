@@ -117,7 +117,7 @@ func GenerateStatistics(c *appContext.AppContext) {
 			fmt.Fprintln(out)
 
 			httpreq, _ := redis.Int(red.Do("ZCARD", "EVEDATA_HTTPRequest"))
-			red.Do("ZREMRANGEBYSCORE", "EVEDATA_HTTPCount", 0, time.Now().UTC().Unix())
+			red.Do("ZREMRANGEBYSCORE", "EVEDATA_HTTPRequest", 0, time.Now().UTC().Unix())
 			fmt.Fprintf(out, "%s \tHTTP Requests (%d rps) %s\n", humanize.Comma((int64)(httpreq)), httpreq/5, statisticsChange("httpreq", httpreq))
 
 			httpcount, _ := redis.Int(red.Do("ZCARD", "EVEDATA_HTTPCount"))
