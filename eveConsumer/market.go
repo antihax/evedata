@@ -127,7 +127,11 @@ func (c *EVEConsumer) marketOrderCheckQueue(r redis.Conn) error {
 			}
 			break // success
 		}
-		c.marketRegionAddRegion(v, esi.CacheExpires(res).UTC().Unix(), r)
+
+		// Cache the greater of one hour, or the returned cache-control
+		cacheUntil := max(time.Now().UTC().Add(time.Hour*1).Unix(), esi.CacheExpires(res).UTC().Unix())
+		c.marketRegionAddRegion(v, cacheUntil, r)
+
 		// Next page
 		page++
 	}
@@ -230,4 +234,11 @@ func (c *EVEConsumer) marketRegionCheckQueue(r redis.Conn) error {
 	err := r.Flush()
 
 	return err
+}
+
+func max(a, b int64) int64 {
+	if a > b {
+		return a
+	}
+	return b
 }

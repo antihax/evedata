@@ -197,7 +197,7 @@ func (c *EVEConsumer) updateAlliance(id int64) error {
 	}
 
 	err = models.UpdateAlliance(a.ID, a.Name, a.CorporationsCount, a.ShortName, a.ExecutorCorporation.ID,
-		a.StartDate.UTC(), a.Deleted, a.Description, a.CreatorCorporation.ID, a.CreatorCharacter.ID, a.CacheUntil.UTC())
+		a.StartDate.UTC(), a.Deleted, a.Description, a.CreatorCorporation.ID, a.CreatorCharacter.ID, time.Now().UTC().Add(time.Hour*24))
 	if err != nil {
 		return err
 	}
@@ -223,7 +223,7 @@ func (c *EVEConsumer) updateCorporation(id int64) error {
 	}
 
 	err = models.UpdateCorporation(a.CorporationID, a.CorporationName, a.Ticker, a.CEOID, a.StationID,
-		a.Description, a.AllianceID, a.FactionID, a.URL, a.MemberCount, a.Shares, a.CachedUntil.UTC())
+		a.Description, a.AllianceID, a.FactionID, a.URL, a.MemberCount, a.Shares, time.Now().UTC().Add(time.Hour*24))
 	if err != nil {
 		return err
 	}
@@ -242,7 +242,7 @@ func (c *EVEConsumer) updateCharacter(id int64) error {
 	if err != nil {
 		return err
 	}
-	err = models.UpdateCharacter(a.CharacterID, a.CharacterName, a.BloodlineID, a.AncestryID, a.CorporationID, a.AllianceID, a.Race, a.SecurityStatus, a.CachedUntil.UTC())
+	err = models.UpdateCharacter(a.CharacterID, a.CharacterName, a.BloodlineID, a.AncestryID, a.CorporationID, a.AllianceID, a.Race, a.SecurityStatus, time.Now().UTC().Add(time.Hour*24))
 	if err != nil {
 		return err
 	}
