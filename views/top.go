@@ -112,6 +112,8 @@ func GenerateStatistics(c *appContext.AppContext) {
 			fmt.Fprintf(out, "%s \tMarket Regions %s\n", humanize.Comma((int64)(regions)), statisticsChange("regions", regions))
 			contacts, _ := redis.Int(red.Do("SCARD", "EVEDATA_contactSyncQueue"))
 			fmt.Fprintf(out, "%s \tContactSyncs in Queue %s\n", humanize.Comma((int64)(contacts)), statisticsChange("contacts", contacts))
+			assets, _ := redis.Int(red.Do("SCARD", "EVEDATA_assetQueue"))
+			fmt.Fprintf(out, "%s \tAssets in Queue %s\n", humanize.Comma((int64)(assets)), statisticsChange("assets", assets))
 
 			// HTTP Statistics
 			fmt.Fprintln(out)

@@ -11,7 +11,6 @@ import (
 )
 
 func (c *EVEConsumer) checkPublicStructures() {
-
 	err := c.collectStructuresFromESI()
 	if err != nil {
 		log.Printf("EVEConsumer: collecting structures: %v", err)

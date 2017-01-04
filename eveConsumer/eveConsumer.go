@@ -46,30 +46,37 @@ func (c *EVEConsumer) goConsumer() {
 				log.Printf("Killmail comsumer: %v\n", err)
 			}
 
+			if err := c.assetsCheckQueue(r); err == nil {
+				workDone = true
+			} else if err != nil {
+				workDone = false
+				log.Printf("Assets: %v\n", err)
+			}
+
 			if err := c.entityCheckQueue(r); err == nil {
 				workDone = true
 			} else if err != nil {
 				workDone = false
-				log.Printf("EVEConsumer: %v\n", err)
+				log.Printf("Entity: %v\n", err)
 			}
 
 			if err := c.marketOrderCheckQueue(r); err == nil {
 				workDone = true
 			} else if err != nil {
 				workDone = false
-				log.Printf("EVEConsumer: %v\n", err)
+				log.Printf("Market: %v\n", err)
 			}
 
 			if err := c.marketHistoryCheckQueue(r); err == nil {
 				workDone = true
 			} else if err != nil {
 				workDone = false
-				log.Printf("EVEConsumer: %v\n", err)
+				log.Printf("History: %v\n", err)
 			}
 
 			// This really isnt much work.
 			if err := c.marketRegionCheckQueue(r); err != nil {
-				log.Printf("EVEConsumer: %v\n", err)
+				log.Printf("Region: %v\n", err)
 			}
 		}
 
@@ -90,6 +97,7 @@ func (c *EVEConsumer) goTriggers() {
 			log.Printf("EVEConsumer: Shutting Down\n")
 			return
 		default:
+			c.assetsShouldUpdate()
 			c.contactSync()
 			c.checkWars()
 			c.marketHistoryUpdateTrigger()

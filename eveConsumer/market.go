@@ -235,10 +235,3 @@ func (c *EVEConsumer) marketRegionCheckQueue(r redis.Conn) error {
 
 	return err
 }
-
-func max(a, b int64) int64 {
-	if a > b {
-		return a
-	}
-	return b
-}
