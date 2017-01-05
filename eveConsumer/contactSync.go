@@ -194,8 +194,8 @@ func (c *EVEConsumer) contactSyncCheckQueue(r redis.Conn) error {
 			}
 		}
 		if len(active) > 0 {
-			for start := 0; start < len(active); start = start + 20 {
-				end := min(start+20, len(active))
+			for start := 0; start < len(active); start = start + 100 {
+				end := min(start+100, len(active))
 				_, r, err = c.ctx.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), -10, active[start:end], nil)
 				if err != nil {
 					syncError(source, token.cid, r, err)
@@ -204,8 +204,8 @@ func (c *EVEConsumer) contactSyncCheckQueue(r redis.Conn) error {
 			}
 		}
 		if len(pending) > 0 {
-			for start := 0; start < len(pending); start = start + 20 {
-				end := min(start+20, len(pending))
+			for start := 0; start < len(pending); start = start + 100 {
+				end := min(start+100, len(pending))
 				_, r, err = c.ctx.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), -5, pending[start:end], nil)
 				if err != nil {
 					syncError(source, token.cid, r, err)
