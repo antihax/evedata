@@ -169,7 +169,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **PutCharactersCharacterIdContacts**
-> PutCharactersCharacterIdContacts(ctx, characterId, standing, watched, labelId, contactIds, optional)
+> PutCharactersCharacterIdContacts(ctx, characterId, standing, contactIds, optional)
 Edit contacts
 
 Bulk edit contacts with same settings  ---  Alternate route: `/v1/characters/{character_id}/contacts/`  Alternate route: `/legacy/characters/{character_id}/contacts/`  Alternate route: `/dev/characters/{character_id}/contacts/` 
@@ -181,8 +181,6 @@ Name | Type | Description  | Notes
  **ctx** | **context.Context** | context containing the authentication | nil if no authentication
   **characterId** | **int32**| ID for a character | 
   **standing** | **float32**| Standing for the contact | 
-  **watched** | **bool**| Whether the contact should be watched, note this is only effective on characters | [default to false]
-  **labelId** | **int64**| Add a custom label to the contact, use 0 for clearing label | [default to 0]
   **contactIds** | **[]int32**| A list of contacts to edit | 
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
@@ -193,9 +191,9 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **characterId** | **int32**| ID for a character | 
  **standing** | **float32**| Standing for the contact | 
+ **contactIds** | **[]int32**| A list of contacts to edit | 
  **watched** | **bool**| Whether the contact should be watched, note this is only effective on characters | [default to false]
  **labelId** | **int64**| Add a custom label to the contact, use 0 for clearing label | [default to 0]
- **contactIds** | **[]int32**| A list of contacts to edit | 
  **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
