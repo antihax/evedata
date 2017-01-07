@@ -4,8 +4,8 @@ go: master
 
 services:
   - docker
-  - redis-server
-  - mysql
+#  - redis-server
+#  - mysql
 
 install:
   - go get -d -v .
