@@ -16,7 +16,7 @@ import (
 func (c *EVEConsumer) marketMaintTrigger() error {
 
 	// Skip if we are not ready
-	cacheUntilTime, _, err := models.GetServiceState("marketHistory")
+	cacheUntilTime, _, err := models.GetServiceState("marketMaint")
 	if err != nil {
 		return err
 	}
@@ -27,7 +27,7 @@ func (c *EVEConsumer) marketMaintTrigger() error {
 		// We wont repeat this for 24 hours just after it updates.
 		newTime := curTime.Add(time.Hour * 3)
 
-		err = models.SetServiceState("marketHistory", newTime, 1)
+		err = models.SetServiceState("marketMaint", newTime, 1)
 		if err != nil {
 			return err
 		}
