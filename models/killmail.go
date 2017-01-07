@@ -9,7 +9,7 @@ func AddKillmail(id int32, solarSystemID int32, killTime time.Time, victimCharac
 	victimAllianceID int32, hash string, attackerCount int, damageTaken int32, x float32, y float32, z float32,
 	shipType int32, warID int32) error {
 	if _, err := database.Exec(`
-		INSERT INTO killmails
+		INSERT INTO evedata.killmails
 			(id,solarSystemID,killTime,victimCharacterID,victimCorporationID,victimAllianceID,hash,
 			attackerCount,damageTaken,x,y,z,shipType,warID)
 			VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?);
@@ -23,7 +23,7 @@ func AddKillmail(id int32, solarSystemID int32, killTime time.Time, victimCharac
 func AddKillmailAttacker(id int32, characterID int32, corporationID int32, allianceID int32, shipType int32,
 	finalBlow bool, damageDone int32, weaponType int32, securityStatus float32) error {
 	if _, err := database.Exec(`
-		INSERT INTO killmailAttackers
+		INSERT INTO evedata.killmailAttackers
 			(id,characterID,corporationID,allianceID,shipType,finalBlow,damageDone,weaponType,securityStatus)
 			VALUES(?,?,?,?,?,?,?,?,?);
 	`, id, characterID, corporationID, allianceID, shipType, finalBlow, damageDone, weaponType, securityStatus); err != nil {
@@ -34,7 +34,7 @@ func AddKillmailAttacker(id int32, characterID int32, corporationID int32, allia
 
 func AddKillmailItems(id int32, itemType int32, flag int32, quantityDestroyed int64, quantityDropped int64, singleton int32) error {
 	if _, err := database.Exec(`
-		INSERT INTO killmailItems
+		INSERT INTO evedata.killmailItems
 			(id,itemType,flag,quantityDestroyed,quantityDropped,singleton)
 			VALUES(?,?,?,?,?,?);	
 	`, id, itemType, flag, quantityDestroyed, quantityDropped, singleton); err != nil {
@@ -45,7 +45,7 @@ func AddKillmailItems(id int32, itemType int32, flag int32, quantityDestroyed in
 
 func GetKnownKillmails() ([]int64, error) {
 	var known []int64
-	if err := database.Select(&known, `SELECT id FROM killmails;`); err != nil {
+	if err := database.Select(&known, `SELECT id FROM evedata.killmails;`); err != nil {
 		return nil, err
 	}
 	return known, nil
@@ -91,14 +91,14 @@ func GetConstellationActivity(id int64, entityType string) ([]ConstellationActiv
 	    regionName 
 	FROM
 	(SELECT K.id AS id, K.solarSystemID AS solarSystemID
-		FROM killmails K 
+		FROM evedata.killmails K 
 		WHERE 
 			K.killTime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 31 DAY) AND
 			`+victim+`
 	UNION ALL
 		SELECT K.id, K.solarSystemID
-			FROM killmails K 
-			INNER JOIN killmailAttackers A ON A.id = K.id 
+			FROM evedata.killmails K 
+			INNER JOIN evedata.killmailAttackers A ON A.id = K.id 
 			WHERE 
 				K.killTime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 31 DAY) AND
 				`+entity+`
@@ -143,15 +143,15 @@ func GetKnownShipTypes(id int64, entityType string) ([]KnownShipTypes, error) {
 	    typeName AS shipName
 	FROM
 	(SELECT K.id AS id, K.shipType
-		FROM killmails K 
+		FROM evedata.killmails K 
 		WHERE 
 			K.killTime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 31 DAY) AND
 			`+victim+`
 			AND shipType > 0
 	UNION ALL
 		SELECT K.id, A.shipType
-			FROM killmails K 
-			INNER JOIN killmailAttackers A ON A.id = K.id 
+			FROM evedata.killmails K 
+			INNER JOIN evedata.killmailAttackers A ON A.id = K.id 
 			WHERE 
 				K.killTime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 31 DAY) AND
 				`+entity+`

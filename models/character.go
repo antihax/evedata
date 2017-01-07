@@ -34,7 +34,7 @@ func GetCRESTTokens(characterID int64) ([]CRESTToken, error) {
 	tokens := []CRESTToken{}
 	if err := database.Select(&tokens, `
 		SELECT characterID, tokenCharacterID, characterName,  expiry, tokenType, lastCode, lastStatus
-		FROM crestTokens
+		FROM evedata.crestTokens
 		WHERE characterID = ?;`, characterID); err != nil {
 
 		return nil, err
@@ -54,7 +54,7 @@ func SetTokenError(characterID int64, tokenCharacterID int64, code int, status s
 
 func AddCRESTToken(characterID int64, tokenCharacterID int64, characterName string, tok *eveapi.CRESTToken) error {
 	if _, err := database.Exec(`
-		INSERT INTO crestTokens	(characterID, tokenCharacterID, accessToken, refreshToken, expiry, tokenType, characterName, lastStatus)
+		INSERT INTO evedata.crestTokens	(characterID, tokenCharacterID, accessToken, refreshToken, expiry, tokenType, characterName, lastStatus)
 			VALUES		(?,?,?,?,?,?,?,"Unused")
 			ON DUPLICATE KEY UPDATE 
 				accessToken 	= VALUES(accessToken),

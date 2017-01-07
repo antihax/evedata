@@ -15,7 +15,7 @@ func (c *EVEConsumer) getToken(characterID int64, tokenCharacterID int64) (oauth
 	tok := models.CRESTToken{}
 	if err := c.ctx.Db.QueryRowx(
 		`SELECT expiry, tokenType, accessToken, refreshToken, tokenCharacterID, characterID
-			FROM crestTokens
+			FROM evedata.crestTokens
 			WHERE characterID = ? AND tokenCharacterID = ?
 			LIMIT 1`,
 		characterID, tokenCharacterID).StructScan(&tok); err != nil {
