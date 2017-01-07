@@ -210,8 +210,8 @@ func (c *EVEConsumer) contactSyncCheckQueue(r redis.Conn) error {
 		}
 
 		if len(erase) > 0 {
-			for start := 0; start < len(erase); start = start + 100 {
-				end := min(start+100, len(erase))
+			for start := 0; start < len(erase); start = start + 20 {
+				end := min(start+20, len(erase))
 				r, err = c.ctx.ESI.ContactsApi.DeleteCharactersCharacterIdContacts(auth, (int32)(token.cid), erase[start:end], nil)
 				if err != nil {
 					syncError(source, token.cid, r, err)

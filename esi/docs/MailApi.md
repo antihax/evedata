@@ -4,6 +4,7 @@ All URIs are relative to *https://esi.tech.ccp.is/latest*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**DeleteCharactersCharacterIdMailLabelsLabelId**](MailApi.md#DeleteCharactersCharacterIdMailLabelsLabelId) | **Delete** /characters/{character_id}/mail/labels/{label_id}/ | Delete a mail label
 [**DeleteCharactersCharacterIdMailMailId**](MailApi.md#DeleteCharactersCharacterIdMailMailId) | **Delete** /characters/{character_id}/mail/{mail_id}/ | Delete a mail
 [**GetCharactersCharacterIdMail**](MailApi.md#GetCharactersCharacterIdMail) | **Get** /characters/{character_id}/mail/ | Return mail headers
 [**GetCharactersCharacterIdMailLabels**](MailApi.md#GetCharactersCharacterIdMailLabels) | **Get** /characters/{character_id}/mail/labels/ | Get mail labels and unread counts
@@ -13,6 +14,45 @@ Method | HTTP request | Description
 [**PostCharactersCharacterIdMailLabels**](MailApi.md#PostCharactersCharacterIdMailLabels) | **Post** /characters/{character_id}/mail/labels/ | Create a mail label
 [**PutCharactersCharacterIdMailMailId**](MailApi.md#PutCharactersCharacterIdMailMailId) | **Put** /characters/{character_id}/mail/{mail_id}/ | Update metadata about a mail
 
+
+# **DeleteCharactersCharacterIdMailLabelsLabelId**
+> DeleteCharactersCharacterIdMailLabelsLabelId(ctx, characterId, labelId, optional)
+Delete a mail label
+
+Delete a mail label  ---  Alternate route: `/v1/characters/{character_id}/mail/labels/{label_id}/`  Alternate route: `/legacy/characters/{character_id}/mail/labels/{label_id}/`  Alternate route: `/dev/characters/{character_id}/mail/labels/{label_id}/` 
+
+### Required Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context containing the authentication | nil if no authentication
+  **characterId** | **int32**| An EVE character ID | 
+  **labelId** | **int32**| An EVE label id | 
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **characterId** | **int32**| An EVE character ID | 
+ **labelId** | **int32**| An EVE label id | 
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
+
+### Return type
+
+ (empty response body)
+
+### Authorization
+
+[evesso](../README.md#evesso)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **DeleteCharactersCharacterIdMailMailId**
 > DeleteCharactersCharacterIdMailMailId(ctx, characterId, mailId, optional)
