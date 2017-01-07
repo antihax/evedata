@@ -11,7 +11,7 @@ func UpdateCorporation(corporationID int64, name string, ticker string, ceoID in
 
 	cacheUntil = time.Now().UTC().Add(time.Hour * 24 * 5)
 	if _, err := database.Exec(`
-		INSERT INTO corporations
+		INSERT INTO evedata.corporations
 			(corporationID,name,ticker,ceoID,stationID,description,allianceID,factionID,url,memberCount,shares,updated,cacheUntil)
 			VALUES(?,?,?,?,?,?,?,?,?,?,?,UTC_TIMESTAMP(),?) 
 			ON DUPLICATE KEY UPDATE 
