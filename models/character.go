@@ -82,7 +82,7 @@ func UpdateCharacter(characterID int64, name string, bloodlineID int64, ancestry
 	race string, securityStatus float64, cacheUntil time.Time) error {
 	cacheUntil = time.Now().UTC().Add(time.Hour * 24 * 5)
 	if _, err := database.Exec(`
-		INSERT INTO characters (characterID,name,bloodlineID,ancestryID,corporationID,allianceID,race,securityStatus,updated,cacheUntil)
+		INSERT INTO evedata.characters (characterID,name,bloodlineID,ancestryID,corporationID,allianceID,race,securityStatus,updated,cacheUntil)
 			VALUES(?,?,?,?,?,?,?,?,UTC_TIMESTAMP(),?) 
 			ON DUPLICATE KEY UPDATE 
 			corporationID=VALUES(corporationID), allianceID=VALUES(allianceID), securityStatus=VALUES(securityStatus), updated = UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil)
@@ -118,7 +118,7 @@ func GetCharacter(id int64) (*Character, error) {
 		    race,
 		    securityStatus
 		
-		FROM characters C
+		FROM evedata.characters C
 		INNER JOIN corporations Co ON Co.corporationID = C.corporationID
 		LEFT OUTER JOIN evedata.alliances Al ON Al.allianceID = C.allianceID
 		WHERE characterID = ?

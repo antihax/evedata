@@ -25,7 +25,7 @@ func (c *EVEConsumer) contactSync() {
 	// Gather characters for update. Group for optimized updating.
 	rows, err := c.ctx.Db.Query(
 		`SELECT source, group_concat(destination)
-			FROM contactSyncs S  
+			FROM evedata.contactSyncs S  
             INNER JOIN crestTokens T ON T.tokenCharacterID = destination
             WHERE lastStatus NOT LIKE "%Invalid refresh token%"
 		    GROUP BY source

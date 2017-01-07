@@ -18,12 +18,12 @@ type ContactSync struct {
 }
 
 func (c *ContactSync) Error(err string) {
-	database.Exec(`UPDATE contactSyncs SET lastError = ? WHERE source = ?`,
+	database.Exec(`UPDATE evedata.contactSyncs SET lastError = ? WHERE source = ?`,
 		err, c.Source)
 }
 
 func (c *ContactSync) Updated(nextSync time.Time) {
-	database.Exec(`UPDATE contactSyncs SET nextSync = ? WHERE source = ?`,
+	database.Exec(`UPDATE evedata.contactSyncs SET nextSync = ? WHERE source = ?`,
 		nextSync, c.Source)
 }
 
@@ -32,7 +32,7 @@ func GetContactSyncs(characterID int64) ([]ContactSync, error) {
 	cc := []ContactSync{}
 	if err := database.Select(&cc, `
 		SELECT C.characterID, source, S.characterName AS sourceName, destination, D.characterName AS destinationName, nextSync
-			FROM contactSyncs C
+			FROM evedata.contactSyncs C
 	        LEFT JOIN crestTokens D ON C.destination = D.tokenCharacterID
 			LEFT JOIN crestTokens S ON C.source = S.tokenCharacterID
 			WHERE C.characterID = ?;`, characterID); err != nil {
@@ -47,7 +47,7 @@ func AddContactSync(characterID int64, source int, destination int) error {
 	if source == destination {
 		return errors.New("Source and Destination cannot be the same.")
 	}
-	if _, err := database.Exec(`INSERT INTO contactSyncs (characterID, source, destination)VALUES(?,?,?)`,
+	if _, err := database.Exec(`INSERT INTO evedata.contactSyncs (characterID, source, destination)VALUES(?,?,?)`,
 		characterID, source, destination); err != nil {
 
 		return err
@@ -56,7 +56,7 @@ func AddContactSync(characterID int64, source int, destination int) error {
 }
 
 func DeleteContactSync(characterID int64, destination int) error {
-	if _, err := database.Exec(`DELETE FROM contactSyncs WHERE characterID = ? AND destination = ? LIMIT 1`,
+	if _, err := database.Exec(`DELETE FROM evedata.contactSyncs WHERE characterID = ? AND destination = ? LIMIT 1`,
 		characterID, destination); err != nil {
 
 		return err
