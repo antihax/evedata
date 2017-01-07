@@ -1,6 +1,10 @@
 package models
 
-import "github.com/jmoiron/sqlx"
+import (
+	"time"
+
+	"github.com/jmoiron/sqlx"
+)
 
 var (
 	database      *sqlx.DB
@@ -24,5 +28,12 @@ func SetupDatabase(driver string, spec string) (*sqlx.DB, error) {
 	if err = database.Ping(); err != nil {
 		return nil, err
 	}
+
+	// Put some finite limits to prevent opening too many connections
+	database.SetConnMaxLifetime(time.Minute * 20)
+	database.SetMaxIdleConns(10)
+	database.SetMaxOpenConns(250)
+
+	SetDatabase(database)
 	return database, nil
 }
