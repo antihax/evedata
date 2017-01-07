@@ -35,47 +35,41 @@ func (c *EVEConsumer) goConsumer() {
 			if err := c.contactSyncCheckQueue(r); err == nil {
 				workDone = true
 			} else if err != nil {
-				workDone = false
 				log.Printf("ContactSync comsumer: %v\n", err)
 			}
 
 			if err := c.killmailCheckQueue(r); err == nil {
 				workDone = true
 			} else if err != nil {
-				workDone = false
 				log.Printf("Killmail comsumer: %v\n", err)
 			}
 
 			if err := c.assetsCheckQueue(r); err == nil {
 				workDone = true
 			} else if err != nil {
-				workDone = false
 				log.Printf("Assets: %v\n", err)
 			}
 
 			if err := c.entityCheckQueue(r); err == nil {
 				workDone = true
 			} else if err != nil {
-				workDone = false
 				log.Printf("Entity: %v\n", err)
 			}
 
 			if err := c.marketOrderCheckQueue(r); err == nil {
 				workDone = true
 			} else if err != nil {
-				workDone = false
 				log.Printf("Market: %v\n", err)
 			}
 
 			if err := c.marketHistoryCheckQueue(r); err == nil {
 				workDone = true
 			} else if err != nil {
-				workDone = false
 				log.Printf("History: %v\n", err)
 			}
 
-			// This really isnt much work.
 			if err := c.marketRegionCheckQueue(r); err != nil {
+				workDone = true
 				log.Printf("Region: %v\n", err)
 			}
 		}
