@@ -19,8 +19,8 @@ func GetMarketHistory(itemID int64, regionID int32) ([]MarketHistory, error) {
 	s := []MarketHistory{}
 	if err := database.Select(&s, `
 		SELECT H.date, H.low, H.high, H.mean AS close, Y.mean AS open, H.quantity 
-		FROM market_history H
-		INNER JOIN market_history Y ON H.date = DATE_SUB(Y.date, INTERVAL 1 DAY) 
+		FROM evedata.market_history H
+		INNER JOIN evedata.market_history Y ON H.date = DATE_SUB(Y.date, INTERVAL 1 DAY) 
 			AND H.regionID = Y.regionID 
 			AND H.itemID = Y.itemID
 		WHERE H.regionID = ? AND H.itemID = ? AND H.quantity > 10
@@ -40,7 +40,7 @@ func GetArbitrageCalculatorStations() ([]ArbitrageCalculatorStations, error) {
 	s := []ArbitrageCalculatorStations{}
 	if err := database.Select(&s, `
 		SELECT stationID, stationName
-			FROM    marketStations
+			FROM    evedata.marketStations
 			WHERE 	Count > 4000
 			ORDER BY stationName
 	`); err != nil {
@@ -78,7 +78,7 @@ func GetArbitrageCalculator(hours int64, stationID int64, minVolume int64, maxPr
 		// [BENCHMARK] 0.432 sec / 0.016 sec
 		err := database.Select(&b, `
 		SELECT  market.typeID AS typeID, typeName, count(*) as buys, ROUND(market_vol.quantity / 2) as volume, ROUND(max(price) + (max(price) * ?),2) AS price
-		FROM    market, invTypes, market_vol
+		FROM    evedata.market, invTypes, evedata.market_vol
 		WHERE   market.done = 0 AND
 		        market.typeID = market_vol.itemID AND
 		        market.regionID = market_vol.regionID AND
@@ -100,7 +100,7 @@ func GetArbitrageCalculator(hours int64, stationID int64, minVolume int64, maxPr
 		// [BENCHMARK] 0.297 sec / 0.000 sec
 		err := database.Select(&s, `
 		SELECT  typeID, ROUND(min(price) - (min(price) * ?) - (min(price) * ?),2) AS price
-		FROM    market
+		FROM    evedata.market
 		WHERE   reported >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL ? DAY_HOUR) AND
 		        market.stationID = ?
 		        AND bid = 0

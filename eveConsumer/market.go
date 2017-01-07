@@ -98,15 +98,15 @@ func (c *EVEConsumer) marketOrderCheckQueue(r redis.Conn) error {
 				buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, (int32)(v)))
 		}
 
-		stmt := fmt.Sprintf(`INSERT IGNORE INTO market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, reported)
-						VALUES %s
-						ON DUPLICATE KEY UPDATE price=VALUES(price),
-							remainingVolume=VALUES(remainingVolume),
-							issued=VALUES(issued),
-							duration=VALUES(duration),
-							reported=VALUES(reported),
-							done=0;
-							`, strings.Join(values, ",\n"))
+		stmt := fmt.Sprintf(`INSERT IGNORE INTO evedata.market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, reported)
+				VALUES %s
+				ON DUPLICATE KEY UPDATE price=VALUES(price),
+					remainingVolume=VALUES(remainingVolume),
+					issued=VALUES(issued),
+					duration=VALUES(duration),
+					reported=VALUES(reported),
+					done=0;
+					`, strings.Join(values, ",\n"))
 
 		for {
 			tx, err := c.ctx.Db.Begin()
@@ -179,7 +179,7 @@ func (c *EVEConsumer) marketHistoryCheckQueue(r redis.Conn) error {
 			e.Volume, e.OrderCount, typeID, regionID))
 	}
 
-	stmt := fmt.Sprintf("INSERT IGNORE INTO market_history (date, low, high, mean, quantity, orders, itemID, regionID) VALUES \n%s", strings.Join(values, ",\n"))
+	stmt := fmt.Sprintf("INSERT IGNORE INTO evedata.market_history (date, low, high, mean, quantity, orders, itemID, regionID) VALUES \n%s", strings.Join(values, ",\n"))
 
 	for {
 		tx, err := c.ctx.Db.Begin()
@@ -192,7 +192,6 @@ func (c *EVEConsumer) marketHistoryCheckQueue(r redis.Conn) error {
 			log.Printf("%s", err)
 			break
 		}
-
 		err = tx.Commit()
 		if err != nil {
 			log.Printf("%s", err)

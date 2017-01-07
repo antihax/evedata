@@ -11,13 +11,13 @@ func GetActiveWarsByID(id int64) ([]CRESTRef, error) {
 	w := []CRESTRef{}
 	if err := database.Select(&w, `
 			SELECT K.id, crestRef, type FROM
-			(SELECT defenderID AS id FROM wars WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND aggressorID = ?
+			(SELECT defenderID AS id FROM evedata.wars WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND aggressorID = ?
 			UNION
-			SELECT aggressorID AS id FROM wars WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND defenderID = ?
+			SELECT aggressorID AS id FROM evedata.wars WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND defenderID = ?
 			UNION
-			SELECT aggressorID  AS id FROM wars W INNER JOIN warAllies A on A.id = W.id WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND allyID = ?
+			SELECT aggressorID  AS id FROM evedata.wars W INNER JOIN evedata.warAllies A on A.id = W.id WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND allyID = ?
 			UNION
-			SELECT allyID AS id FROM wars W INNER JOIN warAllies A on A.id = W.id WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND aggressorID = ?) AS K
+			SELECT allyID AS id FROM evedata.wars W INNER JOIN evedata.warAllies A on A.id = W.id WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND aggressorID = ?) AS K
 			INNER JOIN evedata.crestID C ON C.id = K.id
 		`, id, id, id, id); err != nil {
 		return nil, err
@@ -30,13 +30,13 @@ func GetPendingWarsByID(id int64) ([]CRESTRef, error) {
 	w := []CRESTRef{}
 	if err := database.Select(&w, `
 			SELECT K.id, crestRef, type FROM
-			(SELECT defenderID AS id FROM wars WHERE timeStarted > timeDeclared AND timeStarted > UTC_TIMESTAMP() AND aggressorID = ?
+			(SELECT defenderID AS id FROM evedata.wars WHERE timeStarted > timeDeclared AND timeStarted > UTC_TIMESTAMP() AND aggressorID = ?
 			UNION
-			SELECT aggressorID AS id FROM wars WHERE timeStarted > timeDeclared AND timeStarted > UTC_TIMESTAMP() AND defenderID = ?
+			SELECT aggressorID AS id FROM evedata.wars WHERE timeStarted > timeDeclared AND timeStarted > UTC_TIMESTAMP() AND defenderID = ?
 			UNION
-			SELECT aggressorID  AS id FROM wars W INNER JOIN warAllies A on A.id = W.id WHERE timeStarted > timeDeclared AND timeStarted > UTC_TIMESTAMP() AND allyID = ?
+			SELECT aggressorID  AS id FROM evedata.wars W INNER JOIN evedata.warAllies A on A.id = W.id WHERE timeStarted > timeDeclared AND timeStarted > UTC_TIMESTAMP() AND allyID = ?
 			UNION
-			SELECT allyID AS id FROM wars W INNER JOIN warAllies A on A.id = W.id WHERE timeStarted > timeDeclared AND timeStarted > UTC_TIMESTAMP() AND aggressorID = ?) AS K
+			SELECT allyID AS id FROM evedata.wars W INNER JOIN evedata.warAllies A on A.id = W.id WHERE timeStarted > timeDeclared AND timeStarted > UTC_TIMESTAMP() AND aggressorID = ?) AS K
 			INNER JOIN evedata.crestID C ON C.id = K.id
 		`, id, id, id, id); err != nil {
 		return nil, err
@@ -49,13 +49,13 @@ func GetFinishedWarsByID(id int64) ([]CRESTRef, error) {
 	w := []CRESTRef{}
 	if err := database.Select(&w, `
 			SELECT K.id, crestRef, type FROM
-			(SELECT defenderID AS id FROM wars WHERE timeFinished < UTC_TIMESTAMP() AND aggressorID = ?
+			(SELECT defenderID AS id FROM evedata.wars WHERE timeFinished < UTC_TIMESTAMP() AND aggressorID = ?
 			UNION
-			SELECT aggressorID AS id FROM wars WHERE timeFinished < UTC_TIMESTAMP() AND defenderID = ?
+			SELECT aggressorID AS id FROM evedata.wars WHERE timeFinished < UTC_TIMESTAMP() AND defenderID = ?
 			UNION
-			SELECT aggressorID  AS id FROM wars W INNER JOIN warAllies A on A.id = W.id WHERE timeFinished < UTC_TIMESTAMP() AND allyID = ?
+			SELECT aggressorID  AS id FROM evedata.wars W INNER JOIN evedata.warAllies A on A.id = W.id WHERE timeFinished < UTC_TIMESTAMP() AND allyID = ?
 			UNION
-			SELECT allyID AS id FROM wars W INNER JOIN warAllies A on A.id = W.id WHERE timeFinished < UTC_TIMESTAMP() AND aggressorID = ?) AS K
+			SELECT allyID AS id FROM evedata.wars W INNER JOIN evedata.warAllies A on A.id = W.id WHERE timeFinished < UTC_TIMESTAMP() AND aggressorID = ?) AS K
 			INNER JOIN evedata.crestID C ON C.id = K.id
 		`, id, id, id, id); err != nil {
 		return nil, err
@@ -103,7 +103,7 @@ func GetActiveWarList() ([]ActiveWarList, error) {
 		IFNULL(S.efficiency,1) AS efficiency,
         IFNULL(S.kills,0) AS kills,
         IFNULL(S.losses,0)  AS losses
-		FROM wars W
+		FROM evedata.wars W
 		INNER JOIN evedata.crestID Ag ON Ag.id = aggressorID
 	    INNER JOIN evedata.crestID Df ON Df.id = defenderID
 	    LEFT OUTER JOIN evedata.alliances AA on AA.allianceID = aggressorID
@@ -116,7 +116,7 @@ func GetActiveWarList() ([]ActiveWarList, error) {
 			SELECT 
 				W.id, 
 				count(*) AS kills
-				FROM wars W
+				FROM evedata.wars W
 				INNER JOIN evedata.killmails K ON K.warID = W.id AND 
 				(
 					K.victimAllianceID != W.aggressorID AND 
@@ -130,7 +130,7 @@ func GetActiveWarList() ([]ActiveWarList, error) {
 			SELECT 
 				W.id, 
 				count(*) AS losses
-				FROM wars W
+				FROM evedata.wars W
 				INNER JOIN evedata.killmails L ON L.warID = W.id AND 
 				(
 					L.victimAllianceID = W.aggressorID OR 
@@ -165,7 +165,7 @@ func GetWarsForEntityByID(id int64) ([]ActiveWarList, error) {
 	    IF(AA.allianceID > 0, AA.name, AC.name) AS aggressorName,
 	    IF(DA.allianceID > 0, DA.name, DC.name) AS defenderName
 	        
-		FROM wars W
+		FROM evedata.wars W
 		INNER JOIN evedata.crestID Ag ON Ag.id = aggressorID
 	    INNER JOIN evedata.crestID Df ON Df.id = defenderID
         LEFT OUTER JOIN warAllies A ON A.id = W.id
@@ -178,7 +178,7 @@ func GetWarsForEntityByID(id int64) ([]ActiveWarList, error) {
 			SELECT 
 				W.id, 
 				count(*) AS kills
-				FROM wars W
+				FROM evedata.wars W
 				INNER JOIN evedata.killmails K ON K.warID = W.id AND 
 				(
 					K.victimAllianceID != W.aggressorID AND 
@@ -192,7 +192,7 @@ func GetWarsForEntityByID(id int64) ([]ActiveWarList, error) {
 			SELECT 
 				W.id, 
 				count(*) AS losses
-				FROM wars W
+				FROM evedata.wars W
 				INNER JOIN evedata.killmails L ON L.warID = W.id AND 
 				(
 					L.victimAllianceID = W.aggressorID OR 
@@ -225,7 +225,7 @@ func GetKnownAlliesByID(id int64) ([]KnownAllies, error) {
 			    allyID, 
 			    CREST.type,
 				IFNULL(DA.name, DC.name) AS name
-			FROM wars W
+			FROM evedata.wars W
 				INNER JOIN warAllies A ON W.id = A.id
 				INNER JOIN evedata.crestID CREST ON CREST.id = A.allyID
 				LEFT OUTER JOIN evedata.alliances DA on DA.allianceID = A.allyID

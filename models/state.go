@@ -5,7 +5,7 @@ import "time"
 // SetServiceState sets state information: nextCheck, value (page, etc).
 func SetServiceState(state string, cacheUntil time.Time, page int32) error {
 	if _, err := database.Exec(`
-		UPDATE states SET nextCheck = ?, value = ? WHERE state = ? LIMIT 1
+		UPDATE evedata.states SET nextCheck = ?, value = ? WHERE state = ? LIMIT 1
 	`, cacheUntil.UTC(), page, state); err != nil {
 		return err
 	}
@@ -16,7 +16,7 @@ func SetServiceState(state string, cacheUntil time.Time, page int32) error {
 func SetServiceStateByDays(state string, daysToCache int32, page int32) error {
 
 	if _, err := database.Exec(`
-		UPDATE states SET nextCheck = DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY) WHERE state = ? LIMIT 1
+		UPDATE evedata.states SET nextCheck = DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY) WHERE state = ? LIMIT 1
 	`, daysToCache, page, state); err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func GetServiceState(service string) (time.Time, int32, error) {
 	r := ServiceState{}
 	if err := database.Get(&r, `
 		SELECT value, nextCheck
-			FROM states 
+			FROM evedata.states 
 			WHERE state = ?
 			LIMIT 1;
 		`, service); err != nil {

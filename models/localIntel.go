@@ -45,8 +45,8 @@ func GetLocalIntel(names []interface{}) ([]LocalIntelData, error) {
 			   	WHERE Ch.name IN (?`+strings.Repeat(",?", len(names)-1)+`)
 			   	GROUP BY CREST.id) SUB1
 				LEFT OUTER JOIN evedata.entityKillStats S ON S.id = SUB1.id
-			   LEFT OUTER JOIN wars Agg ON Agg.aggressorID = SUB1.id AND (Agg.timeFinished = "0001-01-01 00:00:00" OR Agg.timeFinished IS NULL OR Agg.timeFinished >= UTC_TIMESTAMP()) AND Agg.timeStarted <= UTC_TIMESTAMP()
-			   LEFT OUTER JOIN wars Def ON Def.defenderID = SUB1.id AND (Def.timeFinished = "0001-01-01 00:00:00" OR Def.timeFinished IS NULL OR Def.timeFinished >= UTC_TIMESTAMP()) AND Def.timeStarted <= UTC_TIMESTAMP()
+			   LEFT OUTER JOIN evedata.wars Agg ON Agg.aggressorID = SUB1.id AND (Agg.timeFinished = "0001-01-01 00:00:00" OR Agg.timeFinished IS NULL OR Agg.timeFinished >= UTC_TIMESTAMP()) AND Agg.timeStarted <= UTC_TIMESTAMP()
+			   LEFT OUTER JOIN evedata.wars Def ON Def.defenderID = SUB1.id AND (Def.timeFinished = "0001-01-01 00:00:00" OR Def.timeFinished IS NULL OR Def.timeFinished >= UTC_TIMESTAMP()) AND Def.timeStarted <= UTC_TIMESTAMP()
 			   WHERE kills IS NOT NULL AND losses IS NOT NULL AND efficiency IS NOT NULL
 			   GROUP BY SUB1.id`, names...); err != nil {
 		return nil, err
