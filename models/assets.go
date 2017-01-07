@@ -25,7 +25,7 @@ func GetAssets(characterID int64) ([]Assets, error) {
 			T.typeName, IF(A.quantity, A.quantity, A.isSingleton) AS quantity, 
 			count(*) - 1 AS subCount, buy, sell
 			
-		FROM assets A
+		FROM evedata.assets A
 		LEFT JOIN assets L ON A.itemID = L.locationID
 		LEFT JOIN jitaPrice P ON A.typeID = P.itemID
 		JOIN invTypes T ON A.typeID = T.typeID
@@ -65,8 +65,8 @@ func getSubAssets(characterID int64, itemID int64, assets *[]Assets, errc chan e
 			T.typeName, IF(A.quantity, A.quantity, A.isSingleton) AS quantity, 
 			count(*) - 1 AS subCount, buy, sell
 			
-		FROM assets A
-		LEFT JOIN assets L ON A.itemID = L.locationID
+		FROM evedata.assets A
+		LEFT JOIN evedata.assets L ON A.itemID = L.locationID
 		LEFT JOIN jitaPrice P ON A.typeID = P.itemID
 		JOIN invTypes T ON A.typeID = T.typeID
 		WHERE A.locationID = ?

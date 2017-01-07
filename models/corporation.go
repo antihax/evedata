@@ -50,7 +50,7 @@ func GetCorporation(id int64) (*Corporation, error) {
 		    Al.name AS allianceName,
 		    C.description
 		FROM corporations C
-		LEFT OUTER JOIN alliances Al ON C.allianceID = Al.allianceID
+		LEFT OUTER JOIN evedata.alliances Al ON C.allianceID = Al.allianceID
         LEFT OUTER JOIN characters Ch ON Ch.characterID = C.ceoID
 		WHERE C.corporationID = ?
 		LIMIT 1`, id).StructScan(&ref); err != nil {

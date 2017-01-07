@@ -92,9 +92,9 @@ func (c *EVEConsumer) assetsCheckQueue(r redis.Conn) error {
 				return err
 			}
 
-			tx.Exec("DELETE FROM assets WHERE characterID = ?", tokenChar)
+			tx.Exec("DELETE FROM evedata.assets WHERE characterID = ?", tokenChar)
 			for _, asset := range assets {
-				tx.Exec(`INSERT INTO assets
+				tx.Exec(`INSERT INTO evedata.assets
 							(locationID, typeID, quantity, characterID, 
 							locationFlag, itemID, locationType, isSingleton)
 							VALUES (?,?,?,?,?,?,?,?);`,

@@ -9,7 +9,7 @@ func UpdateAlliance(allianceID int64, name string, memberCount int64, shortName 
 
 	cacheUntil = time.Now().UTC().Add(time.Hour * 24 * 1)
 	if _, err := database.Exec(`
-		INSERT INTO alliances 
+		INSERT INTO evedata.alliances 
 			(
 				allianceID,
 				name,
@@ -66,7 +66,7 @@ func GetAlliance(id int64) (*Alliance, error) {
 		    EXEC.name AS executorCorporationName,
 		    EXEC.corporationID AS executorCorporationID
 		    
-		FROM alliances A
+		FROM evedata.alliances A
 		INNER JOIN corporations EXEC ON A.executorCorpID = EXEC.corporationID
 		WHERE A.allianceID = ?
 		LIMIT 1`, id).StructScan(&ref); err != nil {

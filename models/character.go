@@ -120,7 +120,7 @@ func GetCharacter(id int64) (*Character, error) {
 		
 		FROM characters C
 		INNER JOIN corporations Co ON Co.corporationID = C.corporationID
-		LEFT OUTER JOIN alliances Al ON Al.allianceID = C.allianceID
+		LEFT OUTER JOIN evedata.alliances Al ON Al.allianceID = C.allianceID
 		WHERE characterID = ?
 		LIMIT 1`, id).StructScan(&ref); err != nil {
 		return nil, err

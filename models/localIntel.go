@@ -37,7 +37,7 @@ func GetLocalIntel(names []interface{}) ([]LocalIntelData, error) {
 			   		CREST.type,
 			           IF(A.allianceID, A.memberCount, Co.memberCount) AS memberCount
 			   	FROM characters Ch
-			   	LEFT OUTER JOIN alliances A ON Ch.allianceID = A.allianceID
+			   	LEFT OUTER JOIN evedata.alliances A ON Ch.allianceID = A.allianceID
 
 			   	LEFT OUTER JOIN corporations Co ON Ch.corporationID = Co.corporationID
 			   	INNER JOIN crestID CREST ON CREST.id = IF(A.allianceID, A.allianceID, Co.corporationID)
