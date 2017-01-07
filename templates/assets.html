@@ -1,0 +1,8 @@
+{{define "body"}} 
+	{{ if .CharacterID }} 
+	  blah blah
+    
+	{{ else }} 
+		{{template "not-logged-in" .}} 
+	{{ end }} 
+{{end}}

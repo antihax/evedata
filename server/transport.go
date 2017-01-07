@@ -1,22 +1,22 @@
 package evedata
 
 import (
-	"crypto/rand"
+	"math/rand"
 	"net/http"
+	"sync/atomic"
 	"time"
 
 	"github.com/antihax/evedata/appContext"
-	"github.com/antihax/evedata/models"
 )
 
 // Custom transport to chain into the HTTPClient to gather statistics.
 type transport struct {
-	next *http.Transport
-	ctx  *appContext.AppContext
+	next      *http.Transport
+	ctx       *appContext.AppContext
+	errorRate uint32
 }
 
-// RoundTrip wraps http.DefaultTransport.RoundTrip to keep track
-// of the current request.
+// RoundTrip wraps http.DefaultTransport.RoundTrip to provide stats and handle error rates.
 func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	redisCon := ctx.Cache.Get()
 	defer redisCon.Close()
@@ -26,10 +26,25 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	rand.Read(b)
 
 	redisCon.Do("ZADD", "EVEDATA_HTTPCount", time.Now().UTC().Unix(), b)
+
+	// Do the request.
 	res, err := t.next.RoundTrip(req)
+
+	// We got a non-recoverable error.
 	if res.StatusCode >= 400 {
 		redisCon.Do("ZADD", "EVEDATA_HTTPErrorCount", time.Now().UTC().Unix(), b)
-		models.AddHTTPError(req, res)
+
+		// Tick up the error rate and sleep proportionally to the error count.
+		if t.errorRate < 60 {
+			atomic.AddUint32(&t.errorRate, 1)
+		}
+		time.Sleep(time.Second * time.Duration(t.errorRate))
+	} else {
+		// Tick down the error rate.
+		if t.errorRate > 0 {
+			atomic.AddUint32(&t.errorRate, ^uint32(0))
+		}
 	}
+
 	return res, err
 }

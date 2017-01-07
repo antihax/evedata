@@ -66,7 +66,6 @@ func GoServer() {
 
 	// Setup the SSO authenticator, this is the main login.
 	ssoScopes := []string{
-		eveapi.ScopeCharacterKillsRead, // Temporary
 		eveapi.ScopeCharacterLocationRead,
 		eveapi.ScopeCharacterNavigationWrite,
 		eveapi.ScopeRemoteClientUI,
@@ -113,7 +112,7 @@ func GoServer() {
 	transportCache := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))
 
 	// Attach a basic transport with our chained custom transport.
-	transportCache.Transport = &transport{&http.Transport{Proxy: http.ProxyFromEnvironment, MaxIdleConnsPerHost: 5}, &ctx}
+	transportCache.Transport = &transport{&http.Transport{Proxy: http.ProxyFromEnvironment, MaxIdleConnsPerHost: 5}, &ctx, 0}
 
 	// Build a HTTP Client pool this client will be shared with APIs for:
 	//   - ESI
@@ -125,7 +124,7 @@ func GoServer() {
 	// Setup the EVE ESI Client
 	ctx.ESI = esi.NewAPIClient(ctx.HTTPClient, ctx.Conf.UserAgent)
 
-	// Setup the bootstrap authenticator. This is needed to update the site main token.
+	// Setup the bootstrap authenticator. Needed to update the site main token.
 	ctx.ESIBootstrapAuthenticator = eveapi.NewSSOAuthenticator(ctx.Conf.CREST.ESIAccessToken.ClientID,
 		ctx.Conf.CREST.ESIAccessToken.SecretKey,
 		ctx.Conf.CREST.ESIAccessToken.RedirectURL,
