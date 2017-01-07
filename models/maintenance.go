@@ -28,21 +28,24 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
 		return err
 	}
 
-	// Remove any invalid items
-	if err := retryExec(`
-        DELETE A.* FROM evedata.killmailAttackers A
-        LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
-        WHERE K.id IS NULL;
-            `); err != nil {
-		return err
-	}
-	if err := retryExec(`
-        DELETE A.* FROM evedata.killmailItems A
-        LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
-        WHERE K.id IS NULL;
-            `); err != nil {
-		return err
-	}
+	// [TODO] These are deadlocking due to duration and inserts going in..
+	// Needs optimizing or limiting.
+	/*
+	   	// Remove any invalid items
+	   	if err := retryExec(`
+	           DELETE A.* FROM evedata.killmailAttackers A
+	           LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
+	           WHERE K.id IS NULL;
+	               `); err != nil {
+	   		return err
+	   	}
+	   	if err := retryExec(`
+	           DELETE A.* FROM evedata.killmailItems A
+	           LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
+	           WHERE K.id IS NULL;
+	               `); err != nil {
+	   		return err
+	   	}*/
 
 	// Prefill stats for known entities that may have no kills
 	if err := retryExec(`
