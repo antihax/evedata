@@ -4,7 +4,7 @@ import "github.com/antihax/evedata/null"
 
 func AddLPOffer(offerID int64, corporationID int64, typeID int64, quantity int64, lpCost int64, akCost, iskCost int64) error {
 	if _, err := database.Exec(`
-		INSERT INTO lpOffers
+		INSERT INTO evedata.lpOffers
 			(offerID,corporationID,typeID,quantity,lpCost,akCost,iskCost)
 			VALUES(?,?,?,?,?,?,?);
 	`, offerID, corporationID, typeID, quantity, lpCost, akCost, iskCost); err != nil {
@@ -14,7 +14,7 @@ func AddLPOffer(offerID int64, corporationID int64, typeID int64, quantity int64
 }
 
 func AddLPOfferRequirements(offerID int64, typeID int64, quantity int64) error {
-	if _, err := database.Exec(`INSERT INTO lpOfferRequirements (offerID,typeID,quantity) VALUES(?,?,?);`,
+	if _, err := database.Exec(`INSERT INTO evedata.lpOfferRequirements (offerID,typeID,quantity) VALUES(?,?,?);`,
 		offerID, typeID, quantity); err != nil {
 		return err
 	}
