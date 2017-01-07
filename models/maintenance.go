@@ -6,24 +6,24 @@ import (
 )
 
 func MaintKillMails() error { // Broken into smaller chunks so we have a chance of it getting completed.
-	// Delete stuff older than a year, we do not care...
+	// Delete stuff older than 90 days, we do not care...
 	if err := retryExec(`
 		DELETE A.* FROM evedata.killmailAttackers A 
             INNER JOIN evedata.killmails K ON A.id = K.id
-            WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 1 YEAR); 
+            WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY); 
             `); err != nil {
 		return err
 	}
 	if err := retryExec(`
 		DELETE A.* FROM evedata.killmailItems A 
         INNER JOIN evedata.killmails K ON A.id = K.id
-        WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 1 YEAR); 
+        WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY); 
             `); err != nil {
 		return err
 	}
 	if err := retryExec(`
 		DELETE FROM evedata.killmails
-        WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 1 YEAR);
+        WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY);
             `); err != nil {
 		return err
 	}

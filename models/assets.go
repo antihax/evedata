@@ -26,8 +26,8 @@ func GetAssets(characterID int64) ([]Assets, error) {
 			count(*) - 1 AS subCount, buy, sell
 			
 		FROM evedata.assets A
-		LEFT JOIN assets L ON A.itemID = L.locationID
-		LEFT JOIN jitaPrice P ON A.typeID = P.itemID
+		LEFT JOIN evedata.assets L ON A.itemID = L.locationID
+		LEFT JOIN evedata.jitaPrice P ON A.typeID = P.itemID
 		JOIN invTypes T ON A.typeID = T.typeID
 		WHERE A.locationType != "other"
 			AND A.characterID IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)
@@ -42,7 +42,7 @@ func GetAssets(characterID int64) ([]Assets, error) {
 	for index, _ := range assets {
 		if assets[index].SubCount > 0 {
 			count++
-			go getSubAssets(characterID, assets[index].ItemID, &assets[index].SubItems, errc, limit)
+			go getSubAssets(assets[index].ItemID, &assets[index].SubItems, errc, limit)
 		}
 	}
 
@@ -56,10 +56,10 @@ func GetAssets(characterID int64) ([]Assets, error) {
 	return assets, nil
 }
 
-func getSubAssets(characterID int64, itemID int64, assets *[]Assets, errc chan error, limit chan bool) {
+func getSubAssets(itemID int64, assets *[]Assets, errc chan error, limit chan bool) {
 	limit <- true
 	defer func() { <-limit }()
-	characterID = characterID
+
 	if err := database.Select(assets, `
 		SELECT A.characterID, A.locationFlag, A.locationID, A.typeID, A.itemID,
 			T.typeName, IF(A.quantity, A.quantity, A.isSingleton) AS quantity, 
@@ -67,7 +67,7 @@ func getSubAssets(characterID int64, itemID int64, assets *[]Assets, errc chan e
 			
 		FROM evedata.assets A
 		LEFT JOIN evedata.assets L ON A.itemID = L.locationID
-		LEFT JOIN jitaPrice P ON A.typeID = P.itemID
+		LEFT JOIN evedata.jitaPrice P ON A.typeID = P.itemID
 		JOIN invTypes T ON A.typeID = T.typeID
 		WHERE A.locationID = ?
 		GROUP BY A.locationID, A.itemID
@@ -82,7 +82,7 @@ func getSubAssets(characterID int64, itemID int64, assets *[]Assets, errc chan e
 	for index, _ := range a {
 		if a[index].SubCount > 0 {
 			count++
-			go getSubAssets(characterID, a[index].ItemID, &a[index].SubItems, errc, limit)
+			go getSubAssets(a[index].ItemID, &a[index].SubItems, errc, limit)
 		}
 	}
 

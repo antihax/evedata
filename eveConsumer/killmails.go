@@ -197,9 +197,9 @@ func (c *EVEConsumer) goZKillTemporaryConsumer() error {
 		date := nextCheck.Format("20060102")
 		nextCheck = nextCheck.Add(time.Hour * 24)
 
-		// If we are at today, restart from one year ago
+		// If we are at today, restart from 90 days
 		if nextCheck.Sub(time.Now().UTC()) > 0 {
-			nextCheck = time.Now().UTC().Add(time.Hour * 24 * -365)
+			nextCheck = time.Now().UTC().Add(time.Hour * 24 * -90)
 			log.Printf("Delete old killmails")
 			models.MaintKillMails()
 
