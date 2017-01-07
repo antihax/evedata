@@ -26,7 +26,7 @@ func (c *EVEConsumer) contactSync() {
 	rows, err := c.ctx.Db.Query(
 		`SELECT source, group_concat(destination)
 			FROM evedata.contactSyncs S  
-            INNER JOIN crestTokens T ON T.tokenCharacterID = destination
+            INNER JOIN evedata.crestTokens T ON T.tokenCharacterID = destination
             WHERE lastStatus NOT LIKE "%Invalid refresh token%"
 		    GROUP BY source
             HAVING max(nextSync) < UTC_TIMESTAMP();`)

@@ -16,7 +16,7 @@ func GetAllianceAssetsInSpace(id int64) ([]AssetsInSpace, error) {
 	ref := []AssetsInSpace{}
 	if err := database.Select(&ref, `
 		SELECT itemName, A.typeID, typeName, lastSeen, round(security,1) AS security
-			FROM discoveredAssets A
+			FROM evedata.discoveredAssets A
 		    INNER JOIN invTypes T ON A.typeID = T.typeID
 			INNER JOIN mapDenormalize D ON A.locationID = D.itemID
 			WHERE allianceID = ?
@@ -32,7 +32,7 @@ func GetCorporationAssetsInSpace(id int64) ([]AssetsInSpace, error) {
 	ref := []AssetsInSpace{}
 	if err := database.Select(&ref, `
 		SELECT itemName, A.typeID, typeName, lastSeen, round(security,1) AS security
-			FROM discoveredAssets A
+			FROM evedata.discoveredAssets A
 		    INNER JOIN invTypes T ON A.typeID = T.typeID
 			INNER JOIN mapDenormalize D ON A.locationID = D.itemID
 			WHERE corporationID = ?

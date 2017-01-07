@@ -19,7 +19,7 @@ func (c *EVEConsumer) assetsShouldUpdate() {
 
 	// Gather characters for update. Group for optimized updating.
 	rows, err := c.ctx.Db.Query(
-		`SELECT characterID, tokenCharacterID FROM crestTokens WHERE 
+		`SELECT characterID, tokenCharacterID FROM evedata.crestTokens WHERE 
 		assetCacheUntil < UTC_TIMESTAMP() AND lastStatus NOT LIKE "%Invalid refresh token%";`)
 	if err != nil {
 		log.Printf("Assets: Failed query: %v", err)
@@ -102,7 +102,7 @@ func (c *EVEConsumer) assetsCheckQueue(r redis.Conn) error {
 					asset.LocationFlag, asset.ItemId, asset.LocationType, asset.IsSingleton)
 			}
 
-			tx.Exec(`UPDATE crestTokens SET assetCacheUntil = ? 
+			tx.Exec(`UPDATE evedata.crestTokens SET assetCacheUntil = ? 
 						WHERE characterID = ? AND tokenCharacterID = ?`,
 				esi.CacheExpires(res), char, tokenChar)
 

@@ -33,8 +33,8 @@ func GetContactSyncs(characterID int64) ([]ContactSync, error) {
 	if err := database.Select(&cc, `
 		SELECT C.characterID, source, S.characterName AS sourceName, destination, D.characterName AS destinationName, nextSync
 			FROM evedata.contactSyncs C
-	        LEFT JOIN crestTokens D ON C.destination = D.tokenCharacterID
-			LEFT JOIN crestTokens S ON C.source = S.tokenCharacterID
+	        LEFT JOIN evedata.crestTokens D ON C.destination = D.tokenCharacterID
+			LEFT JOIN evedata.crestTokens S ON C.source = S.tokenCharacterID
 			WHERE C.characterID = ?;`, characterID); err != nil {
 
 		return nil, err

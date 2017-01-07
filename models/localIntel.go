@@ -40,11 +40,11 @@ func GetLocalIntel(names []interface{}) ([]LocalIntelData, error) {
 			   	LEFT OUTER JOIN evedata.alliances A ON Ch.allianceID = A.allianceID
 
 			   	LEFT OUTER JOIN evedata.corporations Co ON Ch.corporationID = Co.corporationID
-			   	INNER JOIN crestID CREST ON CREST.id = IF(A.allianceID, A.allianceID, Co.corporationID)
+			   	INNER JOIN evedata.crestID CREST ON CREST.id = IF(A.allianceID, A.allianceID, Co.corporationID)
 
 			   	WHERE Ch.name IN (?`+strings.Repeat(",?", len(names)-1)+`)
 			   	GROUP BY CREST.id) SUB1
-				LEFT OUTER JOIN entityKillStats S ON S.id = SUB1.id
+				LEFT OUTER JOIN evedata.entityKillStats S ON S.id = SUB1.id
 			   LEFT OUTER JOIN wars Agg ON Agg.aggressorID = SUB1.id AND (Agg.timeFinished = "0001-01-01 00:00:00" OR Agg.timeFinished IS NULL OR Agg.timeFinished >= UTC_TIMESTAMP()) AND Agg.timeStarted <= UTC_TIMESTAMP()
 			   LEFT OUTER JOIN wars Def ON Def.defenderID = SUB1.id AND (Def.timeFinished = "0001-01-01 00:00:00" OR Def.timeFinished IS NULL OR Def.timeFinished >= UTC_TIMESTAMP()) AND Def.timeStarted <= UTC_TIMESTAMP()
 			   WHERE kills IS NOT NULL AND losses IS NOT NULL AND efficiency IS NOT NULL

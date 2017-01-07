@@ -30,7 +30,7 @@ func GetAssets(characterID int64) ([]Assets, error) {
 		LEFT JOIN jitaPrice P ON A.typeID = P.itemID
 		JOIN invTypes T ON A.typeID = T.typeID
 		WHERE A.locationType != "other"
-			AND A.characterID IN (SELECT tokenCharacterID FROM crestTokens WHERE characterID = ?)
+			AND A.characterID IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)
 		GROUP BY A.locationID, A.itemID;
 	`, characterID); err != nil {
 		return nil, err

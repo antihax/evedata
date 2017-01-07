@@ -18,7 +18,7 @@ func AddCRESTRef(id int64, ref string) error {
 		t = "character"
 	}
 
-	_, err := database.Exec(`INSERT IGNORE INTO crestID (id, crestRef, type) VALUES(?,?,?);`, id, ref, t)
+	_, err := database.Exec(`INSERT IGNORE INTO evedata.crestID (id, crestRef, type) VALUES(?,?,?);`, id, ref, t)
 	if err != nil {
 
 		return err

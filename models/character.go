@@ -44,7 +44,7 @@ func GetCRESTTokens(characterID int64) ([]CRESTToken, error) {
 
 func SetTokenError(characterID int64, tokenCharacterID int64, code int, status string, req []byte, res []byte) error {
 	if _, err := database.Exec(`
-		UPDATE crestTokens SET lastCode = ?, lastStatus = ?, request = ?, response = ? 
+		UPDATE evedata.crestTokens SET lastCode = ?, lastStatus = ?, request = ?, response = ? 
 		WHERE characterID = ? AND tokenCharacterID = ? `,
 		code, status, req, res, characterID, tokenCharacterID); err != nil {
 		return err
@@ -70,7 +70,7 @@ func AddCRESTToken(characterID int64, tokenCharacterID int64, characterName stri
 }
 
 func DeleteCRESTToken(characterID int64, tokenCharacterID int64) error {
-	if _, err := database.Exec(`DELETE FROM crestTokens WHERE characterID = ? AND tokenCharacterID = ? LIMIT 1`,
+	if _, err := database.Exec(`DELETE FROM evedata.crestTokens WHERE characterID = ? AND tokenCharacterID = ? LIMIT 1`,
 		characterID, tokenCharacterID); err != nil {
 
 		return err
