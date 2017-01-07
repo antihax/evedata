@@ -1,9 +1,6 @@
 package models
 
-import (
-	"fmt"
-	"strings"
-)
+import "strings"
 
 func MaintKillMails() error { // Broken into smaller chunks so we have a chance of it getting completed.
 	// Delete stuff older than 90 days, we do not care...
@@ -302,8 +299,6 @@ func retryExec(sql string, args ...interface{}) error {
 			break
 		} else if strings.Contains(err.Error(), "1213") == false {
 			break
-		} else {
-			fmt.Printf("deadlock, retrying\n")
 		}
 	}
 	return err
