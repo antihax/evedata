@@ -168,7 +168,7 @@ func GetWarsForEntityByID(id int64) ([]ActiveWarList, error) {
 		FROM evedata.wars W
 		INNER JOIN evedata.crestID Ag ON Ag.id = aggressorID
 	    INNER JOIN evedata.crestID Df ON Df.id = defenderID
-        LEFT OUTER JOIN warAllies A ON A.id = W.id
+        LEFT OUTER JOIN evedata.warAllies A ON A.id = W.id
 	    LEFT OUTER JOIN evedata.alliances AA on AA.allianceID = aggressorID
 		LEFT OUTER JOIN evedata.alliances DA on DA.allianceID = defenderID
 		LEFT OUTER JOIN evedata.corporations AC on AC.corporationID = aggressorID
@@ -226,7 +226,7 @@ func GetKnownAlliesByID(id int64) ([]KnownAllies, error) {
 			    CREST.type,
 				IFNULL(DA.name, DC.name) AS name
 			FROM evedata.wars W
-				INNER JOIN warAllies A ON W.id = A.id
+				INNER JOIN evedata.warAllies A ON W.id = A.id
 				INNER JOIN evedata.crestID CREST ON CREST.id = A.allyID
 				LEFT OUTER JOIN evedata.alliances DA on DA.allianceID = A.allyID
 				LEFT OUTER JOIN evedata.corporations DC on DC.corporationID = A.allyID
