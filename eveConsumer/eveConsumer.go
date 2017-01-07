@@ -91,6 +91,7 @@ func (c *EVEConsumer) goTriggers() {
 			log.Printf("EVEConsumer: Shutting Down\n")
 			return
 		default:
+			c.marketMaintTrigger()
 			c.assetsShouldUpdate()
 			c.contactSync()
 			c.checkWars()

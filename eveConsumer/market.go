@@ -13,6 +13,31 @@ import (
 )
 
 // Add market history items to the queue
+func (c *EVEConsumer) marketMaintTrigger() error {
+
+	// Skip if we are not ready
+	cacheUntilTime, _, err := models.GetServiceState("marketHistory")
+	if err != nil {
+		return err
+	}
+
+	// Check if it is time to update the market history
+	curTime := time.Now().UTC()
+	if cacheUntilTime.Before(curTime) {
+		// We wont repeat this for 24 hours just after it updates.
+		newTime := curTime.Add(time.Hour * 3)
+
+		err = models.SetServiceState("marketHistory", newTime, 1)
+		if err != nil {
+			return err
+		}
+
+		err = models.MaintMarket()
+	}
+	return err
+}
+
+// Add market history items to the queue
 func (c *EVEConsumer) marketHistoryUpdateTrigger() error {
 
 	// Skip if we are not ready

@@ -22,7 +22,7 @@ func (c *EVEConsumer) checkWars() {
 
 func (c *EVEConsumer) updateWars() error {
 	rows, err := c.ctx.Db.Query(
-		`SELECT id FROM eve.wars 
+		`SELECT id FROM evedata.wars 
 			WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL) 
 			AND cacheUntil < UTC_TIMESTAMP()`)
 	if err != nil {
@@ -77,7 +77,7 @@ func (c *EVEConsumer) updateWar(href string) error {
 		return err
 	}
 
-	_, err = c.ctx.Db.Exec(`INSERT INTO wars
+	_, err = c.ctx.Db.Exec(`INSERT INTO evedata.wars
 				(id, timeFinished,timeStarted,timeDeclared,openForAllies,cacheUntil,aggressorID,defenderID,mutual)
 				VALUES(?,?,?,?,?,?,?,?,?)
 				ON DUPLICATE KEY UPDATE 
@@ -103,7 +103,7 @@ func (c *EVEConsumer) updateWar(href string) error {
 	}
 
 	for _, a := range war.Allies {
-		_, err = c.ctx.Db.Exec(`INSERT IGNORE INTO warAllies (id, allyID) VALUES(?,?);`, war.ID, a.ID)
+		_, err = c.ctx.Db.Exec(`INSERT IGNORE INTO evedata.warAllies (id, allyID) VALUES(?,?);`, war.ID, a.ID)
 		if err != nil {
 			return err
 		}
