@@ -38,7 +38,7 @@ func GetISKPerLP(corporationName string) ([]IskPerLP, error) {
 	s := []IskPerLP{}
 	if err := database.Select(&s, `
 		SELECT itemName, Lp.typeID, Lp.typeName, JitaPrice, itemCost, iskPerLP, JitaVolume, JitaVolume*JitaPrice AS iskVolume, GROUP_CONCAT(quantity, " x ", T.typeName SEPARATOR '<br>\n') AS requirements
-			FROM iskPerLp Lp
+			FROM evedata.iskPerLp Lp
 			LEFT JOIN lpOfferRequirements R ON Lp.offerID = R.offerID
 			LEFT JOIN invTypes T ON R.typeID = T.typeID
 			WHERE itemName = ?
@@ -57,7 +57,7 @@ type IskPerLPCorporation struct {
 
 func GetISKPerLPCorporations() ([]IskPerLPCorporation, error) {
 	s := []IskPerLPCorporation{}
-	if err := database.Select(&s, `SELECT DISTINCT itemName FROM iskPerLp ORDER BY itemName ASC;`); err != nil {
+	if err := database.Select(&s, `SELECT DISTINCT itemName FROM evedata.iskPerLp ORDER BY itemName ASC;`); err != nil {
 		return nil, err
 	}
 	return s, nil
