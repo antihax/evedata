@@ -67,7 +67,7 @@ func GetAlliance(id int64) (*Alliance, error) {
 		    EXEC.corporationID AS executorCorporationID
 		    
 		FROM evedata.alliances A
-		INNER JOIN corporations EXEC ON A.executorCorpID = EXEC.corporationID
+		INNER JOIN evedata.corporations EXEC ON A.executorCorpID = EXEC.corporationID
 		WHERE A.allianceID = ?
 		LIMIT 1`, id).StructScan(&ref); err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func GetAllianceMembers(id int64) ([]AllianceMember, error) {
 			M.corporationID, 
 		    name AS corporationName,
 		    M.memberCount
-		FROM corporations M
+		FROM evedata.corporations M
 		WHERE allianceID = ?;
 		`, id); err != nil {
 		return nil, err

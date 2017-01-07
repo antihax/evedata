@@ -108,8 +108,8 @@ func GetActiveWarList() ([]ActiveWarList, error) {
 	    INNER JOIN crestID Df ON Df.id = defenderID
 	    LEFT OUTER JOIN evedata.alliances AA on AA.allianceID = aggressorID
 		LEFT OUTER JOIN evedata.alliances DA on DA.allianceID = defenderID
-		LEFT OUTER JOIN corporations AC on AC.corporationID = aggressorID
-		LEFT OUTER JOIN corporations DC on DC.corporationID = defenderID
+		LEFT OUTER JOIN evedata.corporations AC on AC.corporationID = aggressorID
+		LEFT OUTER JOIN evedata.corporations DC on DC.corporationID = defenderID
         LEFT OUTER JOIN entityKillStats S ON S.id = aggressorID
 		LEFT OUTER JOIN 
 	    ( -- Kills by the Aggressor
@@ -171,8 +171,8 @@ func GetWarsForEntityByID(id int64) ([]ActiveWarList, error) {
         LEFT OUTER JOIN warAllies A ON A.id = W.id
 	    LEFT OUTER JOIN evedata.alliances AA on AA.allianceID = aggressorID
 		LEFT OUTER JOIN evedata.alliances DA on DA.allianceID = defenderID
-		LEFT OUTER JOIN corporations AC on AC.corporationID = aggressorID
-		LEFT OUTER JOIN corporations DC on DC.corporationID = defenderID
+		LEFT OUTER JOIN evedata.corporations AC on AC.corporationID = aggressorID
+		LEFT OUTER JOIN evedata.corporations DC on DC.corporationID = defenderID
 		LEFT OUTER JOIN 
 	    ( -- Kills by the Aggressor
 			SELECT 
@@ -229,7 +229,7 @@ func GetKnownAlliesByID(id int64) ([]KnownAllies, error) {
 				INNER JOIN warAllies A ON W.id = A.id
 				INNER JOIN crestID CREST ON CREST.id = A.allyID
 				LEFT OUTER JOIN evedata.alliances DA on DA.allianceID = A.allyID
-				LEFT OUTER JOIN corporations DC on DC.corporationID = A.allyID
+				LEFT OUTER JOIN evedata.corporations DC on DC.corporationID = A.allyID
 				WHERE defenderID = ? AND W.timeStarted > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 12 MONTH)
 				GROUP BY allyID
 		`, id); err != nil {

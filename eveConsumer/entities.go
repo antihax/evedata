@@ -34,7 +34,7 @@ func (c *EVEConsumer) updateEntities() error {
 			INNER JOIN crestID C ON A.allianceID = C.id
 						WHERE cacheUntil < UTC_TIMESTAMP()  
 			UNION
-			SELECT corporationid AS id, crestRef, cacheUntil FROM corporations A
+			SELECT corporationid AS id, crestRef, cacheUntil FROM evedata.corporations A
 			INNER JOIN crestID C ON A.corporationID = C.id
 						WHERE cacheUntil < UTC_TIMESTAMP()
 			UNION
