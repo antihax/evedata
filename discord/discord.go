@@ -49,8 +49,8 @@ func goKillmailHunter(ctx *appContext.AppContext) {
 
 		// [BENCHMARK] 0.016 sec / 0.000 sec
 		rows, err := ctx.Db.Query(`
-			SELECT K.id FROM  killmails K 
-            INNER JOIN killmailAttackers A ON K.id = A.id
+			SELECT K.id FROM  evedata.killmails K 
+            INNER JOIN evedata.killmailAttackers A ON K.id = A.id
             INNER JOIN mapSolarSystems M ON K.solarSystemID = M.solarSystemID
             WHERE
             (

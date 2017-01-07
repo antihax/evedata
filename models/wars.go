@@ -117,7 +117,7 @@ func GetActiveWarList() ([]ActiveWarList, error) {
 				W.id, 
 				count(*) AS kills
 				FROM wars W
-				INNER JOIN killmails K ON K.warID = W.id AND 
+				INNER JOIN evedata.killmails K ON K.warID = W.id AND 
 				(
 					K.victimAllianceID != W.aggressorID AND 
 					K.victimCorporationID != W.aggressorID
@@ -131,7 +131,7 @@ func GetActiveWarList() ([]ActiveWarList, error) {
 				W.id, 
 				count(*) AS losses
 				FROM wars W
-				INNER JOIN killmails L ON L.warID = W.id AND 
+				INNER JOIN evedata.killmails L ON L.warID = W.id AND 
 				(
 					L.victimAllianceID = W.aggressorID OR 
 					L.victimCorporationID = W.aggressorID
@@ -179,7 +179,7 @@ func GetWarsForEntityByID(id int64) ([]ActiveWarList, error) {
 				W.id, 
 				count(*) AS kills
 				FROM wars W
-				INNER JOIN killmails K ON K.warID = W.id AND 
+				INNER JOIN evedata.killmails K ON K.warID = W.id AND 
 				(
 					K.victimAllianceID != W.aggressorID AND 
 					K.victimCorporationID != W.aggressorID
@@ -193,7 +193,7 @@ func GetWarsForEntityByID(id int64) ([]ActiveWarList, error) {
 				W.id, 
 				count(*) AS losses
 				FROM wars W
-				INNER JOIN killmails L ON L.warID = W.id AND 
+				INNER JOIN evedata.killmails L ON L.warID = W.id AND 
 				(
 					L.victimAllianceID = W.aggressorID OR 
 					L.victimCorporationID = W.aggressorID

@@ -48,7 +48,7 @@ func (c *EVEConsumer) marketHistoryUpdateTrigger() error {
 		defer red.Close()
 
 		// Load types into redis queue
-		// Build a pipeline request to add the killmail IDs to redis
+		// Build a pipeline request to add the region IDs to redis
 		for _, r := range regions {
 			// Add regions into marketOrders just in case they disapear.
 			// NX = Don't update score if element exists
