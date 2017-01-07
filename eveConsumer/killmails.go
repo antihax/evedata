@@ -44,6 +44,9 @@ func (c *EVEConsumer) killmailCheckQueue(r redis.Conn) error {
 	}
 
 	err = c.killmailGetAndSave((int32)(id), split[1])
+	if err != nil {
+		c.killmailAddToQueue((int32)(id), split[1])
+	}
 	return err
 
 }
@@ -102,7 +105,6 @@ func (c *EVEConsumer) killmailGetAndSave(id int32, hash string) error {
 	// If we get a 500 error, add the mail back to the queue so we can try again later.
 	if r != nil {
 		if r.StatusCode >= 500 {
-			c.killmailAddToQueue(id, hash)
 			return err
 		}
 	}
@@ -116,14 +118,20 @@ func (c *EVEConsumer) killmailGetAndSave(id int32, hash string) error {
 	if kill.Victim.AllianceId != 0 {
 		c.entityAddToQueue(kill.Victim.AllianceId)
 	}
-	models.AddKillmail(kill.KillmailId, kill.SolarSystemId, kill.KillmailTime.UTC(), kill.Victim.CharacterId,
+	err = models.AddKillmail(kill.KillmailId, kill.SolarSystemId, kill.KillmailTime.UTC(), kill.Victim.CharacterId,
 		kill.Victim.CorporationId, kill.Victim.AllianceId, hash, len(kill.Attackers), kill.Victim.DamageTaken,
 		kill.Victim.Position.X, kill.Victim.Position.Y, kill.Victim.Position.Z, kill.Victim.ShipTypeId,
 		kill.WarId)
+	if err != nil {
+		return err
+	}
 
 	for _, item := range kill.Victim.Items {
-		models.AddKillmailItems(kill.KillmailId, item.ItemTypeId, item.Flag, item.QuantityDestroyed,
+		err = models.AddKillmailItems(kill.KillmailId, item.ItemTypeId, item.Flag, item.QuantityDestroyed,
 			item.QuantityDropped, item.Singleton)
+		if err != nil {
+			return err
+		}
 	}
 
 	for _, attacker := range kill.Attackers {
@@ -132,9 +140,12 @@ func (c *EVEConsumer) killmailGetAndSave(id int32, hash string) error {
 		if attacker.AllianceId != 0 {
 			c.entityAddToQueue(attacker.AllianceId)
 		}
-		models.AddKillmailAttacker(kill.KillmailId, attacker.CharacterId, attacker.CorporationId, attacker.AllianceId,
+		err = models.AddKillmailAttacker(kill.KillmailId, attacker.CharacterId, attacker.CorporationId, attacker.AllianceId,
 			attacker.ShipTypeId, attacker.FinalBlow, attacker.DamageDone, attacker.WeaponTypeId,
 			attacker.SecurityStatus)
+		if err != nil {
+			return err
+		}
 	}
 	c.killmailSetKnown((int32)(id))
 	return nil
@@ -176,7 +187,7 @@ func (c *EVEConsumer) goZKillTemporaryConsumer() error {
 	}
 
 	// Spread out over a day.
-	rate := time.Second * ((60 * 60 * 24) / 365)
+	rate := time.Second * 60 // ((60 * 60 * 24) / 365)
 	throttle := time.Tick(rate)
 
 	for {
@@ -190,7 +201,7 @@ func (c *EVEConsumer) goZKillTemporaryConsumer() error {
 		if nextCheck.Sub(time.Now().UTC()) > 0 {
 			nextCheck = time.Now().UTC().Add(time.Hour * 24 * -365)
 			log.Printf("Delete old killmails")
-			c.ctx.Db.Exec("CALL removeOldKillmails();")
+			models.MaintKillMails()
 
 			log.Printf("Restart zKill Consumer to %s", nextCheck.String())
 		}
