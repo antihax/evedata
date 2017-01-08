@@ -16,6 +16,46 @@ type Assets struct {
 	SubItems     []Assets   `db:"subItems" json:"subItems,omitempty"`
 }
 
+type AssetLocations struct {
+	LocationFlag    string     `db:"locationFlag" json:"locationFlag"`
+	LocationID      int64      `db:"locationID" json:"locationID"`
+	LocationName    string     `db:"locationName" json:"locationName,omitempty"`
+	SolarSystemName string     `db:"solarSystemName" json:"solarSystemName,omitempty"`
+	Buy             null.Float `db:"buy" json:"buy,omitempty"`
+	Sell            null.Float `db:"sell" json:"sell,omitempty"`
+}
+
+func GetAssetLocations(characterID int64, filterCharacterID int64) ([]AssetLocations, error) {
+	assetLocations := []AssetLocations{}
+	if err := database.Select(&assetLocations, `
+		SELECT  A.locationFlag, A.locationID, stationName as locationName,
+			 -- Sum the layers of items
+			 SUM(IFNULL(P.buy,0))  + SUM(IFNULL(P1.buy,0))  + SUM(IFNULL(P2.buy,0))  + SUM(IFNULL(P3.buy,0))  AS buy, 
+             SUM(IFNULL(P.sell,0)) + SUM(IFNULL(P1.sell,0)) + SUM(IFNULL(P2.sell,0)) + SUM(IFNULL(P3.sell,0)) AS sell
+
+        -- Work through 4 layers
+		FROM evedata.assets A
+		LEFT JOIN evedata.assets L1 ON A.itemID = L1.locationID
+        LEFT JOIN evedata.assets L2 ON L1.itemID = L2.locationID
+        LEFT JOIN evedata.assets L3 ON L1.itemID = L3.locationID
+        
+        -- Price everything in the 4 layers
+		LEFT JOIN evedata.jitaPrice P ON A.typeID = P.itemID
+		LEFT JOIN evedata.jitaPrice P1 ON L1.typeID = P1.itemID
+		LEFT JOIN evedata.jitaPrice P2 ON L2.typeID = P2.itemID
+		LEFT JOIN evedata.jitaPrice P3 ON L3.typeID = P3.itemID
+ 
+		JOIN invTypes T ON A.typeID = T.typeID
+        LEFT JOIN staStations LOC ON LOC.stationID = A.locationID
+		WHERE A.locationType != "other"
+			AND A.characterID IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)
+		GROUP BY A.locationID
+	`, characterID); err != nil {
+		return nil, err
+	}
+	return assetLocations, nil
+}
+
 // Obtain alliance information by ID.
 // [BENCHMARK] 0.000 sec / 0.000 sec
 func GetAssets(characterID int64) ([]Assets, error) {

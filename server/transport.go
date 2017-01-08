@@ -31,20 +31,22 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	res, err := t.next.RoundTrip(req)
 
 	// We got a non-recoverable error.
-	if res.StatusCode >= 400 {
-		redisCon.Do("ZADD", "EVEDATA_HTTPErrorCount", time.Now().UTC().Unix(), b)
+	if res != nil {
+		if res.StatusCode >= 400 {
+			redisCon.Do("ZADD", "EVEDATA_HTTPErrorCount", time.Now().UTC().Unix(), b)
 
-		// Tick up the error rate and sleep proportionally to the error count.
-		if res.StatusCode >= 500 {
-			if t.errorRate < 60 {
-				atomic.AddUint32(&t.errorRate, 1)
+			// Tick up the error rate and sleep proportionally to the error count.
+			if res.StatusCode >= 500 {
+				if t.errorRate < 60 {
+					atomic.AddUint32(&t.errorRate, 1)
+				}
+				time.Sleep(time.Second * time.Duration(t.errorRate))
 			}
-			time.Sleep(time.Second * time.Duration(t.errorRate))
-		}
-	} else {
-		// Tick down the error rate.
-		if t.errorRate > 0 {
-			atomic.AddUint32(&t.errorRate, ^uint32(0))
+		} else {
+			// Tick down the error rate.
+			if t.errorRate > 0 {
+				atomic.AddUint32(&t.errorRate, ^uint32(0))
+			}
 		}
 	}
 
