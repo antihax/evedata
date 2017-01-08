@@ -1,8 +1,16 @@
 {{define "body"}} 
-	{{ if .CharacterID }} 
-	  blah blah
-    
-	{{ else }} 
-		{{template "not-logged-in" .}} 
-	{{ end }} 
+	        <table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".cresttokenToolbar"
+	        	data-url="/U/assets" id="assets">
+	            <thead>
+	                <tr>
+	                    <th data-field="characterID">Character</th>
+	                    <th data-field="typeName">Type</th>
+	                    <th data-field="quantity"> Quantity</th>
+	                </tr>
+	            </thead>
+	        </table>
+
+		 <script>
+	        var 	$cresttable = $('#assets').bootstrapTable({url: "/U/assets"}, "changeLocale", "en_US");
+	   </script>
 {{end}}
