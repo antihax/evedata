@@ -25,13 +25,13 @@ func (c *EVEConsumer) warAddToQueue(id int32) error {
 	r := c.ctx.Cache.Get()
 	defer r.Close()
 
-	// We know this kill. Early out.
+	// This war is over. Early out.
 	i, err := redis.Int(r.Do("SISMEMBER", "EVEDATA_knownFinishedWars", id))
 	if err == nil && i == 1 {
 		return err
 	}
 
-	// Add the mail to the queue
+	// Add the war to the queue
 	_, err = r.Do("SADD", "EVEDATA_warQueue", id)
 	return err
 }
@@ -48,52 +48,61 @@ func (c *EVEConsumer) updateWars() error {
 	defer rows.Close()
 
 	for rows.Next() {
-		var id int
+		var id int32
 		err = rows.Scan(&id)
 		if err != nil {
 			return err
 		}
-		c.updateWar(fmt.Sprintf(c.ctx.EVE.GetCRESTURI()+"wars/%d/", id))
+		c.warAddToQueue(id)
 	}
 	return nil
 }
 
 func (c *EVEConsumer) collectWarsFromCREST() error {
-	nextCheck, page, err := models.GetServiceState("wars")
+	nextCheck, _, err := models.GetServiceState("wars")
 	if err != nil {
 		return err
 	} else if nextCheck.After(time.Now()) {
 		return nil
 	}
 
-	log.Printf("EVEConsumer: collecting wars")
-	w, err := c.ctx.EVE.WarsV1((int)(page))
-	if err != nil {
-		return err
-	}
+	var page int32 = 1
 
-	// Loop through all of the pages
-	for ; w != nil; w, err = w.NextPage() {
-		// Update state so we dont have two polling at once.
-		err = models.SetServiceState("wars", w.CacheUntil, (int32)(w.Page))
+	for {
+		wars, _, err := c.ctx.ESI.WarsApi.GetWars(map[string]interface{}{"page": page})
 		if err != nil {
-			continue
+			return err
+		} else if len(wars) == 0 { // end of the pages
+			break
 		}
-
-		for _, r := range w.Items {
-			c.updateWar(r.HRef)
+		for _, id := range wars {
+			c.warAddToQueue(id)
 		}
+		page++
 	}
+
+	models.SetServiceState("wars", time.Now().UTC().Add(time.Hour), 1)
 	return nil
 }
 
-func (c *EVEConsumer) updateWar(href string) error {
+func (c *EVEConsumer) warCheckQueue(r redis.Conn) error {
+	ret, err := r.Do("SPOP", "EVEDATA_warQueue")
+	if err != nil {
+		return err
+	} else if ret == nil {
+		return nil
+	}
+
+	v, err := redis.Int(ret, err)
+	if err != nil {
+		return err
+	}
+	href := fmt.Sprintf(c.ctx.EVE.GetCRESTURI()+"wars/%d/", v)
 	war, err := c.ctx.EVE.WarV1(href)
 	if err != nil {
 		return err
 	}
-
-	_, err = c.ctx.Db.Exec(`INSERT INTO evedata.wars
+	_, err = models.RetryExec(`INSERT INTO evedata.wars
 				(id, timeFinished,timeStarted,timeDeclared,openForAllies,cacheUntil,aggressorID,defenderID,mutual)
 				VALUES(?,?,?,?,?,?,?,?,?)
 				ON DUPLICATE KEY UPDATE 
@@ -127,6 +136,10 @@ func (c *EVEConsumer) updateWar(href string) error {
 		if err = c.entityAddToQueue((int32)(a.ID)); err != nil {
 			return err
 		}
+	}
+
+	if war.TimeFinished.After(time.Now().UTC()) {
+		r.Do("SADD", "EVEDATA_knownFinishedWars", (int32)(war.ID))
 	}
 
 	// Loop through all the killmail pages

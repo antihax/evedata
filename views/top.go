@@ -100,7 +100,7 @@ func GenerateStatistics(c *appContext.AppContext) {
 			kills, _ := redis.Int(red.Do("SCARD", "EVEDATA_knownKills"))
 			fmt.Fprintf(out, "%s \tKnown Kills %s\n", humanize.Comma((int64)(kills)), statisticsChange("kills", kills))
 			finWars, _ := redis.Int(red.Do("SCARD", "EVEDATA_knownFinishedWars"))
-			fmt.Fprintf(out, "%s \tKnown Kills %s\n", humanize.Comma((int64)(finWars)), statisticsChange("finWars", finWars))
+			fmt.Fprintf(out, "%s \tFinished Wars %s\n", humanize.Comma((int64)(finWars)), statisticsChange("finWars", finWars))
 
 			fmt.Fprintln(out)
 

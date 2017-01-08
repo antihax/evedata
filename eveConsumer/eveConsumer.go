@@ -68,9 +68,16 @@ func (c *EVEConsumer) goConsumer() {
 				log.Printf("History: %v\n", err)
 			}
 
-			if err := c.marketRegionCheckQueue(r); err != nil {
+			if err := c.warCheckQueue(r); err == nil {
 				workDone = true
-				log.Printf("Region: %v\n", err)
+			} else if err != nil {
+				log.Printf("History: %v\n", err)
+			}
+
+			if err := c.marketRegionCheckQueue(r); err == nil {
+				workDone = true
+			} else if err != nil {
+				log.Printf("History: %v\n", err)
 			}
 		}
 

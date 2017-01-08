@@ -4,20 +4,20 @@ import "strings"
 
 func MaintKillMails() error { // Broken into smaller chunks so we have a chance of it getting completed.
 	// Delete stuff older than 90 days, we do not care...
-	if err := retryExecTillNoRows(`
+	if err := RetryExecTillNoRows(`
 		DELETE LOW_PRIORITY A.* FROM evedata.killmailAttackers A 
             JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY) LIMIT 50000) K ON A.id = K.id; 
             `); err != nil {
 		return err
 	}
 
-	if err := retryExecTillNoRows(`
+	if err := RetryExecTillNoRows(`
 		DELETE LOW_PRIORITY A.* FROM evedata.killmailItems A 
         JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY) LIMIT 50000) K ON A.id = K.id;
             `); err != nil {
 		return err
 	}
-	if err := retryExecTillNoRows(`
+	if err := RetryExecTillNoRows(`
 		DELETE LOW_PRIORITY FROM evedata.killmails
         WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY) LIMIT 50000;
             `); err != nil {
@@ -28,7 +28,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
 	// Needs optimizing or limiting.
 
 	// Remove any invalid items
-	if err := retryExecTillNoRows(`
+	if err := RetryExecTillNoRows(`
 	        DELETE LOW_PRIORITY D.* FROM evedata.killmailAttackers D 
             JOIN (SELECT A.id FROM evedata.killmailAttackers A
 				 LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
@@ -36,7 +36,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
 	               `); err != nil {
 		return err
 	}
-	if err := retryExecTillNoRows(`
+	if err := RetryExecTillNoRows(`
 			DELETE LOW_PRIORITY D.* FROM evedata.killmailItems D 
             JOIN (SELECT A.id FROM evedata.killmailItems A
 				 LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
@@ -46,13 +46,13 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
 	}
 
 	// Prefill stats for known entities that may have no kills
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
         INSERT IGNORE INTO evedata.entityKillStats (id)
 	    (SELECT corporationID AS id FROM evedata.corporations); 
             `); err != nil {
 		return err
 	}
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
         INSERT IGNORE INTO evedata.entityKillStats (id)
 	    (SELECT allianceID AS id FROM evedata.alliances); 
             `); err != nil {
@@ -60,7 +60,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
 	}
 
 	// Build entity stats
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
         INSERT IGNORE INTO evedata.entityKillStats (id, losses)
             (SELECT 
                 victimCorporationID AS id,
@@ -72,7 +72,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
             `); err != nil {
 		return err
 	}
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
         INSERT IGNORE INTO evedata.entityKillStats (id, losses)
             (SELECT 
                 victimAllianceID AS id,
@@ -85,7 +85,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
 		return err
 	}
 
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
         INSERT IGNORE INTO evedata.entityKillStats (id, kills)
             (SELECT 
                 corporationID AS id,
@@ -98,7 +98,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
             `); err != nil {
 		return err
 	}
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
         INSERT IGNORE INTO evedata.entityKillStats (id, kills)
             (SELECT 
                 allianceID AS id,
@@ -113,7 +113,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
 	}
 
 	// Update everyone efficiency
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
         UPDATE evedata.entityKillStats SET efficiency = IF(losses+kills, (kills/(kills+losses)) , 1.0000);
             `); err != nil {
 		return err
@@ -124,7 +124,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
 
 func MaintMarket() error {
 
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
         UPDATE evedata.alliances A SET memberCount = 
             IFNULL(
                     (SELECT sum(memberCount) AS memberCount FROM evedata.corporations  C
@@ -136,7 +136,7 @@ func MaintMarket() error {
 		return err
 	}
 
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
         INSERT INTO evedata.discoveredAssets 
             SELECT 
                 A.corporationID, 
@@ -160,7 +160,7 @@ func MaintMarket() error {
 		return err
 	}
 
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
         INSERT INTO evedata.discoveredAssets 
             SELECT 
                 K.victimCorporationID AS corporationID, 
@@ -183,7 +183,7 @@ func MaintMarket() error {
 		return err
 	}
 
-	if err := retryExecTillNoRows(`
+	if err := RetryExecTillNoRows(`
         DELETE LOW_PRIORITY FROM evedata.market 
             WHERE done = 1 OR 
             date_add(issued, INTERVAL duration DAY) < UTC_TIMESTAMP() OR 
@@ -193,13 +193,13 @@ func MaintMarket() error {
 		return err
 	}
 
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
         DELETE LOW_PRIORITY FROM evedata.marketStations ORDER BY stationName;
              `); err != nil {
 		return err
 	}
 
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
         INSERT IGNORE INTO evedata.marketStations SELECT  stationName, M.stationID, Count(*) as Count
         FROM    evedata.market M
                 INNER JOIN staStations S ON M.stationID = S.stationID
@@ -211,13 +211,13 @@ func MaintMarket() error {
 		return err
 	}
 
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
        UPDATE evedata.market_vol SET quantity = 0;
              `); err != nil {
 		return err
 	}
 
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
         REPLACE INTO evedata.market_vol (
             SELECT count(*) as number,sum(quantity)/7 as quantity, regionID, itemID 
                 FROM evedata.market_history 
@@ -227,12 +227,12 @@ func MaintMarket() error {
 		return err
 	}
 
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
        DELETE FROM evedata.jitaPrice ORDER BY itemID;
              `); err != nil {
 		return err
 	}
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
         INSERT IGNORE INTO evedata.jitaPrice (
         SELECT S.typeID as itemID, buy, sell, high, low, mean, quantity FROM
             (SELECT typeID, min(price) AS sell FROM evedata.market WHERE regionID = 10000002 AND bid = 0 GROUP BY typeID) S
@@ -244,13 +244,13 @@ func MaintMarket() error {
 		return err
 	}
 
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
        DELETE FROM evedata.iskPerLp ORDER BY typeID;
              `); err != nil {
 		return err
 	}
 
-	if _, err := retryExec(`
+	if _, err := RetryExec(`
         INSERT IGNORE INTO evedata.iskPerLp (
         SELECT
                 N.itemName,
@@ -292,9 +292,9 @@ func MaintMarket() error {
 }
 
 // Retry the exec until we get no error (deadlocks) and no results are returned
-func retryExecTillNoRows(sql string, args ...interface{}) error {
+func RetryExecTillNoRows(sql string, args ...interface{}) error {
 	for {
-		rows, err := retryExec(sql, args...)
+		rows, err := RetryExec(sql, args...)
 		if err != nil {
 			return err
 		}
@@ -306,7 +306,7 @@ func retryExecTillNoRows(sql string, args ...interface{}) error {
 }
 
 // Retry the exec until we get no error (deadlocks)
-func retryExec(sql string, args ...interface{}) (int64, error) {
+func RetryExec(sql string, args ...interface{}) (int64, error) {
 	var (
 		err  error
 		rows int64

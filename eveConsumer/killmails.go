@@ -113,38 +113,49 @@ func (c *EVEConsumer) killmailGetAndSave(id int32, hash string) error {
 		return err
 	}
 
+	save := true
+	old := time.Now().UTC().Add(-time.Hour * (60 * 24 * 90))
+	if kill.KillmailTime.Before(old) {
+		save = false
+	}
+
 	c.entityAddToQueue(kill.Victim.CharacterId)
 	c.entityAddToQueue(kill.Victim.CorporationId)
 	if kill.Victim.AllianceId != 0 {
 		c.entityAddToQueue(kill.Victim.AllianceId)
 	}
-	err = models.AddKillmail(kill.KillmailId, kill.SolarSystemId, kill.KillmailTime.UTC(), kill.Victim.CharacterId,
-		kill.Victim.CorporationId, kill.Victim.AllianceId, hash, len(kill.Attackers), kill.Victim.DamageTaken,
-		kill.Victim.Position.X, kill.Victim.Position.Y, kill.Victim.Position.Z, kill.Victim.ShipTypeId,
-		kill.WarId)
-	if err != nil {
-		return err
-	}
 
-	for _, item := range kill.Victim.Items {
-		err = models.AddKillmailItems(kill.KillmailId, item.ItemTypeId, item.Flag, item.QuantityDestroyed,
-			item.QuantityDropped, item.Singleton)
+	if save {
+		err = models.AddKillmail(kill.KillmailId, kill.SolarSystemId, kill.KillmailTime.UTC(), kill.Victim.CharacterId,
+			kill.Victim.CorporationId, kill.Victim.AllianceId, hash, len(kill.Attackers), kill.Victim.DamageTaken,
+			kill.Victim.Position.X, kill.Victim.Position.Y, kill.Victim.Position.Z, kill.Victim.ShipTypeId,
+			kill.WarId)
 		if err != nil {
 			return err
 		}
 	}
-
+	if save {
+		for _, item := range kill.Victim.Items {
+			err = models.AddKillmailItems(kill.KillmailId, item.ItemTypeId, item.Flag, item.QuantityDestroyed,
+				item.QuantityDropped, item.Singleton)
+			if err != nil {
+				return err
+			}
+		}
+	}
 	for _, attacker := range kill.Attackers {
 		c.entityAddToQueue(attacker.CharacterId)
 		c.entityAddToQueue(attacker.CorporationId)
 		if attacker.AllianceId != 0 {
 			c.entityAddToQueue(attacker.AllianceId)
 		}
-		err = models.AddKillmailAttacker(kill.KillmailId, attacker.CharacterId, attacker.CorporationId, attacker.AllianceId,
-			attacker.ShipTypeId, attacker.FinalBlow, attacker.DamageDone, attacker.WeaponTypeId,
-			attacker.SecurityStatus)
-		if err != nil {
-			return err
+		if save {
+			err = models.AddKillmailAttacker(kill.KillmailId, attacker.CharacterId, attacker.CorporationId, attacker.AllianceId,
+				attacker.ShipTypeId, attacker.FinalBlow, attacker.DamageDone, attacker.WeaponTypeId,
+				attacker.SecurityStatus)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	c.killmailSetKnown((int32)(id))
