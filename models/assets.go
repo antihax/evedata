@@ -50,6 +50,7 @@ func GetAssetLocations(characterID int64, filterCharacterID int64) ([]AssetLocat
 		WHERE A.locationType != "other"
 			AND A.characterID IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)
 		GROUP BY A.locationID
+		ORDER BY sell DESC
 	`, characterID); err != nil {
 		return nil, err
 	}

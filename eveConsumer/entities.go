@@ -130,7 +130,7 @@ func (c *EVEConsumer) entityCheckQueue(r redis.Conn) error {
 
 	err = c.entityGetAndSave((int32)(v))
 	if err != nil {
-		c.entityAddToQueue((int32)(v))
+		return err
 	}
 	return err
 }

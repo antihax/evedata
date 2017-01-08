@@ -1,16 +1,55 @@
 {{define "body"}} 
-	        <table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".cresttokenToolbar"
-	        	data-url="/U/assets" id="assets">
-	            <thead>
-	                <tr>
-	                    <th data-field="characterID">Character</th>
-	                    <th data-field="typeName">Type</th>
-	                    <th data-field="quantity"> Quantity</th>
-	                </tr>
-	            </thead>
-	        </table>
 
-		 <script>
-	        var 	$cresttable = $('#assets').bootstrapTable({url: "/U/assets"}, "changeLocale", "en_US");
-	   </script>
+<div class="toolbar assetToolbar" id="LocationContainer">
+	<select class="selectpicker" data-width="auto" name="locationList" id="locationList"></select>
+</div>
+
+<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".assetToolbar"
+	data-url="/U/assets" id="assets">
+	<thead>
+		<tr>
+			<th data-field="characterID">Character</th>
+			<th data-field="typeName">Type</th>
+			<th data-field="quantity"> Quantity</th>
+		</tr>
+	</thead>
+</table>
+
+<script>
+var 	$assets = $('#assets').bootstrapTable({url: "/U/assets"}, "changeLocale", "en_US");
+
+  function priceFormatter(nStr) {
+        nStr += '';
+        var x = nStr.split('.');
+        var x1 = x[0];
+        var x2 = x.length > 1 ? '.' + x[1] : '';
+        var rgx = /(\d+)(\d{3})/;
+        while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        }
+        return x1 + x2;
+    }
+
+
+    $.ajax({
+        url: '/U/assetLocations',
+        dataType: 'JSON',
+        success: function(data) {
+            $.each(data, function(key, val) {
+				$('#locationList').append('<option id=' + val.locationID + ' data-subtext="' + priceFormatter(val.sell) +' ISK">' + val.locationName + '</option>');
+            })
+            $('#assets').bootstrapTable('refreshOptions', {
+    			url: '/U/assets?locationID='+$('#locationList').val()
+    		});	
+        },
+        error: function() { }
+    });
+    
+	$('#locationList').change(function(){
+    	$('#assets').bootstrapTable('refreshOptions', {
+    		url: '/U/assets?locationID='+$('#locationList').val()
+		});	
+	});	
+
+</script>
 {{end}}

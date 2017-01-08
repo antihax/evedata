@@ -36,7 +36,7 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 			redisCon.Do("ZADD", "EVEDATA_HTTPErrorCount", time.Now().UTC().Unix(), b)
 
 			// Tick up the error rate and sleep proportionally to the error count.
-			if res.StatusCode >= 500 {
+			if res.StatusCode >= 500 || res.StatusCode == 000 {
 				if t.errorRate < 60 {
 					atomic.AddUint32(&t.errorRate, 1)
 				}

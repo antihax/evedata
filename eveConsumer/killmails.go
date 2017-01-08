@@ -45,7 +45,7 @@ func (c *EVEConsumer) killmailCheckQueue(r redis.Conn) error {
 
 	err = c.killmailGetAndSave((int32)(id), split[1])
 	if err != nil {
-		c.killmailAddToQueue((int32)(id), split[1])
+		return err
 	}
 	return err
 
