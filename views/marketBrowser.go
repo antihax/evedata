@@ -156,7 +156,7 @@ func marketRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.
 
 	if regionID == 0 {
 		sql := `SELECT  remainingVolume AS quantity, price, stationName, M.stationID
-        	                    FROM    market M
+        	                    FROM    evedata.market M
                              	INNER JOIN staStations S ON S.stationID=M.stationID
                              	INNER JOIN mapSolarSystems Sy ON Sy.solarSystemID = M.systemID
                              	WHERE      done=0 AND
@@ -165,7 +165,7 @@ func marketRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.
 		err = c.Db.Select(&mR, sql, buy, itemID)
 	} else {
 		err = c.Db.Select(&mR, `SELECT  remainingVolume AS quantity, price, stationName, M.stationID
-        	                    FROM    market M
+        	                    FROM    evedata.market M
                              	INNER JOIN staStations S ON S.stationID=M.stationID
                              	INNER JOIN mapSolarSystems Sy ON Sy.solarSystemID = M.systemID
                              	WHERE      done=0 AND

@@ -39,7 +39,7 @@ func GetISKPerLP(corporationName string) ([]IskPerLP, error) {
 	if err := database.Select(&s, `
 		SELECT itemName, Lp.typeID, Lp.typeName, JitaPrice, itemCost, iskPerLP, JitaVolume, JitaVolume*JitaPrice AS iskVolume, GROUP_CONCAT(quantity, " x ", T.typeName SEPARATOR '<br>\n') AS requirements
 			FROM evedata.iskPerLp Lp
-			LEFT JOIN lpOfferRequirements R ON Lp.offerID = R.offerID
+			LEFT JOIN evedata.lpOfferRequirements R ON Lp.offerID = R.offerID
 			LEFT JOIN invTypes T ON R.typeID = T.typeID
 			WHERE itemName = ?
 			GROUP BY Lp.typeName
