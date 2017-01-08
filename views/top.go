@@ -99,11 +99,15 @@ func GenerateStatistics(c *appContext.AppContext) {
 
 			kills, _ := redis.Int(red.Do("SCARD", "EVEDATA_knownKills"))
 			fmt.Fprintf(out, "%s \tKnown Kills %s\n", humanize.Comma((int64)(kills)), statisticsChange("kills", kills))
+			finWars, _ := redis.Int(red.Do("SCARD", "EVEDATA_knownFinishedWars"))
+			fmt.Fprintf(out, "%s \tKnown Kills %s\n", humanize.Comma((int64)(finWars)), statisticsChange("finWars", finWars))
+
+			fmt.Fprintln(out)
+
 			killq, _ := redis.Int(red.Do("SCARD", "EVEDATA_killQueue"))
 			fmt.Fprintf(out, "%s \tKills in Queue %s\n", humanize.Comma((int64)(killq)), statisticsChange("killq", killq))
 			entityq, _ := redis.Int(red.Do("SCARD", "EVEDATA_entityQueue"))
 			fmt.Fprintf(out, "%s \tEntities in Queue %s\n", humanize.Comma((int64)(entityq)), statisticsChange("entityq", entityq))
-			fmt.Fprintln(out)
 			history, _ := redis.Int(red.Do("SCARD", "EVEDATA_marketHistory"))
 			fmt.Fprintf(out, "%s \tMarket History in Queue %s\n", humanize.Comma((int64)(history)), statisticsChange("history", history))
 			orders, _ := redis.Int(red.Do("SCARD", "EVEDATA_marketOrders"))
@@ -114,6 +118,8 @@ func GenerateStatistics(c *appContext.AppContext) {
 			fmt.Fprintf(out, "%s \tContactSyncs in Queue %s\n", humanize.Comma((int64)(contacts)), statisticsChange("contacts", contacts))
 			assets, _ := redis.Int(red.Do("SCARD", "EVEDATA_assetQueue"))
 			fmt.Fprintf(out, "%s \tAssets in Queue %s\n", humanize.Comma((int64)(assets)), statisticsChange("assets", assets))
+			wars, _ := redis.Int(red.Do("SCARD", "EVEDATA_warQueue"))
+			fmt.Fprintf(out, "%s \tWars in Queue %s\n", humanize.Comma((int64)(wars)), statisticsChange("wars", wars))
 
 			// HTTP Statistics
 			fmt.Fprintln(out)

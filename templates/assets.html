@@ -30,7 +30,6 @@ var 	$assets = $('#assets').bootstrapTable({url: "/U/assets"}, "changeLocale", "
         return x1 + x2;
     }
 
-
     $.ajax({
         url: '/U/assetLocations',
         dataType: 'JSON',
@@ -47,7 +46,7 @@ var 	$assets = $('#assets').bootstrapTable({url: "/U/assets"}, "changeLocale", "
     
 	$('#locationList').change(function(){
     	$('#assets').bootstrapTable('refreshOptions', {
-    		url: '/U/assets?locationID='+$('#locationList').val()
+    		url: '/U/assets?locationID='+$('#locationList').id
 		});	
 	});	
 

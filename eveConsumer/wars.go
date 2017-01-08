@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/antihax/evedata/models"
+	"github.com/garyburd/redigo/redis"
 )
 
 func (c *EVEConsumer) checkWars() {
@@ -18,6 +19,21 @@ func (c *EVEConsumer) checkWars() {
 	if err != nil {
 		log.Printf("EVEConsumer: updating wars: %v", err)
 	}
+}
+
+func (c *EVEConsumer) warAddToQueue(id int32) error {
+	r := c.ctx.Cache.Get()
+	defer r.Close()
+
+	// We know this kill. Early out.
+	i, err := redis.Int(r.Do("SISMEMBER", "EVEDATA_knownFinishedWars", id))
+	if err == nil && i == 1 {
+		return err
+	}
+
+	// Add the mail to the queue
+	_, err = r.Do("SADD", "EVEDATA_warQueue", id)
+	return err
 }
 
 func (c *EVEConsumer) updateWars() error {

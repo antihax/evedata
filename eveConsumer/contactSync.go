@@ -78,18 +78,24 @@ func (c *EVEConsumer) contactSyncCheckQueue(r redis.Conn) error {
 	if err != nil {
 		return err
 	}
+
 	// get the source character information
-	char, err := c.ctx.EVE.CharacterInfoXML(source)
-	if err != nil || char == nil {
+	char, _, err := c.ctx.ESI.CharacterApi.GetCharactersCharacterId((int32)(source), nil)
+	if err != nil {
+		return err
+	}
+
+	corp, _, err := c.ctx.ESI.CorporationApi.GetCorporationsCorporationId(char.CorporationId, nil)
+	if err != nil {
 		return err
 	}
 
 	// Find the Entity ID to search for wars.
-	var searchID int64
-	if char.AllianceID > 0 {
-		searchID = char.AllianceID
+	var searchID int32
+	if corp.AllianceId > 0 {
+		searchID = corp.AllianceId
 	} else {
-		searchID = char.CharacterID
+		searchID = char.CorporationId
 	}
 
 	// Map of tokens
@@ -111,13 +117,13 @@ func (c *EVEConsumer) contactSyncCheckQueue(r redis.Conn) error {
 	}
 
 	// Active Wars
-	activeWars, err := models.GetActiveWarsByID(searchID)
+	activeWars, err := models.GetActiveWarsByID((int64)(searchID))
 	if err != nil {
 		log.Printf("Contact Sync: Failed Getting Active Wars: %v", err)
 	}
 
 	// Pending Wars
-	pendingWars, err := models.GetPendingWarsByID(searchID)
+	pendingWars, err := models.GetPendingWarsByID((int64)(searchID))
 	if err != nil {
 		log.Printf("Contact Sync: Failed Getting Pending Wars: %v", err)
 	}
