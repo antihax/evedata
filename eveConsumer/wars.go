@@ -138,7 +138,7 @@ func (c *EVEConsumer) warCheckQueue(r redis.Conn) error {
 		}
 	}
 
-	if war.TimeFinished.After(time.Now().UTC()) {
+	if war.TimeFinished.UTC().Before(time.Now()) {
 		r.Do("SADD", "EVEDATA_knownFinishedWars", (int32)(war.ID))
 	}
 
