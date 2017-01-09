@@ -34,6 +34,9 @@ func (c *EVEConsumer) collectNPCCorps() error {
 		return err
 	}
 
+	redis := c.ctx.Cache.Get()
+	defer redis.Close()
+
 	// Loop through all of the pages
 	for ; w != nil; w, err = w.NextPage() {
 		for _, npcCorp := range w.Items {
@@ -41,7 +44,7 @@ func (c *EVEConsumer) collectNPCCorps() error {
 				continue
 			}
 
-			c.entityAddToQueue((int32)(npcCorp.ID))
+			EntityAddToQueue((int32)(npcCorp.ID), redis)
 			store, err := c.ctx.EVE.LoyaltyPointStoreV1(npcCorp.LoyaltyStore.Href)
 			if err != nil {
 				continue

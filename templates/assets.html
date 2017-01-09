@@ -1,54 +1,120 @@
 {{define "body"}} 
-
+<h3>Assets</h3>
 <div class="toolbar assetToolbar" id="LocationContainer">
 	<select class="selectpicker" data-width="auto" name="locationList" id="locationList"></select>
+	<select class="selectpicker" data-width="auto" name="characterList" id="characterList"></select>
 </div>
 
-<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".assetToolbar"
-	data-url="/U/assets" id="assets">
+<table class="table" data-cache="true" data-toolbar=".assetToolbar" id="assets">
 	<thead>
 		<tr>
-			<th data-field="characterID">Character</th>
-			<th data-field="typeName">Type</th>
-			<th data-field="quantity"> Quantity</th>
+			<th data-field="characterID" data-formatter="characterFormatter">Character</th>
+			<th data-field="typeName" data-formatter="typeFormatter">Type</th>
+			<th data-field="quantity" data-formatter="numberFormatter" data-align="right">Quantity</th>
+            <th data-field="subCount" data-formatter="numberFormatter" data-align="right">Items Inside</th>
+            <th data-field="buy" data-formatter="numberFormatter" data-align="right">Buy Price</th>
+            <th data-field="sell" data-formatter="numberFormatter" data-align="right">Sell Price</th>
 		</tr>
 	</thead>
 </table>
 
 <script>
-var 	$assets = $('#assets').bootstrapTable({url: "/U/assets"}, "changeLocale", "en_US");
+var 	$assets = $('#assets').bootstrapTable({ 
+            url: "/U/assets", 
+            detailView: true,
+            onExpandRow: function(index, row, $detail) {
+                console.log(row)
+                $detail.html('<table></table>').find('table').bootstrapTable({
+                columns: [{
+                    field: 'typeName',
+                    title: 'Type',
+                    formatter: "typeFormatter"
+                }, {
+                    field: 'quantity',
+                    title: 'Quantity',
+                    align: "right",
+                    formatter: "numberFormatter"
+                }, {
+                    field: 'subCount',
+                    title: 'Items Inside',
+                    align: "right",
+                    formatter: "numberFormatter"
+                }, {
+                    field: 'buy',
+                    title: 'Buy Price',
+                    align: "right",
+                    formatter: "numberFormatter"
+                }, {
+                    field: 'sell',
+                    title: 'Sell Price',
+                    align: "right",
+                    formatter: "numberFormatter"
+                }],
+                data: row.subItems,
+                // Simple contextual, assumes all entries have further nesting
+                // Just shows example of how you might differentiate some rows, though also remember row class and similar possible flags
+                detailView: row.subItems[0]['subItems'] !== undefined,
+                onExpandRow: function(indexb, rowb, $detailb) {
+                    $detailb.html('<table></table>').find('table').bootstrapTable({
+                    columns: [{
+                        field: 'col6',
+                        title: 'Col6'
+                    }, {
+                        field: 'col7',
+                        title: 'Col7'
+                    }],
+                    data: rowb.other
+                    });
+                }
+            });         
+}
+});
 
-  function priceFormatter(nStr) {
-        nStr += '';
-        var x = nStr.split('.');
-        var x1 = x[0];
-        var x2 = x.length > 1 ? '.' + x[1] : '';
-        var rgx = /(\d+)(\d{3})/;
-        while (rgx.test(x1)) {
-            x1 = x1.replace(rgx, '$1' + ',' + '$2');
-        }
-        return x1 + x2;
+
+    function updateStationList(characterID) {
+        $.ajax({
+            url: '/U/assetLocations?filterCharacterID='+characterID,
+            dataType: 'JSON',
+            success: function(data) {
+                $('#locationList').empty();
+                $.each(data, function(key, val) {
+                   $('#locationList').append('<option value=' + val.locationID + ' data-subtext="' + numberCommafy(val.sell) +' ISK">' + val.locationName + '</option>');
+                })
+                $('#locationList').selectpicker('refresh')
+                $('#assets').bootstrapTable('refreshOptions', {
+                        url: '/U/assets?locationID='+$('#locationList').val()+'&filterCharacterID='+$('#characterList').val()
+                    });	
+                },
+                error: function() { }
+        });
     }
-
-    $.ajax({
-        url: '/U/assetLocations',
-        dataType: 'JSON',
-        success: function(data) {
-            $.each(data, function(key, val) {
-				$('#locationList').append('<option id=' + val.locationID + ' data-subtext="' + priceFormatter(val.sell) +' ISK">' + val.locationName + '</option>');
-            })
-            $('#assets').bootstrapTable('refreshOptions', {
-    			url: '/U/assets?locationID='+$('#locationList').val()
-    		});	
-        },
-        error: function() { }
-    });
     
 	$('#locationList').change(function(){
-    	$('#assets').bootstrapTable('refreshOptions', {
-    		url: '/U/assets?locationID='+$('#locationList').id
-		});	
+        $('#assets').bootstrapTable('refreshOptions', {
+            url: '/U/assets?locationID='+$('#locationList').val()+'&filterCharacterID='+$('#characterList').val()
+        });	
 	});	
+
+
+    $.ajax({
+        url: '/U/assetCharacters',
+        dataType: 'JSON',
+        success: function(data) {
+            $('#characterList').append('<option value=0>All Characters</option>');
+            $.each(data, function(key, val) {
+				$('#characterList').append('<option value=' + val.characterID + ' data-subtext="' + numberCommafy(val.sell) +' ISK">' + val.characterName + '</option>');
+            })
+            updateStationList(0)
+        },
+        error: function() { }
+        
+    });
+        
+	$('#characterList').change(function(){
+        updateStationList($('#characterList').val());
+	});	    
+
+
 
 </script>
 {{end}}

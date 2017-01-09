@@ -47,6 +47,9 @@ func (c *EVEConsumer) updateEntities() error {
 		return err
 	}
 
+	r := c.ctx.Cache.Get()
+	defer r.Close()
+
 	// Loop the entities
 	for entities.Next() {
 		var (
@@ -61,7 +64,7 @@ func (c *EVEConsumer) updateEntities() error {
 		}
 
 		// Recursively update expired information
-		if err = c.entityAddToQueue(id); err != nil {
+		if err = EntityAddToQueue(id, r); err != nil {
 			return err
 		}
 
@@ -93,6 +96,9 @@ func (c *EVEConsumer) collectEntitiesFromCREST() error {
 		return err
 	}
 
+	redis := c.ctx.Cache.Get()
+	defer redis.Close()
+
 	// Loop through all of the alliance pages
 	for ; w != nil; w, err = w.NextPage() {
 		if err != nil {
@@ -101,7 +107,7 @@ func (c *EVEConsumer) collectEntitiesFromCREST() error {
 
 		// Recursively update expired information
 		for _, r := range w.Items {
-			if err = c.entityAddToQueue((int32)(r.ID)); err != nil {
+			if err = EntityAddToQueue((int32)(r.ID), redis); err != nil {
 				return err
 			}
 		}
@@ -135,9 +141,7 @@ func (c *EVEConsumer) entityCheckQueue(r redis.Conn) error {
 	return err
 }
 
-func (c *EVEConsumer) entityAddToQueue(id int32) error {
-	r := c.ctx.Cache.Get()
-	defer r.Close()
+func EntityAddToQueue(id int32, r redis.Conn) error {
 
 	// Skip this entity if we have touched it recently
 	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", id)
@@ -199,18 +203,21 @@ func (c *EVEConsumer) updateAlliance(id int64) error {
 		return err
 	}
 
+	redis := c.ctx.Cache.Get()
+	defer redis.Close()
+
 	err = models.UpdateAlliance(a.ID, a.Name, a.CorporationsCount, a.ShortName, a.ExecutorCorporation.ID,
 		a.StartDate.UTC(), a.Deleted, a.Description, a.CreatorCorporation.ID, a.CreatorCharacter.ID, time.Now().UTC().Add(time.Hour*24))
 	if err != nil {
 		return err
 	}
-	err = c.entityAddToQueue((int32)(a.CreatorCharacter.ID))
+	err = EntityAddToQueue((int32)(a.CreatorCharacter.ID), redis)
 	if err != nil {
 		return err
 	}
 
 	for _, corp := range a.Corporations {
-		err = c.entityAddToQueue((int32)(corp.ID))
+		err = EntityAddToQueue((int32)(corp.ID), redis)
 		if err != nil {
 			return err
 		}
@@ -231,7 +238,9 @@ func (c *EVEConsumer) updateCorporation(id int64) error {
 		return err
 	}
 	if a.CEOID > 1 {
-		err = c.entityAddToQueue((int32)(a.CEOID))
+		redis := c.ctx.Cache.Get()
+		defer redis.Close()
+		err = EntityAddToQueue((int32)(a.CEOID), redis)
 		if err != nil {
 			return err
 		}

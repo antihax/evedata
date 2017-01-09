@@ -118,11 +118,13 @@ func (c *EVEConsumer) killmailGetAndSave(id int32, hash string) error {
 	if kill.KillmailTime.UTC().Before(old) {
 		save = false
 	}
+	redis := c.ctx.Cache.Get()
+	defer redis.Close()
 
-	c.entityAddToQueue(kill.Victim.CharacterId)
-	c.entityAddToQueue(kill.Victim.CorporationId)
+	EntityAddToQueue(kill.Victim.CharacterId, redis)
+	EntityAddToQueue(kill.Victim.CorporationId, redis)
 	if kill.Victim.AllianceId != 0 {
-		c.entityAddToQueue(kill.Victim.AllianceId)
+		EntityAddToQueue(kill.Victim.AllianceId, redis)
 	}
 
 	if save {
@@ -144,10 +146,10 @@ func (c *EVEConsumer) killmailGetAndSave(id int32, hash string) error {
 		}
 	}
 	for _, attacker := range kill.Attackers {
-		c.entityAddToQueue(attacker.CharacterId)
-		c.entityAddToQueue(attacker.CorporationId)
+		EntityAddToQueue(attacker.CharacterId, redis)
+		EntityAddToQueue(attacker.CorporationId, redis)
 		if attacker.AllianceId != 0 {
-			c.entityAddToQueue(attacker.AllianceId)
+			EntityAddToQueue(attacker.AllianceId, redis)
 		}
 		if save {
 			err = models.AddKillmailAttacker(kill.KillmailId, attacker.CharacterId, attacker.CorporationId, attacker.AllianceId,

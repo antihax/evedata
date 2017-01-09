@@ -1,6 +1,9 @@
 	function capitalizeFirstLetter(string) {
 	    return string.charAt(0).toUpperCase() + string.slice(1);
 	}
+	function characterImage(row) {
+	    return '//image.eveonline.com/character/' + row.characterID + '_32.jpg';
+	}
 	function entityImage(row) {
 	    return '//image.eveonline.com/'+ capitalizeFirstLetter(row.type) + '/' + row.id + '_32.png';
 	}
@@ -31,8 +34,29 @@
     	var entityURL = '/'+ row.type + '?id=' + row.id 
         return '<a href="' + entityURL + '"><img src="' + entityImage(row) + '" height=32 width=32> ' + value + '</a>';
     }
+    function characterFormatter(value, row) {
+    	var entityURL = '/'+ row.type + '?id=' + row.id 
+        return '<img src="' + characterImage(row) + '" height=32 width=32 alt="'+row.characterName+'">';
+    }
     function typeFormatter(value, row) {
     	var typeURL = '/item?id=' + row.typeID
     	return '<a href="' + typeURL + '"><img src="' + typeImage(row) + '" height=32 width=32> ' + value + '</a>';
-    	//return '<img src="' + typeImage(row) + '" height=32 width=32> ' + value + '';
     }
+    function currencyFormatter(value, row) {
+		return numberCommafy(value);
+    }
+    function numberFormatter(value, row) {
+		return numberCommafy(value);
+    }
+
+	function numberCommafy(nStr) {
+		nStr += '';
+		var x = nStr.split('.');
+		var x1 = x[0];
+		var x2 = x.length > 1 ? '.' + x[1] : '';
+		var rgx = /(\d+)(\d{3})/;
+		while (rgx.test(x1)) {
+			x1 = x1.replace(rgx, '$1' + ',' + '$2');
+		}
+		return x1 + x2;
+	}

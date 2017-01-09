@@ -63,7 +63,7 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 	if err != nil {
 		return err
 	} else if nextCheck.After(time.Now()) {
-		return nil
+		//return nil
 	}
 
 	var page int32 = 1
@@ -117,12 +117,12 @@ func (c *EVEConsumer) warCheckQueue(r redis.Conn) error {
 		return err
 	}
 
-	err = c.entityAddToQueue((int32)(war.Aggressor.ID))
+	err = EntityAddToQueue((int32)(war.Aggressor.ID), r)
 	if err != nil {
 		return err
 	}
 
-	err = c.entityAddToQueue((int32)(war.Defender.ID))
+	err = EntityAddToQueue((int32)(war.Defender.ID), r)
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func (c *EVEConsumer) warCheckQueue(r redis.Conn) error {
 			return err
 		}
 
-		if err = c.entityAddToQueue((int32)(a.ID)); err != nil {
+		if err = EntityAddToQueue((int32)(a.ID), r); err != nil {
 			return err
 		}
 	}
