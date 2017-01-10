@@ -10,14 +10,14 @@ import (
 )
 
 func (c *EVEConsumer) checkWars() {
-	err := c.collectWarsFromCREST()
-	if err != nil {
-		log.Printf("EVEConsumer: collecting wars: %v", err)
-	}
-
-	err = c.updateWars()
+	err := c.updateWars()
 	if err != nil {
 		log.Printf("EVEConsumer: updating wars: %v", err)
+	}
+
+	err = c.collectWarsFromCREST()
+	if err != nil {
+		log.Printf("EVEConsumer: collecting wars: %v", err)
 	}
 }
 
@@ -37,12 +37,12 @@ func (c *EVEConsumer) warAddToQueue(id int32) error {
 }
 
 func (c *EVEConsumer) updateWars() error {
+	r := c.ctx.Cache.Get()
+	defer r.Close()
 	rows, err := c.ctx.Db.Query(
-		`SELECT id FROM evedata.wars 
-			WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL) 
-			AND cacheUntil < UTC_TIMESTAMP()`)
+		`SELECT id FROM evedata.wars WHERE timeFinished = '0001-01-01 00:00:00'
+			AND cacheUntil < UTC_TIMESTAMP();`)
 	if err != nil {
-
 		return err
 	}
 	defer rows.Close()
@@ -53,6 +53,8 @@ func (c *EVEConsumer) updateWars() error {
 		if err != nil {
 			return err
 		}
+
+		r.Do("SREM", "EVEDATA_knownFinishedWars", id)
 		c.warAddToQueue(id)
 	}
 	return nil
