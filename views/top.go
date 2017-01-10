@@ -74,13 +74,15 @@ func GenerateStatistics(c *appContext.AppContext) {
 	for {
 		statisticsLoadHostStats(red)
 		if c.Conf.GenerateStats {
+			var left, right []string
+
 			// Remove old entries from host table
 			red.Do("ZREMRANGEBYSCORE", "EVEDATA_HOST", 0, time.Now().UTC().Unix())
 
 			w := bytes.NewBuffer(statisticsTxt)
 			w.Reset()
 
-			out := tabwriter.NewWriter(w, 40, 4, 2, ' ', tabwriter.AlignRight)
+			out := tabwriter.NewWriter(w, 20, 1, 1, ' ', tabwriter.AlignRight)
 
 			// this will store the keys of each iteration
 			var host []string
@@ -95,46 +97,64 @@ func GenerateStatistics(c *appContext.AppContext) {
 				fmt.Fprintf(out, "%s\n", host[i])
 			}
 
-			fmt.Fprintln(out)
-
-			kills, _ := redis.Int(red.Do("SCARD", "EVEDATA_knownKills"))
-			fmt.Fprintf(out, "%s \tKnown Kills %s\n", humanize.Comma((int64)(kills)), statisticsChange("kills", kills))
-			finWars, _ := redis.Int(red.Do("SCARD", "EVEDATA_knownFinishedWars"))
-			fmt.Fprintf(out, "%s \tFinished Wars %s\n", humanize.Comma((int64)(finWars)), statisticsChange("finWars", finWars))
-
-			fmt.Fprintln(out)
-
-			killq, _ := redis.Int(red.Do("SCARD", "EVEDATA_killQueue"))
-			fmt.Fprintf(out, "%s \tKills in Queue %s\n", humanize.Comma((int64)(killq)), statisticsChange("killq", killq))
-			entityq, _ := redis.Int(red.Do("SCARD", "EVEDATA_entityQueue"))
-			fmt.Fprintf(out, "%s \tEntities in Queue %s\n", humanize.Comma((int64)(entityq)), statisticsChange("entityq", entityq))
-			history, _ := redis.Int(red.Do("SCARD", "EVEDATA_marketHistory"))
-			fmt.Fprintf(out, "%s \tMarket History in Queue %s\n", humanize.Comma((int64)(history)), statisticsChange("history", history))
-			orders, _ := redis.Int(red.Do("SCARD", "EVEDATA_marketOrders"))
-			fmt.Fprintf(out, "%s \tMarket Orders in Queue %s\n", humanize.Comma((int64)(orders)), statisticsChange("orders", orders))
-			regions, _ := redis.Int(red.Do("ZCARD", "EVEDATA_marketRegions"))
-			fmt.Fprintf(out, "%s \tMarket Regions %s\n", humanize.Comma((int64)(regions)), statisticsChange("regions", regions))
-			contacts, _ := redis.Int(red.Do("SCARD", "EVEDATA_contactSyncQueue"))
-			fmt.Fprintf(out, "%s \tContactSyncs in Queue %s\n", humanize.Comma((int64)(contacts)), statisticsChange("contacts", contacts))
-			assets, _ := redis.Int(red.Do("SCARD", "EVEDATA_assetQueue"))
-			fmt.Fprintf(out, "%s \tAssets in Queue %s\n", humanize.Comma((int64)(assets)), statisticsChange("assets", assets))
-			wars, _ := redis.Int(red.Do("SCARD", "EVEDATA_warQueue"))
-			fmt.Fprintf(out, "%s \tWars in Queue %s\n", humanize.Comma((int64)(wars)), statisticsChange("wars", wars))
-
 			// HTTP Statistics
 			fmt.Fprintln(out)
 
+			killq, _ := redis.Int(red.Do("SCARD", "EVEDATA_killQueue"))
+			left = append(left, fmt.Sprintf("%s %s\tKill    Queue", statisticsChange("killq", killq), humanize.Comma((int64)(killq))))
+			entityq, _ := redis.Int(red.Do("SCARD", "EVEDATA_entityQueue"))
+			left = append(left, fmt.Sprintf("%s %s\tEntity  Queue", statisticsChange("entityq", entityq), humanize.Comma((int64)(entityq))))
+			history, _ := redis.Int(red.Do("SCARD", "EVEDATA_marketHistory"))
+			left = append(left, fmt.Sprintf("%s %s\tHist    Queue", statisticsChange("history", history), humanize.Comma((int64)(history))))
+			orders, _ := redis.Int(red.Do("SCARD", "EVEDATA_marketOrders"))
+			left = append(left, fmt.Sprintf("%s %s\tMarket  Queue", statisticsChange("orders", orders), humanize.Comma((int64)(orders))))
+			regions, _ := redis.Int(red.Do("ZCARD", "EVEDATA_marketRegions"))
+			left = append(left, fmt.Sprintf("%s %s\tRegion  Queue", statisticsChange("regions", regions), humanize.Comma((int64)(regions))))
+			contacts, _ := redis.Int(red.Do("SCARD", "EVEDATA_contactSyncQueue"))
+			left = append(left, fmt.Sprintf("%s %s\tSync    Queue", statisticsChange("contacts", contacts), humanize.Comma((int64)(contacts))))
+			assets, _ := redis.Int(red.Do("SCARD", "EVEDATA_assetQueue"))
+			left = append(left, fmt.Sprintf("%s %s\tAsset   Queue", statisticsChange("assets", assets), humanize.Comma((int64)(assets))))
+			wars, _ := redis.Int(red.Do("SCARD", "EVEDATA_warQueue"))
+			left = append(left, fmt.Sprintf("%s %s\tWars    Queue", statisticsChange("wars", wars), humanize.Comma((int64)(wars))))
+
+			kills, _ := redis.Int(red.Do("SCARD", "EVEDATA_knownKills"))
+			right = append(right, fmt.Sprintf("%s \tKnown Kills %s", humanize.Comma((int64)(kills)), statisticsChange("kills", kills)))
+
+			finWars, _ := redis.Int(red.Do("SCARD", "EVEDATA_knownFinishedWars"))
+			right = append(right, fmt.Sprintf("%s \tFinished Wars %s", humanize.Comma((int64)(finWars)), statisticsChange("finWars", finWars)))
+
+			right = append(right, "")
+
+			red.Do("ZREMRANGEBYSCORE", "EVEDATA_HTTPRequest", 0, time.Now().UTC().Add(time.Second*-30).Unix())
 			httpreq, _ := redis.Int(red.Do("ZCARD", "EVEDATA_HTTPRequest"))
-			red.Do("ZREMRANGEBYSCORE", "EVEDATA_HTTPRequest", 0, time.Now().UTC().Unix())
-			fmt.Fprintf(out, "%s \tHTTP Requests (%d rps) %s\n", humanize.Comma((int64)(httpreq)), httpreq/5, statisticsChange("httpreq", httpreq))
+			right = append(right, fmt.Sprintf("%.1f rps \tHTTP Requests", (float64)(httpreq)/30))
 
+			red.Do("ZREMRANGEBYSCORE", "EVEDATA_HTTPCount", 0, time.Now().UTC().Add(time.Second*-30).Unix())
 			httpcount, _ := redis.Int(red.Do("ZCARD", "EVEDATA_HTTPCount"))
-			red.Do("ZREMRANGEBYSCORE", "EVEDATA_HTTPCount", 0, time.Now().UTC().Unix())
-			fmt.Fprintf(out, "%s \tHTTP API Calls (%d rps) %s\n", humanize.Comma((int64)(httpcount)), httpcount/5, statisticsChange("httpcount", httpcount))
+			right = append(right, fmt.Sprintf("%.1f rps \tHTTP API Calls  ", (float64)(httpcount)/30))
 
+			red.Do("ZREMRANGEBYSCORE", "EVEDATA_HTTPErrorCount", 0, time.Now().UTC().Add(time.Second*-30).Unix())
 			httperr, _ := redis.Int(red.Do("ZCARD", "EVEDATA_HTTPErrorCount"))
-			red.Do("ZREMRANGEBYSCORE", "EVEDATA_HTTPErrorCount", 0, time.Now().UTC().Unix())
-			fmt.Fprintf(out, "%s \tHTTP Errors %s\n", humanize.Comma((int64)(httperr)), statisticsChange("httperr", httperr))
+			right = append(right, fmt.Sprintf("%.1f eps \tHTTP Errors  ", (float64)(httperr)/30))
+
+			l := 0
+			ll := len(left)
+			lr := len(right)
+			if ll > lr {
+				l = ll
+			} else {
+				l = lr
+			}
+
+			for i := 0; i < l; i++ {
+				if ll > i && lr > i {
+					fmt.Fprintf(out, "%s\t%s\n", left[i], right[i])
+				} else if ll > i && lr <= i {
+					fmt.Fprintf(out, "%s\t\n", left[i])
+				} else {
+					fmt.Fprintf(out, "\t\t%s\n", right[i])
+				}
+			}
 
 			// Write out the stats
 			err := out.Flush()
