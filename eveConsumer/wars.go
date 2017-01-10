@@ -63,7 +63,7 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 	if err != nil {
 		return err
 	} else if nextCheck.After(time.Now()) {
-		//return nil
+		return nil
 	}
 
 	var page int32 = 1
