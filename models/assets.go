@@ -49,35 +49,12 @@ func GetAssetLocations(characterID int64, filterCharacterID int64) ([]AssetLocat
 
 	assetLocations := []AssetLocations{}
 	if err := database.Select(&assetLocations, `
-		SELECT  A.locationFlag, A.locationID, stationName as locationName,
-			 -- Sum the layers of items
-
-			 IFNULL(P.buy * IF(A.quantity, A.quantity, A.isSingleton),0) +
-			 IFNULL(P1.buy * IF(L1.quantity, L1.quantity, L1.isSingleton),0)  +
-			 IFNULL(P2.buy * IF(L2.quantity, L2.quantity, L2.isSingleton),0)  +
-			 IFNULL(P3.buy * IF(L3.quantity, L3.quantity, L3.isSingleton),0)  AS buy, 
- 
- 			 IFNULL(P.sell * IF(A.quantity, A.quantity, A.isSingleton),0)  +
-			 IFNULL(P1.sell * IF(L1.quantity, L1.quantity, L1.isSingleton),0)   +
-			 IFNULL(P2.sell * IF(L2.quantity, L2.quantity, L2.isSingleton),0)   +
-			 IFNULL(P3.sell * IF(L3.quantity, L3.quantity, L3.isSingleton),0)  AS sell
-
-       -- Work through 4 layers
+		SELECT  A.locationID, stationName AS locationName, 
+			SUM(P.sell  * IF(A.quantity, A.quantity, A.isSingleton)) AS sell
 		FROM evedata.assets A
-		LEFT JOIN evedata.assets L1 ON A.itemID = L1.locationID
-        LEFT JOIN evedata.assets L2 ON L1.itemID = L2.locationID
-        LEFT JOIN evedata.assets L3 ON L1.itemID = L3.locationID
-        
-        -- Price everything in the 4 layers
-		LEFT JOIN evedata.jitaPrice P ON A.typeID = P.itemID
-		LEFT JOIN evedata.jitaPrice P1 ON L1.typeID = P1.itemID
-		LEFT JOIN evedata.jitaPrice P2 ON L2.typeID = P2.itemID
-		LEFT JOIN evedata.jitaPrice P3 ON L3.typeID = P3.itemID
- 
-		JOIN invTypes T ON A.typeID = T.typeID
-        LEFT JOIN staStations LOC ON LOC.stationID = A.locationID
-		WHERE A.locationType != "other"
-			AND A.characterID `+filter+`
+		JOIN evedata.jitaPrice P  ON A.typeID   = P.itemID
+		JOIN staStations LOC ON LOC.stationID = A.locationID
+		WHERE  A.characterID `+filter+`
 		GROUP BY A.locationID
 		ORDER BY sell DESC
 	`, characterID); err != nil {
@@ -90,34 +67,11 @@ func GetAssetCharacters(characterID int64) ([]AssetCharacters, error) {
 	assetCharacters := []AssetCharacters{}
 	if err := database.Select(&assetCharacters, `
 		SELECT  A.characterID, characterName, 
-			 -- Sum the layers of items
-			 IFNULL(P.buy * IF(A.quantity, A.quantity, A.isSingleton),0) +
-			 IFNULL(P1.buy * IF(L1.quantity, L1.quantity, L1.isSingleton),0)  +
-			 IFNULL(P2.buy * IF(L2.quantity, L2.quantity, L2.isSingleton),0)  +
-			 IFNULL(P3.buy * IF(L3.quantity, L3.quantity, L3.isSingleton),0)  AS buy, 
- 
- 			 IFNULL(P.sell * IF(A.quantity, A.quantity, A.isSingleton),0)  +
-			 IFNULL(P1.sell * IF(L1.quantity, L1.quantity, L1.isSingleton),0)   +
-			 IFNULL(P2.sell * IF(L2.quantity, L2.quantity, L2.isSingleton),0)   +
-			 IFNULL(P3.sell * IF(L3.quantity, L3.quantity, L3.isSingleton),0)  AS sell
-			 
-			 			         -- Work through 4 layers
+			SUM(P.sell  * IF(A.quantity, A.quantity, A.isSingleton)) AS sell
 		FROM evedata.assets A
-        JOIN evedata.crestTokens C on A.characterID = C.tokenCharacterID
-		LEFT JOIN evedata.assets L1 ON A.itemID = L1.locationID
-        LEFT JOIN evedata.assets L2 ON L1.itemID = L2.locationID
-        LEFT JOIN evedata.assets L3 ON L1.itemID = L3.locationID
-        
-        -- Price everything in the 4 layers
-		LEFT JOIN evedata.jitaPrice P ON A.typeID = P.itemID
-		LEFT JOIN evedata.jitaPrice P1 ON L1.typeID = P1.itemID
-		LEFT JOIN evedata.jitaPrice P2 ON L2.typeID = P2.itemID
-		LEFT JOIN evedata.jitaPrice P3 ON L3.typeID = P3.itemID
- 
-		JOIN invTypes T ON A.typeID = T.typeID
-        LEFT JOIN staStations LOC ON LOC.stationID = A.locationID
-		WHERE A.locationType != "other"
-			AND A.characterID IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)
+		JOIN evedata.jitaPrice P  ON A.typeID   = P.itemID
+		JOIN evedata.crestTokens C ON A.characterID = C.tokenCharacterID 
+		WHERE A.characterID IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)
 		GROUP BY A.characterID
 		ORDER BY sell DESC
 	`, characterID); err != nil {
