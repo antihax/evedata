@@ -35,13 +35,13 @@ func (c *EVEConsumer) goConsumer() {
 			if err := c.contactSyncCheckQueue(r); err == nil {
 				workDone = true
 			} else if err != nil {
-				log.Printf("ContactSync comsumer: %v\n", err)
+				log.Printf("ContactSync consumer: %v\n", err)
 			}
 
 			if err := c.killmailCheckQueue(r); err == nil {
 				workDone = true
 			} else if err != nil {
-				log.Printf("Killmail comsumer: %v\n", err)
+				log.Printf("Killmail consumer: %v\n", err)
 			}
 
 			if err := c.assetsCheckQueue(r); err == nil {

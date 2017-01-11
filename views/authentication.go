@@ -1,14 +1,12 @@
 package views
 
 import (
-	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
 	"net/http"
 
 	"github.com/antihax/evedata/appContext"
-	"github.com/antihax/evedata/esi"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/gorilla/sessions"
@@ -71,8 +69,7 @@ func eveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 		return http.StatusInternalServerError, err
 	}
 
-	auth := context.WithValue(context.TODO(), esi.ContextOAuth2, tokSrc.Token)
-	v, err := c.EVE.Verify(auth)
+	v, err := c.EVE.Verify(tokSrc)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
@@ -125,8 +122,7 @@ func eveTokenAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 		return http.StatusInternalServerError, err
 	}
 
-	auth := context.WithValue(context.TODO(), esi.ContextOAuth2, tokSrc.Token)
-	v, err := c.EVE.Verify(auth)
+	v, err := c.EVE.Verify(tokSrc)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}

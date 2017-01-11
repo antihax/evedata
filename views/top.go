@@ -88,7 +88,7 @@ func GenerateStatistics(c *appContext.AppContext) {
 			var host []string
 
 			if arr, err := redis.MultiBulk(red.Do("ZRANGEBYSCORE", "EVEDATA_HOST", 0, "inf")); err != nil {
-				fmt.Println(err)
+				log.Println(err)
 			} else {
 				host, _ = redis.Strings(arr, nil)
 			}

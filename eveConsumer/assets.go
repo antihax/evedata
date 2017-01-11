@@ -108,7 +108,7 @@ func (c *EVEConsumer) assetsCheckQueue(r redis.Conn) error {
 
 			err = tx.Commit()
 			if err != nil {
-				fmt.Printf("Assets: %v\n", err)
+				log.Printf("Assets: %v\n", err)
 			} else {
 				break
 			}

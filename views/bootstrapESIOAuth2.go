@@ -1,7 +1,6 @@
 package views
 
 import (
-	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
@@ -9,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/antihax/evedata/appContext"
-	"github.com/antihax/evedata/esi"
 	"github.com/antihax/evedata/server"
 	"github.com/gorilla/sessions"
 )
@@ -57,8 +55,7 @@ func boostrapEveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *ht
 		return http.StatusInternalServerError, err
 	}
 
-	auth := context.WithValue(context.TODO(), esi.ContextOAuth2, tokSrc.Token)
-	_, err = c.EVE.Verify(auth)
+	_, err = c.EVE.Verify(tokSrc)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}

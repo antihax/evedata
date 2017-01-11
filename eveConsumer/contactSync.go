@@ -110,6 +110,7 @@ func (c *EVEConsumer) contactSyncCheckQueue(r redis.Conn) error {
 		a, err := c.getToken(source, cid)
 		if err != nil {
 			log.Printf("Contact Sync: Failed getClient %d %d %v", source, cid, err)
+			continue
 		}
 		// Save the token.
 		tokens[cid] = characterToken{token: &a, cid: cid}
