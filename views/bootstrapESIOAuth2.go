@@ -1,6 +1,7 @@
 package views
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/antihax/evedata/appContext"
+	"github.com/antihax/evedata/esi"
 	"github.com/antihax/evedata/server"
 	"github.com/gorilla/sessions"
 )
@@ -45,13 +47,22 @@ func boostrapEveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *ht
 		return http.StatusInternalServerError, errors.New("Invalid State. It is possible that the session cookie is missing. Stop eating the cookies!")
 	}
 
-	tok, err := c.ESIBootstrapAuthenticator.TokenExchange(c.HTTPClient, code)
+	tok, err := c.ESIBootstrapAuthenticator.TokenExchange(code)
 	if err != nil {
 		return http.StatusInternalServerError, errors.New("Failed Token Exchange")
 	}
 
-	cli := c.ESIBootstrapAuthenticator.GetClientFromToken(c.HTTPClient, tok)
-	_, err = cli.Verify()
+	tokSrc, err := c.ESIBootstrapAuthenticator.TokenSource(tok)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	auth := context.WithValue(context.TODO(), esi.ContextOAuth2, tokSrc.Token)
+	_, err = c.EVE.Verify(auth)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}

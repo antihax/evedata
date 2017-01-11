@@ -17,12 +17,12 @@ import (
 
 // AppContext provides access to handles throughout the app.
 type AppContext struct {
-	Conf           *config.Config          // App Configuration
-	Db             *sqlx.DB                // EVE Database
-	Store          *redistore.RediStore    // Redis session store.
-	EVE            *eveapi.AnonymousClient // EVE API Client
-	HTTPClient     *http.Client            // Redis Cached HTTP client
-	Cache          *redis.Pool             // Redis connection Pool for HTTP Cache and session store.
+	Conf           *config.Config       // App Configuration
+	Db             *sqlx.DB             // EVE Database
+	Store          *redistore.RediStore // Redis session store.
+	EVE            *eveapi.EVEAPIClient // EVE API Client
+	HTTPClient     *http.Client         // Redis Cached HTTP client
+	Cache          *redis.Pool          // Redis connection Pool for HTTP Cache and session store.
 	ESI            *esi.APIClient
 	ESIPublicToken oauth2.TokenSource
 

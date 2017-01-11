@@ -65,7 +65,6 @@ func (c *EVEConsumer) contactSyncCheckQueue(r redis.Conn) error {
 	} else if ret == nil {
 		return nil
 	}
-
 	v, err := redis.String(ret, err)
 	if err != nil {
 		return err

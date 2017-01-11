@@ -1,12 +1,14 @@
 package views
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
 	"net/http"
 
 	"github.com/antihax/evedata/appContext"
+	"github.com/antihax/evedata/esi"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/gorilla/sessions"
@@ -59,13 +61,18 @@ func eveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 		return http.StatusInternalServerError, errors.New("Invalid State. It is possible that the session cookie is missing. Stop eating the cookies!")
 	}
 
-	tok, err := c.SSOAuthenticator.TokenExchange(c.HTTPClient, code)
+	tok, err := c.SSOAuthenticator.TokenExchange(code)
 	if err != nil {
 		return http.StatusInternalServerError, errors.New("Failed Token Exchange")
 	}
 
-	cli := c.SSOAuthenticator.GetClientFromToken(c.HTTPClient, tok)
-	v, err := cli.Verify()
+	tokSrc, err := c.SSOAuthenticator.TokenSource(tok)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	auth := context.WithValue(context.TODO(), esi.ContextOAuth2, tokSrc.Token)
+	v, err := c.EVE.Verify(auth)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
@@ -108,13 +115,18 @@ func eveTokenAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 		return http.StatusInternalServerError, errors.New("Invalid State. It is possible that the session cookie is missing. Stop eating the cookies!")
 	}
 
-	tok, err := c.TokenAuthenticator.TokenExchange(c.HTTPClient, code)
+	tok, err := c.TokenAuthenticator.TokenExchange(code)
 	if err != nil {
 		return http.StatusInternalServerError, errors.New("Failed Token Exchange")
 	}
 
-	cli := c.TokenAuthenticator.GetClientFromToken(c.HTTPClient, tok)
-	v, err := cli.Verify()
+	tokSrc, err := c.SSOAuthenticator.TokenSource(tok)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	auth := context.WithValue(context.TODO(), esi.ContextOAuth2, tokSrc.Token)
+	v, err := c.EVE.Verify(auth)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}

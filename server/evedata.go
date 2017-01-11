@@ -59,6 +59,22 @@ func GoServer() {
 		},
 	}
 
+	// Create a Redis http client for the CCP APIs.
+	transportCache := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))
+
+	// Attach a basic transport with our chained custom transport.
+	transportCache.Transport = &transport{&http.Transport{Proxy: http.ProxyFromEnvironment, MaxIdleConnsPerHost: 5}, &ctx, 0}
+
+	// Build a HTTP Client pool this client will be shared with APIs for:
+	//   - ESI
+	//   - ZKillboard
+	//   - EVE SSO
+	//   - EVE CREST and XML
+	ctx.HTTPClient = &http.Client{Transport: transportCache}
+	if ctx.HTTPClient == nil {
+		panic("http client is null")
+	}
+
 	/*	r := ctx.Cache.Get()
 		r.Do("FLUSHALL")
 		r.Close()*/
@@ -75,7 +91,9 @@ func GoServer() {
 		eveapi.ScopeRemoteClientUI,
 	}
 
-	ctx.SSOAuthenticator = eveapi.NewSSOAuthenticator(ctx.Conf.CREST.SSO.ClientID,
+	ctx.SSOAuthenticator = eveapi.NewSSOAuthenticator(
+		ctx.HTTPClient,
+		ctx.Conf.CREST.SSO.ClientID,
 		ctx.Conf.CREST.SSO.SecretKey,
 		ctx.Conf.CREST.SSO.RedirectURL,
 		ssoScopes)
@@ -107,29 +125,20 @@ func GoServer() {
 		"esi-wallet.read_character_wallet.v1",
 	}
 
-	ctx.TokenAuthenticator = eveapi.NewSSOAuthenticator(ctx.Conf.CREST.Token.ClientID,
+	ctx.TokenAuthenticator = eveapi.NewSSOAuthenticator(
+		ctx.HTTPClient,
+		ctx.Conf.CREST.Token.ClientID,
 		ctx.Conf.CREST.Token.SecretKey,
 		ctx.Conf.CREST.Token.RedirectURL,
 		tokenScopes)
-
-	// Create a Redis http client for the CCP APIs.
-	transportCache := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))
-
-	// Attach a basic transport with our chained custom transport.
-	transportCache.Transport = &transport{&http.Transport{Proxy: http.ProxyFromEnvironment, MaxIdleConnsPerHost: 5}, &ctx, 0}
-
-	// Build a HTTP Client pool this client will be shared with APIs for:
-	//   - ESI
-	//   - ZKillboard
-	//   - EVE SSO
-	//   - EVE CREST and XML
-	ctx.HTTPClient = &http.Client{Transport: transportCache}
 
 	// Setup the EVE ESI Client
 	ctx.ESI = esi.NewAPIClient(ctx.HTTPClient, ctx.Conf.UserAgent)
 
 	// Setup the bootstrap authenticator. Needed to update the site main token.
-	ctx.ESIBootstrapAuthenticator = eveapi.NewSSOAuthenticator(ctx.Conf.CREST.ESIAccessToken.ClientID,
+	ctx.ESIBootstrapAuthenticator = eveapi.NewSSOAuthenticator(
+		ctx.HTTPClient,
+		ctx.Conf.CREST.ESIAccessToken.ClientID,
 		ctx.Conf.CREST.ESIAccessToken.SecretKey,
 		ctx.Conf.CREST.ESIAccessToken.RedirectURL,
 		[]string{"esi-universe.read_structures.v1",
@@ -142,7 +151,8 @@ func GoServer() {
 		RefreshToken: ctx.Conf.CREST.ESIAccessToken.RefreshToken,
 		Expiry:       ctx.Conf.CREST.ESIAccessToken.Expiry,
 	}
-	ctx.ESIPublicToken, err = ctx.ESIBootstrapAuthenticator.TokenSource(ctx.HTTPClient, token)
+
+	ctx.ESIPublicToken, err = ctx.ESIBootstrapAuthenticator.TokenSource(token)
 	if err != nil {
 		log.Fatalf("Error starting bootstrap ESI client: %v", err)
 	}
@@ -161,7 +171,7 @@ func GoServer() {
 	gob.Register(eveapi.VerifyResponse{})
 
 	// Anonymous EVE API & Crest Client
-	ctx.EVE = eveapi.NewAnonymousClient(ctx.HTTPClient)
+	ctx.EVE = eveapi.NewEVEAPIClient(ctx.HTTPClient)
 
 	// Set our logging flags
 	log.SetFlags(log.LstdFlags | log.Lshortfile)

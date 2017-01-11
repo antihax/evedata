@@ -24,7 +24,7 @@ func (c *EVEConsumer) getToken(characterID int64, tokenCharacterID int64) (oauth
 	}
 
 	token := &eveapi.CRESTToken{Expiry: tok.Expiry, AccessToken: tok.AccessToken, RefreshToken: tok.RefreshToken, TokenType: tok.TokenType}
-	n, err := c.ctx.TokenAuthenticator.TokenSource(c.ctx.HTTPClient, token)
+	n, err := c.ctx.TokenAuthenticator.TokenSource(token)
 
 	return n, err
 }
