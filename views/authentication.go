@@ -55,7 +55,6 @@ func eveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 	state := r.FormValue("state")
 
 	if s.Values["state"] != state {
-
 		return http.StatusInternalServerError, errors.New("Invalid State. It is possible that the session cookie is missing. Stop eating the cookies!")
 	}
 
@@ -128,7 +127,7 @@ func eveTokenAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 	}
 
 	characterID := s.Values["characterID"].(int64)
-	err = models.AddCRESTToken(characterID, v.CharacterID, v.CharacterName, tok)
+	err = models.AddCRESTToken(characterID, v.CharacterID, v.CharacterName, tok, v.Scopes)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}

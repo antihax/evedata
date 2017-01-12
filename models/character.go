@@ -52,17 +52,18 @@ func SetTokenError(characterID int64, tokenCharacterID int64, code int, status s
 	return nil
 }
 
-func AddCRESTToken(characterID int64, tokenCharacterID int64, characterName string, tok *eveapi.CRESTToken) error {
+func AddCRESTToken(characterID int64, tokenCharacterID int64, characterName string, tok *eveapi.CRESTToken, scopes string) error {
 	if _, err := database.Exec(`
-		INSERT INTO evedata.crestTokens	(characterID, tokenCharacterID, accessToken, refreshToken, expiry, tokenType, characterName, lastStatus)
-			VALUES		(?,?,?,?,?,?,?,"Unused")
+		INSERT INTO evedata.crestTokens	(characterID, tokenCharacterID, accessToken, refreshToken, expiry, tokenType, characterName, scopes, lastStatus)
+			VALUES		(?,?,?,?,?,?,?,?,"Unused")
 			ON DUPLICATE KEY UPDATE 
 				accessToken 	= VALUES(accessToken),
 				refreshToken 	= VALUES(refreshToken),
 				expiry 			= VALUES(expiry),
 				tokenType 		= VALUES(tokenType),
+				scopes 		= VALUES(scopes),
 				lastStatus		= "Unused"`,
-		characterID, tokenCharacterID, tok.AccessToken, tok.RefreshToken, tok.Expiry, tok.TokenType, characterName); err != nil {
+		characterID, tokenCharacterID, tok.AccessToken, tok.RefreshToken, tok.Expiry, tok.TokenType, characterName, scopes); err != nil {
 		return err
 	}
 
