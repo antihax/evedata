@@ -47,7 +47,7 @@ func boostrapEveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *ht
 
 	tok, err := c.ESIBootstrapAuthenticator.TokenExchange(code)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Failed Token Exchange")
+		return http.StatusInternalServerError, err
 	}
 
 	tokSrc, err := c.ESIBootstrapAuthenticator.TokenSource(tok)

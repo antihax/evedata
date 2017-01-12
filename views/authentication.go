@@ -61,7 +61,7 @@ func eveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 
 	tok, err := c.SSOAuthenticator.TokenExchange(code)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Failed Token Exchange")
+		return http.StatusInternalServerError, err
 	}
 
 	tokSrc, err := c.SSOAuthenticator.TokenSource(tok)
@@ -114,7 +114,7 @@ func eveTokenAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 
 	tok, err := c.TokenAuthenticator.TokenExchange(code)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Failed Token Exchange")
+		return http.StatusInternalServerError, err
 	}
 
 	tokSrc, err := c.SSOAuthenticator.TokenSource(tok)
