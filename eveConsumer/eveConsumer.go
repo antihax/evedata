@@ -44,6 +44,12 @@ func (c *EVEConsumer) goConsumer() {
 				log.Printf("Killmail consumer: %v\n", err)
 			}
 
+			/*if err := c.walletsCheckQueue(r); err == nil {
+				workDone = true
+			} else if err != nil {
+				log.Printf("Wallets: %v\n", err)
+			}*/
+
 			if err := c.assetsCheckQueue(r); err == nil {
 				workDone = true
 			} else if err != nil {
@@ -98,6 +104,7 @@ func (c *EVEConsumer) goTriggers() {
 			log.Printf("EVEConsumer: Shutting Down\n")
 			return
 		default:
+			c.walletShouldUpdate()
 			c.contactSync()
 			c.marketHistoryUpdateTrigger()
 			c.marketMaintTrigger()

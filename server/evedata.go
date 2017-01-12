@@ -100,8 +100,10 @@ func GoServer() {
 
 	// Setup the Token authenticator, this handles sub characters.
 	tokenScopes := []string{
-		eveapi.ScopeCharacterContactsRead,
-		eveapi.ScopeCharacterContactsWrite,
+		eveapi.ScopeCharacterContractsRead,
+		eveapi.ScopeCharacterMarketOrdersRead,
+		eveapi.ScopeCharacterResearchRead,
+		eveapi.ScopeCharacterWalletRead,
 		"esi-assets.read_assets.v1",
 		"esi-bookmarks.read_character_bookmarks.v1",
 		"esi-calendar.read_calendar_events.v1",

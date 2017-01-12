@@ -20,7 +20,8 @@ func (c *EVEConsumer) assetsShouldUpdate() {
 	// Gather characters for update. Group for optimized updating.
 	rows, err := c.ctx.Db.Query(
 		`SELECT characterID, tokenCharacterID FROM evedata.crestTokens WHERE 
-		assetCacheUntil < UTC_TIMESTAMP() AND lastStatus NOT LIKE "%Invalid refresh token%";`)
+		assetCacheUntil < UTC_TIMESTAMP() AND lastStatus NOT LIKE "%Invalid refresh token%" AND 
+		scopes LIKE "%esi-assets.read_assets.v1%";`)
 	if err != nil {
 		log.Printf("Assets: Failed query: %v", err)
 		return
