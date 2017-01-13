@@ -82,7 +82,7 @@ func GenerateStatistics(c *appContext.AppContext) {
 			w := bytes.NewBuffer(statisticsTxt)
 			w.Reset()
 
-			out := tabwriter.NewWriter(w, 20, 1, 1, ' ', tabwriter.AlignRight)
+			out := tabwriter.NewWriter(w, 18, 1, 1, ' ', tabwriter.AlignRight)
 
 			// this will store the keys of each iteration
 			var host []string
