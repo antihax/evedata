@@ -84,6 +84,7 @@ func (c *EVEConsumer) assetsCheckQueue(r redis.Conn) error {
 	assets, res, err := c.ctx.ESI.AssetsApi.GetCharactersCharacterIdAssets(auth, (int32)(tokenChar), nil)
 	if err != nil {
 		syncError(char, tokenChar, res, err)
+		return err
 	} else {
 		syncSuccess(char, tokenChar, 200, "OK")
 
@@ -109,7 +110,12 @@ func (c *EVEConsumer) assetsCheckQueue(r redis.Conn) error {
 
 			err = tx.Commit()
 			if err != nil {
-				log.Printf("Assets: %v\n", err)
+				if strings.Contains(err.Error(), "1213") == false {
+					log.Printf("Assets: %v\n", err)
+					break
+				} else {
+					continue
+				}
 			} else {
 				break
 			}

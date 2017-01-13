@@ -84,6 +84,7 @@ func (c *EVEConsumer) walletsCheckQueue(r redis.Conn) error {
 		wallets, err := c.ctx.EVE.CharacterWalletJournalXML(token, (int64)(tokenChar), fromID)
 		if err != nil {
 			syncError(char, tokenChar, nil, err)
+			return err
 		} else {
 			syncSuccess(char, tokenChar, 200, "OK")
 		}
@@ -103,11 +104,11 @@ func (c *EVEConsumer) walletsCheckQueue(r redis.Conn) error {
 				}
 
 				_, err := tx.Exec(`INSERT IGNORE INTO evedata.walletJournal
-								(refID, refTypeID, ownerID1, ownerID2,
+								(characterID, refID, refTypeID, ownerID1, ownerID2,
 								argID1, argName1, amount, balance,
 								reason, taxReceiverID, taxAmount, date)
-								VALUES (?,?,?,?,?,?,?,?,?,?,?,?);`,
-					wallet.RefID, wallet.RefTypeID, wallet.OwnerID1, wallet.OwnerID2,
+								VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);`,
+					tokenChar, wallet.RefID, wallet.RefTypeID, wallet.OwnerID1, wallet.OwnerID2,
 					wallet.ArgID1, wallet.ArgName1, wallet.Amount, wallet.Balance,
 					wallet.Reason, wallet.TaxReceiverID, wallet.TaxAmount, wallet.Date.UTC())
 				if err != nil {
@@ -126,10 +127,75 @@ func (c *EVEConsumer) walletsCheckQueue(r redis.Conn) error {
 
 			err = tx.Commit()
 			if err != nil {
-				log.Printf("Wallets: %v\n", err)
+				if strings.Contains(err.Error(), "1213") == false {
+					log.Printf("wallet: %v\n", err)
+					break
+				} else {
+					continue
+				}
 			} else {
 				break
 
+			}
+		}
+	}
+
+	fromID = 0
+	for {
+		transactions, err := c.ctx.EVE.CharacterWalletTransactionXML(token, (int64)(tokenChar), fromID)
+		if err != nil || transactions == nil {
+			syncError(char, tokenChar, nil, err)
+			return err
+		} else {
+			syncSuccess(char, tokenChar, 200, "OK")
+		}
+		// there are no entries in this journal page.
+		if len(transactions.Entries) == 0 {
+			break
+		}
+
+		for {
+			tx, err := c.ctx.Db.Beginx()
+			if err != nil {
+				return err
+			}
+			for _, transaction := range transactions.Entries {
+				if transaction.TransactionID < fromID || fromID == 0 {
+					fromID = transaction.TransactionID
+				}
+
+				_, err := tx.Exec(`INSERT IGNORE INTO evedata.walletTransactions
+								(characterID, transactionID, quantity, typeID, price,
+								clientID,  stationID, transactionType,
+								transactionFor, journalTransactionID, transactionDateTime)
+								VALUES (?,?,?,?,?,?,?,?,?,?,?);`,
+					tokenChar, transaction.TransactionID, transaction.Quantity, transaction.TypeID, transaction.Price,
+					transaction.ClientID, transaction.StationID, transaction.TransactionType,
+					transaction.TransactionFor, transaction.JournalTransactionID, transaction.TransactionDateTime.UTC())
+				if err != nil {
+					log.Printf("Wallets: %v\n", err)
+					break
+				}
+			}
+
+			_, err = tx.Exec(`UPDATE evedata.crestTokens SET walletCacheUntil = ?
+							WHERE characterID = ? AND tokenCharacterID = ?`,
+				transactions.CachedUntil.UTC(), char, tokenChar)
+			if err != nil {
+				log.Printf("Wallets: %v\n", err)
+				break
+			}
+
+			err = tx.Commit()
+			if err != nil {
+				if strings.Contains(err.Error(), "1213") == false {
+					log.Printf("Wallte: %v\n", err)
+					break
+				} else {
+					continue
+				}
+			} else {
+				break
 			}
 		}
 	}

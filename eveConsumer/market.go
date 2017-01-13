@@ -147,10 +147,15 @@ func (c *EVEConsumer) marketOrderCheckQueue(r redis.Conn) error {
 
 			err = tx.Commit()
 			if err != nil {
-				log.Printf("%s", err)
-				continue
+				if strings.Contains(err.Error(), "1213") == false {
+					log.Printf("Market: %v\n", err)
+					break
+				} else {
+					continue
+				}
+			} else {
+				break // success
 			}
-			break // success
 		}
 
 		// Cache the greater of one hour, or the returned cache-control
@@ -217,12 +222,18 @@ func (c *EVEConsumer) marketHistoryCheckQueue(r redis.Conn) error {
 			log.Printf("%s", err)
 			break
 		}
+
 		err = tx.Commit()
 		if err != nil {
-			log.Printf("%s", err)
-			break
+			if strings.Contains(err.Error(), "1213") == false {
+				log.Printf("Market: %v\n", err)
+				break
+			} else {
+				continue
+			}
+		} else {
+			break // success
 		}
-		break // success
 	}
 
 	return nil
