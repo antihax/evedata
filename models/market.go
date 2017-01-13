@@ -79,15 +79,13 @@ func GetArbitrageCalculator(hours int64, stationID int64, minVolume int64, maxPr
 		err := database.Select(&b, `
 		SELECT  market.typeID AS typeID, typeName, count(*) as buys, ROUND(market_vol.quantity / 2) as volume, ROUND(max(price) + (max(price) * ?),2) AS price
 		FROM    evedata.market, invTypes, evedata.market_vol
-		WHERE   market.done = 0 AND
-		        market.typeID = market_vol.itemID AND
+		WHERE   market.typeID = market_vol.itemID AND
 		        market.regionID = market_vol.regionID AND
 		        market.typeID = invTypes.typeID AND
 		        reported >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL ? DAY_HOUR) AND
 		        market.stationID = ?
 		        AND bid = 1
-		        AND done = 0 AND
-		        market_vol.quantity /2 > ?
+		        AND market_vol.quantity /2 > ?
 		GROUP BY market.typeID
 		HAVING price < ?`, brokersFee, hours, stationID, minVolume, maxPrice)
 

@@ -129,8 +129,7 @@ func (c *EVEConsumer) marketOrderCheckQueue(r redis.Conn) error {
 					remainingVolume=VALUES(remainingVolume),
 					issued=VALUES(issued),
 					duration=VALUES(duration),
-					reported=VALUES(reported),
-					done=0;
+					reported=VALUES(reported);
 					`, strings.Join(values, ",\n"))
 
 		for {
