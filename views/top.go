@@ -116,6 +116,8 @@ func GenerateStatistics(c *appContext.AppContext) {
 			left = append(left, fmt.Sprintf("%s %s\tAsset   Queue", statisticsChange("assets", assets), humanize.Comma((int64)(assets))))
 			wars, _ := redis.Int(red.Do("SCARD", "EVEDATA_warQueue"))
 			left = append(left, fmt.Sprintf("%s %s\tWars    Queue", statisticsChange("wars", wars), humanize.Comma((int64)(wars))))
+			journal, _ := redis.Int(red.Do("SCARD", "EVEDATA_walletQueue"))
+			left = append(left, fmt.Sprintf("%s %s\tJournal  Queue", statisticsChange("journal", journal), humanize.Comma((int64)(journal))))
 
 			kills, _ := redis.Int(red.Do("SCARD", "EVEDATA_knownKills"))
 			right = append(right, fmt.Sprintf("%s \tKnown Kills %s", humanize.Comma((int64)(kills)), statisticsChange("kills", kills)))

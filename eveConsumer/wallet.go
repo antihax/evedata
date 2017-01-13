@@ -78,46 +78,60 @@ func (c *EVEConsumer) walletsCheckQueue(r redis.Conn) error {
 	if err != nil {
 		return err
 	}
-	verify, err := c.ctx.EVE.Verify(token)
-	if err != nil {
-		return err
-	}
-	c.ctx.Db.Exec(`UPDATE evedata.crestTokens SET scopes = ?
-							WHERE characterID = ? AND tokenCharacterID = ?`,
-		verify.Scopes, char, tokenChar)
 
-	wallets, err := c.ctx.EVE.CharacterWalletJournalXML(token, (int64)(tokenChar), 0)
-	fmt.Printf("%v\n", wallets)
-	if err != nil {
-		syncError(char, tokenChar, nil, err)
-	} else {
-		syncSuccess(char, tokenChar, 200, "OK")
+	var fromID int64 = 0
+	for {
+		wallets, err := c.ctx.EVE.CharacterWalletJournalXML(token, (int64)(tokenChar), fromID)
+		if err != nil {
+			syncError(char, tokenChar, nil, err)
+		} else {
+			syncSuccess(char, tokenChar, 200, "OK")
+		}
+		// there are no entries in this journal page.
+		if len(wallets.Entries) == 0 {
+			break
+		}
 
-		/*for {
-				tx, err := c.ctx.Db.Beginx()
-				if err != nil {
-					return err
-				}
-				for _, wallet := range wallets {
-					tx.Exec(`INSERT INTO evedata.wallets
-								(locationID, typeID, quantity, characterID,
-								locationFlag, itemID, locationType, isSingleton)
-								VALUES (?,?,?,?,?,?,?,?);`,
-						wallet.LocationId, wallet.TypeId, wallet.Quantity, tokenChar,
-						wallet.LocationFlag, wallet.ItemId, wallet.LocationType, wallet.IsSingleton)
+		for {
+			tx, err := c.ctx.Db.Beginx()
+			if err != nil {
+				return err
+			}
+			for _, wallet := range wallets.Entries {
+				if wallet.RefID < fromID || fromID == 0 {
+					fromID = wallet.RefID
 				}
 
-				tx.Exec(`UPDATE evedata.crestTokens SET walletCacheUntil = ?
-							WHERE characterID = ? AND tokenCharacterID = ?`,
-					esi.CacheExpires(res), char, tokenChar)
-
-				err = tx.Commit()
+				_, err := tx.Exec(`INSERT IGNORE INTO evedata.walletJournal
+								(refID, refTypeID, ownerID1, ownerID2,
+								argID1, argName1, amount, balance,
+								reason, taxReceiverID, taxAmount, date)
+								VALUES (?,?,?,?,?,?,?,?,?,?,?,?);`,
+					wallet.RefID, wallet.RefTypeID, wallet.OwnerID1, wallet.OwnerID2,
+					wallet.ArgID1, wallet.ArgName1, wallet.Amount, wallet.Balance,
+					wallet.Reason, wallet.TaxReceiverID, wallet.TaxAmount, wallet.Date.UTC())
 				if err != nil {
 					log.Printf("Wallets: %v\n", err)
-				} else {
 					break
+				}
+			}
 
-		}*/
+			_, err = tx.Exec(`UPDATE evedata.crestTokens SET walletCacheUntil = ?
+							WHERE characterID = ? AND tokenCharacterID = ?`,
+				wallets.CachedUntil.UTC(), char, tokenChar)
+			if err != nil {
+				log.Printf("Wallets: %v\n", err)
+				break
+			}
+
+			err = tx.Commit()
+			if err != nil {
+				log.Printf("Wallets: %v\n", err)
+			} else {
+				break
+
+			}
+		}
 	}
 
 	return err

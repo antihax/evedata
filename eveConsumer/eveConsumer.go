@@ -44,11 +44,11 @@ func (c *EVEConsumer) goConsumer() {
 				log.Printf("Killmail consumer: %v\n", err)
 			}
 
-			/*if err := c.walletsCheckQueue(r); err == nil {
+			if err := c.walletsCheckQueue(r); err == nil {
 				workDone = true
 			} else if err != nil {
 				log.Printf("Wallets: %v\n", err)
-			}*/
+			}
 
 			if err := c.assetsCheckQueue(r); err == nil {
 				workDone = true
