@@ -15,6 +15,7 @@ import (
 
 // Check if we need to update any entity information (character, corporation, alliance)
 func (c *EVEConsumer) checkEntities() {
+	log.Printf("EVEConsumer: Checking entities")
 	err := c.collectEntitiesFromCREST()
 	if err != nil {
 		log.Printf("EVEConsumer: collecting entities: %v", err)
@@ -80,7 +81,7 @@ func (c *EVEConsumer) collectEntitiesFromCREST() error {
 	nextCheck, _, err := models.GetServiceState("alliances")
 	if err != nil {
 		return err
-	} else if nextCheck.Before(time.Now()) {
+	} else if nextCheck.After(time.Now()) {
 		return nil
 	}
 
