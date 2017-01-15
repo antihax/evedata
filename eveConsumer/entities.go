@@ -24,7 +24,6 @@ func (c *EVEConsumer) checkEntities() {
 	if err != nil {
 		log.Printf("EVEConsumer: updating entities: %v", err)
 	}
-
 }
 
 // update any old entities
