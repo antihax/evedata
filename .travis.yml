@@ -2,15 +2,23 @@ sudo: required
 language: go
 go: master
 
+addons:
+  hosts:
+    - esi.tech.ccp.is
+
 services:
   - docker
 #  - redis-server
 #  - mysql
 
+before_install:
+  - docker pull antihax/mock-esi
+  - docker run -d -p 127.0.0.1:443:8080 antihax/mock-esi
+  - docker ps -a
+
 install:
-  - go get -d -v .
   - docker build -t antihax/evedata .
-  - docker run -d -p 127.0.0.1:80:3000 --name evedata antihax/evedata
+#  - docker run -d -p 127.0.0.1:80:3000 --name evedata antihax/evedata
 
 script:
   - docker run --entrypoint=/go/src/github.com/antihax/evedata/dockerTest.sh --name evedata_test antihax/evedata 
