@@ -1,4 +1,4 @@
-CREATE DATABASE evedata IF NOT EXISTS;
+CREATE DATABASE IF NOT EXISTS evedata;
 
 USE evedata;
 

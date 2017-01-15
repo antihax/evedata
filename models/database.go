@@ -43,7 +43,7 @@ func DumpDatabase(file string, db string) (err error) {
 	f, err := os.Create(file)
 	defer f.Close()
 
-	f.WriteString(fmt.Sprintf("CREATE DATABASE %s IF NOT EXISTS;\n\n", db))
+	f.WriteString(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;\n\n", db))
 
 	f.WriteString(fmt.Sprintf("USE %s;\n\n", db))
 
