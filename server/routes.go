@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/antihax/evedata/appContext"
-	_ "github.com/go-sql-driver/mysql"
+
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 )
