@@ -7,16 +7,6 @@ import (
 	"github.com/guregu/null"
 )
 
-type ApiKey struct {
-	KeyID       int64       `db:"keyID" json:"keyID"`
-	CharacterID int64       `db:"characterID" json:"characterID"`
-	NextCheck   time.Time   `db:"nextCheck" json:"nextCheck"`
-	LastCode    int64       `db:"lastCode" json:"lastCode"`
-	LastError   null.String `db:"lastError" json:"lastError"`
-	AccessMask  int64       `db:"accessMask" json:"accessMask"`
-	Type        null.String `db:"type" json:"type"`
-}
-
 type CRESTToken struct {
 	Expiry           time.Time   `db:"expiry" json:"expiry"`
 	CharacterID      int64       `db:"characterID" json:"characterID"`

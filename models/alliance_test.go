@@ -18,6 +18,11 @@ func TestAllianceAdd(t *testing.T) {
 		t.Error(err)
 		return
 	}
+	err = UpdateCharacter(10, "Test Character", 1, 1, 4, 1, "Gallente", -10, time.Now())
+	if err != nil {
+		t.Error(err)
+		return
+	}
 }
 
 func TestAllianceGet(t *testing.T) {
@@ -53,5 +58,16 @@ func TestCorporationGet(t *testing.T) {
 	}
 	if corporation.CorporationName != "Test Executor" {
 		t.Error("Could not find corporation 'Test Executor'")
+	}
+}
+
+func TestCharacterGet(t *testing.T) {
+	character, err := GetCharacter(10)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if character.CharacterName != "Test Character" {
+		t.Error("Could not find corporation 'Test Character'")
 	}
 }
