@@ -15,6 +15,9 @@ before_install:
   - docker pull antihax/mock-esi
   - docker run -d -p 127.0.0.1:443:8080 antihax/mock-esi
   - docker ps -a
+  - unzip ./sql/eve.zip -d ./sql/
+  - mysql < ./sql/eve.sql
+  - mysql < ./sql/evedata.sql
 
 install:
   - docker build -t antihax/evedata .

@@ -2,6 +2,7 @@ package evedata
 
 import (
 	"encoding/gob"
+	"os"
 
 	"log"
 	"net/http"
@@ -82,6 +83,15 @@ func GoServer() {
 	// Build Connection Pool
 	if ctx.Db, err = models.SetupDatabase(ctx.Conf.Database.Driver, ctx.Conf.Database.Spec); err != nil {
 		log.Fatalf("Cannot build database pool: %v", err)
+	}
+
+	if len(os.Args) > 1 {
+		if os.Args[1] == "dumpdb" {
+			err := models.DumpDatabase("./sql/evedata.sql", "evedata")
+			if err != nil {
+				panic(err)
+			}
+		}
 	}
 
 	// Setup the SSO authenticator, this is the main login.
