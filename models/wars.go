@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"github.com/antihax/evedata/null"
+	"github.com/guregu/null"
 )
 
 // [BENCHMARK] 0.000 sec / 0.000 sec

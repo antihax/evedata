@@ -8,8 +8,8 @@ addons:
 
 services:
   - docker
-#  - redis-server
-#  - mysql
+  - redis-server
+  - mysql
 
 before_install:
   - docker pull antihax/mock-esi

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/antihax/evedata/null"
+	"github.com/guregu/null"
 )
 
 type ContactSync struct {

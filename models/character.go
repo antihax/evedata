@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/antihax/evedata/eveapi"
-	"github.com/antihax/evedata/null"
+	"github.com/guregu/null"
 )
 
 type ApiKey struct {
