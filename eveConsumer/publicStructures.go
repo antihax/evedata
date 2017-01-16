@@ -56,7 +56,7 @@ func (c *EVEConsumer) collectStructuresFromESI() error {
 				corporationID, 
 				constellationID, 
 				regionID)
-			VALUES(?,?,?,?, constellationIDBySolarSystem(solarSystemID), regionIDBySolarSystem(solarSystemID))
+			VALUES(?,?,?,?, evedata.constellationIDBySolarSystem(solarSystemID), evedata.regionIDBySolarSystem(solarSystemID))
 
 			ON DUPLICATE KEY UPDATE 	stationName=VALUES(stationName),
 										corporationID=VALUES(corporationID);`,
@@ -81,9 +81,9 @@ func (c *EVEConsumer) updateStructure(s int64) error {
 
 	_, err = c.ctx.Db.Exec(`INSERT INTO staStations
 					(stationID, solarSystemID, stationName, x, y, z, constellationID, regionID)
-					VALUES(?,?,?,?,?,?,constellationIDBySolarSystem(solarSystemID),regionIDBySolarSystem(solarSystemID))
+					VALUES(?,?,?,?,?,?,evedata.constellationIDBySolarSystem(solarSystemID),evedata.regionIDBySolarSystem(solarSystemID))
 					ON DUPLICATE KEY UPDATE stationName=VALUES(stationName),solarSystemID=VALUES(solarSystemID),
-					x=VALUES(x),y=VALUES(y),z=VALUES(z),constellationID=constellationIDBySolarSystem(VALUES(solarSystemID)),regionID=regionIDBySolarSystem(VALUES(solarSystemID));`,
+					x=VALUES(x),y=VALUES(y),z=VALUES(z),constellationID=evedata.constellationIDBySolarSystem(VALUES(solarSystemID)),regionID=evedata.regionIDBySolarSystem(VALUES(solarSystemID));`,
 		s, struc.SolarSystemId, struc.Name, struc.Position.X, struc.Position.Y, struc.Position.Z)
 	if err != nil {
 		return err
@@ -101,9 +101,9 @@ func (c *EVEConsumer) updateStation(s int64) error {
 
 	_, err = c.ctx.Db.Exec(`INSERT INTO staStations
 					(stationID, solarSystemID, stationName, x, y, z, constellationID, regionID)
-					VALUES(?,?,?,?,?,?,constellationIDBySolarSystem(solarSystemID),regionIDBySolarSystem(solarSystemID))
+					VALUES(?,?,?,?,?,?,evedata.constellationIDBySolarSystem(solarSystemID),evedata.regionIDBySolarSystem(solarSystemID))
 					ON DUPLICATE KEY UPDATE stationName=VALUES(stationName),solarSystemID=VALUES(solarSystemID),
-					x=VALUES(x),y=VALUES(y),z=VALUES(z),constellationID=constellationIDBySolarSystem(VALUES(solarSystemID)),regionID=regionIDBySolarSystem(VALUES(solarSystemID));`,
+					x=VALUES(x),y=VALUES(y),z=VALUES(z),constellationID=evedata.constellationIDBySolarSystem(VALUES(solarSystemID)),regionID=evedata.regionIDBySolarSystem(VALUES(solarSystemID));`,
 		s, struc.SolarSystemId, struc.Name, struc.Position.X, struc.Position.Y, struc.Position.Z)
 	if err != nil {
 		return err

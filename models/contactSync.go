@@ -47,7 +47,7 @@ func AddContactSync(characterID int64, source int, destination int) error {
 	if source == destination {
 		return errors.New("Source and Destination cannot be the same.")
 	}
-	if _, err := database.Exec(`INSERT INTO evedata.contactSyncs (characterID, source, destination)VALUES(?,?,?)`,
+	if _, err := database.Exec(`INSERT IGNORE INTO evedata.contactSyncs (characterID, source, destination)VALUES(?,?,?)`,
 		characterID, source, destination); err != nil {
 
 		return err

@@ -95,5 +95,34 @@ func NewTestAppContext() AppContext {
 	// Anonymous EVE API & Crest Client
 	ctx.EVE = eveapi.NewEVEAPIClient(ctx.HTTPClient)
 
+	// Setup the Token authenticator, this handles sub characters.
+	tokenScopes := []string{
+		eveapi.ScopeCharacterContractsRead,
+		eveapi.ScopeCharacterMarketOrdersRead,
+		eveapi.ScopeCharacterResearchRead,
+		eveapi.ScopeCharacterWalletRead,
+		"esi-assets.read_assets.v1",
+		"esi-characters.read_contacts.v1",
+		"esi-characters.write_contacts.v1",
+		"esi-corporations.read_corporation_membership.v1",
+		"esi-location.read_location.v1",
+		"esi-location.read_ship_type.v1",
+		"esi-planets.manage_planets.v1",
+		"esi-search.search_structures.v1",
+		"esi-skills.read_skills.v1",
+		"esi-ui.open_window.v1",
+		"esi-ui.write_waypoint.v1",
+		"esi-universe.read_structures.v1",
+		"esi-wallet.read_character_wallet.v1",
+	}
+
+	// take care to never actually make requests on this.
+	ctx.TokenAuthenticator = eveapi.NewSSOAuthenticator(
+		ctx.HTTPClient,
+		"123545",
+		"PLEASE IGNORE",
+		"I DO NOTHING",
+		tokenScopes)
+
 	return ctx
 }

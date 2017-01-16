@@ -146,7 +146,7 @@ func MaintMarket() error {
                 K.x, 
                 K.y, 
                 K.z, 
-                closestCelestial(K.solarSystemID, K.x, K.y, K.z) AS locationID, 
+                evedata.closestCelestial(K.solarSystemID, K.x, K.y, K.z) AS locationID, 
                 MAX(killTime) as lastSeen 
             FROM evedata.killmailAttackers A
             INNER JOIN invTypes T ON shipType = typeID
@@ -170,7 +170,7 @@ func MaintMarket() error {
                 K.x, 
                 K.y, 
                 K.z, 
-                closestCelestial(K.solarSystemID, K.x, K.y, K.z) AS locationID, 
+                evedata.closestCelestial(K.solarSystemID, K.x, K.y, K.z) AS locationID, 
                 MAX(killTime) as lastSeen 
             FROM evedata.killmails K
             INNER JOIN invTypes T ON K.shipType = typeID

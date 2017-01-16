@@ -366,3 +366,46 @@ CREATE TABLE `wars` (
   KEY `timeFinished_cacheUntil` (`timeFinished`,`cacheUntil`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+		DELIMITER $$
+		CREATE FUNCTION constellationIDBySolarSystem(system INT UNSIGNED) RETURNS int(10) unsigned
+			DETERMINISTIC
+		BEGIN
+			DECLARE constellation int(10) unsigned;
+			SELECT constellationID INTO constellation
+				FROM eve.mapSolarSystems
+				WHERE solarSystemID = system
+				LIMIT 1;
+			
+		RETURN constellation;
+		END$$
+		DELIMITER ;
+		
+		DELIMITER $$
+		CREATE FUNCTION closestCelestial(s INT UNSIGNED, x1 FLOAT, y1 FLOAT, z1 FLOAT) RETURNS int(10) unsigned
+			DETERMINISTIC
+		BEGIN
+			DECLARE celestialID int(10) unsigned;
+			SELECT itemID INTO celestialID
+				FROM eve.mapDenormalize
+				WHERE orbitID IS NOT NULL AND solarSystemID = s
+				ORDER BY POW(( x1 - x), 2) + POW(( y1 - y), 2) + POW(( z1 - z), 2)
+				LIMIT 1;
+			
+		RETURN celestialID;
+		END$$
+		DELIMITER ;
+		DELIMITER $$
+		CREATE FUNCTION regionIDBySolarSystem(system INT UNSIGNED) RETURNS int(10) unsigned
+			DETERMINISTIC
+		BEGIN
+			DECLARE region int(10) unsigned;
+			SELECT regionID INTO region
+				FROM eve.mapSolarSystems
+				WHERE solarSystemID = system
+				LIMIT 1;
+			
+		RETURN region;
+		END$$
+		DELIMITER ;
+		

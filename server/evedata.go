@@ -89,7 +89,7 @@ func GoServer() {
 		if os.Args[1] == "dumpdb" {
 			err := models.DumpDatabase("./sql/evedata.sql", "evedata")
 			if err != nil {
-				panic(err)
+				log.Fatalln(err)
 			}
 		}
 	}

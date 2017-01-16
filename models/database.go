@@ -48,16 +48,16 @@ func DumpDatabase(file string, db string) (err error) {
 
 	f.WriteString(fmt.Sprintf("USE %s;\n\n", db))
 
-	rows, err := database.Query(`SELECT table_name
+	tables, err := database.Query(`SELECT table_name
 			FROM information_schema.TABLES WHERE table_schema = ?;`, db)
 	if err != nil {
 		return err
 	}
-	defer rows.Close()
+	defer tables.Close()
 
-	for rows.Next() {
+	for tables.Next() {
 		var table, create string
-		err = rows.Scan(&table)
+		err = tables.Scan(&table)
 		if err != nil {
 			return err
 		}
@@ -68,5 +68,54 @@ func DumpDatabase(file string, db string) (err error) {
 		}
 		f.WriteString(fmt.Sprintf("%s;\n\n", create))
 	}
+
+	f.WriteString(`
+		DELIMITER $$
+		CREATE FUNCTION constellationIDBySolarSystem(system INT UNSIGNED) RETURNS int(10) unsigned
+			DETERMINISTIC
+		BEGIN
+			DECLARE constellation int(10) unsigned;
+			SELECT constellationID INTO constellation
+				FROM eve.mapSolarSystems
+				WHERE solarSystemID = system
+				LIMIT 1;
+			
+		RETURN constellation;
+		END$$
+		DELIMITER ;
+		`)
+
+	f.WriteString(`
+		DELIMITER $$
+		CREATE FUNCTION closestCelestial(s INT UNSIGNED, x1 FLOAT, y1 FLOAT, z1 FLOAT) RETURNS int(10) unsigned
+			DETERMINISTIC
+		BEGIN
+			DECLARE celestialID int(10) unsigned;
+			SELECT itemID INTO celestialID
+				FROM eve.mapDenormalize
+				WHERE orbitID IS NOT NULL AND solarSystemID = s
+				ORDER BY POW(( x1 - x), 2) + POW(( y1 - y), 2) + POW(( z1 - z), 2)
+				LIMIT 1;
+			
+		RETURN celestialID;
+		END$$
+		DELIMITER ;
+		`)
+
+	f.WriteString(`DELIMITER $$
+		CREATE FUNCTION regionIDBySolarSystem(system INT UNSIGNED) RETURNS int(10) unsigned
+			DETERMINISTIC
+		BEGIN
+			DECLARE region int(10) unsigned;
+			SELECT regionID INTO region
+				FROM eve.mapSolarSystems
+				WHERE solarSystemID = system
+				LIMIT 1;
+			
+		RETURN region;
+		END$$
+		DELIMITER ;
+		`)
+
 	return
 }
