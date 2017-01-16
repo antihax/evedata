@@ -13,7 +13,7 @@ services:
 
 before_install:
   - docker pull antihax/mock-esi
-  - docker run -d -p 127.0.0.1:443:8080 antihax/mock-esi
+  - docker run -d -p 127.0.0.1:8080:8080 antihax/mock-esi
   - docker ps -a
   - mysql -e "CREATE DATABASE eve"
   - unzip ./sql/eve.zip -d ./sql/

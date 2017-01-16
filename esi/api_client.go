@@ -228,6 +228,11 @@ func (c *APIClient) callAPI(request *http.Request) (*http.Response, error) {
 	 return c.client.Do(request)
 }
 
+// Change base path to allow switching to mocks
+func (c *APIClient) ChangeBasePath (path string) {
+	c.basePath = path
+}
+
 // prepareRequest build the request
 func (c *APIClient) prepareRequest (
 	ctx context.Context,
