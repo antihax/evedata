@@ -118,6 +118,13 @@ func TestScopeSetup(t *testing.T) {
 	eC.assetsShouldUpdate()
 }
 
+func TestConsumerTest(t *testing.T) {
+	testEC := NewEVEConsumer(&ctx)
+	go testEC.initConsumer()
+	testEC.RunConsumer()
+	testEC.StopConsumer()
+}
+
 func TestEntitiesFromCrest(t *testing.T) {
 	err := eC.collectEntitiesFromCREST()
 	if err != nil {
