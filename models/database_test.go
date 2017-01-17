@@ -25,3 +25,11 @@ func TestMain(m *testing.M) {
 	database.Close()
 	os.Exit(retCode)
 }
+
+func TestDumpDatabase(t *testing.T) {
+	err := DumpDatabase("/tmp/evedataSqlDumptest.xxx", "evedata")
+	os.Remove("/tmp/evedataSqlDumptest.xxx")
+	if err != nil {
+		t.Error(err)
+	}
+}
