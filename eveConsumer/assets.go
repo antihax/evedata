@@ -9,10 +9,11 @@ import (
 	"strings"
 
 	"github.com/antihax/evedata/esi"
+	"github.com/antihax/evedata/models"
 	"github.com/garyburd/redigo/redis"
 )
 
-// Perform contact sync for wardecs
+// Update character assets
 func (c *EVEConsumer) assetsShouldUpdate() {
 	r := c.ctx.Cache.Get()
 	defer r.Close()
@@ -39,6 +40,8 @@ func (c *EVEConsumer) assetsShouldUpdate() {
 			log.Printf("Assets: Failed scan: %v", err)
 			continue
 		}
+
+		// Add the job to the queue
 		_, err = r.Do("SADD", "EVEDATA_assetQueue", fmt.Sprintf("%d:%d", char, tokenChar))
 		if err != nil {
 			log.Printf("Assets: Failed scan: %v", err)
@@ -49,6 +52,7 @@ func (c *EVEConsumer) assetsShouldUpdate() {
 }
 
 func (c *EVEConsumer) assetsCheckQueue(r redis.Conn) error {
+	// POP some work of the queue
 	ret, err := r.Do("SPOP", "EVEDATA_assetQueue")
 	if err != nil {
 		return err
@@ -61,8 +65,10 @@ func (c *EVEConsumer) assetsCheckQueue(r redis.Conn) error {
 		return err
 	}
 
+	// Split our char:tokenChar string
 	dest := strings.Split(v, ":")
 
+	// Quick sanity check
 	if len(dest) != 2 {
 		return errors.New("Invalid asset string")
 	}
@@ -76,9 +82,10 @@ func (c *EVEConsumer) assetsCheckQueue(r redis.Conn) error {
 		return err
 	}
 
+	// Get the OAuth2 Token from the database.
 	token, err := c.getToken(char, tokenChar)
 
-	// authentication token context for destination char
+	// Put the token into a context for the API client
 	auth := context.WithValue(context.TODO(), esi.ContextOAuth2, token)
 
 	assets, res, err := c.ctx.ESI.AssetsApi.GetCharactersCharacterIdAssets(auth, (int32)(tokenChar), nil)
@@ -88,37 +95,34 @@ func (c *EVEConsumer) assetsCheckQueue(r redis.Conn) error {
 	} else {
 		syncSuccess(char, tokenChar, 200, "OK")
 
-		for {
-			tx, err := c.ctx.Db.Beginx()
-			if err != nil {
-				return err
-			}
+		tx, err := models.Begin()
+		if err != nil {
+			return err
+		}
 
-			tx.Exec("DELETE FROM evedata.assets WHERE characterID = ?", tokenChar)
-			for _, asset := range assets {
-				tx.Exec(`INSERT INTO evedata.assets
+		// Delete all the current assets. Reinsert everything.
+		tx.Exec("DELETE FROM evedata.assets WHERE characterID = ?", tokenChar)
+
+		// Dump all assets into the DB.
+		for _, asset := range assets {
+			tx.Exec(`INSERT INTO evedata.assets
 							(locationID, typeID, quantity, characterID, 
 							locationFlag, itemID, locationType, isSingleton)
 							VALUES (?,?,?,?,?,?,?,?);`,
-					asset.LocationId, asset.TypeId, asset.Quantity, tokenChar,
-					asset.LocationFlag, asset.ItemId, asset.LocationType, asset.IsSingleton)
-			}
+				asset.LocationId, asset.TypeId, asset.Quantity, tokenChar,
+				asset.LocationFlag, asset.ItemId, asset.LocationType, asset.IsSingleton)
+		}
 
-			tx.Exec(`UPDATE evedata.crestTokens SET assetCacheUntil = ? 
+		// Update our cacheUntil flag
+		tx.Exec(`UPDATE evedata.crestTokens SET assetCacheUntil = ? 
 						WHERE characterID = ? AND tokenCharacterID = ?`,
-				esi.CacheExpires(res), char, tokenChar)
+			esi.CacheExpires(res), char, tokenChar)
 
-			err = tx.Commit()
-			if err != nil {
-				if strings.Contains(err.Error(), "1213") == false {
-					log.Printf("Assets: %v\n", err)
-					break
-				} else {
-					continue
-				}
-			} else {
-				break
-			}
+		// Retry the transaction if we get deadlocks
+		err = models.RetryTransaction(tx)
+		if err != nil {
+			log.Printf("%s", err)
+			return err
 		}
 	}
 

@@ -132,29 +132,21 @@ func (c *EVEConsumer) marketOrderCheckQueue(r redis.Conn) error {
 					reported=VALUES(reported);
 					`, strings.Join(values, ",\n"))
 
-		for {
-			tx, err := c.ctx.Db.Begin()
-			if err != nil {
-				log.Printf("%s", err)
-				continue
-			}
-			_, err = tx.Exec(stmt)
-			if err != nil {
-				log.Printf("%s", err)
-				continue
-			}
+		tx, err := models.Begin()
+		if err != nil {
+			log.Printf("%s", err)
+			continue
+		}
+		_, err = tx.Exec(stmt)
+		if err != nil {
+			log.Printf("%s", err)
+			continue
+		}
 
-			err = tx.Commit()
-			if err != nil {
-				if strings.Contains(err.Error(), "1213") == false {
-					log.Printf("Market: %v\n", err)
-					break
-				} else {
-					continue
-				}
-			} else {
-				break // success
-			}
+		err = models.RetryTransaction(tx)
+		if err != nil {
+			log.Printf("%s", err)
+			return err
 		}
 
 		// Cache the greater of one hour, or the returned cache-control
@@ -210,29 +202,21 @@ func (c *EVEConsumer) marketHistoryCheckQueue(r redis.Conn) error {
 
 	stmt := fmt.Sprintf("INSERT IGNORE INTO evedata.market_history (date, low, high, mean, quantity, orders, itemID, regionID) VALUES \n%s", strings.Join(values, ",\n"))
 
-	for {
-		tx, err := c.ctx.Db.Begin()
-		if err != nil {
-			log.Printf("%s", err)
-			break
-		}
-		_, err = tx.Exec(stmt)
-		if err != nil {
-			log.Printf("%s", err)
-			break
-		}
+	tx, err := models.Begin()
+	if err != nil {
+		log.Printf("%s", err)
+		return err
+	}
+	_, err = tx.Exec(stmt)
+	if err != nil {
+		log.Printf("%s", err)
+		return err
+	}
 
-		err = tx.Commit()
-		if err != nil {
-			if strings.Contains(err.Error(), "1213") == false {
-				log.Printf("Market: %v\n", err)
-				break
-			} else {
-				continue
-			}
-		} else {
-			break // success
-		}
+	err = models.RetryTransaction(tx)
+	if err != nil {
+		log.Printf("%s", err)
+		return err
 	}
 
 	return nil

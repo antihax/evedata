@@ -1,7 +1,5 @@
 package models
 
-import "strings"
-
 func MaintKillMails() error { // Broken into smaller chunks so we have a chance of it getting completed.
 	// Delete stuff older than 90 days, we do not care...
 	if err := RetryExecTillNoRows(`
@@ -10,7 +8,6 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
             `); err != nil {
 		return err
 	}
-
 	if err := RetryExecTillNoRows(`
 		DELETE LOW_PRIORITY A.* FROM evedata.killmailItems A 
         JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY) LIMIT 50000) K ON A.id = K.id;
@@ -23,9 +20,6 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
             `); err != nil {
 		return err
 	}
-
-	// [TODO] These are deadlocking due to duration and inserts going in..
-	// Needs optimizing or limiting.
 
 	// Remove any invalid items
 	if err := RetryExecTillNoRows(`
@@ -288,39 +282,4 @@ func MaintMarket() error {
 	}
 
 	return nil
-}
-
-// Retry the exec until we get no error (deadlocks) and no results are returned
-func RetryExecTillNoRows(sql string, args ...interface{}) error {
-	for {
-		rows, err := RetryExec(sql, args...)
-		if err != nil {
-			return err
-		}
-		if rows == 0 {
-			break
-		}
-	}
-	return nil
-}
-
-// Retry the exec until we get no error (deadlocks)
-func RetryExec(sql string, args ...interface{}) (int64, error) {
-	var (
-		err  error
-		rows int64
-	)
-	for {
-		x, err := database.Exec(sql, args...)
-		if err == nil {
-			rows, err = x.RowsAffected()
-			if err != nil {
-				break
-			}
-			break
-		} else if strings.Contains(err.Error(), "1213") == false {
-			break
-		}
-	}
-	return rows, err
 }
