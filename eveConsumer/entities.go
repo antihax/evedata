@@ -83,35 +83,27 @@ func (c *EVEConsumer) collectEntitiesFromCREST() error {
 	} else if nextCheck.After(time.Now()) {
 		return nil
 	}
+	redis := c.ctx.Cache.Get()
+	defer redis.Close()
 
-	// Get first page of alliances
-	w, err := c.ctx.EVE.AlliancesV2(1)
+	ids, res, err := c.ctx.ESI.AllianceApi.GetAlliances(nil)
 	if err != nil {
 		return err
 	}
 
 	// Update state so we dont have two polling at once.
-	err = models.SetServiceState("alliances", w.CacheUntil, 1)
+	err = models.SetServiceState("alliances", esi.CacheExpires(res).UTC(), 1)
 	if err != nil {
 		return err
 	}
 
-	redis := c.ctx.Cache.Get()
-	defer redis.Close()
-
-	// Loop through all of the alliance pages
-	for ; w != nil; w, err = w.NextPage() {
-		if err != nil {
+	// Throw them into the queue
+	for _, allianceID := range ids {
+		if err = EntityAddToQueue(allianceID, redis); err != nil {
 			return err
 		}
-
-		// Recursively update expired information
-		for _, r := range w.Items {
-			if err = EntityAddToQueue((int32)(r.ID), redis); err != nil {
-				return err
-			}
-		}
 	}
+
 	return nil
 }
 

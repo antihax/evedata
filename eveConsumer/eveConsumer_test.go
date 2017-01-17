@@ -118,6 +118,14 @@ func TestScopeSetup(t *testing.T) {
 	eC.assetsShouldUpdate()
 }
 
+func TestEntitiesFromCrest(t *testing.T) {
+	err := eC.collectEntitiesFromCREST()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
+
 func TestAssetPull(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()

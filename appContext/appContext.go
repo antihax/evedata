@@ -44,7 +44,7 @@ func NewTestAppContext() AppContext {
 
 	conf := config.Config{}
 	ctx.Conf = &conf
-	conf.EVEConsumer.Consumers = 50
+	conf.EVEConsumer.Consumers = 10
 	conf.EVEConsumer.ZKillEnabled = false
 
 	database, err := models.SetupDatabase("mysql", "root@tcp(127.0.0.1:3306)/eve?allowOldPasswords=1&parseTime=true")
@@ -65,6 +65,11 @@ func NewTestAppContext() AppContext {
 			return c, err
 		},
 	}
+
+	// Nuke anything in redis incase we have a flood of trash
+	r := ctx.Cache.Get()
+	r.Do("FLUSHALL")
+	r.Close()
 
 	// Create a Redis http client for the CCP APIs.
 	transportCache := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))
