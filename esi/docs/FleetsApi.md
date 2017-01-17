@@ -23,7 +23,16 @@ Method | HTTP request | Description
 > DeleteFleetsFleetIdMembersMemberId(ctx, fleetId, memberId, optional)
 Kick fleet member
 
-Kick a fleet member  ---  Alternate route: `/v1/fleets/{fleet_id}/members/{member_id}/`  Alternate route: `/legacy/fleets/{fleet_id}/members/{member_id}/`  Alternate route: `/dev/fleets/{fleet_id}/members/{member_id}/` 
+Kick a fleet member
+
+---
+
+Alternate route: `/v1/fleets/{fleet_id}/members/{member_id}/`
+
+Alternate route: `/legacy/fleets/{fleet_id}/members/{member_id}/`
+
+Alternate route: `/dev/fleets/{fleet_id}/members/{member_id}/`
+
 
 ### Required Parameters
 
@@ -62,7 +71,16 @@ Name | Type | Description  | Notes
 > DeleteFleetsFleetIdSquadsSquadId(ctx, fleetId, squadId, optional)
 Delete fleet squad
 
-Delete a fleet squad, only empty squads can be deleted  ---  Alternate route: `/v1/fleets/{fleet_id}/squads/{squad_id}/`  Alternate route: `/legacy/fleets/{fleet_id}/squads/{squad_id}/`  Alternate route: `/dev/fleets/{fleet_id}/squads/{squad_id}/` 
+Delete a fleet squad, only empty squads can be deleted
+
+---
+
+Alternate route: `/v1/fleets/{fleet_id}/squads/{squad_id}/`
+
+Alternate route: `/legacy/fleets/{fleet_id}/squads/{squad_id}/`
+
+Alternate route: `/dev/fleets/{fleet_id}/squads/{squad_id}/`
+
 
 ### Required Parameters
 
@@ -101,7 +119,16 @@ Name | Type | Description  | Notes
 > DeleteFleetsFleetIdWingsWingId(ctx, fleetId, wingId, optional)
 Delete fleet wing
 
-Delete a fleet wing, only empty wings can be deleted. The wing may contain squads, but the squads must be empty  ---  Alternate route: `/v1/fleets/{fleet_id}/wings/{wing_id}/`  Alternate route: `/legacy/fleets/{fleet_id}/wings/{wing_id}/`  Alternate route: `/dev/fleets/{fleet_id}/wings/{wing_id}/` 
+Delete a fleet wing, only empty wings can be deleted. The wing may contain squads, but the squads must be empty
+
+---
+
+Alternate route: `/v1/fleets/{fleet_id}/wings/{wing_id}/`
+
+Alternate route: `/legacy/fleets/{fleet_id}/wings/{wing_id}/`
+
+Alternate route: `/dev/fleets/{fleet_id}/wings/{wing_id}/`
+
 
 ### Required Parameters
 
@@ -140,7 +167,20 @@ Name | Type | Description  | Notes
 > GetFleetsFleetIdOk GetFleetsFleetId(ctx, fleetId, optional)
 Get fleet information
 
-Return details about a fleet  ---  Alternate route: `/v1/fleets/{fleet_id}/`  Alternate route: `/legacy/fleets/{fleet_id}/`  Alternate route: `/dev/fleets/{fleet_id}/`   ---  This route is cached for up to 5 seconds
+Return details about a fleet
+
+---
+
+Alternate route: `/v1/fleets/{fleet_id}/`
+
+Alternate route: `/legacy/fleets/{fleet_id}/`
+
+Alternate route: `/dev/fleets/{fleet_id}/`
+
+
+---
+
+This route is cached for up to 5 seconds
 
 ### Required Parameters
 
@@ -177,7 +217,20 @@ Name | Type | Description  | Notes
 > []GetFleetsFleetIdMembers200Ok GetFleetsFleetIdMembers(ctx, fleetId, optional)
 Get fleet members
 
-Return information about fleet members  ---  Alternate route: `/v1/fleets/{fleet_id}/members/`  Alternate route: `/legacy/fleets/{fleet_id}/members/`  Alternate route: `/dev/fleets/{fleet_id}/members/`   ---  This route is cached for up to 5 seconds
+Return information about fleet members
+
+---
+
+Alternate route: `/v1/fleets/{fleet_id}/members/`
+
+Alternate route: `/legacy/fleets/{fleet_id}/members/`
+
+Alternate route: `/dev/fleets/{fleet_id}/members/`
+
+
+---
+
+This route is cached for up to 5 seconds
 
 ### Required Parameters
 
@@ -215,7 +268,20 @@ Name | Type | Description  | Notes
 > []GetFleetsFleetIdWings200Ok GetFleetsFleetIdWings(ctx, fleetId, optional)
 Get fleet wings
 
-Return information about wings in a fleet  ---  Alternate route: `/v1/fleets/{fleet_id}/wings/`  Alternate route: `/legacy/fleets/{fleet_id}/wings/`  Alternate route: `/dev/fleets/{fleet_id}/wings/`   ---  This route is cached for up to 5 seconds
+Return information about wings in a fleet
+
+---
+
+Alternate route: `/v1/fleets/{fleet_id}/wings/`
+
+Alternate route: `/legacy/fleets/{fleet_id}/wings/`
+
+Alternate route: `/dev/fleets/{fleet_id}/wings/`
+
+
+---
+
+This route is cached for up to 5 seconds
 
 ### Required Parameters
 
@@ -253,7 +319,16 @@ Name | Type | Description  | Notes
 > PostFleetsFleetIdMembers(ctx, fleetId, invitation, optional)
 Create fleet invitation
 
-Invite a character into the fleet, if a character has a CSPA charge set, it is not possible to invite them to the fleet using ESI  ---  Alternate route: `/v1/fleets/{fleet_id}/members/`  Alternate route: `/legacy/fleets/{fleet_id}/members/`  Alternate route: `/dev/fleets/{fleet_id}/members/` 
+Invite a character into the fleet, if a character has a CSPA charge set, it is not possible to invite them to the fleet using ESI
+
+---
+
+Alternate route: `/v1/fleets/{fleet_id}/members/`
+
+Alternate route: `/legacy/fleets/{fleet_id}/members/`
+
+Alternate route: `/dev/fleets/{fleet_id}/members/`
+
 
 ### Required Parameters
 
@@ -292,7 +367,16 @@ Name | Type | Description  | Notes
 > PostFleetsFleetIdWingsCreated PostFleetsFleetIdWings(ctx, fleetId, optional)
 Create fleet wing
 
-Create a new wing in a fleet  ---  Alternate route: `/v1/fleets/{fleet_id}/wings/`  Alternate route: `/legacy/fleets/{fleet_id}/wings/`  Alternate route: `/dev/fleets/{fleet_id}/wings/` 
+Create a new wing in a fleet
+
+---
+
+Alternate route: `/v1/fleets/{fleet_id}/wings/`
+
+Alternate route: `/legacy/fleets/{fleet_id}/wings/`
+
+Alternate route: `/dev/fleets/{fleet_id}/wings/`
+
 
 ### Required Parameters
 
@@ -329,7 +413,16 @@ Name | Type | Description  | Notes
 > PostFleetsFleetIdWingsWingIdSquadsCreated PostFleetsFleetIdWingsWingIdSquads(ctx, fleetId, wingId, optional)
 Create fleet squad
 
-Create a new squad in a fleet  ---  Alternate route: `/v1/fleets/{fleet_id}/wings/{wing_id}/squads/`  Alternate route: `/legacy/fleets/{fleet_id}/wings/{wing_id}/squads/`  Alternate route: `/dev/fleets/{fleet_id}/wings/{wing_id}/squads/` 
+Create a new squad in a fleet
+
+---
+
+Alternate route: `/v1/fleets/{fleet_id}/wings/{wing_id}/squads/`
+
+Alternate route: `/legacy/fleets/{fleet_id}/wings/{wing_id}/squads/`
+
+Alternate route: `/dev/fleets/{fleet_id}/wings/{wing_id}/squads/`
+
 
 ### Required Parameters
 
@@ -368,7 +461,16 @@ Name | Type | Description  | Notes
 > PutFleetsFleetId(ctx, fleetId, newSettings, optional)
 Update fleet
 
-Update settings about a fleet  ---  Alternate route: `/v1/fleets/{fleet_id}/`  Alternate route: `/legacy/fleets/{fleet_id}/`  Alternate route: `/dev/fleets/{fleet_id}/` 
+Update settings about a fleet
+
+---
+
+Alternate route: `/v1/fleets/{fleet_id}/`
+
+Alternate route: `/legacy/fleets/{fleet_id}/`
+
+Alternate route: `/dev/fleets/{fleet_id}/`
+
 
 ### Required Parameters
 
@@ -407,7 +509,16 @@ Name | Type | Description  | Notes
 > PutFleetsFleetIdMembersMemberId(ctx, fleetId, memberId, movement, optional)
 Move fleet member
 
-Move a fleet member around  ---  Alternate route: `/v1/fleets/{fleet_id}/members/{member_id}/`  Alternate route: `/legacy/fleets/{fleet_id}/members/{member_id}/`  Alternate route: `/dev/fleets/{fleet_id}/members/{member_id}/` 
+Move a fleet member around
+
+---
+
+Alternate route: `/v1/fleets/{fleet_id}/members/{member_id}/`
+
+Alternate route: `/legacy/fleets/{fleet_id}/members/{member_id}/`
+
+Alternate route: `/dev/fleets/{fleet_id}/members/{member_id}/`
+
 
 ### Required Parameters
 
@@ -448,7 +559,16 @@ Name | Type | Description  | Notes
 > PutFleetsFleetIdSquadsSquadId(ctx, fleetId, squadId, naming, optional)
 Rename fleet squad
 
-Rename a fleet squad  ---  Alternate route: `/v1/fleets/{fleet_id}/squads/{squad_id}/`  Alternate route: `/legacy/fleets/{fleet_id}/squads/{squad_id}/`  Alternate route: `/dev/fleets/{fleet_id}/squads/{squad_id}/` 
+Rename a fleet squad
+
+---
+
+Alternate route: `/v1/fleets/{fleet_id}/squads/{squad_id}/`
+
+Alternate route: `/legacy/fleets/{fleet_id}/squads/{squad_id}/`
+
+Alternate route: `/dev/fleets/{fleet_id}/squads/{squad_id}/`
+
 
 ### Required Parameters
 
@@ -489,7 +609,16 @@ Name | Type | Description  | Notes
 > PutFleetsFleetIdWingsWingId(ctx, fleetId, wingId, naming, optional)
 Rename fleet wing
 
-Rename a fleet wing  ---  Alternate route: `/v1/fleets/{fleet_id}/wings/{wing_id}/`  Alternate route: `/legacy/fleets/{fleet_id}/wings/{wing_id}/`  Alternate route: `/dev/fleets/{fleet_id}/wings/{wing_id}/` 
+Rename a fleet wing
+
+---
+
+Alternate route: `/v1/fleets/{fleet_id}/wings/{wing_id}/`
+
+Alternate route: `/legacy/fleets/{fleet_id}/wings/{wing_id}/`
+
+Alternate route: `/dev/fleets/{fleet_id}/wings/{wing_id}/`
+
 
 ### Required Parameters
 

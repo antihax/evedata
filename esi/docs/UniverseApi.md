@@ -16,7 +16,20 @@ Method | HTTP request | Description
 > GetUniverseStationsStationIdOk GetUniverseStationsStationId(stationId, optional)
 Get station information
 
-Public information on stations  ---  Alternate route: `/v1/universe/stations/{station_id}/`  Alternate route: `/legacy/universe/stations/{station_id}/`  Alternate route: `/dev/universe/stations/{station_id}/`   ---  This route is cached for up to 3600 seconds
+Public information on stations
+
+---
+
+Alternate route: `/v1/universe/stations/{station_id}/`
+
+Alternate route: `/legacy/universe/stations/{station_id}/`
+
+Alternate route: `/dev/universe/stations/{station_id}/`
+
+
+---
+
+This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -52,7 +65,20 @@ No authorization required
 > []int64 GetUniverseStructures(optional)
 List all public structures
 
-List all public structures  ---  Alternate route: `/v1/universe/structures/`  Alternate route: `/legacy/universe/structures/`  Alternate route: `/dev/universe/structures/`   ---  This route is cached for up to 3600 seconds
+List all public structures
+
+---
+
+Alternate route: `/v1/universe/structures/`
+
+Alternate route: `/legacy/universe/structures/`
+
+Alternate route: `/dev/universe/structures/`
+
+
+---
+
+This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -86,7 +112,16 @@ No authorization required
 > GetUniverseStructuresStructureIdOk GetUniverseStructuresStructureId(ctx, structureId, optional)
 Get structure information
 
-Returns information on requested structure, if you are on the ACL. Otherwise, returns \"Forbidden\" for all inputs.  ---  Alternate route: `/v1/universe/structures/{structure_id}/`  Alternate route: `/legacy/universe/structures/{structure_id}/`  Alternate route: `/dev/universe/structures/{structure_id}/` 
+Returns information on requested structure, if you are on the ACL. Otherwise, returns "Forbidden" for all inputs.
+
+---
+
+Alternate route: `/v1/universe/structures/{structure_id}/`
+
+Alternate route: `/legacy/universe/structures/{structure_id}/`
+
+Alternate route: `/dev/universe/structures/{structure_id}/`
+
 
 ### Required Parameters
 
@@ -123,7 +158,20 @@ Name | Type | Description  | Notes
 > GetUniverseSystemsSystemIdOk GetUniverseSystemsSystemId(systemId, optional)
 Get solar system information
 
-Information on solar systems  ---  Alternate route: `/v1/universe/systems/{system_id}/`  Alternate route: `/legacy/universe/systems/{system_id}/`  Alternate route: `/dev/universe/systems/{system_id}/`   ---  This route is cached for up to 3600 seconds
+Information on solar systems
+
+---
+
+Alternate route: `/v1/universe/systems/{system_id}/`
+
+Alternate route: `/legacy/universe/systems/{system_id}/`
+
+Alternate route: `/dev/universe/systems/{system_id}/`
+
+
+---
+
+This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -159,7 +207,20 @@ No authorization required
 > GetUniverseTypesTypeIdOk GetUniverseTypesTypeId(typeId, optional)
 Get type information
 
-Get information on a type  ---  Alternate route: `/v1/universe/types/{type_id}/`  Alternate route: `/legacy/universe/types/{type_id}/`  Alternate route: `/dev/universe/types/{type_id}/`   ---  This route is cached for up to 3600 seconds
+Get information on a type
+
+---
+
+Alternate route: `/v1/universe/types/{type_id}/`
+
+Alternate route: `/legacy/universe/types/{type_id}/`
+
+Alternate route: `/dev/universe/types/{type_id}/`
+
+
+---
+
+This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -195,7 +256,14 @@ No authorization required
 > []PostUniverseNames200Ok PostUniverseNames(ids, optional)
 Get names and categories for a set of ID's
 
-Resolve a set of IDs to names and categories. Supported ID's for resolving are: Characters, Corporations, Alliances, Stations, Solar Systems, Constellations, Regions, Types.  ---  Alternate route: `/v1/universe/names/`  Alternate route: `/legacy/universe/names/` 
+Resolve a set of IDs to names and categories. Supported ID's for resolving are: Characters, Corporations, Alliances, Stations, Solar Systems, Constellations, Regions, Types.
+
+---
+
+Alternate route: `/v1/universe/names/`
+
+Alternate route: `/legacy/universe/names/`
+
 
 ### Required Parameters
 

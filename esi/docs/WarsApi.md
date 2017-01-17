@@ -13,7 +13,20 @@ Method | HTTP request | Description
 > []int32 GetWars(optional)
 List wars
 
-Return a list of wars  ---  Alternate route: `/v1/wars/`  Alternate route: `/legacy/wars/`  Alternate route: `/dev/wars/`   ---  This route is cached for up to 3600 seconds
+Return a list of wars
+
+---
+
+Alternate route: `/v1/wars/`
+
+Alternate route: `/legacy/wars/`
+
+Alternate route: `/dev/wars/`
+
+
+---
+
+This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -48,7 +61,20 @@ No authorization required
 > GetWarsWarIdOk GetWarsWarId(warId, optional)
 Get war information
 
-Return details about a war  ---  Alternate route: `/v1/wars/{war_id}/`  Alternate route: `/legacy/wars/{war_id}/`  Alternate route: `/dev/wars/{war_id}/`   ---  This route is cached for up to 3600 seconds
+Return details about a war
+
+---
+
+Alternate route: `/v1/wars/{war_id}/`
+
+Alternate route: `/legacy/wars/{war_id}/`
+
+Alternate route: `/dev/wars/{war_id}/`
+
+
+---
+
+This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -84,7 +110,20 @@ No authorization required
 > []GetWarsWarIdKillmails200Ok GetWarsWarIdKillmails(warId, optional)
 List kills for a war
 
-Return a list of kills related to a war  ---  Alternate route: `/v1/wars/{war_id}/killmails/`  Alternate route: `/legacy/wars/{war_id}/killmails/`  Alternate route: `/dev/wars/{war_id}/killmails/`   ---  This route is cached for up to 3600 seconds
+Return a list of kills related to a war
+
+---
+
+Alternate route: `/v1/wars/{war_id}/killmails/`
+
+Alternate route: `/legacy/wars/{war_id}/killmails/`
+
+Alternate route: `/dev/wars/{war_id}/killmails/`
+
+
+---
+
+This route is cached for up to 3600 seconds
 
 ### Required Parameters
 

@@ -199,21 +199,22 @@ func TestMarketOrderPull(t *testing.T) {
 }
 
 // This is bugged due to the ESI Spec.
-/*
 func TestMarketHistoryPull(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
+	j := 0
 	for {
+		j++
 		err := eC.marketHistoryCheckQueue(r)
 		if err != nil {
 			t.Error(err)
 			return
 		}
-		if i, _ := redis.Int(r.Do("SCARD", "EVEDATA_marketHistory")); i == 0 {
+		if i, _ := redis.Int(r.Do("SCARD", "EVEDATA_marketHistory")); i == 0 || j > 5 {
 			break
 		}
 	}
-}*/
+}
 
 func TestWarsUpdate(t *testing.T) {
 	err := eC.updateWars()

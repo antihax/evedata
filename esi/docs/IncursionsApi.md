@@ -11,7 +11,20 @@ Method | HTTP request | Description
 > []GetIncursions200Ok GetIncursions(optional)
 List incursions
 
-Return a list of current incursions  ---  Alternate route: `/v1/incursions/`  Alternate route: `/legacy/incursions/`  Alternate route: `/dev/incursions/`   ---  This route is cached for up to 300 seconds
+Return a list of current incursions
+
+---
+
+Alternate route: `/v1/incursions/`
+
+Alternate route: `/legacy/incursions/`
+
+Alternate route: `/dev/incursions/`
+
+
+---
+
+This route is cached for up to 300 seconds
 
 ### Required Parameters
 

@@ -15,7 +15,20 @@ Method | HTTP request | Description
 > GetCharactersCharacterIdOk GetCharactersCharacterId(characterId, optional)
 Get character's public information
 
-Public information about a character  ---  Alternate route: `/v3/characters/{character_id}/`  Alternate route: `/legacy/characters/{character_id}/`  Alternate route: `/dev/characters/{character_id}/`   ---  This route is cached for up to 3600 seconds
+Public information about a character
+
+---
+
+Alternate route: `/v3/characters/{character_id}/`
+
+Alternate route: `/legacy/characters/{character_id}/`
+
+Alternate route: `/dev/characters/{character_id}/`
+
+
+---
+
+This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -51,7 +64,20 @@ No authorization required
 > []GetCharactersCharacterIdCorporationhistory200Ok GetCharactersCharacterIdCorporationhistory(characterId, optional)
 Get corporation history
 
-Get a list of all the corporations a character has been a member of  ---  Alternate route: `/v1/characters/{character_id}/corporationhistory/`  Alternate route: `/legacy/characters/{character_id}/corporationhistory/`  Alternate route: `/dev/characters/{character_id}/corporationhistory/`   ---  This route is cached for up to 3600 seconds
+Get a list of all the corporations a character has been a member of
+
+---
+
+Alternate route: `/v1/characters/{character_id}/corporationhistory/`
+
+Alternate route: `/legacy/characters/{character_id}/corporationhistory/`
+
+Alternate route: `/dev/characters/{character_id}/corporationhistory/`
+
+
+---
+
+This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -87,7 +113,18 @@ No authorization required
 > GetCharactersCharacterIdPortraitOk GetCharactersCharacterIdPortrait(characterId, optional)
 Get character portraits
 
-Get portrait urls for a character  ---  Alternate route: `/v2/characters/{character_id}/portrait/`  Alternate route: `/dev/characters/{character_id}/portrait/`   ---  This route is cached for up to 3600 seconds
+Get portrait urls for a character
+
+---
+
+Alternate route: `/v2/characters/{character_id}/portrait/`
+
+Alternate route: `/dev/characters/{character_id}/portrait/`
+
+
+---
+
+This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -123,7 +160,20 @@ No authorization required
 > []GetCharactersNames200Ok GetCharactersNames(characterIds, optional)
 Get character names
 
-Resolve a set of character IDs to character names  ---  Alternate route: `/v1/characters/names/`  Alternate route: `/legacy/characters/names/`  Alternate route: `/dev/characters/names/`   ---  This route is cached for up to 3600 seconds
+Resolve a set of character IDs to character names
+
+---
+
+Alternate route: `/v1/characters/names/`
+
+Alternate route: `/legacy/characters/names/`
+
+Alternate route: `/dev/characters/names/`
+
+
+---
+
+This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -159,7 +209,16 @@ No authorization required
 > PostCharactersCharacterIdCspaCreated PostCharactersCharacterIdCspa(ctx, characterId, characters, optional)
 Calculate a CSPA charge cost
 
-Takes a source character ID in the url and a set of target character ID's in the body, returns a CSPA charge cost  ---  Alternate route: `/v3/characters/{character_id}/cspa/`  Alternate route: `/legacy/characters/{character_id}/cspa/`  Alternate route: `/dev/characters/{character_id}/cspa/` 
+Takes a source character ID in the url and a set of target character ID's in the body, returns a CSPA charge cost
+
+---
+
+Alternate route: `/v3/characters/{character_id}/cspa/`
+
+Alternate route: `/legacy/characters/{character_id}/cspa/`
+
+Alternate route: `/dev/characters/{character_id}/cspa/`
+
 
 ### Required Parameters
 
