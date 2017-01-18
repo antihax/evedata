@@ -114,10 +114,10 @@ func (c *EVEConsumer) killmailGetAndSave(id int32, hash string) error {
 	}
 
 	save := true
-	old := time.Now().Add(time.Hour * -(24 * 90))
-	if kill.KillmailTime.UTC().Before(old) {
-		save = false
-	}
+	/*	old := time.Now().Add(time.Hour * -(24 * 90))
+		if kill.KillmailTime.UTC().Before(old) {
+			save = false
+		}*/
 	redis := c.ctx.Cache.Get()
 	defer redis.Close()
 
@@ -199,8 +199,8 @@ func (c *EVEConsumer) goZKillTemporaryConsumer() error {
 		return err
 	}
 
-	// Spread out over a day.
-	rate := time.Second * 60 // ((60 * 60 * 24) / 365)
+	// three per second until we catchup
+	rate := time.Second / 2 // ((60 * 60 * 24) / 365)
 	throttle := time.Tick(rate)
 
 	for {

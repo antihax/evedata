@@ -118,6 +118,8 @@ func TestScopeSetup(t *testing.T) {
 	eC.assetsShouldUpdate()
 }
 
+
+// [TODO] Dive into this more... add some work, make sure it's gone.
 func TestConsumerTest(t *testing.T) {
 	testEC := NewEVEConsumer(&ctx)
 	go testEC.initConsumer()

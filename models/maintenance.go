@@ -1,25 +1,25 @@
 package models
 
 func MaintKillMails() error { // Broken into smaller chunks so we have a chance of it getting completed.
-	// Delete stuff older than 90 days, we do not care...
-	if err := RetryExecTillNoRows(`
-		DELETE LOW_PRIORITY A.* FROM evedata.killmailAttackers A 
-            JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY) LIMIT 50000) K ON A.id = K.id; 
-            `); err != nil {
-		return err
-	}
-	if err := RetryExecTillNoRows(`
-		DELETE LOW_PRIORITY A.* FROM evedata.killmailItems A 
-        JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY) LIMIT 50000) K ON A.id = K.id;
-            `); err != nil {
-		return err
-	}
-	if err := RetryExecTillNoRows(`
-		DELETE LOW_PRIORITY FROM evedata.killmails
-        WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY) LIMIT 50000;
-            `); err != nil {
-		return err
-	}
+	/*	// Delete stuff older than 90 days, we do not care...
+			if err := RetryExecTillNoRows(`
+				DELETE LOW_PRIORITY A.* FROM evedata.killmailAttackers A
+		            JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY) LIMIT 50000) K ON A.id = K.id;
+		            `); err != nil {
+				return err
+			}
+			if err := RetryExecTillNoRows(`
+				DELETE LOW_PRIORITY A.* FROM evedata.killmailItems A
+		        JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY) LIMIT 50000) K ON A.id = K.id;
+		            `); err != nil {
+				return err
+			}
+			if err := RetryExecTillNoRows(`
+				DELETE LOW_PRIORITY FROM evedata.killmails
+		        WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY) LIMIT 50000;
+		            `); err != nil {
+				return err
+			}*/
 
 	// Remove any invalid items
 	if err := RetryExecTillNoRows(`
@@ -117,7 +117,6 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
 }
 
 func MaintMarket() error {
-
 	if _, err := RetryExec(`
         UPDATE evedata.alliances A SET memberCount = 
             IFNULL(
