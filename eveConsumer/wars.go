@@ -60,7 +60,37 @@ func (c *EVEConsumer) updateWars() error {
 	return nil
 }
 
+// CCP disabled ESI wars. Go back to CREST until fixed.
 func (c *EVEConsumer) collectWarsFromCREST() error {
+	nextCheck, _, err := models.GetServiceState("wars")
+	if err != nil {
+		return err
+	} else if nextCheck.After(time.Now()) {
+		return nil
+	}
+
+	log.Printf("EVEConsumer: collecting wars")
+	w, err := c.ctx.EVE.WarsV1(1)
+	if err != nil {
+		return err
+	}
+
+	// Loop through all of the pages
+	for ; w != nil; w, err = w.NextPage() {
+		// Update state so we dont have two polling at once.
+		err = models.SetServiceState("wars", w.CacheUntil, (int32)(w.Page))
+		if err != nil {
+			continue
+		}
+
+		for _, r := range w.Items {
+			c.warAddToQueue((int32)(r.ID))
+		}
+	}
+	return nil
+}
+
+/*func (c *EVEConsumer) collectWarsFromCREST() error {
 	nextCheck, _, err := models.GetServiceState("wars")
 	if err != nil {
 		return err
@@ -85,7 +115,7 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 
 	models.SetServiceState("wars", time.Now().UTC().Add(time.Hour), 1)
 	return nil
-}
+}*/
 
 func (c *EVEConsumer) warCheckQueue(r redis.Conn) error {
 	ret, err := r.Do("SPOP", "EVEDATA_warQueue")
