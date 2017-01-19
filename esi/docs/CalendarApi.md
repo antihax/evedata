@@ -37,7 +37,7 @@ This route is cached for up to 5 seconds
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context containing the authentication | nil if no authentication
-  **characterId** | **int64**| The character to retrieve events from | 
+  **characterId** | **int32**| The character to retrieve events from | 
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters
@@ -45,7 +45,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **characterId** | **int64**| The character to retrieve events from | 
+ **characterId** | **int32**| The character to retrieve events from | 
  **fromEvent** | **int32**| The event ID to retrieve events from | 
  **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
@@ -86,7 +86,7 @@ This route is cached for up to 5 seconds
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context containing the authentication | nil if no authentication
-  **characterId** | **int64**| The character id requesting the event | 
+  **characterId** | **int32**| The character id requesting the event | 
   **eventId** | **int32**| The id of the event requested | 
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
@@ -95,7 +95,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **characterId** | **int64**| The character id requesting the event | 
+ **characterId** | **int32**| The character id requesting the event | 
  **eventId** | **int32**| The id of the event requested | 
  **datasource** | **string**| The server name you would like data from | [default to tranquility]
 

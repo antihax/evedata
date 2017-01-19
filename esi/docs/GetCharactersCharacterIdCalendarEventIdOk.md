@@ -4,10 +4,10 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **Date** | [**time.Time**](time.Time.md) | date string | [default to null]
-**Duration** | **int64** | Length in minutes | [default to null]
+**Duration** | **int32** | Length in minutes | [default to null]
 **EventId** | **int32** | event_id integer | [default to null]
 **Importance** | **int32** | importance integer | [default to null]
-**OwnerId** | **int64** | owner_id integer | [default to null]
+**OwnerId** | **int32** | owner_id integer | [default to null]
 **OwnerName** | **string** | owner_name string | [default to null]
 **OwnerType** | **string** | owner_type string | [default to null]
 **Response** | **string** | response string | [default to null]

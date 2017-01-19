@@ -37,7 +37,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **acceptLanguage** | **string**| Language to use in the response | [default to en]
+ **language** | **string**| Language to use in the response | [default to en-us]
  **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type
