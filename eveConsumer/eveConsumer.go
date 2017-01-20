@@ -113,7 +113,6 @@ func (c *EVEConsumer) goTriggers() {
 			c.checkWars()
 			c.checkPublicStructures()
 			c.checkNPCCorps()
-
 		}
 		<-throttle
 	}
