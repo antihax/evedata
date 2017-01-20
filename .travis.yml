@@ -1,5 +1,6 @@
 sudo: required
-language: generic
+language: go
+go: master
 
 addons:
   hosts:
