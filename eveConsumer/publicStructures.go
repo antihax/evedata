@@ -10,14 +10,11 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (c *EVEConsumer) checkPublicStructures() {
-	err := c.collectStructuresFromESI()
-	if err != nil {
-		log.Printf("EVEConsumer: collecting structures: %v", err)
-	}
+func init() {
+	addTrigger("structures", structuresTrigger)
 }
 
-func (c *EVEConsumer) collectStructuresFromESI() error {
+func structuresTrigger(c *EVEConsumer) error {
 	nextCheck, _, err := models.GetServiceState("structures")
 	if err != nil {
 		return err

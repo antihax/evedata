@@ -13,29 +13,29 @@ func TestMarketAddRegion(t *testing.T) {
 	eC.marketRegionAddRegion(1, time.Now().UTC().Unix(), r)
 }
 
-func TestMarketRegionCheck(t *testing.T) {
+func TestMarketRegionConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
-	err := eC.marketRegionCheckQueue(r)
+	err := marketRegionConsumer(eC, r)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 }
 
-func TestMarketHistoryUpdateTrigger(t *testing.T) {
-	err := eC.marketHistoryUpdateTrigger()
+func TestMarketHistoryTrigger(t *testing.T) {
+	err := marketHistoryTrigger(eC)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 }
 
-func TestMarketOrderPull(t *testing.T) {
+func TestMarketOrderConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 	for {
-		err := eC.marketOrderCheckQueue(r)
+		err := marketOrderConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return
@@ -47,13 +47,13 @@ func TestMarketOrderPull(t *testing.T) {
 }
 
 // This is bugged due to the ESI Spec.
-func TestMarketHistoryPull(t *testing.T) {
+func TestMarketHistoryConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 	j := 0
 	for {
 		j++
-		err := eC.marketHistoryCheckQueue(r)
+		err := marketHistoryConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return
@@ -65,7 +65,7 @@ func TestMarketHistoryPull(t *testing.T) {
 }
 
 func TestMarketMaintTrigger(t *testing.T) {
-	err := eC.marketMaintTrigger()
+	err := marketMaintTrigger(eC)
 	if err != nil {
 		t.Error(err)
 		return

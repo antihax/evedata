@@ -13,7 +13,11 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-func (c *EVEConsumer) killmailCheckQueue(r redis.Conn) error {
+func init() {
+	addConsumer("killmails", killmailsConsumer)
+}
+
+func killmailsConsumer(c *EVEConsumer, r redis.Conn) error {
 	ret, err := r.Do("SPOP", "EVEDATA_killQueue")
 	if err != nil {
 		return err

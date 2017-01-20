@@ -7,14 +7,11 @@ import (
 	"github.com/antihax/evedata/models"
 )
 
-func (c *EVEConsumer) checkNPCCorps() {
-	err := c.collectNPCCorps()
-	if err != nil {
-		log.Printf("EVEConsumer: collecting loyalty Point Store Items: %v", err)
-	}
+func init() {
+	addTrigger("npcCorps", npcCorpTrigger)
 }
 
-func (c *EVEConsumer) collectNPCCorps() error {
+func npcCorpTrigger(c *EVEConsumer) error {
 	nextCheck, _, err := models.GetServiceState("npcCorps")
 	if err != nil {
 		return err
@@ -60,5 +57,5 @@ func (c *EVEConsumer) collectNPCCorps() error {
 			}
 		}
 	}
-	return nil
+	return err
 }

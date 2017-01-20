@@ -12,8 +12,17 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
+func init() {
+	addConsumer("market", marketOrderConsumer)
+	addConsumer("market", marketHistoryConsumer)
+	addConsumer("market", marketRegionConsumer)
+
+	addTrigger("market", marketMaintTrigger)
+	addTrigger("market", marketHistoryTrigger)
+}
+
 // Add market history items to the queue
-func (c *EVEConsumer) marketMaintTrigger() error {
+func marketMaintTrigger(c *EVEConsumer) error {
 
 	// Skip if we are not ready
 	cacheUntilTime, _, err := models.GetServiceState("marketMaint")
@@ -38,7 +47,7 @@ func (c *EVEConsumer) marketMaintTrigger() error {
 }
 
 // Add market history items to the queue
-func (c *EVEConsumer) marketHistoryUpdateTrigger() error {
+func marketHistoryTrigger(c *EVEConsumer) error {
 
 	// Skip if we are not ready
 	cacheUntilTime, _, err := models.GetServiceState("marketHistory")
@@ -89,7 +98,7 @@ func (c *EVEConsumer) marketHistoryUpdateTrigger() error {
 	return err
 }
 
-func (c *EVEConsumer) marketOrderCheckQueue(r redis.Conn) error {
+func marketOrderConsumer(c *EVEConsumer, r redis.Conn) error {
 	ret, err := r.Do("SPOP", "EVEDATA_marketOrders")
 	if err != nil {
 		return err
@@ -163,7 +172,7 @@ func (c *EVEConsumer) marketRegionAddRegion(v int, t int64, r redis.Conn) {
 	r.Do("ZADD", "EVEDATA_marketRegions", t, v)
 }
 
-func (c *EVEConsumer) marketHistoryCheckQueue(r redis.Conn) error {
+func marketHistoryConsumer(c *EVEConsumer, r redis.Conn) error {
 	ret, err := r.Do("SPOP", "EVEDATA_marketHistory")
 	if err != nil {
 		return err
@@ -223,7 +232,7 @@ func (c *EVEConsumer) marketHistoryCheckQueue(r redis.Conn) error {
 }
 
 // Check the regions for their cache time to expire
-func (c *EVEConsumer) marketRegionCheckQueue(r redis.Conn) error {
+func marketRegionConsumer(c *EVEConsumer, r redis.Conn) error {
 	t := time.Now().UTC().Unix()
 
 	// Get a list of regions by expired keys.

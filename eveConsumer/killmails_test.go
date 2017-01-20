@@ -6,11 +6,11 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-func TestKillmailsPull(t *testing.T) {
+func TestKillmailsConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 	for {
-		err := eC.killmailCheckQueue(r)
+		err := killmailsConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return

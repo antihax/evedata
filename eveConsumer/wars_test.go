@@ -6,28 +6,24 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-func TestWarsUpdate(t *testing.T) {
-	err := eC.updateWars()
+/* Disabled until ESI regains war endpoint
+func TestWarsTrigger(t *testing.T) {
+	err := warsTrigger(eC)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 }
+*/
 
-// Temp disable as we have no CREST Mock
-/*func TestWarsCheckCREST(t *testing.T) {
-	err := eC.collectWarsFromCREST()
-	if err != nil {
-		t.Error(err)
-		return
-	}
-}*/
-
-func TestWarsPull(t *testing.T) {
+func TestWarsConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
+	eC.warAddToQueue(1)
+	eC.warAddToQueue(2)
+	eC.warAddToQueue(3)
 	for {
-		err := eC.warCheckQueue(r)
+		err := warConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return

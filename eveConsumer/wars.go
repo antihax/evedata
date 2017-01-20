@@ -9,16 +9,22 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-func (c *EVEConsumer) checkWars() {
+func init() {
+	addConsumer("assets", assetsConsumer)
+	addTrigger("wars", warsTrigger)
+}
+
+func warsTrigger(c *EVEConsumer) error {
 	err := c.updateWars()
 	if err != nil {
-		log.Printf("EVEConsumer: updating wars: %v", err)
+		return err
 	}
 
 	err = c.collectWarsFromCREST()
 	if err != nil {
-		log.Printf("EVEConsumer: collecting wars: %v", err)
+		return err
 	}
+	return nil
 }
 
 func (c *EVEConsumer) warAddToQueue(id int32) error {
@@ -117,7 +123,7 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 	return nil
 }*/
 
-func (c *EVEConsumer) warCheckQueue(r redis.Conn) error {
+func warConsumer(c *EVEConsumer, r redis.Conn) error {
 	ret, err := r.Do("SPOP", "EVEDATA_warQueue")
 	if err != nil {
 		return err

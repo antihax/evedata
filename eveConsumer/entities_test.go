@@ -6,14 +6,6 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-func TestEntitiesFromCrest(t *testing.T) {
-	err := eC.collectEntitiesFromCREST()
-	if err != nil {
-		t.Error(err)
-		return
-	}
-}
-
 func TestEntities(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
@@ -24,11 +16,19 @@ func TestEntities(t *testing.T) {
 	}
 }
 
-func TestEntitiesPull(t *testing.T) {
+func TestEntitiesTrigger(t *testing.T) {
+	err := entitiesTrigger(eC)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+func TestEntitiesConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 	for {
-		err := eC.entityCheckQueue(r)
+		err := entitiesConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return
@@ -36,13 +36,5 @@ func TestEntitiesPull(t *testing.T) {
 		if i, _ := redis.Int(r.Do("SCARD", "EVEDATA_entityQueue")); i == 0 {
 			break
 		}
-	}
-}
-
-func TestUpdateEntities(t *testing.T) {
-	err := eC.updateEntities()
-	if err != nil {
-		t.Error(err)
-		return
 	}
 }

@@ -11,8 +11,13 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
+func init() {
+	addConsumer("wallets", walletsConsumer)
+	addTrigger("wallets", walletsTrigger)
+}
+
 // Perform contact sync for wardecs
-func (c *EVEConsumer) walletShouldUpdate() {
+func walletsTrigger(c *EVEConsumer) error {
 	r := c.ctx.Cache.Get()
 	defer r.Close()
 
@@ -23,7 +28,7 @@ func (c *EVEConsumer) walletShouldUpdate() {
 		scopes LIKE "%characterWalletRead%";`)
 	if err != nil {
 		log.Printf("Wallets: Failed query: %v", err)
-		return
+		return err
 	}
 
 	// Loop updatable characters
@@ -44,10 +49,11 @@ func (c *EVEConsumer) walletShouldUpdate() {
 			continue
 		}
 	}
-	rows.Close()
+	err = rows.Close()
+	return err
 }
 
-func (c *EVEConsumer) walletsCheckQueue(r redis.Conn) error {
+func walletsConsumer(c *EVEConsumer, r redis.Conn) error {
 	ret, err := r.Do("SPOP", "EVEDATA_walletQueue")
 	if err != nil {
 		return err

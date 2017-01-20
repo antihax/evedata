@@ -13,45 +13,12 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-// Update character assets
-func (c *EVEConsumer) assetsShouldUpdate() {
-	r := c.ctx.Cache.Get()
-	defer r.Close()
-
-	// Gather characters for update. Group for optimized updating.
-	rows, err := c.ctx.Db.Query(
-		`SELECT characterID, tokenCharacterID FROM evedata.crestTokens WHERE 
-		assetCacheUntil < UTC_TIMESTAMP() AND lastStatus NOT LIKE "%Invalid refresh token%" AND 
-		scopes LIKE "%esi-assets.read_assets.v1%";`)
-	if err != nil {
-		log.Printf("Assets: Failed query: %v", err)
-		return
-	}
-
-	// Loop updatable characters
-	for rows.Next() {
-		var (
-			char      int64 // Source char
-			tokenChar int64 // Token Char
-		)
-
-		err = rows.Scan(&char, &tokenChar)
-		if err != nil {
-			log.Printf("Assets: Failed scan: %v", err)
-			continue
-		}
-
-		// Add the job to the queue
-		_, err = r.Do("SADD", "EVEDATA_assetQueue", fmt.Sprintf("%d:%d", char, tokenChar))
-		if err != nil {
-			log.Printf("Assets: Failed scan: %v", err)
-			continue
-		}
-	}
-	rows.Close()
+func init() {
+	addConsumer("assets", assetsConsumer)
+	addTrigger("assets", assetsTrigger)
 }
 
-func (c *EVEConsumer) assetsCheckQueue(r redis.Conn) error {
+func assetsConsumer(c *EVEConsumer, r redis.Conn) error {
 	// POP some work of the queue
 	ret, err := r.Do("SPOP", "EVEDATA_assetQueue")
 	if err != nil {
@@ -126,5 +93,44 @@ func (c *EVEConsumer) assetsCheckQueue(r redis.Conn) error {
 		}
 	}
 
+	return err
+}
+
+// Update character assets
+func assetsTrigger(c *EVEConsumer) error {
+	r := c.ctx.Cache.Get()
+	defer r.Close()
+
+	// Gather characters for update. Group for optimized updating.
+	rows, err := c.ctx.Db.Query(
+		`SELECT characterID, tokenCharacterID FROM evedata.crestTokens WHERE 
+		assetCacheUntil < UTC_TIMESTAMP() AND lastStatus NOT LIKE "%Invalid refresh token%" AND 
+		scopes LIKE "%esi-assets.read_assets.v1%";`)
+	if err != nil {
+		log.Printf("Assets: Failed query: %v", err)
+		return err
+	}
+
+	// Loop updatable characters
+	for rows.Next() {
+		var (
+			char      int64 // Source char
+			tokenChar int64 // Token Char
+		)
+
+		err = rows.Scan(&char, &tokenChar)
+		if err != nil {
+			log.Printf("Assets: Failed scan: %v", err)
+			return err
+		}
+
+		// Add the job to the queue
+		_, err = r.Do("SADD", "EVEDATA_assetQueue", fmt.Sprintf("%d:%d", char, tokenChar))
+		if err != nil {
+			log.Printf("Assets: Failed scan: %v", err)
+			return err
+		}
+	}
+	err = rows.Close()
 	return err
 }

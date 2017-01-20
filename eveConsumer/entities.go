@@ -10,25 +10,54 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
+func init() {
+	addConsumer("entities", entitiesConsumer)
+	addTrigger("entities", entitiesTrigger)
+}
+
 // At the public rate limit, we can obtain 540,000 entities an hour.
 // Recursion will be limited to once an day with expiration of entities at five days.
 
 // Check if we need to update any entity information (character, corporation, alliance)
-func (c *EVEConsumer) checkEntities() {
+func entitiesTrigger(c *EVEConsumer) error {
 	log.Printf("EVEConsumer: Checking entities")
-	err := c.collectEntitiesFromCREST()
+	err := c.entitiesFromCREST()
 	if err != nil {
-		log.Printf("EVEConsumer: collecting entities: %v", err)
+		return err
 	}
-	err = c.updateEntities()
+
+	err = c.entitiesUpdate()
+	return err
+}
+
+func entitiesConsumer(c *EVEConsumer, r redis.Conn) error {
+	ret, err := r.Do("SPOP", "EVEDATA_entityQueue")
 	if err != nil {
-		log.Printf("EVEConsumer: updating entities: %v", err)
+		return err
+	} else if ret == nil {
+		return nil
 	}
+	v, err := redis.Int(ret, err)
+	if err != nil {
+		return err
+	}
+
+	// Skip this entity if we have touched it recently
+	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", v)
+	i, err := redis.Bool(r.Do("EXISTS", key))
+	if err != nil || i == true {
+		return err
+	}
+
+	err = c.entityGetAndSave((int32)(v))
+	if err != nil {
+		return err
+	}
+	return err
 }
 
 // update any old entities
-func (c *EVEConsumer) updateEntities() error {
-
+func (c *EVEConsumer) entitiesUpdate() error {
 	entities, err := c.ctx.Db.Query(
 		`SELECT allianceid AS id, crestRef, cacheUntil FROM evedata.alliances A
 			INNER JOIN evedata.crestID C ON A.allianceID = C.id
@@ -75,7 +104,7 @@ func (c *EVEConsumer) updateEntities() error {
 }
 
 // Collect entity information for new alliances
-func (c *EVEConsumer) collectEntitiesFromCREST() error {
+func (c *EVEConsumer) entitiesFromCREST() error {
 
 	nextCheck, _, err := models.GetServiceState("alliances")
 	if err != nil {
@@ -105,32 +134,6 @@ func (c *EVEConsumer) collectEntitiesFromCREST() error {
 	}
 
 	return nil
-}
-
-func (c *EVEConsumer) entityCheckQueue(r redis.Conn) error {
-	ret, err := r.Do("SPOP", "EVEDATA_entityQueue")
-	if err != nil {
-		return err
-	} else if ret == nil {
-		return nil
-	}
-	v, err := redis.Int(ret, err)
-	if err != nil {
-		return err
-	}
-
-	// Skip this entity if we have touched it recently
-	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", v)
-	i, err := redis.Bool(r.Do("EXISTS", key))
-	if err != nil || i == true {
-		return err
-	}
-
-	err = c.entityGetAndSave((int32)(v))
-	if err != nil {
-		return err
-	}
-	return err
 }
 
 func EntityAddToQueue(id int32, r redis.Conn) error {

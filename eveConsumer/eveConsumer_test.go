@@ -98,8 +98,6 @@ func TestMain(m *testing.M) {
 		return
 	}
 
-	eC.assetsShouldUpdate()
-
 	r.Close()
 
 	// Run the tests

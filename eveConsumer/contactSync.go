@@ -15,8 +15,13 @@ import (
 	"golang.org/x/oauth2"
 )
 
+func init() {
+	addConsumer("contactSync", contactSyncConsumer)
+	addTrigger("contactSync", contactSyncTrigger)
+}
+
 // Perform contact sync for wardecs
-func (c *EVEConsumer) contactSync() {
+func contactSyncTrigger(c *EVEConsumer) error {
 	r := c.ctx.Cache.Get()
 	defer r.Close()
 
@@ -32,7 +37,7 @@ func (c *EVEConsumer) contactSync() {
             HAVING max(nextSync) < UTC_TIMESTAMP();`)
 	if err != nil {
 		log.Printf("Contact Sync: Failed query: %v", err)
-		return
+		return err
 	}
 
 	defer rows.Close()
@@ -55,10 +60,10 @@ func (c *EVEConsumer) contactSync() {
 			continue
 		}
 	}
+	return err
 }
 
-func (c *EVEConsumer) contactSyncCheckQueue(r redis.Conn) error {
-
+func contactSyncConsumer(c *EVEConsumer, r redis.Conn) error {
 	ret, err := r.Do("SPOP", "EVEDATA_contactSyncQueue")
 	if err != nil {
 		return err

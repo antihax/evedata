@@ -7,7 +7,15 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-func TestContactSyncCheck(t *testing.T) {
+func TestContactSyncTrigger(t *testing.T) {
+	err := contactSyncTrigger(eC)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+func TestContactSyncConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 
@@ -17,10 +25,9 @@ func TestContactSyncCheck(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	eC.contactSync()
 
 	for {
-		err := eC.contactSyncCheckQueue(r)
+		err := contactSyncConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return

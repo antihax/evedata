@@ -13,6 +13,12 @@ import (
 	"github.com/gorilla/sessions"
 )
 
+type appFunc func(*appContext.AppContext, http.ResponseWriter, *http.Request, *sessions.Session) (int, error)
+type appHandler struct {
+	*appContext.AppContext
+	h appFunc
+}
+
 type route struct {
 	Name        string
 	Method      string
@@ -34,12 +40,6 @@ func AddRoute(name string, method string, pattern string, handlerFunc appFunc) {
 
 func AddNotFoundHandler(handlerFunc appFunc) {
 	notFoundHandler = &route{"404", "GET", "", handlerFunc}
-}
-
-type appFunc func(*appContext.AppContext, http.ResponseWriter, *http.Request, *sessions.Session) (int, error)
-type appHandler struct {
-	*appContext.AppContext
-	h appFunc
 }
 
 func (a appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {

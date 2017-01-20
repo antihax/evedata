@@ -76,15 +76,10 @@ func GoServer() {
 		panic("http client is null")
 	}
 
-	/*r := ctx.Cache.Get()
-	r.Do("FLUSHALL")
-	r.Close()*/
-
 	// Build Connection Pool
 	if ctx.Db, err = models.SetupDatabase(ctx.Conf.Database.Driver, ctx.Conf.Database.Spec); err != nil {
 		log.Fatalf("Cannot build database pool: %v", err)
 	}
-	//models.MaintKillMails()
 
 	if len(os.Args) > 1 {
 		if os.Args[1] == "dumpdb" {
@@ -94,6 +89,11 @@ func GoServer() {
 			}
 		}
 	}
+
+	/*r := ctx.Cache.Get()
+	r.Do("FLUSHALL")
+	r.Close()
+	models.MaintKillMails()*/
 
 	// Setup the SSO authenticator, this is the main login.
 	ssoScopes := []string{}

@@ -6,11 +6,19 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-func TestAssetPull(t *testing.T) {
+func TestAssetTrigger(t *testing.T) {
+	err := assetsTrigger(eC)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+func TestAssetConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 	for {
-		err := eC.assetsCheckQueue(r)
+		err := assetsConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return

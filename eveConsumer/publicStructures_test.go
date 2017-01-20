@@ -2,8 +2,8 @@ package eveConsumer
 
 import "testing"
 
-func TestStructureCheck(t *testing.T) {
-	err := eC.collectStructuresFromESI()
+func TestStructureTrigger(t *testing.T) {
+	err := structuresTrigger(eC)
 	if err != nil {
 		t.Error(err)
 		return

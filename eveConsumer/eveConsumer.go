@@ -5,7 +5,34 @@ import (
 	"time"
 
 	"github.com/antihax/evedata/appContext"
+	"github.com/garyburd/redigo/redis"
 )
+
+// For handling triggers
+type triggerFunc func(*EVEConsumer) error
+type trigger struct {
+	name string
+	f    triggerFunc
+}
+
+var triggers []trigger
+
+func addTrigger(name string, f triggerFunc) {
+	triggers = append(triggers, trigger{name, f})
+}
+
+// For handling Consumers
+var consumers []consumer
+
+type consumer struct {
+	name string
+	f    consumerFunc
+}
+type consumerFunc func(*EVEConsumer, redis.Conn) error
+
+func addConsumer(name string, f consumerFunc) {
+	consumers = append(consumers, consumer{name, f})
+}
 
 // EVEConsumer provides the microservice which conducts backend
 // polling of EVE Crest and XML resources as needed.
@@ -32,58 +59,13 @@ func (c *EVEConsumer) goConsumer() {
 		case <-c.consumerStopChannel:
 			return
 		default:
-			if err := c.contactSyncCheckQueue(r); err == nil {
-				workDone = true
-			} else if err != nil {
-				log.Printf("ContactSync consumer: %v\n", err)
-			}
-
-			if err := c.killmailCheckQueue(r); err == nil {
-				workDone = true
-			} else if err != nil {
-				log.Printf("Killmail consumer: %v\n", err)
-			}
-
-			if err := c.walletsCheckQueue(r); err == nil {
-				workDone = true
-			} else if err != nil {
-				log.Printf("Wallets: %v\n", err)
-			}
-
-			if err := c.assetsCheckQueue(r); err == nil {
-				workDone = true
-			} else if err != nil {
-				log.Printf("Assets: %v\n", err)
-			}
-
-			if err := c.entityCheckQueue(r); err == nil {
-				workDone = true
-			} else if err != nil {
-				log.Printf("Entity: %v\n", err)
-			}
-
-			if err := c.marketOrderCheckQueue(r); err == nil {
-				workDone = true
-			} else if err != nil {
-				log.Printf("Market: %v\n", err)
-			}
-
-			if err := c.marketHistoryCheckQueue(r); err == nil {
-				workDone = true
-			} else if err != nil {
-				log.Printf("History: %v\n", err)
-			}
-
-			if err := c.warCheckQueue(r); err == nil {
-				workDone = true
-			} else if err != nil {
-				log.Printf("History: %v\n", err)
-			}
-
-			if err := c.marketRegionCheckQueue(r); err == nil {
-				workDone = true
-			} else if err != nil {
-				log.Printf("History: %v\n", err)
+			// loop through all the consumers
+			for _, consumer := range consumers {
+				if err := consumer.f(c, r); err == nil {
+					workDone = true
+				} else if err != nil {
+					log.Printf("%s: %v\n", consumer.name, err)
+				}
 			}
 		}
 
@@ -96,23 +78,22 @@ func (c *EVEConsumer) goConsumer() {
 
 func (c *EVEConsumer) goTriggers() {
 	log.Printf("EVEConsumer: Running Triggers\n")
-	rate := time.Second * 60 * 30
+	// Run this every 5 minutes.
+	// The triggers should have their own internal checks for cache timers
+	rate := time.Second * 60 * 5
 	throttle := time.Tick(rate)
 	for {
 		select {
 		case <-c.triggersStopChannel:
-			log.Printf("EVEConsumer: Shutting Down\n")
+			log.Printf("EVEConsumer: Triggers shutting down\n")
 			return
 		default:
-			c.checkEntities()
-			c.walletShouldUpdate()
-			c.contactSync()
-			c.marketHistoryUpdateTrigger()
-			c.marketMaintTrigger()
-			c.assetsShouldUpdate()
-			c.checkWars()
-			c.checkPublicStructures()
-			c.checkNPCCorps()
+			// loop through all the consumers
+			for _, trigger := range triggers {
+				if err := trigger.f(c); err != nil {
+					log.Printf("%s: %v\n", trigger.name, err)
+				}
+			}
 		}
 		<-throttle
 	}
