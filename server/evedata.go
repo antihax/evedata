@@ -84,6 +84,7 @@ func GoServer() {
 	if ctx.Db, err = models.SetupDatabase(ctx.Conf.Database.Driver, ctx.Conf.Database.Spec); err != nil {
 		log.Fatalf("Cannot build database pool: %v", err)
 	}
+	models.MaintKillMails()
 
 	if len(os.Args) > 1 {
 		if os.Args[1] == "dumpdb" {
