@@ -76,9 +76,9 @@ func GoServer() {
 		panic("http client is null")
 	}
 
-	/*	r := ctx.Cache.Get()
-		r.Do("FLUSHALL")
-		r.Close()*/
+	/*r := ctx.Cache.Get()
+	r.Do("FLUSHALL")
+	r.Close()*/
 
 	// Build Connection Pool
 	if ctx.Db, err = models.SetupDatabase(ctx.Conf.Database.Driver, ctx.Conf.Database.Spec); err != nil {

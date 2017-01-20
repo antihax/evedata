@@ -1,25 +1,25 @@
 package models
 
 func MaintKillMails() error { // Broken into smaller chunks so we have a chance of it getting completed.
-	/*	// Delete stuff older than 90 days, we do not care...
-			if err := RetryExecTillNoRows(`
+	// Delete stuff older than 90 days, we do not care...
+	if err := RetryExecTillNoRows(`
 				DELETE LOW_PRIORITY A.* FROM evedata.killmailAttackers A
-		            JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY) LIMIT 50000) K ON A.id = K.id;
+		            JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 50000) K ON A.id = K.id;
 		            `); err != nil {
-				return err
-			}
-			if err := RetryExecTillNoRows(`
+		return err
+	}
+	if err := RetryExecTillNoRows(`
 				DELETE LOW_PRIORITY A.* FROM evedata.killmailItems A
-		        JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY) LIMIT 50000) K ON A.id = K.id;
+		        JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 50000) K ON A.id = K.id;
 		            `); err != nil {
-				return err
-			}
-			if err := RetryExecTillNoRows(`
+		return err
+	}
+	if err := RetryExecTillNoRows(`
 				DELETE LOW_PRIORITY FROM evedata.killmails
-		        WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY) LIMIT 50000;
+		        WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 50000;
 		            `); err != nil {
-				return err
-			}*/
+		return err
+	}
 
 	// Remove any invalid items
 	if err := RetryExecTillNoRows(`
