@@ -17,14 +17,16 @@ type ContactSync struct {
 	NextSync        time.Time   `db:"nextSync" json:"nextSync"`
 }
 
-func (c *ContactSync) Error(err string) {
-	database.Exec(`UPDATE evedata.contactSyncs SET lastError = ? WHERE source = ?`,
-		err, c.Source)
+func (c *ContactSync) Error(e string) error {
+	_, err := database.Exec(`UPDATE evedata.contactSyncs SET lastError = ? WHERE source = ?`,
+		e, c.Source)
+	return err
 }
 
-func (c *ContactSync) Updated(nextSync time.Time) {
-	database.Exec(`UPDATE evedata.contactSyncs SET nextSync = ? WHERE source = ?`,
+func (c *ContactSync) Updated(nextSync time.Time) error {
+	_, err := database.Exec(`UPDATE evedata.contactSyncs SET nextSync = ? WHERE source = ?`,
 		nextSync, c.Source)
+	return err
 }
 
 // [BENCHMARK] 0.000 sec / 0.000 sec
