@@ -36,7 +36,6 @@ func contactSyncTrigger(c *EVEConsumer) error {
 		    GROUP BY source
             HAVING max(nextSync) < UTC_TIMESTAMP();`)
 	if err != nil {
-		log.Printf("Contact Sync: Failed query: %v", err)
 		return err
 	}
 

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -88,7 +87,6 @@ func assetsConsumer(c *EVEConsumer, r redis.Conn) error {
 		// Retry the transaction if we get deadlocks
 		err = models.RetryTransaction(tx)
 		if err != nil {
-			log.Printf("%s", err)
 			return err
 		}
 	}
@@ -107,7 +105,6 @@ func assetsTrigger(c *EVEConsumer) error {
 		assetCacheUntil < UTC_TIMESTAMP() AND lastStatus NOT LIKE "%Invalid refresh token%" AND 
 		scopes LIKE "%esi-assets.read_assets.v1%";`)
 	if err != nil {
-		log.Printf("Assets: Failed query: %v", err)
 		return err
 	}
 
@@ -120,14 +117,12 @@ func assetsTrigger(c *EVEConsumer) error {
 
 		err = rows.Scan(&char, &tokenChar)
 		if err != nil {
-			log.Printf("Assets: Failed scan: %v", err)
 			return err
 		}
 
 		// Add the job to the queue
 		_, err = r.Do("SADD", "EVEDATA_assetQueue", fmt.Sprintf("%d:%d", char, tokenChar))
 		if err != nil {
-			log.Printf("Assets: Failed scan: %v", err)
 			return err
 		}
 	}
