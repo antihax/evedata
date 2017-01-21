@@ -16,7 +16,7 @@ func SetServiceState(state string, cacheUntil time.Time, page int32) error {
 func SetServiceStateByDays(state string, daysToCache int32, page int32) error {
 
 	if _, err := database.Exec(`
-		INSERT IGNORE INTO evedata.states (nextCheck, page, state)VALUES(?,?,?) ON DUPLICATE KEY UPDATE nextCheck=VALUES(nextCheck), value=VALUES(value)
+		INSERT IGNORE INTO evedata.states (nextCheck, value, state)VALUES(?,?,?) ON DUPLICATE KEY UPDATE nextCheck=VALUES(nextCheck), value=VALUES(value)
 	`, daysToCache, page, state); err != nil {
 		return err
 	}
