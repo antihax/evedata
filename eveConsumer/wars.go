@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	addConsumer("assets", assetsConsumer)
+	addConsumer("wars", warConsumer)
 	addTrigger("wars", warsTrigger)
 }
 
