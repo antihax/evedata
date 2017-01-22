@@ -15,15 +15,17 @@ func init() {
 }
 
 func warsTrigger(c *EVEConsumer) error {
-	err := c.updateWars()
+
+	err := c.collectWarsFromCREST()
 	if err != nil {
 		return err
 	}
 
-	err = c.collectWarsFromCREST()
+	err = c.updateWars()
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -68,7 +70,7 @@ func (c *EVEConsumer) updateWars() error {
 
 // CCP disabled ESI wars. Go back to CREST until fixed.
 func (c *EVEConsumer) collectWarsFromCREST() error {
-	nextCheck, _, err := models.GetServiceState("wars")
+	nextCheck, page, err := models.GetServiceState("wars")
 	if err != nil {
 		return err
 	} else if nextCheck.After(time.Now()) {
@@ -76,7 +78,7 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 	}
 
 	log.Printf("EVEConsumer: collecting wars")
-	w, err := c.ctx.EVE.WarsV1(1)
+	w, err := c.ctx.EVE.WarsV1((int)(page))
 	if err != nil {
 		return err
 	}
