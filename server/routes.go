@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/antihax/evedata/appContext"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -70,6 +71,9 @@ func NewRouter(ctx *appContext.AppContext) *mux.Router {
 			Name(route.Name).
 			Handler(appHandler{ctx, route.HandlerFunc})
 	}
+
+	// prometheus handler
+	router.Methods("GET").Path("/metrics").Handler(promhttp.Handler())
 
 	router.PathPrefix("/css/").Handler(http.StripPrefix("/css/",
 		http.FileServer(http.Dir("static/css"))))
