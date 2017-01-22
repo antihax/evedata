@@ -131,14 +131,6 @@ func GenerateStatistics(c *appContext.AppContext) {
 			httpreq, _ := redis.Int(red.Do("ZCARD", "EVEDATA_HTTPRequest"))
 			right = append(right, fmt.Sprintf("%.1f rps \tHTTP Requests", (float64)(httpreq)/30))
 
-			red.Do("ZREMRANGEBYSCORE", "EVEDATA_HTTPCount", 0, time.Now().UTC().Add(time.Second*-30).Unix())
-			httpcount, _ := redis.Int(red.Do("ZCARD", "EVEDATA_HTTPCount"))
-			right = append(right, fmt.Sprintf("%.1f rps \tHTTP API Calls  ", (float64)(httpcount)/30))
-
-			red.Do("ZREMRANGEBYSCORE", "EVEDATA_HTTPErrorCount", 0, time.Now().UTC().Add(time.Second*-30).Unix())
-			httperr, _ := redis.Int(red.Do("ZCARD", "EVEDATA_HTTPErrorCount"))
-			right = append(right, fmt.Sprintf("%.1f eps \tHTTP Errors  ", (float64)(httperr)/30))
-
 			l := 0
 			ll := len(left)
 			lr := len(right)
