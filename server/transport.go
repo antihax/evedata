@@ -29,6 +29,7 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	duration := monotime.Duration(start, monotime.Now())
 	metricApiCalls.Observe(float64(duration / time.Millisecond))
 
+
 	// We got a non-recoverable error.
 	if res != nil {
 		if res.StatusCode >= 400 {

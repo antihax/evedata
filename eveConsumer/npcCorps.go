@@ -11,24 +11,24 @@ func init() {
 	addTrigger("npcCorps", npcCorpTrigger)
 }
 
-func npcCorpTrigger(c *EVEConsumer) error {
+func npcCorpTrigger(c *EVEConsumer) (bool, error) {
 	nextCheck, _, err := models.GetServiceState("npcCorps")
 	if err != nil {
-		return err
+		return false, err
 	} else if nextCheck.After(time.Now()) {
-		return nil
+		return false, nil
 	}
 
 	log.Printf("EVEConsumer: collecting loyalty Point Store Items")
 	w, err := c.ctx.EVE.NPCCorporationsV1(1)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Update state so we dont have two polling at once.
 	err = models.SetServiceState("npcCorps", w.CacheUntil, 1)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	redis := c.ctx.Cache.Get()
@@ -57,5 +57,5 @@ func npcCorpTrigger(c *EVEConsumer) error {
 			}
 		}
 	}
-	return err
+	return true, err
 }

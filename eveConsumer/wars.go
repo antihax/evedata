@@ -2,7 +2,6 @@ package eveConsumer
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/antihax/evedata/models"
@@ -14,19 +13,19 @@ func init() {
 	addTrigger("wars", warsTrigger)
 }
 
-func warsTrigger(c *EVEConsumer) error {
+func warsTrigger(c *EVEConsumer) (bool, error) {
 
 	err := c.collectWarsFromCREST()
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	err = c.updateWars()
 	if err != nil {
-		return err
+		return false, err
 	}
 
-	return nil
+	return true, nil
 }
 
 func (c *EVEConsumer) warAddToQueue(id int32) error {
@@ -77,7 +76,6 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 		return nil
 	}
 
-	log.Printf("EVEConsumer: collecting wars")
 	w, err := c.ctx.EVE.WarsV1((int)(page))
 	if err != nil {
 		return err
@@ -125,22 +123,22 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 	return nil
 }*/
 
-func warConsumer(c *EVEConsumer, r redis.Conn) error {
+func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	ret, err := r.Do("SPOP", "EVEDATA_warQueue")
 	if err != nil {
-		return err
+		return false, err
 	} else if ret == nil {
-		return nil
+		return false, nil
 	}
 
 	v, err := redis.Int(ret, err)
 	if err != nil {
-		return err
+		return false, err
 	}
 	href := fmt.Sprintf(c.ctx.EVE.GetCRESTURI()+"wars/%d/", v)
 	war, err := c.ctx.EVE.WarV1(href)
 	if err != nil {
-		return err
+		return false, err
 	}
 	_, err = models.RetryExec(`INSERT INTO evedata.wars
 				(id, timeFinished,timeStarted,timeDeclared,openForAllies,cacheUntil,aggressorID,defenderID,mutual)
@@ -154,27 +152,27 @@ func warConsumer(c *EVEConsumer, r redis.Conn) error {
 		war.OpenForAllies, war.CacheUntil, war.Aggressor.ID,
 		war.Defender.ID, war.Mutual)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	err = EntityAddToQueue((int32)(war.Aggressor.ID), r)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	err = EntityAddToQueue((int32)(war.Defender.ID), r)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	for _, a := range war.Allies {
 		_, err = c.ctx.Db.Exec(`INSERT IGNORE INTO evedata.warAllies (id, allyID) VALUES(?,?);`, war.ID, a.ID)
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		if err = EntityAddToQueue((int32)(a.ID), r); err != nil {
-			return err
+			return false, err
 		}
 	}
 
@@ -186,7 +184,7 @@ func warConsumer(c *EVEConsumer, r redis.Conn) error {
 	for i := 1; ; i++ {
 		kills, _, err := c.ctx.ESI.WarsApi.GetWarsWarIdKillmails((int32)(war.ID), map[string]interface{}{"page": (int32)(i)})
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		// No more kills to get, let`s get out of the loop.
@@ -198,11 +196,11 @@ func warConsumer(c *EVEConsumer, r redis.Conn) error {
 		for _, k := range kills {
 			err := c.killmailAddToQueue(k.KillmailId, k.KillmailHash)
 			if err != nil {
-				return err
+				return false, err
 			}
 		}
 	}
 
 	// All good bro.
-	return nil
+	return true, nil
 }

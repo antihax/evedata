@@ -1,7 +1,6 @@
 package eveConsumer
 
 import (
-	"log"
 	"time"
 
 	"github.com/antihax/evedata/esi"
@@ -14,25 +13,24 @@ func init() {
 	addTrigger("structures", structuresTrigger)
 }
 
-func structuresTrigger(c *EVEConsumer) error {
+func structuresTrigger(c *EVEConsumer) (bool, error) {
 	nextCheck, _, err := models.GetServiceState("structures")
 	if err != nil {
-		return err
+		return false, err
 	} else if nextCheck.After(time.Now()) {
-		return nil
+		return false, nil
 	}
 
-	log.Printf("EVEConsumer: collecting structures")
 	w, r, err := c.ctx.ESI.UniverseApi.GetUniverseStructures(nil)
 	cache := esi.CacheExpires(r)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Update state so we dont have two polling at once.
 	err = models.SetServiceState("structures", cache, 1)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	for _, s := range w {
@@ -41,7 +39,7 @@ func structuresTrigger(c *EVEConsumer) error {
 
 	stations, err := c.ctx.EVE.ConquerableStationsListXML()
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	for _, s := range stations.Stations {
@@ -62,11 +60,10 @@ func structuresTrigger(c *EVEConsumer) error {
 			s.StationName,
 			s.CorporationID)
 		if err != nil {
-			return err
+			return false, err
 		}
 	}
-	log.Printf("EVEConsumer: finished structures")
-	return nil
+	return true, nil
 }
 
 func (c *EVEConsumer) updateStructure(s int64) error {

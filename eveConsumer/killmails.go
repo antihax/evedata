@@ -17,41 +17,41 @@ func init() {
 	addConsumer("killmails", killmailsConsumer)
 }
 
-func killmailsConsumer(c *EVEConsumer, r redis.Conn) error {
+func killmailsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	ret, err := r.Do("SPOP", "EVEDATA_killQueue")
 	if err != nil {
-		return err
+		return false, err
 	} else if ret == nil {
-		return nil
+		return false, nil
 	}
 
 	v, err := redis.String(ret, err)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// split id:hash
 	split := strings.Split(v, ":")
 	if len(split) != 2 {
-		return errors.New("string must be id:hash")
+		return false, errors.New("string must be id:hash")
 	}
 	// convert ID to int64
 	id, err := strconv.ParseInt(split[0], 10, 32)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// We know this kill. Early out.
 	i, err := redis.Int(r.Do("SISMEMBER", "EVEDATA_knownKills", (int32)(id)))
 	if err == nil && i == 1 {
-		return err
+		return false, err
 	}
 
 	err = c.killmailGetAndSave((int32)(id), split[1])
 	if err != nil {
-		return err
+		return false, err
 	}
-	return err
+	return true, err
 
 }
 

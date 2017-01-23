@@ -57,7 +57,6 @@ func syncError(cid int64, tcid int64, r *http.Response, err error) {
 			log.Println(e)
 		}
 	}
-	log.Printf("Contact Sync: %d %d %s", cid, tcid, err.Error())
 }
 
 func syncSuccess(cid int64, tcid int64, code int, status string) {

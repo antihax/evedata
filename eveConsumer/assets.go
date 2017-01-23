@@ -17,18 +17,18 @@ func init() {
 	addTrigger("assets", assetsTrigger)
 }
 
-func assetsConsumer(c *EVEConsumer, r redis.Conn) error {
+func assetsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	// POP some work of the queue
 	ret, err := r.Do("SPOP", "EVEDATA_assetQueue")
 	if err != nil {
-		return err
+		return false, err
 	} else if ret == nil {
-		return nil
+		return false, nil
 	}
 
 	v, err := redis.String(ret, err)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Split our char:tokenChar string
@@ -36,16 +36,16 @@ func assetsConsumer(c *EVEConsumer, r redis.Conn) error {
 
 	// Quick sanity check
 	if len(dest) != 2 {
-		return errors.New("Invalid asset string")
+		return false, errors.New("Invalid asset string")
 	}
 
 	char, err := strconv.ParseInt(dest[0], 10, 64)
 	if err != nil {
-		return err
+		return false, err
 	}
 	tokenChar, err := strconv.ParseInt(dest[1], 10, 64)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Get the OAuth2 Token from the database.
@@ -57,13 +57,13 @@ func assetsConsumer(c *EVEConsumer, r redis.Conn) error {
 	assets, res, err := c.ctx.ESI.AssetsApi.GetCharactersCharacterIdAssets(auth, (int32)(tokenChar), nil)
 	if err != nil {
 		syncError(char, tokenChar, res, err)
-		return err
+		return false, err
 	} else {
 		syncSuccess(char, tokenChar, 200, "OK")
 
 		tx, err := models.Begin()
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		// Delete all the current assets. Reinsert everything.
@@ -87,15 +87,15 @@ func assetsConsumer(c *EVEConsumer, r redis.Conn) error {
 		// Retry the transaction if we get deadlocks
 		err = models.RetryTransaction(tx)
 		if err != nil {
-			return err
+			return false, err
 		}
 	}
 
-	return err
+	return true, err
 }
 
 // Update character assets
-func assetsTrigger(c *EVEConsumer) error {
+func assetsTrigger(c *EVEConsumer) (bool, error) {
 	r := c.ctx.Cache.Get()
 	defer r.Close()
 
@@ -105,7 +105,7 @@ func assetsTrigger(c *EVEConsumer) error {
 		assetCacheUntil < UTC_TIMESTAMP() AND lastStatus NOT LIKE "%Invalid refresh token%" AND 
 		scopes LIKE "%esi-assets.read_assets.v1%";`)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Loop updatable characters
@@ -117,15 +117,15 @@ func assetsTrigger(c *EVEConsumer) error {
 
 		err = rows.Scan(&char, &tokenChar)
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		// Add the job to the queue
 		_, err = r.Do("SADD", "EVEDATA_assetQueue", fmt.Sprintf("%d:%d", char, tokenChar))
 		if err != nil {
-			return err
+			return false, err
 		}
 	}
 	err = rows.Close()
-	return err
+	return true, err
 }

@@ -4,34 +4,62 @@ import (
 	"log"
 	"time"
 
+	"github.com/ScaleFT/monotime"
 	"github.com/antihax/evedata/appContext"
 	"github.com/garyburd/redigo/redis"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // For handling triggers
-type triggerFunc func(*EVEConsumer) error
+type triggerFunc func(*EVEConsumer) (bool, error)
 type trigger struct {
 	name string
 	f    triggerFunc
 }
 
-var triggers []trigger
-
 func addTrigger(name string, f triggerFunc) {
 	triggers = append(triggers, trigger{name, f})
 }
-
-// For handling Consumers
-var consumers []consumer
 
 type consumer struct {
 	name string
 	f    consumerFunc
 }
-type consumerFunc func(*EVEConsumer, redis.Conn) error
+type consumerFunc func(*EVEConsumer, redis.Conn) (bool, error)
 
 func addConsumer(name string, f consumerFunc) {
 	consumers = append(consumers, consumer{name, f})
+
+}
+
+// For handling Consumers
+var (
+	consumers       []consumer
+	consumerMetrics = prometheus.NewHistogramVec(prometheus.HistogramOpts{
+		Namespace: "evedata",
+		Subsystem: "consumer",
+		Name:      "ticks",
+		Help:      "API call statistics.",
+		Buckets:   prometheus.ExponentialBuckets(0.5, 2, 12),
+	}, []string{"consumer"},
+	)
+
+	triggers       []trigger
+	triggerMetrics = prometheus.NewHistogramVec(prometheus.HistogramOpts{
+		Namespace: "evedata",
+		Subsystem: "trigger",
+		Name:      "ticks",
+		Help:      "API call statistics.",
+		Buckets:   prometheus.ExponentialBuckets(0.5, 2, 12),
+	}, []string{"trigger"},
+	)
+)
+
+func init() {
+	prometheus.MustRegister(
+		consumerMetrics,
+		triggerMetrics,
+	)
 }
 
 // EVEConsumer provides the microservice which conducts backend
@@ -61,8 +89,14 @@ func (c *EVEConsumer) goConsumer() {
 		default:
 			// loop through all the consumers
 			for _, consumer := range consumers {
-				if err := consumer.f(c, r); err == nil {
-					workDone = true
+				start := monotime.Now()
+				if workDone, err := consumer.f(c, r); err == nil {
+					if workDone {
+						duration := monotime.Duration(start, monotime.Now())
+						consumerMetrics.With(
+							prometheus.Labels{"consumer": consumer.name},
+						).Observe(float64(duration / time.Millisecond))
+					}
 				} else if err != nil {
 					log.Printf("%s: %v\n", consumer.name, err)
 				}
@@ -77,10 +111,9 @@ func (c *EVEConsumer) goConsumer() {
 }
 
 func (c *EVEConsumer) goTriggers() {
-	log.Printf("EVEConsumer: Running Triggers\n")
 	// Run this every 5 minutes.
 	// The triggers should have their own internal checks for cache timers
-	rate := time.Second * 60 * 5
+	rate := time.Second * 60 * 1
 	throttle := time.Tick(rate)
 	for {
 		select {
@@ -90,7 +123,15 @@ func (c *EVEConsumer) goTriggers() {
 		default:
 			// loop through all the consumers
 			for _, trigger := range triggers {
-				if err := trigger.f(c); err != nil {
+				start := monotime.Now()
+				if workDone, err := trigger.f(c); err == nil {
+					if workDone {
+						duration := monotime.Duration(start, monotime.Now())
+						triggerMetrics.With(
+							prometheus.Labels{"trigger": trigger.name},
+						).Observe(float64(duration / time.Millisecond))
+					}
+				} else if err != nil {
 					log.Printf("%s: %v\n", trigger.name, err)
 				}
 			}
@@ -121,8 +162,6 @@ func (c *EVEConsumer) RunConsumer() {
 		go c.goZKillConsumer()
 		go c.goZKillTemporaryConsumer()
 	}
-
-	log.Printf("EVEConsumer: Started\n")
 }
 
 // StopConsumer shuts down any running go routines and returns.

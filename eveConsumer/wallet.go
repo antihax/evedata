@@ -17,7 +17,7 @@ func init() {
 }
 
 // Perform contact sync for wardecs
-func walletsTrigger(c *EVEConsumer) error {
+func walletsTrigger(c *EVEConsumer) (bool, error) {
 	r := c.ctx.Cache.Get()
 	defer r.Close()
 
@@ -28,7 +28,7 @@ func walletsTrigger(c *EVEConsumer) error {
 		scopes LIKE "%characterWalletRead%";`)
 	if err != nil {
 		log.Printf("Wallets: Failed query: %v", err)
-		return err
+		return false, err
 	}
 
 	// Loop updatable characters
@@ -50,40 +50,40 @@ func walletsTrigger(c *EVEConsumer) error {
 		}
 	}
 	err = rows.Close()
-	return err
+	return true, err
 }
 
-func walletsConsumer(c *EVEConsumer, r redis.Conn) error {
+func walletsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	ret, err := r.Do("SPOP", "EVEDATA_walletQueue")
 	if err != nil {
-		return err
+		return false, err
 	} else if ret == nil {
-		return nil
+		return false, nil
 	}
 
 	v, err := redis.String(ret, err)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	dest := strings.Split(v, ":")
 
 	if len(dest) != 2 {
-		return errors.New("Invalid wallet string")
+		return false, errors.New("Invalid wallet string")
 	}
 
 	char, err := strconv.ParseInt(dest[0], 10, 64)
 	if err != nil {
-		return err
+		return false, err
 	}
 	tokenChar, err := strconv.ParseInt(dest[1], 10, 64)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	token, err := c.getToken(char, tokenChar)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	var fromID int64 = 0
@@ -91,7 +91,7 @@ func walletsConsumer(c *EVEConsumer, r redis.Conn) error {
 		wallets, err := c.ctx.EVE.CharacterWalletJournalXML(token, (int64)(tokenChar), fromID)
 		if err != nil {
 			syncError(char, tokenChar, nil, err)
-			return err
+			return false, err
 		} else {
 			syncSuccess(char, tokenChar, 200, "OK")
 		}
@@ -102,7 +102,7 @@ func walletsConsumer(c *EVEConsumer, r redis.Conn) error {
 
 		tx, err := models.Begin()
 		if err != nil {
-			return err
+			return false, err
 		}
 		for _, wallet := range wallets.Entries {
 			if wallet.RefID < fromID || fromID == 0 {
@@ -134,7 +134,7 @@ func walletsConsumer(c *EVEConsumer, r redis.Conn) error {
 		err = models.RetryTransaction(tx)
 		if err != nil {
 			log.Printf("%s", err)
-			return err
+			return false, err
 		}
 	}
 
@@ -143,7 +143,7 @@ func walletsConsumer(c *EVEConsumer, r redis.Conn) error {
 		transactions, err := c.ctx.EVE.CharacterWalletTransactionXML(token, (int64)(tokenChar), fromID)
 		if err != nil || transactions == nil {
 			syncError(char, tokenChar, nil, err)
-			return err
+			return false, err
 		} else {
 			syncSuccess(char, tokenChar, 200, "OK")
 		}
@@ -154,7 +154,7 @@ func walletsConsumer(c *EVEConsumer, r redis.Conn) error {
 
 		tx, err := models.Begin()
 		if err != nil {
-			return err
+			return false, err
 		}
 		for _, transaction := range transactions.Entries {
 			if transaction.TransactionID < fromID || fromID == 0 {
@@ -186,9 +186,9 @@ func walletsConsumer(c *EVEConsumer, r redis.Conn) error {
 		err = models.RetryTransaction(tx)
 		if err != nil {
 			log.Printf("%s", err)
-			return err
+			return false, err
 		}
 	}
 
-	return err
+	return true, err
 }

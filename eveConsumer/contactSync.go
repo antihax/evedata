@@ -21,11 +21,9 @@ func init() {
 }
 
 // Perform contact sync for wardecs
-func contactSyncTrigger(c *EVEConsumer) error {
+func contactSyncTrigger(c *EVEConsumer) (bool, error) {
 	r := c.ctx.Cache.Get()
 	defer r.Close()
-
-	log.Printf("Running Contact Sync\n")
 
 	// Gather characters for update. Group for optimized updating.
 	rows, err := c.ctx.Db.Query(
@@ -36,7 +34,7 @@ func contactSyncTrigger(c *EVEConsumer) error {
 		    GROUP BY source
             HAVING max(nextSync) < UTC_TIMESTAMP();`)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	defer rows.Close()
@@ -59,19 +57,19 @@ func contactSyncTrigger(c *EVEConsumer) error {
 			continue
 		}
 	}
-	return err
+	return true, err
 }
 
-func contactSyncConsumer(c *EVEConsumer, r redis.Conn) error {
+func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	ret, err := r.Do("SPOP", "EVEDATA_contactSyncQueue")
 	if err != nil {
-		return err
+		return false, err
 	} else if ret == nil {
-		return nil
+		return false, nil
 	}
 	v, err := redis.String(ret, err)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Split off characters into an array
@@ -79,18 +77,18 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) error {
 	destinations := strings.Split(dest[1], ",")
 	source, err := strconv.ParseInt(dest[0], 10, 64)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// get the source character information
 	char, _, err := c.ctx.ESI.CharacterApi.GetCharactersCharacterId((int32)(source), nil)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	corp, _, err := c.ctx.ESI.CorporationApi.GetCorporationsCorporationId(char.CorporationId, nil)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Find the Entity ID to search for wars.
@@ -114,7 +112,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) error {
 		a, err := c.getToken(source, cid)
 		if err != nil {
 
-			return err
+			return false, err
 		}
 		// Save the token.
 		tokens[cid] = characterToken{token: &a, cid: cid}
@@ -123,13 +121,13 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) error {
 	// Active Wars
 	activeWars, err := models.GetActiveWarsByID((int64)(searchID))
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Pending Wars
 	pendingWars, err := models.GetPendingWarsByID((int64)(searchID))
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Loop through all the destinations
@@ -151,7 +149,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) error {
 			con, r, err = c.ctx.ESI.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid), map[string]interface{}{"page": (int32)(i)})
 			if err != nil || r.StatusCode != 200 {
 				syncError(source, token.cid, r, err)
-				return err
+				return false, err
 			}
 			if len(con) == 0 {
 				break
@@ -164,7 +162,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) error {
 			contactSync := &models.ContactSync{Source: source, Destination: token.cid}
 			err := contactSync.Updated(esi.CacheExpires(r))
 			if err != nil {
-				return err
+				return false, err
 			}
 		}
 
@@ -228,7 +226,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) error {
 				r, err = c.ctx.ESI.ContactsApi.DeleteCharactersCharacterIdContacts(auth, (int32)(token.cid), erase[start:end], nil)
 				if err != nil {
 					syncError(source, token.cid, r, err)
-					return err
+					return false, err
 				}
 			}
 		}
@@ -239,7 +237,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) error {
 
 				if err != nil {
 					syncError(source, token.cid, r, err)
-					return err
+					return false, err
 				}
 			}
 		}
@@ -249,7 +247,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) error {
 				_, r, err = c.ctx.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), -5, pending[start:end], nil)
 				if err != nil {
 					syncError(source, token.cid, r, err)
-					return err
+					return false, err
 				}
 			}
 		}
@@ -259,7 +257,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) error {
 				r, err = c.ctx.ESI.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), -10, activeMove[start:end], nil)
 				if err != nil {
 					syncError(source, token.cid, r, err)
-					return err
+					return false, err
 				}
 			}
 		}
@@ -269,11 +267,11 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) error {
 				r, err = c.ctx.ESI.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), -5, pendingMove[start:end], nil)
 				if err != nil {
 					syncError(source, token.cid, r, err)
-					return err
+					return false, err
 				}
 			}
 		}
 	}
 
-	return err
+	return true, err
 }

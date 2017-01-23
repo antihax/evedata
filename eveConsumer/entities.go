@@ -2,7 +2,6 @@ package eveConsumer
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/antihax/evedata/esi"
@@ -19,41 +18,40 @@ func init() {
 // Recursion will be limited to once an day with expiration of entities at five days.
 
 // Check if we need to update any entity information (character, corporation, alliance)
-func entitiesTrigger(c *EVEConsumer) error {
-	log.Printf("EVEConsumer: Checking entities")
+func entitiesTrigger(c *EVEConsumer) (bool, error) {
 	err := c.entitiesFromCREST()
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	err = c.entitiesUpdate()
-	return err
+	return true, err
 }
 
-func entitiesConsumer(c *EVEConsumer, r redis.Conn) error {
+func entitiesConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	ret, err := r.Do("SPOP", "EVEDATA_entityQueue")
 	if err != nil {
-		return err
+		return false, err
 	} else if ret == nil {
-		return nil
+		return false, nil
 	}
 	v, err := redis.Int(ret, err)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Skip this entity if we have touched it recently
 	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", v)
 	i, err := redis.Bool(r.Do("EXISTS", key))
 	if err != nil || i == true {
-		return err
+		return false, err
 	}
 
 	err = c.entityGetAndSave((int32)(v))
 	if err != nil {
-		return err
+		return false, err
 	}
-	return err
+	return true, err
 }
 
 // update any old entities

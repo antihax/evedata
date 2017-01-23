@@ -22,12 +22,12 @@ func init() {
 }
 
 // Add market history items to the queue
-func marketMaintTrigger(c *EVEConsumer) error {
+func marketMaintTrigger(c *EVEConsumer) (bool, error) {
 
 	// Skip if we are not ready
 	cacheUntilTime, _, err := models.GetServiceState("marketMaint")
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Check if it is time to update the market history
@@ -38,21 +38,21 @@ func marketMaintTrigger(c *EVEConsumer) error {
 
 		err = models.SetServiceState("marketMaint", newTime, 1)
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		err = models.MaintMarket()
 	}
-	return err
+	return true, err
 }
 
 // Add market history items to the queue
-func marketHistoryTrigger(c *EVEConsumer) error {
+func marketHistoryTrigger(c *EVEConsumer) (bool, error) {
 
 	// Skip if we are not ready
 	cacheUntilTime, _, err := models.GetServiceState("marketHistory")
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// Check if it is time to update the market history
@@ -64,17 +64,17 @@ func marketHistoryTrigger(c *EVEConsumer) error {
 
 		err = models.SetServiceState("marketHistory", newTime, 1)
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		// Get lists to build our requests
 		regions, err := models.GetMarketRegions()
 		if err != nil {
-			return err
+			return false, err
 		}
 		types, err := models.GetMarketTypes()
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		// Get a redis connection from the pool
@@ -95,19 +95,19 @@ func marketHistoryTrigger(c *EVEConsumer) error {
 		// Send the request to add
 		red.Flush()
 	}
-	return err
+	return true, err
 }
 
-func marketOrderConsumer(c *EVEConsumer, r redis.Conn) error {
+func marketOrderConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	ret, err := r.Do("SPOP", "EVEDATA_marketOrders")
 	if err != nil {
-		return err
+		return false, err
 	} else if ret == nil {
-		return nil
+		return false, nil
 	}
 	v, err := redis.Int(ret, err)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	var page int32 = 1
@@ -115,7 +115,7 @@ func marketOrderConsumer(c *EVEConsumer, r redis.Conn) error {
 	for {
 		b, res, err := c.ctx.ESI.MarketApi.GetMarketsRegionIdOrders((int32)(v), "all", map[string]interface{}{"page": page})
 		if err != nil {
-			return err
+			return false, err
 		} else if len(b) == 0 { // end of the pages
 			break
 		}
@@ -155,7 +155,7 @@ func marketOrderConsumer(c *EVEConsumer, r redis.Conn) error {
 		err = models.RetryTransaction(tx)
 		if err != nil {
 			log.Printf("%s", err)
-			return err
+			return false, err
 		}
 
 		// Cache the greater of one hour, or the returned cache-control
@@ -165,23 +165,23 @@ func marketOrderConsumer(c *EVEConsumer, r redis.Conn) error {
 		// Next page
 		page++
 	}
-	return nil
+	return true, nil
 }
 
 func (c *EVEConsumer) marketRegionAddRegion(v int, t int64, r redis.Conn) {
 	r.Do("ZADD", "EVEDATA_marketRegions", t, v)
 }
 
-func marketHistoryConsumer(c *EVEConsumer, r redis.Conn) error {
+func marketHistoryConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	ret, err := r.Do("SPOP", "EVEDATA_marketHistory")
 	if err != nil {
-		return err
+		return false, err
 	} else if ret == nil {
-		return nil
+		return false, nil
 	}
 	v, err := redis.String(ret, err)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	data := strings.Split(v, ":")
@@ -193,12 +193,12 @@ func marketHistoryConsumer(c *EVEConsumer, r redis.Conn) error {
 	if err != nil {
 		// Something went wrong... let's try again..
 		r.Do("SADD", "EVEDATA_marketHistory", v)
-		return err
+		return false, err
 	}
 
 	// There is nothing.
 	if len(h) == 0 {
-		return nil
+		return false, nil
 	}
 
 	var values []string
@@ -214,51 +214,51 @@ func marketHistoryConsumer(c *EVEConsumer, r redis.Conn) error {
 	tx, err := models.Begin()
 	if err != nil {
 		log.Printf("%s", err)
-		return err
+		return false, err
 	}
 	_, err = tx.Exec(stmt)
 	if err != nil {
 		log.Printf("%s", err)
-		return err
+		return false, err
 	}
 
 	err = models.RetryTransaction(tx)
 	if err != nil {
 		log.Printf("%s", err)
-		return err
+		return false, err
 	}
 
-	return nil
+	return true, nil
 }
 
 // Check the regions for their cache time to expire
-func marketRegionConsumer(c *EVEConsumer, r redis.Conn) error {
+func marketRegionConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	t := time.Now().UTC().Unix()
 
 	// Get a list of regions by expired keys.
 	if arr, err := redis.MultiBulk(r.Do("ZRANGEBYSCORE", "EVEDATA_marketRegions", 0, t)); err != nil {
-		return err
+		return false, err
 	} else {
 		// Add the region to the queue
 		idList, _ := redis.Strings(arr, nil)
 		for _, id := range idList {
 			id, err := strconv.Atoi(id)
 			if err != nil {
-				return nil
+				return false, nil
 			}
 			if err := r.Send("SADD", "EVEDATA_marketOrders", id); err != nil {
-				return err
+				return false, err
 			}
 		}
 	}
 
 	// Removed the expired keys
 	if err := r.Send("ZREMRANGEBYSCORE", "EVEDATA_marketRegions", 0, t); err != nil {
-		return err
+		return false, err
 	}
 
 	// Run the commands.
 	err := r.Flush()
 
-	return err
+	return true, err
 }
