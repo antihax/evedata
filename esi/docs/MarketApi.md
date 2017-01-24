@@ -179,6 +179,10 @@ Alternate route: `/legacy/markets/structures/{structure_id}/`
 Alternate route: `/dev/markets/structures/{structure_id}/`
 
 
+---
+
+This route is cached for up to 300 seconds
+
 ### Required Parameters
 
 Name | Type | Description  | Notes

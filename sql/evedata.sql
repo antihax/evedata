@@ -310,6 +310,18 @@ CREATE TABLE `states` (
   PRIMARY KEY (`state`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `structures` (
+  `stationID` bigint(20) NOT NULL,
+  `solarSystemID` int(11) DEFAULT NULL,
+  `stationName` varchar(255) DEFAULT NULL,
+  `x` float DEFAULT NULL,
+  `y` float DEFAULT NULL,
+  `z` float DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `marketCacheUntil` datetime DEFAULT '2016-01-01 00:00:00',
+  PRIMARY KEY (`stationID`)
+) ENGINE=InnoDB DEFAULT CHARSET=big5;
+
 CREATE TABLE `walletJournal` (
   `refID` bigint(20) unsigned NOT NULL,
   `refTypeID` int(10) unsigned NOT NULL,

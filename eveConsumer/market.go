@@ -1,6 +1,7 @@
 package eveConsumer
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strconv"
@@ -16,9 +17,105 @@ func init() {
 	addConsumer("market", marketOrderConsumer)
 	addConsumer("market", marketHistoryConsumer)
 	addConsumer("market", marketRegionConsumer)
+	addConsumer("market", marketPublicStructureConsumer)
 
 	addTrigger("market", marketMaintTrigger)
 	addTrigger("market", marketHistoryTrigger)
+	addTrigger("market", marketPublicStructureTrigger)
+}
+
+func marketPublicStructureTrigger(c *EVEConsumer) (bool, error) {
+	red := c.ctx.Cache.Get()
+	defer red.Close()
+
+	rows, err := c.ctx.Db.Query(`SELECT stationID FROM evedata.structures WHERE marketCacheUntil < UTC_TIMESTAMP();`)
+	defer rows.Close()
+	if err != nil {
+		return false, err
+	}
+
+	for rows.Next() {
+		var id int64
+		err = rows.Scan(&id)
+		if err != nil {
+			return false, err
+		}
+		_, err = red.Do("SADD", "EVEDATA_publicOrders", id)
+		if err != nil {
+			return false, err
+		}
+	}
+	return true, err
+}
+
+func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
+	ret, err := r.Do("SPOP", "EVEDATA_marketOrders")
+	if err != nil {
+		return false, err
+	} else if ret == nil {
+		return false, nil
+	}
+	v, err := redis.Int64(ret, err)
+	if err != nil {
+		return false, err
+	}
+
+	var page int32 = 1
+	ctx := context.WithValue(context.TODO(), esi.ContextOAuth2, c.ctx.ESIPublicToken)
+	for {
+		b, res, err := c.ctx.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, v, map[string]interface{}{"page": page})
+		if err != nil {
+			return false, err
+		} else if len(b) == 0 { // end of the pages
+			break
+		}
+		var values []string
+		for _, e := range b {
+			var buy byte
+			if e.IsBuyOrder == true {
+				buy = 1
+			} else {
+				buy = 0
+			}
+			values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,'%s',%d,%d,%d,UTC_TIMESTAMP())",
+				e.OrderId, e.Price, e.VolumeRemain, e.TypeId, e.VolumeTotal, e.MinVolume,
+				buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, (int32)(v)))
+		}
+
+		stmt := fmt.Sprintf(`INSERT IGNORE INTO evedata.market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, reported)
+				VALUES %s
+				ON DUPLICATE KEY UPDATE price=VALUES(price),
+					remainingVolume=VALUES(remainingVolume),
+					issued=VALUES(issued),
+					duration=VALUES(duration),
+					reported=VALUES(reported);
+					`, strings.Join(values, ",\n"))
+
+		tx, err := models.Begin()
+		if err != nil {
+			log.Printf("%s", err)
+			continue
+		}
+		_, err = tx.Exec(stmt)
+		if err != nil {
+			log.Printf("%s", err)
+			continue
+		}
+		cacheUntil := esi.CacheExpires(res).UTC()
+		_, err = tx.Exec("UPDATE evedata.structures SET marketCacheUntil = ?", cacheUntil)
+
+		err = models.RetryTransaction(tx)
+		if err != nil {
+			log.Printf("%s", err)
+			return false, err
+		}
+
+		// Cache the greater of one hour, or the returned cache-control
+
+		// Next page
+		page++
+	}
+	return true, nil
 }
 
 // Add market history items to the queue

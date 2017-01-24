@@ -73,12 +73,25 @@ func (c *EVEConsumer) updateStructure(s int64) error {
 		return err
 	}
 
+	// Push into the denormalized table. This table is volitile.
 	_, err = c.ctx.Db.Exec(`INSERT INTO staStations
 					(stationID, solarSystemID, stationName, x, y, z, constellationID, regionID)
 					VALUES(?,?,?,?,?,?,evedata.constellationIDBySolarSystem(solarSystemID),evedata.regionIDBySolarSystem(solarSystemID))
 					ON DUPLICATE KEY UPDATE stationName=VALUES(stationName),solarSystemID=VALUES(solarSystemID),
 					x=VALUES(x),y=VALUES(y),z=VALUES(z),constellationID=evedata.constellationIDBySolarSystem(VALUES(solarSystemID)),regionID=evedata.regionIDBySolarSystem(VALUES(solarSystemID));`,
 		s, struc.SolarSystemId, struc.Name, struc.Position.X, struc.Position.Y, struc.Position.Z)
+	if err != nil {
+		return err
+	}
+
+	// Insert into our table for tracking.
+	_, err = c.ctx.Db.Exec(`INSERT INTO evedata.structures
+					(stationID, solarSystemID, stationName, x, y, z, updated)
+					VALUES(?,?,?,?,?,?, now())
+					ON DUPLICATE KEY UPDATE stationName=VALUES(stationName),solarSystemID=VALUES(solarSystemID),
+					x=VALUES(x),y=VALUES(y),z=VALUES(z);`,
+		s, struc.SolarSystemId, struc.Name, struc.Position.X, struc.Position.Y, struc.Position.Z)
+
 	if err != nil {
 		return err
 	}
