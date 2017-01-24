@@ -16,7 +16,7 @@ func TestMarketAddRegion(t *testing.T) {
 func TestMarketRegionConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
-	err := marketRegionConsumer(eC, r)
+	_, err := marketRegionConsumer(eC, r)
 	if err != nil {
 		t.Error(err)
 		return
@@ -24,7 +24,7 @@ func TestMarketRegionConsumer(t *testing.T) {
 }
 
 func TestMarketHistoryTrigger(t *testing.T) {
-	err := marketHistoryTrigger(eC)
+	_, err := marketHistoryTrigger(eC)
 	if err != nil {
 		t.Error(err)
 		return
@@ -35,7 +35,7 @@ func TestMarketOrderConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 	for {
-		err := marketOrderConsumer(eC, r)
+		_, err := marketOrderConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return
@@ -53,7 +53,7 @@ func TestMarketHistoryConsumer(t *testing.T) {
 	j := 0
 	for {
 		j++
-		err := marketHistoryConsumer(eC, r)
+		_, err := marketHistoryConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return
@@ -65,7 +65,7 @@ func TestMarketHistoryConsumer(t *testing.T) {
 }
 
 func TestMarketMaintTrigger(t *testing.T) {
-	err := marketMaintTrigger(eC)
+	_, err := marketMaintTrigger(eC)
 	if err != nil {
 		t.Error(err)
 		return

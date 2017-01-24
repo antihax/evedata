@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 cd /go/src/github.com/antihax/evedata/
 go get github.com/modocache/gover
 go get -u

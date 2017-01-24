@@ -17,7 +17,7 @@ func TestEntities(t *testing.T) {
 }
 
 func TestEntitiesTrigger(t *testing.T) {
-	err := entitiesTrigger(eC)
+	_, err := entitiesTrigger(eC)
 	if err != nil {
 		t.Error(err)
 		return
@@ -28,7 +28,7 @@ func TestEntitiesConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 	for {
-		err := entitiesConsumer(eC, r)
+		_, err := entitiesConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return

@@ -23,7 +23,7 @@ func TestWarsConsumer(t *testing.T) {
 	eC.warAddToQueue(2)
 	eC.warAddToQueue(3)
 	for {
-		err := warConsumer(eC, r)
+		_, err := warConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return

@@ -8,7 +8,7 @@ import (
 )
 
 func TestContactSyncTrigger(t *testing.T) {
-	err := contactSyncTrigger(eC)
+	_, err := contactSyncTrigger(eC)
 	if err != nil {
 		t.Error(err)
 		return
@@ -27,7 +27,7 @@ func TestContactSyncConsumer(t *testing.T) {
 	}
 
 	for {
-		err := contactSyncConsumer(eC, r)
+		_, err := contactSyncConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return
