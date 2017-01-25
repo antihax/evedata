@@ -158,7 +158,7 @@ func marketRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.
 		sql := `SELECT  remainingVolume AS quantity, price, stationName, M.stationID
         	                    FROM    evedata.market M
                              	INNER JOIN staStations S ON S.stationID=M.stationID
-                             	INNER JOIN mapSolarSystems Sy ON Sy.solarSystemID = M.systemID
+                             	INNER JOIN mapSolarSystems Sy ON Sy.solarSystemID = S.solarSystemID
                              	WHERE      bid=? AND
                                       	   typeID = ? AND (` + secFilter + `)`
 		err = c.Db.Select(&mR, sql, buy, itemID)
@@ -166,7 +166,7 @@ func marketRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.
 		err = c.Db.Select(&mR, `SELECT  remainingVolume AS quantity, price, stationName, M.stationID
         	                    FROM    evedata.market M
                              	INNER JOIN staStations S ON S.stationID=M.stationID
-                             	INNER JOIN mapSolarSystems Sy ON Sy.solarSystemID = M.systemID
+								INNER JOIN mapSolarSystems Sy ON Sy.solarSystemID = S.solarSystemID
                              	WHERE      bid=? AND
                                       	   M.regionID = ? AND
                                       	   typeID = ? AND (`+secFilter+`)`, buy, regionID, itemID, secFilter)

@@ -275,8 +275,8 @@ CREATE TABLE `market` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `marketStations` (
-  `stationName` varchar(100) DEFAULT NULL,
-  `stationID` int(10) unsigned NOT NULL DEFAULT '0',
+  `stationName` varchar(255) DEFAULT NULL,
+  `stationID` bigint(20) unsigned NOT NULL DEFAULT '0',
   `Count` bigint(21) NOT NULL DEFAULT '0',
   PRIMARY KEY (`stationID`),
   KEY `count` (`Count`)
