@@ -56,10 +56,10 @@ func assetsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 
 	assets, res, err := c.ctx.ESI.AssetsApi.GetCharactersCharacterIdAssets(auth, (int32)(tokenChar), nil)
 	if err != nil {
-		syncError(char, tokenChar, res, err)
+		tokenError(char, tokenChar, res, err)
 		return false, err
 	} else {
-		syncSuccess(char, tokenChar, 200, "OK")
+		tokenSuccess(char, tokenChar, 200, "OK")
 
 		tx, err := models.Begin()
 		if err != nil {
@@ -102,7 +102,7 @@ func assetsTrigger(c *EVEConsumer) (bool, error) {
 	// Gather characters for update. Group for optimized updating.
 	rows, err := c.ctx.Db.Query(
 		`SELECT characterID, tokenCharacterID FROM evedata.crestTokens WHERE 
-		assetCacheUntil < UTC_TIMESTAMP() AND lastStatus NOT LIKE "%Invalid refresh token%" AND 
+		assetCacheUntil < UTC_TIMESTAMP() AND lastStatus NOT LIKE "%400 Bad Request%" AND 
 		scopes LIKE "%esi-assets.read_assets.v1%";`)
 	if err != nil {
 		return false, err

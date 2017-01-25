@@ -24,7 +24,7 @@ func walletsTrigger(c *EVEConsumer) (bool, error) {
 	// Gather characters for update. Group for optimized updating.
 	rows, err := c.ctx.Db.Query(
 		`SELECT characterID, tokenCharacterID FROM evedata.crestTokens WHERE 
-		walletCacheUntil < UTC_TIMESTAMP() AND lastStatus NOT LIKE "%Invalid refresh token%" AND 
+		walletCacheUntil < UTC_TIMESTAMP() AND lastStatus NOT LIKE "%400 Bad Request%" AND 
 		scopes LIKE "%characterWalletRead%";`)
 	if err != nil {
 		log.Printf("Wallets: Failed query: %v", err)
@@ -90,10 +90,10 @@ func walletsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	for {
 		wallets, err := c.ctx.EVE.CharacterWalletJournalXML(token, (int64)(tokenChar), fromID)
 		if err != nil {
-			syncError(char, tokenChar, nil, err)
+			tokenError(char, tokenChar, nil, err)
 			return false, err
 		} else {
-			syncSuccess(char, tokenChar, 200, "OK")
+			tokenSuccess(char, tokenChar, 200, "OK")
 		}
 		// there are no entries in this journal page.
 		if len(wallets.Entries) == 0 {
@@ -142,10 +142,10 @@ func walletsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	for {
 		transactions, err := c.ctx.EVE.CharacterWalletTransactionXML(token, (int64)(tokenChar), fromID)
 		if err != nil || transactions == nil {
-			syncError(char, tokenChar, nil, err)
+			tokenError(char, tokenChar, nil, err)
 			return false, err
 		} else {
-			syncSuccess(char, tokenChar, 200, "OK")
+			tokenSuccess(char, tokenChar, 200, "OK")
 		}
 		// there are no entries in this journal page.
 		if len(transactions.Entries) == 0 {

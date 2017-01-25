@@ -43,7 +43,7 @@ func max(a, b int64) int64 {
 	return b
 }
 
-func syncError(cid int64, tcid int64, r *http.Response, err error) {
+func tokenError(cid int64, tcid int64, r *http.Response, err error) {
 	if r != nil {
 		req, _ := httputil.DumpRequest(r.Request, true)
 		res, _ := httputil.DumpResponse(r, true)
@@ -59,6 +59,6 @@ func syncError(cid int64, tcid int64, r *http.Response, err error) {
 	}
 }
 
-func syncSuccess(cid int64, tcid int64, code int, status string) {
+func tokenSuccess(cid int64, tcid int64, code int, status string) {
 	models.SetTokenError(cid, tcid, code, status, []byte{}, []byte{})
 }
