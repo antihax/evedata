@@ -7,6 +7,19 @@ import (
 )
 
 func TestKillmailsConsumer(t *testing.T) {
+	err := killmailAddToQueue(1, "FAKE HASH")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	err = killmailAddToQueue(2, "FAKE HASH")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+func TestKillmailsConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 	for {
