@@ -6,13 +6,13 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-func TestKillmailsConsumer(t *testing.T) {
-	err := killmailAddToQueue(1, "FAKE HASH")
+func TestKillmailsAddToQueue(t *testing.T) {
+	err := eC.killmailAddToQueue(1, "FAKE HASH")
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	err = killmailAddToQueue(2, "FAKE HASH")
+	err = eC.killmailAddToQueue(2, "FAKE HASH")
 	if err != nil {
 		t.Error(err)
 		return
