@@ -116,6 +116,23 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
 	return nil
 }
 
+func MaintContactSync() error {
+	if _, err := RetryExec(`
+        DELETE S.* FROM evedata.contactSyncs S
+        LEFT OUTER JOIN evedata.crestTokens T ON S.destination = T.tokenCharacterID
+        WHERE tokenCharacterID IS NULL;`); err != nil {
+		return err
+	}
+	if _, err := RetryExec(`
+        DELETE S.* FROM evedata.contactSyncs S
+        LEFT OUTER JOIN evedata.crestTokens T ON S.source = T.tokenCharacterID
+        WHERE tokenCharacterID IS NULL;`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func MaintMarket() error {
 	if _, err := RetryExec(`
         UPDATE evedata.alliances A SET memberCount = 

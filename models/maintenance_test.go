@@ -15,3 +15,10 @@ func TestMaintMarket(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestMaintContactSync(t *testing.T) {
+	err := MaintContactSync()
+	if err != nil {
+		t.Error(err)
+	}
+}

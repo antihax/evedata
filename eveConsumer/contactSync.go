@@ -25,6 +25,12 @@ func contactSyncTrigger(c *EVEConsumer) (bool, error) {
 	r := c.ctx.Cache.Get()
 	defer r.Close()
 
+	// Do quick maintenence to prevent errors.
+	err := models.MaintContactSync()
+	if err != nil {
+		return false, err
+	}
+
 	// Gather characters for update. Group for optimized updating.
 	rows, err := c.ctx.Db.Query(
 		`SELECT source, group_concat(destination)
