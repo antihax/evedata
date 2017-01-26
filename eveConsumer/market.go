@@ -65,11 +65,13 @@ func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	for {
 		b, res, err := c.ctx.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, v, map[string]interface{}{"page": page})
 
+		// If we got an access denied, let's not touch it again for 24 hours.
 		if res != nil || res.StatusCode == 403 {
 			_, err = c.ctx.Db.Exec("UPDATE evedata.structures SET marketCacheUntil = ? WHERE stationID = ?", time.Now().Add(time.Hour*24), v)
 			return false, err
 		}
 
+		// If we error, get out early.
 		if err != nil {
 			return false, err
 		} else if len(b) == 0 { // end of the pages
