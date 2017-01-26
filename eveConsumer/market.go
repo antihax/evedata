@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http/httputil"
 	"strconv"
 	"strings"
 	"time"
@@ -49,7 +50,7 @@ func marketPublicStructureTrigger(c *EVEConsumer) (bool, error) {
 }
 
 func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
-	ret, err := r.Do("SPOP", "EVEDATA_marketOrders")
+	ret, err := r.Do("SPOP", "EVEDATA_publicOrdersWAT")
 	if err != nil {
 		return false, err
 	} else if ret == nil {
@@ -64,6 +65,8 @@ func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	ctx := context.WithValue(context.TODO(), esi.ContextOAuth2, c.ctx.ESIPublicToken)
 	for {
 		b, res, err := c.ctx.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, v, map[string]interface{}{"page": page})
+		by, err := httputil.DumpResponse(res, true)
+		fmt.Printf("%s\n", by)
 		if err != nil {
 			return false, err
 		} else if len(b) == 0 { // end of the pages

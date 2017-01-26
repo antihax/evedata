@@ -143,7 +143,8 @@ func GoServer() {
 		ctx.Conf.CREST.ESIAccessToken.SecretKey,
 		ctx.Conf.CREST.ESIAccessToken.RedirectURL,
 		[]string{"esi-universe.read_structures.v1",
-			"esi-search.search_structures.v1"})
+			"esi-search.search_structures.v1",
+			"esi-markets.structure_markets.v1"})
 
 	// Get the token from config and build a TokenSource (refreshes the token if needed.)
 	token := &eveapi.CRESTToken{

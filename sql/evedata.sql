@@ -4,7 +4,7 @@ USE evedata;
 
 CREATE TABLE `alliances` (
   `allianceID` int(10) unsigned NOT NULL DEFAULT '0',
-  `name` varchar(255) CHARACTER SET latin1 NOT NULL DEFAULT '',
+  `name` varchar(255) NOT NULL DEFAULT '',
   `shortName` varchar(45) CHARACTER SET latin1 NOT NULL DEFAULT '',
   `executorCorpID` int(10) unsigned NOT NULL DEFAULT '0',
   `corporationsCount` int(10) unsigned NOT NULL DEFAULT '0',
@@ -65,7 +65,7 @@ CREATE TABLE `contactSyncs` (
 
 CREATE TABLE `corporations` (
   `corporationID` int(11) NOT NULL,
-  `name` varchar(255) CHARACTER SET latin1 NOT NULL,
+  `name` varchar(255) NOT NULL,
   `ticker` varchar(45) CHARACTER SET latin1 NOT NULL,
   `ceoID` int(11) NOT NULL,
   `stationID` int(11) NOT NULL,
@@ -100,7 +100,7 @@ CREATE TABLE `crestTokens` (
   `expiry` datetime NOT NULL,
   `tokenType` varchar(100) CHARACTER SET latin1 NOT NULL,
   `lastCode` int(11) NOT NULL DEFAULT '0',
-  `lastStatus` varchar(255) CHARACTER SET latin1 NOT NULL,
+  `lastStatus` text CHARACTER SET latin1 NOT NULL,
   `characterName` varchar(100) CHARACTER SET latin1 NOT NULL,
   `request` text CHARACTER SET latin1,
   `response` text CHARACTER SET latin1,
