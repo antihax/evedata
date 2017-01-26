@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http/httputil"
 	"strconv"
 	"strings"
 	"time"
@@ -50,7 +49,7 @@ func marketPublicStructureTrigger(c *EVEConsumer) (bool, error) {
 }
 
 func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
-	ret, err := r.Do("SPOP", "EVEDATA_publicOrdersWAT")
+	ret, err := r.Do("SPOP", "EVEDATA_publicOrders")
 	if err != nil {
 		return false, err
 	} else if ret == nil {
@@ -65,8 +64,12 @@ func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	ctx := context.WithValue(context.TODO(), esi.ContextOAuth2, c.ctx.ESIPublicToken)
 	for {
 		b, res, err := c.ctx.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, v, map[string]interface{}{"page": page})
-		by, err := httputil.DumpResponse(res, true)
-		fmt.Printf("%s\n", by)
+
+		if res != nil || res.StatusCode == 403 {
+			_, err = c.ctx.Db.Exec("UPDATE evedata.structures SET marketCacheUntil = ? WHERE stationID = ?", time.Now().Add(time.Hour*24), v)
+			return false, err
+		}
+
 		if err != nil {
 			return false, err
 		} else if len(b) == 0 { // end of the pages
@@ -105,7 +108,7 @@ func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 			continue
 		}
 		cacheUntil := esi.CacheExpires(res).UTC()
-		_, err = tx.Exec("UPDATE evedata.structures SET marketCacheUntil = ?", cacheUntil)
+		_, err = tx.Exec("UPDATE evedata.structures SET marketCacheUntil = ?  WHERE stationID = ?", cacheUntil, v)
 
 		err = models.RetryTransaction(tx)
 		if err != nil {
