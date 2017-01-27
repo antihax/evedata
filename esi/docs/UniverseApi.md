@@ -6,8 +6,10 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**GetUniverseCategories**](UniverseApi.md#GetUniverseCategories) | **Get** /universe/categories/ | Get item categories
 [**GetUniverseCategoriesCategoryId**](UniverseApi.md#GetUniverseCategoriesCategoryId) | **Get** /universe/categories/{category_id}/ | Get item category information
+[**GetUniverseFactions**](UniverseApi.md#GetUniverseFactions) | **Get** /universe/factions/ | Get factions
 [**GetUniverseGroups**](UniverseApi.md#GetUniverseGroups) | **Get** /universe/groups/ | Get item groups
 [**GetUniverseGroupsGroupId**](UniverseApi.md#GetUniverseGroupsGroupId) | **Get** /universe/groups/{group_id}/ | Get item group information
+[**GetUniverseRaces**](UniverseApi.md#GetUniverseRaces) | **Get** /universe/races/ | Get character races
 [**GetUniverseStationsStationId**](UniverseApi.md#GetUniverseStationsStationId) | **Get** /universe/stations/{station_id}/ | Get station information
 [**GetUniverseStructures**](UniverseApi.md#GetUniverseStructures) | **Get** /universe/structures/ | List all public structures
 [**GetUniverseStructuresStructureId**](UniverseApi.md#GetUniverseStructuresStructureId) | **Get** /universe/structures/{structure_id}/ | Get structure information
@@ -114,6 +116,54 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **GetUniverseFactions**
+> []GetUniverseFactions200Ok GetUniverseFactions(optional)
+Get factions
+
+Get a list of factions
+
+---
+
+Alternate route: `/v1/universe/factions/`
+
+Alternate route: `/legacy/universe/factions/`
+
+Alternate route: `/dev/universe/factions/`
+
+
+---
+
+This route is cached for up to 3600 seconds
+
+### Required Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **language** | **string**| Language to use in the response | [default to en-us]
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
+
+### Return type
+
+[**[]GetUniverseFactions200Ok**](get_universe_factions_200_ok.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **GetUniverseGroups**
 > []int32 GetUniverseGroups(optional)
 Get item groups
@@ -200,6 +250,54 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**GetUniverseGroupsGroupIdOk**](get_universe_groups_group_id_ok.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **GetUniverseRaces**
+> []GetUniverseRaces200Ok GetUniverseRaces(optional)
+Get character races
+
+Get a list of character races
+
+---
+
+Alternate route: `/v1/universe/races/`
+
+Alternate route: `/legacy/universe/races/`
+
+Alternate route: `/dev/universe/races/`
+
+
+---
+
+This route is cached for up to 3600 seconds
+
+### Required Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **language** | **string**| Language to use in the response | [default to en-us]
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
+
+### Return type
+
+[**[]GetUniverseRaces200Ok**](get_universe_races_200_ok.md)
 
 ### Authorization
 

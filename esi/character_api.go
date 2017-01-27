@@ -48,8 +48,6 @@ Alternate route: &#x60;/v3/characters/{character_id}/&#x60;
 
 Alternate route: &#x60;/legacy/characters/{character_id}/&#x60;
 
-Alternate route: &#x60;/dev/characters/{character_id}/&#x60;
-
 
 ---
 

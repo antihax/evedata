@@ -1,9 +1,9 @@
 package eveConsumer
 
 import (
-	"fmt"
 	"time"
 
+	"github.com/antihax/evedata/esi"
 	"github.com/antihax/evedata/models"
 	"github.com/garyburd/redigo/redis"
 )
@@ -67,6 +67,7 @@ func (c *EVEConsumer) updateWars() error {
 	return nil
 }
 
+/*
 // CCP disabled ESI wars. Go back to CREST until fixed.
 func (c *EVEConsumer) collectWarsFromCREST() error {
 	nextCheck, page, err := models.GetServiceState("wars")
@@ -94,34 +95,32 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 		}
 	}
 	return nil
-}
+}*/
 
-/*func (c *EVEConsumer) collectWarsFromCREST() error {
+func (c *EVEConsumer) collectWarsFromCREST() error {
+
+	// Get the update state
 	nextCheck, _, err := models.GetServiceState("wars")
 	if err != nil {
 		return err
-	} else if nextCheck.After(time.Now()) {
+	} else if nextCheck.After(time.Now()) { // Check if the cache timer has expired
 		return nil
 	}
 
-	var page int32 = 1
+	// Loop through all pages
 
-	for {
-		wars, _, err := c.ctx.ESI.WarsApi.GetWars(map[string]interface{}{"page": page})
-		if err != nil {
-			return err
-		} else if len(wars) == 0 { // end of the pages
-			break
-		}
-		for _, id := range wars {
-			c.warAddToQueue(id)
-		}
-		page++
+	wars, res, err := c.ctx.ESI.WarsApi.GetWars(nil)
+	if err != nil {
+		return err
+	}
+	for _, id := range wars {
+		c.warAddToQueue(id)
 	}
 
-	models.SetServiceState("wars", time.Now().UTC().Add(time.Hour), 1)
+	models.SetServiceState("wars", esi.CacheExpires(res), 1)
+
 	return nil
-}*/
+}
 
 func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	ret, err := r.Do("SPOP", "EVEDATA_warQueue")
@@ -135,11 +134,28 @@ func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	href := fmt.Sprintf(c.ctx.EVE.GetCRESTURI()+"wars/%d/", v)
-	war, err := c.ctx.EVE.WarV1(href)
+
+	// Get the war information
+	war, res, err := c.ctx.ESI.WarsApi.GetWarsWarId((int32)(v), nil)
 	if err != nil {
 		return false, err
 	}
+
+	// save the aggressor id
+	var aggressor, defender int32
+	if war.Aggressor.AllianceId > 0 {
+		aggressor = war.Aggressor.AllianceId
+	} else {
+		aggressor = war.Aggressor.CorporationId
+	}
+
+	// save the defender id
+	if war.Defender.AllianceId > 0 {
+		defender = war.Defender.AllianceId
+	} else {
+		defender = war.Defender.CorporationId
+	}
+
 	_, err = models.RetryExec(`INSERT INTO evedata.wars
 				(id, timeFinished,timeStarted,timeDeclared,openForAllies,cacheUntil,aggressorID,defenderID,mutual)
 				VALUES(?,?,?,?,?,?,?,?,?)
@@ -148,41 +164,52 @@ func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 					openForAllies=VALUES(openForAllies), 
 					mutual=VALUES(mutual), 
 					cacheUntil=VALUES(cacheUntil);`,
-		war.ID, war.TimeFinished.Format(models.SQLTimeFormat), war.TimeStarted.Format(models.SQLTimeFormat), war.TimeDeclared.Format(models.SQLTimeFormat),
-		war.OpenForAllies, war.CacheUntil, war.Aggressor.ID,
-		war.Defender.ID, war.Mutual)
+		war.Id, war.Finished, war.Started, war.Declared,
+		war.OpenForAllies, esi.CacheExpires(res), aggressor,
+		defender, war.Mutual)
 	if err != nil {
 		return false, err
 	}
 
-	err = EntityAddToQueue((int32)(war.Aggressor.ID), r)
+	// Add aggressor to entity queue to get their information
+	err = EntityAddToQueue(aggressor, r)
 	if err != nil {
 		return false, err
 	}
 
-	err = EntityAddToQueue((int32)(war.Defender.ID), r)
+	// Add defender to entity queue to get their information
+	err = EntityAddToQueue(defender, r)
 	if err != nil {
 		return false, err
 	}
 
+	// Add information on allies in the war
 	for _, a := range war.Allies {
-		_, err = c.ctx.Db.Exec(`INSERT IGNORE INTO evedata.warAllies (id, allyID) VALUES(?,?);`, war.ID, a.ID)
+		var ally int32
+		if a.AllianceId > 0 {
+			ally = a.AllianceId
+		} else {
+			ally = a.CorporationId
+		}
+
+		_, err = c.ctx.Db.Exec(`INSERT IGNORE INTO evedata.warAllies (id, allyID) VALUES(?,?);`, war.Id, ally)
 		if err != nil {
 			return false, err
 		}
 
-		if err = EntityAddToQueue((int32)(a.ID), r); err != nil {
+		if err = EntityAddToQueue(ally, r); err != nil {
 			return false, err
 		}
 	}
 
-	if war.TimeFinished.UTC().Before(time.Now()) {
-		r.Do("SADD", "EVEDATA_knownFinishedWars", (int32)(war.ID))
+	// If the war ended, cache the ID in redis to prevent needlessly pulling
+	if war.Finished.Before(time.Now()) {
+		r.Do("SADD", "EVEDATA_knownFinishedWars", war.Id)
 	}
 
 	// Loop through all the killmail pages
 	for i := 1; ; i++ {
-		kills, _, err := c.ctx.ESI.WarsApi.GetWarsWarIdKillmails((int32)(war.ID), map[string]interface{}{"page": (int32)(i)})
+		kills, _, err := c.ctx.ESI.WarsApi.GetWarsWarIdKillmails(war.Id, map[string]interface{}{"page": (int32)(i)})
 		if err != nil {
 			return false, err
 		}

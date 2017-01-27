@@ -188,7 +188,7 @@ This route is cached for up to 300 seconds
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context containing the authentication | nil if no authentication
-  **structureId** | **int64**| Return orders in this region | 
+  **structureId** | **int64**| Return orders in this structure | 
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters
@@ -196,9 +196,8 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **structureId** | **int64**| Return orders in this region | 
- **page** | **int32**| Which page to query, only used for querying without type_id. Starting at 1
- | [default to 1]
+ **structureId** | **int64**| Return orders in this structure | 
+ **page** | **int32**| Which page to query, starting at 1 | [default to 1]
  **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type

@@ -6,15 +6,13 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-/* Disabled until ESI regains war endpoint
 func TestWarsTrigger(t *testing.T) {
-	err := warsTrigger(eC)
+	_, err := warsTrigger(eC)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 }
-*/
 
 func TestWarsConsumer(t *testing.T) {
 	r := ctx.Cache.Get()

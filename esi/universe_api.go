@@ -220,6 +220,99 @@ func (a UniverseApiService) GetUniverseCategoriesCategoryId(categoryId int32, lo
 	return successPayload, localVarHttpResponse, err
 }
 
+/* UniverseApiService Get factions
+ Get a list of factions
+
+---
+
+Alternate route: &#x60;/v1/universe/factions/&#x60;
+
+Alternate route: &#x60;/legacy/universe/factions/&#x60;
+
+Alternate route: &#x60;/dev/universe/factions/&#x60;
+
+
+---
+
+This route is cached for up to 3600 seconds
+
+
+ @param optional (nil or map[string]interface{}) with one or more of:
+     @param "language" (string) Language to use in the response
+     @param "datasource" (string) The server name you would like data from
+ @return []GetUniverseFactions200Ok*/
+func (a UniverseApiService) GetUniverseFactions(localVarOptionals map[string]interface{}) ([]GetUniverseFactions200Ok,  *http.Response, error) {
+	var (
+		localVarHttpMethod = strings.ToUpper("Get")
+		localVarPostBody interface{}
+		localVarFileName string
+		localVarFileBytes []byte
+	 	successPayload  []GetUniverseFactions200Ok
+	)
+
+	// create path and map variables
+	localVarPath := a.client.basePath + "/universe/factions/"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["language"], "string", "language"); err != nil {
+		return successPayload, nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
+
+	if localVarTempParam, localVarOk := localVarOptionals["language"].(string); localVarOk {
+		localVarQueryParams.Add("language", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{
+		"application/json",
+		}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	 if err != nil {
+		  return successPayload, nil, err
+	 }
+
+	 localVarHttpResponse, err := a.client.callAPI(r)
+	 if err != nil || localVarHttpResponse == nil {
+		  return successPayload, localVarHttpResponse, err
+	 }
+	 defer localVarHttpResponse.Body.Close()
+	 if localVarHttpResponse.StatusCode >= 300 {
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
+	 }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return successPayload, localVarHttpResponse, err
+	}
+
+
+	return successPayload, localVarHttpResponse, err
+}
+
 /* UniverseApiService Get item groups
  Get a list of item groups
 
@@ -347,6 +440,99 @@ func (a UniverseApiService) GetUniverseGroupsGroupId(groupId int32, localVarOpti
 	// create path and map variables
 	localVarPath := a.client.basePath + "/universe/groups/{group_id}/"
 	localVarPath = strings.Replace(localVarPath, "{"+"group_id"+"}", fmt.Sprintf("%v", groupId), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["language"], "string", "language"); err != nil {
+		return successPayload, nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
+
+	if localVarTempParam, localVarOk := localVarOptionals["language"].(string); localVarOk {
+		localVarQueryParams.Add("language", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{
+		"application/json",
+		}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	 if err != nil {
+		  return successPayload, nil, err
+	 }
+
+	 localVarHttpResponse, err := a.client.callAPI(r)
+	 if err != nil || localVarHttpResponse == nil {
+		  return successPayload, localVarHttpResponse, err
+	 }
+	 defer localVarHttpResponse.Body.Close()
+	 if localVarHttpResponse.StatusCode >= 300 {
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
+	 }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return successPayload, localVarHttpResponse, err
+	}
+
+
+	return successPayload, localVarHttpResponse, err
+}
+
+/* UniverseApiService Get character races
+ Get a list of character races
+
+---
+
+Alternate route: &#x60;/v1/universe/races/&#x60;
+
+Alternate route: &#x60;/legacy/universe/races/&#x60;
+
+Alternate route: &#x60;/dev/universe/races/&#x60;
+
+
+---
+
+This route is cached for up to 3600 seconds
+
+
+ @param optional (nil or map[string]interface{}) with one or more of:
+     @param "language" (string) Language to use in the response
+     @param "datasource" (string) The server name you would like data from
+ @return []GetUniverseRaces200Ok*/
+func (a UniverseApiService) GetUniverseRaces(localVarOptionals map[string]interface{}) ([]GetUniverseRaces200Ok,  *http.Response, error) {
+	var (
+		localVarHttpMethod = strings.ToUpper("Get")
+		localVarPostBody interface{}
+		localVarFileName string
+		localVarFileBytes []byte
+	 	successPayload  []GetUniverseRaces200Ok
+	)
+
+	// create path and map variables
+	localVarPath := a.client.basePath + "/universe/races/"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}

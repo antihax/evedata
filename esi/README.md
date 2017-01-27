@@ -113,8 +113,10 @@ Class | Method | HTTP request | Description
 *SovereigntyApi* | [**GetSovereigntyStructures**](docs/SovereigntyApi.md#getsovereigntystructures) | **Get** /sovereignty/structures/ | List sovereignty structures
 *UniverseApi* | [**GetUniverseCategories**](docs/UniverseApi.md#getuniversecategories) | **Get** /universe/categories/ | Get item categories
 *UniverseApi* | [**GetUniverseCategoriesCategoryId**](docs/UniverseApi.md#getuniversecategoriescategoryid) | **Get** /universe/categories/{category_id}/ | Get item category information
+*UniverseApi* | [**GetUniverseFactions**](docs/UniverseApi.md#getuniversefactions) | **Get** /universe/factions/ | Get factions
 *UniverseApi* | [**GetUniverseGroups**](docs/UniverseApi.md#getuniversegroups) | **Get** /universe/groups/ | Get item groups
 *UniverseApi* | [**GetUniverseGroupsGroupId**](docs/UniverseApi.md#getuniversegroupsgroupid) | **Get** /universe/groups/{group_id}/ | Get item group information
+*UniverseApi* | [**GetUniverseRaces**](docs/UniverseApi.md#getuniverseraces) | **Get** /universe/races/ | Get character races
 *UniverseApi* | [**GetUniverseStationsStationId**](docs/UniverseApi.md#getuniversestationsstationid) | **Get** /universe/stations/{station_id}/ | Get station information
 *UniverseApi* | [**GetUniverseStructures**](docs/UniverseApi.md#getuniversestructures) | **Get** /universe/structures/ | List all public structures
 *UniverseApi* | [**GetUniverseStructuresStructureId**](docs/UniverseApi.md#getuniversestructuresstructureid) | **Get** /universe/structures/{structure_id}/ | Get structure information
@@ -128,6 +130,7 @@ Class | Method | HTTP request | Description
 *UserInterfaceApi* | [**PostUiOpenwindowMarketdetails**](docs/UserInterfaceApi.md#postuiopenwindowmarketdetails) | **Post** /ui/openwindow/marketdetails/ | Open Market Details
 *UserInterfaceApi* | [**PostUiOpenwindowNewmail**](docs/UserInterfaceApi.md#postuiopenwindownewmail) | **Post** /ui/openwindow/newmail/ | Open New Mail Window
 *WalletApi* | [**GetCharactersCharacterIdWallets**](docs/WalletApi.md#getcharacterscharacteridwallets) | **Get** /characters/{character_id}/wallets/ | List wallets and balances
+*WarsApi* | [**GetWars**](docs/WarsApi.md#getwars) | **Get** /wars/ | List wars
 *WarsApi* | [**GetWarsWarId**](docs/WarsApi.md#getwarswarid) | **Get** /wars/{war_id}/ | Get war information
 *WarsApi* | [**GetWarsWarIdKillmails**](docs/WarsApi.md#getwarswaridkillmails) | **Get** /wars/{war_id}/killmails/ | List kills for a war
 
@@ -327,10 +330,14 @@ Class | Method | HTTP request | Description
  - [GetUniverseCategoriesCategoryIdNotFound](docs/GetUniverseCategoriesCategoryIdNotFound.md)
  - [GetUniverseCategoriesCategoryIdOk](docs/GetUniverseCategoriesCategoryIdOk.md)
  - [GetUniverseCategoriesInternalServerError](docs/GetUniverseCategoriesInternalServerError.md)
+ - [GetUniverseFactions200Ok](docs/GetUniverseFactions200Ok.md)
+ - [GetUniverseFactionsInternalServerError](docs/GetUniverseFactionsInternalServerError.md)
  - [GetUniverseGroupsGroupIdInternalServerError](docs/GetUniverseGroupsGroupIdInternalServerError.md)
  - [GetUniverseGroupsGroupIdNotFound](docs/GetUniverseGroupsGroupIdNotFound.md)
  - [GetUniverseGroupsGroupIdOk](docs/GetUniverseGroupsGroupIdOk.md)
  - [GetUniverseGroupsInternalServerError](docs/GetUniverseGroupsInternalServerError.md)
+ - [GetUniverseRaces200Ok](docs/GetUniverseRaces200Ok.md)
+ - [GetUniverseRacesInternalServerError](docs/GetUniverseRacesInternalServerError.md)
  - [GetUniverseSchematicsSchematicIdInternalServerError](docs/GetUniverseSchematicsSchematicIdInternalServerError.md)
  - [GetUniverseSchematicsSchematicIdNotFound](docs/GetUniverseSchematicsSchematicIdNotFound.md)
  - [GetUniverseSchematicsSchematicIdOk](docs/GetUniverseSchematicsSchematicIdOk.md)
@@ -351,6 +358,7 @@ Class | Method | HTTP request | Description
  - [GetUniverseTypesTypeIdInternalServerError](docs/GetUniverseTypesTypeIdInternalServerError.md)
  - [GetUniverseTypesTypeIdNotFound](docs/GetUniverseTypesTypeIdNotFound.md)
  - [GetUniverseTypesTypeIdOk](docs/GetUniverseTypesTypeIdOk.md)
+ - [GetWarsInternalServerError](docs/GetWarsInternalServerError.md)
  - [GetWarsWarIdAggressor](docs/GetWarsWarIdAggressor.md)
  - [GetWarsWarIdAlly](docs/GetWarsWarIdAlly.md)
  - [GetWarsWarIdDefender](docs/GetWarsWarIdDefender.md)

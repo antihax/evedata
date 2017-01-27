@@ -338,10 +338,9 @@ Alternate route: &#x60;/dev/markets/structures/{structure_id}/&#x60;
 This route is cached for up to 300 seconds
 
  * @param ctx context.Context Authentication Context 
- @param structureId Return orders in this region
+ @param structureId Return orders in this structure
  @param optional (nil or map[string]interface{}) with one or more of:
-     @param "page" (int32) Which page to query, only used for querying without type_id. Starting at 1
-
+     @param "page" (int32) Which page to query, starting at 1
      @param "datasource" (string) The server name you would like data from
  @return []GetMarketsStructuresStructureId200Ok*/
 func (a MarketApiService) GetMarketsStructuresStructureId(ctx context.Context, structureId int64, localVarOptionals map[string]interface{}) ([]GetMarketsStructuresStructureId200Ok,  *http.Response, error) {
