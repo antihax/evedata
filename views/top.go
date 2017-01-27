@@ -67,11 +67,12 @@ func GenerateStatistics(c *appContext.AppContext) {
 	for c.Cache == nil {
 	} // Stupid
 	log.Printf("Start collecting statistics\n")
-	red := c.Cache.Get()
-	defer red.Close()
+
 	tick := time.NewTicker(time.Second * 5)
 
 	for {
+		red := c.Cache.Get()
+		defer red.Close()
 		statisticsLoadHostStats(red)
 		if c.Conf.GenerateStats {
 			var left, right []string
