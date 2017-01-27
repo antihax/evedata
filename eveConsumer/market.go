@@ -67,7 +67,7 @@ func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 
 		// If we got an access denied, let's not touch it again for 24 hours.
 		if res != nil || res.StatusCode == 403 {
-			_, err = c.ctx.Db.Exec("UPDATE evedata.structures SET marketCacheUntil = ? WHERE stationID = ?", time.Now().Add(time.Hour*24), v)
+			_, err = c.ctx.Db.Exec("UPDATE evedata.structures SET marketCacheUntil = ? WHERE stationID = ?", time.Now().Add(time.Hour*4), v)
 			return false, err
 		}
 
@@ -109,8 +109,7 @@ func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 			log.Printf("%s", err)
 			continue
 		}
-		cacheUntil := esi.CacheExpires(res).UTC()
-		_, err = tx.Exec("UPDATE evedata.structures SET marketCacheUntil = ?  WHERE stationID = ?", cacheUntil, v)
+		_, err = tx.Exec("UPDATE evedata.structures SET marketCacheUntil = ?  WHERE stationID = ?", esi.CacheExpires(res), v)
 
 		err = models.RetryTransaction(tx)
 		if err != nil {
@@ -138,8 +137,7 @@ func marketMaintTrigger(c *EVEConsumer) (bool, error) {
 	// Check if it is time to update the market history
 	curTime := time.Now().UTC()
 	if cacheUntilTime.Before(curTime) {
-		// We wont repeat this for 24 hours just after it updates.
-		newTime := curTime.Add(time.Hour * 3)
+		newTime := curTime.Add(time.Hour * 1)
 
 		err = models.SetServiceState("marketMaint", newTime, 1)
 		if err != nil {
@@ -216,7 +214,7 @@ func marketOrderConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	}
 
 	var page int32 = 1
-	c.marketRegionAddRegion(v, time.Now().UTC().Unix()+(60*60), r)
+	c.marketRegionAddRegion(v, time.Now().UTC().Unix()+(60*15), r)
 	for {
 		b, res, err := c.ctx.ESI.MarketApi.GetMarketsRegionIdOrders((int32)(v), "all", map[string]interface{}{"page": page})
 		if err != nil {

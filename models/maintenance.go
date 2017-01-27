@@ -196,7 +196,7 @@ func MaintMarket() error {
 	if err := RetryExecTillNoRows(`
         DELETE LOW_PRIORITY FROM evedata.market 
             WHERE date_add(issued, INTERVAL duration DAY) < UTC_TIMESTAMP() OR 
-            reported < DATE_SUB(utc_timestamp(), INTERVAL 30 DAY)
+            reported < DATE_SUB(utc_timestamp(), INTERVAL 1 HOUR)
             ORDER BY regionID, typeID ASC LIMIT 50000;
             `); err != nil {
 		return err
