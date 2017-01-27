@@ -150,12 +150,10 @@ func EntityAddToQueue(id int32, r redis.Conn) error {
 
 // Say we touched the entity and expire after one day
 func (c *EVEConsumer) entitySetKnown(id int32) error {
-	go func() {
-		key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", id)
-		r := c.ctx.Cache.Get()
-		defer r.Close()
-		r.Do("SETEX", key, 86400, true)
-	}()
+	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", id)
+	r := c.ctx.Cache.Get()
+	defer r.Close()
+	r.Do("SETEX", key, 86400, true)
 	return nil
 }
 
