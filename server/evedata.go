@@ -43,8 +43,10 @@ func GoServer() {
 
 	// Build the redis pool
 	ctx.Cache = &redis.Pool{
-		MaxIdle:     10,
-		IdleTimeout: 60 * time.Second,
+		MaxIdle:     50,
+		MaxActive:   0,
+		Wait:        false,
+		IdleTimeout: 90 * time.Second,
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.Dial("tcp", ctx.Conf.Redis.Address)
 			if err != nil {

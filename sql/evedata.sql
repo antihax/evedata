@@ -5,7 +5,7 @@ USE evedata;
 CREATE TABLE `alliances` (
   `allianceID` int(10) unsigned NOT NULL DEFAULT '0',
   `name` varchar(255) NOT NULL DEFAULT '',
-  `shortName` varchar(45) CHARACTER SET latin1 NOT NULL DEFAULT '',
+  `shortName` varchar(45) NOT NULL DEFAULT '',
   `executorCorpID` int(10) unsigned NOT NULL DEFAULT '0',
   `corporationsCount` int(10) unsigned NOT NULL DEFAULT '0',
   `startDate` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
@@ -46,7 +46,7 @@ CREATE TABLE `characters` (
   `securityStatus` decimal(4,2) NOT NULL,
   `updated` datetime NOT NULL,
   `cacheUntil` datetime NOT NULL,
-  `name` varchar(50) CHARACTER SET latin1 NOT NULL,
+  `name` varchar(50) NOT NULL,
   PRIMARY KEY (`characterID`),
   KEY `cacheUntil` (`cacheUntil`),
   KEY `name` (`name`)
@@ -101,7 +101,7 @@ CREATE TABLE `crestTokens` (
   `tokenType` varchar(100) CHARACTER SET latin1 NOT NULL,
   `lastCode` int(11) NOT NULL DEFAULT '0',
   `lastStatus` text CHARACTER SET latin1 NOT NULL,
-  `characterName` varchar(100) CHARACTER SET latin1 NOT NULL,
+  `characterName` varchar(100) NOT NULL,
   `request` text CHARACTER SET latin1,
   `response` text CHARACTER SET latin1,
   `assetCacheUntil` datetime NOT NULL DEFAULT '2015-01-01 00:00:00',
@@ -313,14 +313,14 @@ CREATE TABLE `states` (
 CREATE TABLE `structures` (
   `stationID` bigint(20) NOT NULL,
   `solarSystemID` int(11) DEFAULT NULL,
-  `stationName` varchar(255) DEFAULT NULL,
+  `stationName` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `x` float DEFAULT NULL,
   `y` float DEFAULT NULL,
   `z` float DEFAULT NULL,
   `updated` datetime DEFAULT NULL,
   `marketCacheUntil` datetime DEFAULT '2016-01-01 00:00:00',
   PRIMARY KEY (`stationID`)
-) ENGINE=InnoDB DEFAULT CHARSET=big5;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `walletJournal` (
   `refID` bigint(20) unsigned NOT NULL,
