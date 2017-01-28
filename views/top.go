@@ -38,7 +38,7 @@ var (
 	statisticsLast map[string]int
 )
 
-func statisticsLoadHostStats(r redis.Conn) {
+func statisticsLoadHostStats(redisCon redis.Conn) {
 	l, _ := load.Avg()
 	i, _ := host.Info()
 	m, _ := mem.VirtualMemory()
@@ -47,7 +47,7 @@ func statisticsLoadHostStats(r redis.Conn) {
 
 	data := fmt.Sprintf("%s: Load: %.2f %.2f %.2f  CPU(%d cores): %.1f%%  Memory: %d/%d GiB  ", i.Hostname, l.Load1, l.Load5, l.Load15, cpus, cpuPercent[0], m.Used/1024/1024/1024, m.Total/1024/1024/1024)
 
-	r.Do("ZADD", "EVEDATA_HOST", time.Now().UTC().Unix()+5, data)
+	redisCon.Do("ZADD", "EVEDATA_HOST", time.Now().UTC().Unix()+5, data)
 
 	return
 }
@@ -69,10 +69,9 @@ func GenerateStatistics(c *appContext.AppContext) {
 	log.Printf("Start collecting statistics\n")
 
 	tick := time.NewTicker(time.Second * 5)
-
+	red := c.Cache.Get()
+	defer red.Close()
 	for {
-		red := c.Cache.Get()
-		defer red.Close()
 		statisticsLoadHostStats(red)
 		if c.Conf.GenerateStats {
 			var left, right []string
