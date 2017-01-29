@@ -40,7 +40,7 @@ var (
 		Subsystem: "consumer",
 		Name:      "ticks",
 		Help:      "API call statistics.",
-		Buckets:   prometheus.ExponentialBuckets(0.5, 2, 12),
+		Buckets:   prometheus.ExponentialBuckets(1, 2, 17),
 	}, []string{"consumer"},
 	)
 
@@ -50,7 +50,7 @@ var (
 		Subsystem: "trigger",
 		Name:      "ticks",
 		Help:      "API call statistics.",
-		Buckets:   prometheus.ExponentialBuckets(0.5, 2, 12),
+		Buckets:   prometheus.ExponentialBuckets(1, 2, 17),
 	}, []string{"trigger"},
 	)
 )

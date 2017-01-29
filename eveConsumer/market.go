@@ -306,10 +306,18 @@ func marketHistoryConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 
 	var values []string
 
+	ignoreBefore := time.Now().Add(time.Hour * 24 * -5)
+
 	for _, e := range h {
-		values = append(values, fmt.Sprintf("('%s',%f,%f,%f,%d,%d,%d,%d)",
-			e.Date.Format("2006-01-02"), e.Lowest, e.Highest, e.Average,
-			e.Volume, e.OrderCount, typeID, regionID))
+		if e.Date.After(ignoreBefore) {
+			values = append(values, fmt.Sprintf("('%s',%f,%f,%f,%d,%d,%d,%d)",
+				e.Date.Format("2006-01-02"), e.Lowest, e.Highest, e.Average,
+				e.Volume, e.OrderCount, typeID, regionID))
+		}
+	}
+
+	if len(values) == 0 {
+		return false, nil
 	}
 
 	stmt := fmt.Sprintf("INSERT IGNORE INTO evedata.market_history (date, low, high, mean, quantity, orders, itemID, regionID) VALUES \n%s", strings.Join(values, ",\n"))

@@ -66,13 +66,14 @@ func GoServer() {
 	transportCache := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))
 
 	// Attach a basic transport with our chained custom transport.
-	transportCache.Transport = &transport{&http.Transport{Proxy: http.ProxyFromEnvironment, MaxIdleConnsPerHost: 5}, &ctx}
+	transportCache.Transport = &transport{&http.Transport{}, &ctx}
 
 	// Build a HTTP Client pool this client will be shared with APIs for:
 	//   - ESI
 	//   - ZKillboard
 	//   - EVE SSO
 	//   - EVE CREST and XML
+	
 	ctx.HTTPClient = &http.Client{Transport: transportCache}
 	if ctx.HTTPClient == nil {
 		panic("http client is null")
