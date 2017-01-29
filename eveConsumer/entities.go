@@ -1,6 +1,7 @@
 package eveConsumer
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -190,7 +191,7 @@ func (c *EVEConsumer) updateAlliance(id int64) error {
 	href := "https://crest-tq.eveonline.com/" + fmt.Sprintf("alliances/%d/", id)
 	a, err := c.ctx.EVE.Alliance(href)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
 	}
 
 	redis := c.ctx.Cache.Get()
@@ -199,17 +200,17 @@ func (c *EVEConsumer) updateAlliance(id int64) error {
 	err = models.UpdateAlliance(a.ID, a.Name, a.CorporationsCount, a.ShortName, a.ExecutorCorporation.ID,
 		a.StartDate.UTC(), a.Deleted, a.Description, a.CreatorCorporation.ID, a.CreatorCharacter.ID, time.Now().UTC().Add(time.Hour*24))
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
 	}
 	err = EntityAddToQueue((int32)(a.CreatorCharacter.ID), redis)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
 	}
 
 	for _, corp := range a.Corporations {
 		err = EntityAddToQueue((int32)(corp.ID), redis)
 		if err != nil {
-			return err
+			return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
 		}
 	}
 
@@ -219,20 +220,20 @@ func (c *EVEConsumer) updateAlliance(id int64) error {
 func (c *EVEConsumer) updateCorporation(id int64) error {
 	a, err := c.ctx.EVE.CorporationPublicSheetXML(id)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("%s with corporation id %d", err, id))
 	}
 
 	err = models.UpdateCorporation(a.CorporationID, a.CorporationName, a.Ticker, a.CEOID, a.StationID,
 		a.Description, a.AllianceID, a.FactionID, a.URL, a.MemberCount, a.Shares, time.Now().UTC().Add(time.Hour*24))
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("%s with corporation id %d", err, id))
 	}
 	if a.CEOID > 1 {
 		redis := c.ctx.Cache.Get()
 		defer redis.Close()
 		err = EntityAddToQueue((int32)(a.CEOID), redis)
 		if err != nil {
-			return err
+			return errors.New(fmt.Sprintf("%s with corporation id %d", err, id))
 		}
 	}
 
@@ -240,13 +241,16 @@ func (c *EVEConsumer) updateCorporation(id int64) error {
 }
 
 func (c *EVEConsumer) updateCharacter(id int64) error {
+	if id < 90000000 {
+		return nil
+	}
 	a, err := c.ctx.EVE.CharacterInfoXML(id)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("%s with character id %d", err, id))
 	}
 	err = models.UpdateCharacter(a.CharacterID, a.CharacterName, a.BloodlineID, a.AncestryID, a.CorporationID, a.AllianceID, a.Race, a.SecurityStatus, time.Now().UTC().Add(time.Hour*24))
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("%s with character id %d", err, id))
 	}
 
 	return nil
