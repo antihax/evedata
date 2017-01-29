@@ -104,11 +104,3 @@ func TestMain(m *testing.M) {
 	retCode := m.Run()
 	os.Exit(retCode)
 }
-
-// [TODO] Dive into this more... add some work, make sure it's gone.
-func TestConsumerTest(t *testing.T) {
-	testEC := NewEVEConsumer(&ctx)
-	go testEC.initConsumer()
-	testEC.RunConsumer()
-	testEC.StopConsumer()
-}
