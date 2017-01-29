@@ -280,7 +280,7 @@ func MaintMarket() error {
                 P.offerID
         FROM evedata.lpOffers S
 
-        INNER JOIN eveNames N ON S.corporationID = N.itemID
+        INNER JOIN invNames N ON S.corporationID = N.itemID
         INNER JOIN invTypes T ON S.typeID = T.typeID
         INNER JOIN evedata.jitaPrice C ON C.itemID = S.typeID
 
