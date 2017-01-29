@@ -2,6 +2,7 @@ package evedata
 
 import (
 	"encoding/gob"
+	"net"
 	"os"
 
 	"log"
@@ -66,14 +67,24 @@ func GoServer() {
 	transportCache := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))
 
 	// Attach a basic transport with our chained custom transport.
-	transportCache.Transport = &transport{&http.Transport{}, &ctx}
+	transportCache.Transport = &transport{&http.Transport{
+		MaxIdleConns: 0,
+		DialContext: (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}).DialContext,
+		IdleConnTimeout:       60 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: 0,
+		MaxIdleConnsPerHost:   100,
+	}, &ctx}
 
 	// Build a HTTP Client pool this client will be shared with APIs for:
 	//   - ESI
 	//   - ZKillboard
 	//   - EVE SSO
 	//   - EVE CREST and XML
-	
+
 	ctx.HTTPClient = &http.Client{Transport: transportCache}
 	if ctx.HTTPClient == nil {
 		panic("http client is null")
