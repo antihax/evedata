@@ -135,7 +135,7 @@ func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	}
 
 	// Get the war information
-	war, _, err := c.ctx.ESI.WarsApi.GetWarsWarId((int32)(v), nil)
+	war, res, err := c.ctx.ESI.WarsApi.GetWarsWarId((int32)(v), nil)
 	if err != nil {
 		return false, err
 	}
@@ -163,8 +163,8 @@ func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 					openForAllies=VALUES(openForAllies), 
 					mutual=VALUES(mutual), 
 					cacheUntil=VALUES(cacheUntil);`,
-		war.Id, war.Finished, war.Started, war.Declared,
-		war.OpenForAllies, time.Now().Add(time.Hour), aggressor,
+		war.Id, war.Finished.Format(models.SQLTimeFormat), war.Started, war.Declared,
+		war.OpenForAllies, esi.CacheExpires(res), aggressor,
 		defender, war.Mutual)
 	if err != nil {
 		return false, err

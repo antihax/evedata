@@ -52,12 +52,9 @@ func RetryExec(sql string, args ...interface{}) (int64, error) {
 		x, err := database.Exec(sql, args...)
 		if err == nil {
 			rows, err = x.RowsAffected()
-			if err != nil {
-				break
-			}
-			break
+			return rows, err
 		} else if strings.Contains(err.Error(), "1213") == false {
-			break
+			return rows, err
 		}
 	}
 	return rows, err
