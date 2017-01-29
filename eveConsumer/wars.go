@@ -61,7 +61,6 @@ func (c *EVEConsumer) updateWars() error {
 			return err
 		}
 
-		r.Do("SREM", "EVEDATA_knownFinishedWars", id)
 		c.warAddToQueue(id)
 	}
 	return nil
@@ -136,7 +135,7 @@ func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	}
 
 	// Get the war information
-	war, res, err := c.ctx.ESI.WarsApi.GetWarsWarId((int32)(v), nil)
+	war, _, err := c.ctx.ESI.WarsApi.GetWarsWarId((int32)(v), nil)
 	if err != nil {
 		return false, err
 	}
@@ -165,7 +164,7 @@ func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 					mutual=VALUES(mutual), 
 					cacheUntil=VALUES(cacheUntil);`,
 		war.Id, war.Finished, war.Started, war.Declared,
-		war.OpenForAllies, esi.CacheExpires(res), aggressor,
+		war.OpenForAllies, time.Now().Add(time.Hour), aggressor,
 		defender, war.Mutual)
 	if err != nil {
 		return false, err
@@ -203,7 +202,7 @@ func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	}
 
 	// If the war ended, cache the ID in redis to prevent needlessly pulling
-	if war.Finished.Before(time.Now()) {
+	if war.Finished.IsZero() == false && war.Finished.Before(time.Now()) {
 		r.Do("SADD", "EVEDATA_knownFinishedWars", war.Id)
 	}
 
