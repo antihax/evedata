@@ -86,6 +86,7 @@ func NewRouter(ctx *appContext.AppContext) *mux.Router {
 
 	router.PathPrefix("/js/").Handler(http.StripPrefix("/js/",
 		http.FileServer(http.Dir("static/js"))))
+
 	router.PathPrefix("/fonts/").Handler(http.StripPrefix("/fonts/",
 		http.FileServer(http.Dir("static/fonts"))))
 

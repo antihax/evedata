@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	addConsumer("entities", entitiesConsumer)
+	addConsumer("entities", entitiesConsumer, "EVEDATA_entityQueue")
 	addTrigger("entities", entitiesTrigger)
 }
 

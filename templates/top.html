@@ -1,20 +1,10 @@
 {{define "body"}}
-<pre id="textblock"></pre>
-
 <img id="imageblock" src="/perf?width=1300" width=1300>
 
 <script type="text/javascript">
     $(document).ready(function() {
-        updateTextBlock();
         updateImage();
     });
-
-    function updateTextBlock() {
-        setTimeout("updateTextBlock();", 5000);
-        $.get("/X/topStatistics", function(data) {
-            $("#textblock").text(data);
-        });
-    }
 
     function updateImage() {
         setTimeout("updateImage();", 30000);

@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	addConsumer("wars", warConsumer)
+	addConsumer("wars", warConsumer, "EVEDATA_warQueue")
 	addTrigger("wars", warsTrigger)
 }
 

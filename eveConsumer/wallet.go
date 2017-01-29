@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	addConsumer("wallets", walletsConsumer)
+	addConsumer("wallets", walletsConsumer, "EVEDATA_walletQueue")
 	addTrigger("wallets", walletsTrigger)
 }
 

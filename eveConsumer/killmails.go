@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	addConsumer("killmails", killmailsConsumer)
+	addConsumer("killmails", killmailsConsumer, "EVEDATA_killQueue")
 }
 
 func killmailsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {

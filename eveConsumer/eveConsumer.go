@@ -2,6 +2,7 @@ package eveConsumer
 
 import (
 	"log"
+	"strings"
 	"time"
 
 	"github.com/ScaleFT/monotime"
@@ -22,14 +23,14 @@ func addTrigger(name string, f triggerFunc) {
 }
 
 type consumer struct {
-	name string
-	f    consumerFunc
+	name      string
+	f         consumerFunc
+	queueName string
 }
 type consumerFunc func(*EVEConsumer, redis.Conn) (bool, error)
 
-func addConsumer(name string, f consumerFunc) {
-	consumers = append(consumers, consumer{name, f})
-
+func addConsumer(name string, f consumerFunc, queueName string) {
+	consumers = append(consumers, consumer{name, f, queueName})
 }
 
 // For handling Consumers
@@ -53,12 +54,21 @@ var (
 		Buckets:   prometheus.ExponentialBuckets(1, 2, 17),
 	}, []string{"trigger"},
 	)
+
+	queueSizeMetrics = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Namespace: "evedata",
+		Subsystem: "queue",
+		Name:      "size",
+		Help:      "Entries in queue for consumers",
+	}, []string{"queue"},
+	)
 )
 
 func init() {
 	prometheus.MustRegister(
 		consumerMetrics,
 		triggerMetrics,
+		queueSizeMetrics,
 	)
 }
 
@@ -68,12 +78,47 @@ type EVEConsumer struct {
 	ctx                 *appContext.AppContext
 	consumerStopChannel chan bool
 	triggersStopChannel chan bool
+	metricsStopChannel  chan bool
 }
 
 // NewEVEConsumer creates a new EveConsumer
 func NewEVEConsumer(ctx *appContext.AppContext) *EVEConsumer {
-	e := &EVEConsumer{ctx, make(chan bool), make(chan bool)}
+	e := &EVEConsumer{ctx, make(chan bool), make(chan bool), make(chan bool)}
 	return e
+}
+
+func (c *EVEConsumer) goMetrics() {
+	r := c.ctx.Cache.Get()
+	defer r.Close()
+
+	rate := time.Second * 5
+	throttle := time.Tick(rate)
+
+	// Run Phase
+	for {
+		<-throttle
+		select {
+		case <-c.metricsStopChannel:
+			return
+		default:
+			for _, consumer := range consumers {
+				if consumer.queueName != "" {
+					v, err := redis.Int(r.Do("SCARD", consumer.queueName))
+					if err != nil {
+						log.Printf("%s: %v\n", consumer.queueName, err)
+						continue
+					}
+
+					queueName := strings.Replace(consumer.queueName, "EVEDATA_", "", 1)
+					queueName = strings.Replace(queueName, "Queue", "", 1)
+
+					queueSizeMetrics.With(
+						prometheus.Labels{"queue": queueName},
+					).Set(float64(v))
+				}
+			}
+		}
+	}
 }
 
 func (c *EVEConsumer) goConsumer() {
@@ -152,6 +197,7 @@ func (c *EVEConsumer) initConsumer() {
 func (c *EVEConsumer) RunConsumer() {
 	// Load deferrable data.
 	go c.initConsumer()
+	go c.goMetrics()
 
 	for i := 0; i < c.ctx.Conf.EVEConsumer.Consumers; i++ {
 		go c.goConsumer() // Run consumers in a loop
@@ -170,6 +216,7 @@ func (c *EVEConsumer) StopConsumer() {
 	for i := 0; i > c.ctx.Conf.EVEConsumer.Consumers; i++ {
 		c.consumerStopChannel <- true
 	}
+	c.metricsStopChannel <- true
 	c.triggersStopChannel <- true
 	log.Printf("EVEConsumer: Stopped\n")
 }

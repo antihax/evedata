@@ -14,10 +14,10 @@ import (
 )
 
 func init() {
-	addConsumer("market", marketOrderConsumer)
-	addConsumer("market", marketHistoryConsumer)
-	addConsumer("market", marketRegionConsumer)
-	addConsumer("market", marketPublicStructureConsumer)
+	addConsumer("market", marketOrderConsumer, "EVEDATA_marketOrders")
+	addConsumer("market", marketHistoryConsumer, "EVEDATA_marketHistory")
+	addConsumer("market", marketRegionConsumer, "")
+	addConsumer("market", marketPublicStructureConsumer, "EVEDATA_publicOrders")
 
 	addTrigger("market", marketMaintTrigger)
 	addTrigger("market", marketHistoryTrigger)

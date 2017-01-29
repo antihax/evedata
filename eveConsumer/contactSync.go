@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	addConsumer("contactSync", contactSyncConsumer)
+	addConsumer("contactSync", contactSyncConsumer, "EVEDATA_contactSyncQueue")
 	addTrigger("contactSync", contactSyncTrigger)
 }
 
@@ -117,7 +117,6 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		cid, _ := strconv.ParseInt(cidS, 10, 64)
 		a, err := c.getToken(source, cid)
 		if err != nil {
-
 			return false, err
 		}
 		// Save the token.
@@ -278,6 +277,5 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 			}
 		}
 	}
-
 	return true, err
 }

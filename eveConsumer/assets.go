@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	addConsumer("assets", assetsConsumer)
+	addConsumer("assets", assetsConsumer, "EVEDATA_assetQueue")
 	addTrigger("assets", assetsTrigger)
 }
 
