@@ -27,8 +27,9 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	res, err := t.next.RoundTrip(req)
 
 	duration := monotime.Duration(start, monotime.Now())
-	metricApiCalls.Observe(float64(duration / time.Millisecond))
-
+	metricApiCalls.With(
+		prometheus.Labels{"host": req.Host},
+	).Observe(float64(duration / time.Millisecond))
 
 	// We got a non-recoverable error.
 	if res != nil {
@@ -55,13 +56,15 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 }
 
 var (
-	metricApiCalls = prometheus.NewHistogram(prometheus.HistogramOpts{
+	metricApiCalls = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Namespace: "evedata",
 		Subsystem: "api",
 		Name:      "calls",
 		Help:      "API call statistics.",
 		Buckets:   prometheus.ExponentialBuckets(0.5, 2, 12),
-	})
+	},
+		[]string{"host"},
+	)
 
 	metricApiErrors = prometheus.NewCounter(prometheus.CounterOpts{
 		Namespace: "evedata",
