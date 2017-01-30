@@ -109,16 +109,16 @@ func walletsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 				fromID = wallet.RefID
 			}
 
-			_, err := tx.Exec(`INSERT IGNORE INTO evedata.walletJournal
+			_, err := tx.Exec(`INSERT INTO evedata.walletJournal
 								(characterID, refID, refTypeID, ownerID1, ownerID2,
 								argID1, argName1, amount, balance,
 								reason, taxReceiverID, taxAmount, date)
-								VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);`,
+								VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE characterID=characterID;`,
 				tokenChar, wallet.RefID, wallet.RefTypeID, wallet.OwnerID1, wallet.OwnerID2,
 				wallet.ArgID1, wallet.ArgName1, wallet.Amount, wallet.Balance,
 				wallet.Reason, wallet.TaxReceiverID, wallet.TaxAmount, wallet.Date.UTC())
 			if err != nil {
-				log.Printf("Wallets: %v\n", err)
+				log.Printf("Wallets: %v %d\n", err, wallet.ArgID1)
 				break
 			}
 		}
@@ -161,14 +161,14 @@ func walletsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 				fromID = transaction.TransactionID
 			}
 
-			_, err := tx.Exec(`INSERT IGNORE INTO evedata.walletTransactions
+			_, err := tx.Exec(`INSERT INTO evedata.walletTransactions
 								(characterID, transactionID, quantity, typeID, price,
 								clientID,  stationID, transactionType,
-								transactionFor, journalTransactionID, transactionDateTime)
-								VALUES (?,?,?,?,?,?,?,?,?,?,?);`,
+								transactionFor, journalTransactionID, transactionDateTime, clientTypeID)
+								VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE characterID=characterID;`,
 				tokenChar, transaction.TransactionID, transaction.Quantity, transaction.TypeID, transaction.Price,
 				transaction.ClientID, transaction.StationID, transaction.TransactionType,
-				transaction.TransactionFor, transaction.JournalTransactionID, transaction.TransactionDateTime.UTC())
+				transaction.TransactionFor, transaction.JournalTransactionID, transaction.TransactionDateTime.UTC(), transaction.ClientTypeID)
 			if err != nil {
 				log.Printf("Wallets: %v\n", err)
 				break

@@ -55,7 +55,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
 
 	// Build entity stats
 	if _, err := RetryExec(`
-        INSERT IGNORE INTO evedata.entityKillStats (id, losses)
+        INSERT INTO evedata.entityKillStats (id, losses)
             (SELECT 
                 victimCorporationID AS id,
                 COUNT(DISTINCT K.id) AS losses
@@ -67,7 +67,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
 		return err
 	}
 	if _, err := RetryExec(`
-        INSERT IGNORE INTO evedata.entityKillStats (id, losses)
+        INSERT INTO evedata.entityKillStats (id, losses)
             (SELECT 
                 victimAllianceID AS id,
                 COUNT(DISTINCT K.id) AS losses
@@ -80,7 +80,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
 	}
 
 	if _, err := RetryExec(`
-        INSERT IGNORE INTO evedata.entityKillStats (id, kills)
+        INSERT INTO evedata.entityKillStats (id, kills)
             (SELECT 
                 corporationID AS id,
                 COUNT(DISTINCT K.id) AS kills
@@ -93,7 +93,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
 		return err
 	}
 	if _, err := RetryExec(`
-        INSERT IGNORE INTO evedata.entityKillStats (id, kills)
+        INSERT INTO evedata.entityKillStats (id, kills)
             (SELECT 
                 allianceID AS id,
                 COUNT(DISTINCT K.id) AS kills

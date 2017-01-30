@@ -66,9 +66,11 @@ func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		b, res, err := c.ctx.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, v, map[string]interface{}{"page": page})
 
 		// If we got an access denied, let's not touch it again for 24 hours.
-		if res != nil || res.StatusCode == 403 {
-			_, err = c.ctx.Db.Exec("UPDATE evedata.structures SET marketCacheUntil = ? WHERE stationID = ?", time.Now().Add(time.Hour*4), v)
-			return false, err
+		if res != nil {
+			if res.StatusCode == 403 {
+				_, err = c.ctx.Db.Exec("UPDATE evedata.structures SET marketCacheUntil = ? WHERE stationID = ?", time.Now().Add(time.Hour*4), v)
+				return false, err
+			}
 		}
 
 		// If we error, get out early.
@@ -77,6 +79,7 @@ func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		} else if len(b) == 0 { // end of the pages
 			break
 		}
+
 		var values []string
 		for _, e := range b {
 			var buy byte
@@ -85,12 +88,12 @@ func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 			} else {
 				buy = 0
 			}
-			values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,'%s',%d,%d,%d,UTC_TIMESTAMP())",
+			values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,'%s',%d,%d,evedata.regionIDByStructureID(%d),UTC_TIMESTAMP())",
 				e.OrderId, e.Price, e.VolumeRemain, e.TypeId, e.VolumeTotal, e.MinVolume,
-				buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, (int32)(v)))
+				buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, e.LocationId))
 		}
 
-		stmt := fmt.Sprintf(`INSERT IGNORE INTO evedata.market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, reported)
+		stmt := fmt.Sprintf(`INSERT INTO evedata.market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, reported)
 				VALUES %s
 				ON DUPLICATE KEY UPDATE price=VALUES(price),
 					remainingVolume=VALUES(remainingVolume),
@@ -235,7 +238,7 @@ func marketOrderConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 				buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, (int32)(v)))
 		}
 
-		stmt := fmt.Sprintf(`INSERT IGNORE INTO evedata.market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, reported)
+		stmt := fmt.Sprintf(`INSERT INTO evedata.market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, reported)
 				VALUES %s
 				ON DUPLICATE KEY UPDATE price=VALUES(price),
 					remainingVolume=VALUES(remainingVolume),
@@ -320,7 +323,7 @@ func marketHistoryConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		return false, nil
 	}
 
-	stmt := fmt.Sprintf("INSERT IGNORE INTO evedata.market_history (date, low, high, mean, quantity, orders, itemID, regionID) VALUES \n%s", strings.Join(values, ",\n"))
+	stmt := fmt.Sprintf("INSERT INTO evedata.market_history (date, low, high, mean, quantity, orders, itemID, regionID) VALUES \n%s ON DUPLICATE KEY UPDATE date=date", strings.Join(values, ",\n"))
 
 	tx, err := models.Begin()
 	if err != nil {

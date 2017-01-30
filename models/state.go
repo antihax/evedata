@@ -5,7 +5,7 @@ import "time"
 // SetServiceState sets state information: nextCheck, value (page, etc).
 func SetServiceState(state string, cacheUntil time.Time, page int32) error {
 	if _, err := database.Exec(`
-		INSERT IGNORE INTO evedata.states (nextCheck, value, state)VALUES(?,?,?) ON DUPLICATE KEY UPDATE nextCheck=VALUES(nextCheck), value=VALUES(value)
+		INSERT INTO evedata.states (nextCheck, value, state)VALUES(?,?,?) ON DUPLICATE KEY UPDATE nextCheck=VALUES(nextCheck), value=VALUES(value)
 	`, cacheUntil.UTC(), page, state); err != nil {
 		return err
 	}
@@ -16,7 +16,7 @@ func SetServiceState(state string, cacheUntil time.Time, page int32) error {
 func SetServiceStateByDays(state string, daysToCache int32, page int32) error {
 
 	if _, err := database.Exec(`
-		INSERT IGNORE INTO evedata.states (nextCheck, value, state)VALUES(?,?,?) ON DUPLICATE KEY UPDATE nextCheck=VALUES(nextCheck), value=VALUES(value)
+		INSERT INTO evedata.states (nextCheck, value, state)VALUES(?,?,?) ON DUPLICATE KEY UPDATE nextCheck=VALUES(nextCheck), value=VALUES(value)
 	`, daysToCache, page, state); err != nil {
 		return err
 	}
