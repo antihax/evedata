@@ -1,14 +1,16 @@
 {{define "body"}}
-<img id="imageblock" src="/perf?width=1300" width=1300>
+<img id="imageblock" src="" width=1300>
 
 <script type="text/javascript">
     $(document).ready(function() {
         updateImage();
+        setInterval(function() {
+            updateImage();
+        }, 10000);
     });
 
     function updateImage() {
-        setTimeout("updateImage();", 5000);
-        $("#imageblock").attr("src", "/perf?width=1300");
+        $("#imageblock").attr("src", "https://www.evedata.org/perf?width=1300&_=" + new Date().getTime());
     }
 </script>
 {{end}}
