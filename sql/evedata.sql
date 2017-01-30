@@ -327,7 +327,7 @@ CREATE TABLE `walletJournal` (
   `refTypeID` int(10) unsigned NOT NULL,
   `ownerID1` int(10) unsigned NOT NULL,
   `ownerID2` int(10) unsigned NOT NULL,
-  `argID1` int(10) unsigned NOT NULL,
+  `argID1` bigint(20) unsigned NOT NULL,
   `argName1` varchar(255) NOT NULL,
   `amount` decimal(22,2) NOT NULL,
   `balance` decimal(22,2) NOT NULL,
@@ -415,6 +415,20 @@ CREATE TABLE `wars` (
 			SELECT regionID INTO region
 				FROM eve.mapSolarSystems
 				WHERE solarSystemID = system
+				LIMIT 1;
+			
+		RETURN region;
+		END$$
+		DELIMITER ;
+		DELIMITER $$
+		CREATE FUNCTION regionIDByStructureID(structure BIGINT UNSIGNED) RETURNS int(10) unsigned
+			DETERMINISTIC
+		BEGIN
+			DECLARE region int(10) unsigned;
+			SELECT regionID INTO region
+				FROM eve.mapSolarSystems M
+				INNER JOIN evedata.structures S ON S.solarSystemID = M.solarSystemID
+				WHERE stationID = structure
 				LIMIT 1;
 			
 		RETURN region;

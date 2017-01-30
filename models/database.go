@@ -117,5 +117,21 @@ func DumpDatabase(file string, db string) (err error) {
 		DELIMITER ;
 		`)
 
+	f.WriteString(`DELIMITER $$
+		CREATE FUNCTION regionIDByStructureID(structure BIGINT UNSIGNED) RETURNS int(10) unsigned
+			DETERMINISTIC
+		BEGIN
+			DECLARE region int(10) unsigned;
+			SELECT regionID INTO region
+				FROM eve.mapSolarSystems M
+				INNER JOIN evedata.structures S ON S.solarSystemID = M.solarSystemID
+				WHERE stationID = structure
+				LIMIT 1;
+			
+		RETURN region;
+		END$$
+		DELIMITER ;
+		`)
+
 	return
 }
