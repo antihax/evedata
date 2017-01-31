@@ -4,6 +4,7 @@ All URIs are relative to *https://esi.tech.ccp.is/latest*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**GetUniverseBloodlines**](UniverseApi.md#GetUniverseBloodlines) | **Get** /universe/bloodlines/ | Get bloodlines
 [**GetUniverseCategories**](UniverseApi.md#GetUniverseCategories) | **Get** /universe/categories/ | Get item categories
 [**GetUniverseCategoriesCategoryId**](UniverseApi.md#GetUniverseCategoriesCategoryId) | **Get** /universe/categories/{category_id}/ | Get item category information
 [**GetUniverseFactions**](UniverseApi.md#GetUniverseFactions) | **Get** /universe/factions/ | Get factions
@@ -18,6 +19,54 @@ Method | HTTP request | Description
 [**GetUniverseTypesTypeId**](UniverseApi.md#GetUniverseTypesTypeId) | **Get** /universe/types/{type_id}/ | Get type information
 [**PostUniverseNames**](UniverseApi.md#PostUniverseNames) | **Post** /universe/names/ | Get names and categories for a set of ID&#39;s
 
+
+# **GetUniverseBloodlines**
+> []GetUniverseBloodlines200Ok GetUniverseBloodlines(optional)
+Get bloodlines
+
+Get a list of bloodlines
+
+---
+
+Alternate route: `/v1/universe/bloodlines/`
+
+Alternate route: `/legacy/universe/bloodlines/`
+
+Alternate route: `/dev/universe/bloodlines/`
+
+
+---
+
+This route is cached for up to 3600 seconds
+
+### Required Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a map[string]interface{}.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **language** | **string**| Language to use in the response | [default to en-us]
+ **datasource** | **string**| The server name you would like data from | [default to tranquility]
+
+### Return type
+
+[**[]GetUniverseBloodlines200Ok**](get_universe_bloodlines_200_ok.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **GetUniverseCategories**
 > []int32 GetUniverseCategories(optional)
@@ -605,16 +654,16 @@ Resolve a set of IDs to names and categories. Supported ID's for resolving are: 
 
 ---
 
-Alternate route: `/v1/universe/names/`
+Alternate route: `/v2/universe/names/`
 
-Alternate route: `/legacy/universe/names/`
+Alternate route: `/dev/universe/names/`
 
 
 ### Required Parameters
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
-  **ids** | [**PostUniverseNamesIds**](PostUniverseNamesIds.md)| The ids to resolve | 
+  **ids** | **[]int32**| The ids to resolve | 
  **optional** | **map[string]interface{}** | optional parameters | nil if no parameters
 
 ### Optional Parameters
@@ -622,7 +671,7 @@ Optional parameters are passed through a map[string]interface{}.
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **ids** | [**PostUniverseNamesIds**](PostUniverseNamesIds.md)| The ids to resolve | 
+ **ids** | **[]int32**| The ids to resolve | 
  **datasource** | **string**| The server name you would like data from | [default to tranquility]
 
 ### Return type

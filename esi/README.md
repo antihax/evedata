@@ -111,6 +111,7 @@ Class | Method | HTTP request | Description
 *SkillsApi* | [**GetCharactersCharacterIdSkills**](docs/SkillsApi.md#getcharacterscharacteridskills) | **Get** /characters/{character_id}/skills/ | Get character skills
 *SovereigntyApi* | [**GetSovereigntyCampaigns**](docs/SovereigntyApi.md#getsovereigntycampaigns) | **Get** /sovereignty/campaigns/ | List sovereignty campaigns
 *SovereigntyApi* | [**GetSovereigntyStructures**](docs/SovereigntyApi.md#getsovereigntystructures) | **Get** /sovereignty/structures/ | List sovereignty structures
+*UniverseApi* | [**GetUniverseBloodlines**](docs/UniverseApi.md#getuniversebloodlines) | **Get** /universe/bloodlines/ | Get bloodlines
 *UniverseApi* | [**GetUniverseCategories**](docs/UniverseApi.md#getuniversecategories) | **Get** /universe/categories/ | Get item categories
 *UniverseApi* | [**GetUniverseCategoriesCategoryId**](docs/UniverseApi.md#getuniversecategoriescategoryid) | **Get** /universe/categories/{category_id}/ | Get item category information
 *UniverseApi* | [**GetUniverseFactions**](docs/UniverseApi.md#getuniversefactions) | **Get** /universe/factions/ | Get factions
@@ -223,6 +224,7 @@ Class | Method | HTTP request | Description
  - [GetCharactersCharacterIdMailMailIdOk](docs/GetCharactersCharacterIdMailMailIdOk.md)
  - [GetCharactersCharacterIdMailMailIdRecipient](docs/GetCharactersCharacterIdMailMailIdRecipient.md)
  - [GetCharactersCharacterIdMailRecipient](docs/GetCharactersCharacterIdMailRecipient.md)
+ - [GetCharactersCharacterIdNotFound](docs/GetCharactersCharacterIdNotFound.md)
  - [GetCharactersCharacterIdOk](docs/GetCharactersCharacterIdOk.md)
  - [GetCharactersCharacterIdPlanets200Ok](docs/GetCharactersCharacterIdPlanets200Ok.md)
  - [GetCharactersCharacterIdPlanetsForbidden](docs/GetCharactersCharacterIdPlanetsForbidden.md)
@@ -254,7 +256,6 @@ Class | Method | HTTP request | Description
  - [GetCharactersCharacterIdSkillsInternalServerError](docs/GetCharactersCharacterIdSkillsInternalServerError.md)
  - [GetCharactersCharacterIdSkillsOk](docs/GetCharactersCharacterIdSkillsOk.md)
  - [GetCharactersCharacterIdSkillsSkill](docs/GetCharactersCharacterIdSkillsSkill.md)
- - [GetCharactersCharacterIdUnprocessableEntity](docs/GetCharactersCharacterIdUnprocessableEntity.md)
  - [GetCharactersCharacterIdWallets200Ok](docs/GetCharactersCharacterIdWallets200Ok.md)
  - [GetCharactersCharacterIdWalletsForbidden](docs/GetCharactersCharacterIdWalletsForbidden.md)
  - [GetCharactersCharacterIdWalletsInternalServerError](docs/GetCharactersCharacterIdWalletsInternalServerError.md)
@@ -326,6 +327,8 @@ Class | Method | HTTP request | Description
  - [GetSovereigntyCampaignsParticipant](docs/GetSovereigntyCampaignsParticipant.md)
  - [GetSovereigntyStructures200Ok](docs/GetSovereigntyStructures200Ok.md)
  - [GetSovereigntyStructuresInternalServerError](docs/GetSovereigntyStructuresInternalServerError.md)
+ - [GetUniverseBloodlines200Ok](docs/GetUniverseBloodlines200Ok.md)
+ - [GetUniverseBloodlinesInternalServerError](docs/GetUniverseBloodlinesInternalServerError.md)
  - [GetUniverseCategoriesCategoryIdInternalServerError](docs/GetUniverseCategoriesCategoryIdInternalServerError.md)
  - [GetUniverseCategoriesCategoryIdNotFound](docs/GetUniverseCategoriesCategoryIdNotFound.md)
  - [GetUniverseCategoriesCategoryIdOk](docs/GetUniverseCategoriesCategoryIdOk.md)
@@ -413,7 +416,6 @@ Class | Method | HTTP request | Description
  - [PostUiOpenwindowNewmailNewMail](docs/PostUiOpenwindowNewmailNewMail.md)
  - [PostUiOpenwindowNewmailUnprocessableEntity](docs/PostUiOpenwindowNewmailUnprocessableEntity.md)
  - [PostUniverseNames200Ok](docs/PostUniverseNames200Ok.md)
- - [PostUniverseNamesIds](docs/PostUniverseNamesIds.md)
  - [PostUniverseNamesInternalServerError](docs/PostUniverseNamesInternalServerError.md)
  - [PostUniverseNamesNotFound](docs/PostUniverseNamesNotFound.md)
  - [PutCharactersCharacterIdCalendarEventIdForbidden](docs/PutCharactersCharacterIdCalendarEventIdForbidden.md)

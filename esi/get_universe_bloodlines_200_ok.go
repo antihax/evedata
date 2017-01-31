@@ -22,40 +22,39 @@
 
 package esi
 
-import (
-	"time"
-)
-
 /* 200 ok object */
-type GetCharactersCharacterIdOk struct {
-
-	/* The character's alliance ID */
-	AllianceId int32 `json:"alliance_id,omitempty"`
-
-	/* ancestry_id integer */
-	AncestryId int32 `json:"ancestry_id,omitempty"`
-
-	/* Creation date of the character */
-	Birthday time.Time `json:"birthday,omitempty"`
+type GetUniverseBloodlines200Ok struct {
 
 	/* bloodline_id integer */
 	BloodlineId int32 `json:"bloodline_id,omitempty"`
 
-	/* The character's corporation ID */
+	/* charisma integer */
+	Charisma int32 `json:"charisma,omitempty"`
+
+	/* corporation_id integer */
 	CorporationId int32 `json:"corporation_id,omitempty"`
 
 	/* description string */
 	Description string `json:"description,omitempty"`
 
-	/* gender string */
-	Gender string `json:"gender,omitempty"`
+	/* intelligence integer */
+	Intelligence int32 `json:"intelligence,omitempty"`
+
+	/* memory integer */
+	Memory int32 `json:"memory,omitempty"`
 
 	/* name string */
 	Name string `json:"name,omitempty"`
 
+	/* perception integer */
+	Perception int32 `json:"perception,omitempty"`
+
 	/* race_id integer */
 	RaceId int32 `json:"race_id,omitempty"`
 
-	/* security_status number */
-	SecurityStatus float32 `json:"security_status,omitempty"`
+	/* ship_type_id integer */
+	ShipTypeId int32 `json:"ship_type_id,omitempty"`
+
+	/* willpower integer */
+	Willpower int32 `json:"willpower,omitempty"`
 }

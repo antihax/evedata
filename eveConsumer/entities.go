@@ -161,7 +161,7 @@ func (c *EVEConsumer) entitySetKnown(id int32) error {
 // [TODO] Rewrite this as ESI matures
 // [TODO] bulk pull IDs
 func (c *EVEConsumer) entityGetAndSave(id int32) error {
-	entity, _, err := c.ctx.ESI.UniverseApi.PostUniverseNames(esi.PostUniverseNamesIds{Ids: []int32{id}}, nil)
+	entity, _, err := c.ctx.ESI.UniverseApi.PostUniverseNames([]int32{id}, nil)
 	if err != nil {
 		return err
 	}

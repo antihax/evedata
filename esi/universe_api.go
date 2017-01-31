@@ -39,6 +39,99 @@ var (
 type UniverseApiService service
 
 
+/* UniverseApiService Get bloodlines
+ Get a list of bloodlines
+
+---
+
+Alternate route: &#x60;/v1/universe/bloodlines/&#x60;
+
+Alternate route: &#x60;/legacy/universe/bloodlines/&#x60;
+
+Alternate route: &#x60;/dev/universe/bloodlines/&#x60;
+
+
+---
+
+This route is cached for up to 3600 seconds
+
+
+ @param optional (nil or map[string]interface{}) with one or more of:
+     @param "language" (string) Language to use in the response
+     @param "datasource" (string) The server name you would like data from
+ @return []GetUniverseBloodlines200Ok*/
+func (a UniverseApiService) GetUniverseBloodlines(localVarOptionals map[string]interface{}) ([]GetUniverseBloodlines200Ok,  *http.Response, error) {
+	var (
+		localVarHttpMethod = strings.ToUpper("Get")
+		localVarPostBody interface{}
+		localVarFileName string
+		localVarFileBytes []byte
+	 	successPayload  []GetUniverseBloodlines200Ok
+	)
+
+	// create path and map variables
+	localVarPath := a.client.basePath + "/universe/bloodlines/"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["language"], "string", "language"); err != nil {
+		return successPayload, nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["datasource"], "string", "datasource"); err != nil {
+		return successPayload, nil, err
+	}
+
+	if localVarTempParam, localVarOk := localVarOptionals["language"].(string); localVarOk {
+		localVarQueryParams.Add("language", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["datasource"].(string); localVarOk {
+		localVarQueryParams.Add("datasource", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{  }
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{
+		"application/json",
+		}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+
+	 r, err := a.client.prepareRequest(nil, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	 if err != nil {
+		  return successPayload, nil, err
+	 }
+
+	 localVarHttpResponse, err := a.client.callAPI(r)
+	 if err != nil || localVarHttpResponse == nil {
+		  return successPayload, localVarHttpResponse, err
+	 }
+	 defer localVarHttpResponse.Body.Close()
+	 if localVarHttpResponse.StatusCode >= 300 {
+		return successPayload, localVarHttpResponse, reportError(localVarHttpResponse.Status)
+	 }
+	
+	if err = json.NewDecoder(localVarHttpResponse.Body).Decode(&successPayload); err != nil {
+	 	return successPayload, localVarHttpResponse, err
+	}
+
+
+	return successPayload, localVarHttpResponse, err
+}
+
 /* UniverseApiService Get item categories
  Get a list of item categories
 
@@ -1131,9 +1224,9 @@ func (a UniverseApiService) GetUniverseTypesTypeId(typeId int32, localVarOptiona
 
 ---
 
-Alternate route: &#x60;/v1/universe/names/&#x60;
+Alternate route: &#x60;/v2/universe/names/&#x60;
 
-Alternate route: &#x60;/legacy/universe/names/&#x60;
+Alternate route: &#x60;/dev/universe/names/&#x60;
 
 
 
@@ -1141,7 +1234,7 @@ Alternate route: &#x60;/legacy/universe/names/&#x60;
  @param optional (nil or map[string]interface{}) with one or more of:
      @param "datasource" (string) The server name you would like data from
  @return []PostUniverseNames200Ok*/
-func (a UniverseApiService) PostUniverseNames(ids PostUniverseNamesIds, localVarOptionals map[string]interface{}) ([]PostUniverseNames200Ok,  *http.Response, error) {
+func (a UniverseApiService) PostUniverseNames(ids []int32, localVarOptionals map[string]interface{}) ([]PostUniverseNames200Ok,  *http.Response, error) {
 	var (
 		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody interface{}

@@ -22,9 +22,9 @@
 
 package esi
 
-/* Is not a character ID */
-type GetCharactersCharacterIdUnprocessableEntity struct {
+/* Internal server error */
+type GetUniverseBloodlinesInternalServerError struct {
 
-	/* error message */
+	/* Internal server error message */
 	Error_ string `json:"error,omitempty"`
 }

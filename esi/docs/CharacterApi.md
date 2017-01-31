@@ -19,9 +19,9 @@ Public information about a character
 
 ---
 
-Alternate route: `/v3/characters/{character_id}/`
+Alternate route: `/v4/characters/{character_id}/`
 
-Alternate route: `/legacy/characters/{character_id}/`
+Alternate route: `/dev/characters/{character_id}/`
 
 
 ---

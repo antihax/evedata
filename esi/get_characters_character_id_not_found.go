@@ -22,9 +22,9 @@
 
 package esi
 
-/* ids schema */
-type PostUniverseNamesIds struct {
+/* Not found */
+type GetCharactersCharacterIdNotFound struct {
 
-	/* ids array */
-	Ids []int32 `json:"ids,omitempty"`
+	/* Not found message */
+	Error_ string `json:"error,omitempty"`
 }

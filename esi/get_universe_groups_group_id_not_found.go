@@ -22,9 +22,9 @@
 
 package esi
 
-/* Group not found */
+/* Not found */
 type GetUniverseGroupsGroupIdNotFound struct {
 
-	/* error message */
+	/* Not found message */
 	Error_ string `json:"error,omitempty"`
 }

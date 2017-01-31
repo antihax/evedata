@@ -22,9 +22,9 @@
 
 package esi
 
-/* Type not found */
+/* Not found */
 type GetUniverseTypesTypeIdNotFound struct {
 
-	/* error message */
+	/* Not found message */
 	Error_ string `json:"error,omitempty"`
 }
