@@ -18,7 +18,7 @@ func TestAllianceAdd(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	err = UpdateCharacter(10, "Test Character", 1, 1, 4, 1, "Gallente", -10, time.Now())
+	err = UpdateCharacter(10, "Test Character", 1, 1, 4, 1, 1, "male", -10, time.Now())
 	if err != nil {
 		t.Error(err)
 		return

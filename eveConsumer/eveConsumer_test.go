@@ -73,12 +73,12 @@ func TestMain(m *testing.M) {
 	}
 
 	// 147035273 has some wars returned from the mock... lets throw these in.
-	err = models.UpdateCharacter(1001, "dude", 1, 1, 147035273, 0, "Gallente", -10, time.Now())
+	err = models.UpdateCharacter(1001, "dude", 1, 1, 147035273, 0, 1, "Female", -10, time.Now())
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
-	err = models.UpdateCharacter(1002, "dude 2", 1, 1, 147035273, 0, "Gallente", -10, time.Now())
+	err = models.UpdateCharacter(1002, "dude 2", 1, 1, 147035273, 0, 2, "Female", -10, time.Now())
 	if err != nil {
 		log.Fatal(err)
 		return

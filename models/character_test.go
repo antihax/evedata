@@ -51,7 +51,7 @@ func TestDeleteCRESTToken(t *testing.T) {
 }
 
 func TestUpdateCharacter(t *testing.T) {
-	err := UpdateCharacter(1001, "dude", 1, 1, 147035273, 0, "Gallente", -10, time.Now())
+	err := UpdateCharacter(1001, "dude", 1, 1, 147035273, 0, 1, "male", -10, time.Now())
 	if err != nil {
 		log.Fatal(err)
 		return
