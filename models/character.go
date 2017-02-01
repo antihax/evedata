@@ -69,15 +69,15 @@ func DeleteCRESTToken(characterID int64, tokenCharacterID int64) error {
 	return nil
 }
 
-func UpdateCharacter(characterID int64, name string, bloodlineID int64, ancestryID int64, corporationID int64, allianceID int64,
-	race string, securityStatus float64, cacheUntil time.Time) error {
+func UpdateCharacter(characterID int32, name string, bloodlineID int32, ancestryID int32, corporationID int32, allianceID int32,
+	race int32, gender string, securityStatus float32, cacheUntil time.Time) error {
 	cacheUntil = time.Now().UTC().Add(time.Hour * 24 * 5)
 	if _, err := database.Exec(`
-		INSERT INTO evedata.characters (characterID,name,bloodlineID,ancestryID,corporationID,allianceID,race,securityStatus,updated,cacheUntil)
-			VALUES(?,?,?,?,?,?,?,?,UTC_TIMESTAMP(),?) 
+		INSERT INTO evedata.characters (characterID,name,bloodlineID,ancestryID,corporationID,allianceID,race,gender,securityStatus,updated,cacheUntil)
+			VALUES(?,?,?,?,?,?,evedata.raceByID(?),?,?,UTC_TIMESTAMP(),?) 
 			ON DUPLICATE KEY UPDATE 
-			corporationID=VALUES(corporationID), allianceID=VALUES(allianceID), securityStatus=VALUES(securityStatus), updated = UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil)
-	`, characterID, name, bloodlineID, ancestryID, corporationID, allianceID, race, securityStatus, cacheUntil); err != nil {
+			corporationID=VALUES(corporationID), gender=VALUES(gender), allianceID=VALUES(allianceID), securityStatus=VALUES(securityStatus), updated = UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil)
+	`, characterID, name, bloodlineID, ancestryID, corporationID, allianceID, race, gender, securityStatus, cacheUntil); err != nil {
 		return err
 	}
 	return nil

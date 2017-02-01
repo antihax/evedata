@@ -309,7 +309,7 @@ func marketHistoryConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 
 	var values []string
 
-	ignoreBefore := time.Now().Add(time.Hour * 24 * -5)
+	ignoreBefore := time.Now().Add(time.Hour * 24 * -3)
 
 	for _, e := range h {
 		if e.Date.After(ignoreBefore) {

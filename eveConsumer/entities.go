@@ -173,7 +173,7 @@ func (c *EVEConsumer) entityGetAndSave(id int32) error {
 		} else if e.Category == "corporation" {
 			err = c.updateCorporation((int64)(e.Id))
 		} else if e.Category == "character" {
-			err = c.updateCharacter((int64)(e.Id))
+			err = c.updateCharacter(e.Id)
 		}
 
 		if err != nil {
@@ -240,15 +240,15 @@ func (c *EVEConsumer) updateCorporation(id int64) error {
 	return nil
 }
 
-func (c *EVEConsumer) updateCharacter(id int64) error {
+func (c *EVEConsumer) updateCharacter(id int32) error {
 	if id < 90000000 {
 		return nil
 	}
-	a, err := c.ctx.EVE.CharacterInfoXML(id)
+	a, _, err := c.ctx.ESI.CharacterApi.GetCharactersCharacterId(id, nil)
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with character id %d", err, id))
 	}
-	err = models.UpdateCharacter(a.CharacterID, a.CharacterName, a.BloodlineID, a.AncestryID, a.CorporationID, a.AllianceID, a.Race, a.SecurityStatus, time.Now().UTC().Add(time.Hour*24))
+	err = models.UpdateCharacter(id, a.Name, a.BloodlineId, a.AncestryId, a.CorporationId, a.AllianceId, a.RaceId, a.Gender, a.SecurityStatus, time.Now().UTC().Add(time.Hour*24))
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with character id %d", err, id))
 	}

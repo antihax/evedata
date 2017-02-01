@@ -133,5 +133,20 @@ func DumpDatabase(file string, db string) (err error) {
 		DELIMITER ;
 		`)
 
+	f.WriteString(`DELIMITER $$
+		CREATE FUNCTION raceByID(inRaceID int UNSIGNED) RETURNS VARCHAR(20) 
+			DETERMINISTIC
+		BEGIN
+			DECLARE race VARCHAR(20) ;
+			SELECT raceName INTO race
+				FROM eve.chrRaces 
+				WHERE raceID = inRaceID
+				LIMIT 1;
+			
+		RETURN race;
+		END$$
+		DELIMITER ;
+		`)
+
 	return
 }

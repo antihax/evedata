@@ -47,6 +47,7 @@ CREATE TABLE `characters` (
   `updated` datetime NOT NULL,
   `cacheUntil` datetime NOT NULL,
   `name` varchar(50) NOT NULL,
+  `gender` varchar(50) NOT NULL,
   PRIMARY KEY (`characterID`),
   KEY `cacheUntil` (`cacheUntil`),
   KEY `name` (`name`)
@@ -432,6 +433,19 @@ CREATE TABLE `wars` (
 				LIMIT 1;
 			
 		RETURN region;
+		END$$
+		DELIMITER ;
+		DELIMITER $$
+		CREATE FUNCTION raceByID(inRaceID int UNSIGNED) RETURNS VARCHAR(20) 
+			DETERMINISTIC
+		BEGIN
+			DECLARE race VARCHAR(20) ;
+			SELECT raceName INTO race
+				FROM eve.chrRaces 
+				WHERE raceID = inRaceID
+				LIMIT 1;
+			
+		RETURN race;
 		END$$
 		DELIMITER ;
 		

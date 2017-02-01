@@ -43,6 +43,7 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 					atomic.AddUint32(&errorRate, 1)
 				}
 				time.Sleep(time.Second * time.Duration(errorRate))
+				//models.AddHTTPError(req, res)
 			}
 		} else {
 			// Tick down the error rate.
