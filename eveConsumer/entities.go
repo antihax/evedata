@@ -169,7 +169,7 @@ func (c *EVEConsumer) entityGetAndSave(id int32) error {
 	for _, e := range entity {
 		h := "https://crest-tq.eveonline.com/" + fmt.Sprintf("%ss/%d/", e.Category, id)
 		if e.Category == "alliance" {
-			err = c.updateAlliance((int64)(e.Id))
+			err = c.updateAlliance(e.Id)
 		} else if e.Category == "corporation" {
 			err = c.updateCorporation((int64)(e.Id))
 		} else if e.Category == "character" {
@@ -187,9 +187,13 @@ func (c *EVEConsumer) entityGetAndSave(id int32) error {
 	return err
 }
 
-func (c *EVEConsumer) updateAlliance(id int64) error {
-	href := "https://crest-tq.eveonline.com/" + fmt.Sprintf("alliances/%d/", id)
-	a, err := c.ctx.EVE.Alliance(href)
+func (c *EVEConsumer) updateAlliance(id int32) error {
+	a, _, err := c.ctx.ESI.V2.AllianceApi.GetAlliancesAllianceId(id, nil)
+	if err != nil {
+		return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
+	}
+
+	corps, _, err := c.ctx.ESI.V1.AllianceApi.GetAlliancesAllianceIdCorporations(id, nil)
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
 	}
@@ -197,18 +201,14 @@ func (c *EVEConsumer) updateAlliance(id int64) error {
 	redis := c.ctx.Cache.Get()
 	defer redis.Close()
 
-	err = models.UpdateAlliance(a.ID, a.Name, a.CorporationsCount, a.ShortName, a.ExecutorCorporation.ID,
-		a.StartDate.UTC(), a.Deleted, a.Description, a.CreatorCorporation.ID, a.CreatorCharacter.ID, time.Now().UTC().Add(time.Hour*24))
-	if err != nil {
-		return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
-	}
-	err = EntityAddToQueue((int32)(a.CreatorCharacter.ID), redis)
+	err = models.UpdateAlliance(id, a.AllianceName, len(corps), a.Ticker, a.ExecutorCorp,
+		a.DateFounded, time.Now().UTC().Add(time.Hour*24))
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
 	}
 
-	for _, corp := range a.Corporations {
-		err = EntityAddToQueue((int32)(corp.ID), redis)
+	for _, corp := range corps {
+		err = EntityAddToQueue(corp, redis)
 		if err != nil {
 			return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
 		}

@@ -7,7 +7,7 @@ import (
 
 func TestAllianceAdd(t *testing.T) {
 	err := UpdateAlliance(1, "Test Alliance Please Ignore", 10, "TEST", 4,
-		time.Now(), false, "Some random alliance. Loses space a lot.", 3, 4, time.Now())
+		time.Now(), time.Now())
 	if err != nil {
 		t.Error(err)
 		return

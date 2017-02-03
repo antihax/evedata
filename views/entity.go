@@ -61,7 +61,6 @@ func alliancePage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 			errc <- err
 			return
 		}
-		ref.Description = strip.StripTags(ref.Description)
 		p["Alliance"] = ref
 		p["Title"] = ref.AllianceName
 		errc <- err
