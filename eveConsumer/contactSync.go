@@ -58,6 +58,7 @@ func contactSyncTrigger(c *EVEConsumer) (bool, error) {
 			log.Printf("Contact Sync: Failed scan: %v", err)
 			continue
 		}
+
 		_, err = r.Do("SADD", "EVEDATA_contactSyncQueue", fmt.Sprintf("%d:%s", source, dest))
 		if err != nil {
 			log.Printf("Contact Sync: Failed scan: %v", err)
@@ -151,7 +152,8 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 
 		// Get current contacts
 		for i := 1; ; i++ {
-			con, r, err := c.ctx.ESI.V1.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid), map[string]interface{}{"page": (int32)(i)})
+			var con []goesiv1.GetCharactersCharacterIdContacts200Ok
+			con, r, err = c.ctx.ESI.V1.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid), map[string]interface{}{"page": (int32)(i)})
 			if err != nil || r.StatusCode != 200 {
 				tokenError(source, token.cid, r, err)
 				return false, err

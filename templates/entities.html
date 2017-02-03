@@ -24,9 +24,6 @@
 						Alliance: <a href="/alliance?id={{.Corporation.AllianceID}}">{{.Corporation.AllianceName.String}}</a><br>
 					{{end}}
 				</dt>
-				<dd>
-					{{.Corporation.Description}}
-				</dd>
 			</dl>
 		</div>
 	</div>
@@ -76,7 +73,6 @@
 					<h2>{{.Alliance.AllianceName}}</h2>
 					Executor: <a href="/corporation?id={{.Alliance.ExecutorCorporationID}}">{{.Alliance.ExecutorCorporationName}}</a>
 				</dt>
-				<dd style ="white-space: pre-wrap;">{{.Alliance.Description}}</dd>
 			</dl>
 		</div>
 	</div>
