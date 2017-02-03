@@ -11,18 +11,7 @@ Method | HTTP request | Description
 > GetCharactersCharacterIdClonesOk GetCharactersCharacterIdClones(ctx, characterId, optional)
 Get clones
 
-A list of the character's clones
-
----
-
-Alternate route: `/v2/characters/{character_id}/clones/`
-
-Alternate route: `/dev/characters/{character_id}/clones/`
-
-
----
-
-This route is cached for up to 120 seconds
+A list of the character's clones  ---  Alternate route: `/v2/characters/{character_id}/clones/`  Alternate route: `/dev/characters/{character_id}/clones/`   ---  This route is cached for up to 120 seconds
 
 ### Required Parameters
 

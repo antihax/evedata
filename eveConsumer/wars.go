@@ -108,7 +108,7 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 
 	// Loop through all pages
 
-	wars, res, err := c.ctx.ESI.WarsApi.GetWars(nil)
+	wars, res, err := c.ctx.ESI.V1.WarsApi.GetWars(nil)
 	if err != nil {
 		return err
 	}
@@ -135,7 +135,7 @@ func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	}
 
 	// Get the war information
-	war, res, err := c.ctx.ESI.WarsApi.GetWarsWarId((int32)(v), nil)
+	war, res, err := c.ctx.ESI.V1.WarsApi.GetWarsWarId((int32)(v), nil)
 	if err != nil {
 		return false, err
 	}
@@ -208,7 +208,7 @@ func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 
 	// Loop through all the killmail pages
 	for i := 1; ; i++ {
-		kills, _, err := c.ctx.ESI.WarsApi.GetWarsWarIdKillmails(war.Id, map[string]interface{}{"page": (int32)(i)})
+		kills, _, err := c.ctx.ESI.V1.WarsApi.GetWarsWarIdKillmails(war.Id, map[string]interface{}{"page": (int32)(i)})
 		if err != nil {
 			return false, err
 		}

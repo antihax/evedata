@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/antihax/evedata/esi"
+	"github.com/antihax/evedata/esi/v1"
 	"github.com/antihax/evedata/models"
 	"github.com/garyburd/redigo/redis"
 
@@ -87,12 +88,12 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	}
 
 	// get the source character information
-	char, _, err := c.ctx.ESI.CharacterApi.GetCharactersCharacterId((int32)(source), nil)
+	char, _, err := c.ctx.ESI.V4.CharacterApi.GetCharactersCharacterId((int32)(source), nil)
 	if err != nil {
 		return false, err
 	}
 
-	corp, _, err := c.ctx.ESI.CorporationApi.GetCorporationsCorporationId(char.CorporationId, nil)
+	corp, _, err := c.ctx.ESI.V3.CorporationApi.GetCorporationsCorporationId(char.CorporationId, nil)
 	if err != nil {
 		return false, err
 	}
@@ -140,7 +141,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		// authentication token context for destination char
 		auth := context.WithValue(context.TODO(), esi.ContextOAuth2, *token.token)
 		var (
-			contacts []esi.GetCharactersCharacterIdContacts200Ok
+			contacts []esiv1.GetCharactersCharacterIdContacts200Ok
 			r        *http.Response
 			err      error
 		)
@@ -150,8 +151,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 
 		// Get current contacts
 		for i := 1; ; i++ {
-			var con []esi.GetCharactersCharacterIdContacts200Ok
-			con, r, err = c.ctx.ESI.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid), map[string]interface{}{"page": (int32)(i)})
+			con, r, err := c.ctx.ESI.V1.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid), map[string]interface{}{"page": (int32)(i)})
 			if err != nil || r.StatusCode != 200 {
 				tokenError(source, token.cid, r, err)
 				return false, err
@@ -228,7 +228,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		if len(erase) > 0 {
 			for start := 0; start < len(erase); start = start + 20 {
 				end := min(start+20, len(erase))
-				r, err = c.ctx.ESI.ContactsApi.DeleteCharactersCharacterIdContacts(auth, (int32)(token.cid), erase[start:end], nil)
+				r, err = c.ctx.ESI.V1.ContactsApi.DeleteCharactersCharacterIdContacts(auth, (int32)(token.cid), erase[start:end], nil)
 				if err != nil {
 					tokenError(source, token.cid, r, err)
 					return false, err
@@ -238,7 +238,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		if len(active) > 0 {
 			for start := 0; start < len(active); start = start + 100 {
 				end := min(start+100, len(active))
-				_, r, err = c.ctx.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), -10, active[start:end], nil)
+				_, r, err = c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), -10, active[start:end], nil)
 
 				if err != nil {
 					tokenError(source, token.cid, r, err)
@@ -249,7 +249,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		if len(pending) > 0 {
 			for start := 0; start < len(pending); start = start + 100 {
 				end := min(start+100, len(pending))
-				_, r, err = c.ctx.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), -5, pending[start:end], nil)
+				_, r, err = c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), -5, pending[start:end], nil)
 				if err != nil {
 					tokenError(source, token.cid, r, err)
 					return false, err
@@ -259,7 +259,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		if len(activeMove) > 0 {
 			for start := 0; start < len(activeMove); start = start + 20 {
 				end := min(start+20, len(activeMove))
-				r, err = c.ctx.ESI.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), -10, activeMove[start:end], nil)
+				r, err = c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), -10, activeMove[start:end], nil)
 				if err != nil {
 					tokenError(source, token.cid, r, err)
 					return false, err
@@ -269,7 +269,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		if len(pendingMove) > 0 {
 			for start := 0; start < len(pendingMove); start = start + 20 {
 				end := min(start+20, len(pendingMove))
-				r, err = c.ctx.ESI.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), -5, pendingMove[start:end], nil)
+				r, err = c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), -5, pendingMove[start:end], nil)
 				if err != nil {
 					tokenError(source, token.cid, r, err)
 					return false, err

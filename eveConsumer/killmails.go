@@ -102,7 +102,7 @@ func (c *EVEConsumer) initKillConsumer(r redis.Conn) {
 // Go get the killmail from CCP. Called from the queue consumer.
 func (c *EVEConsumer) killmailGetAndSave(id int32, hash string) error {
 	// Get the killmail from CCP
-	kill, r, err := c.ctx.ESI.KillmailsApi.GetKillmailsKillmailIdKillmailHash(id, hash, nil)
+	kill, r, err := c.ctx.ESI.V1.KillmailsApi.GetKillmailsKillmailIdKillmailHash(id, hash, nil)
 
 	// If we get a 500 error, add the mail back to the queue so we can try again later.
 	if r != nil {

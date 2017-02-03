@@ -13,24 +13,7 @@ Method | HTTP request | Description
 > []GetCharactersCharacterIdCalendar200Ok GetCharactersCharacterIdCalendar(ctx, characterId, optional)
 List calendar event summaries
 
-Get 50 event summaries from the calendar. If no event ID is given,
-the resource will return the next 50 chronological event summaries
-from now. If an event ID is specified, it will return the next 50
-chronological event summaries from after that event.
-
-
----
-
-Alternate route: `/v1/characters/{character_id}/calendar/`
-
-Alternate route: `/legacy/characters/{character_id}/calendar/`
-
-Alternate route: `/dev/characters/{character_id}/calendar/`
-
-
----
-
-This route is cached for up to 5 seconds
+Get 50 event summaries from the calendar. If no event ID is given, the resource will return the next 50 chronological event summaries from now. If an event ID is specified, it will return the next 50 chronological event summaries from after that event.   ---  Alternate route: `/v1/characters/{character_id}/calendar/`  Alternate route: `/legacy/characters/{character_id}/calendar/`  Alternate route: `/dev/characters/{character_id}/calendar/`   ---  This route is cached for up to 5 seconds
 
 ### Required Parameters
 
@@ -68,18 +51,7 @@ Name | Type | Description  | Notes
 > GetCharactersCharacterIdCalendarEventIdOk GetCharactersCharacterIdCalendarEventId(ctx, characterId, eventId, optional)
 Get an event
 
-Get all the information for a specific event
-
----
-
-Alternate route: `/v3/characters/{character_id}/calendar/{event_id}/`
-
-Alternate route: `/dev/characters/{character_id}/calendar/{event_id}/`
-
-
----
-
-This route is cached for up to 5 seconds
+Get all the information for a specific event  ---  Alternate route: `/v3/characters/{character_id}/calendar/{event_id}/`  Alternate route: `/dev/characters/{character_id}/calendar/{event_id}/`   ---  This route is cached for up to 5 seconds
 
 ### Required Parameters
 
@@ -118,14 +90,7 @@ Name | Type | Description  | Notes
 > PutCharactersCharacterIdCalendarEventId(ctx, characterId, eventId, response, optional)
 Respond to an event
 
-Set your response status to an event
-
----
-
-Alternate route: `/v3/characters/{character_id}/calendar/{event_id}/`
-
-Alternate route: `/dev/characters/{character_id}/calendar/{event_id}/`
-
+Set your response status to an event  ---  Alternate route: `/v3/characters/{character_id}/calendar/{event_id}/`  Alternate route: `/dev/characters/{character_id}/calendar/{event_id}/` 
 
 ### Required Parameters
 

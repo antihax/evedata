@@ -15,20 +15,7 @@ Method | HTTP request | Description
 > []int32 GetAlliances(optional)
 List all alliances
 
-List all active player alliances
-
----
-
-Alternate route: `/v1/alliances/`
-
-Alternate route: `/legacy/alliances/`
-
-Alternate route: `/dev/alliances/`
-
-
----
-
-This route is cached for up to 3600 seconds
+List all active player alliances  ---  Alternate route: `/v1/alliances/`  Alternate route: `/legacy/alliances/`  Alternate route: `/dev/alliances/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -62,16 +49,7 @@ No authorization required
 > GetAlliancesAllianceIdOk GetAlliancesAllianceId(allianceId, optional)
 Get alliance information
 
-Public information about an alliance
-
----
-
-Alternate route: `/v2/alliances/{alliance_id}/`
-
-
----
-
-This route is cached for up to 3600 seconds
+Public information about an alliance  ---  Alternate route: `/v2/alliances/{alliance_id}/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -107,20 +85,7 @@ No authorization required
 > []int32 GetAlliancesAllianceIdCorporations(allianceId, optional)
 List alliance's corporations
 
-List all current member corporations of an alliance
-
----
-
-Alternate route: `/v1/alliances/{alliance_id}/corporations/`
-
-Alternate route: `/legacy/alliances/{alliance_id}/corporations/`
-
-Alternate route: `/dev/alliances/{alliance_id}/corporations/`
-
-
----
-
-This route is cached for up to 3600 seconds
+List all current member corporations of an alliance  ---  Alternate route: `/v1/alliances/{alliance_id}/corporations/`  Alternate route: `/legacy/alliances/{alliance_id}/corporations/`  Alternate route: `/dev/alliances/{alliance_id}/corporations/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -156,20 +121,7 @@ No authorization required
 > GetAlliancesAllianceIdIconsOk GetAlliancesAllianceIdIcons(allianceId, optional)
 Get alliance icon
 
-Get the icon urls for a alliance
-
----
-
-Alternate route: `/v1/alliances/{alliance_id}/icons/`
-
-Alternate route: `/legacy/alliances/{alliance_id}/icons/`
-
-Alternate route: `/dev/alliances/{alliance_id}/icons/`
-
-
----
-
-This route is cached for up to 3600 seconds
+Get the icon urls for a alliance  ---  Alternate route: `/v1/alliances/{alliance_id}/icons/`  Alternate route: `/legacy/alliances/{alliance_id}/icons/`  Alternate route: `/dev/alliances/{alliance_id}/icons/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -205,20 +157,7 @@ No authorization required
 > []GetAlliancesNames200Ok GetAlliancesNames(allianceIds, optional)
 Get alliance names
 
-Resolve a set of alliance IDs to alliance names
-
----
-
-Alternate route: `/v1/alliances/names/`
-
-Alternate route: `/legacy/alliances/names/`
-
-Alternate route: `/dev/alliances/names/`
-
-
----
-
-This route is cached for up to 3600 seconds
+Resolve a set of alliance IDs to alliance names  ---  Alternate route: `/v1/alliances/names/`  Alternate route: `/legacy/alliances/names/`  Alternate route: `/dev/alliances/names/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 

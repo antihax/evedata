@@ -15,16 +15,7 @@ Method | HTTP request | Description
 > DeleteCharactersCharacterIdContacts(ctx, characterId, contactIds, optional)
 Delete contacts
 
-Bulk delete contacts
-
----
-
-Alternate route: `/v1/characters/{character_id}/contacts/`
-
-Alternate route: `/legacy/characters/{character_id}/contacts/`
-
-Alternate route: `/dev/characters/{character_id}/contacts/`
-
+Bulk delete contacts  ---  Alternate route: `/v1/characters/{character_id}/contacts/`  Alternate route: `/legacy/characters/{character_id}/contacts/`  Alternate route: `/dev/characters/{character_id}/contacts/` 
 
 ### Required Parameters
 
@@ -63,20 +54,7 @@ Name | Type | Description  | Notes
 > []GetCharactersCharacterIdContacts200Ok GetCharactersCharacterIdContacts(ctx, characterId, optional)
 Get contacts
 
-Return contacts of a character
-
----
-
-Alternate route: `/v1/characters/{character_id}/contacts/`
-
-Alternate route: `/legacy/characters/{character_id}/contacts/`
-
-Alternate route: `/dev/characters/{character_id}/contacts/`
-
-
----
-
-This route is cached for up to 300 seconds
+Return contacts of a character  ---  Alternate route: `/v1/characters/{character_id}/contacts/`  Alternate route: `/legacy/characters/{character_id}/contacts/`  Alternate route: `/dev/characters/{character_id}/contacts/`   ---  This route is cached for up to 300 seconds
 
 ### Required Parameters
 
@@ -114,20 +92,7 @@ Name | Type | Description  | Notes
 > []GetCharactersCharacterIdContactsLabels200Ok GetCharactersCharacterIdContactsLabels(ctx, characterId, optional)
 Get contact labels
 
-Return custom labels for contacts the character defined
-
----
-
-Alternate route: `/v1/characters/{character_id}/contacts/labels/`
-
-Alternate route: `/legacy/characters/{character_id}/contacts/labels/`
-
-Alternate route: `/dev/characters/{character_id}/contacts/labels/`
-
-
----
-
-This route is cached for up to 300 seconds
+Return custom labels for contacts the character defined  ---  Alternate route: `/v1/characters/{character_id}/contacts/labels/`  Alternate route: `/legacy/characters/{character_id}/contacts/labels/`  Alternate route: `/dev/characters/{character_id}/contacts/labels/`   ---  This route is cached for up to 300 seconds
 
 ### Required Parameters
 
@@ -164,16 +129,7 @@ Name | Type | Description  | Notes
 > []int32 PostCharactersCharacterIdContacts(ctx, characterId, standing, contactIds, optional)
 Add contacts
 
-Bulk add contacts with same settings
-
----
-
-Alternate route: `/v1/characters/{character_id}/contacts/`
-
-Alternate route: `/legacy/characters/{character_id}/contacts/`
-
-Alternate route: `/dev/characters/{character_id}/contacts/`
-
+Bulk add contacts with same settings  ---  Alternate route: `/v1/characters/{character_id}/contacts/`  Alternate route: `/legacy/characters/{character_id}/contacts/`  Alternate route: `/dev/characters/{character_id}/contacts/` 
 
 ### Required Parameters
 
@@ -216,16 +172,7 @@ Name | Type | Description  | Notes
 > PutCharactersCharacterIdContacts(ctx, characterId, standing, contactIds, optional)
 Edit contacts
 
-Bulk edit contacts with same settings
-
----
-
-Alternate route: `/v1/characters/{character_id}/contacts/`
-
-Alternate route: `/legacy/characters/{character_id}/contacts/`
-
-Alternate route: `/dev/characters/{character_id}/contacts/`
-
+Bulk edit contacts with same settings  ---  Alternate route: `/v1/characters/{character_id}/contacts/`  Alternate route: `/legacy/characters/{character_id}/contacts/`  Alternate route: `/dev/characters/{character_id}/contacts/` 
 
 ### Required Parameters
 

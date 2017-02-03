@@ -11,20 +11,7 @@ Method | HTTP request | Description
 > []GetCharactersCharacterIdWallets200Ok GetCharactersCharacterIdWallets(ctx, characterId, optional)
 List wallets and balances
 
-List your wallets and their balances. Characters typically have only one wallet, with wallet_id 1000 being the master wallet.
-
----
-
-Alternate route: `/v1/characters/{character_id}/wallets/`
-
-Alternate route: `/legacy/characters/{character_id}/wallets/`
-
-Alternate route: `/dev/characters/{character_id}/wallets/`
-
-
----
-
-This route is cached for up to 120 seconds
+List your wallets and their balances. Characters typically have only one wallet, with wallet_id 1000 being the master wallet.  ---  Alternate route: `/v1/characters/{character_id}/wallets/`  Alternate route: `/legacy/characters/{character_id}/wallets/`  Alternate route: `/dev/characters/{character_id}/wallets/`   ---  This route is cached for up to 120 seconds
 
 ### Required Parameters
 

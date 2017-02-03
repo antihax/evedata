@@ -24,20 +24,7 @@ Method | HTTP request | Description
 > []GetUniverseBloodlines200Ok GetUniverseBloodlines(optional)
 Get bloodlines
 
-Get a list of bloodlines
-
----
-
-Alternate route: `/v1/universe/bloodlines/`
-
-Alternate route: `/legacy/universe/bloodlines/`
-
-Alternate route: `/dev/universe/bloodlines/`
-
-
----
-
-This route is cached for up to 3600 seconds
+Get a list of bloodlines  ---  Alternate route: `/v1/universe/bloodlines/`  Alternate route: `/legacy/universe/bloodlines/`  Alternate route: `/dev/universe/bloodlines/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -72,20 +59,7 @@ No authorization required
 > []int32 GetUniverseCategories(optional)
 Get item categories
 
-Get a list of item categories
-
----
-
-Alternate route: `/v1/universe/categories/`
-
-Alternate route: `/legacy/universe/categories/`
-
-Alternate route: `/dev/universe/categories/`
-
-
----
-
-This route is cached for up to 3600 seconds
+Get a list of item categories  ---  Alternate route: `/v1/universe/categories/`  Alternate route: `/legacy/universe/categories/`  Alternate route: `/dev/universe/categories/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -119,20 +93,7 @@ No authorization required
 > GetUniverseCategoriesCategoryIdOk GetUniverseCategoriesCategoryId(categoryId, optional)
 Get item category information
 
-Get information of an item category
-
----
-
-Alternate route: `/v1/universe/categories/{category_id}/`
-
-Alternate route: `/legacy/universe/categories/{category_id}/`
-
-Alternate route: `/dev/universe/categories/{category_id}/`
-
-
----
-
-This route is cached for up to 3600 seconds
+Get information of an item category  ---  Alternate route: `/v1/universe/categories/{category_id}/`  Alternate route: `/legacy/universe/categories/{category_id}/`  Alternate route: `/dev/universe/categories/{category_id}/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -169,20 +130,7 @@ No authorization required
 > []GetUniverseFactions200Ok GetUniverseFactions(optional)
 Get factions
 
-Get a list of factions
-
----
-
-Alternate route: `/v1/universe/factions/`
-
-Alternate route: `/legacy/universe/factions/`
-
-Alternate route: `/dev/universe/factions/`
-
-
----
-
-This route is cached for up to 3600 seconds
+Get a list of factions  ---  Alternate route: `/v1/universe/factions/`  Alternate route: `/legacy/universe/factions/`  Alternate route: `/dev/universe/factions/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -217,20 +165,7 @@ No authorization required
 > []int32 GetUniverseGroups(optional)
 Get item groups
 
-Get a list of item groups
-
----
-
-Alternate route: `/v1/universe/groups/`
-
-Alternate route: `/legacy/universe/groups/`
-
-Alternate route: `/dev/universe/groups/`
-
-
----
-
-This route is cached for up to 3600 seconds
+Get a list of item groups  ---  Alternate route: `/v1/universe/groups/`  Alternate route: `/legacy/universe/groups/`  Alternate route: `/dev/universe/groups/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -265,20 +200,7 @@ No authorization required
 > GetUniverseGroupsGroupIdOk GetUniverseGroupsGroupId(groupId, optional)
 Get item group information
 
-Get information on an item group
-
----
-
-Alternate route: `/v1/universe/groups/{group_id}/`
-
-Alternate route: `/legacy/universe/groups/{group_id}/`
-
-Alternate route: `/dev/universe/groups/{group_id}/`
-
-
----
-
-This route is cached for up to 3600 seconds
+Get information on an item group  ---  Alternate route: `/v1/universe/groups/{group_id}/`  Alternate route: `/legacy/universe/groups/{group_id}/`  Alternate route: `/dev/universe/groups/{group_id}/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -315,20 +237,7 @@ No authorization required
 > []GetUniverseRaces200Ok GetUniverseRaces(optional)
 Get character races
 
-Get a list of character races
-
----
-
-Alternate route: `/v1/universe/races/`
-
-Alternate route: `/legacy/universe/races/`
-
-Alternate route: `/dev/universe/races/`
-
-
----
-
-This route is cached for up to 3600 seconds
+Get a list of character races  ---  Alternate route: `/v1/universe/races/`  Alternate route: `/legacy/universe/races/`  Alternate route: `/dev/universe/races/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -363,20 +272,7 @@ No authorization required
 > GetUniverseStationsStationIdOk GetUniverseStationsStationId(stationId, optional)
 Get station information
 
-Public information on stations
-
----
-
-Alternate route: `/v1/universe/stations/{station_id}/`
-
-Alternate route: `/legacy/universe/stations/{station_id}/`
-
-Alternate route: `/dev/universe/stations/{station_id}/`
-
-
----
-
-This route is cached for up to 3600 seconds
+Public information on stations  ---  Alternate route: `/v1/universe/stations/{station_id}/`  Alternate route: `/legacy/universe/stations/{station_id}/`  Alternate route: `/dev/universe/stations/{station_id}/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -412,20 +308,7 @@ No authorization required
 > []int64 GetUniverseStructures(optional)
 List all public structures
 
-List all public structures
-
----
-
-Alternate route: `/v1/universe/structures/`
-
-Alternate route: `/legacy/universe/structures/`
-
-Alternate route: `/dev/universe/structures/`
-
-
----
-
-This route is cached for up to 3600 seconds
+List all public structures  ---  Alternate route: `/v1/universe/structures/`  Alternate route: `/legacy/universe/structures/`  Alternate route: `/dev/universe/structures/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -459,16 +342,7 @@ No authorization required
 > GetUniverseStructuresStructureIdOk GetUniverseStructuresStructureId(ctx, structureId, optional)
 Get structure information
 
-Returns information on requested structure, if you are on the ACL. Otherwise, returns "Forbidden" for all inputs.
-
----
-
-Alternate route: `/v1/universe/structures/{structure_id}/`
-
-Alternate route: `/legacy/universe/structures/{structure_id}/`
-
-Alternate route: `/dev/universe/structures/{structure_id}/`
-
+Returns information on requested structure, if you are on the ACL. Otherwise, returns \"Forbidden\" for all inputs.  ---  Alternate route: `/v1/universe/structures/{structure_id}/`  Alternate route: `/legacy/universe/structures/{structure_id}/`  Alternate route: `/dev/universe/structures/{structure_id}/` 
 
 ### Required Parameters
 
@@ -505,20 +379,7 @@ Name | Type | Description  | Notes
 > GetUniverseSystemsSystemIdOk GetUniverseSystemsSystemId(systemId, optional)
 Get solar system information
 
-Information on solar systems
-
----
-
-Alternate route: `/v1/universe/systems/{system_id}/`
-
-Alternate route: `/legacy/universe/systems/{system_id}/`
-
-Alternate route: `/dev/universe/systems/{system_id}/`
-
-
----
-
-This route is cached for up to 3600 seconds
+Information on solar systems  ---  Alternate route: `/v1/universe/systems/{system_id}/`  Alternate route: `/legacy/universe/systems/{system_id}/`  Alternate route: `/dev/universe/systems/{system_id}/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -554,20 +415,7 @@ No authorization required
 > []int32 GetUniverseTypes(optional)
 Get types
 
-Get a list of type ids
-
----
-
-Alternate route: `/v1/universe/types/`
-
-Alternate route: `/legacy/universe/types/`
-
-Alternate route: `/dev/universe/types/`
-
-
----
-
-This route is cached for up to 3600 seconds
+Get a list of type ids  ---  Alternate route: `/v1/universe/types/`  Alternate route: `/legacy/universe/types/`  Alternate route: `/dev/universe/types/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -602,18 +450,7 @@ No authorization required
 > GetUniverseTypesTypeIdOk GetUniverseTypesTypeId(typeId, optional)
 Get type information
 
-Get information on a type
-
----
-
-Alternate route: `/v2/universe/types/{type_id}/`
-
-Alternate route: `/dev/universe/types/{type_id}/`
-
-
----
-
-This route is cached for up to 3600 seconds
+Get information on a type  ---  Alternate route: `/v2/universe/types/{type_id}/`  Alternate route: `/dev/universe/types/{type_id}/`   ---  This route is cached for up to 3600 seconds
 
 ### Required Parameters
 
@@ -650,14 +487,7 @@ No authorization required
 > []PostUniverseNames200Ok PostUniverseNames(ids, optional)
 Get names and categories for a set of ID's
 
-Resolve a set of IDs to names and categories. Supported ID's for resolving are: Characters, Corporations, Alliances, Stations, Solar Systems, Constellations, Regions, Types.
-
----
-
-Alternate route: `/v2/universe/names/`
-
-Alternate route: `/dev/universe/names/`
-
+Resolve a set of IDs to names and categories. Supported ID's for resolving are: Characters, Corporations, Alliances, Stations, Solar Systems, Constellations, Regions, Types.  ---  Alternate route: `/v2/universe/names/`  Alternate route: `/dev/universe/names/` 
 
 ### Required Parameters
 

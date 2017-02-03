@@ -19,16 +19,7 @@ Method | HTTP request | Description
 > DeleteCharactersCharacterIdMailLabelsLabelId(ctx, characterId, labelId, optional)
 Delete a mail label
 
-Delete a mail label
-
----
-
-Alternate route: `/v1/characters/{character_id}/mail/labels/{label_id}/`
-
-Alternate route: `/legacy/characters/{character_id}/mail/labels/{label_id}/`
-
-Alternate route: `/dev/characters/{character_id}/mail/labels/{label_id}/`
-
+Delete a mail label  ---  Alternate route: `/v1/characters/{character_id}/mail/labels/{label_id}/`  Alternate route: `/legacy/characters/{character_id}/mail/labels/{label_id}/`  Alternate route: `/dev/characters/{character_id}/mail/labels/{label_id}/` 
 
 ### Required Parameters
 
@@ -67,16 +58,7 @@ Name | Type | Description  | Notes
 > DeleteCharactersCharacterIdMailMailId(ctx, characterId, mailId, optional)
 Delete a mail
 
-Delete a mail
-
----
-
-Alternate route: `/v1/characters/{character_id}/mail/{mail_id}/`
-
-Alternate route: `/legacy/characters/{character_id}/mail/{mail_id}/`
-
-Alternate route: `/dev/characters/{character_id}/mail/{mail_id}/`
-
+Delete a mail  ---  Alternate route: `/v1/characters/{character_id}/mail/{mail_id}/`  Alternate route: `/legacy/characters/{character_id}/mail/{mail_id}/`  Alternate route: `/dev/characters/{character_id}/mail/{mail_id}/` 
 
 ### Required Parameters
 
@@ -115,20 +97,7 @@ Name | Type | Description  | Notes
 > []GetCharactersCharacterIdMail200Ok GetCharactersCharacterIdMail(ctx, characterId, optional)
 Return mail headers
 
-Return the 50 most recent mail headers belonging to the character that match the query criteria. Queries can be filtered by label, and last_mail_id can be used to paginate backwards.
-
----
-
-Alternate route: `/v1/characters/{character_id}/mail/`
-
-Alternate route: `/legacy/characters/{character_id}/mail/`
-
-Alternate route: `/dev/characters/{character_id}/mail/`
-
-
----
-
-This route is cached for up to 30 seconds
+Return the 50 most recent mail headers belonging to the character that match the query criteria. Queries can be filtered by label, and last_mail_id can be used to paginate backwards.  ---  Alternate route: `/v1/characters/{character_id}/mail/`  Alternate route: `/legacy/characters/{character_id}/mail/`  Alternate route: `/dev/characters/{character_id}/mail/`   ---  This route is cached for up to 30 seconds
 
 ### Required Parameters
 
@@ -167,18 +136,7 @@ Name | Type | Description  | Notes
 > GetCharactersCharacterIdMailLabelsOk GetCharactersCharacterIdMailLabels(ctx, characterId, optional)
 Get mail labels and unread counts
 
-Return a list of the users mail labels, unread counts for each label and a total unread count.
-
----
-
-Alternate route: `/v3/characters/{character_id}/mail/labels/`
-
-Alternate route: `/dev/characters/{character_id}/mail/labels/`
-
-
----
-
-This route is cached for up to 30 seconds
+Return a list of the users mail labels, unread counts for each label and a total unread count.  ---  Alternate route: `/v3/characters/{character_id}/mail/labels/`  Alternate route: `/dev/characters/{character_id}/mail/labels/`   ---  This route is cached for up to 30 seconds
 
 ### Required Parameters
 
@@ -215,21 +173,7 @@ Name | Type | Description  | Notes
 > []GetCharactersCharacterIdMailLists200Ok GetCharactersCharacterIdMailLists(ctx, characterId, optional)
 Return mailing list subscriptions
 
-Return all mailing lists that the character is subscribed to
-
-
----
-
-Alternate route: `/v1/characters/{character_id}/mail/lists/`
-
-Alternate route: `/legacy/characters/{character_id}/mail/lists/`
-
-Alternate route: `/dev/characters/{character_id}/mail/lists/`
-
-
----
-
-This route is cached for up to 120 seconds
+Return all mailing lists that the character is subscribed to   ---  Alternate route: `/v1/characters/{character_id}/mail/lists/`  Alternate route: `/legacy/characters/{character_id}/mail/lists/`  Alternate route: `/dev/characters/{character_id}/mail/lists/`   ---  This route is cached for up to 120 seconds
 
 ### Required Parameters
 
@@ -266,20 +210,7 @@ Name | Type | Description  | Notes
 > GetCharactersCharacterIdMailMailIdOk GetCharactersCharacterIdMailMailId(ctx, characterId, mailId, optional)
 Return a mail
 
-Return the contents of an EVE mail
-
----
-
-Alternate route: `/v1/characters/{character_id}/mail/{mail_id}/`
-
-Alternate route: `/legacy/characters/{character_id}/mail/{mail_id}/`
-
-Alternate route: `/dev/characters/{character_id}/mail/{mail_id}/`
-
-
----
-
-This route is cached for up to 30 seconds
+Return the contents of an EVE mail  ---  Alternate route: `/v1/characters/{character_id}/mail/{mail_id}/`  Alternate route: `/legacy/characters/{character_id}/mail/{mail_id}/`  Alternate route: `/dev/characters/{character_id}/mail/{mail_id}/`   ---  This route is cached for up to 30 seconds
 
 ### Required Parameters
 
@@ -318,16 +249,7 @@ Name | Type | Description  | Notes
 > int32 PostCharactersCharacterIdMail(ctx, characterId, mail, optional)
 Send a new mail
 
-Create and send a new mail
-
----
-
-Alternate route: `/v1/characters/{character_id}/mail/`
-
-Alternate route: `/legacy/characters/{character_id}/mail/`
-
-Alternate route: `/dev/characters/{character_id}/mail/`
-
+Create and send a new mail  ---  Alternate route: `/v1/characters/{character_id}/mail/`  Alternate route: `/legacy/characters/{character_id}/mail/`  Alternate route: `/dev/characters/{character_id}/mail/` 
 
 ### Required Parameters
 
@@ -366,16 +288,7 @@ Name | Type | Description  | Notes
 > int64 PostCharactersCharacterIdMailLabels(ctx, characterId, optional)
 Create a mail label
 
-Create a mail label
-
----
-
-Alternate route: `/v2/characters/{character_id}/mail/labels/`
-
-Alternate route: `/legacy/characters/{character_id}/mail/labels/`
-
-Alternate route: `/dev/characters/{character_id}/mail/labels/`
-
+Create a mail label  ---  Alternate route: `/v2/characters/{character_id}/mail/labels/`  Alternate route: `/legacy/characters/{character_id}/mail/labels/`  Alternate route: `/dev/characters/{character_id}/mail/labels/` 
 
 ### Required Parameters
 
@@ -413,16 +326,7 @@ Name | Type | Description  | Notes
 > PutCharactersCharacterIdMailMailId(ctx, characterId, mailId, contents, optional)
 Update metadata about a mail
 
-Update metadata about a mail
-
----
-
-Alternate route: `/v1/characters/{character_id}/mail/{mail_id}/`
-
-Alternate route: `/legacy/characters/{character_id}/mail/{mail_id}/`
-
-Alternate route: `/dev/characters/{character_id}/mail/{mail_id}/`
-
+Update metadata about a mail  ---  Alternate route: `/v1/characters/{character_id}/mail/{mail_id}/`  Alternate route: `/legacy/characters/{character_id}/mail/{mail_id}/`  Alternate route: `/dev/characters/{character_id}/mail/{mail_id}/` 
 
 ### Required Parameters
 

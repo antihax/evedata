@@ -114,7 +114,7 @@ func (c *EVEConsumer) entitiesFromCREST() error {
 	redis := c.ctx.Cache.Get()
 	defer redis.Close()
 
-	ids, res, err := c.ctx.ESI.AllianceApi.GetAlliances(nil)
+	ids, res, err := c.ctx.ESI.V1.AllianceApi.GetAlliances(nil)
 	if err != nil {
 		return err
 	}
@@ -161,7 +161,7 @@ func (c *EVEConsumer) entitySetKnown(id int32) error {
 // [TODO] Rewrite this as ESI matures
 // [TODO] bulk pull IDs
 func (c *EVEConsumer) entityGetAndSave(id int32) error {
-	entity, _, err := c.ctx.ESI.UniverseApi.PostUniverseNames([]int32{id}, nil)
+	entity, _, err := c.ctx.ESI.V2.UniverseApi.PostUniverseNames([]int32{id}, nil)
 	if err != nil {
 		return err
 	}
@@ -244,7 +244,7 @@ func (c *EVEConsumer) updateCharacter(id int32) error {
 	if id < 90000000 {
 		return nil
 	}
-	a, _, err := c.ctx.ESI.CharacterApi.GetCharactersCharacterId(id, nil)
+	a, _, err := c.ctx.ESI.V4.CharacterApi.GetCharactersCharacterId(id, nil)
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with character id %d", err, id))
 	}

@@ -12,20 +12,7 @@ Method | HTTP request | Description
 > []GetCharactersCharacterIdSkillqueue200Ok GetCharactersCharacterIdSkillqueue(ctx, characterId, optional)
 Get character's skill queue
 
-List the configured skill queue for the given character
-
----
-
-Alternate route: `/v2/characters/{character_id}/skillqueue/`
-
-Alternate route: `/legacy/characters/{character_id}/skillqueue/`
-
-Alternate route: `/dev/characters/{character_id}/skillqueue/`
-
-
----
-
-This route is cached for up to 120 seconds
+List the configured skill queue for the given character  ---  Alternate route: `/v2/characters/{character_id}/skillqueue/`  Alternate route: `/legacy/characters/{character_id}/skillqueue/`  Alternate route: `/dev/characters/{character_id}/skillqueue/`   ---  This route is cached for up to 120 seconds
 
 ### Required Parameters
 
@@ -62,18 +49,7 @@ Name | Type | Description  | Notes
 > GetCharactersCharacterIdSkillsOk GetCharactersCharacterIdSkills(ctx, characterId, optional)
 Get character skills
 
-List all trained skills for the given character
-
----
-
-Alternate route: `/v3/characters/{character_id}/skills/`
-
-Alternate route: `/dev/characters/{character_id}/skills/`
-
-
----
-
-This route is cached for up to 120 seconds
+List all trained skills for the given character  ---  Alternate route: `/v3/characters/{character_id}/skills/`  Alternate route: `/dev/characters/{character_id}/skills/`   ---  This route is cached for up to 120 seconds
 
 ### Required Parameters
 

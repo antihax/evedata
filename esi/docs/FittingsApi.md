@@ -13,16 +13,7 @@ Method | HTTP request | Description
 > DeleteCharactersCharacterIdFittingsFittingId(ctx, characterId, fittingId, optional)
 Delete fitting
 
-Delete a fitting from a character
-
----
-
-Alternate route: `/v1/characters/{character_id}/fittings/{fitting_id}/`
-
-Alternate route: `/legacy/characters/{character_id}/fittings/{fitting_id}/`
-
-Alternate route: `/dev/characters/{character_id}/fittings/{fitting_id}/`
-
+Delete a fitting from a character  ---  Alternate route: `/v1/characters/{character_id}/fittings/{fitting_id}/`  Alternate route: `/legacy/characters/{character_id}/fittings/{fitting_id}/`  Alternate route: `/dev/characters/{character_id}/fittings/{fitting_id}/` 
 
 ### Required Parameters
 
@@ -61,20 +52,7 @@ Name | Type | Description  | Notes
 > []GetCharactersCharacterIdFittings200Ok GetCharactersCharacterIdFittings(ctx, characterId, optional)
 Get fittings
 
-Return fittings of a character
-
----
-
-Alternate route: `/v1/characters/{character_id}/fittings/`
-
-Alternate route: `/legacy/characters/{character_id}/fittings/`
-
-Alternate route: `/dev/characters/{character_id}/fittings/`
-
-
----
-
-This route is cached for up to 300 seconds
+Return fittings of a character  ---  Alternate route: `/v1/characters/{character_id}/fittings/`  Alternate route: `/legacy/characters/{character_id}/fittings/`  Alternate route: `/dev/characters/{character_id}/fittings/`   ---  This route is cached for up to 300 seconds
 
 ### Required Parameters
 
@@ -111,16 +89,7 @@ Name | Type | Description  | Notes
 > PostCharactersCharacterIdFittingsCreated PostCharactersCharacterIdFittings(ctx, characterId, optional)
 Create fitting
 
-Save a new fitting for a character
-
----
-
-Alternate route: `/v1/characters/{character_id}/fittings/`
-
-Alternate route: `/legacy/characters/{character_id}/fittings/`
-
-Alternate route: `/dev/characters/{character_id}/fittings/`
-
+Save a new fitting for a character  ---  Alternate route: `/v1/characters/{character_id}/fittings/`  Alternate route: `/legacy/characters/{character_id}/fittings/`  Alternate route: `/dev/characters/{character_id}/fittings/` 
 
 ### Required Parameters
 

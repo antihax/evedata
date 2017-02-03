@@ -63,7 +63,7 @@ func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	var page int32 = 1
 	ctx := context.WithValue(context.TODO(), esi.ContextOAuth2, c.ctx.ESIPublicToken)
 	for {
-		b, res, err := c.ctx.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, v, map[string]interface{}{"page": page})
+		b, res, err := c.ctx.ESI.V1.MarketApi.GetMarketsStructuresStructureId(ctx, v, map[string]interface{}{"page": page})
 
 		// If we got an access denied, let's not touch it again for 24 hours.
 		if res != nil {
@@ -219,7 +219,7 @@ func marketOrderConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	var page int32 = 1
 	c.marketRegionAddRegion(v, time.Now().UTC().Unix()+(60*15), r)
 	for {
-		b, res, err := c.ctx.ESI.MarketApi.GetMarketsRegionIdOrders((int32)(v), "all", map[string]interface{}{"page": page})
+		b, res, err := c.ctx.ESI.V1.MarketApi.GetMarketsRegionIdOrders((int32)(v), "all", map[string]interface{}{"page": page})
 		if err != nil {
 			return false, err
 		} else if len(b) == 0 { // end of the pages
@@ -295,7 +295,7 @@ func marketHistoryConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	typeID, err := strconv.Atoi(data[1])
 
 	// Process Market History
-	h, _, err := c.ctx.ESI.MarketApi.GetMarketsRegionIdHistory((int32)(regionID), (int32)(typeID), nil)
+	h, _, err := c.ctx.ESI.V1.MarketApi.GetMarketsRegionIdHistory((int32)(regionID), (int32)(typeID), nil)
 	if err != nil {
 		// Something went wrong... let's try again..
 		r.Do("SADD", "EVEDATA_marketHistory", v)

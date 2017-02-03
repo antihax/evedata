@@ -15,14 +15,7 @@ Method | HTTP request | Description
 > PostUiAutopilotWaypoint(ctx, destinationId, clearOtherWaypoints, addToBeginning, optional)
 Set Autopilot Waypoint
 
-Set a solar system as autopilot waypoint
-
----
-
-Alternate route: `/v2/ui/autopilot/waypoint/`
-
-Alternate route: `/dev/ui/autopilot/waypoint/`
-
+Set a solar system as autopilot waypoint  ---  Alternate route: `/v2/ui/autopilot/waypoint/`  Alternate route: `/dev/ui/autopilot/waypoint/` 
 
 ### Required Parameters
 
@@ -63,16 +56,7 @@ Name | Type | Description  | Notes
 > PostUiOpenwindowContract(ctx, contractId, optional)
 Open Contract Window
 
-Open the contract window inside the client
-
----
-
-Alternate route: `/v1/ui/openwindow/contract/`
-
-Alternate route: `/legacy/ui/openwindow/contract/`
-
-Alternate route: `/dev/ui/openwindow/contract/`
-
+Open the contract window inside the client  ---  Alternate route: `/v1/ui/openwindow/contract/`  Alternate route: `/legacy/ui/openwindow/contract/`  Alternate route: `/dev/ui/openwindow/contract/` 
 
 ### Required Parameters
 
@@ -109,16 +93,7 @@ Name | Type | Description  | Notes
 > PostUiOpenwindowInformation(ctx, targetId, optional)
 Open Information Window
 
-Open the information window for a character, corporation or alliance inside the client
-
----
-
-Alternate route: `/v1/ui/openwindow/information/`
-
-Alternate route: `/legacy/ui/openwindow/information/`
-
-Alternate route: `/dev/ui/openwindow/information/`
-
+Open the information window for a character, corporation or alliance inside the client  ---  Alternate route: `/v1/ui/openwindow/information/`  Alternate route: `/legacy/ui/openwindow/information/`  Alternate route: `/dev/ui/openwindow/information/` 
 
 ### Required Parameters
 
@@ -155,16 +130,7 @@ Name | Type | Description  | Notes
 > PostUiOpenwindowMarketdetails(ctx, typeId, optional)
 Open Market Details
 
-Open the market details window for a specific typeID inside the client
-
----
-
-Alternate route: `/v1/ui/openwindow/marketdetails/`
-
-Alternate route: `/legacy/ui/openwindow/marketdetails/`
-
-Alternate route: `/dev/ui/openwindow/marketdetails/`
-
+Open the market details window for a specific typeID inside the client  ---  Alternate route: `/v1/ui/openwindow/marketdetails/`  Alternate route: `/legacy/ui/openwindow/marketdetails/`  Alternate route: `/dev/ui/openwindow/marketdetails/` 
 
 ### Required Parameters
 
@@ -201,16 +167,7 @@ Name | Type | Description  | Notes
 > PostUiOpenwindowNewmail(ctx, newMail, optional)
 Open New Mail Window
 
-Open the New Mail window, according to settings from the request if applicable
-
----
-
-Alternate route: `/v1/ui/openwindow/newmail/`
-
-Alternate route: `/legacy/ui/openwindow/newmail/`
-
-Alternate route: `/dev/ui/openwindow/newmail/`
-
+Open the New Mail window, according to settings from the request if applicable  ---  Alternate route: `/v1/ui/openwindow/newmail/`  Alternate route: `/legacy/ui/openwindow/newmail/`  Alternate route: `/dev/ui/openwindow/newmail/` 
 
 ### Required Parameters
 
