@@ -3,8 +3,8 @@ package eveConsumer
 import (
 	"time"
 
-	"github.com/antihax/evedata/esi"
 	"github.com/antihax/evedata/models"
+	"github.com/antihax/goesi"
 
 	"golang.org/x/net/context"
 )
@@ -22,7 +22,7 @@ func structuresTrigger(c *EVEConsumer) (bool, error) {
 	}
 
 	w, r, err := c.ctx.ESI.V1.UniverseApi.GetUniverseStructures(nil)
-	cache := esi.CacheExpires(r)
+	cache := goesi.CacheExpires(r)
 	if err != nil {
 		return false, err
 	}
@@ -67,7 +67,7 @@ func structuresTrigger(c *EVEConsumer) (bool, error) {
 }
 
 func (c *EVEConsumer) updateStructure(s int64) error {
-	ctx := context.WithValue(context.TODO(), esi.ContextOAuth2, c.ctx.ESIPublicToken)
+	ctx := context.WithValue(context.TODO(), goesi.ContextOAuth2, c.ctx.ESIPublicToken)
 	struc, _, err := c.ctx.ESI.V1.UniverseApi.GetUniverseStructuresStructureId(ctx, s, nil)
 	if err != nil {
 		return err
@@ -100,7 +100,7 @@ func (c *EVEConsumer) updateStructure(s int64) error {
 }
 
 func (c *EVEConsumer) updateStation(s int64) error {
-	ctx := context.WithValue(context.TODO(), esi.ContextOAuth2, c.ctx.ESIPublicToken)
+	ctx := context.WithValue(context.TODO(), goesi.ContextOAuth2, c.ctx.ESIPublicToken)
 	struc, _, err := c.ctx.ESI.V1.UniverseApi.GetUniverseStructuresStructureId(ctx, s, nil)
 	if err != nil {
 		return err

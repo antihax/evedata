@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/antihax/evedata/config"
-	"github.com/antihax/evedata/esi"
 	"github.com/antihax/evedata/eveapi"
 	"github.com/antihax/evedata/models"
+	"github.com/antihax/goesi"
 	"github.com/gregjones/httpcache"
 	httpredis "github.com/gregjones/httpcache/redis"
 
@@ -28,7 +28,7 @@ type AppContext struct {
 	EVE            *eveapi.EVEAPIClient // EVE API Client
 	HTTPClient     *http.Client         // Redis Cached HTTP client
 	Cache          *redis.Pool          // Redis connection Pool for HTTP Cache and session store.
-	ESI            *esi.APIClient
+	ESI            *goesi.APIClient
 	ESIPublicToken oauth2.TokenSource
 
 	// Since we need to combine data from multiple characters, we use
@@ -83,7 +83,7 @@ func NewTestAppContext() AppContext {
 	}
 
 	// Setup the EVE ESI Client
-	ctx.ESI = esi.NewAPIClient(ctx.HTTPClient, "EVEData.Org Test Client (If you can see me.. something broke)")
+	ctx.ESI = goesi.NewAPIClient(ctx.HTTPClient, "EVEData.Org Test Client (If you can see me.. something broke)")
 	ctx.ESI.ChangeBasePath("http://127.0.0.1:8080/latest")
 
 	// Create a memcached session store.

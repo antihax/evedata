@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/antihax/evedata/esi"
-	"github.com/antihax/evedata/esi/v1"
 	"github.com/antihax/evedata/models"
+	"github.com/antihax/goesi"
+	"github.com/antihax/goesi/v1"
 	"github.com/garyburd/redigo/redis"
 
 	"golang.org/x/oauth2"
@@ -139,9 +139,9 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	// Loop through all the destinations
 	for _, token := range tokens {
 		// authentication token context for destination char
-		auth := context.WithValue(context.TODO(), esi.ContextOAuth2, *token.token)
+		auth := context.WithValue(context.TODO(), goesi.ContextOAuth2, *token.token)
 		var (
-			contacts []esiv1.GetCharactersCharacterIdContacts200Ok
+			contacts []goesiv1.GetCharactersCharacterIdContacts200Ok
 			r        *http.Response
 			err      error
 		)
@@ -165,7 +165,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		// Update cache time.
 		if r != nil {
 			contactSync := &models.ContactSync{Source: source, Destination: token.cid}
-			err := contactSync.Updated(esi.CacheExpires(r))
+			err := contactSync.Updated(goesi.CacheExpires(r))
 			if err != nil {
 				return false, err
 			}

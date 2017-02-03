@@ -12,10 +12,10 @@ import (
 	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/config"
 	"github.com/antihax/evedata/discord"
-	"github.com/antihax/evedata/esi"
 	"github.com/antihax/evedata/eveConsumer"
 	"github.com/antihax/evedata/eveapi"
 	"github.com/antihax/evedata/models"
+	"github.com/antihax/goesi"
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/context"
@@ -148,7 +148,7 @@ func GoServer() {
 		tokenScopes)
 
 	// Setup the EVE ESI Client
-	ctx.ESI = esi.NewAPIClient(ctx.HTTPClient, ctx.Conf.UserAgent)
+	ctx.ESI = goesi.NewAPIClient(ctx.HTTPClient, ctx.Conf.UserAgent)
 
 	// Setup the bootstrap authenticator. Needed to update the site main token.
 	ctx.ESIBootstrapAuthenticator = eveapi.NewSSOAuthenticator(

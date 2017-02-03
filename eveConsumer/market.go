@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/antihax/evedata/esi"
 	"github.com/antihax/evedata/models"
+	"github.com/antihax/goesi"
 	"github.com/garyburd/redigo/redis"
 )
 
@@ -61,7 +61,7 @@ func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	}
 
 	var page int32 = 1
-	ctx := context.WithValue(context.TODO(), esi.ContextOAuth2, c.ctx.ESIPublicToken)
+	ctx := context.WithValue(context.TODO(), goesi.ContextOAuth2, c.ctx.ESIPublicToken)
 	for {
 		b, res, err := c.ctx.ESI.V1.MarketApi.GetMarketsStructuresStructureId(ctx, v, map[string]interface{}{"page": page})
 
@@ -112,7 +112,7 @@ func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 			log.Printf("%s", err)
 			continue
 		}
-		_, err = tx.Exec("UPDATE evedata.structures SET marketCacheUntil = ?  WHERE stationID = ?", esi.CacheExpires(res), v)
+		_, err = tx.Exec("UPDATE evedata.structures SET marketCacheUntil = ?  WHERE stationID = ?", goesi.CacheExpires(res), v)
 
 		err = models.RetryTransaction(tx)
 		if err != nil {
@@ -265,7 +265,7 @@ func marketOrderConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		}
 
 		// Cache the greater of one hour, or the returned cache-control
-		cacheUntil := max(time.Now().UTC().Add(time.Hour*1).Unix(), esi.CacheExpires(res).UTC().Unix())
+		cacheUntil := max(time.Now().UTC().Add(time.Hour*1).Unix(), goesi.CacheExpires(res).UTC().Unix())
 		c.marketRegionAddRegion(v, cacheUntil, r)
 
 		// Next page

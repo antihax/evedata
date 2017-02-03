@@ -3,8 +3,8 @@ package eveConsumer
 import (
 	"time"
 
-	"github.com/antihax/evedata/esi"
 	"github.com/antihax/evedata/models"
+	"github.com/antihax/goesi"
 	"github.com/garyburd/redigo/redis"
 )
 
@@ -116,7 +116,7 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 		c.warAddToQueue(id)
 	}
 
-	models.SetServiceState("wars", esi.CacheExpires(res), 1)
+	models.SetServiceState("wars", goesi.CacheExpires(res), 1)
 
 	return nil
 }
@@ -164,7 +164,7 @@ func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 					mutual=VALUES(mutual), 
 					cacheUntil=VALUES(cacheUntil);`,
 		war.Id, war.Finished.Format(models.SQLTimeFormat), war.Started, war.Declared,
-		war.OpenForAllies, esi.CacheExpires(res), aggressor,
+		war.OpenForAllies, goesi.CacheExpires(res), aggressor,
 		defender, war.Mutual)
 	if err != nil {
 		return false, err

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/antihax/evedata/esi"
 	"github.com/antihax/evedata/models"
+	"github.com/antihax/goesi"
 	"github.com/garyburd/redigo/redis"
 )
 
@@ -120,7 +120,7 @@ func (c *EVEConsumer) entitiesFromCREST() error {
 	}
 
 	// Update state so we dont have two polling at once.
-	err = models.SetServiceState("alliances", esi.CacheExpires(res).UTC(), 1)
+	err = models.SetServiceState("alliances", goesi.CacheExpires(res).UTC(), 1)
 	if err != nil {
 		return err
 	}
