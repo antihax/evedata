@@ -93,7 +93,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		return false, err
 	}
 
-	corp, _, err := c.ctx.ESI.V3.CorporationApi.GetCorporationsCorporationId(char.CorporationId, nil)
+	corp, _, err := c.ctx.ESI.V2.CorporationApi.GetCorporationsCorporationId(char.CorporationId, nil)
 	if err != nil {
 		return false, err
 	}
@@ -139,7 +139,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	// Loop through all the destinations
 	for _, token := range tokens {
 		// authentication token context for destination char
-		auth := context.WithValue(context.TODO(), goesi.ContextOAuth2, *token.token)
+		auth := context.WithValue(context.TODO(), goesiv1.ContextOAuth2, *token.token)
 		var (
 			contacts []goesiv1.GetCharactersCharacterIdContacts200Ok
 			r        *http.Response

@@ -35,6 +35,7 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	if res != nil {
 		if res.StatusCode >= 400 {
 			metricApiErrors.Inc()
+			//	models.AddHTTPError(req, res)
 
 			// Tick up the error rate and sleep proportionally to the error count.
 			if res.StatusCode >= 500 || res.StatusCode == 000 {
@@ -43,7 +44,6 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 					atomic.AddUint32(&errorRate, 1)
 				}
 				time.Sleep(time.Second * time.Duration(errorRate))
-				//models.AddHTTPError(req, res)
 			}
 		} else {
 			// Tick down the error rate.

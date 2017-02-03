@@ -9,6 +9,7 @@ import (
 
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
+	"github.com/antihax/goesi/v1"
 	"github.com/garyburd/redigo/redis"
 )
 
@@ -52,7 +53,7 @@ func assetsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	token, err := c.getToken(char, tokenChar)
 
 	// Put the token into a context for the API client
-	auth := context.WithValue(context.TODO(), goesi.ContextOAuth2, token)
+	auth := context.WithValue(context.TODO(), goesiv1.ContextOAuth2, token)
 
 	assets, res, err := c.ctx.ESI.V1.AssetsApi.GetCharactersCharacterIdAssets(auth, (int32)(tokenChar), nil)
 	if err != nil {
