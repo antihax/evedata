@@ -60,7 +60,7 @@ func (c *EVEConsumer) updateWars() error {
 		if err != nil {
 			return err
 		}
-
+		r.Do("SREM", "EVEDATA_knownFinishedWars", id)
 		c.warAddToQueue(id)
 	}
 	return nil
@@ -108,15 +108,34 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 
 	// Loop through all pages
 
+	var lastID int32
 	wars, res, err := c.ctx.ESI.V1.WarsApi.GetWars(nil)
 	if err != nil {
 		return err
 	}
 	for _, id := range wars {
+		if lastID >= id || lastID == 0 {
+			lastID = id
+		}
 		c.warAddToQueue(id)
 	}
-
 	models.SetServiceState("wars", goesi.CacheExpires(res), 1)
+
+	for {
+		wars, res, err = c.ctx.ESI.V1.WarsApi.GetWars(map[string]interface{}{"max_war_id": lastID})
+		if err != nil {
+			return err
+		}
+		for _, id := range wars {
+			if lastID >= id || lastID == 0 {
+				lastID = id
+			}
+			c.warAddToQueue(id)
+		}
+		if lastID < 1000 {
+			break
+		}
+	}
 
 	return nil
 }
@@ -191,7 +210,7 @@ func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 			ally = a.CorporationId
 		}
 
-		_, err = c.ctx.Db.Exec(`INSERT IGNORE INTO evedata.warAllies (id, allyID) VALUES(?,?);`, war.Id, ally)
+		_, err = c.ctx.Db.Exec(`INSERT INTO evedata.warAllies (id, allyID) VALUES(?,?) ON DUPLICATE KEY UPDATE id = id;`, war.Id, ally)
 		if err != nil {
 			return false, err
 		}
