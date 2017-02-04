@@ -74,7 +74,7 @@ func assetsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 
 		// Dump all assets into the DB.
 		for _, asset := range assets {
-			values = append(values, fmt.Sprintf("(%d,%d,%d,%d,'%s',%d,'%s',%v)",
+			values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%q,%d,%q,%v)",
 				asset.LocationId, asset.TypeId, asset.Quantity, tokenChar,
 				asset.LocationFlag, asset.ItemId, asset.LocationType, asset.IsSingleton))
 		}

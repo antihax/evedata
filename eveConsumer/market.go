@@ -89,7 +89,7 @@ func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 			} else {
 				buy = 0
 			}
-			values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,'%s',%d,%d,evedata.regionIDByStructureID(%d),UTC_TIMESTAMP())",
+			values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,%q,%d,%d,evedata.regionIDByStructureID(%d),UTC_TIMESTAMP())",
 				e.OrderId, e.Price, e.VolumeRemain, e.TypeId, e.VolumeTotal, e.MinVolume,
 				buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, e.LocationId))
 		}
@@ -234,7 +234,7 @@ func marketOrderConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 			} else {
 				buy = 0
 			}
-			values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,'%s',%d,%d,%d,UTC_TIMESTAMP())",
+			values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,%q,%d,%d,%d,UTC_TIMESTAMP())",
 				e.OrderId, e.Price, e.VolumeRemain, e.TypeId, e.VolumeTotal, e.MinVolume,
 				buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, (int32)(v)))
 		}
@@ -314,7 +314,7 @@ func marketHistoryConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 
 	for _, e := range h {
 		if e.Date.After(ignoreBefore) {
-			values = append(values, fmt.Sprintf("('%s',%f,%f,%f,%d,%d,%d,%d)",
+			values = append(values, fmt.Sprintf("(%q,%f,%f,%f,%d,%d,%d,%d)",
 				e.Date.Format("2006-01-02"), e.Lowest, e.Highest, e.Average,
 				e.Volume, e.OrderCount, typeID, regionID))
 		}

@@ -104,23 +104,32 @@ func walletsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		if err != nil {
 			return false, err
 		}
+
+		var values []string
+
 		for _, wallet := range wallets.Entries {
 			if wallet.RefID < fromID || fromID == 0 {
 				fromID = wallet.RefID
 			}
-
-			_, err := tx.Exec(`INSERT INTO evedata.walletJournal
-								(characterID, refID, refTypeID, ownerID1, ownerID2,
-								argID1, argName1, amount, balance,
-								reason, taxReceiverID, taxAmount, date)
-								VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE characterID=characterID;`,
+			values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%q,%f,%f,%q,%d,%f,%q)",
 				tokenChar, wallet.RefID, wallet.RefTypeID, wallet.OwnerID1, wallet.OwnerID2,
 				wallet.ArgID1, wallet.ArgName1, wallet.Amount, wallet.Balance,
-				wallet.Reason, wallet.TaxReceiverID, wallet.TaxAmount, wallet.Date.UTC())
+				wallet.Reason, wallet.TaxReceiverID, wallet.TaxAmount, wallet.Date.UTC().Format(models.SQLTimeFormat)))
 			if err != nil {
 				log.Printf("Wallets: %v %d\n", err, wallet.ArgID1)
 				break
 			}
+		}
+
+		stmt := fmt.Sprintf(`INSERT INTO evedata.walletJournal
+								(characterID, refID, refTypeID, ownerID1, ownerID2,
+								argID1, argName1, amount, balance,
+								reason, taxReceiverID, taxAmount, date)
+								VALUES %s ON DUPLICATE KEY UPDATE characterID=characterID;`, strings.Join(values, ",\n"))
+
+		_, err = tx.Exec(stmt)
+		if err != nil {
+			return false, err
 		}
 
 		_, err = tx.Exec(`UPDATE evedata.crestTokens SET walletCacheUntil = ?
@@ -156,23 +165,29 @@ func walletsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		if err != nil {
 			return false, err
 		}
+
+		var values []string
+
 		for _, transaction := range transactions.Entries {
 			if transaction.TransactionID < fromID || fromID == 0 {
 				fromID = transaction.TransactionID
 			}
 
-			_, err := tx.Exec(`INSERT INTO evedata.walletTransactions
+			values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%f,%d,%d,%q,%q,%d,%q,%d)",
+				tokenChar, transaction.TransactionID, transaction.Quantity, transaction.TypeID, transaction.Price,
+				transaction.ClientID, transaction.StationID, transaction.TransactionType,
+				transaction.TransactionFor, transaction.JournalTransactionID, transaction.TransactionDateTime.UTC().Format(models.SQLTimeFormat), transaction.ClientTypeID))
+		}
+
+		stmt := fmt.Sprintf(`INSERT INTO evedata.walletTransactions
 								(characterID, transactionID, quantity, typeID, price,
 								clientID,  stationID, transactionType,
 								transactionFor, journalTransactionID, transactionDateTime, clientTypeID)
-								VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE characterID=characterID;`,
-				tokenChar, transaction.TransactionID, transaction.Quantity, transaction.TypeID, transaction.Price,
-				transaction.ClientID, transaction.StationID, transaction.TransactionType,
-				transaction.TransactionFor, transaction.JournalTransactionID, transaction.TransactionDateTime.UTC(), transaction.ClientTypeID)
-			if err != nil {
-				log.Printf("Wallets: %v\n", err)
-				break
-			}
+								VALUES %s ON DUPLICATE KEY UPDATE characterID=characterID;`, strings.Join(values, ",\n"))
+
+		_, err = tx.Exec(stmt)
+		if err != nil {
+			return false, err
 		}
 
 		_, err = tx.Exec(`UPDATE evedata.crestTokens SET walletCacheUntil = ?
