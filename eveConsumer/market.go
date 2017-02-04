@@ -69,7 +69,7 @@ func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		// If we got an access denied, let's not touch it again for 24 hours.
 		if res != nil {
 			if res.StatusCode == 403 || res.StatusCode == 401 {
-				_, err = c.ctx.Db.Exec("UPDATE evedata.structures SET marketCacheUntil = ? WHERE stationID = ?", time.Now().Add(time.Hour*4), v)
+				_, err = c.ctx.Db.Exec("UPDATE evedata.structures SET marketCacheUntil = ? WHERE stationID = ?", time.Now().UTC().Add(time.Hour*4), v)
 				return false, err
 			}
 		}
@@ -310,7 +310,7 @@ func marketHistoryConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 
 	var values []string
 
-	ignoreBefore := time.Now().Add(time.Hour * 24 * -3)
+	ignoreBefore := time.Now().UTC().Add(time.Hour * 24 * -3)
 
 	for _, e := range h {
 		if e.Date.After(ignoreBefore) {

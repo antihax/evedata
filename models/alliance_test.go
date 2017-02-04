@@ -7,18 +7,18 @@ import (
 
 func TestAllianceAdd(t *testing.T) {
 	err := UpdateAlliance(1, "Test Alliance Please Ignore", 10, "TEST", 4,
-		time.Now(), time.Now())
+		time.Now().UTC(), time.Now().UTC())
 	if err != nil {
 		t.Error(err)
 		return
 	}
 	err = UpdateCorporation(4, "Test Executor", "TEST2", 10, 60000004,
-		"Test Executor Corp", 1, 0, "somewhere", 50, 1000, time.Now())
+		"Test Executor Corp", 1, 0, "somewhere", 50, 1000, time.Now().UTC())
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	err = UpdateCharacter(10, "Test Character", 1, 1, 4, 1, 1, "male", -10, time.Now())
+	err = UpdateCharacter(10, "Test Character", 1, 1, 4, 1, 1, "male", -10, time.Now().UTC())
 	if err != nil {
 		t.Error(err)
 		return

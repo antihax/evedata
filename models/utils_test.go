@@ -13,7 +13,7 @@ func TestRetryTransaction(t *testing.T) {
 	}
 	_, err = tx.Exec(`
 		INSERT INTO evedata.states (nextCheck, value, state)VALUES(?,?,?) ON DUPLICATE KEY UPDATE nextCheck=VALUES(nextCheck), value=VALUES(value)
-	`, time.Now(), 1, "testTransactionState")
+	`, time.Now().UTC(), 1, "testTransactionState")
 	if err != nil {
 		t.Error(err)
 		return

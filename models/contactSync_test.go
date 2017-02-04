@@ -19,7 +19,7 @@ func TestGetContactSyncs(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	err = syncs[0].Updated(time.Now())
+	err = syncs[0].Updated(time.Now().UTC())
 	if err != nil {
 		t.Error(err)
 		return

@@ -6,7 +6,7 @@ import (
 )
 
 func TestAddKillmail(t *testing.T) {
-	err := AddKillmail(1, 1, time.Now(), 1, 1, 1, "FAKEHASH", 1, 2323, 1.0, 1.0, 1.0, 10, 1)
+	err := AddKillmail(1, 1, time.Now().UTC(), 1, 1, 1, "FAKEHASH", 1, 2323, 1.0, 1.0, 1.0, 10, 1)
 	if err != nil {
 		t.Error(err)
 		return

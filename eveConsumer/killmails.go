@@ -116,7 +116,7 @@ func (c *EVEConsumer) killmailGetAndSave(id int32, hash string) error {
 	}
 
 	save := true
-	old := time.Now().Add(time.Hour * -(24 * 365))
+	old := time.Now().UTC().Add(time.Hour * -(24 * 365))
 	if kill.KillmailTime.UTC().Before(old) {
 		save = false
 	}

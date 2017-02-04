@@ -6,7 +6,7 @@ import (
 )
 
 func TestSetServiceState(t *testing.T) {
-	err := SetServiceState("testState", time.Now(), 1)
+	err := SetServiceState("testState", time.Now().UTC(), 1)
 	if err != nil {
 		t.Error(err)
 		return

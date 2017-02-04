@@ -102,7 +102,7 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 	nextCheck, _, err := models.GetServiceState("wars")
 	if err != nil {
 		return err
-	} else if nextCheck.After(time.Now()) { // Check if the cache timer has expired
+	} else if nextCheck.After(time.Now().UTC()) { // Check if the cache timer has expired
 		return nil
 	}
 
@@ -221,7 +221,7 @@ func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	}
 
 	// If the war ended, cache the ID in redis to prevent needlessly pulling
-	if war.Finished.IsZero() == false && war.Finished.Before(time.Now()) {
+	if war.Finished.IsZero() == false && war.Finished.Before(time.Now().UTC()) {
 		r.Do("SADD", "EVEDATA_knownFinishedWars", war.Id)
 	}
 

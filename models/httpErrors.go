@@ -16,7 +16,7 @@ func AddHTTPError(req *http.Request, res *http.Response) error {
 	}
 	_, err = database.Exec(`INSERT INTO evedata.httpErrors 
                     (url, status, request, response, time) 
-                    VALUES(?,?,?,?,NOW());`,
+                    VALUES(?,?,?,?,UTC_TIMESTAMP());`,
 		req.URL.String(), res.StatusCode, reqText, resText)
 	return err
 }

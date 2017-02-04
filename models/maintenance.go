@@ -230,7 +230,7 @@ func MaintMarket() error {
         REPLACE INTO evedata.market_vol (
             SELECT count(*) as number,sum(quantity)/7 as quantity, regionID, itemID 
                 FROM evedata.market_history 
-                WHERE date > DATE_SUB(NOW(),INTERVAL 7 DAY) 
+                WHERE date > DATE_SUB(UTC_TIMESTAMP(),INTERVAL 7 DAY) 
                 GROUP BY regionID, itemID);
             `); err != nil {
 		return err

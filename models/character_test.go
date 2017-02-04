@@ -12,7 +12,7 @@ func TestAddCRESTToken(t *testing.T) {
 	tok := eveapi.CRESTToken{
 		AccessToken:  "FAKE",
 		RefreshToken: "So Fake",
-		Expiry:       time.Now().Add(time.Hour * 100000),
+		Expiry:       time.Now().UTC().Add(time.Hour * 100000),
 		TokenType:    "Bearer"}
 
 	err := AddCRESTToken(1, 1, "Dude", &tok, "")

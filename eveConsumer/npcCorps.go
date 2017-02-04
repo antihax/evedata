@@ -15,7 +15,7 @@ func npcCorpTrigger(c *EVEConsumer) (bool, error) {
 	nextCheck, _, err := models.GetServiceState("npcCorps")
 	if err != nil {
 		return false, err
-	} else if nextCheck.After(time.Now()) {
+	} else if nextCheck.After(time.Now().UTC()) {
 		return false, nil
 	}
 

@@ -18,7 +18,7 @@ func structuresTrigger(c *EVEConsumer) (bool, error) {
 	nextCheck, _, err := models.GetServiceState("structures")
 	if err != nil {
 		return false, err
-	} else if nextCheck.After(time.Now()) {
+	} else if nextCheck.After(time.Now().UTC()) {
 		return false, nil
 	}
 
@@ -88,7 +88,7 @@ func (c *EVEConsumer) updateStructure(s int64) error {
 	// Insert into our table for tracking.
 	_, err = c.ctx.Db.Exec(`INSERT INTO evedata.structures
 					(stationID, solarSystemID, stationName, x, y, z, updated)
-					VALUES(?,?,?,?,?,?, now())
+					VALUES(?,?,?,?,?,?, UTC_TIMESTAMP())
 					ON DUPLICATE KEY UPDATE stationName=VALUES(stationName),solarSystemID=VALUES(solarSystemID),
 					x=VALUES(x),y=VALUES(y),z=VALUES(z);`,
 		s, struc.SolarSystemId, struc.Name, struc.Position.X, struc.Position.Y, struc.Position.Z)

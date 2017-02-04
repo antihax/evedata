@@ -37,7 +37,7 @@ func GetServiceState(service string) (time.Time, int32, error) {
 			WHERE state = ?
 			LIMIT 1;
 		`, service); err != nil {
-		return time.Now(), 0, err
+		return time.Now().UTC(), 0, err
 	}
 	return r.NextCheck, r.Value, nil
 }

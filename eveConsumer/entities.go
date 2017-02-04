@@ -108,7 +108,7 @@ func (c *EVEConsumer) entitiesFromCREST() error {
 	nextCheck, _, err := models.GetServiceState("alliances")
 	if err != nil {
 		return err
-	} else if nextCheck.After(time.Now()) {
+	} else if nextCheck.After(time.Now().UTC()) {
 		return nil
 	}
 	redis := c.ctx.Cache.Get()
