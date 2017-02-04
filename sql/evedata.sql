@@ -138,7 +138,7 @@ CREATE TABLE `httpErrors` (
   `response` text,
   `time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2761 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3736 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `iskPerLp` (
   `itemName` varchar(100) NOT NULL,

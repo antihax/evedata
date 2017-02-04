@@ -46,11 +46,7 @@ func arbitrageCalculatorStations(c *appContext.AppContext, w http.ResponseWriter
 }
 
 func arbitrageCalculator(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-	setCache(w, 60*15)
-	hours, err := strconv.ParseInt(r.FormValue("hours"), 10, 64)
-	if err != nil {
-		return http.StatusInternalServerError, err
-	}
+	setCache(w, 60*30)
 
 	stationID, err := strconv.ParseInt(r.FormValue("stationID"), 10, 64)
 	if err != nil {
@@ -80,7 +76,7 @@ func arbitrageCalculator(c *appContext.AppContext, w http.ResponseWriter, r *htt
 	brokersFee = brokersFee / 100
 	tax = tax / 100
 
-	v, err := models.GetArbitrageCalculator(hours, stationID, minVolume, maxPrice, brokersFee, tax)
+	v, err := models.GetArbitrageCalculator(stationID, minVolume, maxPrice, brokersFee, tax)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}

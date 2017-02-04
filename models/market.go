@@ -57,7 +57,7 @@ type ArbitrageCalculator struct {
 	Margin   string `db:"margin" json:"margin" `
 }
 
-func GetArbitrageCalculator(hours int64, stationID int64, minVolume int64, maxPrice int64, brokersFee float64, tax float64) ([]ArbitrageCalculator, error) {
+func GetArbitrageCalculator(stationID int64, minVolume int64, maxPrice int64, brokersFee float64, tax float64) ([]ArbitrageCalculator, error) {
 	type buys struct {
 		TypeID   int64   `db:"typeID"`
 		TypeName string  `db:"typeName"`
@@ -82,12 +82,11 @@ func GetArbitrageCalculator(hours int64, stationID int64, minVolume int64, maxPr
 		WHERE   market.typeID = market_vol.itemID AND
 		        market.regionID = market_vol.regionID AND
 		        market.typeID = invTypes.typeID AND
-		        reported >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL ? DAY_HOUR) AND
 		        market.stationID = ?
 		        AND bid = 1
 		        AND market_vol.quantity /2 > ?
 		GROUP BY market.typeID
-		HAVING price < ?`, brokersFee, hours, stationID, minVolume, maxPrice)
+		HAVING price < ?`, brokersFee, stationID, minVolume, maxPrice)
 
 		errc <- err
 	}()
@@ -99,11 +98,10 @@ func GetArbitrageCalculator(hours int64, stationID int64, minVolume int64, maxPr
 		err := database.Select(&s, `
 		SELECT  typeID, ROUND(min(price) - (min(price) * ?) - (min(price) * ?),2) AS price
 		FROM    evedata.market
-		WHERE   reported >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL ? DAY_HOUR) AND
-		        market.stationID = ?
+		WHERE   market.stationID = ?
 		        AND bid = 0
 		        AND price < ?
-		        GROUP BY typeID`, brokersFee, tax, hours, stationID, maxPrice)
+		        GROUP BY typeID`, brokersFee, tax, stationID, maxPrice)
 
 		// Add broker fee to all orders.
 		for _, order := range s {
