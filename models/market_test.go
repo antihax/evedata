@@ -19,7 +19,7 @@ func TestGetArbitrageCalculatorStations(t *testing.T) {
 }
 
 func TestGetGetArbitrageCalculator(t *testing.T) {
-	_, err := GetArbitrageCalculator(999, 1, 1, 1999999999, 1, 1)
+	_, err := GetArbitrageCalculator(999, 1, 1999999999, 1, 1)
 	if err != nil {
 		t.Error(err)
 		return
