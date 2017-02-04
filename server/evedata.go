@@ -75,6 +75,7 @@ func GoServer() {
 		}).DialContext,
 		IdleConnTimeout:       60 * time.Second,
 		TLSHandshakeTimeout:   10 * time.Second,
+		ResponseHeaderTimeout: 60 * time.Second,
 		ExpectContinueTimeout: 0,
 		MaxIdleConnsPerHost:   100,
 	}, &ctx}
