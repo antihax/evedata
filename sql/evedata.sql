@@ -22,7 +22,7 @@ CREATE TABLE `alliances` (
 CREATE TABLE `assets` (
   `locationID` bigint(20) unsigned NOT NULL,
   `typeID` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `quantity` int(10) unsigned NOT NULL DEFAULT '0',
+  `quantity` bigint(20) NOT NULL DEFAULT '0',
   `characterID` int(10) unsigned NOT NULL DEFAULT '0',
   `locationFlag` varchar(40) NOT NULL,
   `itemID` bigint(20) unsigned NOT NULL,

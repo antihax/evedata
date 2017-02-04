@@ -328,18 +328,15 @@ func marketHistoryConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 
 	tx, err := models.Begin()
 	if err != nil {
-		log.Printf("%s", err)
 		return false, err
 	}
 	_, err = tx.Exec(stmt)
 	if err != nil {
-		log.Printf("%s", err)
 		return false, err
 	}
 
 	err = models.RetryTransaction(tx)
 	if err != nil {
-		log.Printf("%s", err)
 		return false, err
 	}
 

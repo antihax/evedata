@@ -70,14 +70,22 @@ func assetsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		// Delete all the current assets. Reinsert everything.
 		tx.Exec("DELETE FROM evedata.assets WHERE characterID = ?", tokenChar)
 
+		var values []string
+
 		// Dump all assets into the DB.
 		for _, asset := range assets {
-			tx.Exec(`INSERT INTO evedata.assets
+			values = append(values, fmt.Sprintf("(%d,%d,%d,%d,'%s',%d,'%s',%v)",
+				asset.LocationId, asset.TypeId, asset.Quantity, tokenChar,
+				asset.LocationFlag, asset.ItemId, asset.LocationType, asset.IsSingleton))
+		}
+		stmt := fmt.Sprintf(`INSERT INTO evedata.assets
 							(locationID, typeID, quantity, characterID, 
 							locationFlag, itemID, locationType, isSingleton)
-							VALUES (?,?,?,?,?,?,?,?);`,
-				asset.LocationId, asset.TypeId, asset.Quantity, tokenChar,
-				asset.LocationFlag, asset.ItemId, asset.LocationType, asset.IsSingleton)
+		VALUES %s ON DUPLICATE KEY UPDATE locationID = locationID`, strings.Join(values, ",\n"))
+
+		_, err = tx.Exec(stmt)
+		if err != nil {
+			return false, err
 		}
 
 		// Update our cacheUntil flag
