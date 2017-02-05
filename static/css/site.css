@@ -12,7 +12,7 @@ body {
 }
 
 a {
-    color: #03739c;
+    color: #DAE0EB;
     text-decoration: none;
 }
 
@@ -25,7 +25,8 @@ a:hover {
 }
 
 .insideContainer {
-	border: 1px solid black;
+	border: 2px solid black;
+    border-radius: 8px;
 }
 
 .table-of-contents li {
