@@ -3,6 +3,7 @@ package views
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -13,13 +14,13 @@ import (
 )
 
 func init() {
-	evedata.AddRoute("logout", "GET", "/logout", logout)
+	evedata.AddAuthRoute("logout", "GET", "/logout", logout)
 
-	evedata.AddRoute("eveAuth", "GET", "/eveAuth", eveSSO)
-	evedata.AddRoute("eveSSOAnswer", "GET", "/eveSSOAnswer", eveSSOAnswer)
+	evedata.AddAuthRoute("eveAuth", "GET", "/eveAuth", eveSSO)
+	evedata.AddAuthRoute("eveSSOAnswer", "GET", "/eveSSOAnswer", eveSSOAnswer)
 
-	evedata.AddRoute("eveTokenAuth", "GET", "/eveTokenAuth", eveCRESTToken)
-	evedata.AddRoute("eveTokenAnswer", "GET", "/eveTokenAnswer", eveTokenAnswer)
+	evedata.AddAuthRoute("eveTokenAuth", "GET", "/eveTokenAuth", eveCRESTToken)
+	evedata.AddAuthRoute("eveTokenAnswer", "GET", "/eveTokenAnswer", eveTokenAnswer)
 }
 
 func logout(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
@@ -77,13 +78,40 @@ func eveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 	s.Values["characterID"] = v.CharacterID
 	s.Values["token"] = tok
 
-	err = s.Save(r, w)
-	if err != nil {
+	if err = updateAccountInfo(s, v.CharacterID); err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	if err = s.Save(r, w); err != nil {
 		return http.StatusInternalServerError, err
 	}
 
 	http.Redirect(w, r, "/account", 302)
 	return http.StatusMovedPermanently, nil
+}
+
+type accountInformation struct {
+	CharacterID   int64                  `json:"characterID"`
+	CharacterName string                 `json:"characterName"`
+	Characters    []models.CRESTToken    `json:"characters"`
+	Cursor        models.CursorCharacter `json:"cursor"`
+}
+
+func updateAccountInfo(s *sessions.Session, characterID int64) error {
+	var err error
+	a := accountInformation{}
+
+	a.CharacterID = characterID
+	a.Characters, err = models.GetCRESTTokens(characterID)
+	if err != nil {
+		return err
+	}
+
+	a.Cursor, err = models.GetCursorCharacter(characterID)
+	b, err := json.Marshal(a)
+	s.Values["accountInfo"] = b
+
+	return err
 }
 
 func eveCRESTToken(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {

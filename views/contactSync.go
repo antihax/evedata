@@ -16,14 +16,14 @@ import (
 
 func init() {
 	evedata.AddRoute("ContactSync", "GET", "/contactSync", contactSyncPage)
-	evedata.AddRoute("ContactSync", "PUT", "/U/contactSync", apiAddContactSync)
-	evedata.AddRoute("ContactSync", "GET", "/U/contactSync", apiGetContactSyncs)
-	evedata.AddRoute("ContactSync", "DELETE", "/U/contactSync", apiDeleteContactSync)
+	evedata.AddAuthRoute("ContactSync", "PUT", "/U/contactSync", apiAddContactSync)
+	evedata.AddAuthRoute("ContactSync", "GET", "/U/contactSync", apiGetContactSyncs)
+	evedata.AddAuthRoute("ContactSync", "DELETE", "/U/contactSync", apiDeleteContactSync)
 }
 
-func contactSyncPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func contactSyncPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	setCache(w, 60*60)
-	p := newPage(s, r, "Contact Copiers")
+	p := newPage(r, "Contact Copiers")
 	templates.Templates = template.Must(template.ParseFiles("templates/contactSync.html", templates.LayoutPath))
 
 	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {

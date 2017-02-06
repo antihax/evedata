@@ -10,8 +10,6 @@ import (
 	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
-
-	"github.com/gorilla/sessions"
 )
 
 func init() {
@@ -22,8 +20,8 @@ func init() {
 }
 
 // marketBrowser generates.... stuff
-func marketBrowser(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-	p := newPage(s, r, "EVE Online Market Browser")
+func marketBrowser(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+	p := newPage(r, "EVE Online Market Browser")
 
 	templates.Templates = template.Must(template.ParseFiles("templates/marketBrowser.html", templates.LayoutPath))
 	err := templates.Templates.ExecuteTemplate(w, "base", p)
@@ -47,7 +45,7 @@ type ARows struct {
 	Rows *[]marketItemList `json:"rows"`
 }
 
-func searchitemsPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func searchitemsPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	var q string
 	q = r.FormValue("q")
 
@@ -185,12 +183,12 @@ func marketRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.
 
 // MarketSellRegionItems Query market sell orders for a user specified
 // regionID and itemID query string and return JSON to the user
-func MarketSellRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func MarketSellRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	return marketRegionItems(c, w, r, false)
 }
 
 // MarketBuyRegionItems Query market buy orders for a user specified
 // regionID and itemID query string and return JSON to the user
-func MarketBuyRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func MarketBuyRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	return marketRegionItems(c, w, r, true)
 }

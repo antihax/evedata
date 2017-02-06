@@ -9,8 +9,6 @@ import (
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
-
-	"github.com/gorilla/sessions"
 )
 
 func init() {
@@ -18,8 +16,8 @@ func init() {
 	evedata.AddRoute("wars", "GET", "/J/activeWars", activeWars)
 }
 
-func activeWarsPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-	p := newPage(s, r, "Active Wars")
+func activeWarsPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+	p := newPage(r, "Active Wars")
 
 	templates.Templates = template.Must(template.ParseFiles("templates/wars.html", templates.LayoutPath))
 	err := templates.Templates.ExecuteTemplate(w, "base", p)
@@ -31,7 +29,7 @@ func activeWarsPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 	return http.StatusOK, nil
 }
 
-func activeWars(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func activeWars(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	setCache(w, 60*60)
 	v, err := models.GetActiveWarList()
 	if err != nil {

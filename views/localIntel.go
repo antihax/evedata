@@ -16,7 +16,6 @@ import (
 	"github.com/antihax/evedata/templates"
 
 	"github.com/garyburd/redigo/redis"
-	"github.com/gorilla/sessions"
 )
 
 func init() {
@@ -25,9 +24,9 @@ func init() {
 	evedata.AddRoute("localIntel", "GET", "/J/localIntel", localIntel)
 }
 
-func localIntelPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func localIntelPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	setCache(w, 60*60)
-	p := newPage(s, r, "Local Intel Summary")
+	p := newPage(r, "Local Intel Summary")
 	hash := r.FormValue("hash")
 	if hash != "" {
 		p["HashURL"] = "/J/localIntel?hash=" + hash
@@ -43,7 +42,7 @@ func localIntelPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 	return http.StatusOK, nil
 }
 
-func localIntel(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func localIntel(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	setCache(w, 60*30)
 	hash := r.FormValue("hash")
 	red := c.Cache.Get()

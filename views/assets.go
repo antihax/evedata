@@ -17,14 +17,14 @@ import (
 
 func init() {
 	evedata.AddRoute("assets", "GET", "/assets", assetsPage)
-	evedata.AddRoute("assets", "GET", "/U/assets", assetsAPI)
-	evedata.AddRoute("assets", "GET", "/U/assetLocations", assetLocationsAPI)
-	evedata.AddRoute("assets", "GET", "/U/assetCharacters", assetCharactersAPI)
+	evedata.AddAuthRoute("assets", "GET", "/U/assets", assetsAPI)
+	evedata.AddAuthRoute("assets", "GET", "/U/assetLocations", assetLocationsAPI)
+	evedata.AddAuthRoute("assets", "GET", "/U/assetCharacters", assetCharactersAPI)
 }
 
-func assetsPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func assetsPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	setCache(w, 60*60)
-	p := newPage(s, r, "Asset Information")
+	p := newPage(r, "Asset Information")
 	templates.Templates = template.Must(template.ParseFiles("templates/assets.html", templates.LayoutPath))
 
 	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {

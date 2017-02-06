@@ -14,10 +14,16 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-type appFunc func(*appContext.AppContext, http.ResponseWriter, *http.Request, *sessions.Session) (int, error)
+type appFunc func(*appContext.AppContext, http.ResponseWriter, *http.Request) (int, error)
 type appHandler struct {
 	*appContext.AppContext
 	h appFunc
+}
+
+type appAuthFunc func(*appContext.AppContext, http.ResponseWriter, *http.Request, *sessions.Session) (int, error)
+type appAuthHandler struct {
+	*appContext.AppContext
+	h appAuthFunc
 }
 
 type route struct {
@@ -27,7 +33,16 @@ type route struct {
 	HandlerFunc appFunc
 }
 
-var availableRoutes []route
+type authRoute struct {
+	Name        string
+	Method      string
+	Pattern     string
+	HandlerFunc appAuthFunc
+}
+
+var routes []route
+var authRoutes []authRoute
+
 var notFoundHandler *route
 
 func init() {
@@ -36,7 +51,11 @@ func init() {
 }
 
 func AddRoute(name string, method string, pattern string, handlerFunc appFunc) {
-	availableRoutes = append(availableRoutes, route{name, method, pattern, handlerFunc})
+	routes = append(routes, route{name, method, pattern, handlerFunc})
+}
+
+func AddAuthRoute(name string, method string, pattern string, handlerFunc appAuthFunc) {
+	authRoutes = append(authRoutes, authRoute{name, method, pattern, handlerFunc})
 }
 
 func AddNotFoundHandler(handlerFunc appFunc) {
@@ -44,6 +63,24 @@ func AddNotFoundHandler(handlerFunc appFunc) {
 }
 
 func (a appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	redisCon := ctx.Cache.Get()
+	defer redisCon.Close()
+
+	// Make a random hash to store the time to redis
+	b := make([]byte, 32)
+	rand.Read(b)
+
+	redisCon.Do("ZADD", "EVEDATA_HTTPRequest", time.Now().UTC().Unix(), b)
+
+	status, err := a.h(a.AppContext, w, r)
+	if err != nil {
+		log.Printf("HTTP %d: %q", status, err)
+		http.Error(w, err.Error(), status)
+		return
+	}
+}
+
+func (a appAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	redisCon := ctx.Cache.Get()
 	defer redisCon.Close()
 
@@ -64,12 +101,22 @@ func (a appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func NewRouter(ctx *appContext.AppContext) *mux.Router {
 	router := mux.NewRouter().StrictSlash(false)
-	for _, route := range availableRoutes {
+	// Add public routes
+	for _, route := range routes {
 		router.
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(appHandler{ctx, route.HandlerFunc})
+	}
+
+	// Add authenticted routes
+	for _, route := range authRoutes {
+		router.
+			Methods(route.Method).
+			Path(route.Pattern).
+			Name(route.Name).
+			Handler(appAuthHandler{ctx, route.HandlerFunc})
 	}
 
 	// prometheus handler

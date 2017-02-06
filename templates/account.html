@@ -1,72 +1,59 @@
 {{define "body"}} 
-	{{ if .CharacterID }} 
-	    <div class="table-responsive">
-	        <p class="toolbar cresttokenToolbar" id="cresttokenToolbar">Characters <a class="addcrest btn btn-default" href=
-	        "javascript:">Add Character</a></p>
-	        <table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".cresttokenToolbar"
-	        	data-url="/U/CRESTTokens" id="cresttable">
-	            <thead>
-	                <tr>
-	                    <th data-field="characterName">Name</th>
-	                    <th data-field="lastStatus">Last Status</th>
-	                    <th data-align="center" data-events="actionEvents"
-	                    data-field="action" data-formatter="CRESTTokenFormatter">
-	                    Action</th>
-	                </tr>
-	            </thead>
-	        </table>
-	    <p style="font-size: 12px">Note: You will need to press CANCEL on the EVE Logon to relog on and add characters from alternate accounts.</p>
-	  
-	    </div>
+	<div class="table-responsive">
+		<p class="toolbar cresttokenToolbar" id="cresttokenToolbar">Characters <a class="addcrest btn btn-default" href=
+		"javascript:">Add Character</a></p>
+		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".cresttokenToolbar"
+			data-url="/U/CRESTTokens" id="cresttable">
+			<thead>
+				<tr>
+					<th data-field="characterName">Name</th>
+					<th data-field="lastStatus">Last Status</th>
+					<th data-align="center" data-events="actionEvents"
+					data-field="action" data-formatter="CRESTTokenFormatter">
+					Action</th>
+				</tr>
+			</thead>
+		</table>
+	<p style="font-size: 12px">Note: You will need to press CANCEL on the EVE Logon to relog on and add characters from alternate accounts.</p>
+	
+	</div>
 
-	    <script>
-	        var 	$cresttable = $('#cresttable').bootstrapTable({url: "/U/crestTokens"}, "changeLocale", "en_US");
-	                
-	        $(function () {
-	        	// crest token click event
-	            $('.addcrest').click(function () {
-	                window.location.replace("/eveTokenAuth");
-	            });
-	            
-	        });
-	        
-	        function queryParams(params) {
-	            return {};
-	        }
-	        function CRESTTokenFormatter(value) {
-	            return [
-	                '<a class="removecrest" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
-	            ].join('');
-	        }
-	        // update and delete events
-	        window.actionEvents = {
-	            'click .removecrest': function (e, value, row) {
-	                if (confirm('Are you sure you want to delete this token?')) {
-	                    $.ajax({
-	                        url: "/U/crestTokens?tokenCharacterID=" + row.tokenCharacterID,
-	                        type: 'delete',
-	                        success: function () {
-	                            $cresttable.bootstrapTable('refresh');
-	                            showAlert('Delete item successful!', 'success');
-	                        },
-	                        error: function () {
-	                            showAlert('Delete item error!', 'danger');
-	                        }
-	                    })
-	                }
-	            }
-	        };
-	        
-	        function showAlert(message, type) {
-	            $.growl(message,{
-	                // settings
-	                type: type,
-	                delay: 4000,
-	            });
-	        }
-	    </script>
-    
-	{{ else }} 
-		{{template "not-logged-in" .}} 
-	{{ end }} 
+	<script>
+		var 	$cresttable = $('#cresttable').bootstrapTable({url: "/U/crestTokens"}, "changeLocale", "en_US");
+				
+		$(function () {
+			// crest token click event
+			$('.addcrest').click(function () {
+				window.location.replace("/eveTokenAuth");
+			});
+			
+		});
+		
+		function queryParams(params) {
+			return {};
+		}
+		function CRESTTokenFormatter(value) {
+			return [
+				'<a class="removecrest" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
+			].join('');
+		}
+		// update and delete events
+		window.actionEvents = {
+			'click .removecrest': function (e, value, row) {
+				if (confirm('Are you sure you want to delete this token?')) {
+					$.ajax({
+						url: "/U/crestTokens?tokenCharacterID=" + row.tokenCharacterID,
+						type: 'delete',
+						success: function () {
+							$cresttable.bootstrapTable('refresh');
+							showAlert('Delete item successful!', 'success');
+						},
+						error: function () {
+							showAlert('Delete item error!', 'danger');
+						}
+					})
+				}
+			}
+		};
+	</script>
 {{end}}

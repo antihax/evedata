@@ -13,8 +13,8 @@ import (
 )
 
 func init() {
-	evedata.AddRoute("boostrap", "GET", "/boostrapEveAuth", boostrapEveSSO)
-	evedata.AddRoute("boostrap", "GET", "/boostrapEveSSOAnswer", boostrapEveSSOAnswer)
+	evedata.AddAuthRoute("boostrap", "GET", "/boostrapEveAuth", boostrapEveSSO)
+	evedata.AddAuthRoute("boostrap", "GET", "/boostrapEveSSOAnswer", boostrapEveSSOAnswer)
 }
 
 func boostrapEveSSO(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {

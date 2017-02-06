@@ -9,8 +9,6 @@ import (
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
-
-	"github.com/gorilla/sessions"
 )
 
 func init() {
@@ -19,9 +17,9 @@ func init() {
 	evedata.AddRoute("iskPerLP", "GET", "/J/iskPerLP", iskPerLP)
 }
 
-func iskPerLPPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func iskPerLPPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	setCache(w, 60*60)
-	p := newPage(s, r, "ISK Per Loyalty Point")
+	p := newPage(r, "ISK Per Loyalty Point")
 
 	templates.Templates = template.Must(template.ParseFiles("templates/iskPerLP.html", templates.LayoutPath))
 	err := templates.Templates.ExecuteTemplate(w, "base", p)
@@ -33,7 +31,7 @@ func iskPerLPPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 	return http.StatusOK, nil
 }
 
-func iskPerLPCorps(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func iskPerLPCorps(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	setCache(w, 60*60)
 	v, err := models.GetISKPerLPCorporations()
 	if err != nil {
@@ -46,7 +44,7 @@ func iskPerLPCorps(c *appContext.AppContext, w http.ResponseWriter, r *http.Requ
 	return 200, nil
 }
 
-func iskPerLP(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func iskPerLP(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	setCache(w, 60*30)
 	q := r.FormValue("corp")
 	v, err := models.GetISKPerLP(q)

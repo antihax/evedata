@@ -32,6 +32,38 @@ func GetCRESTTokens(characterID int64) ([]CRESTToken, error) {
 	return tokens, nil
 }
 
+type CursorCharacter struct {
+	CursorCharacterID   int64  `db:"cursorCharacterID" json:"cursorCharacterID"`
+	CursorCharacterName string `db:"cursorCharacterName" json:"cursorCharacterName"`
+}
+
+// [BENCHMARK] TODO
+func GetCursorCharacter(characterID int64) (CursorCharacter, error) {
+	cursor := CursorCharacter{}
+
+	if err := database.Get(&cursor, `
+		SELECT cursorCharacterID, T.characterName AS cursorCharacterName
+		FROM evedata.cursorCharacter C
+		INNER JOIN evedata.crestTokens T ON C.cursorCharacterID = T.tokenCharacterID AND C.characterID = T.characterID
+		WHERE C.characterID = ?;`, characterID); err != nil {
+		return cursor, err
+	}
+	return cursor, nil
+}
+
+// [BENCHMARK] TODO
+func SetCursorCharacter(characterID int64, cursorCharacterID int64) error {
+	if _, err := database.Exec(`
+	INSERT INTO evedata.cursorCharacter (characterID, cursorCharacterID)
+		SELECT characterID, tokenCharacterID AS cursorCharacterID
+		FROM evedata.crestTokens WHERE characterID = ? AND tokenCharacterID = ? LIMIT 1
+	ON DUPLICATE KEY UPDATE cursorCharacterID = VALUES(cursorCharacterID)
+		;`, characterID, cursorCharacterID); err != nil {
+		return err
+	}
+	return nil
+}
+
 func SetTokenError(characterID int64, tokenCharacterID int64, code int, status string, req []byte, res []byte) error {
 	if _, err := database.Exec(`
 		UPDATE evedata.crestTokens SET lastCode = ?, lastStatus = ?, request = ?, response = ? 

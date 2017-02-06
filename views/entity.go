@@ -11,7 +11,6 @@ import (
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/strip"
 	"github.com/antihax/evedata/templates"
-	"github.com/gorilla/sessions"
 )
 
 func init() {
@@ -20,9 +19,9 @@ func init() {
 	evedata.AddRoute("entity", "GET", "/character", characterPage)
 }
 
-func alliancePage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func alliancePage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	setCache(w, 60*60)
-	p := newPage(s, r, "Unknown Alliance")
+	p := newPage(r, "Unknown Alliance")
 
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
@@ -128,9 +127,9 @@ func alliancePage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 	return http.StatusOK, nil
 }
 
-func corporationPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func corporationPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	setCache(w, 60*60)
-	p := newPage(s, r, "Unknown Corporation")
+	p := newPage(r, "Unknown Corporation")
 
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
@@ -226,9 +225,9 @@ func corporationPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Re
 	return http.StatusOK, nil
 }
 
-func characterPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func characterPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	setCache(w, 60*60)
-	p := newPage(s, r, "Unknown Character")
+	p := newPage(r, "Unknown Character")
 
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)

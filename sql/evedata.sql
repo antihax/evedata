@@ -107,6 +107,12 @@ CREATE TABLE `crestTokens` (
   PRIMARY KEY (`characterID`,`tokenCharacterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `cursorCharacter` (
+  `characterID` int(11) NOT NULL,
+  `cursorCharacterID` int(11) NOT NULL,
+  PRIMARY KEY (`characterID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `discoveredAssets` (
   `corporationID` int(10) unsigned NOT NULL,
   `allianceID` int(11) unsigned NOT NULL,

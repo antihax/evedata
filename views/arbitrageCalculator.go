@@ -10,7 +10,6 @@ import (
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
-	"github.com/gorilla/sessions"
 )
 
 func init() {
@@ -19,8 +18,9 @@ func init() {
 	evedata.AddRoute("arbitrageCalculator", "GET", "/J/arbitrageCalculator", arbitrageCalculator)
 }
 
-func arbitrageCalculatorPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-	p := newPage(s, r, "Arbitrage Calculator")
+func arbitrageCalculatorPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+	setCache(w, 60*60*24)
+	p := newPage(r, "Arbitrage Calculator")
 
 	templates.Templates = template.Must(template.ParseFiles("templates/arbitrageCalculator.html", templates.LayoutPath))
 	err := templates.Templates.ExecuteTemplate(w, "base", p)
@@ -32,7 +32,7 @@ func arbitrageCalculatorPage(c *appContext.AppContext, w http.ResponseWriter, r 
 	return http.StatusOK, nil
 }
 
-func arbitrageCalculatorStations(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func arbitrageCalculatorStations(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	setCache(w, 60*30)
 	v, err := models.GetArbitrageCalculatorStations()
 	if err != nil {
@@ -45,7 +45,7 @@ func arbitrageCalculatorStations(c *appContext.AppContext, w http.ResponseWriter
 	return 200, nil
 }
 
-func arbitrageCalculator(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func arbitrageCalculator(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	setCache(w, 60*30)
 
 	stationID, err := strconv.ParseInt(r.FormValue("stationID"), 10, 64)

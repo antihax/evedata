@@ -12,8 +12,6 @@ import (
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/strip"
 	"github.com/antihax/evedata/templates"
-
-	"github.com/gorilla/sessions"
 )
 
 func init() {
@@ -21,9 +19,9 @@ func init() {
 	evedata.AddRoute("items", "GET", "/J/marketHistory", marketHistory)
 }
 
-func itemPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func itemPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
 	setCache(w, 60*60)
-	p := newPage(s, r, "Unknown Item")
+	p := newPage(r, "Unknown Item")
 
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
@@ -73,8 +71,8 @@ func itemPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, 
 	return http.StatusOK, nil
 }
 
-func marketHistory(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-	setCache(w, 60*240)
+func marketHistory(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+	setCache(w, 60*60*24)
 	region := r.FormValue("regionID")
 	item := r.FormValue("itemID")
 

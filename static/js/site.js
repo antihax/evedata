@@ -4,6 +4,11 @@
 	function characterImage(row) {
 	    return '//image.eveonline.com/character/' + row.characterID + '_32.jpg';
 	}
+
+	function characterImageByID(characterID, size) {
+	    return '//image.eveonline.com/character/' + characterID + '_'+ size + '.jpg';
+	}
+
 	function entityImage(row) {
 	    return '//image.eveonline.com/'+ capitalizeFirstLetter(row.type) + '/' + row.id + '_32.png';
 	}
@@ -59,4 +64,11 @@
 			x1 = x1.replace(rgx, '$1' + ',' + '$2');
 		}
 		return x1 + x2;
+	}
+	function showAlert(message, type) {
+		$.growl(message,{
+			// settings
+			type: type,
+			delay: 4000,
+		});
 	}

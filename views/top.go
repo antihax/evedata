@@ -8,17 +8,15 @@ import (
 	"net/http"
 
 	"github.com/antihax/evedata/templates"
-
-	"github.com/gorilla/sessions"
 )
 
 func init() {
 	evedata.AddRoute("top", "GET", "/top", topPage)
 }
 
-func topPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-	setCache(w, 60*60)
-	p := newPage(s, r, "EVEData.org backend statistics")
+func topPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+	setCache(w, 60*60*24*7)
+	p := newPage(r, "EVEData.org backend statistics")
 	templates.Templates = template.Must(template.ParseFiles("templates/top.html", templates.LayoutPath))
 
 	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {

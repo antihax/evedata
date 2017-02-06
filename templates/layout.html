@@ -34,87 +34,170 @@
 		<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.0/locale/bootstrap-table-en-US.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/js-cookie/2.1.3/js.cookie.min.js"></script>
 
 		<link rel="stylesheet" href="/css/bootstrap.min.css">
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.0/bootstrap-table.min.css">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
 		<link rel="stylesheet" href="/css/site.css">
-		
-		
 	</head>
 	<body>
-		
-			<nav class="navbar navbar-default navbar-static-top">
-				<div class="container-fluid">
-					<div class="navbar-header">
-						<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-						<span class="sr-only">Toggle navigation</span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						</button>
-						<a class="navbar-brand" href="#"><img src="/images/logo.png" alt="EVEData"></a>
-					</div>
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#"><img src="/images/logo.png" alt="EVEData"></a>
+				</div>
+				
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav">
+						<li class="active">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Characters <span class="caret"></span></a>
+							<ul class="dropdown-menu" role="menu">
+								<li><a href="/assets">Assets</a></li>
+							</ul>
+						</li>
+						<li class="active">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Market <span class="caret"></span></a>
+							<ul class="dropdown-menu" role="menu">
+								<li><a href="/arbitrageCalculator">Arbitrage Calculator</a></li>
+								<li><a href="/">Market Search</a></li>
+								<li><a href="/iskPerLP">ISK Per Loyalty Points</a></li>
+							</ul>
+						</li>
+						<li class="active">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Tools <span class="caret"></span></a>
+							<ul class="dropdown-menu" role="menu">
+								<li><a href="/ecmjam">ECM Jam Chance</a></li>
+								<li><a href="/localIntel">Local Intel Summary</a></li>
+							</ul>
+						</li>
+						<li class="active">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Wars <span class="caret"></span></a>
+							<ul class="dropdown-menu" role="menu">
+								<li><a href="/activeWars">Active Wars</a></li>
+								<li><a href="/contactSync">Contact Sync</a></li>
+							</ul>
+						</li>						
+					</ul>
+					<script>
+						var accountInfo;
+						function updateCursor(id, name) {
+							$.ajax({
+								url: "/X/cursorChar?cursorCharacterID=" + id,
+								type: 'post',
+								success: function () {
+									accountInfo.cursor.cursorCharacterID = id;
+									accountInfo.cursor.cursorCharacterName = name;
+								},
+							});
+						}
+
+						function updateCursorDisplay() {
+							if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
+								$("#cursorName").text(accountInfo.cursor.cursorCharacterName)
+								$("#cursorImage").attr("src",characterImageByID(accountInfo.cursor.cursorCharacterID, 32));  
+							}
+						}
+
+						$('body').on('click', function(event) {
+							var target = $(event.target);
+							if (target.parents('.bootstrap-select').length) {
+								event.stopPropagation();
+								target.parents('.bootstrap-select').toggleClass('open');
+							}
+						});	
 					
-					<div id="navbar" class="navbar-collapse collapse">
-						<ul class="nav navbar-nav">
-							<li class="active">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Characters <span class="caret"></span></a>
-								<ul class="dropdown-menu" role="menu">
-									<li><a href="/assets">Assets</a></li>
-								</ul>
-							</li>
-							<li class="active">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Market <span class="caret"></span></a>
-								<ul class="dropdown-menu" role="menu">
-									<li><a href="/arbitrageCalculator">Arbitrage Calculator</a></li>
-									<li><a href="/">Market Search</a></li>
-									<li><a href="/iskPerLP">ISK Per Loyalty Points</a></li>
-								</ul>
-							</li>
-							<li class="active">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Tools <span class="caret"></span></a>
-								<ul class="dropdown-menu" role="menu">
-									<li><a href="/ecmjam">ECM Jam Chance</a></li>
-									<li><a href="/localIntel">Local Intel Summary</a></li>
-								</ul>
-							</li>
-							<li class="active">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Wars <span class="caret"></span></a>
-								<ul class="dropdown-menu" role="menu">
-									<li><a href="/activeWars">Active Wars</a></li>
-									<li><a href="/contactSync">Contact Sync</a></li>
-								</ul>
-							</li>
-							<li class="active">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Account <span class="caret"></span></a>
-								<ul class="dropdown-menu" role="menu">
-									<li><a href="/account">Account Information</a></li>
-									<li class="divider"></li>
-									{{ if .CharacterID }}
-										<li><a href="/logout">Logout</a></li>
-									{{ else }}
-										<li><a href="/eveAuth">Login</a></li>
-									{{ end }}									
-								</ul>
-							</li>							
-						</ul>
-						
-						<div class="nav navbar-nav navbar-right pull-right" style="padding: 9px">
-							{{ if .CharacterID }}
-								<a href="/account"><img src="//image.eveonline.com/Character/{{.CharacterID}}_32.jpg"></a>
-							{{ else }}
-								<a href="/eveAuth"><img src="/images/EVE_SSO_Login_Buttons_Small_Black.png" style="padding: 0px"></a>
-							{{ end }}
+						$.getJSON("/X/accountInfo", function(json){
+							accountInfo = json;
+							$("#noAuth").hide()
+							$("#authed").show()
+							if (!accountInfo.cursor || accountInfo.cursor.cursorCharacterID == 0) {
+								if (accountInfo.characters && accountInfo.characters[0].tokenCharacterID) {
+									updateCursor(accountInfo.characters[0].tokenCharacterID, accountInfo.characters[0].characterName)
+								} else {
+									showAlert('No characters available. Please add characters on the account page.', 'warn');
+								}
+							}
+							
+							updateCursorDisplay();
+
+							$("#accountImage").attr("src",characterImageByID(accountInfo.characterID, 64));  
+							$("#accountName").text(accountInfo.characterID)
+
+							$.each(accountInfo.characters, function(key, val) {			
+                  				$('#cursorCharacter').append('<option value=' + val.tokenCharacterID + '><img src="' + characterImageByID(val.tokenCharacterID, 32) + '" width=32 height=32>' + val.characterName + '</option>');
+							})
+							$('#cursorCharacter').selectpicker('refresh')
+						});
+
+						$('#cursorCharacter').change(function(){
+							updateCursor($('#cursorCharacter').val(), $('#cursorCharacter').text());
+							updateCursorDisplay();	
+						});	  
+					</script>
+
+					<div class="nav navbar-nav navbar-right pull-right" style="padding: 9px">
+						<div id="noAuth">
+							<a href="/eveAuth"><img src="/images/EVE_SSO_Login_Buttons_Small_Black.png" style="padding: 0px"></a>
 						</div>
+						<div id="authed" style="display: none;">
+							<li class="dropdown">
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+									<img src="" id="cursorImage"> 
+									<strong id="cursorName">Some Dude</strong>
+									<span class="glyphicon glyphicon-chevron-down"></span>
+								</a>
+								<ul class="dropdown-menu">
+									<li>
+										<div class="navbar-login">
+											<div class="row">
+												<div class="col-lg-4">
+													<p class="text-center">
+														<img src="" id="accountImage"> 
+													</p>
+												</div>
+												<div class="col-lg-8">
+													<p class="text-left"><strong>Signed in as:</strong></p>
+													<p class="text-left small" id="accountName">Some Other Dude</p>
+													
+													<select class="selectpicker" data-width="auto" id="cursorCharacter"></select>
+													
+													<p class="text-left">
+														<a href="/account" class="btn btn-primary btn-block btn-sm">Account & Characters</a>
+													</p>
+												</div>
+											</div>
+										</div>
+									</li>
+									<li class="divider"></li>
+									<li>
+										<div class="navbar-login navbar-login-session">
+											<div class="row">
+												<div class="col-lg-12">
+													<p>
+														<a href="/logout" class="btn btn-danger btn-block">Logout</a>
+													</p>
+												</div>
+											</div>
+										</div>
+									</li>
+								</ul>
+							</li>	
+						</div>				
 					</div>
 				</div>
-			</nav>
-			{{template "ads-adaptive" .}}
-			<div class="container-fluid" id="mainContainer">
-				{{template "body" .}}
 			</div>
-		
+		</nav>
+		{{template "ads-adaptive" .}}
+		<div class="container-fluid" id="mainContainer">
+			{{template "body" .}}
+		</div>
 	</body>
 </html>
 {{end}}
@@ -132,7 +215,3 @@
 </script>
 {{end}}
 
-{{define "not-logged-in"}}
-<h2>You are not logged in</h2>
-Please <a href="/eveAuth">Log in With EVE Online</a> to access this feature.
-{{end}}
