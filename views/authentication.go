@@ -15,16 +15,17 @@ import (
 )
 
 func init() {
-	evedata.AddAuthRoute("logout", "GET", "/logout", logout)
+	evedata.AddAuthRoute("logout", "GET", "/X/logout", logout)
 
-	evedata.AddAuthRoute("eveAuth", "GET", "/eveAuth", eveSSO)
-	evedata.AddAuthRoute("eveSSOAnswer", "GET", "/eveSSOAnswer", eveSSOAnswer)
+	evedata.AddAuthRoute("eveAuth", "GET", "/X/eveAuth", eveSSO)
+	evedata.AddAuthRoute("eveSSOAnswer", "GET", "/X/eveSSOAnswer", eveSSOAnswer)
 
-	evedata.AddAuthRoute("eveTokenAuth", "GET", "/eveTokenAuth", eveCRESTToken)
-	evedata.AddAuthRoute("eveTokenAnswer", "GET", "/eveTokenAnswer", eveTokenAnswer)
+	evedata.AddAuthRoute("eveTokenAuth", "GET", "/X/eveTokenAuth", eveCRESTToken)
+	evedata.AddAuthRoute("eveTokenAnswer", "GET", "/X/eveTokenAnswer", eveTokenAnswer)
 }
 
 func logout(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+	setCache(w, 0)
 	s.Options.MaxAge = -1
 	err := s.Save(r, w)
 	if err != nil {
@@ -36,6 +37,7 @@ func logout(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s 
 }
 
 func eveSSO(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+	setCache(w, 0)
 	b := make([]byte, 16)
 	rand.Read(b)
 	state := base64.URLEncoding.EncodeToString(b)
@@ -53,11 +55,12 @@ func eveSSO(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s 
 }
 
 func eveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+	setCache(w, 0)
 	code := r.FormValue("code")
 	state := r.FormValue("state")
 
 	if s.Values["state"] != state {
-		return http.StatusInternalServerError, errors.New("Invalid State. It is possible that the session cookie is missing. Stop eating the cookies!")
+		return http.StatusInternalServerError, errors.New("State does not match. We likely could not read the sessin cookie. Please make sure cookies are enabled.")
 	}
 
 	tok, err := c.SSOAuthenticator.TokenExchange(code)
@@ -123,6 +126,7 @@ func updateAccountInfo(s *sessions.Session, characterID int64) error {
 }
 
 func eveCRESTToken(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+	setCache(w, 0)
 	b := make([]byte, 16)
 	rand.Read(b)
 	state := base64.URLEncoding.EncodeToString(b)
@@ -140,6 +144,7 @@ func eveCRESTToken(c *appContext.AppContext, w http.ResponseWriter, r *http.Requ
 }
 
 func eveTokenAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+	setCache(w, 0)
 	code := r.FormValue("code")
 	state := r.FormValue("state")
 

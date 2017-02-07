@@ -13,12 +13,12 @@ import (
 )
 
 func init() {
-	evedata.AddAuthRoute("boostrap", "GET", "/boostrapEveAuth", boostrapEveSSO)
-	evedata.AddAuthRoute("boostrap", "GET", "/boostrapEveSSOAnswer", boostrapEveSSOAnswer)
+	evedata.AddAuthRoute("boostrap", "GET", "/X/boostrapEveAuth", boostrapEveSSO)
+	evedata.AddAuthRoute("boostrap", "GET", "/X/boostrapEveSSOAnswer", boostrapEveSSOAnswer)
 }
 
 func boostrapEveSSO(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-
+	setCache(w, 0)
 	b := make([]byte, 16)
 	rand.Read(b)
 	state := base64.URLEncoding.EncodeToString(b)
@@ -36,7 +36,7 @@ func boostrapEveSSO(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 }
 
 func boostrapEveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
-
+	setCache(w, 0)
 	code := r.FormValue("code")
 	state := r.FormValue("state")
 
