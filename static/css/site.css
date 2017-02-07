@@ -2,6 +2,12 @@
     margin-bottom: 0px;
 }
 
+.navbar-login {
+    width: 305px;
+    padding: 10px;
+    padding-bottom: 0px;
+}
+
 html {
     color: #292f33;
     font: normal normal normal 12px/1.2 "Helvetica Neue", Roboto, "Segoe UI", Calibri, sans-serif;

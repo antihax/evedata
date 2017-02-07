@@ -38,7 +38,7 @@
 
 		<link rel="stylesheet" href="/css/bootstrap.min.css">
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.0/bootstrap-table.min.css">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
 		<link rel="stylesheet" href="/css/site.css">
 	</head>
 	<body>
@@ -94,6 +94,7 @@
 								success: function () {
 									accountInfo.cursor.cursorCharacterID = id;
 									accountInfo.cursor.cursorCharacterName = name;
+									updateCursorDisplay();
 								},
 							});
 						}
@@ -108,8 +109,8 @@
 						$('body').on('click', function(event) {
 							var target = $(event.target);
 							if (target.parents('.bootstrap-select').length) {
-								event.stopPropagation();
 								target.parents('.bootstrap-select').toggleClass('open');
+								return false;
 							}
 						});	
 					
@@ -121,7 +122,7 @@
 								if (accountInfo.characters && accountInfo.characters[0].tokenCharacterID) {
 									updateCursor(accountInfo.characters[0].tokenCharacterID, accountInfo.characters[0].characterName)
 								} else {
-									showAlert('No characters available. Please add characters on the account page.', 'warn');
+									showAlert('No characters available. Please add characters on the account page.', 'danger');
 								}
 							}
 							
@@ -136,10 +137,9 @@
 							$('#cursorCharacter').selectpicker('refresh')
 						});
 
-						$('#cursorCharacter').change(function(){
-							updateCursor($('#cursorCharacter').val(), $('#cursorCharacter').text());
-							updateCursorDisplay();	
-						});	  
+						$("body").on("change", "#cursorCharacter", function() {
+							updateCursor($('#cursorCharacter').val(), $('#cursorCharacter option:selected').text());
+						});
 					</script>
 
 					<div class="nav navbar-nav navbar-right pull-right" style="padding: 9px">
@@ -163,14 +163,7 @@
 													</p>
 												</div>
 												<div class="col-lg-8">
-													<p class="text-left"><strong>Signed in as:</strong></p>
-													<p class="text-left small" id="accountName">Some Other Dude</p>
-													
-													<select class="selectpicker" data-width="auto" id="cursorCharacter"></select>
-													
-													<p class="text-left">
-														<a href="/account" class="btn btn-primary btn-block btn-sm">Account & Characters</a>
-													</p>
+													<p class="text-left"><strong>Logged in with:</strong> <span id="accountName"></p>						
 												</div>
 											</div>
 										</div>
@@ -179,10 +172,21 @@
 									<li>
 										<div class="navbar-login navbar-login-session">
 											<div class="row">
-												<div class="col-lg-12">
-													<p>
+												<div class="col-lg-12 text-center">
+													<p><strong>UI Control Character</strong></p>
+													<select class="selectpicker" data-width="auto" id="cursorCharacter"></select>
+												</div>
+											</div>
+										</div>
+									</li>										
+									<li class="divider"></li>
+									<li>
+										<div class="navbar-login navbar-login-session">
+											<div class="row">
+												<div class="col-lg-12">													<p class="text-left">
+														<a href="/account" class="btn btn-primary btn-block btn-sm">Account & Characters</a>
 														<a href="/logout" class="btn btn-danger btn-block">Logout</a>
-													</p>
+													</p>													
 												</div>
 											</div>
 										</div>
