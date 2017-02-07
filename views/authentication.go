@@ -5,10 +5,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/antihax/evedata/appContext"
-	"github.com/antihax/evedata/eveapi"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/gorilla/sessions"
@@ -65,7 +65,7 @@ func eveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 
 	tok, err := c.SSOAuthenticator.TokenExchange(code)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return http.StatusInternalServerError, errors.New(fmt.Sprintf("%s code was %s and state was %s\n", err, code, state))
 	}
 
 	tokSrc, err := c.SSOAuthenticator.TokenSource(tok)
@@ -82,7 +82,7 @@ func eveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 	s.Values["characterID"] = v.CharacterID
 	s.Values["token"] = tok
 
-	if err = updateAccountInfo(s, v.CharacterID); err != nil {
+	if err = updateAccountInfo(s, v.CharacterID, v.CharacterName); err != nil {
 		return http.StatusInternalServerError, err
 	}
 
@@ -101,17 +101,11 @@ type accountInformation struct {
 	Cursor        models.CursorCharacter `json:"cursor"`
 }
 
-func updateAccountInfo(s *sessions.Session, characterID int64) error {
+func updateAccountInfo(s *sessions.Session, characterID int64, characterName string) error {
 	var err error
 	a := accountInformation{}
 
-	char, ok := s.Values["character"].(eveapi.VerifyResponse)
-	if !ok {
-		return errors.New("Not logged in")
-	}
-
-	a.CharacterName = char.CharacterName
-
+	a.CharacterName = characterName
 	a.CharacterID = characterID
 	a.Characters, err = models.GetCRESTTokens(characterID)
 	if err != nil {
@@ -154,7 +148,7 @@ func eveTokenAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 
 	tok, err := c.TokenAuthenticator.TokenExchange(code)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return http.StatusInternalServerError, errors.New(fmt.Sprintf("%s code was %s and state was %s\n", err, code, state))
 	}
 
 	tokSrc, err := c.SSOAuthenticator.TokenSource(tok)

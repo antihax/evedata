@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/antihax/evedata/appContext"
+	"github.com/antihax/evedata/eveapi"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
@@ -43,9 +44,14 @@ func accountInfo(c *appContext.AppContext, w http.ResponseWriter, r *http.Reques
 		return http.StatusForbidden, nil
 	}
 
+	char, ok := s.Values["character"].(eveapi.VerifyResponse)
+	if !ok {
+		return http.StatusForbidden, nil
+	}
+
 	accountInfo, ok := s.Values["accountInfo"].([]byte)
 	if !ok {
-		if err := updateAccountInfo(s, characterID); err != nil {
+		if err := updateAccountInfo(s, characterID, char.CharacterName); err != nil {
 			return http.StatusInternalServerError, err
 		}
 
@@ -80,8 +86,13 @@ func cursorChar(c *appContext.AppContext, w http.ResponseWriter, r *http.Request
 		return http.StatusInternalServerError, nil
 	}
 
+	char, ok := s.Values["character"].(eveapi.VerifyResponse)
+	if !ok {
+		return http.StatusForbidden, nil
+	}
+
 	// Update the account information in redis
-	if err = updateAccountInfo(s, characterID); err != nil {
+	if err = updateAccountInfo(s, characterID, char.CharacterName); err != nil {
 		return http.StatusInternalServerError, err
 	}
 
@@ -109,10 +120,6 @@ func apiGetCRESTTokens(c *appContext.AppContext, w http.ResponseWriter, r *http.
 	encoder := json.NewEncoder(w)
 	encoder.Encode(tokens)
 
-	if err = updateAccountInfo(s, characterID); err != nil {
-		return http.StatusInternalServerError, err
-	}
-
 	if err = s.Save(r, w); err != nil {
 		return http.StatusInternalServerError, err
 	}
@@ -137,7 +144,13 @@ func apiDeleteCRESTToken(c *appContext.AppContext, w http.ResponseWriter, r *htt
 	if err := models.DeleteCRESTToken(characterID, cid); err != nil {
 		return http.StatusConflict, err
 	}
-	if err = updateAccountInfo(s, characterID); err != nil {
+
+	char, ok := s.Values["character"].(eveapi.VerifyResponse)
+	if !ok {
+		return http.StatusForbidden, nil
+	}
+
+	if err = updateAccountInfo(s, characterID, char.CharacterName); err != nil {
 		return http.StatusInternalServerError, err
 	}
 
