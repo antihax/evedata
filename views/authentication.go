@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/antihax/evedata/appContext"
+	"github.com/antihax/evedata/eveapi"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/gorilla/sessions"
@@ -100,6 +101,13 @@ type accountInformation struct {
 func updateAccountInfo(s *sessions.Session, characterID int64) error {
 	var err error
 	a := accountInformation{}
+
+	char, ok := s.Values["character"].(eveapi.VerifyResponse)
+	if !ok {
+		return errors.New("Not logged in")
+	}
+
+	a.CharacterName = char.CharacterName
 
 	a.CharacterID = characterID
 	a.Characters, err = models.GetCRESTTokens(characterID)

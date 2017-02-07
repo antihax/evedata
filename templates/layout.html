@@ -129,7 +129,7 @@
 							updateCursorDisplay();
 
 							$("#accountImage").attr("src",characterImageByID(accountInfo.characterID, 64));  
-							$("#accountName").text(accountInfo.characterID)
+							$("#accountName").text(accountInfo.characterName)
 
 							$.each(accountInfo.characters, function(key, val) {			
                   				$('#cursorCharacter').append('<option value=' + val.tokenCharacterID + '><img src="' + characterImageByID(val.tokenCharacterID, 32) + '" width=32 height=32>' + val.characterName + '</option>');
