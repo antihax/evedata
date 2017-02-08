@@ -140,7 +140,7 @@ func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	// Loop through all the destinations
 	for _, token := range tokens {
 		// authentication token context for destination char
-		auth := context.WithValue(context.TODO(), goesiv1.ContextOAuth2, *token.token)
+		auth := context.WithValue(context.TODO(), goesi.ContextOAuth2, *token.token)
 		var (
 			contacts []goesiv1.GetCharactersCharacterIdContacts200Ok
 			r        *http.Response

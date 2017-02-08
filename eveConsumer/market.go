@@ -10,7 +10,6 @@ import (
 
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
-	"github.com/antihax/goesi/v1"
 	"github.com/garyburd/redigo/redis"
 )
 
@@ -62,7 +61,7 @@ func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	}
 
 	var page int32 = 1
-	ctx := context.WithValue(context.TODO(), goesiv1.ContextOAuth2, c.ctx.ESIPublicToken)
+	ctx := context.WithValue(context.TODO(), goesi.ContextOAuth2, c.ctx.ESIPublicToken)
 	for {
 		b, res, err := c.ctx.ESI.V1.MarketApi.GetMarketsStructuresStructureId(ctx, v, map[string]interface{}{"page": page})
 
