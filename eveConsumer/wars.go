@@ -105,7 +105,6 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 	} else if nextCheck.After(time.Now().UTC()) { // Check if the cache timer has expired
 		return nil
 	}
-
 	// Loop through all pages
 
 	var lastID int32
@@ -121,18 +120,22 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 	}
 	models.SetServiceState("wars", goesi.CacheExpires(res), 1)
 
+	count := 0
 	for {
-		wars, res, err = c.ctx.ESI.V1.WarsApi.GetWars(map[string]interface{}{"max_war_id": lastID})
+		wars, res, err = c.ctx.ESI.V1.WarsApi.GetWars(map[string]interface{}{"maxWarId": lastID})
 		if err != nil {
 			return err
 		}
+
+		count++
+
 		for _, id := range wars {
 			if lastID >= id || lastID == 0 {
 				lastID = id
 			}
 			c.warAddToQueue(id)
 		}
-		if lastID < 1000 {
+		if lastID < 1000 || count > 10 {
 			break
 		}
 	}
