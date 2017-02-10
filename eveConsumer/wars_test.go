@@ -1,10 +1,6 @@
 package eveConsumer
 
-import (
-	"testing"
-
-	"github.com/garyburd/redigo/redis"
-)
+import "testing"
 
 func TestWarsTrigger(t *testing.T) {
 	_, err := warsTrigger(eC)
@@ -21,12 +17,12 @@ func TestWarsConsumer(t *testing.T) {
 	eC.warAddToQueue(2)
 	eC.warAddToQueue(3)
 	for {
-		_, err := warConsumer(eC, r)
+		work, err := warConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return
 		}
-		if i, _ := redis.Int(r.Do("SCARD", "EVEDATA_warQueue")); i == 0 {
+		if work == false {
 			break
 		}
 	}

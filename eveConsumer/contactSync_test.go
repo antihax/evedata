@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/antihax/evedata/models"
-	"github.com/garyburd/redigo/redis"
 )
 
 func TestContactSyncTrigger(t *testing.T) {
@@ -27,12 +26,12 @@ func TestContactSyncConsumer(t *testing.T) {
 	}
 
 	for {
-		_, err := contactSyncConsumer(eC, r)
+		work, err := contactSyncConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return
 		}
-		if i, _ := redis.Int(r.Do("SCARD", "EVEDATA_contactSyncQueue")); i == 0 {
+		if work == false {
 			break
 		}
 	}

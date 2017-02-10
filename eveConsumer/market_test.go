@@ -3,8 +3,6 @@ package eveConsumer
 import (
 	"testing"
 	"time"
-
-	"github.com/garyburd/redigo/redis"
 )
 
 func TestMarketAddRegion(t *testing.T) {
@@ -35,12 +33,12 @@ func TestMarketOrderConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 	for {
-		_, err := marketOrderConsumer(eC, r)
+		work, err := marketOrderConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return
 		}
-		if i, _ := redis.Int(r.Do("SCARD", "EVEDATA_marketOrders")); i == 0 {
+		if work == false {
 			break
 		}
 	}
@@ -53,12 +51,12 @@ func TestMarketHistoryConsumer(t *testing.T) {
 	j := 0
 	for {
 		j++
-		_, err := marketHistoryConsumer(eC, r)
+		work, err := marketHistoryConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return
 		}
-		if i, _ := redis.Int(r.Do("SCARD", "EVEDATA_marketHistory")); i == 0 || j > 5 {
+		if work == false {
 			break
 		}
 	}

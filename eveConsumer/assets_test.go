@@ -1,10 +1,6 @@
 package eveConsumer
 
-import (
-	"testing"
-
-	"github.com/garyburd/redigo/redis"
-)
+import "testing"
 
 func TestAssetTrigger(t *testing.T) {
 	_, err := assetsTrigger(eC)
@@ -19,12 +15,12 @@ func TestAssetConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 	for {
-		_, err := assetsConsumer(eC, r)
+		work, err := assetsConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return
 		}
-		if i, _ := redis.Int(r.Do("SCARD", "EVEDATA_assetQueue")); i == 0 {
+		if work == false {
 			break
 		}
 	}

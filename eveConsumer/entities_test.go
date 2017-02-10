@@ -1,10 +1,6 @@
 package eveConsumer
 
-import (
-	"testing"
-
-	"github.com/garyburd/redigo/redis"
-)
+import "testing"
 
 func TestEntities(t *testing.T) {
 	r := ctx.Cache.Get()
@@ -28,12 +24,12 @@ func TestEntitiesConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 	for {
-		_, err := entitiesConsumer(eC, r)
+		work, err := entitiesConsumer(eC, r)
 		if err != nil {
 			t.Error(err)
 			return
 		}
-		if i, _ := redis.Int(r.Do("SCARD", "EVEDATA_entityQueue")); i == 0 {
+		if work == false {
 			break
 		}
 	}
