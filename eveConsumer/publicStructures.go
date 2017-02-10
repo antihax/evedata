@@ -5,12 +5,32 @@ import (
 
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
+	"github.com/garyburd/redigo/redis"
 
 	"golang.org/x/net/context"
 )
 
 func init() {
 	addTrigger("structures", structuresTrigger)
+	addConsumer("structures", structureConsumer, "EVEDATA_structureQueue")
+}
+
+func structureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
+	// POP some work of the queue
+	ret, err := r.Do("SPOP", "EVEDATA_structureQueue")
+	if err != nil {
+		return false, err
+	} else if ret == nil {
+		return false, nil
+	}
+
+	v, err := redis.Int64(ret, err)
+	if err != nil {
+		return false, err
+	}
+
+	err = c.updateStructure(v)
+	return true, err
 }
 
 func structuresTrigger(c *EVEConsumer) (bool, error) {
@@ -33,9 +53,16 @@ func structuresTrigger(c *EVEConsumer) (bool, error) {
 		return false, err
 	}
 
+	redis := c.ctx.Cache.Get()
 	for _, s := range w {
-		c.updateStructure(s)
+		// Build a pipeline request to add the structure IDs to redis
+		redis.Send("SADD", "EVEDATA_structureQueue", s)
+
+		// Send the request to add
+
 	}
+	redis.Flush()
+	redis.Close()
 
 	stations, err := c.ctx.EVE.ConquerableStationsListXML()
 	if err != nil {
