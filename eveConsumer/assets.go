@@ -25,7 +25,6 @@ func assetsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	} else if ret == nil {
 		return false, nil
 	}
-
 	v, err := redis.String(ret, err)
 	if err != nil {
 		return false, err

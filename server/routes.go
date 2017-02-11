@@ -50,14 +50,19 @@ func init() {
 	mime.AddExtensionType(".svg", "image/svg+xml")
 }
 
+// AddRoute adds a non-authenticated web handler to the route list
+// this should be called by func init() within the views package
 func AddRoute(name string, method string, pattern string, handlerFunc appFunc) {
 	routes = append(routes, route{name, method, pattern, handlerFunc})
 }
 
+// AddAuthRoute adds an authenticated web handler to the route list
+// this should be called by func init() within the views package
 func AddAuthRoute(name string, method string, pattern string, handlerFunc appAuthFunc) {
 	authRoutes = append(authRoutes, authRoute{name, method, pattern, handlerFunc})
 }
 
+// AddNotFoundHandler provides a 404 handler
 func AddNotFoundHandler(handlerFunc appFunc) {
 	notFoundHandler = &route{"404", "GET", "", handlerFunc}
 }
@@ -99,6 +104,7 @@ func (a appAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// NewRouter sets up the routes that were added.
 func NewRouter(ctx *appContext.AppContext) *mux.Router {
 	router := mux.NewRouter().StrictSlash(false)
 	// Add public routes
@@ -143,5 +149,3 @@ func NewRouter(ctx *appContext.AppContext) *mux.Router {
 
 	return router
 }
-
-const ContextKey int = 0

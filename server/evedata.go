@@ -27,15 +27,14 @@ import (
 
 var ctx appContext.AppContext
 
+// GetContext Returns the global appContext for EVEData Server
 func GetContext() *appContext.AppContext {
 	return &ctx
 }
 
-// Load the server
+// GoServer Runs the EVEData Server
 func GoServer() {
 	var err error
-
-	// Make a new app context.
 
 	// Read configuation.
 	if ctx.Conf, err = config.ReadConfig(); err != nil {

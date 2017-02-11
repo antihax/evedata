@@ -8,7 +8,6 @@ func TestAssetTrigger(t *testing.T) {
 		t.Error(err)
 		return
 	}
-
 }
 
 func TestAssetConsumer(t *testing.T) {
