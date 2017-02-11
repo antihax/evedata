@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/antihax/evedata/eveapi"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
 	"github.com/garyburd/redigo/redis"
@@ -12,6 +13,7 @@ import (
 
 func init() {
 	addConsumer("entities", entitiesConsumer, "EVEDATA_entityQueue")
+	addConsumer("entities", charSearchConsumer, "EVEDATA_charSearchQueue")
 	addTrigger("entities", entitiesTrigger)
 }
 
@@ -26,6 +28,46 @@ func entitiesTrigger(c *EVEConsumer) (bool, error) {
 	}
 
 	err = c.entitiesUpdate()
+	return true, err
+}
+
+func charSearchConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
+	ret, err := r.Do("SPOP", "EVEDATA_charSearchQueue")
+	if err != nil {
+		return false, err
+	} else if ret == nil {
+		return false, nil
+	}
+	v, err := redis.String(ret, err)
+	if err != nil {
+		return false, err
+	}
+
+	if !eveapi.ValidCharacterName(v) {
+		return false, errors.New(fmt.Sprintf("Invalid Character Name: %s", v))
+	}
+
+	// Figure out if we know this person already
+	id, err := models.GetCharacterIDByName(v)
+	if err != nil {
+		return true, err
+	}
+
+	// We don't know this person... lets go looking.
+	if id == 0 {
+		search, _, err := c.ctx.ESI.V1.SearchApi.GetSearch(v, []string{"character"}, map[string]interface{}{"strict": true})
+		if err != nil {
+			return true, err
+		}
+		if len(search.Character) > 0 {
+			redis := c.ctx.Cache.Get()
+			for _, id := range search.Character {
+				EntityAddToQueue(id, redis)
+			}
+			redis.Close()
+		}
+	}
+
 	return true, err
 }
 
@@ -133,6 +175,16 @@ func (c *EVEConsumer) entitiesFromCREST() error {
 	}
 
 	return nil
+}
+
+func CharSearchAddToQueue(characterName string, r redis.Conn) error {
+	if !eveapi.ValidCharacterName(characterName) {
+		return errors.New(fmt.Sprintf("Invalid Character Name: %s", characterName))
+	}
+
+	// Add the search to the queue
+	_, err := r.Do("SADD", "EVEDATA_charSearchQueue", characterName)
+	return err
 }
 
 func EntityAddToQueue(id int32, r redis.Conn) error {

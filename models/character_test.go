@@ -69,3 +69,15 @@ func TestGetCharacter(t *testing.T) {
 		return
 	}
 }
+
+func TestGetCharacterIDByName(t *testing.T) {
+	char, err := GetCharacterIDByName("dude")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if char != 1001 {
+		t.Error("CharacterID does not match")
+		return
+	}
+}

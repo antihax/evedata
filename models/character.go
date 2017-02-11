@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/antihax/evedata/eveapi"
@@ -30,6 +31,18 @@ func GetCRESTTokens(characterID int64) ([]CRESTToken, error) {
 		return nil, err
 	}
 	return tokens, nil
+}
+
+// [BENCHMARK] TODO
+func GetCharacterIDByName(character string) (int64, error) {
+	var id int64
+	if err := database.Get(&id, `
+		SELECT characterID 
+		FROM evedata.characters C
+		WHERE C.name = ? LIMIT 1;`, character); err != nil && err != sql.ErrNoRows {
+		return id, err
+	}
+	return id, nil
 }
 
 type CursorCharacter struct {

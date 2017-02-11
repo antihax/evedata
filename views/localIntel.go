@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/antihax/evedata/appContext"
+	"github.com/antihax/evedata/eveConsumer"
 	"github.com/antihax/evedata/eveapi"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
@@ -68,6 +69,11 @@ func localIntel(c *appContext.AppContext, w http.ResponseWriter, r *http.Request
 
 	names := strings.Split(locl.Local, "\n")
 	newNames := removeDuplicatesAndValidate(names)
+
+	// Get any one we don't know
+	for _, name := range newNames {
+		eveConsumer.CharSearchAddToQueue(name.(string), red)
+	}
 
 	v, err := models.GetLocalIntel(newNames)
 	if err != nil {

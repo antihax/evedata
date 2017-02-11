@@ -34,3 +34,21 @@ func TestEntitiesConsumer(t *testing.T) {
 		}
 	}
 }
+
+func TestCharSearchConsumer(t *testing.T) {
+	r := ctx.Cache.Get()
+	defer r.Close()
+
+	CharSearchAddToQueue("croakroach", r)
+
+	for {
+		work, err := charSearchConsumer(eC, r)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if work == false {
+			break
+		}
+	}
+}
