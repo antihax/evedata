@@ -1,6 +1,9 @@
-{{define "body"}} 
+{{define "body"}}
+<h3>Characters</h3>
+{{template "checkAuthentication" .}}
+
 	<div class="table-responsive">
-		<p class="toolbar cresttokenToolbar" id="cresttokenToolbar">Characters <a class="addcrest btn btn-default" href=
+		<p class="toolbar cresttokenToolbar" id="cresttokenToolbar"><a class="addcrest btn btn-default" href=
 		"javascript:">Add Character</a></p>
 		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".cresttokenToolbar"
 			data-url="/U/CRESTTokens" id="cresttable">

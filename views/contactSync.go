@@ -41,18 +41,20 @@ func apiAddContactSync(c *appContext.AppContext, w http.ResponseWriter, r *http.
 	}
 	var cc localContactSync
 
-	if r.Body == nil {
-		return http.StatusNotFound, errors.New("No Data Received")
+	characterID, ok := s.Values["characterID"].(int64)
+	if !ok {
+		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
 	}
+
+	if r.Body == nil {
+		return http.StatusBadRequest, errors.New("No Data Received")
+	}
+
 	err := json.NewDecoder(r.Body).Decode(&cc)
 	if err != nil {
 		return http.StatusNotFound, err
 	}
 
-	if s.Values["characterID"] == nil {
-		return http.StatusForbidden, nil
-	}
-	characterID := s.Values["characterID"].(int64)
 	if err := models.AddContactSync(characterID, cc.Source, cc.Destination); err != nil {
 		return http.StatusConflict, err
 	}
@@ -62,7 +64,11 @@ func apiAddContactSync(c *appContext.AppContext, w http.ResponseWriter, r *http.
 
 func apiGetContactSyncs(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	setCache(w, 0)
-	characterID := s.Values["characterID"].(int64)
+	characterID, ok := s.Values["characterID"].(int64)
+	if !ok {
+		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
+	}
+
 	cc, err := models.GetContactSyncs(characterID)
 	if err != nil {
 		return http.StatusNotFound, err
@@ -76,12 +82,17 @@ func apiGetContactSyncs(c *appContext.AppContext, w http.ResponseWriter, r *http
 
 func apiDeleteContactSync(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	setCache(w, 0)
+
+	characterID, ok := s.Values["characterID"].(int64)
+	if !ok {
+		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
+	}
+
 	destination, err := strconv.Atoi(r.FormValue("destination"))
 	if err != nil {
 		return http.StatusNotFound, errors.New("Invalid destination")
 	}
 
-	characterID := s.Values["characterID"].(int64)
 	if err := models.DeleteContactSync(characterID, destination); err != nil {
 		return http.StatusConflict, err
 	}

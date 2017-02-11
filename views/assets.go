@@ -38,12 +38,11 @@ func assetCharactersAPI(c *appContext.AppContext, w http.ResponseWriter, r *http
 	var err error
 	setCache(w, 5*60)
 
-	if s.Values["characterID"] == nil || s.Values["characterID"] == 0 {
-		return http.StatusForbidden, nil
+	// Get the sessions main characterID
+	characterID, ok := s.Values["characterID"].(int64)
+	if !ok {
+		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
 	}
-
-	// get our character ID from the session
-	characterID := s.Values["characterID"].(int64)
 
 	assetCharacters, err := models.GetAssetCharacters(characterID)
 	if err != nil {
@@ -60,8 +59,10 @@ func assetLocationsAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.
 	var err error
 	setCache(w, 5*60)
 
-	if s.Values["characterID"] == nil || s.Values["characterID"] == 0 {
-		return http.StatusForbidden, nil
+	// Get the sessions main characterID
+	characterID, ok := s.Values["characterID"].(int64)
+	if !ok {
+		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
 	}
 
 	// Get arguments
@@ -73,9 +74,6 @@ func assetLocationsAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.
 			return http.StatusNotFound, errors.New("Invalid filterCharacterID")
 		}
 	}
-
-	// get our character ID from the session
-	characterID := s.Values["characterID"].(int64)
 
 	assetLocations, err := models.GetAssetLocations(characterID, (int64)(filterCharacterID))
 	if err != nil {
@@ -97,10 +95,11 @@ func assetsAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.Request,
 
 	setCache(w, 5*60)
 
-	if s.Values["characterID"] == nil || s.Values["characterID"] == 0 {
-		return http.StatusForbidden, nil
+	// Get the sessions main characterID
+	characterID, ok := s.Values["characterID"].(int64)
+	if !ok {
+		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
 	}
-	characterID := s.Values["characterID"].(int64)
 
 	// Get arguments
 

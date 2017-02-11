@@ -75,8 +75,8 @@ func (c *EVEConsumer) killmailAddToQueue(id int32, hash string) error {
 // Say we know this killmail
 func (c *EVEConsumer) killmailSetKnown(id int32) error {
 	r := c.ctx.Cache.Get()
-	defer r.Close()
 	r.Do("SADD", "EVEDATA_knownKills", id)
+	r.Close()
 	return nil
 }
 

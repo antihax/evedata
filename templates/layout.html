@@ -137,8 +137,11 @@
 								} else {
                   					$('#cursorCharacter').append('<option value=' + val.tokenCharacterID + '><img src="' + characterImageByID(val.tokenCharacterID, 32) + '" width=32 height=32>' + val.characterName + '</option>');									
 								}
-						})
+							})
+
 							$('#cursorCharacter').selectpicker('refresh')
+						}).fail(function() {
+							$("#notloggedin").show();
 						});
 
 						$("body").on("change", "#cursorCharacter", function() {
@@ -223,3 +226,7 @@
 </script>
 {{end}}
 
+{{define "checkAuthentication"}}
+<p class="ed_alert" id="notloggedin" style="display: none;">This page requires you to be authenticated with active charaters in your account.<br>
+		Please <a href="/X/eveAuth">log in with EVE Online</a> and add some characters to your account.</p>
+{{end}}

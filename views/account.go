@@ -39,9 +39,10 @@ func accountPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reques
 
 func accountInfo(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	setCache(w, 0)
+	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusForbidden, nil
+		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
 	}
 
 	char, ok := s.Values["character"].(eveapi.VerifyResponse)
@@ -71,7 +72,7 @@ func cursorChar(c *appContext.AppContext, w http.ResponseWriter, r *http.Request
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusForbidden, nil
+		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
 	}
 
 	// Parse the cursorCharacterID
@@ -109,7 +110,7 @@ func apiGetCRESTTokens(c *appContext.AppContext, w http.ResponseWriter, r *http.
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusForbidden, nil
+		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
 	}
 
 	tokens, err := models.GetCRESTTokens(characterID)
@@ -133,7 +134,7 @@ func apiDeleteCRESTToken(c *appContext.AppContext, w http.ResponseWriter, r *htt
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusForbidden, nil
+		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
 	}
 
 	cid, err := strconv.ParseInt(r.FormValue("tokenCharacterID"), 10, 64)

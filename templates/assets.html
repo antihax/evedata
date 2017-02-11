@@ -1,5 +1,6 @@
 {{define "body"}} 
 <h3>Assets</h3>
+{{template "checkAuthentication" .}}
 <div class="toolbar assetToolbar" id="LocationContainer">
 	<select class="selectpicker" data-width="auto" name="locationList" id="locationList"></select>
 	<select class="selectpicker" data-width="auto" name="characterList" id="characterList"></select>

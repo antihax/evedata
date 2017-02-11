@@ -2,6 +2,21 @@
     margin-bottom: 0px;
 }
 
+#imageblock {
+    margin: auto;
+    display: block;
+}
+
+
+.ed_alert {
+    vertical-align: middle;
+    background: #FF0000;
+    padding: 10px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: large;
+}
+
 .navbar-login {
     width: 305px;
     padding: 10px;
