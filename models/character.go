@@ -20,6 +20,7 @@ type CRESTToken struct {
 	RefreshToken     string      `db:"refreshToken" json:"refreshToken"`
 }
 
+
 // [BENCHMARK] 0.000 sec / 0.000 sec
 func GetCRESTTokens(characterID int64) ([]CRESTToken, error) {
 	tokens := []CRESTToken{}

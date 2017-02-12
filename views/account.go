@@ -30,6 +30,8 @@ func accountPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reques
 	p := newPage(r, "Account Information")
 	templates.Templates = template.Must(template.ParseFiles("templates/account.html", templates.LayoutPath))
 
+	p["ScopeGroups"] = models.GetCharacterScopeGroups()
+
 	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
 		return http.StatusInternalServerError, err
 	}

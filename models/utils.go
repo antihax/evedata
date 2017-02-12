@@ -44,18 +44,15 @@ func RetryExecTillNoRows(sql string, args ...interface{}) error {
 
 // Retry the exec until we get no error (deadlocks)
 func RetryExec(sql string, args ...interface{}) (int64, error) {
-	var (
-		err  error
-		rows int64
-	)
+	var rows int64
+
 	for {
-		x, err := database.Exec(sql, args...)
+		res, err := database.Exec(sql, args...)
 		if err == nil {
-			rows, err = x.RowsAffected()
+			rows, err = res.RowsAffected()
 			return rows, err
 		} else if strings.Contains(err.Error(), "1213") == false {
 			return rows, err
 		}
 	}
-	return rows, err
 }

@@ -44,6 +44,7 @@ func GetAssetLocations(characterID int64, filterCharacterID int64) ([]AssetLocat
 	if filterCharacterID == 0 {
 		filter = "IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)"
 	} else {
+		// False AST, forced int64.
 		filter = fmt.Sprintf("IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ? AND tokenCharacterID=%d)", filterCharacterID)
 	}
 
@@ -89,6 +90,7 @@ func GetAssets(characterID int64, filterCharacterID int64, locationID int64) ([]
 	if filterCharacterID == 0 {
 		filter = "IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)"
 	} else {
+		// False AST, forced int64.
 		filter = fmt.Sprintf("IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ? AND tokenCharacterID=%d)", filterCharacterID)
 	}
 

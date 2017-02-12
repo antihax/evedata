@@ -16,6 +16,8 @@ type LocalIntelData struct {
 }
 
 // [BENCHMARK] 1.469 sec / 0.094 sec
+// FALSE Positive AST, concatenation is for replace tokens, actual values are fed
+// through vargs.
 func GetLocalIntel(names []interface{}) ([]LocalIntelData, error) {
 	wars := []LocalIntelData{}
 	if err := database.Select(&wars, `

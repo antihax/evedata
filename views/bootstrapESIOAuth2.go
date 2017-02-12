@@ -30,7 +30,7 @@ func boostrapEveSSO(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 		return http.StatusInternalServerError, err
 	}
 
-	url := c.ESIBootstrapAuthenticator.AuthorizeURL(state, true)
+	url := c.ESIBootstrapAuthenticator.AuthorizeURL(state, true, nil)
 	http.Redirect(w, r, url, 302)
 	return http.StatusMovedPermanently, nil
 }

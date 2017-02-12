@@ -2,9 +2,49 @@
 <h3>Characters</h3>
 {{template "checkAuthentication" .}}
 
+	<script>
+		var options = [];
+		$('body').on('click', function(event) {
+			var $target = $(event.target);
+			if ($target.hasClass('characterScopes')) {
+				
+				var val = $target.attr( 'data-value' ),
+					$inp = $target.find( 'input' ),
+					idx;
+
+				if ((idx = options.indexOf(val)) > -1 ) {
+					options.splice(idx, 1);
+					setTimeout(function() { $inp.prop( 'checked', true ) }, 0);
+				} else {
+					options.push( val );
+					setTimeout(function() { $inp.prop('checked', false) }, 0);
+				}
+
+				$( event.target ).blur();
+				return false;
+			}
+		});	
+	</script>
+
 	<div class="table-responsive">
-		<p class="toolbar cresttokenToolbar" id="cresttokenToolbar"><a class="addcrest btn btn-default" href=
-		"javascript:">Add Character</a></p>
+		<div class="toolbar cresttokenToolbar" id="cresttokenToolbar">
+			<div class="dropdown">
+				<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChar" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					Add Character
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" id="addCharMenu" aria-labelledby="addChar">
+					{{ range $scope, $reason := .ScopeGroups }}
+						<li><a href="#" id="{{ $scope }}" class="small characterScopes" data-value="{{ $scope }}" tabIndex="-1"><input type="checkbox" CHECKED>&nbsp;{{ $reason }}</a></li>
+					{{ end }}   
+					<br> 
+					<li>
+						<a class="addcrest btn btn-default" href="javascript:">Add Character</a>
+					</li> 
+				</ul>
+			</div>
+		</div>
+
 		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".cresttokenToolbar"
 			data-url="/U/CRESTTokens" id="cresttable">
 			<thead>
@@ -27,9 +67,18 @@
 		$(function () {
 			// crest token click event
 			$('.addcrest').click(function () {
-				window.location.replace("/X/eveTokenAuth");
+				var scopeGroups = [];
+				$('.characterScopes input:checkbox:checked').each(function(idx, val){
+					console.log("idx: " + idx + " val: " + val);
+					scopeGroups.push(val.parentElement.id);
+				});
+
+				if (scopeGroups.length) {
+					window.location.replace("/X/eveTokenAuth?scopeGroups=" + scopeGroups.join(","));
+				} else {
+					showAlert('You must select at least one scope!', 'danger');
+				}
 			});
-			
 		});
 		
 		function queryParams(params) {

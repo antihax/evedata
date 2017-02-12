@@ -104,11 +104,6 @@ func GoServer() {
 		}
 	}
 
-	/*r := ctx.Cache.Get()
-	r.Do("FLUSHALL")
-	r.Close()
-	models.MaintKillMails()*/
-
 	// Setup the SSO authenticator, this is the main login.
 	ssoScopes := []string{}
 
@@ -120,26 +115,7 @@ func GoServer() {
 		ssoScopes)
 
 	// Setup the Token authenticator, this handles sub characters.
-	tokenScopes := []string{
-		eveapi.ScopeCharacterContractsRead,
-		eveapi.ScopeCharacterMarketOrdersRead,
-		eveapi.ScopeCharacterResearchRead,
-		eveapi.ScopeCharacterWalletRead,
-		"esi-assets.read_assets.v1",
-		"esi-characters.read_contacts.v1",
-		"esi-characters.write_contacts.v1",
-		"esi-corporations.read_corporation_membership.v1",
-		"esi-location.read_location.v1",
-		"esi-location.read_ship_type.v1",
-		"esi-planets.manage_planets.v1",
-		"esi-search.search_structures.v1",
-		"esi-skills.read_skills.v1",
-		"esi-ui.open_window.v1",
-		"esi-ui.write_waypoint.v1",
-		"esi-universe.read_structures.v1",
-		"esi-wallet.read_character_wallet.v1",
-	}
-
+	tokenScopes := models.GetCharacterScopes()
 	ctx.TokenAuthenticator = eveapi.NewSSOAuthenticator(
 		ctx.HTTPClient,
 		ctx.Conf.CREST.Token.ClientID,
@@ -160,7 +136,7 @@ func GoServer() {
 			"esi-search.search_structures.v1",
 			"esi-markets.structure_markets.v1"})
 
-	// Get the token from config and build a TokenSource (refreshes the token if needed.)
+	// Get the token from config and build a TokenSource (refreshes the token if needed).
 	token := &eveapi.CRESTToken{
 		AccessToken:  ctx.Conf.CREST.ESIAccessToken.AccessToken,
 		TokenType:    ctx.Conf.CREST.ESIAccessToken.TokenType,
@@ -181,28 +157,29 @@ func GoServer() {
 
 	ctx.Store.Options.Domain = ctx.Conf.Store.Domain
 
-	// Register structs for storage
+	// Register structs for storage.
 	gob.Register(oauth2.Token{})
 	gob.Register(eveapi.CRESTToken{})
 	gob.Register(eveapi.VerifyResponse{})
 
-	// Anonymous EVE API & Crest Client
+	// Anonymous EVE API & Crest Client.
 	ctx.EVE = eveapi.NewEVEAPIClient(ctx.HTTPClient)
 
-	// Set our logging flags
+	// Set our logging flags.
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	if ctx.Conf.Discord.Enabled {
 		go discord.GoDiscordBot(&ctx)
 	}
 
+	// Run the eve consumers
 	if ctx.Conf.EVEConsumer.Enabled {
-		log.Println("Starting EVE Consumer")
 		eC := eveConsumer.NewEVEConsumer(&ctx)
 		eC.RunConsumer()
 		defer eC.StopConsumer()
 	}
-	// Allocate the routes
+
+	// Allocate the routes.
 	rtr := NewRouter(&ctx)
 
 	log.Printf("EveData Listening port 3000...\n")

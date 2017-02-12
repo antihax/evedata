@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/models"
@@ -49,7 +50,7 @@ func eveSSO(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s 
 		return http.StatusInternalServerError, err
 	}
 
-	url := c.SSOAuthenticator.AuthorizeURL(state, true)
+	url := c.SSOAuthenticator.AuthorizeURL(state, true, nil)
 	http.Redirect(w, r, url, 302)
 	return http.StatusMovedPermanently, nil
 }
@@ -121,18 +122,41 @@ func updateAccountInfo(s *sessions.Session, characterID int64, characterName str
 
 func eveCRESTToken(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	setCache(w, 0)
+
+	// Get the scopeGroups
+	scopeGroupsTxt := r.FormValue("scopeGroups")
+	if scopeGroupsTxt == "" {
+		return http.StatusBadRequest, errors.New("scopeGroups is empty")
+	}
+
+	// split into []string
+	scopeGroups := strings.Split(scopeGroupsTxt, ",")
+
+	// Validate the scopeGroups are actually real
+	validate := models.GetCharacterScopeGroups()
+	for _, group := range scopeGroups {
+		if validate[group] == "" {
+			return http.StatusBadRequest, errors.New("scopeGroup is invalid")
+		}
+	}
+
+	// Get the associated scopes to the groups
+	scopes := models.GetCharacterScopesByGroups(scopeGroups)
+
+	// Make a code to validate on the return
 	b := make([]byte, 16)
 	rand.Read(b)
 	state := base64.URLEncoding.EncodeToString(b)
 
+	// Save the code to our session store to compare later
 	s.Values["TOKENstate"] = state
-
 	err := s.Save(r, w)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
 
-	url := c.TokenAuthenticator.AuthorizeURL(state, true)
+	url := c.TokenAuthenticator.AuthorizeURL(state, true, scopes)
+
 	http.Redirect(w, r, url, 302)
 	return http.StatusMovedPermanently, nil
 }
