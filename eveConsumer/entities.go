@@ -54,6 +54,7 @@ func charSearchConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	}
 
 	// We don't know this person... lets go looking.
+
 	if id == 0 {
 		search, _, err := c.ctx.ESI.V1.SearchApi.GetSearch(v, []string{"character"}, map[string]interface{}{"strict": true})
 		if err != nil {
@@ -61,11 +62,15 @@ func charSearchConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		}
 		if len(search.Character) > 0 {
 			redis := c.ctx.Cache.Get()
-			for _, id := range search.Character {
-				EntityAddToQueue(id, redis)
+			for _, nid := range search.Character {
+				EntityAddToQueue(nid, redis)
 			}
 			redis.Close()
 		}
+	} else { // add the character to the queue so we get latest data.
+		redis := c.ctx.Cache.Get()
+		EntityAddToQueue((int32)(id), redis)
+		redis.Close()
 	}
 
 	return true, err
@@ -206,7 +211,7 @@ func (c *EVEConsumer) entitySetKnown(id int32) error {
 	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", id)
 	r := c.ctx.Cache.Get()
 	defer r.Close()
-	r.Do("SETEX", key, 86400, true)
+	r.Do("SETEX", key, 3600, true)
 	return nil
 }
 
