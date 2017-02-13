@@ -29,11 +29,10 @@ func marketPublicStructureTrigger(c *EVEConsumer) (bool, error) {
 	defer red.Close()
 
 	rows, err := c.ctx.Db.Query(`SELECT stationID FROM evedata.structures WHERE marketCacheUntil < UTC_TIMESTAMP();`)
-	defer rows.Close()
 	if err != nil {
 		return false, err
 	}
-
+	defer rows.Close()
 	for rows.Next() {
 		var id int64
 		err = rows.Scan(&id)
