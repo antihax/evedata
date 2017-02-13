@@ -9,23 +9,23 @@ import (
 )
 
 type CRESTToken struct {
-	Expiry           time.Time   `db:"expiry" json:"expiry"`
-	CharacterID      int64       `db:"characterID" json:"characterID"`
-	TokenType        string      `db:"tokenType" json:"tokenType"`
-	TokenCharacterID int64       `db:"tokenCharacterID" json:"tokenCharacterID"`
-	CharacterName    string      `db:"characterName" json:"characterName"`
-	LastCode         int64       `db:"lastCode" json:"lastCode"`
-	LastStatus       null.String `db:"lastStatus" json:"lastStatus"`
-	AccessToken      string      `db:"accessToken" json:"accessToken"`
-	RefreshToken     string      `db:"refreshToken" json:"refreshToken"`
+	Expiry           time.Time   `db:"expiry" json:"expiry,omitempty"`
+	CharacterID      int64       `db:"characterID" json:"characterID,omitempty"`
+	TokenType        string      `db:"tokenType" json:"tokenType,omitempty"`
+	TokenCharacterID int64       `db:"tokenCharacterID" json:"tokenCharacterID,omitempty"`
+	CharacterName    string      `db:"characterName" json:"characterName,omitempty"`
+	LastCode         int64       `db:"lastCode" json:"lastCode,omitempty"`
+	LastStatus       null.String `db:"lastStatus" json:"lastStatus,omitempty"`
+	AccessToken      string      `db:"accessToken" json:"accessToken,omitempty"`
+	RefreshToken     string      `db:"refreshToken" json:"refreshToken,omitempty"`
+	Scopes           string      `db:"scopes" json:"scopes,omitempty"`
 }
-
 
 // [BENCHMARK] 0.000 sec / 0.000 sec
 func GetCRESTTokens(characterID int64) ([]CRESTToken, error) {
 	tokens := []CRESTToken{}
 	if err := database.Select(&tokens, `
-		SELECT characterID, tokenCharacterID, characterName,  expiry, tokenType, lastCode, lastStatus
+		SELECT characterID, tokenCharacterID, characterName, lastCode, lastStatus, scopes
 		FROM evedata.crestTokens
 		WHERE characterID = ?;`, characterID); err != nil {
 

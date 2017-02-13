@@ -193,7 +193,6 @@ func CharSearchAddToQueue(characterName string, r redis.Conn) error {
 }
 
 func EntityAddToQueue(id int32, r redis.Conn) error {
-
 	// Skip this entity if we have touched it recently
 	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", id)
 	i, err := redis.Bool(r.Do("EXISTS", key))

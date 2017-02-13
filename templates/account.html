@@ -1,7 +1,7 @@
 {{define "body"}}
 <h3>Characters</h3>
 {{template "checkAuthentication" .}}
-
+<p>Adding characters to your account opens up more features of our website.<br>If you are not comfortable sharing some information, such as wallet journals, etc. You can disable groups of scopes by unchecking the option before adding the character.<br>Should you ever wish to change scopes, add the same character a second time and it will overwrite the available scopes.</p>
 	<script>
 		var options = [];
 		$('body').on('click', function(event) {
@@ -69,7 +69,6 @@
 			$('.addcrest').click(function () {
 				var scopeGroups = [];
 				$('.characterScopes input:checkbox:checked').each(function(idx, val){
-					console.log("idx: " + idx + " val: " + val);
 					scopeGroups.push(val.parentElement.id);
 				});
 

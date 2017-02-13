@@ -1,12 +1,44 @@
-.navbar-static-top {
-    margin-bottom: 0px;
-}
 
 #imageblock {
     margin: auto;
     display: block;
 }
 
+#aboutNav {
+    width: 200px;
+    position: absolute;
+}
+
+#aboutContent {
+    padding: 20px;
+    float: left;
+    margin-left: 200px;
+    border-radius: 20px;
+    background-color: #292f33;
+}
+
+#mainWell {
+    padding: 15px;
+    border-radius: 15px;
+    background-color: #292f33;
+}
+
+.fullheight {
+    height: 100%;
+}
+
+.navbar-static-top {
+    margin-bottom: 0px;
+}
+
+.nopadding {
+   padding: 0 !important;
+   margin: 0 !important;
+}
+
+.center {
+    text-align: center;
+}
 
 .ed_alert {
     vertical-align: middle;
@@ -29,7 +61,7 @@ html {
 }
 
 body {
-	font-size: 11px;
+	font-size: 12px;
 }
 
 a {
@@ -66,8 +98,6 @@ p + p {
 }
 
 .title {
-    /* ---------- */
-    /* site theme */
     font-size: 64px;
     margin: 20px 0 0 0;
 }
@@ -195,9 +225,4 @@ p + p {
 
 .tt-suggestion p {
     margin: 0;
-}
-
-#mainJumbo {
-  padding: 20px;
-  padding-top: 0px;
 }

@@ -1,0 +1,32 @@
+{{define "body"}}
+
+<div class="row">
+	<nav id="aboutNav" class="nopadding">
+		<div class="panel panel-default nopadding">
+			<div class="panel-heading center">
+				<h4 class="panel-title">About EveData.Org</h4>
+			</div>
+			<div class="panel-body nopadding center">
+				<ul class="nav navbar-nav">
+				<li><a href="/about?page=evedata">EveData.Org Website</a></li>
+				<li><a href="/top">Operational Status</a></li>
+				</ul>
+			</div>
+			<div class="panel-heading center">
+				<h4 class="panel-title">Policies</h4>
+			</div>
+			<div class="panel-body nopadding center">
+				<ul class="nav navbar-nav">
+				<li><a href="/about?page=privacy">Privacy Policy</a></li>
+				<li><a href="/about?page=terms">Terms of Use</a></li>
+				</ul>
+			</div>
+		</div>
+		{{template "ads-smallsquare" .}}
+	</nav>
+	<div id="aboutContent">
+		{{template "page" .}}
+	</div>
+</div>
+
+{{end}}
