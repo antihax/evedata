@@ -5,7 +5,7 @@ import "testing"
 func TestEntities(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
-	err := EntityAddToQueue(1, r)
+	err := EntityAddToQueue(1, &r)
 	if err != nil {
 		t.Error(err)
 		return
@@ -24,7 +24,7 @@ func TestEntitiesConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 	for {
-		work, err := entitiesConsumer(eC, r)
+		work, err := entitiesConsumer(eC, &r)
 		if err != nil {
 			t.Error(err)
 			return
@@ -39,10 +39,10 @@ func TestCharSearchConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 
-	CharSearchAddToQueue("croakroach", r)
+	CharSearchAddToQueue("croakroach", &r)
 
 	for {
-		work, err := charSearchConsumer(eC, r)
+		work, err := charSearchConsumer(eC, &r)
 		if err != nil {
 			t.Error(err)
 			return

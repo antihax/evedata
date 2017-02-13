@@ -8,13 +8,13 @@ import (
 func TestMarketAddRegion(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
-	eC.marketRegionAddRegion(1, time.Now().UTC().Unix(), r)
+	eC.marketRegionAddRegion(1, time.Now().UTC().Unix(), &r)
 }
 
 func TestMarketRegionConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
-	_, err := marketRegionConsumer(eC, r)
+	_, err := marketRegionConsumer(eC, &r)
 	if err != nil {
 		t.Error(err)
 		return
@@ -33,7 +33,7 @@ func TestMarketOrderConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 	for {
-		work, err := marketOrderConsumer(eC, r)
+		work, err := marketOrderConsumer(eC, &r)
 		if err != nil {
 			t.Error(err)
 			return
@@ -51,7 +51,7 @@ func TestMarketHistoryConsumer(t *testing.T) {
 	j := 0
 	for {
 		j++
-		work, err := marketHistoryConsumer(eC, r)
+		work, err := marketHistoryConsumer(eC, &r)
 		if err != nil {
 			t.Error(err)
 			return

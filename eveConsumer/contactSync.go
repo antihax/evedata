@@ -68,7 +68,8 @@ func contactSyncTrigger(c *EVEConsumer) (bool, error) {
 	return true, err
 }
 
-func contactSyncConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
+func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
+	r := *redisPtr
 	ret, err := r.Do("SPOP", "EVEDATA_contactSyncQueue")
 	if err != nil {
 		return false, err

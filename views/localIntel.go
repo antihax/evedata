@@ -72,7 +72,7 @@ func localIntel(c *appContext.AppContext, w http.ResponseWriter, r *http.Request
 
 	// Get any one we don't know
 	for _, name := range newNames {
-		eveConsumer.CharSearchAddToQueue(name.(string), red)
+		eveConsumer.CharSearchAddToQueue(name.(string), &red)
 	}
 
 	v, err := models.GetLocalIntel(newNames)

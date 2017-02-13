@@ -143,7 +143,8 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 	return nil
 }
 
-func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
+func warConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
+	r := *redisPtr
 	ret, err := r.Do("SPOP", "EVEDATA_warQueue")
 	if err != nil {
 		return false, err
@@ -193,13 +194,13 @@ func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	}
 
 	// Add aggressor to entity queue to get their information
-	err = EntityAddToQueue(aggressor, r)
+	err = EntityAddToQueue(aggressor, &r)
 	if err != nil {
 		return false, err
 	}
 
 	// Add defender to entity queue to get their information
-	err = EntityAddToQueue(defender, r)
+	err = EntityAddToQueue(defender, &r)
 	if err != nil {
 		return false, err
 	}
@@ -218,7 +219,7 @@ func warConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 			return false, err
 		}
 
-		if err = EntityAddToQueue(ally, r); err != nil {
+		if err = EntityAddToQueue(ally, &r); err != nil {
 			return false, err
 		}
 	}

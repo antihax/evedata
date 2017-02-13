@@ -27,7 +27,7 @@ type consumer struct {
 	f         consumerFunc
 	queueName string
 }
-type consumerFunc func(*EVEConsumer, redis.Conn) (bool, error)
+type consumerFunc func(*EVEConsumer, *redis.Conn) (bool, error)
 
 func addConsumer(name string, f consumerFunc, queueName string) {
 	consumers = append(consumers, consumer{name, f, queueName})
@@ -135,7 +135,7 @@ func (c *EVEConsumer) goConsumer() {
 			// loop through all the consumers
 			for _, consumer := range consumers {
 				start := monotime.Now()
-				if workDone, err := consumer.f(c, r); err == nil {
+				if workDone, err := consumer.f(c, &r); err == nil {
 					if workDone {
 						duration := monotime.Duration(start, monotime.Now())
 						consumerMetrics.With(
@@ -190,7 +190,7 @@ func (c *EVEConsumer) initConsumer() {
 	r := c.ctx.Cache.Get()
 	defer r.Close()
 	// Load Phase
-	c.initKillConsumer(r)
+	c.initKillConsumer()
 }
 
 // RunConsumer starts the consumer and returns.

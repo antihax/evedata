@@ -26,7 +26,7 @@ func TestContactSyncConsumer(t *testing.T) {
 	}
 
 	for {
-		work, err := contactSyncConsumer(eC, r)
+		work, err := contactSyncConsumer(eC, &r)
 		if err != nil {
 			t.Error(err)
 			return

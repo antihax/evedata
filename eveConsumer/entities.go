@@ -31,7 +31,8 @@ func entitiesTrigger(c *EVEConsumer) (bool, error) {
 	return true, err
 }
 
-func charSearchConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
+func charSearchConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
+	r := *redisPtr
 	ret, err := r.Do("SPOP", "EVEDATA_charSearchQueue")
 	if err != nil {
 		return false, err
@@ -63,20 +64,21 @@ func charSearchConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 		if len(search.Character) > 0 {
 			redis := c.ctx.Cache.Get()
 			for _, nid := range search.Character {
-				EntityAddToQueue(nid, redis)
+				EntityAddToQueue(nid, &redis)
 			}
 			redis.Close()
 		}
 	} else { // add the character to the queue so we get latest data.
 		redis := c.ctx.Cache.Get()
-		EntityAddToQueue((int32)(id), redis)
+		EntityAddToQueue((int32)(id), &redis)
 		redis.Close()
 	}
 
 	return true, err
 }
 
-func entitiesConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
+func entitiesConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
+	r := *redisPtr
 	ret, err := r.Do("SPOP", "EVEDATA_entityQueue")
 	if err != nil {
 		return false, err
@@ -139,7 +141,7 @@ func (c *EVEConsumer) entitiesUpdate() error {
 		}
 
 		// Recursively update expired information
-		if err = EntityAddToQueue(id, r); err != nil {
+		if err = EntityAddToQueue(id, &r); err != nil {
 			return err
 		}
 
@@ -174,7 +176,7 @@ func (c *EVEConsumer) entitiesFromCREST() error {
 
 	// Throw them into the queue
 	for _, allianceID := range ids {
-		if err = EntityAddToQueue(allianceID, redis); err != nil {
+		if err = EntityAddToQueue(allianceID, &redis); err != nil {
 			return err
 		}
 	}
@@ -182,7 +184,8 @@ func (c *EVEConsumer) entitiesFromCREST() error {
 	return nil
 }
 
-func CharSearchAddToQueue(characterName string, r redis.Conn) error {
+func CharSearchAddToQueue(characterName string, redisPtr *redis.Conn) error {
+	r := *redisPtr
 	if !eveapi.ValidCharacterName(characterName) {
 		return errors.New(fmt.Sprintf("Invalid Character Name: %s", characterName))
 	}
@@ -192,16 +195,17 @@ func CharSearchAddToQueue(characterName string, r redis.Conn) error {
 	return err
 }
 
-func EntityAddToQueue(id int32, r redis.Conn) error {
+func EntityAddToQueue(id int32, r *redis.Conn) error {
+	red := *r
 	// Skip this entity if we have touched it recently
 	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", id)
-	i, err := redis.Bool(r.Do("EXISTS", key))
+	i, err := redis.Bool(red.Do("EXISTS", key))
 	if err != nil || i == true {
 		return err
 	}
 
 	// Add the entity to the queue
-	_, err = r.Do("SADD", "EVEDATA_entityQueue", id)
+	_, err = red.Do("SADD", "EVEDATA_entityQueue", id)
 	return err
 }
 
@@ -264,7 +268,7 @@ func (c *EVEConsumer) updateAlliance(id int32) error {
 	}
 
 	for _, corp := range corps {
-		err = EntityAddToQueue(corp, redis)
+		err = EntityAddToQueue(corp, &redis)
 		if err != nil {
 			return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
 		}
@@ -287,7 +291,7 @@ func (c *EVEConsumer) updateCorporation(id int64) error {
 	if a.CEOID > 1 {
 		redis := c.ctx.Cache.Get()
 		defer redis.Close()
-		err = EntityAddToQueue((int32)(a.CEOID), redis)
+		err = EntityAddToQueue((int32)(a.CEOID), &redis)
 		if err != nil {
 			return errors.New(fmt.Sprintf("%s with corporation id %d", err, id))
 		}

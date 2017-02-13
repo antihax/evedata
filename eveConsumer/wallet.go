@@ -53,7 +53,8 @@ func walletsTrigger(c *EVEConsumer) (bool, error) {
 	return true, err
 }
 
-func walletsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
+func walletsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
+	r := *redisPtr
 	ret, err := r.Do("SPOP", "EVEDATA_walletQueue")
 	if err != nil {
 		return false, err

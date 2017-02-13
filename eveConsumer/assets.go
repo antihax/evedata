@@ -17,7 +17,8 @@ func init() {
 	addTrigger("assets", assetsTrigger)
 }
 
-func assetsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
+func assetsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
+	r := *redisPtr
 	// POP some work of the queue
 	ret, err := r.Do("SPOP", "EVEDATA_assetQueue")
 	if err != nil {

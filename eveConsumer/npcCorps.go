@@ -41,7 +41,7 @@ func npcCorpTrigger(c *EVEConsumer) (bool, error) {
 				continue
 			}
 
-			EntityAddToQueue((int32)(npcCorp.ID), redis)
+			EntityAddToQueue((int32)(npcCorp.ID), &redis)
 			store, err := c.ctx.EVE.LoyaltyPointStoreV1(npcCorp.LoyaltyStore.Href)
 			if err != nil {
 				continue

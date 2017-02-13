@@ -48,7 +48,8 @@ func marketPublicStructureTrigger(c *EVEConsumer) (bool, error) {
 	return true, err
 }
 
-func marketPublicStructureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
+func marketPublicStructureConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
+	r := *redisPtr
 	ret, err := r.Do("SPOP", "EVEDATA_publicOrders")
 	if err != nil {
 		return false, err
@@ -204,7 +205,8 @@ func marketHistoryTrigger(c *EVEConsumer) (bool, error) {
 	return true, err
 }
 
-func marketOrderConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
+func marketOrderConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
+	r := *redisPtr
 	ret, err := r.Do("SPOP", "EVEDATA_marketOrders")
 	if err != nil {
 		return false, err
@@ -217,7 +219,7 @@ func marketOrderConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	}
 
 	var page int32 = 1
-	c.marketRegionAddRegion(v, time.Now().UTC().Unix()+(60*15), r)
+	c.marketRegionAddRegion(v, time.Now().UTC().Unix()+(60*15), &r)
 	for {
 		b, res, err := c.ctx.ESI.V1.MarketApi.GetMarketsRegionIdOrders((int32)(v), "all", map[string]interface{}{"page": page})
 		if err != nil {
@@ -266,7 +268,7 @@ func marketOrderConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 
 		// Cache the greater of one hour, or the returned cache-control
 		cacheUntil := max(time.Now().UTC().Add(time.Hour*1).Unix(), goesi.CacheExpires(res).UTC().Unix())
-		c.marketRegionAddRegion(v, cacheUntil, r)
+		c.marketRegionAddRegion(v, cacheUntil, &r)
 
 		// Next page
 		page++
@@ -274,11 +276,13 @@ func marketOrderConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 	return true, nil
 }
 
-func (c *EVEConsumer) marketRegionAddRegion(v int, t int64, r redis.Conn) {
+func (c *EVEConsumer) marketRegionAddRegion(v int, t int64, redisPtr *redis.Conn) {
+	r := *redisPtr
 	r.Do("ZADD", "EVEDATA_marketRegions", t, v)
 }
 
-func marketHistoryConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
+func marketHistoryConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
+	r := *redisPtr
 	ret, err := r.Do("SPOP", "EVEDATA_marketHistory")
 	if err != nil {
 		return false, err
@@ -343,7 +347,8 @@ func marketHistoryConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
 }
 
 // Check the regions for their cache time to expire
-func marketRegionConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
+func marketRegionConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
+	r := *redisPtr
 	t := time.Now().UTC().Unix()
 
 	// Get a list of regions by expired keys.

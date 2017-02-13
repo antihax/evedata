@@ -15,7 +15,8 @@ func init() {
 	addConsumer("structures", structureConsumer, "EVEDATA_structureQueue")
 }
 
-func structureConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
+func structureConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
+	r := *redisPtr
 	// POP some work of the queue
 	ret, err := r.Do("SPOP", "EVEDATA_structureQueue")
 	if err != nil {

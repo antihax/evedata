@@ -17,7 +17,8 @@ func init() {
 	addConsumer("killmails", killmailsConsumer, "EVEDATA_killQueue")
 }
 
-func killmailsConsumer(c *EVEConsumer, r redis.Conn) (bool, error) {
+func killmailsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
+	r := *redisPtr
 	ret, err := r.Do("SPOP", "EVEDATA_killQueue")
 	if err != nil {
 		return false, err
@@ -81,7 +82,9 @@ func (c *EVEConsumer) killmailSetKnown(id int32) error {
 }
 
 // Launched in go routine
-func (c *EVEConsumer) initKillConsumer(r redis.Conn) {
+func (c *EVEConsumer) initKillConsumer() {
+	r := c.ctx.Cache.Get()
+	defer r.Close()
 	// get the list of know killmails
 	k, err := models.GetKnownKillmails()
 	if err != nil {
@@ -124,10 +127,10 @@ func (c *EVEConsumer) killmailGetAndSave(id int32, hash string) error {
 	redis := c.ctx.Cache.Get()
 	defer redis.Close()
 
-	EntityAddToQueue(kill.Victim.CharacterId, redis)
-	EntityAddToQueue(kill.Victim.CorporationId, redis)
+	EntityAddToQueue(kill.Victim.CharacterId, &redis)
+	EntityAddToQueue(kill.Victim.CorporationId, &redis)
 	if kill.Victim.AllianceId != 0 {
-		EntityAddToQueue(kill.Victim.AllianceId, redis)
+		EntityAddToQueue(kill.Victim.AllianceId, &redis)
 	}
 	if save {
 		err = models.AddKillmail(kill.KillmailId, kill.SolarSystemId, kill.KillmailTime.UTC(), kill.Victim.CharacterId,
@@ -147,10 +150,10 @@ func (c *EVEConsumer) killmailGetAndSave(id int32, hash string) error {
 		}
 	}
 	for _, attacker := range kill.Attackers {
-		EntityAddToQueue(attacker.CharacterId, redis)
-		EntityAddToQueue(attacker.CorporationId, redis)
+		EntityAddToQueue(attacker.CharacterId, &redis)
+		EntityAddToQueue(attacker.CorporationId, &redis)
 		if attacker.AllianceId != 0 {
-			EntityAddToQueue(attacker.AllianceId, redis)
+			EntityAddToQueue(attacker.AllianceId, &redis)
 		}
 		if save {
 			err = models.AddKillmailAttacker(kill.KillmailId, attacker.CharacterId, attacker.CorporationId, attacker.AllianceId,
