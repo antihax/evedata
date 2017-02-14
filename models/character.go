@@ -8,6 +8,22 @@ import (
 	"github.com/guregu/null"
 )
 
+// Obtain an authenticated client from a stored access/refresh token.
+func GetCRESTToken(characterID int64, tokenCharacterID int64) (*CRESTToken, error) {
+	tok := &CRESTToken{}
+	if err := database.QueryRowx(
+		`SELECT expiry, tokenType, accessToken, refreshToken, tokenCharacterID, characterID, characterName
+			FROM evedata.crestTokens
+			WHERE characterID = ? AND tokenCharacterID = ?
+			LIMIT 1`,
+		characterID, tokenCharacterID).StructScan(tok); err != nil {
+
+		return nil, err
+	}
+
+	return tok, nil
+}
+
 type CRESTToken struct {
 	Expiry           time.Time   `db:"expiry" json:"expiry,omitempty"`
 	CharacterID      int64       `db:"characterID" json:"characterID,omitempty"`

@@ -94,7 +94,7 @@
 							<li class="dropdown">
 								<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 									<img src="" id="cursorImage"> 
-									<strong id="cursorName">Some Dude</strong>
+									<strong id="cursorName">No UI Control Character</strong>
 									<span class="glyphicon glyphicon-chevron-down"></span>
 								</a>
 								<ul class="dropdown-menu">
@@ -169,6 +169,28 @@
 			});
 		}
 
+		function setEVEDestination(id) {
+			if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
+				$.ajax({
+					url: "/X/setDestination?destinationID=" + id,
+					type: 'POST',
+				});
+			} else {
+				showAlert('No characters available with UI Control. Please add characters on the account page with at least one with UI control.', 'danger');
+			}
+		}
+
+		function addEVEDestination(id) {
+			if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
+				$.ajax({
+					url: "/X/addDestination?destinationID=" + id,
+					type: 'POST',
+				});
+			} else {
+				showAlert('No characters available with UI Control. Please add characters on the account page with at least one with UI control.', 'danger');
+			}
+		}
+
 		function updateCursorDisplay() {
 			if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
 				$("#cursorName").text(accountInfo.cursor.cursorCharacterName)
@@ -192,7 +214,7 @@
 				if (accountInfo.characters && accountInfo.characters[0].tokenCharacterID) {
 					updateCursor(accountInfo.characters[0].tokenCharacterID, accountInfo.characters[0].characterName)
 				} else {
-					showAlert('No characters available. Please add characters on the account page.', 'danger');
+					showAlert('No characters available with UI Control. Please add characters on the account page with at least one with UI control.', 'danger');
 				}
 			}
 			
@@ -202,14 +224,16 @@
 			$("#accountName").text(accountInfo.characterName)
 
 			$.each(accountInfo.characters, function(key, val) {	
-				if (val.tokenCharacterID == accountInfo.cursor.cursorCharacterID) {		
-					$('#cursorCharacter').append('<option value=' + val.tokenCharacterID + ' SELECTED><img src="' + characterImageByID(val.tokenCharacterID, 32) + '" width=32 height=32>' + val.characterName + '</option>');
-				} else {
-					$('#cursorCharacter').append('<option value=' + val.tokenCharacterID + '><img src="' + characterImageByID(val.tokenCharacterID, 32) + '" width=32 height=32>' + val.characterName + '</option>');									
+				if (~val.scopes.indexOf("open_window")) {
+					if (val.tokenCharacterID == accountInfo.cursor.cursorCharacterID) {		
+						$('#cursorCharacter').append('<option value=' + val.tokenCharacterID + ' SELECTED><img src="' + characterImageByID(val.tokenCharacterID, 32) + '" width=32 height=32>' + val.characterName + '</option>');
+					} else {
+						$('#cursorCharacter').append('<option value=' + val.tokenCharacterID + '><img src="' + characterImageByID(val.tokenCharacterID, 32) + '" width=32 height=32>' + val.characterName + '</option>');									
+					}
 				}
-			})
+			});
 
-			$('#cursorCharacter').selectpicker('refresh')
+			$('#cursorCharacter').selectpicker('refresh');
 		}).fail(function() {
 			$("#notloggedin").show();
 		});

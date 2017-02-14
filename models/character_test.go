@@ -34,6 +34,18 @@ func TestGetCRESTTokens(t *testing.T) {
 	}
 }
 
+func TestGetCRESTToken(t *testing.T) {
+	dude, err := GetCRESTToken(1, 1)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if dude.CharacterName != "Dude" {
+		t.Error("Character name is not as stored")
+		return
+	}
+}
+
 func TestSetTokenError(t *testing.T) {
 	err := SetTokenError(1, 1, 200, "OK", nil, nil)
 	if err != nil {

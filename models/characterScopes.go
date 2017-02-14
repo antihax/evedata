@@ -8,21 +8,20 @@ type ScopeGroup struct {
 }
 
 var characterScopes = []ScopeGroup{
-	
-	{"esi-assets.read_assets.v1", 			"assets"},
+	{"esi-assets.read_assets.v1", "assets"},
 
-	{"esi-characters.read_contacts.v1", 	"contacts"},
-	{"esi-characters.write_contacts.v1", 	"contacts"},
+	{"esi-characters.read_contacts.v1", "contacts"},
+	{"esi-characters.write_contacts.v1", "contacts"},
 
 	{eveapi.ScopeCharacterMarketOrdersRead, "market"},
-	{"esi-universe.read_structures.v1", 	"market"},
-	{"esi-search.search_structures.v1", 	"market"},
-	{"esi-markets.structure_markets.v1", 	"market"},
+	{"esi-universe.read_structures.v1", "market"},
+	{"esi-search.search_structures.v1", "market"},
+	{"esi-markets.structure_markets.v1", "market"},
 
-	{"esi-ui.open_window.v1", 				"ui-control"},
-	{"esi-ui.write_waypoint.v1", 			"ui-control"},
+	{"esi-ui.open_window.v1", "ui-control"},
+	{"esi-ui.write_waypoint.v1", "ui-control"},
 
-	{eveapi.ScopeCharacterWalletRead, 		"wallet"},
+	{eveapi.ScopeCharacterWalletRead, "wallet"},
 	{"esi-wallet.read_character_wallet.v1", "wallet"},
 }
 

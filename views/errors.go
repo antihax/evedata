@@ -1,6 +1,7 @@
 package views
 
 import (
+	"errors"
 	"html/template"
 	"net/http"
 
@@ -24,5 +25,5 @@ func notFoundPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 		return http.StatusInternalServerError, err
 	}
 
-	return http.StatusNotFound, nil
+	return http.StatusNotFound, errors.New("Page not found")
 }

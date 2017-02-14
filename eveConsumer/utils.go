@@ -12,14 +12,8 @@ import (
 
 // Obtain an authenticated client from a stored access/refresh token.
 func (c *EVEConsumer) getToken(characterID int64, tokenCharacterID int64) (oauth2.TokenSource, error) {
-	tok := models.CRESTToken{}
-	if err := c.ctx.Db.QueryRowx(
-		`SELECT expiry, tokenType, accessToken, refreshToken, tokenCharacterID, characterID
-			FROM evedata.crestTokens
-			WHERE characterID = ? AND tokenCharacterID = ?
-			LIMIT 1`,
-		characterID, tokenCharacterID).StructScan(&tok); err != nil {
-
+	tok, err := models.GetCRESTToken(characterID, tokenCharacterID)
+	if err != nil {
 		return nil, err
 	}
 

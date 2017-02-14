@@ -21,7 +21,7 @@
 			</thead>
 		</table>
 	</div>
-			
+
 	<div class="modal fade" id="addcontact">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -46,9 +46,9 @@
 					"button">Close</button> <button class=
 					"btn btn-primary submit" type="button">Submit</button>
 				</div>
-			</div><!-- /.modal-content -->
-		</div><!-- /.modal-dialog -->
-	</div><!-- /.modal -->
+			</div>
+		</div>
+	</div>
 	
 	<script>
 		var 	$contactstable = $('#contactstable').bootstrapTable({url: "/U/contactSync"}, "changeLocale", "en_US"),
@@ -96,9 +96,6 @@
 			});
 		});
 		
-
-		
-		
 		function queryParams(params) {
 			return {};
 		}
@@ -131,8 +128,6 @@
 			$addcontact.find('.modal-title').text(title);
 			$addcontact.modal('show');
 		}
-		function showAlert(message, type) {
-			$.growl(message,{type: type, delay: 4000,});
-		}
+
 	</script>
 {{end}}
