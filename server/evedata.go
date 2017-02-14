@@ -155,8 +155,7 @@ func GoServer() {
 		log.Fatalf("Cannot build database pool: %v", err)
 	}
 
-
-	ctx.Store.SetMaxLength(1024*10)
+	ctx.Store.SetMaxLength(1024 * 10)
 	ctx.Store.Options.Domain = ctx.Conf.Store.Domain
 
 	// Register structs for storage.
