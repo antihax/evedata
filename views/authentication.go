@@ -123,25 +123,28 @@ func updateAccountInfo(s *sessions.Session, characterID int64, characterName str
 func eveCRESTToken(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
 	setCache(w, 0)
 
+	var scopes []string
+
 	// Get the scopeGroups
 	scopeGroupsTxt := r.FormValue("scopeGroups")
-	if scopeGroupsTxt == "" {
-		return http.StatusBadRequest, errors.New("scopeGroups is empty")
-	}
 
-	// split into []string
-	scopeGroups := strings.Split(scopeGroupsTxt, ",")
+	if scopeGroupsTxt != "" {
+		// split into []string
+		scopeGroups := strings.Split(scopeGroupsTxt, ",")
 
-	// Validate the scopeGroups are actually real
-	validate := models.GetCharacterScopeGroups()
-	for _, group := range scopeGroups {
-		if validate[group] == "" {
-			return http.StatusBadRequest, errors.New("scopeGroup is invalid")
+		// Validate the scopeGroups are actually real
+		validate := models.GetCharacterScopeGroups()
+		for _, group := range scopeGroups {
+			if validate[group] == "" {
+				return http.StatusBadRequest, errors.New("scopeGroup is invalid")
+			}
 		}
+		// Get the associated scopes to the groups
+		scopes = models.GetCharacterScopesByGroups(scopeGroups)
 	}
 
-	// Get the associated scopes to the groups
-	scopes := models.GetCharacterScopesByGroups(scopeGroups)
+	// Hack to allow no scopes
+	scopes = append(scopes, "publicData")
 
 	// Make a code to validate on the return
 	b := make([]byte, 16)

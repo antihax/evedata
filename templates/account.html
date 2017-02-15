@@ -49,7 +49,7 @@
 			data-url="/U/CRESTTokens" id="cresttable">
 			<thead>
 				<tr>
-					<th data-field="characterName">Name</th>
+					<th data-field="characterName" data-formatter="accountNameFormatter">Name</th>
 					<th data-field="lastStatus">Last Status</th>
 					<th data-align="center" data-events="actionEvents"
 					data-field="action" data-formatter="CRESTTokenFormatter">
@@ -75,7 +75,7 @@
 				if (scopeGroups.length) {
 					window.location.replace("/X/eveTokenAuth?scopeGroups=" + scopeGroups.join(","));
 				} else {
-					showAlert('You must select at least one scope!', 'danger');
+					window.location.replace("/X/eveTokenAuth");
 				}
 			});
 		});
@@ -83,7 +83,14 @@
 		function queryParams(params) {
 			return {};
 		}
-		function CRESTTokenFormatter(value) {
+
+		function accountNameFormatter(value, row) {
+			var scopes = row.scopes.replace(/\s+/g,  "\n");
+			return '<i class="glyphicon glyphicon-th-list" data-toggle="tooltip" title="'+ scopes +'"><\/i> &nbsp; ' + value;
+		}
+
+		function CRESTTokenFormatter(value, row) {
+			
 			return [
 				'<a class="removecrest" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
 			].join('');
