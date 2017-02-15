@@ -193,10 +193,15 @@ func MaintMarket() error {
 		return err
 	}
 
+	regions, err := GetMarketRegions()
+	if err != nil {
+		return err
+	}
+
 	if err := RetryExecTillNoRows(`
         DELETE LOW_PRIORITY FROM evedata.market 
             WHERE date_add(issued, INTERVAL duration DAY) < UTC_TIMESTAMP() OR 
-            reported < DATE_SUB(utc_timestamp(), INTERVAL 1 HOUR)
+            reported < DATE_SUB(utc_timestamp(), INTERVAL 3 HOUR)
             ORDER BY regionID, typeID ASC LIMIT 50000;
             `); err != nil {
 		return err
@@ -214,7 +219,7 @@ func MaintMarket() error {
                 INNER JOIN staStations S ON M.stationID = S.stationID
         WHERE   reported >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 5 DAY)
         GROUP BY M.stationID 
-        HAVING count(*) > 1000
+        HAVING count(*) > 2000
         ORDER BY stationName;
             `); err != nil {
 		return err
@@ -226,14 +231,18 @@ func MaintMarket() error {
 		return err
 	}
 
-	if _, err := RetryExec(`
+	for _, region := range regions {
+
+		if _, err := RetryExec(`
         REPLACE INTO evedata.market_vol (
             SELECT count(*) as number,sum(quantity)/7 as quantity, regionID, itemID 
                 FROM evedata.market_history 
                 WHERE date > DATE_SUB(UTC_TIMESTAMP(),INTERVAL 7 DAY) 
+                AND regionID = ?
                 GROUP BY regionID, itemID);
-            `); err != nil {
-		return err
+            `, region.RegionID); err != nil {
+			return err
+		}
 	}
 
 	if _, err := RetryExec(`
