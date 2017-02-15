@@ -61,7 +61,8 @@
 
     function typeFormatter(value, row) {
     	var typeURL = '/item?id=' + row.typeID
-    	return '<a href="' + typeURL + '"><img src="' + typeImage(row) + '" height=32 width=32> ' + value + '</a>';
+    	return '<a data-toggle="tooltip" title="Open market in-game" href="javascript:openMarketWindow(' + row.typeID + ')"><span class="glyphicon glyphicon-circle-arrow-right"></span></a>'
+		+ '&nbsp;&nbsp;<a href="' + typeURL + '"><img src="' + typeImage(row) + '" height=32 width=32> ' + value + '</a>';
     }
 
     function currencyFormatter(value, row) {
@@ -90,4 +91,37 @@
 			type: type,
 			delay: 4000,
 		});
+	}
+
+	function openMarketWindow(id) {
+		if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
+			$.ajax({
+				url: "/X/openMarketWindow?typeID=" + id,
+				type: 'POST',
+			});
+		} else {
+			showAlert('No characters available with UI Control. Please add characters on the account page with at least one with UI control.', 'danger');
+		}
+	}
+
+	function setEVEDestination(id) {
+		if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
+			$.ajax({
+				url: "/X/setDestination?destinationID=" + id,
+				type: 'POST',
+			});
+		} else {
+			showAlert('No characters available with UI Control. Please add characters on the account page with at least one with UI control.', 'danger');
+		}
+	}
+
+	function addEVEDestination(id) {
+		if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
+			$.ajax({
+				url: "/X/addDestination?destinationID=" + id,
+				type: 'POST',
+			});
+		} else {
+			showAlert('No characters available with UI Control. Please add characters on the account page with at least one with UI control.', 'danger');
+		}
 	}

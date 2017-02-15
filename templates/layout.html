@@ -169,28 +169,6 @@
 			});
 		}
 
-		function setEVEDestination(id) {
-			if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
-				$.ajax({
-					url: "/X/setDestination?destinationID=" + id,
-					type: 'POST',
-				});
-			} else {
-				showAlert('No characters available with UI Control. Please add characters on the account page with at least one with UI control.', 'danger');
-			}
-		}
-
-		function addEVEDestination(id) {
-			if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
-				$.ajax({
-					url: "/X/addDestination?destinationID=" + id,
-					type: 'POST',
-				});
-			} else {
-				showAlert('No characters available with UI Control. Please add characters on the account page with at least one with UI control.', 'danger');
-			}
-		}
-
 		function updateCursorDisplay() {
 			if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
 				$("#cursorName").text(accountInfo.cursor.cursorCharacterName)
