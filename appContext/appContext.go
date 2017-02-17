@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/antihax/eveapi"
 	"github.com/antihax/evedata/config"
-	"github.com/antihax/evedata/eveapi"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
 	"github.com/gregjones/httpcache"

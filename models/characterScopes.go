@@ -1,6 +1,6 @@
 package models
 
-import "github.com/antihax/evedata/eveapi"
+import "github.com/antihax/eveapi"
 
 type ScopeGroup struct {
 	Scope string

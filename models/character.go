@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/antihax/evedata/eveapi"
+	"github.com/antihax/eveapi"
 	"github.com/guregu/null"
 )
 

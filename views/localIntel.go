@@ -9,9 +9,10 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/antihax/eveapi"
 	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/eveConsumer"
-	"github.com/antihax/evedata/eveapi"
+
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"

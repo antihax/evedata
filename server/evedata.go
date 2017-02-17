@@ -9,11 +9,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/antihax/eveapi"
 	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/config"
 	"github.com/antihax/evedata/discord"
 	"github.com/antihax/evedata/eveConsumer"
-	"github.com/antihax/evedata/eveapi"
+
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
 
@@ -94,8 +95,6 @@ func GoServer() {
 	if ctx.Db, err = models.SetupDatabase(ctx.Conf.Database.Driver, ctx.Conf.Database.Spec); err != nil {
 		log.Fatalf("Cannot build database pool: %v", err)
 	}
-
-
 
 	// Setup the SSO authenticator, this is the main login.
 	ssoScopes := []string{}
@@ -186,7 +185,6 @@ func GoServer() {
 			}
 		}
 	}
-
 
 	// Allocate the routes.
 	rtr := NewRouter(&ctx)

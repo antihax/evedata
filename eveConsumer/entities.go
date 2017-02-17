@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/antihax/evedata/eveapi"
+	"github.com/antihax/eveapi"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
 	"github.com/garyburd/redigo/redis"

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/antihax/evedata/eveapi"
+	"github.com/antihax/eveapi"
 )
 
 func TestAddCRESTToken(t *testing.T) {

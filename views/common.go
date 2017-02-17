@@ -10,8 +10,9 @@ import (
 
 	"golang.org/x/oauth2"
 
+	"github.com/antihax/eveapi"
 	"github.com/antihax/evedata/appContext"
-	"github.com/antihax/evedata/eveapi"
+
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
 	"github.com/gorilla/sessions"

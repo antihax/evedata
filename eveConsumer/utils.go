@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 
-	"github.com/antihax/evedata/eveapi"
+	"github.com/antihax/eveapi"
 	"github.com/antihax/evedata/models"
 	"golang.org/x/oauth2"
 )

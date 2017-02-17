@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/antihax/eveapi"
 	"github.com/antihax/evedata/appContext"
-	"github.com/antihax/evedata/eveapi"
 	"github.com/antihax/evedata/models"
 )
 
