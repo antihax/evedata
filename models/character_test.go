@@ -71,6 +71,7 @@ func TestUpdateCharacter(t *testing.T) {
 }
 
 func TestGetCharacter(t *testing.T) {
+	err := UpdateCharacter(1001, "dude", 1, 1, 147035273, 0, 1, "male", -10, time.Now())
 	char, err := GetCharacter(1001)
 	if err != nil {
 		t.Error(err)
@@ -83,6 +84,7 @@ func TestGetCharacter(t *testing.T) {
 }
 
 func TestGetCharacterIDByName(t *testing.T) {
+	err := UpdateCharacter(1001, "dude", 1, 1, 147035273, 0, 1, "male", -10, time.Now())
 	char, err := GetCharacterIDByName("dude")
 	if err != nil {
 		t.Error(err)
