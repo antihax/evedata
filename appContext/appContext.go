@@ -121,7 +121,7 @@ func NewTestAppContext() AppContext {
 		"esi-wallet.read_character_wallet.v1",
 	}
 
-	// take care to never actually make requests on this.
+	// take care to never actually make real requests on this.
 	ctx.TokenAuthenticator = eveapi.NewSSOAuthenticator(
 		ctx.HTTPClient,
 		"123545",

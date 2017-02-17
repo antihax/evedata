@@ -73,6 +73,17 @@
 		return numberCommafy(value);
     }
 
+	function sumFormatter(data) {
+		field = this.field;
+		return numberCommafy(data.reduce(function(sum, row) { 
+			return sum + (+row[field]);
+		}, 0));
+	}
+
+	function totalTextFormatter(data) {
+		return 'Total';
+	}
+
 	function numberCommafy(nStr) {
 		nStr += '';
 		var x = nStr.split('.');

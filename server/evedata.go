@@ -95,14 +95,7 @@ func GoServer() {
 		log.Fatalf("Cannot build database pool: %v", err)
 	}
 
-	if len(os.Args) > 1 {
-		if os.Args[1] == "dumpdb" {
-			err := models.DumpDatabase("./sql/evedata.sql", "evedata")
-			if err != nil {
-				log.Fatalln(err)
-			}
-		}
-	}
+
 
 	// Setup the SSO authenticator, this is the main login.
 	ssoScopes := []string{}
@@ -179,6 +172,21 @@ func GoServer() {
 		eC.RunConsumer()
 		defer eC.StopConsumer()
 	}
+
+	if len(os.Args) > 1 {
+		if os.Args[1] == "dumpdb" {
+			err := models.DumpDatabase("./sql/evedata.sql", "evedata")
+			if err != nil {
+				log.Fatalln(err)
+			}
+		} else if os.Args[1] == "bootstrap" {
+			err := bootstrap(&ctx)
+			if err != nil {
+				log.Fatalln(err)
+			}
+		}
+	}
+
 
 	// Allocate the routes.
 	rtr := NewRouter(&ctx)

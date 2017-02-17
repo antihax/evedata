@@ -220,7 +220,7 @@ func marketOrderConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	var page int32 = 1
 	c.marketRegionAddRegion(v, time.Now().UTC().Unix()+(60*15), &r)
 	for {
-		b, res, err := c.ctx.ESI.V1.MarketApi.GetMarketsRegionIdOrders((int32)(v), "all", map[string]interface{}{"page": page})
+		b, res, err := c.ctx.ESI.V1.MarketApi.GetMarketsRegionIdOrders("all", (int32)(v), map[string]interface{}{"page": page})
 		if err != nil {
 			return false, err
 		} else if len(b) == 0 { // end of the pages

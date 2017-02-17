@@ -342,6 +342,12 @@ CREATE TABLE `walletJournal` (
   PRIMARY KEY (`refID`,`argName1`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `walletJournalRefType` (
+  `refTypeID` int(11) NOT NULL,
+  `refTypeName` varchar(255) COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`refTypeID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `walletTransactions` (
   `transactionID` bigint(20) unsigned NOT NULL,
   `transactionDateTime` datetime NOT NULL,

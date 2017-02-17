@@ -74,7 +74,7 @@ func setDestination(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 	}
 
 	// Set the destination
-	res, err := c.ESI.V2.UserInterfaceApi.PostUiAutopilotWaypoint(auth, destinationID, true, false, nil)
+	res, err := c.ESI.V2.UserInterfaceApi.PostUiAutopilotWaypoint(auth, false, true, destinationID, nil)
 	if err != nil {
 		if res != nil {
 			return res.StatusCode, err
@@ -109,7 +109,7 @@ func addDestination(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 	}
 
 	// Set the destination
-	res, err := c.ESI.V2.UserInterfaceApi.PostUiAutopilotWaypoint(auth, destinationID, false, false, nil)
+	res, err := c.ESI.V2.UserInterfaceApi.PostUiAutopilotWaypoint(auth, false, false, destinationID, nil)
 	if err != nil {
 		if res != nil {
 			return res.StatusCode, err

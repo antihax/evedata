@@ -57,7 +57,7 @@ func charSearchConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	// We don't know this person... lets go looking.
 
 	if id == 0 {
-		search, _, err := c.ctx.ESI.V1.SearchApi.GetSearch(v, []string{"character"}, map[string]interface{}{"strict": true})
+		search, _, err := c.ctx.ESI.V1.SearchApi.GetSearch([]string{"character"}, v, map[string]interface{}{"strict": true})
 		if err != nil {
 			return true, err
 		}
