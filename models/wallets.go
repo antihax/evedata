@@ -1,9 +1,10 @@
 package models
 
 import (
-	"esodatarelaysite/null"
 	"fmt"
 	"time"
+
+	"github.com/guregu/null"
 )
 
 type WalletSummary struct {
