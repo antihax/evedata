@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/antihax/eveapi"
 	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/config"
 	"github.com/antihax/evedata/discord"
@@ -103,7 +102,7 @@ func GoServer() {
 	// Setup the SSO authenticator, this is the main login.
 	ssoScopes := []string{}
 
-	ctx.SSOAuthenticator = eveapi.NewSSOAuthenticator(
+	ctx.SSOAuthenticator = goesi.NewSSOAuthenticator(
 		ctx.HTTPClient,
 		ctx.Conf.CREST.SSO.ClientID,
 		ctx.Conf.CREST.SSO.SecretKey,
@@ -112,7 +111,7 @@ func GoServer() {
 
 	// Setup the Token authenticator, this handles sub characters.
 	tokenScopes := models.GetCharacterScopes()
-	ctx.TokenAuthenticator = eveapi.NewSSOAuthenticator(
+	ctx.TokenAuthenticator = goesi.NewSSOAuthenticator(
 		ctx.HTTPClient,
 		ctx.Conf.CREST.Token.ClientID,
 		ctx.Conf.CREST.Token.SecretKey,
@@ -123,7 +122,7 @@ func GoServer() {
 	ctx.ESI = goesi.NewAPIClient(ctx.HTTPClient, ctx.Conf.UserAgent)
 
 	// Setup the bootstrap authenticator. Needed to update the site main token.
-	ctx.ESIBootstrapAuthenticator = eveapi.NewSSOAuthenticator(
+	ctx.ESIBootstrapAuthenticator = goesi.NewSSOAuthenticator(
 		ctx.HTTPClient,
 		ctx.Conf.CREST.ESIAccessToken.ClientID,
 		ctx.Conf.CREST.ESIAccessToken.SecretKey,
@@ -133,7 +132,7 @@ func GoServer() {
 			"esi-markets.structure_markets.v1"})
 
 	// Get the token from config and build a TokenSource (refreshes the token if needed).
-	token := &eveapi.CRESTToken{
+	token := &goesi.CRESTToken{
 		AccessToken:  ctx.Conf.CREST.ESIAccessToken.AccessToken,
 		TokenType:    ctx.Conf.CREST.ESIAccessToken.TokenType,
 		RefreshToken: ctx.Conf.CREST.ESIAccessToken.RefreshToken,
@@ -156,11 +155,8 @@ func GoServer() {
 
 	// Register structs for storage.
 	gob.Register(oauth2.Token{})
-	gob.Register(eveapi.CRESTToken{})
-	gob.Register(eveapi.VerifyResponse{})
-
-	// Anonymous EVE API & Crest Client.
-	ctx.EVE = eveapi.NewEVEAPIClient(ctx.HTTPClient)
+	gob.Register(goesi.CRESTToken{})
+	gob.Register(goesi.VerifyResponse{})
 
 	// Set our logging flags.
 	log.SetFlags(log.LstdFlags | log.Lshortfile)

@@ -65,7 +65,7 @@ func structuresTrigger(c *EVEConsumer) (bool, error) {
 	redis.Flush()
 	redis.Close()
 
-	stations, err := c.ctx.EVE.ConquerableStationsListXML()
+	stations, err := c.ctx.ESI.EVEAPI.ConquerableStationsListXML()
 	if err != nil {
 		return false, err
 	}

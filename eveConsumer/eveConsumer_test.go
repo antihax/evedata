@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/antihax/eveapi"
 	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/models"
+	"github.com/antihax/goesi"
 )
 
 var (
@@ -31,10 +31,10 @@ func TestMain(m *testing.M) {
 	models.SetServiceState("structures", time.Now().UTC(), 1)
 
 	scopes := []string{
-		eveapi.ScopeCharacterContractsRead,
-		eveapi.ScopeCharacterMarketOrdersRead,
-		eveapi.ScopeCharacterResearchRead,
-		eveapi.ScopeCharacterWalletRead,
+		goesi.ScopeCharacterContractsRead,
+		goesi.ScopeCharacterMarketOrdersRead,
+		goesi.ScopeCharacterResearchRead,
+		goesi.ScopeCharacterWalletRead,
 		"esi-assets.read_assets.v1",
 		"esi-characters.read_contacts.v1",
 		"esi-characters.write_contacts.v1",
@@ -49,7 +49,7 @@ func TestMain(m *testing.M) {
 		"esi-universe.read_structures.v1",
 		"esi-wallet.read_character_wallet.v1",
 	}
-	tok := eveapi.CRESTToken{
+	tok := goesi.CRESTToken{
 		AccessToken:  "FAKE",
 		RefreshToken: "So Fake",
 		Expiry:       time.Now().Add(time.Hour * 100000),
@@ -60,7 +60,7 @@ func TestMain(m *testing.M) {
 		log.Fatal(err)
 		return
 	}
-	tok2 := eveapi.CRESTToken{
+	tok2 := goesi.CRESTToken{
 		AccessToken:  "FAKE",
 		RefreshToken: "So Fake",
 		Expiry:       time.Now().Add(time.Hour * 100000),

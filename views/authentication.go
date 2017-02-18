@@ -74,7 +74,7 @@ func eveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 		return http.StatusInternalServerError, err
 	}
 
-	v, err := c.EVE.Verify(tokSrc)
+	v, err := c.SSOAuthenticator.Verify(tokSrc)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
@@ -183,7 +183,7 @@ func eveTokenAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 		return http.StatusInternalServerError, err
 	}
 
-	v, err := c.EVE.Verify(tokSrc)
+	v, err := c.SSOAuthenticator.Verify(tokSrc)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}

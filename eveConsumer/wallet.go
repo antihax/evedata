@@ -89,7 +89,7 @@ func walletsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 	var fromID int64 = 0
 	for {
-		wallets, err := c.ctx.EVE.CharacterWalletJournalXML(token, (int64)(tokenChar), fromID)
+		wallets, err := c.ctx.ESI.EVEAPI.CharacterWalletJournalXML(token, (int64)(tokenChar), fromID)
 		if err != nil {
 			tokenError(char, tokenChar, nil, err)
 			return false, err
@@ -150,7 +150,7 @@ func walletsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 	fromID = 0
 	for {
-		transactions, err := c.ctx.EVE.CharacterWalletTransactionXML(token, (int64)(tokenChar), fromID)
+		transactions, err := c.ctx.ESI.EVEAPI.CharacterWalletTransactionXML(token, (int64)(tokenChar), fromID)
 		if err != nil || transactions == nil {
 			tokenError(char, tokenChar, nil, err)
 			return false, err

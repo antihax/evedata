@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 
-	"github.com/antihax/eveapi"
 	"github.com/antihax/evedata/models"
+	"github.com/antihax/goesi"
 	"golang.org/x/oauth2"
 )
 
@@ -17,7 +17,7 @@ func (c *EVEConsumer) getToken(characterID int64, tokenCharacterID int64) (oauth
 		return nil, err
 	}
 
-	token := &eveapi.CRESTToken{Expiry: tok.Expiry, AccessToken: tok.AccessToken, RefreshToken: tok.RefreshToken, TokenType: tok.TokenType}
+	token := &goesi.CRESTToken{Expiry: tok.Expiry, AccessToken: tok.AccessToken, RefreshToken: tok.RefreshToken, TokenType: tok.TokenType}
 	n, err := c.ctx.TokenAuthenticator.TokenSource(token)
 
 	return n, err

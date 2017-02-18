@@ -49,8 +49,15 @@
     }
 
     function characterFormatter(value, row) {
-    	var entityURL = '/'+ row.type + '?id=' + row.id 
         return '<img src="' + characterImage(row) + '" height=32 width=32 alt="'+row.characterName+'">';
+    }
+
+    function owner1Formatter(value, row) {
+        return '<img src="' + characterImageByID(row.ownerID1, 32) + '" height=32 width=32 alt="'+row.ownerName1+'"> &nbsp;'+row.ownerName1;
+    }
+
+    function owner2Formatter(value, row) {
+        return '<img src="' + characterImageByID(row.ownerID2, 32) + '" height=32 width=32 alt="'+row.ownerName2+'"> &nbsp;'+row.ownerName2;
     }
 
     function stationFormatter(value, row) {
@@ -66,7 +73,7 @@
     }
 
     function currencyFormatter(value, row) {
-		return numberCommafy(value);
+		return numberCommafy(value.toFixed(2));
     }
 
     function numberFormatter(value, row) {

@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/antihax/eveapi"
 	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/eveConsumer"
+	"github.com/antihax/goesi"
 
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
@@ -99,7 +99,7 @@ func removeDuplicatesAndValidate(xs []string) []interface{} {
 	found := make(map[string]bool)
 
 	for _, x := range xs {
-		if eveapi.ValidCharacterName(x) {
+		if goesi.ValidCharacterName(x) {
 			if !found[x] {
 				found[x] = true
 				n = append(n, x)

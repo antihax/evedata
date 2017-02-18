@@ -76,7 +76,7 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 		return nil
 	}
 
-	w, err := c.ctx.EVE.WarsV1((int)(page))
+	w, err := c.ctx.ESI.EVEAPI.WarsV1((int)(page))
 	if err != nil {
 		return err
 	}

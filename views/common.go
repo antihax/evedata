@@ -10,7 +10,6 @@ import (
 
 	"golang.org/x/oauth2"
 
-	"github.com/antihax/eveapi"
 	"github.com/antihax/evedata/appContext"
 
 	"github.com/antihax/evedata/models"
@@ -43,7 +42,7 @@ func getToken(ctx *appContext.AppContext, characterID int64, tokenCharacterID in
 		return nil, err
 	}
 
-	token := &eveapi.CRESTToken{Expiry: tok.Expiry, AccessToken: tok.AccessToken, RefreshToken: tok.RefreshToken, TokenType: tok.TokenType}
+	token := &goesi.CRESTToken{Expiry: tok.Expiry, AccessToken: tok.AccessToken, RefreshToken: tok.RefreshToken, TokenType: tok.TokenType}
 	n, err := ctx.TokenAuthenticator.TokenSource(token)
 
 	return n, err

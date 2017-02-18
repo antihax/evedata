@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/antihax/eveapi"
+	"github.com/antihax/goesi"
 )
 
 func TestUpdateCharacter(t *testing.T) {
@@ -24,7 +24,7 @@ func TestUpdateCharacter(t *testing.T) {
 }
 
 func TestAddCRESTToken(t *testing.T) {
-	tok := eveapi.CRESTToken{
+	tok := goesi.CRESTToken{
 		AccessToken:  "FAKE",
 		RefreshToken: "So Fake",
 		Expiry:       time.Now().UTC().Add(time.Hour * 100000),

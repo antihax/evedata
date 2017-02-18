@@ -53,8 +53,6 @@ var 	$assets = $('#assets').bootstrapTable({
                     formatter: "numberFormatter"
                 }],
                 data: row.subItems,
-                // Simple contextual, assumes all entries have further nesting
-                // Just shows example of how you might differentiate some rows, though also remember row class and similar possible flags
                 detailView: row.subItems[0]['subItems'] !== undefined,
                 onExpandRow: function(indexb, rowb, $detailb) {
                     $detailb.html('<table></table>').find('table').bootstrapTable({

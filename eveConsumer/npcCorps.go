@@ -20,7 +20,7 @@ func npcCorpTrigger(c *EVEConsumer) (bool, error) {
 	}
 
 	log.Printf("EVEConsumer: collecting loyalty Point Store Items")
-	w, err := c.ctx.EVE.NPCCorporationsV1(1)
+	w, err := c.ctx.ESI.EVEAPI.NPCCorporationsV1(1)
 	if err != nil {
 		return false, err
 	}
@@ -42,7 +42,7 @@ func npcCorpTrigger(c *EVEConsumer) (bool, error) {
 			}
 
 			EntityAddToQueue((int32)(npcCorp.ID), &redis)
-			store, err := c.ctx.EVE.LoyaltyPointStoreV1(npcCorp.LoyaltyStore.Href)
+			store, err := c.ctx.ESI.EVEAPI.LoyaltyPointStoreV1(npcCorp.LoyaltyStore.Href)
 			if err != nil {
 				continue
 			}

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/antihax/eveapi"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
 	"github.com/garyburd/redigo/redis"
@@ -44,7 +43,7 @@ func charSearchConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		return false, err
 	}
 
-	if !eveapi.ValidCharacterName(v) {
+	if !goesi.ValidCharacterName(v) {
 		return false, errors.New(fmt.Sprintf("Invalid Character Name: %s", v))
 	}
 
@@ -186,7 +185,7 @@ func (c *EVEConsumer) entitiesFromCREST() error {
 
 func CharSearchAddToQueue(characterName string, redisPtr *redis.Conn) error {
 	r := *redisPtr
-	if !eveapi.ValidCharacterName(characterName) {
+	if !goesi.ValidCharacterName(characterName) {
 		return errors.New(fmt.Sprintf("Invalid Character Name: %s", characterName))
 	}
 
@@ -278,7 +277,7 @@ func (c *EVEConsumer) updateAlliance(id int32) error {
 }
 
 func (c *EVEConsumer) updateCorporation(id int64) error {
-	a, err := c.ctx.EVE.CorporationPublicSheetXML(id)
+	a, err := c.ctx.ESI.EVEAPI.CorporationPublicSheetXML(id)
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with corporation id %d", err, id))
 	}

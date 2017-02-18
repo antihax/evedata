@@ -17,7 +17,7 @@ type transport struct {
 	ctx  *appContext.AppContext
 }
 
-var errorRate uint32
+var errorRate int32
 
 // RoundTrip wraps http.DefaultTransport.RoundTrip to provide stats and handle error rates.
 func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
@@ -39,16 +39,20 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 			// Tick up the error rate and sleep proportionally to the error count.
 			if res.StatusCode >= 500 || res.StatusCode == 000 {
-
-				if errorRate < 60 {
-					atomic.AddUint32(&errorRate, 1)
+				errors := atomic.LoadInt32(&errorRate)
+				if errors < 60 {
+					atomic.AddInt32(&errorRate, 1)
+					errors++
 				}
-				time.Sleep(time.Second * time.Duration(errorRate))
+				time.Sleep(time.Second * time.Duration(errors))
 			}
 		} else {
 			// Tick down the error rate.
-			if errorRate > 0 {
-				atomic.AddUint32(&errorRate, ^uint32(0))
+			errors := atomic.LoadInt32(&errorRate)
+			if errors > 0 {
+				atomic.AddInt32(&errorRate, ^int32(0))
+			} else if errors < 0 {
+				atomic.StoreInt32(&errorRate, 0)
 			}
 		}
 	}

@@ -10,7 +10,7 @@ func bootstrap(c *appContext.AppContext) error {
 }
 
 func boostrapRefID(c *appContext.AppContext) error {
-	refTypes, err := c.EVE.RefTypesXML()
+	refTypes, err := c.ESI.EVEAPI.RefTypesXML()
 	if err != nil {
 		return err
 	}
@@ -18,7 +18,7 @@ func boostrapRefID(c *appContext.AppContext) error {
 	for _, r := range refTypes.RefTypes {
 		_, err := c.Db.Exec(`INSERT INTO evedata.walletJournalRefType (refTypeID, refTypeName) 
             VALUES(?,?) ON DUPLICATE KEY UPDATE refID = refID`,
-            r.RefTypeID, r.RefTypeName)
+			r.RefTypeID, r.RefTypeName)
 		if err != nil {
 			return err
 		}

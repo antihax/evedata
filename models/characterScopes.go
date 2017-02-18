@@ -1,6 +1,6 @@
 package models
 
-import "github.com/antihax/eveapi"
+import "github.com/antihax/goesi"
 
 type ScopeGroup struct {
 	Scope string
@@ -13,7 +13,7 @@ var characterScopes = []ScopeGroup{
 	{"esi-characters.read_contacts.v1", "contacts"},
 	{"esi-characters.write_contacts.v1", "contacts"},
 
-	{eveapi.ScopeCharacterMarketOrdersRead, "market"},
+	{goesi.ScopeCharacterMarketOrdersRead, "market"},
 	{"esi-universe.read_structures.v1", "market"},
 	{"esi-search.search_structures.v1", "market"},
 	{"esi-markets.structure_markets.v1", "market"},
@@ -21,7 +21,7 @@ var characterScopes = []ScopeGroup{
 	{"esi-ui.open_window.v1", "ui-control"},
 	{"esi-ui.write_waypoint.v1", "ui-control"},
 
-	{eveapi.ScopeCharacterWalletRead, "wallet"},
+	{goesi.ScopeCharacterWalletRead, "wallet"},
 	{"esi-wallet.read_character_wallet.v1", "wallet"},
 }
 

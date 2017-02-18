@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/antihax/eveapi"
 	"github.com/antihax/evedata/config"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
@@ -22,21 +21,20 @@ import (
 
 // AppContext provides access to handles throughout the app.
 type AppContext struct {
-	Conf           *config.Config       // App Configuration
-	Db             *sqlx.DB             // EVE Database
-	Store          *gsr.RediStore       // Redis session store.
-	EVE            *eveapi.EVEAPIClient // EVE API Client
-	HTTPClient     *http.Client         // Redis Cached HTTP client
-	Cache          *redis.Pool          // Redis connection Pool for HTTP Cache and session store.
+	Conf           *config.Config // App Configuration
+	Db             *sqlx.DB       // EVE Database
+	Store          *gsr.RediStore // Redis session store.
+	HTTPClient     *http.Client   // Redis Cached HTTP client
+	Cache          *redis.Pool    // Redis connection Pool for HTTP Cache and session store.
 	ESI            *goesi.APIClient
 	ESIPublicToken oauth2.TokenSource
 
 	// Since we need to combine data from multiple characters, we use
 	// one authenticator for the site to act as the main authentication.
 	// second will allow for many alt characters under the main.
-	SSOAuthenticator          *eveapi.SSOAuthenticator // CREST authenticator for site authentication
-	TokenAuthenticator        *eveapi.SSOAuthenticator // CREST authenticator for site functionality
-	ESIBootstrapAuthenticator *eveapi.SSOAuthenticator // CREST authenticator for site functionality
+	SSOAuthenticator          *goesi.SSOAuthenticator // CREST authenticator for site authentication
+	TokenAuthenticator        *goesi.SSOAuthenticator // CREST authenticator for site functionality
+	ESIBootstrapAuthenticator *goesi.SSOAuthenticator // CREST authenticator for site functionality
 }
 
 func NewTestAppContext() AppContext {
@@ -94,18 +92,15 @@ func NewTestAppContext() AppContext {
 
 	// Register structs for storage
 	gob.Register(oauth2.Token{})
-	gob.Register(eveapi.CRESTToken{})
-	gob.Register(eveapi.VerifyResponse{})
-
-	// Anonymous EVE API & Crest Client
-	ctx.EVE = eveapi.NewEVEAPIClient(ctx.HTTPClient)
+	gob.Register(goesi.CRESTToken{})
+	gob.Register(goesi.VerifyResponse{})
 
 	// Setup the Token authenticator, this handles sub characters.
 	tokenScopes := []string{
-		eveapi.ScopeCharacterContractsRead,
-		eveapi.ScopeCharacterMarketOrdersRead,
-		eveapi.ScopeCharacterResearchRead,
-		eveapi.ScopeCharacterWalletRead,
+		goesi.ScopeCharacterContractsRead,
+		goesi.ScopeCharacterMarketOrdersRead,
+		goesi.ScopeCharacterResearchRead,
+		goesi.ScopeCharacterWalletRead,
 		"esi-assets.read_assets.v1",
 		"esi-characters.read_contacts.v1",
 		"esi-characters.write_contacts.v1",
@@ -122,7 +117,7 @@ func NewTestAppContext() AppContext {
 	}
 
 	// take care to never actually make real requests on this.
-	ctx.TokenAuthenticator = eveapi.NewSSOAuthenticator(
+	ctx.TokenAuthenticator = goesi.NewSSOAuthenticator(
 		ctx.HTTPClient,
 		"123545",
 		"PLEASE IGNORE",

@@ -55,7 +55,7 @@ func boostrapEveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *ht
 		return http.StatusInternalServerError, err
 	}
 
-	_, err = c.EVE.Verify(tokSrc)
+	_, err = c.SSOAuthenticator.Verify(tokSrc)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}

@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/antihax/eveapi"
 	"github.com/antihax/evedata/appContext"
+	"github.com/antihax/goesi"
 
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
@@ -48,7 +48,7 @@ func accountInfo(c *appContext.AppContext, w http.ResponseWriter, r *http.Reques
 		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
 	}
 
-	char, ok := s.Values["character"].(eveapi.VerifyResponse)
+	char, ok := s.Values["character"].(goesi.VerifyResponse)
 	if !ok {
 		return http.StatusForbidden, nil
 	}
@@ -90,7 +90,7 @@ func cursorChar(c *appContext.AppContext, w http.ResponseWriter, r *http.Request
 		return http.StatusInternalServerError, nil
 	}
 
-	char, ok := s.Values["character"].(eveapi.VerifyResponse)
+	char, ok := s.Values["character"].(goesi.VerifyResponse)
 	if !ok {
 		return http.StatusForbidden, nil
 	}
@@ -149,7 +149,7 @@ func apiDeleteCRESTToken(c *appContext.AppContext, w http.ResponseWriter, r *htt
 		return http.StatusConflict, err
 	}
 
-	char, ok := s.Values["character"].(eveapi.VerifyResponse)
+	char, ok := s.Values["character"].(goesi.VerifyResponse)
 	if !ok {
 		return http.StatusForbidden, nil
 	}
