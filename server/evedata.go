@@ -63,6 +63,10 @@ func GoServer() {
 		},
 	}
 
+	/*r := ctx.Cache.Get()
+	r.Do("FLUSHALL")
+	r.Close()*/
+
 	// Create a Redis http client for the CCP APIs.
 	transportCache := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))
 
