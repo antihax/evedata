@@ -21,9 +21,9 @@ You will need:
 ### Setup your environment
 
 1. Fork this repository and clone the fork into `gopath/src/github.com/antihax`.
-2. `go get -v` in the repository to install dependencies.\
-3. Decompress sql.zip and install into a database called EVE.
-4. Install evedata.sql into a database called EVE.
+2. `go get -v` in the repository to install dependencies.
+3. Decompress sql.zip and install into a database called `eve`.
+4. Install evedata.sql into a database called `evedata`.
 5. Create a user with access to both databases.
 6. Copy `config/config-example.conf` to `config/config.conf`
 7. Complete the configuration.
