@@ -8,6 +8,21 @@ import (
 	"github.com/antihax/eveapi"
 )
 
+func TestUpdateCharacter(t *testing.T) {
+	err := UpdateCorporation(147035273, "Dude Corp", "TEST2", 10, 60000004,
+		"Test Executor Corp", 0, 0, "somewhere", 50, 1000, time.Now())
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	err = UpdateCharacter(1001, "dude", 1, 1, 147035273, 0, 1, "male", -10, time.Now())
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+}
+
 func TestAddCRESTToken(t *testing.T) {
 	tok := eveapi.CRESTToken{
 		AccessToken:  "FAKE",
@@ -62,16 +77,7 @@ func TestDeleteCRESTToken(t *testing.T) {
 	}
 }
 
-func TestUpdateCharacter(t *testing.T) {
-	err := UpdateCharacter(1001, "dude", 1, 1, 147035273, 0, 1, "male", -10, time.Now())
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-}
-
 func TestGetCharacter(t *testing.T) {
-	err := UpdateCharacter(1001, "dude", 1, 1, 147035273, 0, 1, "male", -10, time.Now())
 	char, err := GetCharacter(1001)
 	if err != nil {
 		t.Error(err)
@@ -84,7 +90,6 @@ func TestGetCharacter(t *testing.T) {
 }
 
 func TestGetCharacterIDByName(t *testing.T) {
-	err := UpdateCharacter(1001, "dude", 1, 1, 147035273, 0, 1, "male", -10, time.Now())
 	char, err := GetCharacterIDByName("dude")
 	if err != nil {
 		t.Error(err)
