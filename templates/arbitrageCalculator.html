@@ -20,14 +20,19 @@
 	<div class="row">
   		<div class="col-xs-3">
     		<label>Minimum Volume:</label>
-    		<input id="minVolume" type="number" step="1" min=1 class="form-control" value="5">
+    		<input id="minVolume" type="number" step="1" min=1 class="form-control" value="25">
   		</div>
   		<div class="col-xs-5">
     		<label>Max Item Price:</label>
     		<input id="maxPrice" type="number" step="1" min=50000 class="form-control" value="500000000">
   		</div>
   		<div class="col-xs-5">
-    		<button type="submit" id="submit" class="btn btn-primary">Apply</button>
+			Method:<br>
+				<div class="btn-group" id="method" data-toggle="buttons">
+					<label class="radio-inline"><input type="radio" name="method" value="delta" CHECKED>ISK Delta</label>
+					<label class="radio-inline"><input type="radio" name="method" value="percentage">Percentage</label>&nbsp;&nbsp;&nbsp;
+				</div>
+			<button type="submit button-inline" id="submit" class="btn btn-primary">Apply</button>
   		</div>
   		
 	</div>
@@ -41,9 +46,9 @@
 		<thead>
 			<tr>
 				<th data-field="typeName" data-formatter="typeFormatter">Item Name</th>
-				<th data-field="margin" data-formatter="priceFormatter">Margin</th>
-				<th data-field="volume" data-formatter="priceFormatter">Volume</th>
-				<th data-field="buys" data-formatter="priceFormatter">Buy Orders</th>
+				<th data-field="margin" data-formatter="priceFormatter" data-sortable="true">Margin</th>
+				<th data-field="volume" data-formatter="priceFormatter" data-sortable="true">ISK Volume</th>
+				<th data-field="buys" data-formatter="priceFormatter" data-sortable="true">Buy Orders</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -89,7 +94,8 @@
 				'&brokersFee=' + $('#brokersFee').val() +
 				'&tax=' + $('#tax').val() +
 				'&minVolume=' + $('#minVolume').val() +
-				'&maxPrice=' + $('#maxPrice').val()
+				'&maxPrice=' + $('#maxPrice').val()+
+				'&method=' + $('#method input:radio:checked').val()
 		});	
 	}
 	$('#submit').click(function(){

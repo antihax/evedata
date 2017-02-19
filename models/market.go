@@ -57,7 +57,7 @@ type ArbitrageCalculator struct {
 	Margin   string `db:"margin" json:"margin" `
 }
 
-func GetArbitrageCalculator(stationID int64, minVolume int64, maxPrice int64, brokersFee float64, tax float64) ([]ArbitrageCalculator, error) {
+func GetArbitrageCalculator(stationID int64, minVolume int64, maxPrice int64, brokersFee float64, tax float64, method string) ([]ArbitrageCalculator, error) {
 	type buys struct {
 		TypeID   int64   `db:"typeID"`
 		TypeName string  `db:"typeName"`
@@ -126,17 +126,30 @@ func GetArbitrageCalculator(stationID int64, minVolume int64, maxPrice int64, br
 		if !ok {
 			continue
 		}
+		if method == "delta" {
+			if (sellOrder.Price - buyOrder.Price) > 500000 {
+				newOrder := ArbitrageCalculator{}
 
-		if (sellOrder.Price - buyOrder.Price) > 500000 {
-			newOrder := ArbitrageCalculator{}
+				newOrder.Buys = buyOrder.Buys
+				newOrder.Volume = ((int64)(sellOrder.Price+buyOrder.Price) / 2) * buyOrder.Volume
+				newOrder.TypeID = buyOrder.TypeID
+				newOrder.TypeName = buyOrder.TypeName
+				newOrder.Margin = fmt.Sprintf("%.2f", sellOrder.Price-buyOrder.Price)
 
-			newOrder.Buys = buyOrder.Buys
-			newOrder.Volume = buyOrder.Volume
-			newOrder.TypeID = buyOrder.TypeID
-			newOrder.TypeName = buyOrder.TypeName
-			newOrder.Margin = fmt.Sprintf("%.2f", sellOrder.Price-buyOrder.Price)
+				margins = append(margins, newOrder)
+			}
+		} else if method == "percentage" {
+			if (sellOrder.Price / buyOrder.Price) > 1.05 {
+				newOrder := ArbitrageCalculator{}
 
-			margins = append(margins, newOrder)
+				newOrder.Buys = buyOrder.Buys
+				newOrder.Volume = ((int64)(sellOrder.Price+buyOrder.Price) / 2) * buyOrder.Volume
+				newOrder.TypeID = buyOrder.TypeID
+				newOrder.TypeName = buyOrder.TypeName
+				newOrder.Margin = fmt.Sprintf("%.2f", sellOrder.Price/buyOrder.Price)
+
+				margins = append(margins, newOrder)
+			}
 		}
 	}
 

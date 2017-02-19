@@ -73,10 +73,12 @@ func arbitrageCalculator(c *appContext.AppContext, w http.ResponseWriter, r *htt
 		return http.StatusInternalServerError, err
 	}
 
+	method := r.FormValue("method")
+
 	brokersFee = brokersFee / 100
 	tax = tax / 100
 
-	v, err := models.GetArbitrageCalculator(stationID, minVolume, maxPrice, brokersFee, tax)
+	v, err := models.GetArbitrageCalculator(stationID, minVolume, maxPrice, brokersFee, tax, method)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
