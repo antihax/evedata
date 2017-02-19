@@ -84,7 +84,7 @@
 		field = this.field;
 		return numberCommafy(data.reduce(function(sum, row) { 
 			return sum + (+row[field]);
-		}, 0));
+		}, 0).toFixed(2));
 	}
 
 	function totalTextFormatter(data) {
