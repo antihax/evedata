@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/guregu/null"
@@ -31,33 +30,25 @@ type JournalEntry struct {
 	CharacterName string      `db:"characterName" json:"characterName"`
 }
 
-func GetWalletSummary(characterID int64, filterCharacterID int64) ([]WalletSummary, error) {
-
-	filter := ""
-
-	if filterCharacterID == 0 {
-		filter = "IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ? AND scopes LIKE '%wallet%')"
-	} else {
-		// False AST, forced int64.
-		filter = fmt.Sprintf("IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ? AND scopes LIKE '%%wallet%%' AND tokenCharacterID=%d)", filterCharacterID)
-	}
+func GetWalletSummary(characterID int64, rangeI int64) ([]WalletSummary, error) {
 
 	walletSummary := []WalletSummary{}
 	if err := database.Select(&walletSummary, `
 		SELECT T.refTypeID, refTypeName, SUM(amount) AS balance FROM evedata.walletJournal J
 			INNER JOIN evedata.walletJournalRefType T ON J.refTypeID = T.refTypeID
-			WHERE characterID `+filter+`
+			WHERE characterID IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)
+			AND date > DATE_SUB(UTC_TIMESTAMP(), INTERVAL ? DAY)
 			GROUP BY refTypeID;
-	`, characterID); err != nil {
+	`, characterID, rangeI); err != nil {
 		return nil, err
 	}
 
 	count := 0
 	errc := make(chan error)
-	limit := make(chan bool, 10)
+	limit := make(chan bool, 20)
 	for index, _ := range walletSummary {
 		count++
-		go getJournalEntries(characterID, filterCharacterID, walletSummary[index].RefTypeID, &walletSummary[index].JournalEntries, errc, limit)
+		go getJournalEntries(characterID, rangeI, walletSummary[index].RefTypeID, &walletSummary[index].JournalEntries, errc, limit)
 	}
 
 	for i := 0; i < count; i++ {
@@ -70,18 +61,9 @@ func GetWalletSummary(characterID int64, filterCharacterID int64) ([]WalletSumma
 	return walletSummary, nil
 }
 
-func getJournalEntries(characterID int64, filterCharacterID int64, refTypeID int64, entries *[]JournalEntry, errc chan error, limit chan bool) {
+func getJournalEntries(characterID int64, rangeI int64, refTypeID int64, entries *[]JournalEntry, errc chan error, limit chan bool) {
 	limit <- true
 	defer func() { <-limit }()
-
-	filter := ""
-
-	if filterCharacterID == 0 {
-		filter = "IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ? AND scopes LIKE '%wallet%')"
-	} else {
-		// False AST, forced int64.
-		filter = fmt.Sprintf("IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ? AND scopes LIKE '%%wallet%%' AND tokenCharacterID=%d)", filterCharacterID)
-	}
 
 	if err := database.Select(entries, `
 		SELECT refID, refTypeID, 
@@ -93,10 +75,11 @@ func getJournalEntries(characterID int64, filterCharacterID int64, refTypeID int
 		INNER JOIN evedata.crestTokens T ON J.characterID = T.tokenCharacterID
 		LEFT JOIN evedata.characters C1 ON J.ownerID1 = C1.characterID
 		LEFT JOIN evedata.characters C2 ON J.ownerID2 = C2.characterID
-		WHERE T.characterID `+filter+`
+		WHERE T.characterID IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)
 		AND refTypeID = ?
+		AND date > DATE_SUB(UTC_TIMESTAMP(), INTERVAL ? DAY)
 		ORDER BY date DESC;
-	`, characterID, refTypeID); err != nil {
+	`, characterID, refTypeID, rangeI); err != nil {
 		errc <- err
 		return
 	}
