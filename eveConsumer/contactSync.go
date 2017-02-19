@@ -2,6 +2,7 @@ package eveConsumer
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -40,8 +41,11 @@ func contactSyncTrigger(c *EVEConsumer) (bool, error) {
             WHERE lastStatus NOT LIKE "%400 Bad Request%"
 		    GROUP BY source
             HAVING max(nextSync) < UTC_TIMESTAMP();`)
-	if err != nil {
+
+	if err != nil && err != sql.ErrNoRows {
 		return false, err
+	} else if err == sql.ErrNoRows { // Shut up warnings
+		return false, nil
 	}
 
 	defer rows.Close()
