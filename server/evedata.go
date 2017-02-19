@@ -17,7 +17,6 @@ import (
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
 
-	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/context"
 	"github.com/gregjones/httpcache"
 	httpredis "github.com/gregjones/httpcache/redis"
@@ -42,25 +41,7 @@ func GoServer() {
 	}
 
 	// Build the redis pool
-	ctx.Cache = &redis.Pool{
-		MaxIdle:     50,
-		MaxActive:   0,
-		Wait:        false,
-		IdleTimeout: 90 * time.Second,
-		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", ctx.Conf.Redis.Address)
-			if err != nil {
-				return nil, err
-			}
-			if ctx.Conf.Redis.Password != "" {
-				if _, err := c.Do("AUTH", ctx.Conf.Redis.Password); err != nil {
-					c.Close()
-					return nil, err
-				}
-			}
-			return c, err
-		},
-	}
+	ctx.Cache = setupRedis(GetContext())
 
 	/*r := ctx.Cache.Get()
 	r.Do("FLUSHALL")

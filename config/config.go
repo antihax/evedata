@@ -15,6 +15,7 @@ type Config struct {
 		Driver string
 		Spec   string
 	}
+
 	Store struct {
 		Key    string
 		Domain string
@@ -25,6 +26,7 @@ type Config struct {
 		ZKillEnabled bool
 		Consumers    int
 	}
+
 	CREST struct {
 		SSO struct {
 			ClientID    string
@@ -49,8 +51,11 @@ type Config struct {
 	}
 
 	Redis struct {
-		Address  string
-		Password string
+		Address    string
+		Password   string
+		Sentinel   bool
+		Addresses  []string
+		MasterName string
 	}
 
 	Discord struct {
