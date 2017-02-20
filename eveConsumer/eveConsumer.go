@@ -89,19 +89,18 @@ func NewEVEConsumer(ctx *appContext.AppContext) *EVEConsumer {
 }
 
 func (c *EVEConsumer) goMetrics() {
-	r := c.ctx.Cache.Get()
-	defer r.Close()
-
 	rate := time.Second * 5
 	throttle := time.Tick(rate)
 
 	// Run Phase
 	for {
 		<-throttle
+
 		select {
 		case <-c.metricsStopChannel:
 			return
 		default:
+			r := c.ctx.Cache.Get()
 			for _, consumer := range consumers {
 				if consumer.queueName != "" {
 					v, err := redis.Int(r.Do("SCARD", consumer.queueName))
@@ -118,21 +117,21 @@ func (c *EVEConsumer) goMetrics() {
 					).Set(float64(v))
 				}
 			}
+			r.Close()
 		}
 	}
 }
 
 func (c *EVEConsumer) goConsumer() {
-	r := c.ctx.Cache.Get()
-	defer r.Close()
-
 	// Run Phase
 	for {
+
 		workDone := false
 		select {
 		case <-c.consumerStopChannel:
 			return
 		default:
+			r := c.ctx.Cache.Get()
 			// loop through all the consumers
 			for _, consumer := range consumers {
 				start := monotime.Now()
@@ -148,6 +147,7 @@ func (c *EVEConsumer) goConsumer() {
 					log.Printf("%s: %v\n", consumer.name, err)
 				}
 			}
+			r.Close()
 		}
 
 		// Sleep a brief bit if we didnt do anything
@@ -189,9 +189,6 @@ func (c *EVEConsumer) goTriggers() {
 
 // Load deferrable data.
 func (c *EVEConsumer) initConsumer() {
-	r := c.ctx.Cache.Get()
-	defer r.Close()
-	// Load Phase
 	c.initKillConsumer()
 }
 
