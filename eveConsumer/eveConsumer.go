@@ -3,7 +3,6 @@ package eveConsumer
 import (
 	"log"
 	"strings"
-	"sync/atomic"
 	"time"
 
 	"github.com/ScaleFT/monotime"
@@ -87,27 +86,6 @@ type EVEConsumer struct {
 func NewEVEConsumer(ctx *appContext.AppContext) *EVEConsumer {
 	e := &EVEConsumer{ctx, make(chan bool), make(chan bool), make(chan bool), 0}
 	return e
-}
-
-func (c *EVEConsumer) tickError() int32 {
-	errors := atomic.LoadInt32(&c.errorRate)
-	if errors < 60 {
-		atomic.AddInt32(&c.errorRate, 1)
-		errors++
-	}
-	return errors
-}
-
-func (c *EVEConsumer) tickSuccess() int32 {
-	errors := atomic.LoadInt32(&c.errorRate)
-	if errors > 0 {
-		atomic.AddInt32(&c.errorRate, ^int32(0))
-		errors--
-	} else if errors < 0 {
-		atomic.StoreInt32(&c.errorRate, 0)
-		errors = 0
-	}
-	return errors
 }
 
 func (c *EVEConsumer) goMetrics() {

@@ -39,21 +39,21 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 			// Tick up the error rate and sleep proportionally to the error count.
 			if res.StatusCode >= 500 || res.StatusCode == 000 {
-				errors := atomic.LoadInt32(&errorRate)
-				if errors < 60 {
+				if errorRate < 60 {
 					atomic.AddInt32(&errorRate, 1)
-					errors++
+				} else if errorRate > 60 {
+					atomic.StoreInt32(&errorRate, 60)
 				}
-				time.Sleep(time.Second * time.Duration(errors))
+				time.Sleep(time.Second * time.Duration(errorRate))
 			}
 		} else {
 			// Tick down the error rate.
-			errors := atomic.LoadInt32(&errorRate)
-			if errors > 0 {
+			if errorRate > 0 {
 				atomic.AddInt32(&errorRate, ^int32(0))
-			} else if errors < 0 {
+			} else if errorRate < 0 {
 				atomic.StoreInt32(&errorRate, 0)
 			}
+
 		}
 	}
 
