@@ -18,8 +18,6 @@ func init() {
 
 // Perform contact sync for wardecs
 func walletsTrigger(c *EVEConsumer) (bool, error) {
-	r := c.ctx.Cache.Get()
-	defer r.Close()
 
 	// Gather characters for update. Group for optimized updating.
 	rows, err := c.ctx.Db.Query(
@@ -30,7 +28,10 @@ func walletsTrigger(c *EVEConsumer) (bool, error) {
 		log.Printf("Wallets: Failed query: %v", err)
 		return false, err
 	}
+	defer rows.Close()
 
+	r := c.ctx.Cache.Get()
+	defer r.Close()
 	// Loop updatable characters
 	for rows.Next() {
 		var (
@@ -49,7 +50,7 @@ func walletsTrigger(c *EVEConsumer) (bool, error) {
 			continue
 		}
 	}
-	err = rows.Close()
+
 	return true, err
 }
 

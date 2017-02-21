@@ -44,8 +44,7 @@ func (c *EVEConsumer) warAddToQueue(id int32) error {
 }
 
 func (c *EVEConsumer) updateWars() error {
-	r := c.ctx.Cache.Get()
-	defer r.Close()
+
 	rows, err := c.ctx.Db.Query(
 		`SELECT id FROM evedata.wars WHERE timeFinished = '0001-01-01 00:00:00'
 			AND cacheUntil < UTC_TIMESTAMP();`)
@@ -53,6 +52,9 @@ func (c *EVEConsumer) updateWars() error {
 		return err
 	}
 	defer rows.Close()
+
+	r := c.ctx.Cache.Get()
+	defer r.Close()
 
 	for rows.Next() {
 		var id int32

@@ -104,8 +104,6 @@ func assetsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 // Update character assets
 func assetsTrigger(c *EVEConsumer) (bool, error) {
-	r := c.ctx.Cache.Get()
-	defer r.Close()
 
 	// Gather characters for update. Group for optimized updating.
 	rows, err := c.ctx.Db.Query(
@@ -115,6 +113,11 @@ func assetsTrigger(c *EVEConsumer) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
+	defer rows.Close()
+
+	r := c.ctx.Cache.Get()
+	defer r.Close()
 
 	// Loop updatable characters
 	for rows.Next() {
@@ -134,6 +137,5 @@ func assetsTrigger(c *EVEConsumer) (bool, error) {
 			return false, err
 		}
 	}
-	err = rows.Close()
 	return true, err
 }

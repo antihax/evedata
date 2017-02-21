@@ -159,8 +159,6 @@ func (c *EVEConsumer) entitiesFromCREST() error {
 	} else if nextCheck.After(time.Now().UTC()) {
 		return nil
 	}
-	redis := c.ctx.Cache.Get()
-	defer redis.Close()
 
 	ids, res, err := c.ctx.ESI.V1.AllianceApi.GetAlliances(nil)
 	if err != nil {
@@ -173,6 +171,8 @@ func (c *EVEConsumer) entitiesFromCREST() error {
 		return err
 	}
 
+	redis := c.ctx.Cache.Get()
+	defer redis.Close()
 	// Throw them into the queue
 	for _, allianceID := range ids {
 		if err = EntityAddToQueue(allianceID, &redis); err != nil {
@@ -257,15 +257,14 @@ func (c *EVEConsumer) updateAlliance(id int32) error {
 		return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
 	}
 
-	redis := c.ctx.Cache.Get()
-	defer redis.Close()
-
 	err = models.UpdateAlliance(id, a.AllianceName, len(corps), a.Ticker, a.ExecutorCorp,
 		a.DateFounded, time.Now().UTC().Add(time.Hour*24))
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
 	}
 
+	redis := c.ctx.Cache.Get()
+	defer redis.Close()
 	for _, corp := range corps {
 		err = EntityAddToQueue(corp, &redis)
 		if err != nil {

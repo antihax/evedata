@@ -24,8 +24,6 @@ func init() {
 
 // Perform contact sync for wardecs
 func contactSyncTrigger(c *EVEConsumer) (bool, error) {
-	r := c.ctx.Cache.Get()
-	defer r.Close()
 
 	// Do quick maintenence to prevent errors.
 	err := models.MaintContactSync()
@@ -47,8 +45,10 @@ func contactSyncTrigger(c *EVEConsumer) (bool, error) {
 	} else if err == sql.ErrNoRows { // Shut up warnings
 		return false, nil
 	}
-
 	defer rows.Close()
+
+	r := c.ctx.Cache.Get()
+	defer r.Close()
 
 	// Loop updatable characters
 	for rows.Next() {

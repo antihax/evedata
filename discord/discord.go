@@ -35,12 +35,11 @@ func goKillmailHunter(ctx *appContext.AppContext) {
 
 	rate := time.Second * 60 * 5
 	throttle := time.Tick(rate)
-	r := ctx.Cache.Get()
-	defer r.Close()
 
 	for {
 		<-throttle
-
+		r := ctx.Cache.Get()
+		defer r.Close()
 		// Skip this entity if we have touched it recently
 		startID, err := redis.Int64(r.Do("GET", "EVEDATA_killqueue:99006652"))
 		if err != nil {
@@ -82,6 +81,8 @@ func goKillmailHunter(ctx *appContext.AppContext) {
 			continue
 		}
 
+		defer rows.Close()
+
 		for rows.Next() {
 			var killID int64
 			if err := rows.Scan(&killID); err != nil {
@@ -91,7 +92,7 @@ func goKillmailHunter(ctx *appContext.AppContext) {
 			r.Do("SET", "EVEDATA_killqueue:99006652", killID)
 			SendMessage(fmt.Sprintf("https://zkillboard.com/kill/%d/", killID))
 		}
-		rows.Close()
+
 	}
 }
 
