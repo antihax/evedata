@@ -38,7 +38,6 @@ type AssetCharacters struct {
 }
 
 func GetAssetLocations(characterID int64, filterCharacterID int64) ([]AssetLocations, error) {
-
 	filter := ""
 
 	if filterCharacterID == 0 {
@@ -156,7 +155,6 @@ func GetAssets(characterID int64, filterCharacterID int64, locationID int64) ([]
 func getSubAssets(itemID int64, assets *[]Assets, errc chan error, limit chan bool) {
 	limit <- true
 	defer func() { <-limit }()
-
 	if err := database.Select(assets, `
 		SELECT A.characterID, characterName, A.locationFlag, A.locationID, A.typeID, A.itemID,
 			T.typeName, IF(A.quantity, A.quantity, A.isSingleton) AS quantity,
