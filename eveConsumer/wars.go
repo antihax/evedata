@@ -60,12 +60,14 @@ func (c *EVEConsumer) updateWars() error {
 		var id int32
 		err = rows.Scan(&id)
 		if err != nil {
+			r.Flush()
 			return err
 		}
-		r.Do("SREM", "EVEDATA_knownFinishedWars", id)
-		c.warAddToQueue(id)
+		r.Send("SREM", "EVEDATA_knownFinishedWars", id)
+		r.Send("SADD", "EVEDATA_warQueue", id)
 	}
-	return nil
+
+	return r.Flush()
 }
 
 /*
@@ -108,39 +110,18 @@ func (c *EVEConsumer) collectWarsFromCREST() error {
 		return nil
 	}
 	// Loop through all pages
-
-	var lastID int32
 	wars, res, err := c.ctx.ESI.V1.WarsApi.GetWars(nil)
 	if err != nil {
 		return err
 	}
+
+	r := c.ctx.Cache.Get()
+	defer r.Close()
 	for _, id := range wars {
-		if lastID >= id || lastID == 0 {
-			lastID = id
-		}
-		c.warAddToQueue(id)
+		r.Send("SADD", "EVEDATA_warQueue", id)
 	}
+	r.Flush()
 	models.SetServiceState("wars", goesi.CacheExpires(res), 1)
-
-	count := 0
-	for {
-		wars, res, err = c.ctx.ESI.V1.WarsApi.GetWars(map[string]interface{}{"maxWarId": lastID})
-		if err != nil {
-			return err
-		}
-
-		count++
-
-		for _, id := range wars {
-			if lastID >= id || lastID == 0 {
-				lastID = id
-			}
-			c.warAddToQueue(id)
-		}
-		if lastID < 1000 || count > 10 {
-			break
-		}
-	}
 
 	return nil
 }
