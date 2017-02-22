@@ -51,7 +51,7 @@ func TestGetAssetCharacters(t *testing.T) {
 }
 
 func TestGetAsset(t *testing.T) {
-	_, err := GetAssets(1001, 0, 0)
+	_, err := GetAssets(1001, 1001, 60012526)
 	if err != nil {
 		t.Error(err)
 		return
