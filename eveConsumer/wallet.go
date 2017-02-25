@@ -65,7 +65,7 @@ func walletsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 	v, err := redis.String(ret, err)
 	if err != nil {
-		return false, err
+		return false, errors.New(fmt.Sprintf("error collecting redis string %s string: %s", err, v))
 	}
 
 	dest := strings.Split(v, ":")
@@ -76,24 +76,24 @@ func walletsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 	char, err := strconv.ParseInt(dest[0], 10, 64)
 	if err != nil {
-		return false, err
+		return false, errors.New(fmt.Sprintf("%s string: %s", err, v))
 	}
 	tokenChar, err := strconv.ParseInt(dest[1], 10, 64)
 	if err != nil {
-		return false, err
+		return false, errors.New(fmt.Sprintf("%s string: %s", err, v))
 	}
 
 	token, err := c.getToken(char, tokenChar)
 	if err != nil {
-		return false, err
+		return false, errors.New(fmt.Sprintf("%s string: %s", err, v))
 	}
 
 	var fromID int64 = 0
 	for {
-		wallets, err := c.ctx.ESI.EVEAPI.CharacterWalletJournalXML(token, (int64)(tokenChar), fromID)
+		wallets, err := c.ctx.ESI.EVEAPI.CharacterWalletJournalXML(token, tokenChar, fromID)
 		if err != nil {
 			tokenError(char, tokenChar, nil, err)
-			return false, err
+			return false, errors.New(fmt.Sprintf("%s %d %d", err, tokenChar, fromID))
 		} else {
 			tokenSuccess(char, tokenChar, 200, "OK")
 		}
@@ -113,10 +113,11 @@ func walletsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 			if wallet.RefID < fromID || fromID == 0 {
 				fromID = wallet.RefID
 			}
+
 			values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%q,%f,%f,%q,%d,%f,%q)",
 				tokenChar, wallet.RefID, wallet.RefTypeID, wallet.OwnerID1, wallet.OwnerID2,
 				wallet.ArgID1, wallet.ArgName1, wallet.Amount, wallet.Balance,
-				wallet.Reason, wallet.TaxReceiverID, wallet.TaxAmount, wallet.Date.UTC().Format(models.SQLTimeFormat)))
+				wallet.Reason, wallet.TaxReceiverID.Int64, wallet.TaxAmount.Float64, wallet.Date.UTC().Format(models.SQLTimeFormat)))
 			if err != nil {
 				log.Printf("Wallets: %v %d\n", err, wallet.ArgID1)
 				break
