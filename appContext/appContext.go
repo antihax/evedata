@@ -9,8 +9,8 @@ import (
 	"github.com/antihax/evedata/config"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
-	"github.com/gregjones/httpcache"
-	httpredis "github.com/gregjones/httpcache/redis"
+	"github.com/antihax/httpcache"
+	httpredis "github.com/antihax/httpcache/redis"
 
 	"golang.org/x/oauth2"
 	gsr "gopkg.in/boj/redistore.v1"
