@@ -84,15 +84,15 @@ func TestMain(m *testing.M) {
 		return
 	}
 
-	err = models.UpdateCorporation(147035273, "Dude Corp", "TEST2", 10, 60000004,
-		"Test Executor Corp", 0, 0, "somewhere", 50, 1000, time.Now())
+	err = models.UpdateCorporation(147035273, "Dude Corp", "TEST2", 10,
+		"Test Executor Corp", 0, 0, "somewhere", 50, time.Now())
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
-	err = models.UpdateCorporation(145904674, "Assaulting", "BADDUDES", 10, 60000004,
-		"Test Executor Corp", 0, 0, "somewhere", 50, 1000, time.Now())
+	err = models.UpdateCorporation(145904674, "Assaulting", "BADDUDES", 10,
+		"Test Executor Corp", 0, 0, "somewhere", 50, time.Now())
 	if err != nil {
 		log.Fatal(err)
 		return

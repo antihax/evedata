@@ -9,8 +9,8 @@ import (
 )
 
 func TestUpdateCharacter(t *testing.T) {
-	err := UpdateCorporation(147035273, "Dude Corp", "TEST2", 10, 60000004,
-		"Test Executor Corp", 0, 0, "somewhere", 50, 1000, time.Now())
+	err := UpdateCorporation(147035273, "Dude Corp", "TEST2", 10,
+		"Test Executor Corp", 0, 0, "somewhere", 50, time.Now())
 	if err != nil {
 		log.Fatal(err)
 		return

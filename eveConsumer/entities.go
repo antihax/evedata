@@ -230,7 +230,7 @@ func (c *EVEConsumer) entityGetAndSave(id int32) error {
 		if e.Category == "alliance" {
 			err = c.updateAlliance(e.Id)
 		} else if e.Category == "corporation" {
-			err = c.updateCorporation((int64)(e.Id))
+			err = c.updateCorporation(e.Id)
 		} else if e.Category == "character" {
 			err = c.updateCharacter(e.Id)
 		}
@@ -275,26 +275,25 @@ func (c *EVEConsumer) updateAlliance(id int32) error {
 	return nil
 }
 
-func (c *EVEConsumer) updateCorporation(id int64) error {
-	a, err := c.ctx.ESI.EVEAPI.CorporationPublicSheetXML(id)
+func (c *EVEConsumer) updateCorporation(id int32) error {
+	a, _, err := c.ctx.ESI.V3.CorporationApi.GetCorporationsCorporationId(id, nil)
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with corporation id %d", err, id))
 	}
-
-	err = models.UpdateCorporation(a.CorporationID, a.CorporationName, a.Ticker, a.CEOID, a.StationID,
-		a.Description, a.AllianceID, a.FactionID, a.URL, a.MemberCount, a.Shares, time.Now().UTC().Add(time.Hour*24))
+	factionID := goesi.FactionNameToID(a.Faction)
+	err = models.UpdateCorporation(id, a.CorporationName, a.Ticker, a.CeoId,
+		a.CorporationDescription, a.AllianceId, factionID, a.Url, a.MemberCount, time.Now().UTC().Add(time.Hour*24))
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with corporation id %d", err, id))
 	}
-	if a.CEOID > 1 {
+	if a.CeoId > 1 {
 		redis := c.ctx.Cache.Get()
 		defer redis.Close()
-		err = EntityAddToQueue((int32)(a.CEOID), &redis)
+		err = EntityAddToQueue((int32)(a.CeoId), &redis)
 		if err != nil {
 			return errors.New(fmt.Sprintf("%s with corporation id %d", err, id))
 		}
 	}
-
 	return nil
 }
 

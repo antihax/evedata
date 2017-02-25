@@ -7,8 +7,8 @@ import (
 )
 
 func TestUpdateCorporation(t *testing.T) {
-	err := UpdateCorporation(147035273, "Dude Corp", "TEST2", 10, 60000004,
-		"Test Executor Corp", 0, 0, "somewhere", 50, 1000, time.Now().UTC())
+	err := UpdateCorporation(147035273, "Dude Corp", "TEST2", 10,
+		"Test Executor Corp", 0, 0, "somewhere", 50, time.Now().UTC())
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -22,7 +22,7 @@ func TestGetCorporation(t *testing.T) {
 		return
 	}
 	if corp.MemberCount != 50 {
-		t.Error("corporation stationID does not match")
+		t.Error("corporation memberCount does not match")
 		return
 	}
 }

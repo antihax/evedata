@@ -6,19 +6,19 @@ import (
 	"github.com/guregu/null"
 )
 
-func UpdateCorporation(corporationID int64, name string, ticker string, ceoID int64, stationID int64,
-	description string, allianceID int64, factionID int64, url string, memberCount int64, shares int64, cacheUntil time.Time) error {
+func UpdateCorporation(corporationID int32, name string, ticker string, ceoID int32,
+	description string, allianceID int32, factionID int32, url string, memberCount int32, cacheUntil time.Time) error {
 
 	cacheUntil = time.Now().UTC().Add(time.Hour * 24 * 5)
 	if _, err := database.Exec(`
 		INSERT INTO evedata.corporations
-			(corporationID,name,ticker,ceoID,stationID,description,allianceID,factionID,url,memberCount,shares,updated,cacheUntil)
-			VALUES(?,?,?,?,?,?,?,?,?,?,?,UTC_TIMESTAMP(),?) 
+			(corporationID,name,ticker,ceoID,description,allianceID,factionID,url,memberCount,updated,cacheUntil)
+			VALUES(?,?,?,?,?,?,?,?,?,UTC_TIMESTAMP(),?) 
 			ON DUPLICATE KEY UPDATE 
-			ceoID=VALUES(ceoID), stationID=VALUES(stationID), description=VALUES(description), allianceID=VALUES(allianceID), 
+			ceoID=VALUES(ceoID),  description=VALUES(description), allianceID=VALUES(allianceID), 
 			factionID=VALUES(factionID), url=VALUES(url), memberCount=VALUES(memberCount),  
-			shares=VALUES(shares), updated=UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil)
-	`, corporationID, name, ticker, ceoID, stationID, description, allianceID, factionID, url, memberCount, shares, cacheUntil); err != nil {
+			updated=UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil)
+	`, corporationID, name, ticker, ceoID, description, allianceID, factionID, url, memberCount, cacheUntil); err != nil {
 		return err
 	}
 	return nil

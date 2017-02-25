@@ -12,8 +12,8 @@ func TestAllianceAdd(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	err = UpdateCorporation(4, "Test Executor", "TEST2", 10, 60000004,
-		"Test Executor Corp", 1, 0, "somewhere", 50, 1000, time.Now().UTC())
+	err = UpdateCorporation(4, "Test Executor", "TEST2", 10,
+		"Test Executor Corp", 1, 0, "somewhere", 50, time.Now().UTC())
 	if err != nil {
 		t.Error(err)
 		return
