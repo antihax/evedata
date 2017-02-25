@@ -17,9 +17,9 @@ import (
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
 
+	"github.com/antihax/httpcache"
+	httpredis "github.com/antihax/httpcache/redis"
 	"github.com/gorilla/context"
-	"github.com/gregjones/httpcache"
-	httpredis "github.com/gregjones/httpcache/redis"
 	"golang.org/x/oauth2"
 	gsr "gopkg.in/boj/redistore.v1"
 )
@@ -48,7 +48,7 @@ func GoServer() {
 	r.Close()*/
 
 	// Create a Redis http client for the CCP APIs.
-	transportCache := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))
+	transportCache := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache))
 
 	// Attach a basic transport with our chained custom transport.
 	transportCache.Transport = &transport{&http.Transport{

@@ -337,7 +337,7 @@ CREATE TABLE `walletJournal` (
   `taxAmount` decimal(22,2) NOT NULL,
   `date` datetime NOT NULL,
   `characterID` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`refID`,`argName1`,`ownerID1`,`ownerID2`),
+  PRIMARY KEY (`refID`,`ownerID1`,`ownerID2`),
   KEY `charID_date` (`characterID`,`date`),
   KEY `char_ref_date` (`characterID`,`refTypeID`,`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -33,10 +33,10 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	// We got a non-recoverable error.
 	if res != nil {
-		if res.StatusCode >= 400 {
-			metricApiErrors.Inc()
-			//	models.AddHTTPError(req, res)
 
+		if res.StatusCode >= 400 || res.StatusCode == 0 {
+			//	models.AddHTTPError(req, res)
+			metricApiErrors.Inc()
 			// Tick up the error rate and sleep proportionally to the error count.
 			if res.StatusCode >= 500 || res.StatusCode == 000 {
 				errors := atomic.LoadInt32(&errorRate)

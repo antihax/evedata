@@ -70,7 +70,7 @@ func NewTestAppContext() AppContext {
 	r.Close()
 
 	// Create a Redis http client for the CCP APIs.
-	transportCache := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache.Get()))
+	transportCache := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache))
 
 	// Attach a basic transport with our chained custom transport.
 	transportCache.Transport = &http.Transport{Proxy: http.ProxyFromEnvironment, MaxIdleConnsPerHost: 5}
