@@ -12,8 +12,8 @@ import (
 	"github.com/antihax/httpcache"
 	httpredis "github.com/antihax/httpcache/redis"
 
+	gsr "github.com/antihax/redistore"
 	"golang.org/x/oauth2"
-	gsr "gopkg.in/boj/redistore.v1"
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"

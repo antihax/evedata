@@ -19,9 +19,9 @@ import (
 
 	"github.com/antihax/httpcache"
 	httpredis "github.com/antihax/httpcache/redis"
+	gsr "github.com/antihax/redistore"
 	"github.com/gorilla/context"
 	"golang.org/x/oauth2"
-	gsr "gopkg.in/boj/redistore.v1"
 )
 
 var ctx appContext.AppContext
@@ -42,10 +42,6 @@ func GoServer() {
 
 	// Build the redis pool
 	ctx.Cache = setupRedis(GetContext())
-
-	/*r := ctx.Cache.Get()
-	r.Do("FLUSHALL")
-	r.Close()*/
 
 	// Create a Redis http client for the CCP APIs.
 	transportCache := httpcache.NewTransport(httpredis.NewWithClient(ctx.Cache))
@@ -79,6 +75,11 @@ func GoServer() {
 	if ctx.Db, err = models.SetupDatabase(ctx.Conf.Database.Driver, ctx.Conf.Database.Spec); err != nil {
 		log.Fatalf("Cannot build database pool: %v", err)
 	}
+
+	/*r := ctx.Cache.Get()
+	r.Do("FLUSHALL")
+	r.Close()*/
+	models.MaintMarket()
 
 	// Setup the SSO authenticator, this is the main login.
 	ssoScopes := []string{}
