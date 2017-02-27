@@ -46,6 +46,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
             `); err != nil {
 		return err
 	}
+    
 	if _, err := RetryExec(`
         INSERT IGNORE INTO evedata.entityKillStats (id)
 	    (SELECT allianceID AS id FROM evedata.alliances); 
@@ -231,8 +232,33 @@ func MaintMarket() error {
 		return err
 	}
 
-	for _, region := range regions {
+	rows, err := database.Query(`
+        SELECT  itemID AS itemID,
+            regionID AS regionID,
+            AVG(low) AS low,
+            AVG(mean) AS mean,
+            AVG(high) AS high,
+            SUM(quantity) AS quantity,
+            SUM(orders) AS orders
+        FROM
+            evedata.market_history
+        WHERE
+            date > UTC_TIMESTAMP() - INTERVAL 5 DAY
+        GROUP BY regionID , itemID`)
 
+	for rows.Next() {
+		var (
+			itemID, regionID, quantity, orders int64
+			low, mean, high                    float64
+		)
+		rows.Scan(&itemID, &regionID, &low, &mean, &high, &quantity, &orders)
+		if _, err := RetryExec(`REPLACE INTO evedata.marketHistoryStatistics VALUES(?,?,?,?,?,?,?)`, itemID, regionID, low, mean, high, quantity, orders); err != nil {
+			return err
+		}
+	}
+	rows.Close()
+
+	for _, region := range regions {
 		if _, err := RetryExec(`
         REPLACE INTO evedata.market_vol (
             SELECT count(*) as number,sum(quantity)/7 as quantity, regionID, itemID 

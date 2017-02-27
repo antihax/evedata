@@ -79,7 +79,6 @@ func GoServer() {
 	/*r := ctx.Cache.Get()
 	r.Do("FLUSHALL")
 	r.Close()*/
-	models.MaintMarket()
 
 	// Setup the SSO authenticator, this is the main login.
 	ssoScopes := []string{}
