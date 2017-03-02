@@ -127,6 +127,7 @@ func GoServer() {
 
 	// Create a memcached session store.
 	ctx.Store, err = gsr.NewRediStoreWithPool(ctx.Cache, []byte(ctx.Conf.Store.Key))
+	defer ctx.Store.Close()
 	if err != nil {
 		log.Fatalf("Cannot build database pool: %v", err)
 	}

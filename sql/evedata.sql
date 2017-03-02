@@ -63,7 +63,7 @@ CREATE TABLE `contactSyncs` (
 CREATE TABLE `corporations` (
   `corporationID` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `ticker` varchar(45) CHARACTER SET latin1 NOT NULL,
+  `ticker` varchar(45) NOT NULL,
   `ceoID` int(11) NOT NULL,
   `description` text NOT NULL,
   `allianceID` int(11) NOT NULL DEFAULT '0',
