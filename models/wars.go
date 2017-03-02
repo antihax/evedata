@@ -211,7 +211,7 @@ func GetWarsForEntityByID(id int64) ([]ActiveWarList, error) {
 
 type KnownAllies struct {
 	Number int64  `db:"number" json:"number"`
-	AllyID int64  `db:"allyID" json:"allyID"`
+	AllyID int64  `db:"allyID" json:"id"`
 	Name   string `db:"name" json:"name"`
 	Type   string `db:"type" json:"type"`
 }

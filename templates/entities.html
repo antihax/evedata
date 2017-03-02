@@ -82,13 +82,19 @@
 		{{ template "activity" . }}
 		{{ template "assets" . }}
 		{{ template "knownships" . }}
-		
-		<div class="col-md-6">
+		{{ template "corporations" . }}
+	</div>
+</div>
+{{end}}
+
+{{define "corporations"}}
+<div class="col-md-6 well">
 			<h2>
 				Corporations
 			</h2>	
 			<table id="corporations"
                data-sort-name="name"
+			   data-url="/J/corporationsForAlliance?id={{ .entityID }}"
                data-pagination="true"
                data-search="true"
                data-sort-order="asc">
@@ -100,240 +106,146 @@
             </thead>
         </table>
 			<script>
-				var $corpTable = $('#corporations');
 			    $(function () {
-       				 var corporations = 
-       				 	[			 	
-			      				{{ range $key, $corp := .AllianceMembers }}
-			      				{
-       				 				"memberCount": {{ $corp.MemberCount }},
-       				 				"name": {{ $corp.CorporationName }},
-       				 				"id": {{ $corp.CorporationID }},
-       				 				"type": "corporation",
-								},
-						{{ end }}       				 	
-					];
-				
-       				$corpTable.bootstrapTable({data: corporations});
+       				$('#corporations').bootstrapTable();
        			});
        		</script>
 		</div>
-	
-
-
-	</div>
-</div>
-
 {{end}}
 
-
 {{define "wars"}}
-	{{if .Wars }} 
-		<div class="col-md-6">
-			<h2>
-				Active Wars
-			</h2>	
-			<table id="wars"
-               data-sort-name="aggressorName"
-               data-pagination="true"
-               data-search="true"
-               data-sort-order="asc">
-            <thead>
-            <tr>
-				<th data-field="aggressorName" data-formatter="aggressorFormatter">Aggressor</th>
-				<th data-field="defenderName" data-formatter="defenderFormatter">Defender</th>
-				<th data-field="kills" data-sortable="true">Kills</th>
-				<th data-field="losses" data-sortable="true">Losses</th>
-            </tr>
-            </thead>
-        </table>
-			<script>
-				var $warTable = $('#wars');
-			    $(function () {
-       				 var wars = 
-       				 	[			 	
-			      				{{ range $key, $war := .Wars }}
-			      				{
-       				 				"aggressorName": {{ $war.AggressorName }},
-       				 				"aggressorType": {{ $war.AggressorType }},
-       				 				"aggressorID": {{ $war.AggressorID }},
-       				 				"defenderName": {{ $war.DefenderName }},
-       				 				"defenderType": {{ $war.DefenderType }},
-       				 				"defenderID": {{ $war.DefenderID }},
-       				 				"kills": {{ $war.Kills }},
-       				 				"losses": {{ $war.Losses }},
-       				 				"warID": {{ $war.WarID }},
-								},
-						{{ end }}       				 	
-					];
-				
-       				$warTable.bootstrapTable({data: wars});
-       			});
-       		</script>
-		</div>
-	{{end}}
+	<div class="col-md-6 well">
+		<h2>
+			Active Wars
+		</h2>	
+		<table id="wars"
+			data-sort-name="aggressorName"
+			data-pagination="true"
+			data-search="true"
+			data-url="/J/warsForEntity?id={{ .entityID }}"
+			data-sort-order="asc">
+		<thead>
+		<tr>
+			<th data-field="aggressorName" data-formatter="aggressorFormatter">Aggressor</th>
+			<th data-field="defenderName" data-formatter="defenderFormatter">Defender</th>
+			<th data-field="kills" data-sortable="true">Kills</th>
+			<th data-field="losses" data-sortable="true">Losses</th>
+		</tr>
+		</thead>
+	</table>
+		<script>
+			$(function () {
+				$('#wars').bootstrapTable();
+			});
+		</script>
+	</div>
 {{end}}
 
 {{define "activity"}}
-	{{if .Activity }} 
-		<div class="col-md-6">
-			<h2>
-				Active Constellations
-			</h2>	
-			<table id="activity"
-               data-sort-name="number"
-               data-pagination="true"
-               data-search="true"
-               data-sort-order="desc">
-            <thead>
-            <tr>
-				<th data-field="number">#</th>
-				<th data-field="regionName" data-sortable="true">Region</th>
-				<th data-field="constellationName" data-sortable="true">Constellation</th>
-				<th data-field="solarSystemNames" data-sortable="true">Solar Systems</th>
-            </tr>
-            </thead>
-        </table>
-			<script>
-				var $activityTable = $('#activity');
-			    $(function () {
-       				 var activity = 
-       				 	[			 	
-			      				{{ range $key, $v := .Activity }}
-			      				{
-       				 				"number": {{ $v.Number }},
-       				 				"regionName": {{ $v.RegionName }},
-       				 				"constellationName": {{ $v.ConstellationName }},
-       				 				"solarSystemNames": {{ $v.SolarSystemNames }},
-								},
-						{{ end }}       				 	
-					];
-				
-       				$activityTable.bootstrapTable({data: activity});
-       			});
-       		</script>
-		</div>
-	{{end}}
+	<div class="col-md-6 well">
+		<h2>
+			Active Constellations
+		</h2>	
+		<table id="activity"
+			data-sort-name="number"
+			data-pagination="true"
+			data-url="/J/activityForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+			data-search="true"
+			data-sort-order="desc">
+		<thead>
+		<tr>
+			<th data-field="number">#</th>
+			<th data-field="regionName" data-sortable="true">Region</th>
+			<th data-field="constellationName" data-sortable="true">Constellation</th>
+			<th data-field="solarSystemNames" data-sortable="true">Solar Systems</th>
+		</tr>
+		</thead>
+	</table>
+		<script>
+			$(function () {				
+				$('#activity').bootstrapTable();
+			});
+		</script>
+	</div>
 {{end}}
 
 {{define "knownships"}}
-	{{if .KnownShips }} 
-		<div class="col-md-6">
-			<h2>
-				Known Ships
-			</h2>	
-			<table id="knownships"
-               data-sort-name="number"
-               data-pagination="true"
-               data-search="true"
-               data-sort-order="desc">
-            <thead>
-            <tr>
-				<th data-field="number">#</th>
-				<th data-field="shipName" data-sortable="true">Ship Name</th>
-            </tr>
-            </thead>
-        </table>
-			<script>
-				var $knownshipsTable = $('#knownships');
-			    $(function () {
-       				 var knownships = 
-       				 	[			 	
-			      				{{ range $key, $v := .KnownShips }}
-			      				{
-       				 				"number": {{ $v.Number }},
-       				 				"shipName": {{ $v.ShipName }},
-       				 				"shipType": {{ $v.ShipType }},
-								},
-						{{ end }}       				 	
-					];
-				
-       				$knownshipsTable.bootstrapTable({data: knownships});
-       			});
-       		</script>
-		</div>
-	{{end}}
+	<div class="col-md-6 well">
+		<h2>
+			Known Ships
+		</h2>	
+		<table id="knownships"
+			data-sort-name="number"
+			data-pagination="true"
+			data-search="true"
+			data-url="/J/shipsForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+			data-sort-order="desc">
+		<thead>
+		<tr>
+			<th data-field="number">#</th>
+			<th data-field="shipName" data-sortable="true">Ship Name</th>
+		</tr>
+		</thead>
+	</table>
+		<script>
+			$(function () {
+				$('#knownships').bootstrapTable();
+			});
+		</script>
+	</div>
 {{end}}
 
 {{define "knownallies"}}
-	{{if .KnownAllies }} 
-		<div class="col-md-6">
-			<h2>
-				Known Allies
-			</h2>	
-			<table id="knownallies"
-               data-sort-name="number"
-               data-pagination="true"
-               data-search="true"
-               data-sort-order="desc">
-            <thead>
-            <tr>
-				<th data-field="number">#</th>
-				<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Ally Name</th>
-            </tr>
-            </thead>
-        </table>
-			<script>
-				var $knownalliesTable = $('#knownallies');
-			    $(function () {
-       				 var knownallies = 
-       				 	[			 	
-			      				{{ range $key, $v := .KnownAllies }}
-			      				{
-       				 				"number": {{ $v.Number }},
-       				 				"type": {{ $v.Type }},
-       				 				"name": {{ $v.Name }},
-       				 				"id": {{ $v.AllyID }},
-								},
-						{{ end }}       				 	
-					];
-				
-       				$knownalliesTable.bootstrapTable({data: knownallies});
-       			});
-       		</script>
-		</div>
-	{{end}}
+	<div class="col-md-6 well">
+		<h2>
+			Known Allies
+		</h2>	
+		<table id="knownallies"
+			data-sort-name="number"
+			data-pagination="true"
+			data-url="/J/alliesForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+			data-search="true"
+			data-sort-order="desc">
+		<thead>
+		<tr>
+			<th data-field="number">#</th>
+			<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Ally Name</th>
+		</tr>
+		</thead>
+	</table>
+		<script>
+			$(function () {
+				$('#knownallies').bootstrapTable();
+			});
+		</script>
+	</div>
 {{end}}
 
 {{define "assets"}}
-	{{if .Assets }} 
-		<div class="col-md-6">
-			<h2>
-				Possible Assets In Space
-			</h2>
-			Note: Citadels may show as fighter drones.
-			<table id="assets"
-               data-sort-name="lastSeen"
-               data-pagination="true"
-               data-search="true"
-               data-sort-order="desc">
-            <thead>
-            <tr>
-				<th data-field="itemName">Near</th>
-				<th data-field="typeName" data-sortable="true">Type</th>
-				<th data-field="security" data-sortable="true">Security</th>
-				<th data-field="lastSeen" data-sortable="true">Last Seen</th>
-            </tr>
-            </thead>
-        </table>
-			<script>
-				var $assetsTable = $('#assets');
-			    $(function () {
-       				 var assets = 
-       				 	[			 	
-			      				{{ range $key, $v := .Assets }}
-			      				{
-       				 				"itemName": {{ $v.ItemName }},
-       				 				"typeName": {{ $v.TypeName }},
-       				 				"security": {{ $v.Security }},
-       				 				"lastSeen": {{ $v.LastSeen }},
-								},
-						{{ end }}       				 	
-					];
-				
-       				$assetsTable.bootstrapTable({data: assets});
-       			});
-       		</script>
-		</div>
-	{{end}}
+	<div class="col-md-6 well">
+		<h2>
+			Possible Assets In Space
+		</h2>
+		Note: Citadels may show as fighter drones.
+		<table id="assets"
+			data-sort-name="lastSeen"
+			data-pagination="true"
+			data-url="/J/assetsForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+			data-search="true"
+			data-sort-order="desc">
+		<thead>
+		<tr>
+			<th data-field="itemName">Near</th>
+			<th data-field="typeName" data-sortable="true">Type</th>
+			<th data-field="security" data-sortable="true">Security</th>
+			<th data-field="lastSeen" data-sortable="true">Last Seen</th>
+		</tr>
+		</thead>
+	</table>
+		<script>
+			$(function () {
+				$('#assets').bootstrapTable({data: assets});
+			});
+		</script>
+	</div>
 {{end}}

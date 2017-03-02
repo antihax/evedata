@@ -67,9 +67,10 @@ func GetAlliance(id int64) (*Alliance, error) {
 }
 
 type AllianceMember struct {
-	CorporationID   int64  `db:"corporationID" json:"corporationID"`
-	CorporationName string `db:"corporationName" json:"corporationName"`
+	ID              int64  `db:"corporationID" json:"id"`
+	CorporationName string `db:"corporationName" json:"name"`
 	MemberCount     int64  `db:"memberCount" json:"memberCount"`
+	Type            string `db:"type" json:"type"`
 }
 
 // Obtain a list of corporations within an alliance by ID.
@@ -86,5 +87,10 @@ func GetAllianceMembers(id int64) ([]AllianceMember, error) {
 		`, id); err != nil {
 		return nil, err
 	}
+
+	for i, _ := range ref {
+		ref[i].Type = "corporation"
+	}
+
 	return ref, nil
 }
