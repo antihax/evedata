@@ -24,6 +24,7 @@ type Config struct {
 	EVEConsumer struct {
 		Enabled      bool
 		ZKillEnabled bool
+		ZKillID      string
 		Consumers    int
 	}
 

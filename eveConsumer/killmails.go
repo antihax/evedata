@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -19,16 +20,9 @@ func init() {
 
 func killmailsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	r := *redisPtr
-	ret, err := r.Do("SPOP", "EVEDATA_killQueue")
+	v, err := redis.String(r.Do("SPOP", "EVEDATA_killQueue"))
 	if err != nil {
-		return false, err
-	} else if ret == nil {
 		return false, nil
-	}
-
-	v, err := redis.String(ret, err)
-	if err != nil {
-		return false, err
 	}
 
 	// split id:hash
@@ -43,6 +37,7 @@ func killmailsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	}
 
 	// We know this kill. Early out.
+	// If this errors, we don't care; let's pull the mail again.
 	i, err := redis.Int(r.Do("SISMEMBER", "EVEDATA_knownKills", (int32)(id)))
 	if err == nil && i == 1 {
 		return false, err
@@ -98,6 +93,7 @@ func (c *EVEConsumer) initKillConsumer() {
 
 	// Send the request to add
 	r.Flush()
+	r.Receive()
 
 	log.Printf("Loaded %d known killmails\n", len(k))
 }
@@ -179,17 +175,18 @@ func (c *EVEConsumer) goZKillConsumer() error {
 		}
 	}
 
-	time.Sleep(time.Second * 5)
-
 	for {
 		k := kill{}
-		err := c.getJSON("https://redisq.zkillboard.com/listen.php", &k)
+		err := c.getJSON(fmt.Sprintf("https://redisq.zkillboard.com/listen.php?queueID=%s", c.ctx.Conf.EVEConsumer.ZKillID), &k)
 		if err != nil {
 			log.Printf("Zkill error: %v\n", err)
+			time.Sleep(time.Second * 5)
 			continue
 		}
 		if k.Package.KillID > 0 {
 			c.killmailAddToQueue(k.Package.KillID, k.Package.ZKB.Hash)
+		} else {
+			time.Sleep(time.Second * 5)
 		}
 	}
 }
@@ -256,7 +253,13 @@ func (c *EVEConsumer) goZKillTemporaryConsumer() error {
 }
 
 func (c *EVEConsumer) getJSON(url string, target interface{}) error {
-	r, err := c.ctx.HTTPClient.Get(url)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("User-Agent", c.ctx.Conf.UserAgent)
+	r, err := c.ctx.HTTPClient.Do(req)
 	if err != nil {
 		return err
 	}
