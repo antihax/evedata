@@ -4,6 +4,7 @@ import (
 	"log"
 	"mime"
 	"net/http"
+	"net/http/pprof"
 
 	"github.com/antihax/evedata/appContext"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -87,6 +88,18 @@ func (a appAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func attachProfiler(router *mux.Router) {
+	router.HandleFunc("/debug/pprof", pprof.Index)
+	router.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	router.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	router.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+	router.Handle("/debug/goroutine", pprof.Handler("goroutine"))
+	router.Handle("/debug/heap", pprof.Handler("heap"))
+	router.Handle("/debug/threadcreate", pprof.Handler("threadcreate"))
+	router.Handle("/debug/block", pprof.Handler("block"))
+	router.Handle("/debug/mutex", pprof.Handler("mutex"))
+}
+
 // NewRouter sets up the routes that were added.
 func NewRouter(ctx *appContext.AppContext) *mux.Router {
 	router := mux.NewRouter().StrictSlash(false)
@@ -129,6 +142,8 @@ func NewRouter(ctx *appContext.AppContext) *mux.Router {
 	if notFoundHandler != nil {
 		router.NotFoundHandler = appHandler{ctx, notFoundHandler.HandlerFunc}
 	}
+
+	attachProfiler(router)
 
 	return router
 }
