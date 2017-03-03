@@ -3,7 +3,6 @@ package eveConsumer
 import (
 	"context"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -105,19 +104,17 @@ func marketPublicStructureConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, 
 
 		tx, err := models.Begin()
 		if err != nil {
-			log.Printf("%s", err)
 			continue
 		}
 		_, err = tx.Exec(stmt)
 		if err != nil {
-			log.Printf("%s", err)
+			tx.Rollback()
 			continue
 		}
 		_, err = tx.Exec("UPDATE evedata.structures SET marketCacheUntil = ?  WHERE stationID = ?", goesi.CacheExpires(res), v)
 
 		err = models.RetryTransaction(tx)
 		if err != nil {
-			log.Printf("%s", err)
 			return false, err
 		}
 
@@ -251,18 +248,17 @@ func marketOrderConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 		tx, err := models.Begin()
 		if err != nil {
-			log.Printf("%s", err)
 			continue
 		}
 		_, err = tx.Exec(stmt)
 		if err != nil {
-			log.Printf("%s", err)
+			tx.Rollback()
 			continue
 		}
 
 		err = models.RetryTransaction(tx)
 		if err != nil {
-			log.Printf("%s", err)
+
 			return false, err
 		}
 
@@ -335,6 +331,7 @@ func marketHistoryConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	}
 	_, err = tx.Exec(stmt)
 	if err != nil {
+		tx.Rollback()
 		return false, err
 	}
 

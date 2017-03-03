@@ -132,6 +132,7 @@ func walletsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 		_, err = tx.Exec(stmt)
 		if err != nil {
+			tx.Rollback()
 			return false, err
 		}
 
@@ -190,6 +191,7 @@ func walletsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 		_, err = tx.Exec(stmt)
 		if err != nil {
+			tx.Rollback()
 			return false, err
 		}
 

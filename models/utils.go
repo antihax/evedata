@@ -1,8 +1,8 @@
 package models
 
 import (
-	"log"
 	"strings"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -17,9 +17,9 @@ func RetryTransaction(tx *sqlx.Tx) error {
 		err := tx.Commit()
 		if err != nil {
 			if strings.Contains(err.Error(), "1213") == false {
-				log.Printf("Assets: %v\n", err)
 				return err
 			} else {
+				time.Sleep(500 * time.Millisecond)
 				continue
 			}
 		} else {
