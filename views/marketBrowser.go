@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	evedata.AddRoute("marketBrowser", "GET", "/", marketBrowser)
+	evedata.AddRoute("marketBrowser", "GET", "/marketBrowser", marketBrowser)
 	evedata.AddRoute("searchItems", "GET", "/J/searchItems", searchitemsPage)
 	evedata.AddRoute("marketSellRegionItems", "GET", "/J/marketSellRegionItems", MarketSellRegionItems)
 	evedata.AddRoute("marketBuyRegionItems", "GET", "/J/marketBuyRegionItems", MarketBuyRegionItems)
@@ -21,7 +21,7 @@ func init() {
 
 // marketBrowser generates.... stuff
 func marketBrowser(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
-	p := newPage(r, "EVE Online Market Browser")
+	p := newPage(r, "Market Browser")
 
 	templates.Templates = template.Must(template.ParseFiles("templates/marketBrowser.html", templates.LayoutPath))
 	err := templates.Templates.ExecuteTemplate(w, "base", p)
