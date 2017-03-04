@@ -21,10 +21,10 @@ func setupRedis(ctx *appContext.AppContext) *redis.Pool {
 func newRedisPool(address string, password string) *redis.Pool {
 	// Build the redis pool
 	return &redis.Pool{
-		MaxIdle:     50,
+		MaxIdle:     200,
 		MaxActive:   0,
 		Wait:        false,
-		IdleTimeout: 90 * time.Second,
+		IdleTimeout: 60 * time.Second,
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.Dial("tcp", address)
 			if err != nil {
@@ -56,10 +56,10 @@ func newSentinelPool(addresses []string, masterName string, password string) *re
 	}
 
 	return &redis.Pool{
-		MaxIdle:     50,
+		MaxIdle:     200,
 		MaxActive:   0,
 		Wait:        false,
-		IdleTimeout: 90 * time.Second,
+		IdleTimeout: 60 * time.Second,
 		Dial: func() (redis.Conn, error) {
 			masterAddr, err := sntnl.MasterAddr()
 			if err != nil {

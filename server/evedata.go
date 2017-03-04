@@ -48,16 +48,16 @@ func GoServer() {
 
 	// Attach a basic transport with our chained custom transport.
 	transportCache.Transport = &transport{&http.Transport{
-		MaxIdleConns: 60,
+		MaxIdleConns: 200,
 		DialContext: (&net.Dialer{
-			Timeout:   30 * time.Second,
-			KeepAlive: 30 * time.Second,
+			Timeout:   60 * time.Second,
+			KeepAlive: 60 * time.Second,
 		}).DialContext,
 		IdleConnTimeout:       60 * time.Second,
-		TLSHandshakeTimeout:   10 * time.Second,
-		ResponseHeaderTimeout: 60 * time.Second,
+		TLSHandshakeTimeout:   20 * time.Second,
+		ResponseHeaderTimeout: 30 * time.Second,
 		ExpectContinueTimeout: 0,
-		MaxIdleConnsPerHost:   5,
+		MaxIdleConnsPerHost:   20,
 	}, &ctx}
 
 	// Build a HTTP Client pool this client will be shared with APIs for:

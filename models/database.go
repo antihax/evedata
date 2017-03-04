@@ -34,7 +34,7 @@ func SetupDatabase(driver string, spec string) (*sqlx.DB, error) {
 
 	// Put some finite limits to prevent opening too many connections
 	database.SetConnMaxLifetime(time.Minute * 2)
-	database.SetMaxIdleConns(10)
+	database.SetMaxIdleConns(100)
 
 	SetDatabase(database)
 	return database, nil
