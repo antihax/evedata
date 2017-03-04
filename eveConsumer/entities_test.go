@@ -39,7 +39,7 @@ func TestCharSearchConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 
-	CharSearchAddToQueue("croakroach", &r)
+	CharSearchAddToQueue([]interface{}{"croakroach", "some other dude"}, &r)
 
 	for {
 		work, err := charSearchConsumer(eC, &r)
