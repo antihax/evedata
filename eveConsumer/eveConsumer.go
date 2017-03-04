@@ -199,7 +199,8 @@ func (c *EVEConsumer) RunConsumer() {
 	go c.goMetrics()
 
 	for i := 0; i < c.ctx.Conf.EVEConsumer.Consumers; i++ {
-		go c.goConsumer() // Run consumers in a loop
+		go c.goConsumer()                 // Run consumers in a loop
+		time.Sleep(time.Millisecond * 37) // Stagger starting the routines
 	}
 
 	go c.goTriggers() // Time triggered queries
