@@ -183,15 +183,16 @@ func (c *EVEConsumer) entitiesFromCREST() error {
 	return nil
 }
 
-func CharSearchAddToQueue(characterName string, redisPtr *redis.Conn) error {
+func CharSearchAddToQueue(charList []interface{}, redisPtr *redis.Conn) {
 	r := *redisPtr
-	if !goesi.ValidCharacterName(characterName) {
-		return errors.New(fmt.Sprintf("Invalid Character Name: %s", characterName))
-	}
 
-	// Add the search to the queue
-	_, err := r.Do("SADD", "EVEDATA_charSearchQueue", characterName)
-	return err
+	for _, name := range charList {
+		if goesi.ValidCharacterName(name.(string)) {
+			// Add the search to the queue
+			r.Send("SADD", "EVEDATA_charSearchQueue", name.(string))
+		}
+	}
+	r.Flush()
 }
 
 func EntityAddToQueue(id int32, r *redis.Conn) error {

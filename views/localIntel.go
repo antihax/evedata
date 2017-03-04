@@ -72,9 +72,7 @@ func localIntel(c *appContext.AppContext, w http.ResponseWriter, r *http.Request
 	newNames := removeDuplicatesAndValidate(names)
 
 	// Get any one we don't know
-	for _, name := range newNames {
-		eveConsumer.CharSearchAddToQueue(name.(string), &red)
-	}
+	eveConsumer.CharSearchAddToQueue(newNames, &red)
 
 	v, err := models.GetLocalIntel(newNames)
 	if err != nil {
