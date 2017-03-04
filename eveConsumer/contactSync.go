@@ -99,7 +99,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		return false, err
 	}
 
-	corp, _, err := c.ctx.ESI.V2.CorporationApi.GetCorporationsCorporationId(char.CorporationId, nil)
+	corp, _, err := c.ctx.ESI.V3.CorporationApi.GetCorporationsCorporationId(char.CorporationId, nil)
 	if err != nil {
 		return false, err
 	}

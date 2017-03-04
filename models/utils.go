@@ -45,7 +45,6 @@ func RetryExecTillNoRows(sql string, args ...interface{}) error {
 // Retry the exec until we get no error (deadlocks)
 func RetryExec(sql string, args ...interface{}) (int64, error) {
 	var rows int64
-
 	for {
 		res, err := database.Exec(sql, args...)
 		if err == nil {

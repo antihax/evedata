@@ -184,7 +184,11 @@ func (c *EVEConsumer) goZKillConsumer() error {
 			continue
 		}
 		if k.Package.KillID > 0 {
-			c.killmailAddToQueue(k.Package.KillID, k.Package.ZKB.Hash)
+			err = c.killmailAddToQueue(k.Package.KillID, k.Package.ZKB.Hash)
+			if err != nil {
+				log.Printf("Zkill error: %v\n", err)
+				continue
+			}
 		} else {
 			time.Sleep(time.Second * 5)
 		}
@@ -253,7 +257,6 @@ func (c *EVEConsumer) goZKillTemporaryConsumer() error {
 }
 
 func (c *EVEConsumer) getJSON(url string, target interface{}) error {
-
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return err
