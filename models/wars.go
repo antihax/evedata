@@ -268,13 +268,14 @@ func GetFactionWarEntitiesForID(factionID int32) ([]FactionWarEntities, error) {
 	wars := FactionsAtWar[factionID]
 	w := []FactionWarEntities{}
 	if err := database.Select(&w, `
-		SELECT 
-			IF(C.allianceID > 0, C.allianceID, corporationID) AS id,
-			IF(C.allianceID > 0, A.name, C.name) AS name,
-			IF(C.allianceID > 0, "alliance", "corporation") AS type 
+	SELECT 
+		IF(C.allianceID > 0, C.allianceID, corporationID) AS id,
+		IF(C.allianceID > 0, A.name, C.name) AS name,
+		IF(C.allianceID > 0, "alliance", "corporation") AS type 
 		FROM evedata.corporations C 
 		LEFT OUTER JOIN evedata.alliances A ON C.allianceID = A.allianceID
-		WHERE factionID IN (?, ?) AND C.memberCount > 0;
+		INNER JOIN evedata.entityKillStats K ON K.id = IF(C.allianceID > 0, C.allianceID, C.corporationID)
+		WHERE factionID IN (?, ?) AND (C.memberCount > 2 OR K.kills > 0 OR K.losses > 0);
 		`, wars[0], wars[1]); err != nil {
 		return nil, err
 	}
