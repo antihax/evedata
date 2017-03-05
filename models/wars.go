@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"time"
 
 	"github.com/guregu/null"
@@ -233,6 +234,48 @@ func GetKnownAlliesByID(id int64) ([]KnownAllies, error) {
 				WHERE defenderID = ? AND W.timeStarted > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 12 MONTH)
 				GROUP BY allyID
 		`, id); err != nil {
+		return nil, err
+	}
+	return w, nil
+}
+
+// Factions resolves faction name to ID
+var FactionsByName = map[string]int32{"Caldari": 500001, "Minmatar": 500002, "Amarr": 500003, "Gallente": 500004}
+
+// Factions resolves faction ID to Name
+var FactionsByID = map[int32]string{500001: "Caldari", 500002: "Minmatar", 500003: "Amarr", 500004: "Gallente"}
+
+// FactionsAtWar resolves two enemy parties for each factionID
+var FactionsAtWar = map[int32][]int32{
+	500001: {500002, 500004}, // Caldari  : Minmatar, Gallente
+	500003: {500002, 500004}, // Amarr    : Minmatar, Gallente
+	500002: {500001, 500003}, // Minmatar : Caldari, Amarr
+	500004: {500001, 500003}, // Gallente : Caldari, Amarr
+}
+
+type FactionWarEntities struct {
+	ID   int64  `db:"id" json:"id"`
+	Name string `db:"name" json:"name"`
+	Type string `db:"type" json:"type"`
+}
+
+// [BENCHMARK] 0.031 sec / 0.000 sec
+func GetFactionWarEntitiesForID(factionID int32) ([]FactionWarEntities, error) {
+	if FactionsByID[factionID] == "" {
+		return nil, errors.New("Unknown FactionID")
+	}
+
+	wars := FactionsAtWar[factionID]
+	w := []FactionWarEntities{}
+	if err := database.Select(&w, `
+		SELECT 
+			IF(C.allianceID > 0, C.allianceID, corporationID) AS id,
+			IF(C.allianceID > 0, A.name, C.name) AS name,
+			IF(C.allianceID > 0, "alliance", "corporation") AS type 
+		FROM evedata.corporations C 
+		LEFT OUTER JOIN evedata.alliances A ON C.allianceID = A.allianceID
+		WHERE factionID IN (?, ?);
+		`, wars[0], wars[1]); err != nil {
 		return nil, err
 	}
 	return w, nil

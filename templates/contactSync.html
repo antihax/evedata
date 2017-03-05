@@ -1,18 +1,19 @@
 {{define "body"}} 
-<h3>War Standings Copy</h3>
+<h3>War Contact Synchronization</h3>
 {{template "checkAuthentication" .}}
 
-<p>The Contact Sync tool will automaticly copy war declarations from the Copy From to the Copy To characters contacts. This is typically used to keep scouts up to date.</p>
-<p>Create add characters on the <a href="/account">account page</a>. Then create one Contact Copy from your at war character to each alt.</p>
-<p>This tool will erase all -5 and -10 personal contacts on the Copy To character and replace them with active and pending war contacts perpetually until the Contact Copy is deleted.</p>
+<p> The War Contact Synchronization tool will automaticly create negative standings for active, pending, and faction wars on the Alt Character from the Main Character
+	so you can keep your Alt Characters up to date. This tool will erase all -5 and -10 personal contacts on the Alt Character and replace them with active and pending war contacts perpetually until the entry is deleted. It is recommended to use neutral standings in place of negative standings for any important contacts.</p>
+<p>To use this tool, add characters on the <a href="/account">account page</a> with War Contact Synchronization permissions, then create one Contact Copy on this page from your main character to each alt. Your main can be added with all permissions unchecked.</p>
+<p></p>
 	<div class="table-responsive">
 		<p class="toolbar contactToolbar" id="contactToolbar"><a class="addcontact btn btn-default" href="javascript:">Add New Contact Copy</a></p>
 		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".contactToolbar"
 		data-url="/U/contactSync" id="contactstable">
 			<thead>
 				<tr>
-					<th data-field="sourceName">Copy From</th>
-					<th data-field="destinationName">Copy To</th>
+					<th data-field="sourceName">Main Character</th>
+					<th data-field="destinationName">Alt Character</th>
 					<th data-field="nextSync">Next Sync</th>
 					<th data-align="center" data-events="actionEvents"
 					data-field="action" data-formatter="contactFormatter">

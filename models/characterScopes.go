@@ -27,7 +27,7 @@ var characterScopes = []ScopeGroup{
 
 var groupReasons = map[string]string{
 	"market":     "Reporting and Market tools",
-	"contacts":   "War Contact Syncronization",
+	"contacts":   "War Contact Synchronization",
 	"wallet":     "Profit and Loss Tools",
 	"assets":     "Asset Value Tools",
 	"ui-control": "Control of in-game UI",

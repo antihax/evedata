@@ -142,6 +142,15 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		return false, err
 	}
 
+	// Faction Wars
+	var factionWars []models.FactionWarEntities
+	if corp.Faction != "" {
+		factionWars, err = models.GetFactionWarEntitiesForID(models.FactionsByName[corp.Faction])
+		if err != nil {
+			return false, err
+		}
+	}
+
 	// Loop through all the destinations
 	for _, token := range tokens {
 		// authentication token context for destination char
@@ -187,51 +196,62 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		activeCheck := make(map[int32]bool)
 		pendingCheck := make(map[int32]bool)
 
+		// Build a map of active wars
 		for _, war := range activeWars {
 			activeCheck[(int32)(war.ID)] = true
 		}
+
+		// Add faction wars to the active list
+		for _, war := range factionWars {
+			activeCheck[(int32)(war.ID)] = true
+		}
+
+		// Build a map of pending wars
 		for _, war := range pendingWars {
 			pendingCheck[(int32)(war.ID)] = true
 		}
 
-		// Loop through all current contacts
+		// Loop through all current contacts and figure out needed moves
 		for _, contact := range contacts {
 			// skip anything > -0.4
 			if contact.Standing > -0.4 {
 				continue
 			}
 
-			_, pend := pendingCheck[contact.ContactId]
-			_, act := activeCheck[contact.ContactId]
+			pend := pendingCheck[contact.ContactId]
+			act := activeCheck[contact.ContactId]
 
-			// Is this existing contact in the pending list
-			if !pend {
-				// Is this existing contact in the active list
-				if !act { // Not in either list. delete it.
+			// Is this existing contact in the active list
+			if !act {
+				// Is this existing contact in the pending list
+				if !pend { // Not in either list. delete it.
 					erase = append(erase, (int32)(contact.ContactId))
-				} else if act && contact.Standing > -10.0 { // in active list but wrong standing
-					// Take it out of the pending list and put into active move.
-					delete(activeCheck, contact.ContactId)
-					activeMove = append(activeMove, (int32)(contact.ContactId))
-				} else if act && contact.Standing == -10.0 { // Contact correct, do nothing.
-					delete(activeCheck, contact.ContactId)
+				} else if pend && contact.Standing > -5.0 { // in pending list but wrong standing
+					// Take it out of the active list and put into pending move.
+					delete(pendingCheck, contact.ContactId)
+					pendingMove = append(pendingMove, (int32)(contact.ContactId))
+				} else if pend && contact.Standing == -5.0 { // Contact correct, do nothing.
+					delete(pendingCheck, contact.ContactId)
 				}
-			} else if pend && contact.Standing != -5.0 { // in pending list, but wrong standing
-				delete(pendingCheck, contact.ContactId)
-				pendingMove = append(pendingMove, (int32)(contact.ContactId))
-			} else if pend && contact.Standing == -5.0 { // Contact correct, do nothing.
-				delete(pendingCheck, contact.ContactId)
+			} else if act && contact.Standing != -10.0 { // in active list, but wrong standing
+				delete(activeCheck, contact.ContactId)
+				activeMove = append(activeMove, (int32)(contact.ContactId))
+			} else if act && contact.Standing == -10.0 { // Contact correct, do nothing.
+				delete(activeCheck, contact.ContactId)
 			}
 		}
 
+		// Build a list of active wars to add
 		for con, _ := range activeCheck {
 			active = append(active, con)
 		}
 
+		// Build a list of pending wars to add
 		for con, _ := range pendingCheck {
 			pending = append(pending, con)
 		}
 
+		// Erase contacts which have no wars.
 		if len(erase) > 0 {
 			for start := 0; start < len(erase); start = start + 20 {
 				end := min(start+20, len(erase))
@@ -242,6 +262,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 				}
 			}
 		}
+		// Add contacts for active wars
 		if len(active) > 0 {
 			for start := 0; start < len(active); start = start + 100 {
 				end := min(start+100, len(active))
@@ -253,6 +274,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 				}
 			}
 		}
+		// Add contacts for pending wars
 		if len(pending) > 0 {
 			for start := 0; start < len(pending); start = start + 100 {
 				end := min(start+100, len(pending))
@@ -263,6 +285,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 				}
 			}
 		}
+		// Move contacts to active wars
 		if len(activeMove) > 0 {
 			for start := 0; start < len(activeMove); start = start + 20 {
 				end := min(start+20, len(activeMove))
@@ -273,6 +296,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 				}
 			}
 		}
+		// Move contacts to pending wars
 		if len(pendingMove) > 0 {
 			for start := 0; start < len(pendingMove); start = start + 20 {
 				end := min(start+20, len(pendingMove))

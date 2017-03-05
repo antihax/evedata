@@ -11,7 +11,7 @@
 
 {{define "corporation"}}
 <div class="container-fluid">
-	<div class="row">
+	<header class="row">
 		<div class="col-md-2">
 			<img alt="{{.Corporation.CorporationName}}" src="//image.eveonline.com/corporation/{{.Corporation.CorporationID}}_128.png" />
 		</div>
@@ -25,7 +25,7 @@
 					{{end}}
 				</dt>
 			</dl>
-		</div>
+		</header>
 	</div>
 
 	{{ template "wars" . }}
@@ -38,7 +38,7 @@
 
 {{define "character"}}
 <div class="container-fluid">
-	<div class="row">
+	<header class="row">
 		<div class="col-md-2">
 			<img alt="{{.Character.CharacterName}}" src="//image.eveonline.com/character/{{.Character.CharacterID}}_128.jpg" />
 		</div>
@@ -55,10 +55,10 @@
 
 			</dl>
 		</div>
-	</div>
+	</header>
 	{{ template "activity" . }}
 	{{ template "knownships" . }}
-	
+</div>
 {{end}}
 
 {{define "alliance"}}
