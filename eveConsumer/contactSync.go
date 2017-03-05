@@ -298,8 +298,8 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		}
 		// Add contacts for active wars
 		if len(active) > 0 {
-			for start := 0; start < len(active); start = start + 100 {
-				end := min(start+100, len(active))
+			for start := 0; start < len(active); start = start + 20 {
+				end := min(start+20, len(active))
 				for {
 					_, r, err = c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), active[start:end], -10, nil)
 					if err != nil {
@@ -315,8 +315,8 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		}
 		// Add contacts for pending wars
 		if len(pending) > 0 {
-			for start := 0; start < len(pending); start = start + 100 {
-				end := min(start+100, len(pending))
+			for start := 0; start < len(pending); start = start + 20 {
+				end := min(start+20, len(pending))
 				for {
 					_, r, err = c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), pending[start:end], -5, nil)
 					if err != nil {
