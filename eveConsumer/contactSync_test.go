@@ -8,14 +8,6 @@ import (
 	"github.com/antihax/evedata/models"
 )
 
-func TestContactSyncTrigger(t *testing.T) {
-	_, err := contactSyncTrigger(eC)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-}
-
 func TestContactSyncConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
@@ -88,6 +80,12 @@ func TestContactSyncConsumer(t *testing.T) {
 
 	// Add a fake contact sync to the characters created above.
 	err = models.AddContactSync(1200, 1200, 1201)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	_, err = contactSyncTrigger(eC)
 	if err != nil {
 		t.Error(err)
 		return
