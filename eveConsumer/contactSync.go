@@ -12,6 +12,8 @@ import (
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
 	"github.com/antihax/goesi/v1"
+	"github.com/antihax/goesi/v3"
+	"github.com/antihax/goesi/v4"
 	"github.com/garyburd/redigo/redis"
 
 	"golang.org/x/oauth2"
@@ -95,15 +97,39 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		return false, err
 	}
 
-	// get the source character information
-	char, _, err := c.ctx.ESI.V4.CharacterApi.GetCharactersCharacterId((int32)(source), nil)
-	if err != nil {
-		return false, err
+	var char goesiv4.GetCharactersCharacterIdOk
+	for {
+		var (
+			r   *http.Response
+			err error
+		)
+		// get the source character information
+		char, r, err = c.ctx.ESI.V4.CharacterApi.GetCharactersCharacterId((int32)(source), nil)
+		if err != nil {
+			// Retry on their failure
+			if r != nil && r.StatusCode >= 500 {
+				continue
+			}
+			return false, err
+		}
+		break
 	}
 
-	corp, _, err := c.ctx.ESI.V3.CorporationApi.GetCorporationsCorporationId(char.CorporationId, nil)
-	if err != nil {
-		return false, err
+	var corp goesiv3.GetCorporationsCorporationIdOk
+	for {
+		var (
+			r   *http.Response
+			err error
+		)
+		corp, r, err = c.ctx.ESI.V3.CorporationApi.GetCorporationsCorporationId(char.CorporationId, nil)
+		if err != nil {
+			// Retry on their failure
+			if r != nil && r.StatusCode >= 500 {
+				continue
+			}
+			return false, err
+		}
+		break
 	}
 
 	// Find the Entity ID to search for wars.
@@ -257,10 +283,16 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		if len(erase) > 0 {
 			for start := 0; start < len(erase); start = start + 20 {
 				end := min(start+20, len(erase))
-				r, err = c.ctx.ESI.V1.ContactsApi.DeleteCharactersCharacterIdContacts(auth, (int32)(token.cid), erase[start:end], nil)
-				if err != nil {
-					tokenError(source, token.cid, r, err)
-					return false, err
+				for {
+					r, err = c.ctx.ESI.V1.ContactsApi.DeleteCharactersCharacterIdContacts(auth, (int32)(token.cid), erase[start:end], nil)
+					if err != nil {
+						// Retry on their failure
+						if r != nil && r.StatusCode >= 500 {
+							continue
+						}
+						return false, err
+					}
+					break
 				}
 			}
 		}
@@ -268,11 +300,16 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		if len(active) > 0 {
 			for start := 0; start < len(active); start = start + 100 {
 				end := min(start+100, len(active))
-				_, r, err = c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), active[start:end], -10, nil)
-
-				if err != nil {
-					tokenError(source, token.cid, r, err)
-					return false, err
+				for {
+					_, r, err = c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), active[start:end], -10, nil)
+					if err != nil {
+						// Retry on their failure
+						if r != nil && r.StatusCode >= 500 {
+							continue
+						}
+						return false, err
+					}
+					break
 				}
 			}
 		}
@@ -280,10 +317,16 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		if len(pending) > 0 {
 			for start := 0; start < len(pending); start = start + 100 {
 				end := min(start+100, len(pending))
-				_, r, err = c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), pending[start:end], -5, nil)
-				if err != nil {
-					tokenError(source, token.cid, r, err)
-					return false, err
+				for {
+					_, r, err = c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), pending[start:end], -5, nil)
+					if err != nil {
+						// Retry on their failure
+						if r != nil && r.StatusCode >= 500 {
+							continue
+						}
+						return false, err
+					}
+					break
 				}
 			}
 		}
@@ -291,10 +334,16 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		if len(activeMove) > 0 {
 			for start := 0; start < len(activeMove); start = start + 20 {
 				end := min(start+20, len(activeMove))
-				r, err = c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), activeMove[start:end], -10, nil)
-				if err != nil {
-					tokenError(source, token.cid, r, err)
-					return false, err
+				for {
+					r, err = c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), activeMove[start:end], -10, nil)
+					if err != nil {
+						// Retry on their failure
+						if r != nil && r.StatusCode >= 500 {
+							continue
+						}
+						return false, err
+					}
+					break
 				}
 			}
 		}
@@ -302,10 +351,16 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		if len(pendingMove) > 0 {
 			for start := 0; start < len(pendingMove); start = start + 20 {
 				end := min(start+20, len(pendingMove))
-				r, err = c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), pendingMove[start:end], -5, nil)
-				if err != nil {
-					tokenError(source, token.cid, r, err)
-					return false, err
+				for {
+					r, err = c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), pendingMove[start:end], -5, nil)
+					if err != nil {
+						// Retry on their failure
+						if r != nil && r.StatusCode >= 500 {
+							continue
+						}
+						return false, err
+					}
+					break
 				}
 			}
 		}
