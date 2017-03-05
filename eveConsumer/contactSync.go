@@ -302,14 +302,14 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		}
 		// Add contacts for active wars
 		if len(active) > 0 {
-			for start := 0; start < len(active); start = start + 20 {
-				end := min(start+20, len(active))
+			for start := 0; start < len(active); start = start + 100 {
+				end := min(start+100, len(active))
 				failure :=0
 				for {
 					_, r, err = c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), active[start:end], -10, nil)
 						if err != nil {
 						// Retry on their failure
-						if failure > 20 {
+						if failure > 5 {
 							break
 						} else if r != nil && r.StatusCode >= 500 {
 							continue
@@ -323,14 +323,14 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		}
 		// Add contacts for pending wars
 		if len(pending) > 0 {
-			for start := 0; start < len(pending); start = start + 20 {
-				end := min(start+20, len(pending))
-				failure :=0
+			for start := 0; start < len(pending); start = start + 100 {
+				end := min(start+100, len(pending))
+				failure := 0
 				for {
 					_, r, err = c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), pending[start:end], -5, nil)
 					if err != nil {
 						// Retry on their failure
-						if failure > 20 {
+						if failure > 5 {
 							break
 						} else if r != nil && r.StatusCode >= 500 {
 							continue
@@ -346,12 +346,16 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		if len(activeMove) > 0 {
 			for start := 0; start < len(activeMove); start = start + 20 {
 				end := min(start+20, len(activeMove))
+				failure :=0
 				for {
 					r, err = c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), activeMove[start:end], -10, nil)
 					if err != nil {
 						// Retry on their failure
-						if r != nil && r.StatusCode >= 500 {
+						if failure > 5 {
+							break
+						} else if r != nil && r.StatusCode >= 500 {
 							continue
+							failure++
 						}
 						return false, err
 					}
@@ -363,12 +367,16 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		if len(pendingMove) > 0 {
 			for start := 0; start < len(pendingMove); start = start + 20 {
 				end := min(start+20, len(pendingMove))
+				failure := 0
 				for {
 					r, err = c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), pendingMove[start:end], -5, nil)
 					if err != nil {
 						// Retry on their failure
-						if r != nil && r.StatusCode >= 500 {
+						if failure > 5 {
+							break
+						} else if r != nil && r.StatusCode >= 500 {
 							continue
+							failure++
 						}
 						return false, err
 					}
