@@ -131,9 +131,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		// Save the token.
 		tokens[cid] = characterToken{token: &a, cid: cid}
 	}
-	if source == 1962167517 {
-		fmt.Printf("Found 1962167517 %+v\n", destinations)
-	}
+
 	// Active Wars
 	activeWars, err := models.GetActiveWarsByID((int64)(searchID))
 	if err != nil {
