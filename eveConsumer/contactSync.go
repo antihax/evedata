@@ -92,6 +92,9 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	dest := strings.Split(v, ":")
 	destinations := strings.Split(dest[2], ",")
 	characterID, err := strconv.ParseInt(dest[0], 10, 64)
+	if err != nil {
+		return false, err
+	}
 	source, err := strconv.ParseInt(dest[1], 10, 64)
 	if err != nil {
 		return false, err
@@ -188,7 +191,6 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 			r        *http.Response
 			err      error
 		)
-
 		// Default to OK
 		tokenSuccess(source, token.cid, 200, "OK")
 
@@ -283,12 +285,12 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		if len(erase) > 0 {
 			for start := 0; start < len(erase); start = start + 20 {
 				end := min(start+20, len(erase))
-				failure:=0
+				failure := 0
 				for {
 					r, err = c.ctx.ESI.V1.ContactsApi.DeleteCharactersCharacterIdContacts(auth, (int32)(token.cid), erase[start:end], nil)
 					if err != nil {
 						// Retry on their failure
-						if failure > 20 {
+						if failure > 5 {
 							break
 						} else if r != nil && r.StatusCode >= 500 {
 							continue
@@ -304,10 +306,10 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		if len(active) > 0 {
 			for start := 0; start < len(active); start = start + 100 {
 				end := min(start+100, len(active))
-				failure :=0
+				failure := 0
 				for {
 					_, r, err = c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), active[start:end], -10, nil)
-						if err != nil {
+					if err != nil {
 						// Retry on their failure
 						if failure > 5 {
 							break
@@ -346,7 +348,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		if len(activeMove) > 0 {
 			for start := 0; start < len(activeMove); start = start + 20 {
 				end := min(start+20, len(activeMove))
-				failure :=0
+				failure := 0
 				for {
 					r, err = c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), activeMove[start:end], -10, nil)
 					if err != nil {
