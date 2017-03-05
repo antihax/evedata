@@ -33,7 +33,7 @@ func contactSyncTrigger(c *EVEConsumer) (bool, error) {
 
 	// Gather characters for update. Group for optimized updating.
 	rows, err := c.ctx.Db.Query(
-		`SELECT source, group_concat(destination)
+		`SELECT S.characterID, source, group_concat(destination)
 			FROM evedata.contactSyncs S  
             INNER JOIN evedata.crestTokens T ON T.tokenCharacterID = destination
             WHERE lastStatus NOT LIKE "%400 Bad Request%"
@@ -53,17 +53,18 @@ func contactSyncTrigger(c *EVEConsumer) (bool, error) {
 	// Loop updatable characters
 	for rows.Next() {
 		var (
-			source int64  // Source char
-			dest   string // List of destination chars
+			characterID int64
+			source      int64  // Source char
+			dest        string // List of destination chars
 		)
 
-		err = rows.Scan(&source, &dest)
+		err = rows.Scan(&characterID, &source, &dest)
 		if err != nil {
 			log.Printf("Contact Sync: Failed scan: %v", err)
 			continue
 		}
 
-		_, err = r.Do("SADD", "EVEDATA_contactSyncQueue", fmt.Sprintf("%d:%s", source, dest))
+		_, err = r.Do("SADD", "EVEDATA_contactSyncQueue", fmt.Sprintf("%d:%d:%s", characterID, source, dest))
 		if err != nil {
 			log.Printf("Contact Sync: Failed scan: %v", err)
 			continue
@@ -87,8 +88,9 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 	// Split off characters into an array
 	dest := strings.Split(v, ":")
-	destinations := strings.Split(dest[1], ",")
-	source, err := strconv.ParseInt(dest[0], 10, 64)
+	destinations := strings.Split(dest[2], ",")
+	characterID, err := strconv.ParseInt(dest[0], 10, 64)
+	source, err := strconv.ParseInt(dest[1], 10, 64)
 	if err != nil {
 		return false, err
 	}
@@ -122,14 +124,16 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	// Get the tokens for our destinations
 	for _, cidS := range destinations {
 		cid, _ := strconv.ParseInt(cidS, 10, 64)
-		a, err := c.getToken(source, cid)
+		a, err := c.getToken(characterID, cid)
 		if err != nil {
 			return false, err
 		}
 		// Save the token.
 		tokens[cid] = characterToken{token: &a, cid: cid}
 	}
-
+	if source == 1962167517 {
+		fmt.Printf("Found 1962167517 %+v\n", destinations)
+	}
 	// Active Wars
 	activeWars, err := models.GetActiveWarsByID((int64)(searchID))
 	if err != nil {
