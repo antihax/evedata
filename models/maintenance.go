@@ -46,7 +46,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
             `); err != nil {
 		return err
 	}
-    
+
 	if _, err := RetryExec(`
         INSERT IGNORE INTO evedata.entityKillStats (id)
 	    (SELECT allianceID AS id FROM evedata.alliances); 
@@ -61,7 +61,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
                 victimCorporationID AS id,
                 COUNT(DISTINCT K.id) AS losses
             FROM evedata.killmails K
-            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 30 DAY)
+            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 180 DAY)
             GROUP BY victimCorporationID
             ) ON DUPLICATE KEY UPDATE losses = values(losses);
             `); err != nil {
@@ -73,7 +73,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
                 victimAllianceID AS id,
                 COUNT(DISTINCT K.id) AS losses
             FROM evedata.killmails K
-            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 30 DAY)
+            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 180 DAY)
             GROUP BY victimAllianceID
             ) ON DUPLICATE KEY UPDATE losses = values(losses);
             `); err != nil {
@@ -87,7 +87,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
                 COUNT(DISTINCT K.id) AS kills
             FROM evedata.killmails K
             INNER JOIN evedata.killmailAttackers A ON A.id = K.id
-            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 30 DAY)
+            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 180 DAY)
             GROUP BY A.corporationID
             ) ON DUPLICATE KEY UPDATE kills = values(kills);
             `); err != nil {
@@ -100,7 +100,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
                 COUNT(DISTINCT K.id) AS kills
             FROM evedata.killmails K
             INNER JOIN evedata.killmailAttackers A ON A.id = K.id
-            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 30 DAY)
+            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 180 DAY)
             GROUP BY A.allianceID
             ) ON DUPLICATE KEY UPDATE kills = values(kills);
             `); err != nil {
