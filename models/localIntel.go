@@ -6,6 +6,7 @@ type LocalIntelData struct {
 	Number       int64   `db:"number" json:"number"`
 	ID           int64   `db:"id" json:"id"`
 	EntityName   string  `db:"entityName" json:"entityName"`
+	FactionName  string  `db:"factionName" json:"factionName"`
 	Type         string  `db:"type" json:"type"`
 	MemberCount  int64   `db:"memberCount" json:"memberCount"`
 	WarAggressor int64   `db:"warAggressor" json:"warAggressor"`
@@ -26,6 +27,7 @@ func GetLocalIntel(names []interface{}) ([]LocalIntelData, error) {
 				   SUB1.id,
 				   type,
 				   memberCount,
+				   IFNULL(factionName, "") AS factionName,
 			       COUNT(DISTINCT Agg.ID) AS warAggressor,
 			       COUNT(DISTINCT Def.ID) AS warDefender,
 		           kills,
@@ -36,12 +38,13 @@ func GetLocalIntel(names []interface{}) ([]LocalIntelData, error) {
 			   		COUNT(DISTINCT Ch.characterID) AS number,
 			   		IF(A.allianceID, A.name, Co.name) AS entityName,
 			   		CREST.id,
+					itemName AS factionName,
 			   		CREST.type,
 			           IF(A.allianceID, A.memberCount, Co.memberCount) AS memberCount
 			   	FROM evedata.characters Ch
 			   	LEFT OUTER JOIN evedata.alliances A ON Ch.allianceID = A.allianceID
-
 			   	LEFT OUTER JOIN evedata.corporations Co ON Ch.corporationID = Co.corporationID
+				LEFT OUTER JOIN eveNames Fa ON Fa.itemID = Co.factionID
 			   	INNER JOIN evedata.crestID CREST ON CREST.id = IF(A.allianceID, A.allianceID, Co.corporationID)
 
 			   	WHERE Ch.name IN (?`+strings.Repeat(",?", len(names)-1)+`)

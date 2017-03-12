@@ -11,7 +11,8 @@
 		</div>
 		<div class="col-xs-5">
     		<button type="submit" id="submit" class="btn btn-primary">Submit</button><br><br>
-    		<button id="hideNPC" type="button" class="btn btn-primary btn-sm active" data-toggle="button">Filter NPC Corps</button>
+    		<button id="hideNPC" type="button" class="btn btn-primary btn-sm active" data-toggle="button">Filter NPC Corps</button><br>
+			<button id="hideNonFW" type="button" class="btn btn-primary btn-sm active" data-toggle="button">Filter Non-FW Corps</button>
   		</div>
 	</div>
 	<div class="row">
@@ -33,6 +34,7 @@
 				<th data-field="number">#</th>
 				<th data-field="entityName" data-formatter="entityFormatter">Entity</th>
 				<th data-field="memberCount">Members</th>
+				<th data-field="factionName">Faction</th>
 				<th data-field="" data-formatter="capabilityFormatter">Capability</th>
 				<th data-field="" data-formatter="warsFormatter">Active Wars</th>
 			</tr>
@@ -45,20 +47,39 @@
 
 
 <script type="text/javascript">
-$('#hideNPC').click(function () {
-	var data = $('#localIntel').bootstrapTable('getData');
-	if ($('#hideNPC').hasClass('active')) {
-		for (i = 0; i < data.length; ++i) {
-		    if (data[i].id < 2000000) {
-		    	$('#localIntel').bootstrapTable('hideRow', {uniqueId: data[i].id });
-		    }
+	$('#hideNPC').click(function () {
+		var data = $('#localIntel').bootstrapTable('getData');
+		if ($('#hideNPC').hasClass('active')) {
+			for (i = 0; i < data.length; ++i) {
+				if (data[i].id < 2000000) {
+					$('#localIntel').bootstrapTable('hideRow', {uniqueId: data[i].id });
+				}
+			}
+		} else {
+			for (i = 0; i < data.length; ++i) {
+				if (data[i].id < 2000000) {
+					$('#localIntel').bootstrapTable('showRow', {uniqueId: data[i].id });
+				}
+			}
 		}
-	} else {
-		for (i = 0; i < data.length; ++i) {
-		    $('#localIntel').bootstrapTable('showRow', {uniqueId: data[i].id });
-		}
-	}
-});
+	});
+
+	$('#hideNonFW').click(function () {	
+		var data = $('#localIntel').bootstrapTable('getData');
+		if ($('#hideNonFW').hasClass('active')) {
+			for (i = 0; i < data.length; ++i) {
+				if (data[i].factionName == "") {
+					$('#localIntel').bootstrapTable('hideRow', {uniqueId: data[i].id });
+				}
+			}
+		} else {
+			for (i = 0; i < data.length; ++i) {
+				if (data[i].factionName == "") {
+					$('#localIntel').bootstrapTable('showRow', {uniqueId: data[i].id });
+				}
+			}
+		}	
+	});
 
 	$('#submit').click(function(){
 		s = $('#local').val();
