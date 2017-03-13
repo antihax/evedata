@@ -112,11 +112,11 @@ func (c *EVEConsumer) entitiesUpdate() error {
 			UNION
 			SELECT corporationid AS id, crestRef, cacheUntil FROM evedata.corporations A
 			INNER JOIN evedata.crestID C ON A.corporationID = C.id
-						WHERE cacheUntil < UTC_TIMESTAMP()
+						WHERE cacheUntil < UTC_TIMESTAMP() AND memberCount > 0
 			UNION
 			(SELECT characterID AS id, crestRef, cacheUntil FROM evedata.characters A
 			INNER JOIN evedata.crestID C ON A.characterID = C.id
-						WHERE cacheUntil < UTC_TIMESTAMP())
+						WHERE cacheUntil < UTC_TIMESTAMP() AND corporationID != 1000001)
             
             ORDER BY cacheUntil ASC`)
 	if err != nil {
