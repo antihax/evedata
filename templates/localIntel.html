@@ -1,98 +1,105 @@
 {{define "body"}}
 <h3>Local Intel Summary</h3>
 
-<p>Copy and paste the contents of a local window and paste below and we will generate a summary of entities.<br>
-	Use the <i>Filter NPC Corps</i> toggle to show or hide NPC entities.</p>
+<p>Copy and paste the contents of a local window and paste below and we will generate a summary of entities.<br> Use the <i>Filter NPC Corps</i> toggle to show or hide NPC entities.</p>
 
 <div class="container-fluid">
-	<div class="row">
-		<div class="col-md-6">
-			<textarea class="form-control input-sm" rows="6" name="local" id="local" placeholder="Paste character names" required></textarea>
-		</div>
-		<div class="col-xs-5">
-    		<button type="submit" id="submit" class="btn btn-primary">Submit</button><br><br>
-    		<button id="hideNPC" type="button" class="btn btn-primary btn-sm active" data-toggle="button">Filter NPC Corps</button><br>
-			<button id="hideNonFW" type="button" class="btn btn-primary btn-sm active" data-toggle="button">Filter Non-FW Corps</button>
-  		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-6">
-			<input class="form-control" name="url" id="url" readonly>
-		</div>
-	</div>
+    <div class="row">
+        <div class="col-md-6">
+            <textarea class="form-control input-sm" rows="6" name="local" id="local" placeholder="Paste character names" required></textarea>
+        </div>
+        <div class="col-xs-5">
+            <button type="submit" id="submit" class="btn btn-primary">Submit</button><br><br>
+            <button id="hideNPC" type="button" class="btn btn-primary btn-sm" data-toggle="button">Filter NPC Corps</button><br>
+            <button id="hideNonFW" type="button" class="btn btn-primary btn-sm" data-toggle="button">Filter Non-FW Corps</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <input class="form-control" name="url" id="url" readonly>
+        </div>
+    </div>
 </div>
 <div class="insideContainer">
-	<table id="localIntel" class="table" 
-		data-sort-name="number"
-        data-sort-order="desc"
-        data-cache="true"
-        data-unique-id="id"
-        data-url="{{.HashURL}}"
-		data-toggle="table" cellspacing="0" width="100%">
-		<thead>
-			<tr>
-				<th data-field="number">#</th>
-				<th data-field="entityName" data-formatter="entityFormatter">Entity</th>
-				<th data-field="memberCount">Members</th>
-				<th data-field="factionName">Faction</th>
-				<th data-field="" data-formatter="capabilityFormatter">Capability</th>
-				<th data-field="" data-formatter="warsFormatter">Active Wars</th>
-			</tr>
-		</thead>
-		<tbody>
-		</tbody>
-	</table>
+    <table id="localIntel" class="table" data-sort-name="number" data-sort-order="desc" data-cache="true" data-unique-id="id" data-url="{{.HashURL}}" data-toggle="table" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th data-field="number">#</th>
+                <th data-field="entityName" data-formatter="entityFormatter">Entity</th>
+                <th data-field="memberCount">Members</th>
+                <th data-field="factionName">Faction</th>
+                <th data-field="" data-formatter="capabilityFormatter">Capability</th>
+                <th data-field="" data-formatter="warsFormatter">Active Wars</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
 </div>
 </div>
-
 
 <script type="text/javascript">
-	$('#hideNPC').click(function () {
-		var data = $('#localIntel').bootstrapTable('getData');
-		if ($('#hideNPC').hasClass('active')) {
-			for (i = 0; i < data.length; ++i) {
-				if (data[i].id < 2000000) {
-					$('#localIntel').bootstrapTable('hideRow', {uniqueId: data[i].id });
-				}
-			}
-		} else {
-			for (i = 0; i < data.length; ++i) {
-				if (data[i].id < 2000000) {
-					$('#localIntel').bootstrapTable('showRow', {uniqueId: data[i].id });
-				}
-			}
-		}
-	});
+    $('#hideNPC').click(function() {
+        setTimeout(function() {
+            applyFilters();
+        }, 50);
+    });
 
-	$('#hideNonFW').click(function () {	
-		var data = $('#localIntel').bootstrapTable('getData');
-		if ($('#hideNonFW').hasClass('active')) {
-			for (i = 0; i < data.length; ++i) {
-				if (data[i].factionName == "(none)") {
-					$('#localIntel').bootstrapTable('hideRow', {uniqueId: data[i].id });
-				}
-			}
-		} else {
-			for (i = 0; i < data.length; ++i) {
-				if (data[i].factionName == "(none)") {
-					$('#localIntel').bootstrapTable('showRow', {uniqueId: data[i].id });
-				}
-			}
-		}	
-	});
+    $('#hideNonFW').click(function() {
+        setTimeout(function() {
+            applyFilters();
+        }, 50);
+    });
 
-	$('#submit').click(function(){
-		s = $('#local').val();
-		var hash = murmurhash3_32_gc(s,0);
+    $('#localIntel').bootstrapTable({
+        onLoadSuccess: function(data) {
+            applyFilters();
+        }
+    });
 
-		$('#localIntel').bootstrapTable('refreshOptions', {
-			url: '/J/localIntel?hash=' + hash,
-			method: 'post',
-			queryParams: function (p) {
-				return {  local: s }
-			}
-		});	
-	$('#url').val(location.protocol + "//" + location.host + '/localIntel?hash=' + hash)
-	});
-	</script>
+    function applyFilters() {
+        var data = $('#localIntel').bootstrapTable('getData');
+
+        var hideNPC = $('#hideNPC').hasClass('active')
+        var hideNonFW = $('#hideNonFW').hasClass('active')
+
+        for (i = 0; i < data.length; ++i) {
+            if (data[i].id < 2000000 && hideNPC) {
+                $('#localIntel').bootstrapTable('hideRow', {
+                    uniqueId: data[i].id
+                });
+            } else if (data[i].factionName == "(none)" && hideNonFW) {
+                $('#localIntel').bootstrapTable('hideRow', {
+                    uniqueId: data[i].id
+                });
+            } else {
+                $('#localIntel').bootstrapTable('showRow', {
+                    uniqueId: data[i].id
+                });
+            }
+            if (hideNonFW && hideNPC && data[i].factionName != "(none)") {
+                $('#localIntel').bootstrapTable('showRow', {
+                    uniqueId: data[i].id
+                });
+            }
+        }
+    }
+
+    $('#submit').click(function() {
+        s = $('#local').val();
+        var hash = murmurhash3_32_gc(s, 0);
+
+        $('#localIntel').bootstrapTable('refreshOptions', {
+            url: '/J/localIntel?hash=' + hash,
+            method: 'post',
+            queryParams: function(p) {
+                return {
+                    local: s
+                }
+            }
+        });
+
+        $('#url').val(location.protocol + "//" + location.host + '/localIntel?hash=' + hash)
+    });
+</script>
 {{end}}
