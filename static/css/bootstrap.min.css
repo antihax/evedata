@@ -3815,12 +3815,12 @@ fieldset[disabled] .btn-default.focus {
     border-color: #253c54
 }
 
-.btn-primary:active,
-.btn-primary.active,
+primary.active,
 .open>.dropdown-toggle.btn-primary {
-    color: #ffffff;
-    background-color: #ad0c07;
-    border-color: #253c54
+    color: #000000;
+    background-color: rgba(229, 220, 108, 1);
+    font-weight: bold;
+    border-color: #000000;
 }
 
 .btn-primary:active:hover,
