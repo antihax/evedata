@@ -3815,7 +3815,8 @@ fieldset[disabled] .btn-default.focus {
     border-color: #253c54
 }
 
-primary.active,
+.btn-primary:active,
+.btn-primary.active,
 .open>.dropdown-toggle.btn-primary {
     color: #000000;
     background-color: rgba(229, 220, 108, 1);

@@ -182,6 +182,13 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		}
 	}
 
+	// Faction wars can get over the 1024 contact limit so we need to trim
+	// real wars will take precedence.
+	trim := len(activeWars) + len(pendingWars)
+	if len(factionWars)+trim > 981 {
+		factionWars = factionWars[:980-trim]
+	}
+
 	// Loop through all the destinations
 	for _, token := range tokens {
 		// authentication token context for destination char
@@ -270,7 +277,6 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 				delete(activeCheck, contact.ContactId)
 			}
 		}
-
 		// Build a list of active wars to add
 		for con, _ := range activeCheck {
 			active = append(active, con)

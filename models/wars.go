@@ -266,24 +266,22 @@ func GetFactionWarEntitiesForID(factionID int32) ([]FactionWarEntities, error) {
 	}
 
 	// Due to CCP limitation, make sure count is under 1024, cut stuff off until it is.
-	for i := 1; i < 20; i++ {
-		wars := FactionsAtWar[factionID]
-		w := []FactionWarEntities{}
-		if err := database.Select(&w, `
-			SELECT 
-				DISTINCT IF(C.allianceID > 0, C.allianceID, corporationID) AS id,
-				IF(C.allianceID > 0, A.name, C.name) AS name,
-				IF(C.allianceID > 0, "alliance", "corporation") AS type 
-				FROM evedata.corporations C 
-				LEFT OUTER JOIN evedata.alliances A ON C.allianceID = A.allianceID
-				INNER JOIN evedata.entityKillStats K ON K.id = IF(C.allianceID > 0, C.allianceID, C.corporationID)
-				WHERE factionID IN (?, ?) AND (C.memberCount > ? OR K.kills > 0 OR K.losses > 0);
-			`, wars[0], wars[1], i); err != nil {
-			return nil, err
-		}
-		if len(w) < 1024 {
-			return w, nil
-		}
+
+	wars := FactionsAtWar[factionID]
+	w := []FactionWarEntities{}
+	if err := database.Select(&w, `
+		SELECT 
+			DISTINCT IF(C.allianceID > 0, C.allianceID, corporationID) AS id,
+			IF(C.allianceID > 0, A.name, C.name) AS name,
+			IF(C.allianceID > 0, "alliance", "corporation") AS type 
+			FROM evedata.corporations C 
+			LEFT OUTER JOIN evedata.alliances A ON C.allianceID = A.allianceID
+			INNER JOIN evedata.entityKillStats K ON K.id = IF(C.allianceID > 0, C.allianceID, C.corporationID)
+			WHERE factionID IN (?, ?) AND C.memberCount > 0
+			ORDER BY K.kills + K.losses + C.memberCount DESC;
+			`, wars[0], wars[1]); err != nil {
+		return nil, err
 	}
-	return nil, nil
+
+	return w, nil
 }
