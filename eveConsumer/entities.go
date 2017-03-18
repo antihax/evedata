@@ -283,7 +283,7 @@ func (c *EVEConsumer) updateCorporation(id int32) error {
 	}
 	factionID := goesi.FactionNameToID(a.Faction)
 	err = models.UpdateCorporation(id, a.CorporationName, a.Ticker, a.CeoId,
-		a.CorporationDescription, a.AllianceId, factionID, a.Url, a.MemberCount, time.Now().UTC().Add(time.Hour*24))
+		a.AllianceId, factionID, a.Url, a.MemberCount, time.Now().UTC().Add(time.Hour*24))
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with corporation id %d", err, id))
 	}

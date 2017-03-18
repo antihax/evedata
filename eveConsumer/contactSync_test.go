@@ -12,22 +12,22 @@ func TestContactSyncConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 
-	err := models.UpdateCorporation(12000, "wardec corp", "WARSRUS", 1200, "wardec dudes", 0, 500001, "", 22, time.Now())
+	err := models.UpdateCorporation(12000, "wardec corp", "WARSRUS", 1200, 0, 500001, "", 22, time.Now())
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	err = models.UpdateCorporation(12001, "deced corp", "HELP ME", 1200, "get the pod!", 0, 0, "", 22, time.Now())
+	err = models.UpdateCorporation(12001, "deced corp", "HELP ME", 1200, 0, 0, "", 22, time.Now())
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	err = models.UpdateCorporation(12002, "pending corp", "oh crap", 1200, "panic", 0, 0, "", 22, time.Now())
+	err = models.UpdateCorporation(12002, "pending corp", "oh crap", 1200, 0, 0, "", 22, time.Now())
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	err = models.UpdateCorporation(12003, "fac war enemy", "muahahaha", 1200, "you're gonna die", 0, 500004, "", 22, time.Now())
+	err = models.UpdateCorporation(12003, "fac war enemy", "muahahaha", 1200, 0, 500004, "", 22, time.Now())
 	if err != nil {
 		t.Error(err)
 		return

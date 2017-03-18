@@ -65,7 +65,6 @@ CREATE TABLE `corporations` (
   `name` varchar(255) NOT NULL,
   `ticker` varchar(45) NOT NULL,
   `ceoID` int(11) NOT NULL,
-  `description` mediumtext NOT NULL,
   `allianceID` int(11) NOT NULL DEFAULT '0',
   `factionID` int(11) NOT NULL DEFAULT '0',
   `url` text CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
