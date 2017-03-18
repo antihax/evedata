@@ -37,6 +37,13 @@ func max(a, b int64) int64 {
 	return b
 }
 
+func maxint(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
 func tokenError(cid int64, tcid int64, r *http.Response, err error) {
 	if r != nil {
 		req, _ := httputil.DumpRequest(r.Request, true)

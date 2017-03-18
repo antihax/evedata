@@ -278,7 +278,7 @@ func GetFactionWarEntitiesForID(factionID int32) ([]FactionWarEntities, error) {
 			LEFT OUTER JOIN evedata.alliances A ON C.allianceID = A.allianceID
 			INNER JOIN evedata.entityKillStats K ON K.id = IF(C.allianceID > 0, C.allianceID, C.corporationID)
 			WHERE factionID IN (?, ?) AND C.memberCount > 0
-			ORDER BY K.kills + K.losses + C.memberCount DESC;
+			ORDER BY K.kills + K.losses + C.memberCount DESC, name ASC;
 			`, wars[0], wars[1]); err != nil {
 		return nil, err
 	}

@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
@@ -182,13 +184,6 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		}
 	}
 
-	// Faction wars can get over the 1024 contact limit so we need to trim
-	// real wars will take precedence.
-	trim := len(activeWars) + len(pendingWars)
-	if len(factionWars)+trim > 981 {
-		factionWars = factionWars[:980-trim]
-	}
-
 	// Loop through all the destinations
 	for _, token := range tokens {
 		// authentication token context for destination char
@@ -218,7 +213,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		// Update cache time.
 		if r != nil {
 			contactSync := &models.ContactSync{Source: source, Destination: token.cid}
-			err := contactSync.Updated(goesi.CacheExpires(r))
+			err := contactSync.Updated(time.Now().UTC().Add(time.Second * 900))
 			if err != nil {
 				return false, err
 			}
@@ -229,6 +224,18 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		var pending []int32
 		var pendingMove []int32
 		var activeMove []int32
+		var untouchableContacts int
+
+		// Figure out how many contacts they have outside of ours
+		for _, contact := range contacts {
+			if contact.Standing > -0.4 {
+				untouchableContacts++
+			}
+		}
+
+		// Faction wars can get over the 1024 contact limit so we need to trim
+		// real wars will take precedence.
+		trim := len(activeWars) + len(pendingWars)
 
 		activeCheck := make(map[int32]bool)
 		pendingCheck := make(map[int32]bool)
@@ -239,7 +246,8 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		}
 
 		// Add faction wars to the active list
-		for _, war := range factionWars {
+		maxFactionWarLength := min(995-trim-untouchableContacts, len(factionWars))
+		for _, war := range factionWars[:maxFactionWarLength] {
 			activeCheck[(int32)(war.ID)] = true
 		}
 
@@ -295,6 +303,11 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 				for {
 					r, err = c.ctx.ESI.V1.ContactsApi.DeleteCharactersCharacterIdContacts(auth, (int32)(token.cid), erase[start:end], nil)
 					if err != nil {
+						var resb []byte
+						if r != nil {
+							resb, _ = httputil.DumpResponse(r, true)
+						}
+						log.Printf("ContactSync: Error Erasing %d %s %s\n", token.cid, err, resb)
 						// Retry on their failure
 						if failure > 5 {
 							break
@@ -316,6 +329,11 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 				for {
 					_, r, err = c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), active[start:end], -10, nil)
 					if err != nil {
+						var resb []byte
+						if r != nil {
+							resb, _ = httputil.DumpResponse(r, true)
+						}
+						log.Printf("ContactSync: Error Adding Active %d %s %s\n", token.cid, err, resb)
 						// Retry on their failure
 						if failure > 5 {
 							break
@@ -337,6 +355,11 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 				for {
 					_, r, err = c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), pending[start:end], -5, nil)
 					if err != nil {
+						var resb []byte
+						if r != nil {
+							resb, _ = httputil.DumpResponse(r, true)
+						}
+						log.Printf("ContactSync: Error Adding Pending %s %s\n", err, resb)
 						// Retry on their failure
 						if failure > 5 {
 							break
@@ -358,6 +381,11 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 				for {
 					r, err = c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), activeMove[start:end], -10, nil)
 					if err != nil {
+						var resb []byte
+						if r != nil {
+							resb, _ = httputil.DumpResponse(r, true)
+						}
+						log.Printf("ContactSync: Error Moving Active %s %s\n", err, resb)
 						// Retry on their failure
 						if failure > 5 {
 							break
