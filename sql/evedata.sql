@@ -67,7 +67,6 @@ CREATE TABLE `corporations` (
   `ceoID` int(11) NOT NULL,
   `allianceID` int(11) NOT NULL DEFAULT '0',
   `factionID` int(11) NOT NULL DEFAULT '0',
-  `url` text CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `memberCount` int(11) NOT NULL DEFAULT '0',
   `updated` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
   `cacheUntil` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
