@@ -3,38 +3,38 @@ package models
 func MaintKillMails() error { // Broken into smaller chunks so we have a chance of it getting completed.
 	// Delete stuff older than 90 days, we do not care...
 	if err := RetryExecTillNoRows(`
-				DELETE LOW_PRIORITY A.* FROM evedata.killmailAttackers A
+				DELETE A.* FROM evedata.killmailAttackers A
 		            JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 50000) K ON A.id = K.id;
 		            `); err != nil {
 		return err
 	}
 	if err := RetryExecTillNoRows(`
-				DELETE LOW_PRIORITY A.* FROM evedata.killmailItems A
+				DELETE A.* FROM evedata.killmailItems A
 		        JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 50000) K ON A.id = K.id;
 		            `); err != nil {
 		return err
 	}
 	if err := RetryExecTillNoRows(`
-				DELETE LOW_PRIORITY FROM evedata.killmails
+				DELETE FROM evedata.killmails
 		        WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 50000;
 		            `); err != nil {
 		return err
 	}
 
 	// Remove any invalid items
-	if err := RetryExecTillNoRows(`
-	        DELETE LOW_PRIORITY D.* FROM evedata.killmailAttackers D 
+	/*if err := RetryExecTillNoRows(`
+	        DELETE D.* FROM evedata.killmailAttackers D 
             JOIN (SELECT A.id FROM evedata.killmailAttackers A
 				 LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
-	             WHERE K.id IS NULL LIMIT 500) S ON D.id = S.id;
+	             WHERE K.id IS NULL LIMIT 10) S ON D.id = S.id;
 	               `); err != nil {
 		return err
-	}
+	}*/
 	if err := RetryExecTillNoRows(`
-			DELETE LOW_PRIORITY D.* FROM evedata.killmailItems D 
+			DELETE D.* FROM evedata.killmailItems D 
             JOIN (SELECT A.id FROM evedata.killmailItems A
 				 LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
-	             WHERE K.id IS NULL LIMIT 500) S ON D.id = S.id;
+	             WHERE K.id IS NULL LIMIT 10) S ON D.id = S.id;
 	               `); err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
 	// Prefill stats for known entities that may have no kills
 	if _, err := RetryExec(`
         INSERT IGNORE INTO evedata.entityKillStats (id)
-	    (SELECT corporationID AS id FROM evedata.corporations); 
+	    (SELECT corporationID AS id FROM evedata.corporations WHERE memberCount > 0); 
             `); err != nil {
 		return err
 	}
