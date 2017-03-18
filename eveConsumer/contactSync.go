@@ -246,7 +246,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		}
 
 		// Add faction wars to the active list
-		maxFactionWarLength := min(995-trim-untouchableContacts, len(factionWars))
+		maxFactionWarLength := min(980-trim-untouchableContacts, len(factionWars))
 		for _, war := range factionWars[:maxFactionWarLength] {
 			activeCheck[(int32)(war.ID)] = true
 		}
