@@ -10,7 +10,7 @@ import (
 
 func TestUpdateCharacter(t *testing.T) {
 	err := UpdateCorporation(147035273, "Dude Corp", "TEST2", 10,
-		"Test Executor Corp", 0, 0, "somewhere", 50, time.Now())
+		0, 0, 50, time.Now())
 	if err != nil {
 		log.Fatal(err)
 		return

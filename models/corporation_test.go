@@ -8,7 +8,7 @@ import (
 
 func TestUpdateCorporation(t *testing.T) {
 	err := UpdateCorporation(147035273, "Dude Corp", "TEST2", 10,
-		0, 0, "somewhere", 50, time.Now().UTC())
+		0, 0, 50, time.Now().UTC())
 	if err != nil {
 		log.Fatal(err)
 		return
