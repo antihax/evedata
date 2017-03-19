@@ -60,6 +60,16 @@ CREATE TABLE `contactSyncs` (
   KEY `source` (`source`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `corporationHistory` (
+  `recordID` int(11) NOT NULL,
+  `startDate` datetime NOT NULL,
+  `characterID` int(11) NOT NULL,
+  `corporationID` int(11) DEFAULT NULL,
+  PRIMARY KEY (`recordID`),
+  KEY `characterID` (`characterID`),
+  KEY `corporationID` (`corporationID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `corporations` (
   `corporationID` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,

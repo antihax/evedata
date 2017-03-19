@@ -311,5 +311,15 @@ func (c *EVEConsumer) updateCharacter(id int32) error {
 		return errors.New(fmt.Sprintf("%s with character id %d", err, id))
 	}
 
+	h, _, err := c.ctx.ESI.V1.CharacterApi.GetCharactersCharacterIdCorporationhistory(id, nil)
+	if err != nil {
+		return errors.New(fmt.Sprintf("%s with character history id %d", err, id))
+	}
+	for _, corp := range h {
+		err = models.UpdateCorporationHistory(id, corp.CorporationId, corp.RecordId, corp.StartDate)
+		if err != nil {
+			return errors.New(fmt.Sprintf("%s with character history id %d", err, id))
+		}
+	}
 	return nil
 }

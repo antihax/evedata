@@ -145,6 +145,18 @@ func UpdateCharacter(characterID int32, name string, bloodlineID int32, ancestry
 	return nil
 }
 
+func UpdateCorporationHistory(characterID int32, corporationID int32, recordID int32, startDate time.Time) error {
+	if _, err := database.Exec(`
+		INSERT INTO evedata.corporationHistory (characterID,startDate,recordID,corporationID)
+			VALUES(?,?,?,?) 
+			ON DUPLICATE KEY UPDATE 
+			startDate=VALUES(startDate)
+	`, characterID, startDate, recordID, corporationID); err != nil {
+		return err
+	}
+	return nil
+}
+
 type Character struct {
 	CharacterID     int64       `db:"characterID" json:"characterID"`
 	CharacterName   string      `db:"characterName" json:"characterName"`
