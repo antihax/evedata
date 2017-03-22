@@ -67,7 +67,8 @@ CREATE TABLE `corporationHistory` (
   `corporationID` int(11) DEFAULT NULL,
   PRIMARY KEY (`recordID`),
   KEY `characterID` (`characterID`),
-  KEY `corporationID` (`corporationID`)
+  KEY `corporationID` (`corporationID`),
+  KEY `startDate` (`startDate`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `corporations` (

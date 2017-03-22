@@ -4,7 +4,6 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
 )
@@ -13,7 +12,7 @@ func init() {
 	evedata.AddRoute("account", "GET", "/about", aboutPage)
 }
 
-func aboutPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func aboutPage(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	setCache(w, 60*60*24)
@@ -35,8 +34,8 @@ func aboutPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request)
 	}
 
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return
 	}
 
-	return http.StatusOK, nil
+	return
 }

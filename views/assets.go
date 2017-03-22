@@ -2,17 +2,14 @@ package views
 
 import (
 	"encoding/json"
-	"errors"
 	"strconv"
 
 	"html/template"
 	"net/http"
 
-	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
-	"github.com/gorilla/sessions"
 )
 
 func init() {
@@ -22,47 +19,49 @@ func init() {
 	evedata.AddAuthRoute("assets", "GET", "/U/assetCharacters", assetCharactersAPI)
 }
 
-func assetsPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func assetsPage(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60)
 	p := newPage(r, "Asset Information")
 	templates.Templates = template.Must(template.ParseFiles("templates/assets.html", templates.LayoutPath))
 
 	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	return http.StatusOK, nil
 }
 
-func assetCharactersAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func assetCharactersAPI(w http.ResponseWriter, r *http.Request) {
 	var err error
 	setCache(w, 5*60)
+	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
+		httpErrCode(w, http.StatusUnauthorized)
+		return
 	}
 
 	assetCharacters, err := models.GetAssetCharacters(characterID)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(assetCharacters)
-
-	return 200, nil
 }
 
-func assetLocationsAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
 	var err error
 	setCache(w, 5*60)
+	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
+		httpErrCode(w, http.StatusUnauthorized)
+		return
 	}
 
 	// Get arguments
@@ -71,22 +70,22 @@ func assetLocationsAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.
 	if filter != "" {
 		filterCharacterID, err = strconv.Atoi(filter)
 		if err != nil {
-			return http.StatusNotFound, errors.New("Invalid filterCharacterID")
+			httpErrCode(w, http.StatusNotFound)
+			return
 		}
 	}
 
 	assetLocations, err := models.GetAssetLocations(characterID, (int64)(filterCharacterID))
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(assetLocations)
-
-	return 200, nil
 }
 
-func assetsAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func assetsAPI(w http.ResponseWriter, r *http.Request) {
 	var (
 		err               error
 		locationID        int64
@@ -94,20 +93,22 @@ func assetsAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.Request,
 	)
 
 	setCache(w, 5*60)
+	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
+		httpErrCode(w, http.StatusUnauthorized)
+		return
 	}
 
 	// Get arguments
-
 	filter := r.FormValue("filterCharacterID")
 	if filter != "" {
 		filterCharacterID, err = strconv.ParseInt(filter, 10, 64)
 		if err != nil {
-			return http.StatusNotFound, errors.New("Invalid filterCharacterID")
+			httpErrCode(w, http.StatusNotFound)
+			return
 		}
 	}
 
@@ -115,17 +116,17 @@ func assetsAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.Request,
 	if location != "" {
 		locationID, err = strconv.ParseInt(location, 10, 64)
 		if err != nil {
-			return http.StatusNotFound, errors.New("Invalid locationID")
+			httpErrCode(w, http.StatusNotFound)
+			return
 		}
 	}
 
 	assets, err := models.GetAssets(characterID, filterCharacterID, locationID)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(assets)
-
-	return 200, nil
 }

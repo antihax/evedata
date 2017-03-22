@@ -5,7 +5,6 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
@@ -17,43 +16,39 @@ func init() {
 	evedata.AddRoute("iskPerLP", "GET", "/J/iskPerLP", iskPerLP)
 }
 
-func iskPerLPPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func iskPerLPPage(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60)
 	p := newPage(r, "ISK Per Loyalty Point")
 
 	templates.Templates = template.Must(template.ParseFiles("templates/iskPerLP.html", templates.LayoutPath))
 	err := templates.Templates.ExecuteTemplate(w, "base", p)
-
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	return http.StatusOK, nil
 }
 
-func iskPerLPCorps(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func iskPerLPCorps(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60)
 	v, err := models.GetISKPerLPCorporations()
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(v)
-
-	return 200, nil
 }
 
-func iskPerLP(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func iskPerLP(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*30)
 	q := r.FormValue("corp")
 	v, err := models.GetISKPerLP(q)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(v)
-
-	return 200, nil
 }

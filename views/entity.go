@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
@@ -30,40 +29,44 @@ func init() {
 	validEntity = map[string]bool{"alliance": true, "corporation": true, "character": true}
 }
 
-func shipsForEntityAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func shipsForEntityAPI(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60*4)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Invalid id. Please provide a valid ?id=")
+		httpErr(w, err)
+		return
 	}
 
 	entityType := r.FormValue("entityType")
 	if !validEntity[entityType] {
-		return http.StatusInternalServerError, errors.New("entityType must be corporation, character, or alliance")
+		httpErr(w, errors.New("entityType must be corporation, character, or alliance"))
+		return
 	}
 
 	v, err := models.GetKnownShipTypes(id, entityType)
 	if err != nil {
-		return http.StatusNotFound, err
+		httpErrCode(w, http.StatusNotFound)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(v)
-	return http.StatusOK, nil
 }
 
-func assetsForEntityAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func assetsForEntityAPI(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60*4)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Invalid id. Please provide a valid ?id=")
+		httpErr(w, err)
+		return
 	}
 
 	entityType := r.FormValue("entityType")
 	if !validEntity[entityType] {
-		return http.StatusInternalServerError, errors.New("entityType must be corporation, character, or alliance")
+		httpErr(w, errors.New("entityType must be corporation, character, or alliance"))
+		return
 	}
 	var v []models.AssetsInSpace
 	if entityType == "alliance" {
@@ -71,100 +74,108 @@ func assetsForEntityAPI(c *appContext.AppContext, w http.ResponseWriter, r *http
 	} else if entityType == "corporation" {
 		v, err = models.GetCorporationAssetsInSpace(id)
 	} else {
-		return http.StatusInternalServerError, errors.New("entityType must be corporation or alliance")
+		httpErr(w, errors.New("entityType must be corporation or alliance"))
+		return
 	}
 
 	if err != nil {
-		return http.StatusNotFound, err
+		httpErrCode(w, http.StatusNotFound)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(v)
-	return http.StatusOK, nil
 }
 
-func activityForEntityAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func activityForEntityAPI(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60*4)
+
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Invalid id. Please provide a valid ?id=")
+		httpErr(w, err)
+		return
 	}
 
 	entityType := r.FormValue("entityType")
 	if !validEntity[entityType] {
-		return http.StatusInternalServerError, errors.New("entityType must be corporation, character, or alliance")
+		httpErr(w, errors.New("entityType must be corporation, character, or alliance"))
+		return
 	}
 
 	v, err := models.GetConstellationActivity(id, entityType)
 	if err != nil {
-		return http.StatusNotFound, err
+		httpErrCode(w, http.StatusNotFound)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(v)
-	return http.StatusOK, nil
 }
 
-func alliesForEntityAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func alliesForEntityAPI(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60*4)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Invalid id. Please provide a valid ?id=")
+		httpErr(w, err)
+		return
 	}
 	v, err := models.GetKnownAlliesByID(id)
 	if err != nil {
-		return http.StatusNotFound, err
+		httpErrCode(w, http.StatusNotFound)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(v)
-	return http.StatusOK, nil
 }
 
-func warsForEntityAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func warsForEntityAPI(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Invalid id. Please provide a valid ?id=")
+		httpErr(w, err)
+		return
 	}
 	v, err := models.GetWarsForEntityByID(id)
 	if err != nil {
-		return http.StatusNotFound, err
+		httpErrCode(w, http.StatusNotFound)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(v)
-	return http.StatusOK, nil
 }
 
-func corporationsForAllianceAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func corporationsForAllianceAPI(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Invalid id. Please provide a valid ?id=")
+		httpErr(w, err)
+		return
 	}
 	v, err := models.GetAllianceMembers(id)
 	if err != nil {
-		return http.StatusNotFound, err
+		httpErrCode(w, http.StatusNotFound)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(v)
-	return http.StatusOK, nil
 }
 
-func alliancePage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func alliancePage(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60)
 	p := newPage(r, "Unknown Alliance")
 
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Invalid Alliance ID. Please provide an ?id=")
+		httpErr(w, err)
+		return
 	}
 
 	p["entityID"] = idStr
@@ -172,36 +183,37 @@ func alliancePage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 
 	ref, err := models.GetAlliance(id)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 	p["Alliance"] = ref
 	p["Title"] = ref.AllianceName
 
 	templates.Templates = template.Must(template.ParseFiles("templates/entities.html", templates.LayoutPath))
 	err = templates.Templates.ExecuteTemplate(w, "base", p)
-
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	return http.StatusOK, nil
 }
 
-func corporationPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func corporationPage(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60)
 	p := newPage(r, "Unknown Corporation")
 
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Invalid corporation ID. Please provide an ?id=")
+		httpErr(w, err)
+		return
 	}
 	p["entityID"] = idStr
 	p["entityType"] = "corporation"
 
 	ref, err := models.GetCorporation(id)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	p["Corporation"] = ref
@@ -209,22 +221,21 @@ func corporationPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Re
 
 	templates.Templates = template.Must(template.ParseFiles("templates/entities.html", templates.LayoutPath))
 	err = templates.Templates.ExecuteTemplate(w, "base", p)
-
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	return http.StatusOK, nil
 }
 
-func characterPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func characterPage(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60)
 	p := newPage(r, "Unknown Character")
 
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Invalid character ID. Please provide an ?id=")
+		httpErr(w, err)
+		return
 	}
 
 	p["entityID"] = idStr
@@ -232,18 +243,17 @@ func characterPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Requ
 
 	ref, err := models.GetCharacter(id)
 	if err != nil {
-
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
+
 	p["Character"] = ref
 	p["Title"] = ref.CharacterName
 
 	templates.Templates = template.Must(template.ParseFiles("templates/entities.html", templates.LayoutPath))
 	err = templates.Templates.ExecuteTemplate(w, "base", p)
-
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	return http.StatusOK, nil
 }

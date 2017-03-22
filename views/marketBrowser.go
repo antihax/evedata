@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
 )
@@ -20,17 +19,15 @@ func init() {
 }
 
 // marketBrowser generates.... stuff
-func marketBrowser(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func marketBrowser(w http.ResponseWriter, r *http.Request) {
 	p := newPage(r, "Market Browser")
 
 	templates.Templates = template.Must(template.ParseFiles("templates/marketBrowser.html", templates.LayoutPath))
 	err := templates.Templates.ExecuteTemplate(w, "base", p)
-
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	return http.StatusOK, nil
 }
 
 type marketItemList struct {
@@ -45,12 +42,15 @@ type ARows struct {
 	Rows *[]marketItemList `json:"rows"`
 }
 
-func searchitemsPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func searchitemsPage(w http.ResponseWriter, r *http.Request) {
+	c := evedata.GlobalsFromContext(r.Context())
+
 	var q string
 	q = r.FormValue("q")
 
 	if len(q) < 2 {
-		return http.StatusInternalServerError, errors.New("Query too short")
+		httpErr(w, errors.New("Query too short"))
+		return
 	}
 
 	mIL := []marketItemList{}
@@ -68,9 +68,9 @@ func searchitemsPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Re
            GROUP BY T.typeID
            ORDER BY typeName
            LIMIT 100`, "%"+q+"%")
-
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	var mRows ARows
@@ -79,8 +79,6 @@ func searchitemsPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Re
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(mRows)
-
-	return 200, nil
 }
 
 /******************************************************************************
@@ -105,13 +103,15 @@ const (
 )
 
 // MarketRegionItems Query market orders for a user specified
-func marketRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, buy bool) (int, error) {
+func marketRegionItems(w http.ResponseWriter, r *http.Request, buy bool) {
 	var (
 		mRows         Rows
 		err           error
 		secFilter     string
 		secFilterPass int
 	)
+
+	c := evedata.GlobalsFromContext(r.Context())
 
 	mR := []marketItems{}
 
@@ -122,14 +122,14 @@ func marketRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.
 
 	itemID, err := strconv.Atoi(r.FormValue("itemID"))
 	if err != nil {
-		return 500, err
+		httpErr(w, err)
+		return
 	}
 
 	secFlags, err := strconv.Atoi(r.FormValue("secflags"))
 	if err != nil {
-		encoder := json.NewEncoder(w)
-		encoder.Encode(mR)
-		return 200, nil
+		httpErr(w, err)
+		return
 	}
 
 	if secFlags&highSec != 0 {
@@ -171,24 +171,24 @@ func marketRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.
 	}
 
 	if err != nil {
-		return 500, err
+		httpErr(w, err)
+		return
 	}
 
 	mRows.Rows = &mR
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(mR)
-	return 200, nil
 }
 
 // MarketSellRegionItems Query market sell orders for a user specified
 // regionID and itemID query string and return JSON to the user
-func MarketSellRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
-	return marketRegionItems(c, w, r, false)
+func MarketSellRegionItems(w http.ResponseWriter, r *http.Request) {
+	marketRegionItems(w, r, false)
 }
 
 // MarketBuyRegionItems Query market buy orders for a user specified
 // regionID and itemID query string and return JSON to the user
-func MarketBuyRegionItems(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
-	return marketRegionItems(c, w, r, true)
+func MarketBuyRegionItems(w http.ResponseWriter, r *http.Request) {
+	marketRegionItems(w, r, true)
 }

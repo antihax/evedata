@@ -7,9 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/server"
-	"github.com/gorilla/sessions"
 )
 
 func init() {
@@ -17,8 +15,11 @@ func init() {
 	evedata.AddAuthRoute("boostrap", "GET", "/X/boostrapEveSSOAnswer", boostrapEveSSOAnswer)
 }
 
-func boostrapEveSSO(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func boostrapEveSSO(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
+	c := evedata.GlobalsFromContext(r.Context())
+
 	b := make([]byte, 16)
 	rand.Read(b)
 	state := base64.URLEncoding.EncodeToString(b)
@@ -27,41 +28,49 @@ func boostrapEveSSO(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 
 	err := s.Save(r, w)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	url := c.ESIBootstrapAuthenticator.AuthorizeURL(state, true, nil)
 	http.Redirect(w, r, url, 302)
-	return http.StatusMovedPermanently, nil
+	httpErrCode(w, http.StatusMovedPermanently)
 }
 
-func boostrapEveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func boostrapEveSSOAnswer(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
+	c := evedata.GlobalsFromContext(r.Context())
+
 	code := r.FormValue("code")
 	state := r.FormValue("state")
 
 	if s.Values["BOOTSTRAPstate"] != state {
-
-		return http.StatusInternalServerError, errors.New("Invalid State. It is possible that the session cookie is missing. Stop eating the cookies!")
+		httpErr(w, errors.New("Invalid State. It is possible that the session cookie is missing. Stop eating the cookies!"))
+		return
 	}
 
 	tok, err := c.ESIBootstrapAuthenticator.TokenExchange(code)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	tokSrc, err := c.ESIBootstrapAuthenticator.TokenSource(tok)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	_, err = c.SSOAuthenticator.Verify(tokSrc)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	s.Values["BOOTSTRAP"] = tok
@@ -70,8 +79,7 @@ func boostrapEveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *ht
 
 	err = s.Save(r, w)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	return http.StatusOK, nil
 }

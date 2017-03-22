@@ -2,17 +2,14 @@ package views
 
 import (
 	"encoding/json"
-	"errors"
 	"strconv"
 
 	"html/template"
 	"net/http"
 
-	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
-	"github.com/gorilla/sessions"
 )
 
 func init() {
@@ -20,30 +17,31 @@ func init() {
 	evedata.AddAuthRoute("profitandloss", "GET", "/U/walletSummary", walletSummaryAPI)
 }
 
-func profitAndLossPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func profitAndLossPage(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60)
 	p := newPage(r, "Profit and Loss Statement")
 	templates.Templates = template.Must(template.ParseFiles("templates/profitAndLoss.html", templates.LayoutPath))
 
 	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	return http.StatusOK, nil
 }
 
-func walletSummaryAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func walletSummaryAPI(w http.ResponseWriter, r *http.Request) {
 	var (
 		err    error
 		rangeI int64
 	)
 
 	setCache(w, 5*60)
+	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
+		httpErrCode(w, http.StatusUnauthorized)
+		return
 	}
 
 	// Get range in days
@@ -51,19 +49,20 @@ func walletSummaryAPI(c *appContext.AppContext, w http.ResponseWriter, r *http.R
 	if rangeTxt != "" {
 		rangeI, err = strconv.ParseInt(rangeTxt, 10, 64)
 		if err != nil {
-			return http.StatusNotFound, errors.New("Invalid range")
+			httpErrCode(w, http.StatusBadRequest)
+			return
 		}
 	} else {
-		return http.StatusInternalServerError, errors.New("range is required")
+		httpErrCode(w, http.StatusBadRequest)
+		return
 	}
 
 	summary, err := models.GetWalletSummary(characterID, rangeI)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(summary)
-
-	return 200, nil
 }

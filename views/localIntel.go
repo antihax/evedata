@@ -3,13 +3,11 @@ package views
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
 
-	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/eveConsumer"
 	"github.com/antihax/goesi"
 
@@ -26,7 +24,7 @@ func init() {
 	evedata.AddRoute("localIntel", "GET", "/J/localIntel", localIntel)
 }
 
-func localIntelPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func localIntelPage(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60)
 	p := newPage(r, "Local Intel Summary")
 	hash := r.FormValue("hash")
@@ -36,16 +34,16 @@ func localIntelPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Req
 
 	templates.Templates = template.Must(template.ParseFiles("templates/localIntel.html", templates.LayoutPath))
 	err := templates.Templates.ExecuteTemplate(w, "base", p)
-
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	return http.StatusOK, nil
 }
 
-func localIntel(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func localIntel(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*30)
+	c := evedata.GlobalsFromContext(r.Context())
+
 	hash := r.FormValue("hash")
 	red := c.Cache.Get()
 	defer red.Close()
@@ -53,7 +51,7 @@ func localIntel(c *appContext.AppContext, w http.ResponseWriter, r *http.Request
 	cache, err := redis.String(red.Do("GET", "EVEDATA_localIntel:"+hash))
 	if err == nil {
 		fmt.Fprintf(w, cache)
-		return http.StatusOK, nil
+		return
 	}
 
 	type localdata struct {
@@ -61,11 +59,13 @@ func localIntel(c *appContext.AppContext, w http.ResponseWriter, r *http.Request
 	}
 	var locl localdata
 	if r.Body == nil {
-		return http.StatusNotFound, errors.New("No Data Received")
+		httpErrCode(w, http.StatusBadRequest)
+		return
 	}
 	err = json.NewDecoder(r.Body).Decode(&locl)
 	if err != nil || len(locl.Local) == 0 {
-		return http.StatusNotFound, err
+		httpErrCode(w, http.StatusNotFound)
+		return
 	}
 
 	names := strings.Split(locl.Local, "\n")
@@ -76,19 +76,20 @@ func localIntel(c *appContext.AppContext, w http.ResponseWriter, r *http.Request
 
 	v, err := models.GetLocalIntel(newNames)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	buf := new(bytes.Buffer)
 	err = json.NewEncoder(buf).Encode(v)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	w.Write(buf.Bytes())
 
 	red.Do("SETEX", "EVEDATA_localIntel:"+hash, 86400, buf.Bytes())
-	return http.StatusOK, nil
 }
 
 // Remove any duplicate characters and delete any invalid entries
@@ -97,6 +98,7 @@ func removeDuplicatesAndValidate(xs []string) []interface{} {
 	found := make(map[string]bool)
 
 	for _, x := range xs {
+		x = strings.TrimSpace(x)
 		if goesi.ValidCharacterName(x) {
 			if !found[x] {
 				found[x] = true

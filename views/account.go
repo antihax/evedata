@@ -2,18 +2,15 @@ package views
 
 import (
 	"encoding/json"
-	"errors"
 	"html/template"
 	"net/http"
 	"strconv"
 
-	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/goesi"
 
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
-	"github.com/gorilla/sessions"
 )
 
 func init() {
@@ -26,7 +23,7 @@ func init() {
 	evedata.AddAuthRoute("crestTokens", "DELETE", "/U/crestTokens", apiDeleteCRESTToken)
 }
 
-func accountPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func accountPage(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	p := newPage(r, "Account Information")
 	templates.Templates = template.Must(template.ParseFiles("templates/account.html", templates.LayoutPath))
@@ -34,132 +31,149 @@ func accountPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Reques
 	p["ScopeGroups"] = models.GetCharacterScopeGroups()
 
 	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	return http.StatusOK, nil
 }
 
-func accountInfo(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func accountInfo(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+
+	s := evedata.SessionFromContext(r.Context())
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
+		httpErrCode(w, http.StatusUnauthorized)
+		return
 	}
 
 	char, ok := s.Values["character"].(goesi.VerifyResponse)
 	if !ok {
-		return http.StatusForbidden, nil
+		httpErrCode(w, http.StatusForbidden)
+		return
 	}
 
 	accountInfo, ok := s.Values["accountInfo"].([]byte)
 	if !ok {
 		if err := updateAccountInfo(s, characterID, char.CharacterName); err != nil {
-			return http.StatusInternalServerError, err
+			httpErr(w, err)
+			return
 		}
 
 		if err := s.Save(r, w); err != nil {
-			return http.StatusInternalServerError, err
+			httpErr(w, err)
+			return
 		}
 	}
 
 	w.Write(accountInfo)
-
-	return http.StatusOK, nil
 }
 
-func cursorChar(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func cursorChar(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
+		httpErrCode(w, http.StatusUnauthorized)
+		return
 	}
 
 	// Parse the cursorCharacterID
 	cursorCharacterID, err := strconv.ParseInt(r.FormValue("cursorCharacterID"), 10, 64)
 	if err != nil {
-		return http.StatusForbidden, nil
+		httpErrCode(w, http.StatusForbidden)
+		return
 	}
 
 	// Set our new cursor
 	err = models.SetCursorCharacter(characterID, cursorCharacterID)
 	if err != nil {
-		return http.StatusInternalServerError, nil
+		httpErr(w, err)
+		return
 	}
 
 	char, ok := s.Values["character"].(goesi.VerifyResponse)
 	if !ok {
-		return http.StatusForbidden, nil
+		httpErrCode(w, http.StatusForbidden)
+		return
 	}
 
 	// Update the account information in redis
 	if err = updateAccountInfo(s, characterID, char.CharacterName); err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	if err = s.Save(r, w); err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	return http.StatusOK, nil
 }
 
-func apiGetCRESTTokens(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func apiGetCRESTTokens(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
+		httpErrCode(w, http.StatusUnauthorized)
+		return
 	}
 
 	tokens, err := models.GetCRESTTokens(characterID)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(tokens)
 
 	if err = s.Save(r, w); err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	return 200, nil
 }
 
-func apiDeleteCRESTToken(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
+		httpErrCode(w, http.StatusUnauthorized)
+		return
 	}
 
 	cid, err := strconv.ParseInt(r.FormValue("tokenCharacterID"), 10, 64)
 	if err != nil {
-		return http.StatusNotFound, errors.New("Invalid tokenCharacterID")
+		httpErrCode(w, http.StatusNotFound)
+		return
 	}
 
 	if err := models.DeleteCRESTToken(characterID, cid); err != nil {
-		return http.StatusConflict, err
+		httpErrCode(w, http.StatusConflict)
+		return
 	}
 
 	char, ok := s.Values["character"].(goesi.VerifyResponse)
 	if !ok {
-		return http.StatusForbidden, nil
+		httpErrCode(w, http.StatusForbidden)
+		return
 	}
 
 	if err = updateAccountInfo(s, characterID, char.CharacterName); err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	if err = s.Save(r, w); err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-	return 200, nil
+
 }

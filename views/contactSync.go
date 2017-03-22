@@ -2,16 +2,13 @@ package views
 
 import (
 	"encoding/json"
-	"errors"
 	"html/template"
 	"net/http"
 	"strconv"
 
-	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
-	"github.com/gorilla/sessions"
 )
 
 func init() {
@@ -21,20 +18,21 @@ func init() {
 	evedata.AddAuthRoute("ContactSync", "DELETE", "/U/contactSync", apiDeleteContactSync)
 }
 
-func contactSyncPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func contactSyncPage(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60)
 	p := newPage(r, "Contact Copiers")
 	templates.Templates = template.Must(template.ParseFiles("templates/contactSync.html", templates.LayoutPath))
 
 	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	return http.StatusOK, nil
 }
 
-func apiAddContactSync(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func apiAddContactSync(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
+
 	type localContactSync struct {
 		Source      int `json:",string"`
 		Destination int `json:",string"`
@@ -43,59 +41,65 @@ func apiAddContactSync(c *appContext.AppContext, w http.ResponseWriter, r *http.
 
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
+		httpErrCode(w, http.StatusUnauthorized)
+		return
 	}
 
 	if r.Body == nil {
-		return http.StatusBadRequest, errors.New("No Data Received")
+		httpErrCode(w, http.StatusBadRequest)
+		return
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&cc)
 	if err != nil {
-		return http.StatusNotFound, err
+		httpErrCode(w, http.StatusNotFound)
+		return
 	}
 
 	if err := models.AddContactSync(characterID, cc.Source, cc.Destination); err != nil {
-		return http.StatusConflict, err
+		httpErrCode(w, http.StatusConflict)
+		return
 	}
-
-	return 200, nil
 }
 
-func apiGetContactSyncs(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func apiGetContactSyncs(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
+
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
+		httpErrCode(w, http.StatusUnauthorized)
+		return
 	}
 
 	cc, err := models.GetContactSyncs(characterID)
 	if err != nil {
-		return http.StatusNotFound, err
+		httpErrCode(w, http.StatusNotFound)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(cc)
-
-	return 200, nil
 }
 
-func apiDeleteContactSync(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func apiDeleteContactSync(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
 
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
+		httpErrCode(w, http.StatusUnauthorized)
+		return
 	}
 
 	destination, err := strconv.Atoi(r.FormValue("destination"))
 	if err != nil {
-		return http.StatusNotFound, errors.New("Invalid destination")
+		httpErrCode(w, http.StatusNotFound)
+		return
 	}
 
 	if err := models.DeleteContactSync(characterID, destination); err != nil {
-		return http.StatusConflict, err
+		httpErrCode(w, http.StatusConflict)
+		return
 	}
-
-	return 200, nil
 }

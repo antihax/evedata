@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
@@ -18,7 +17,7 @@ func init() {
 	evedata.AddRoute("arbitrageCalculator", "GET", "/J/arbitrageCalculator", arbitrageCalculator)
 }
 
-func arbitrageCalculatorPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func arbitrageCalculatorPage(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60*24)
 	p := newPage(r, "Arbitrage Calculator")
 
@@ -26,51 +25,54 @@ func arbitrageCalculatorPage(c *appContext.AppContext, w http.ResponseWriter, r 
 	err := templates.Templates.ExecuteTemplate(w, "base", p)
 
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	return http.StatusOK, nil
 }
 
-func arbitrageCalculatorStations(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func arbitrageCalculatorStations(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*30)
 	v, err := models.GetArbitrageCalculatorStations()
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(v)
-
-	return 200, nil
 }
 
-func arbitrageCalculator(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func arbitrageCalculator(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*30)
 
 	stationID, err := strconv.ParseInt(r.FormValue("stationID"), 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	minVolume, err := strconv.ParseInt(r.FormValue("minVolume"), 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	maxPrice, err := strconv.ParseInt(r.FormValue("maxPrice"), 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	brokersFee, err := strconv.ParseFloat(r.FormValue("brokersFee"), 64)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	tax, err := strconv.ParseFloat(r.FormValue("tax"), 64)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	method := r.FormValue("method")
@@ -80,11 +82,10 @@ func arbitrageCalculator(c *appContext.AppContext, w http.ResponseWriter, r *htt
 
 	v, err := models.GetArbitrageCalculator(stationID, minVolume, maxPrice, brokersFee, tax, method)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(v)
-
-	return 200, nil
 }

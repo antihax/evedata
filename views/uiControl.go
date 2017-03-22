@@ -1,13 +1,10 @@
 package views
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
-	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/server"
-	"github.com/gorilla/sessions"
 )
 
 func init() {
@@ -16,107 +13,119 @@ func init() {
 	evedata.AddAuthRoute("ui-control", "POST", "/X/openMarketWindow", openMarketWindow)
 }
 
-func openMarketWindow(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func openMarketWindow(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
+	c := evedata.GlobalsFromContext(r.Context())
 
 	// Get the sessions main characterID
 	_, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
+		httpErrCode(w, http.StatusUnauthorized)
+		return
 	}
 
 	// Get the destinationID for the location
 	typeIDTxt := r.FormValue("typeID")
 	typeID, err := strconv.ParseInt(typeIDTxt, 10, 32)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	// Get the control character authentication
 	auth, err := getCursorCharacterAuth(c, s)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	// Set the destination
 	res, err := c.ESI.V1.UserInterfaceApi.PostUiOpenwindowMarketdetails(auth, (int32)(typeID), nil)
 	if err != nil {
 		if res != nil {
-			return res.StatusCode, err
+			httpErrCode(w, res.StatusCode)
+			return
 		}
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	// Return the status code from CCP.
-	return res.StatusCode, nil
 }
 
-func setDestination(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func setDestination(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
+	c := evedata.GlobalsFromContext(r.Context())
 
 	// Get the sessions main characterID
 	_, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
+		httpErrCode(w, http.StatusUnauthorized)
+		return
 	}
 
 	// Get the destinationID for the location
 	destinationIDTxt := r.FormValue("destinationID")
 	destinationID, err := strconv.ParseInt(destinationIDTxt, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	// Get the control character authentication
 	auth, err := getCursorCharacterAuth(c, s)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	// Set the destination
 	res, err := c.ESI.V2.UserInterfaceApi.PostUiAutopilotWaypoint(auth, false, true, destinationID, nil)
 	if err != nil {
 		if res != nil {
-			return res.StatusCode, err
+			httpErrCode(w, res.StatusCode)
+			return
 		}
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	// Return the status code from CCP.
-	return res.StatusCode, nil
 }
 
-func addDestination(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func addDestination(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
+	c := evedata.GlobalsFromContext(r.Context())
 
 	// Get the sessions main characterID
 	_, ok := s.Values["characterID"].(int64)
 	if !ok {
-		return http.StatusUnauthorized, errors.New("Unauthorized: Please log in.")
+		httpErrCode(w, http.StatusUnauthorized)
+		return
 	}
 
 	// Get the destinationID for the location
 	destinationIDTxt := r.FormValue("destinationID")
 	destinationID, err := strconv.ParseInt(destinationIDTxt, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	// Get the control character authentication
 	auth, err := getCursorCharacterAuth(c, s)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	// Set the destination
 	res, err := c.ESI.V2.UserInterfaceApi.PostUiAutopilotWaypoint(auth, false, false, destinationID, nil)
 	if err != nil {
 		if res != nil {
-			return res.StatusCode, err
+			httpErrCode(w, res.StatusCode)
+			return
 		}
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	// Return the status code from CCP.
-	return res.StatusCode, nil
 }

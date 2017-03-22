@@ -1,6 +1,7 @@
 package evedata
 
 import (
+	"context"
 	"log"
 	"mime"
 	"net/http"
@@ -13,35 +14,20 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-type appFunc func(*appContext.AppContext, http.ResponseWriter, *http.Request) (int, error)
-type appHandler struct {
-	*appContext.AppContext
-	h appFunc
-}
+type key int
 
-type appAuthFunc func(*appContext.AppContext, http.ResponseWriter, *http.Request, *sessions.Session) (int, error)
-type appAuthHandler struct {
-	*appContext.AppContext
-	h appAuthFunc
-}
+const globalsKey key = 1
+const sessionKey key = 2
 
 type route struct {
 	Name        string
 	Method      string
 	Pattern     string
-	HandlerFunc appFunc
-}
-
-type authRoute struct {
-	Name        string
-	Method      string
-	Pattern     string
-	HandlerFunc appAuthFunc
+	HandlerFunc http.HandlerFunc
 }
 
 var routes []route
-var authRoutes []authRoute
-
+var authRoutes []route
 var notFoundHandler *route
 
 func init() {
@@ -51,41 +37,56 @@ func init() {
 
 // AddRoute adds a non-authenticated web handler to the route list
 // this should be called by func init() within the views package
-func AddRoute(name string, method string, pattern string, handlerFunc appFunc) {
+func AddRoute(name string, method string, pattern string, handlerFunc http.HandlerFunc) {
 	routes = append(routes, route{name, method, pattern, handlerFunc})
 }
 
 // AddAuthRoute adds an authenticated web handler to the route list
 // this should be called by func init() within the views package
-func AddAuthRoute(name string, method string, pattern string, handlerFunc appAuthFunc) {
-	authRoutes = append(authRoutes, authRoute{name, method, pattern, handlerFunc})
+func AddAuthRoute(name string, method string, pattern string, handlerFunc http.HandlerFunc) {
+	authRoutes = append(authRoutes, route{name, method, pattern, handlerFunc})
 }
 
 // AddNotFoundHandler provides a 404 handler
-func AddNotFoundHandler(handlerFunc appFunc) {
+func AddNotFoundHandler(handlerFunc http.HandlerFunc) {
 	notFoundHandler = &route{"404", "GET", "", handlerFunc}
 }
 
-func (a appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	status, err := a.h(a.AppContext, w, r)
-	if err != nil {
-		log.Printf("HTTP %d: %q", status, err)
-		http.Error(w, err.Error(), status)
-		return
-	}
+func contextWithGlobals(ctx context.Context, a *appContext.AppContext) context.Context {
+	return context.WithValue(ctx, globalsKey, a)
 }
 
-func (a appAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s, err := a.AppContext.Store.Get(r, "session")
+func GlobalsFromContext(ctx context.Context) *appContext.AppContext {
+	return ctx.Value(globalsKey).(*appContext.AppContext)
+}
+
+func contextWithSession(ctx context.Context, r *http.Request) context.Context {
+	a := GlobalsFromContext(ctx)
+	s, err := a.Store.Get(r, "session")
 	if err != nil {
-		log.Printf("Session Store  %v", err)
+		log.Printf("%q", err)
+		return ctx
 	}
-	status, err := a.h(a.AppContext, w, r, s)
-	if err != nil {
-		log.Printf("HTTP %d: %q", status, err)
-		http.Error(w, err.Error(), status)
-		return
-	}
+	return context.WithValue(ctx, sessionKey, s)
+}
+
+func SessionFromContext(ctx context.Context) *sessions.Session {
+	return ctx.Value(sessionKey).(*sessions.Session)
+}
+
+func authedMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		ctx := contextWithGlobals(req.Context(), GetContext())
+		ctx = contextWithSession(ctx, req)
+		next.ServeHTTP(rw, req.WithContext(ctx))
+	})
+}
+
+func middleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		ctx := contextWithGlobals(req.Context(), GetContext())
+		next.ServeHTTP(rw, req.WithContext(ctx))
+	})
 }
 
 func attachProfiler(router *mux.Router) {
@@ -109,7 +110,7 @@ func NewRouter(ctx *appContext.AppContext) *mux.Router {
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
-			Handler(appHandler{ctx, route.HandlerFunc})
+			Handler(middleware(route.HandlerFunc))
 	}
 
 	// Add authenticted routes
@@ -118,7 +119,7 @@ func NewRouter(ctx *appContext.AppContext) *mux.Router {
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
-			Handler(appAuthHandler{ctx, route.HandlerFunc})
+			Handler(authedMiddleware(route.HandlerFunc))
 	}
 
 	// prometheus handler
@@ -140,7 +141,7 @@ func NewRouter(ctx *appContext.AppContext) *mux.Router {
 		http.FileServer(http.Dir("static/fonts"))))
 
 	if notFoundHandler != nil {
-		router.NotFoundHandler = appHandler{ctx, notFoundHandler.HandlerFunc}
+		router.NotFoundHandler = middleware(notFoundHandler.HandlerFunc)
 	}
 
 	attachProfiler(router)

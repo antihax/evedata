@@ -1,11 +1,9 @@
 package views
 
 import (
-	"errors"
 	"html/template"
 	"net/http"
 
-	"github.com/antihax/evedata/appContext"
 	evedata "github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
 )
@@ -14,16 +12,24 @@ func init() {
 	evedata.AddNotFoundHandler(notFoundPage)
 }
 
-func notFoundPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func httpErrCode(w http.ResponseWriter, code int) {
+	http.Error(w, http.StatusText(code), code)
+}
+
+func httpErr(w http.ResponseWriter, err error) {
+	http.Error(w, err.Error(), http.StatusInternalServerError)
+}
+
+func notFoundPage(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60)
 	p := newPage(r, "Page Not Found")
 
 	templates.Templates = template.Must(template.ParseFiles("templates/error/notFound.html", templates.LayoutPath))
 	err := templates.Templates.ExecuteTemplate(w, "base", p)
-
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
-	return http.StatusNotFound, errors.New("Page not found")
+	httpErrCode(w, http.StatusNotFound)
 }

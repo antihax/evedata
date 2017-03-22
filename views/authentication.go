@@ -5,11 +5,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/gorilla/sessions"
@@ -25,20 +23,25 @@ func init() {
 	evedata.AddAuthRoute("eveTokenAnswer", "GET", "/X/eveTokenAnswer", eveTokenAnswer)
 }
 
-func logout(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func logout(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
 	s.Options.MaxAge = -1
 	err := s.Save(r, w)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	http.Redirect(w, r, "/", 302)
-	return http.StatusMovedPermanently, nil
+	httpErrCode(w, http.StatusMovedPermanently)
 }
 
-func eveSSO(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func eveSSO(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
+	c := evedata.GlobalsFromContext(r.Context())
+
 	b := make([]byte, 16)
 	rand.Read(b)
 	state := base64.URLEncoding.EncodeToString(b)
@@ -47,36 +50,44 @@ func eveSSO(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s 
 
 	err := s.Save(r, w)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	url := c.SSOAuthenticator.AuthorizeURL(state, true, nil)
 	http.Redirect(w, r, url, 302)
-	return http.StatusMovedPermanently, nil
+	httpErrCode(w, http.StatusMovedPermanently)
 }
 
-func eveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func eveSSOAnswer(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
+	c := evedata.GlobalsFromContext(r.Context())
+
 	code := r.FormValue("code")
 	state := r.FormValue("state")
 
 	if s.Values["state"] != state {
-		return http.StatusInternalServerError, errors.New("State does not match. We likely could not read the sessin cookie. Please make sure cookies are enabled.")
+		httpErr(w, errors.New("State does not match. We likely could not read the sessin cookie. Please make sure cookies are enabled."))
+		return
 	}
 
 	tok, err := c.SSOAuthenticator.TokenExchange(code)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New(fmt.Sprintf("%s code was %s and state was %s\n", err, code, state))
+		httpErr(w, err)
+		return
 	}
 
 	tokSrc, err := c.SSOAuthenticator.TokenSource(tok)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	v, err := c.SSOAuthenticator.Verify(tokSrc)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	s.Values["character"] = v
@@ -84,15 +95,17 @@ func eveSSOAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Reque
 	s.Values["token"] = tok
 
 	if err = updateAccountInfo(s, v.CharacterID, v.CharacterName); err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	if err = s.Save(r, w); err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	http.Redirect(w, r, "/account", 302)
-	return http.StatusMovedPermanently, nil
+	httpErrCode(w, http.StatusMovedPermanently)
 }
 
 type accountInformation struct {
@@ -120,8 +133,10 @@ func updateAccountInfo(s *sessions.Session, characterID int64, characterName str
 	return err
 }
 
-func eveCRESTToken(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func eveCRESTToken(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
+	c := evedata.GlobalsFromContext(r.Context())
 
 	var scopes []string
 
@@ -136,7 +151,8 @@ func eveCRESTToken(c *appContext.AppContext, w http.ResponseWriter, r *http.Requ
 		validate := models.GetCharacterScopeGroups()
 		for _, group := range scopeGroups {
 			if validate[group] == "" {
-				return http.StatusBadRequest, errors.New("scopeGroup is invalid")
+				httpErrCode(w, http.StatusBadRequest)
+				return
 			}
 		}
 		// Get the associated scopes to the groups
@@ -155,45 +171,54 @@ func eveCRESTToken(c *appContext.AppContext, w http.ResponseWriter, r *http.Requ
 	s.Values["TOKENstate"] = state
 	err := s.Save(r, w)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	url := c.TokenAuthenticator.AuthorizeURL(state, true, scopes)
 
 	http.Redirect(w, r, url, 302)
-	return http.StatusMovedPermanently, nil
+	httpErrCode(w, http.StatusMovedPermanently)
 }
 
-func eveTokenAnswer(c *appContext.AppContext, w http.ResponseWriter, r *http.Request, s *sessions.Session) (int, error) {
+func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
+	c := evedata.GlobalsFromContext(r.Context())
+
 	code := r.FormValue("code")
 	state := r.FormValue("state")
 
 	if s.Values["TOKENstate"] != state {
-		return http.StatusInternalServerError, errors.New("Invalid State. It is possible that the session cookie is missing. Stop eating the cookies!")
+		httpErr(w, errors.New("State does not match. We likely could not read the sessin cookie. Please make sure cookies are enabled."))
+		return
 	}
 
 	tok, err := c.TokenAuthenticator.TokenExchange(code)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New(fmt.Sprintf("%s code was %s and state was %s\n", err, code, state))
+		httpErr(w, err)
+		return
 	}
 
 	tokSrc, err := c.SSOAuthenticator.TokenSource(tok)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	v, err := c.SSOAuthenticator.Verify(tokSrc)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	characterID := s.Values["characterID"].(int64)
 	err = models.AddCRESTToken(characterID, v.CharacterID, v.CharacterName, tok, v.Scopes)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	http.Redirect(w, r, "/account", 302)
-	return http.StatusMovedPermanently, nil
+	httpErrCode(w, http.StatusMovedPermanently)
 }

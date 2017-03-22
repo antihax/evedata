@@ -4,7 +4,6 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
 )
@@ -13,7 +12,7 @@ func init() {
 	evedata.AddRoute("account", "GET", "/", mainPage)
 }
 
-func mainPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func mainPage(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	setCache(w, 60*60*24)
@@ -21,10 +20,8 @@ func mainPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) 
 	p := newPage(r, "EVE Online Intel Data")
 	templates.Templates = template.Must(template.ParseFiles("templates/mainPage.html", templates.LayoutPath))
 	err = templates.Templates.ExecuteTemplate(w, "base", p)
-
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	return http.StatusOK, nil
 }

@@ -2,12 +2,10 @@ package views
 
 import (
 	"encoding/json"
-	"errors"
 	"html/template"
 	"net/http"
 	"strconv"
 
-	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/strip"
@@ -19,14 +17,15 @@ func init() {
 	evedata.AddRoute("items", "GET", "/J/marketHistory", marketHistory)
 }
 
-func itemPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func itemPage(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60)
 	p := newPage(r, "Unknown Item")
 
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("Invalid item ID. Please provide an ?id=")
+		httpErr(w, err)
+		return
 	}
 
 	errc := make(chan error)
@@ -57,43 +56,43 @@ func itemPage(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) 
 	for i := 0; i < 2; i++ {
 		err := <-errc
 		if err != nil {
-			return http.StatusInternalServerError, err
+			httpErr(w, err)
+			return
 		}
 	}
 
 	templates.Templates = template.Must(template.ParseFiles("templates/items.html", templates.LayoutPath))
 	err = templates.Templates.ExecuteTemplate(w, "base", p)
-
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
-
-	return http.StatusOK, nil
 }
 
-func marketHistory(c *appContext.AppContext, w http.ResponseWriter, r *http.Request) (int, error) {
+func marketHistory(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60*24)
 	region := r.FormValue("regionID")
 	item := r.FormValue("itemID")
 
 	itemID, err := strconv.ParseInt(item, 10, 64)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	regionID, err := strconv.Atoi(region)
 
 	v, err := models.GetMarketHistory(itemID, (int32)(regionID))
 	if err != nil {
-		return http.StatusInternalServerError, err
+		httpErr(w, err)
+		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(v)
-
-	return 200, nil
 }
