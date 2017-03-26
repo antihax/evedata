@@ -23,13 +23,13 @@ func MaintKillMails() error { // Broken into smaller chunks so we have a chance 
 
 	// Remove any invalid items
 	/*if err := RetryExecTillNoRows(`
-	        DELETE D.* FROM evedata.killmailAttackers D 
-            JOIN (SELECT A.id FROM evedata.killmailAttackers A
-				 LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
-	             WHERE K.id IS NULL LIMIT 10) S ON D.id = S.id;
-	               `); err != nil {
-		return err
-	}*/
+		        DELETE D.* FROM evedata.killmailAttackers D
+	            JOIN (SELECT A.id FROM evedata.killmailAttackers A
+					 LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
+		             WHERE K.id IS NULL LIMIT 10) S ON D.id = S.id;
+		               `); err != nil {
+			return err
+		}*/
 	if err := RetryExecTillNoRows(`
 			DELETE D.* FROM evedata.killmailItems D 
             JOIN (SELECT A.id FROM evedata.killmailItems A

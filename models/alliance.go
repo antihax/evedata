@@ -88,7 +88,7 @@ func GetAllianceMembers(id int64) ([]AllianceMember, error) {
 		return nil, err
 	}
 
-	for i, _ := range ref {
+	for i := range ref {
 		ref[i].Type = "corporation"
 	}
 

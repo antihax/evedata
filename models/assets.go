@@ -135,7 +135,7 @@ func GetAssets(characterID int64, filterCharacterID int64, locationID int64) ([]
 	count := 0
 	errc := make(chan error)
 	limit := make(chan bool, 10)
-	for index, _ := range assets {
+	for index := range assets {
 		if assets[index].SubCount > 0 {
 			count++
 			go getSubAssets(assets[index].ItemID, &assets[index].SubItems, errc, limit)
@@ -195,7 +195,7 @@ func getSubAssets(itemID int64, assets *[]Assets, errc chan error, limit chan bo
 
 	count := 0
 	a := *assets
-	for index, _ := range a {
+	for index := range a {
 		if a[index].SubCount > 0 {
 			count++
 			go getSubAssets(a[index].ItemID, &a[index].SubItems, errc, limit)

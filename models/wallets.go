@@ -46,7 +46,7 @@ func GetWalletSummary(characterID int64, rangeI int64) ([]WalletSummary, error) 
 	count := 0
 	errc := make(chan error)
 	limit := make(chan bool, 20)
-	for index, _ := range walletSummary {
+	for index := range walletSummary {
 		count++
 		go getJournalEntries(characterID, rangeI, walletSummary[index].RefTypeID, &walletSummary[index].JournalEntries, errc, limit)
 	}

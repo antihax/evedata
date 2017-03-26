@@ -286,12 +286,12 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 			}
 		}
 		// Build a list of active wars to add
-		for con, _ := range activeCheck {
+		for con := range activeCheck {
 			active = append(active, con)
 		}
 
 		// Build a list of pending wars to add
-		for con, _ := range pendingCheck {
+		for con := range pendingCheck {
 			pending = append(pending, con)
 		}
 
