@@ -329,11 +329,15 @@ func (c *EVEConsumer) updateCharacter(id int32) error {
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with character history id %d", err, id))
 	}
+
+	redis := c.ctx.Cache.Get()
+	defer redis.Close()
 	for _, corp := range h {
 		err = models.UpdateCorporationHistory(id, corp.CorporationId, corp.RecordId, corp.StartDate)
 		if err != nil {
 			return errors.New(fmt.Sprintf("%s with character history id %d", err, id))
 		}
+		err = EntityAddToQueue(corp.CorporationId, &redis)
 	}
 	return nil
 }
