@@ -21,7 +21,21 @@ func init() {
 
 // Check if we need to update any entity information (character, corporation, alliance)
 func entitiesTrigger(c *EVEConsumer) (bool, error) {
-	err := c.entitiesFromCREST()
+
+	r := c.ctx.Cache.Get()
+
+	chars, err := models.MaintOrphanCharacters()
+	if err != nil {
+		return false, err
+	}
+
+	for _, char := range chars {
+		r.Send("SADD", "EVEDATA_entityQueue", char)
+	}
+	r.Flush()
+	r.Close()
+
+	err = c.entitiesFromCREST()
 	if err != nil {
 		return false, err
 	}
@@ -277,10 +291,12 @@ func (c *EVEConsumer) updateAlliance(id int32) error {
 }
 
 func (c *EVEConsumer) updateCorporation(id int32) error {
+
 	a, _, err := c.ctx.ESI.V3.CorporationApi.GetCorporationsCorporationId(id, nil)
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with corporation id %d", err, id))
 	}
+
 	factionID := goesi.FactionNameToID(a.Faction)
 	err = models.UpdateCorporation(id, a.CorporationName, a.Ticker, a.CeoId,
 		a.AllianceId, factionID, a.MemberCount, time.Now().UTC().Add(time.Hour*24))
@@ -299,9 +315,7 @@ func (c *EVEConsumer) updateCorporation(id int32) error {
 }
 
 func (c *EVEConsumer) updateCharacter(id int32) error {
-	if id < 80000000 {
-		return nil
-	}
+
 	a, _, err := c.ctx.ESI.V4.CharacterApi.GetCharactersCharacterId(id, nil)
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with character id %d", err, id))

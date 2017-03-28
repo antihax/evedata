@@ -8,14 +8,13 @@ import (
 
 func UpdateCorporation(corporationID int32, name string, ticker string, ceoID int32,
 	allianceID int32, factionID int32, memberCount int32, cacheUntil time.Time) error {
-
 	cacheUntil = time.Now().UTC().Add(time.Hour * 24 * 5)
 	if _, err := database.Exec(`
 		INSERT INTO evedata.corporations
 			(corporationID,name,ticker,ceoID,allianceID,factionID,memberCount,updated,cacheUntil)
 			VALUES(?,?,?,?,?,?,?,UTC_TIMESTAMP(),?) 
 			ON DUPLICATE KEY UPDATE 
-			ceoID=VALUES(ceoID), allianceID=VALUES(allianceID), 
+			ceoID=VALUES(ceoID), name=VALUES(name), ticker=VALUES(ticker), allianceID=VALUES(allianceID), 
 			factionID=VALUES(factionID), memberCount=VALUES(memberCount),  
 			updated=UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil)
 	`, corporationID, name, ticker, ceoID, allianceID, factionID, memberCount, cacheUntil); err != nil {

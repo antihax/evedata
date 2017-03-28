@@ -219,6 +219,19 @@ func MaintContactSync() error {
 	return nil
 }
 
+func MaintOrphanCharacters() ([]int32, error) {
+	ret := []int32{}
+	err := database.Select(&ret, `
+        SELECT A.corporationID from evedata.characters A
+            LEFT OUTER JOIN evedata.corporations C ON C.corporationID = A.corporationID
+            WHERE C.name IS NULL
+        `)
+	if err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
 func MaintMarket() error {
 	if _, err := RetryExec(`
         UPDATE evedata.alliances A SET memberCount = 
