@@ -35,7 +35,7 @@ CREATE TABLE `assets` (
 CREATE TABLE `characterAssociations` (
   `characterID` int(10) unsigned NOT NULL,
   `associateID` int(10) unsigned NOT NULL,
-  `frequency` int(10) unsigned NOT NULL,
+  `frequency` smallint(5) unsigned NOT NULL,
   PRIMARY KEY (`characterID`,`associateID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

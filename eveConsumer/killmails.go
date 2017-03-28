@@ -220,7 +220,8 @@ func (c *EVEConsumer) goZKillTemporaryConsumer() error {
 			nextCheck = time.Now().UTC().Add(time.Hour * 24 * -365)
 			log.Printf("Delete old killmails")
 			models.MaintKillMails()
-
+			log.Printf("Find Relationships")
+			models.MaintRelationships()
 			log.Printf("Restart zKill Consumer to %s", nextCheck.String())
 		}
 
