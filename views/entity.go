@@ -24,6 +24,8 @@ func init() {
 	evedata.AddRoute("entity", "GET", "/J/assetsForEntity", assetsForEntityAPI)
 	evedata.AddRoute("entity", "GET", "/J/alliesForEntity", alliesForEntityAPI)
 	evedata.AddRoute("entity", "GET", "/J/shipsForEntity", shipsForEntityAPI)
+	evedata.AddRoute("entity", "GET", "/J/corporationHistory", corporationHistoryAPI)
+	evedata.AddRoute("entity", "GET", "/J/knownAlts", knownAltsAPI)
 	evedata.AddRoute("entity", "GET", "/J/corporationsForAlliance", corporationsForAllianceAPI)
 
 	validEntity = map[string]bool{"alliance": true, "corporation": true, "character": true}
@@ -122,6 +124,42 @@ func alliesForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	v, err := models.GetKnownAlliesByID(id)
+	if err != nil {
+		httpErrCode(w, http.StatusNotFound)
+		return
+	}
+
+	encoder := json.NewEncoder(w)
+	encoder.Encode(v)
+}
+
+func corporationHistoryAPI(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 60*60)
+	idStr := r.FormValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+	v, err := models.GetCorporationHistory(id)
+	if err != nil {
+		httpErrCode(w, http.StatusNotFound)
+		return
+	}
+
+	encoder := json.NewEncoder(w)
+	encoder.Encode(v)
+}
+
+func knownAltsAPI(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 60*60)
+	idStr := r.FormValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+	v, err := models.GetKnownAlts(id)
 	if err != nil {
 		httpErrCode(w, http.StatusNotFound)
 		return

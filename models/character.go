@@ -177,18 +177,79 @@ func GetCharacter(id int64) (*Character, error) {
 			characterID,
 			C.name AS characterName,
 		    C.corporationID,
-		    Co.name AS corporationName,
+		    IFNULL("", Co.name) AS corporationName,
 		    C.allianceID,
 		    Al.name AS allianceName,
 		    race,
 		    securityStatus
 		
 		FROM evedata.characters C
-		INNER JOIN evedata.corporations Co ON Co.corporationID = C.corporationID
+		LEFT OUTER JOIN evedata.corporations Co ON Co.corporationID = C.corporationID
 		LEFT OUTER JOIN evedata.alliances Al ON Al.allianceID = C.allianceID
 		WHERE characterID = ?
 		LIMIT 1`, id).StructScan(&ref); err != nil {
 		return nil, err
 	}
 	return &ref, nil
+}
+
+type KnownAlts struct {
+	CharacterID   int64  `db:"characterID" json:"id"`
+	CharacterName string `db:"characterName" json:"name"`
+	Frequency     int    `db:"frequency" json:"frequency"`
+	Type          string `db:"type" json:"type"`
+}
+
+// Obtain Character information by ID.
+// [BENCHMARK] 0.000 sec / 0.000 sec
+func GetKnownAlts(id int64) ([]KnownAlts, error) {
+	ref := []KnownAlts{}
+	if err := database.Select(&ref, `
+		SELECT 
+			C.characterID,
+			C.name AS characterName,
+			frequency
+		    
+		FROM evedata.characterAssociations A
+		INNER JOIN evedata.characters C ON C.characterID = A.associateID
+		WHERE A.characterID = ?
+		`, id); err != nil {
+		return nil, err
+	}
+
+	for i := range ref {
+		ref[i].Type = "character"
+	}
+
+	return ref, nil
+}
+
+type CorporationHistory struct {
+	CorporationID   int64     `db:"corporationID" json:"id"`
+	CorporationName string    `db:"corporationName" json:"name"`
+	StartDate       time.Time `db:"startDate" json:"startDate"`
+	Type            string    `db:"type" json:"type"`
+}
+
+// Obtain Character information by ID.
+// [BENCHMARK] 0.000 sec / 0.000 sec
+func GetCorporationHistory(id int64) ([]CorporationHistory, error) {
+	ref := []CorporationHistory{}
+	if err := database.Select(&ref, `
+		SELECT 
+			C.corporationID,
+			C.name AS corporationName,
+			startDate
+		    
+		FROM evedata.corporationHistory H
+		INNER JOIN evedata.corporations C ON C.corporationID = H.corporationID
+		WHERE H.characterID = ?
+		ORDER BY startDate DESC
+		`, id); err != nil {
+		return nil, err
+	}
+	for i := range ref {
+		ref[i].Type = "corporation"
+	}
+	return ref, nil
 }

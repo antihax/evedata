@@ -58,6 +58,9 @@
 	</header>
 	{{ template "activity" . }}
 	{{ template "knownships" . }}
+	{{ template "corporationHistory" . }}
+	{{ template "knownAlts" . }}
+	
 </div>
 {{end}}
 
@@ -112,6 +115,59 @@
        		</script>
 		</div>
 {{end}}
+
+{{define "corporationHistory"}}
+<div class="col-md-6 well">
+			<h2>
+				Corporation History
+			</h2>	
+			<table id="corporations"
+               data-sort-name="startDate"
+			   data-url="/J/corporationHistory?id={{ .entityID }}"
+               data-pagination="true"
+               data-search="true"
+               data-sort-order="desc">
+            <thead>
+            <tr>
+                <th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
+                <th data-field="startDate" data-sortable="true">Start Date</th>
+            </tr>
+            </thead>
+        </table>
+			<script>
+			    $(function () {
+       				$('#corporations').bootstrapTable();
+       			});
+       		</script>
+		</div>
+{{end}}
+
+{{define "knownAlts"}}
+<div class="col-md-6 well">
+			<h2>
+				Known Alt Characters
+			</h2>	
+			<table id="alts"
+               data-sort-name="name"
+			   data-url="/J/knownAlts?id={{ .entityID }}"
+               data-pagination="true"
+               data-search="true"
+               data-sort-order="desc">
+            <thead>
+            <tr>
+                <th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
+                <th data-field="frequency" data-sortable="true"># Times in Same Corp</th>
+            </tr>
+            </thead>
+        </table>
+			<script>
+			    $(function () {
+       				$('#alts').bootstrapTable();
+       			});
+       		</script>
+		</div>
+{{end}}
+
 
 {{define "wars"}}
 	<div class="col-md-6 well">

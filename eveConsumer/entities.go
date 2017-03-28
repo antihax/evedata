@@ -299,7 +299,7 @@ func (c *EVEConsumer) updateCorporation(id int32) error {
 }
 
 func (c *EVEConsumer) updateCharacter(id int32) error {
-	if id < 90000000 {
+	if id < 80000000 {
 		return nil
 	}
 	a, _, err := c.ctx.ESI.V4.CharacterApi.GetCharactersCharacterId(id, nil)

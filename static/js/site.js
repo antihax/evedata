@@ -11,7 +11,11 @@
 	}
 
 	function entityImage(row) {
-	    return '//image.eveonline.com/'+ capitalizeFirstLetter(row.type) + '/' + row.id + '_32.png';
+		if (row.type == "character") {
+			return '//image.eveonline.com/'+ capitalizeFirstLetter(row.type) + '/' + row.id + '_32.jpg';
+		} else {
+	    	return '//image.eveonline.com/'+ capitalizeFirstLetter(row.type) + '/' + row.id + '_32.png';
+		}
 	}
 
 	function typeImage(row) {
