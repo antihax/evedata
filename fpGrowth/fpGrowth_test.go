@@ -3,7 +3,7 @@ package fpGrowth
 import "testing"
 
 func TestFPGrowthMulti(t *testing.T) {
-	x := NewFPTree(testData, 4)
+	x := NewFPTree(testData, 2)
 	x.Growth()
 }
 

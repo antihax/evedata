@@ -113,7 +113,9 @@ func (fp *FPTree) Growth() []Pattern {
 			for _, p := range patterns {
 				p.Items = append([]int{currentNode.Item}, p.Items...)
 				p.Frequency = currentNode.Frequency
-				patterns = append([]Pattern{p}, patterns...)
+				if len(p.Items) > 1 {
+					patterns = append([]Pattern{p}, patterns...)
+				}
 			}
 
 			if len(currentNode.Children) == 1 {
@@ -123,63 +125,70 @@ func (fp *FPTree) Growth() []Pattern {
 			}
 		}
 	} else {
-		transactionID := 1
-
+		patternChan := make(chan []Pattern)
+		count := 0
 		for currentItem, node := range fp.HeaderTable {
-			conditionalPatternBase := []Pattern{}
-			startingNode := node
-			for startingNode != nil {
-				currentNode := startingNode.Parent
-				if currentNode.Parent != nil {
-					transformedPrefixPath := Pattern{Frequency: startingNode.Frequency}
-					for currentNode.Parent != nil {
-						transformedPrefixPath.Items = append(transformedPrefixPath.Items, currentNode.Item)
-						currentNode = currentNode.Parent
-					}
-					conditionalPatternBase = append(conditionalPatternBase, transformedPrefixPath)
-				}
-				startingNode = startingNode.Link
+			go fp.ProcessNode(patternChan, currentItem, node)
+			count++
+		}
+		for count > 0 {
+			patterns = append(patterns, <-patternChan...)
+			count--
+		}
+	}
+	return patterns
+}
+
+func (fp *FPTree) ProcessNode(patternChan chan []Pattern, currentItem int, node *FPNode) {
+	transactionID := 1
+	conditionalPatternBase := []Pattern{}
+	startingNode := node
+	for startingNode != nil {
+		currentNode := startingNode.Parent
+		if currentNode.Parent != nil {
+			transformedPrefixPath := Pattern{Frequency: startingNode.Frequency}
+			for currentNode.Parent != nil {
+				transformedPrefixPath.Items = append(transformedPrefixPath.Items, currentNode.Item)
+				currentNode = currentNode.Parent
 			}
-
-			conditionalTransactions := ItemSet{}
-
-			for _, transformedPrefixPath := range conditionalPatternBase {
-				transaction := []int{}
-				transaction = append(transaction, transformedPrefixPath.Items...)
-
-				for i := uint(0); i < transformedPrefixPath.Frequency; i++ {
-					conditionalTransactions[transactionID] = transaction
-					transactionID++
-				}
+			if len(transformedPrefixPath.Items) > 1 {
+				conditionalPatternBase = append(conditionalPatternBase, transformedPrefixPath)
 			}
+		}
+		startingNode = startingNode.Link
+	}
 
-			conditionalFPTree := NewFPTree(conditionalTransactions, fp.MinimumSupportTreshold)
-			conditionalPatterns := conditionalFPTree.Growth()
+	conditionalTransactions := ItemSet{}
 
-			currentFrequency := uint(0)
+	for _, transformedPrefixPath := range conditionalPatternBase {
+		transaction := []int{}
+		transaction = append(transaction, transformedPrefixPath.Items...)
 
-			currentPatterns := []Pattern{}
-			fpNode := node
-			for fpNode != nil {
-				currentFrequency = fpNode.Frequency
-				fpNode = fpNode.Link
-			}
-
-			p := Pattern{Items: []int{currentItem}, Frequency: currentFrequency}
-			currentPatterns = append(currentPatterns, p)
-
-			for _, pattern := range conditionalPatterns {
-				pattern.Items = append(pattern.Items, currentItem)
-				currentPatterns = append(currentPatterns, pattern)
-			}
-
-			for _, p := range currentPatterns {
-				patterns = append(patterns, p)
-			}
+		for i := uint(0); i < transformedPrefixPath.Frequency; i++ {
+			conditionalTransactions[transactionID] = transaction
+			transactionID++
 		}
 	}
 
-	return patterns
+	conditionalFPTree := NewFPTree(conditionalTransactions, fp.MinimumSupportTreshold)
+	conditionalPatterns := conditionalFPTree.Growth()
+
+	currentFrequency := uint(0)
+
+	currentPatterns := []Pattern{}
+	fpNode := node
+	for fpNode != nil {
+		currentFrequency += fpNode.Frequency
+		fpNode = fpNode.Link
+	}
+
+	for _, pattern := range conditionalPatterns {
+		pattern.Items = append(pattern.Items, currentItem)
+		if len(pattern.Items) > 1 {
+			currentPatterns = append(currentPatterns, pattern)
+		}
+	}
+	patternChan <- currentPatterns
 }
 
 func (fp *FPTree) IsEmpty() bool {

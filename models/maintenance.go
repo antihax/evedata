@@ -1,5 +1,90 @@
 package models
 
+import (
+	"fmt"
+	"log"
+	"strconv"
+	"strings"
+
+	"github.com/antihax/evedata/fpGrowth"
+)
+
+func SplitToInt(list string) []int {
+	a := strings.Split(list, ",")
+	b := make([]int, len(a))
+	for i, v := range a {
+		b[i], _ = strconv.Atoi(v)
+	}
+	return b
+}
+
+func MaintRelationships() error {
+	log.Printf("Character Associations: Pull Database")
+	rows, err := database.Query(`
+        SELECT 
+            UNIX_TIMESTAMP(startDate)+FLOOR(1 + (RAND() * 86028157)), 
+            GROUP_CONCAT(DISTINCT H.characterID)
+        FROM evedata.corporationHistory H
+        INNER JOIN evedata.characters C ON C.characterID = H.characterID
+        WHERE H.corporationID > 1999999 AND C.corporationID > 1000001
+        GROUP BY H.corporationID, DATE(startDate)
+        HAVING count(*) > 2 AND count(*) < 9
+        `)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Character Associations: Build Transaction History")
+	transactions := fpGrowth.ItemSet{}
+
+	for rows.Next() {
+		var (
+			transactionID int
+			items         string
+		)
+		rows.Scan(&transactionID, &items)
+		transactions[transactionID] = SplitToInt(items)
+	}
+	rows.Close()
+	log.Printf("Character Associations: Build fpTree")
+	fp := fpGrowth.NewFPTree(transactions, 2)
+	log.Printf("Character Associations: Growth")
+	associations := fp.Growth()
+
+	log.Printf("Character Associations: Update Database")
+
+	for _, association := range associations {
+		var values []string
+		for _, char1 := range association.Items {
+			for _, char2 := range association.Items {
+				if char1 != char2 {
+					values = append(values, fmt.Sprintf("(%d,%d,%d)",
+						char1, char2, association.Frequency))
+				}
+			}
+		}
+
+		stmt := fmt.Sprintf(`INSERT INTO evedata.characterAssociations (characterID, associateID, frequency) VALUES %s 
+        ON DUPLICATE KEY UPDATE frequency = VALUES(frequency);`, strings.Join(values, ",\n"))
+
+		tx, err := Begin()
+		if err != nil {
+			return err
+		}
+		_, err = tx.Exec(stmt)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		err = RetryTransaction(tx)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func MaintKillMails() error { // Broken into smaller chunks so we have a chance of it getting completed.
 	// Delete stuff older than 90 days, we do not care...
 	if err := RetryExecTillNoRows(`

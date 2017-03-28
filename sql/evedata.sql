@@ -32,6 +32,13 @@ CREATE TABLE `assets` (
   KEY `locationID` (`locationID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `characterAssociations` (
+  `characterID` int(10) unsigned NOT NULL,
+  `associateID` int(10) unsigned NOT NULL,
+  `frequency` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`characterID`,`associateID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `characters` (
   `characterID` int(11) unsigned NOT NULL DEFAULT '0',
   `bloodlineID` tinyint(3) unsigned NOT NULL,
@@ -46,7 +53,8 @@ CREATE TABLE `characters` (
   `gender` varchar(50) NOT NULL,
   PRIMARY KEY (`characterID`),
   KEY `cacheUntil` (`cacheUntil`),
-  KEY `name` (`name`)
+  KEY `name` (`name`),
+  KEY `corporationIDCharacterID` (`corporationID`,`characterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `contactSyncs` (
