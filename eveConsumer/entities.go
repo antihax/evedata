@@ -241,6 +241,7 @@ func (c *EVEConsumer) entityGetAndSave(id int32) error {
 	}
 
 	for _, e := range entity {
+
 		h := "https://crest-tq.eveonline.com/" + fmt.Sprintf("%ss/%d/", e.Category, id)
 		if e.Category == "alliance" {
 			err = c.updateAlliance(e.Id)
@@ -249,10 +250,12 @@ func (c *EVEConsumer) entityGetAndSave(id int32) error {
 		} else if e.Category == "character" {
 			err = c.updateCharacter(e.Id)
 		}
-
 		if err != nil {
 			return err
 		}
+
+		c.entitySetKnown(e.Id)
+
 		err = models.AddCRESTRef(((int64)(e.Id)), h)
 		if err != nil {
 			return err
@@ -291,7 +294,6 @@ func (c *EVEConsumer) updateAlliance(id int32) error {
 }
 
 func (c *EVEConsumer) updateCorporation(id int32) error {
-
 	a, _, err := c.ctx.ESI.V3.CorporationApi.GetCorporationsCorporationId(id, nil)
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with corporation id %d", err, id))
@@ -315,7 +317,6 @@ func (c *EVEConsumer) updateCorporation(id int32) error {
 }
 
 func (c *EVEConsumer) updateCharacter(id int32) error {
-
 	a, _, err := c.ctx.ESI.V4.CharacterApi.GetCharactersCharacterId(id, nil)
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with character id %d", err, id))
@@ -325,19 +326,20 @@ func (c *EVEConsumer) updateCharacter(id int32) error {
 		return errors.New(fmt.Sprintf("%s with character id %d", err, id))
 	}
 
+	redis := c.ctx.Cache.Get()
+	defer redis.Close()
+	err = EntityAddToQueue(id, &redis)
+
 	h, _, err := c.ctx.ESI.V1.CharacterApi.GetCharactersCharacterIdCorporationhistory(id, nil)
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with character history id %d", err, id))
 	}
 
-	redis := c.ctx.Cache.Get()
-	defer redis.Close()
 	for _, corp := range h {
 		err = models.UpdateCorporationHistory(id, corp.CorporationId, corp.RecordId, corp.StartDate)
 		if err != nil {
 			return errors.New(fmt.Sprintf("%s with character history id %d", err, id))
 		}
-		err = EntityAddToQueue(corp.CorporationId, &redis)
 	}
 	return nil
 }
