@@ -309,11 +309,12 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 						}
 						log.Printf("ContactSync: Error Erasing %d %s %s\n", token.cid, err, resb)
 						// Retry on their failure
-						if failure > 5 {
-							break
+						if failure > 3 {
+							tokenError(source, token.cid, r, err)
+							return false, err
 						} else if r != nil && r.StatusCode >= 500 {
-							continue
 							failure++
+							continue
 						}
 						return false, err
 					}
@@ -335,11 +336,12 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 						}
 						log.Printf("ContactSync: Error Adding Active %d %s %s\n", token.cid, err, resb)
 						// Retry on their failure
-						if failure > 5 {
-							break
+						if failure > 3 {
+							tokenError(source, token.cid, r, err)
+							return false, err
 						} else if r != nil && r.StatusCode >= 500 {
-							continue
 							failure++
+							continue
 						}
 						return false, err
 					}
@@ -361,11 +363,12 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 						}
 						log.Printf("ContactSync: Error Adding Pending %s %s\n", err, resb)
 						// Retry on their failure
-						if failure > 5 {
-							break
+						if failure > 3 {
+							tokenError(source, token.cid, r, err)
+							return false, err
 						} else if r != nil && r.StatusCode >= 500 {
-							continue
 							failure++
+							continue
 						}
 						return false, err
 					}
@@ -387,11 +390,12 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 						}
 						log.Printf("ContactSync: Error Moving Active %s %s\n", err, resb)
 						// Retry on their failure
-						if failure > 5 {
-							break
+						if failure > 3 {
+							tokenError(source, token.cid, r, err)
+							return false, err
 						} else if r != nil && r.StatusCode >= 500 {
-							continue
 							failure++
+							continue
 						}
 						return false, err
 					}
@@ -408,11 +412,12 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 					r, err = c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), pendingMove[start:end], -5, nil)
 					if err != nil {
 						// Retry on their failure
-						if failure > 5 {
-							break
+						if failure > 3 {
+							tokenError(source, token.cid, r, err)
+							return false, err
 						} else if r != nil && r.StatusCode >= 500 {
-							continue
 							failure++
+							continue
 						}
 						return false, err
 					}
