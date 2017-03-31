@@ -2,7 +2,6 @@ package eveConsumer
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -30,50 +29,32 @@ func init() {
 func contactSyncTrigger(c *EVEConsumer) (bool, error) {
 
 	// Do quick maintenence to prevent errors.
-	err := models.MaintContactSync()
+	if err := models.MaintContactSync(); err != nil {
+		return false, err
+	}
+
+	ecc, err := models.GetExpiredContactSyncs()
 	if err != nil {
 		return false, err
 	}
 
-	// Gather characters for update. Group for optimized updating.
-	rows, err := c.ctx.Db.Query(
-		`SELECT S.characterID, source, group_concat(destination)
-			FROM evedata.contactSyncs S  
-            INNER JOIN evedata.crestTokens T ON T.tokenCharacterID = destination
-            WHERE lastStatus NOT LIKE "%400 Bad Request%"
-		    GROUP BY source
-            HAVING max(nextSync) < UTC_TIMESTAMP();`)
-
-	if err != nil && err != sql.ErrNoRows {
-		return false, err
-	} else if err == sql.ErrNoRows { // Shut up warnings
-		return false, nil
-	}
-	defer rows.Close()
-
 	r := c.ctx.Cache.Get()
 	defer r.Close()
 
-	// Loop updatable characters
-	for rows.Next() {
-		var (
-			characterID int64
-			source      int64  // Source char
-			dest        string // List of destination chars
-		)
-
-		err = rows.Scan(&characterID, &source, &dest)
+	for _, cc := range ecc {
+		err = r.Send("SADD", "EVEDATA_contactSyncQueue",
+			fmt.Sprintf("%d:%d:%s", cc.CharacterID, cc.Source, cc.Destinations))
 		if err != nil {
-			log.Printf("Contact Sync: Failed scan: %v", err)
-			continue
-		}
-
-		_, err = r.Do("SADD", "EVEDATA_contactSyncQueue", fmt.Sprintf("%d:%d:%s", characterID, source, dest))
-		if err != nil {
-			log.Printf("Contact Sync: Failed scan: %v", err)
+			log.Printf("Contact Sync: Send Failed: %v", err)
 			continue
 		}
 	}
+
+	err = r.Flush()
+	if err != nil {
+		log.Printf("Contact Sync: Flush Failed: %v", err)
+	}
+
 	return true, err
 }
 

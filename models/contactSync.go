@@ -65,3 +65,25 @@ func DeleteContactSync(characterID int64, destination int) error {
 	}
 	return nil
 }
+
+type ExpiredContactSync struct {
+	Source       int64  `db:"source" json:"source"`
+	Destinations string `db:"destinations" json:"destinations"`
+	CharacterID  int64  `db:"characterID" json:"characterID"`
+}
+
+// [BENCHMARK] 0.000 sec / 0.000 sec
+func GetExpiredContactSyncs() ([]ExpiredContactSync, error) {
+	ecc := []ExpiredContactSync{}
+	if err := database.Select(&ecc, `
+		SELECT S.characterID, source, group_concat(destination) AS destinations
+			FROM evedata.contactSyncs S  
+            INNER JOIN evedata.crestTokens T ON T.tokenCharacterID = destination
+            WHERE lastStatus NOT LIKE "%400 Bad Request%"
+		    GROUP BY source
+            HAVING max(nextSync) < UTC_TIMESTAMP();`); err != nil {
+
+		return nil, err
+	}
+	return ecc, nil
+}
