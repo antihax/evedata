@@ -193,8 +193,6 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 			r        *http.Response
 			err      error
 		)
-		// Default to OK
-		tokenSuccess(source, token.cid, 200, "OK")
 
 		// Get current contacts
 		for i := 1; ; i++ {
@@ -425,6 +423,8 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 				}
 			}
 		}
+		// set success
+		tokenSuccess(source, token.cid, 200, "OK")
 	}
 	return true, err
 }
