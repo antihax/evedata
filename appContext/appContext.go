@@ -101,6 +101,8 @@ func NewTestAppContext() AppContext {
 		goesi.ScopeCharacterMarketOrdersRead,
 		goesi.ScopeCharacterResearchRead,
 		goesi.ScopeCharacterWalletRead,
+		goesi.ScopeCharacterContactsRead,
+		goesi.ScopeCharacterContactsWrite,
 		"esi-assets.read_assets.v1",
 		"esi-characters.read_contacts.v1",
 		"esi-characters.write_contacts.v1",

@@ -12,6 +12,8 @@ var characterScopes = []ScopeGroup{
 
 	{"esi-characters.read_contacts.v1", "contacts"},
 	{"esi-characters.write_contacts.v1", "contacts"},
+	{goesi.ScopeCharacterContactsRead, "contacts"},
+	{goesi.ScopeCharacterContactsWrite, "contacts"},
 
 	{goesi.ScopeCharacterMarketOrdersRead, "market"},
 	{"esi-universe.read_structures.v1", "market"},
