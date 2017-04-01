@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"strconv"
 	"strings"
 	"time"
@@ -242,7 +241,9 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		if len(erase) > 0 {
 			for start := 0; start < len(erase); start = start + 20 {
 				end := min(start+20, len(erase))
-				c.deleteContacts(auth, (int32)(token.cid), erase[start:end])
+				if err := c.deleteContacts(auth, (int32)(token.cid), erase[start:end]); err != nil {
+					return false, err
+				}
 			}
 		}
 
@@ -250,105 +251,42 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		if len(active) > 0 {
 			for start := 0; start < len(active); start = start + 100 {
 				end := min(start+100, len(active))
-				failure := 0
-				for {
-					_, r, err = c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), active[start:end], -10, nil)
-					if err != nil {
-						var resb []byte
-						if r != nil {
-							resb, _ = httputil.DumpResponse(r, true)
-						}
-						log.Printf("ContactSync: Error Adding Active %d %s %s\n", token.cid, err, resb)
-						// Retry on their failure
-						if failure > 3 {
-							tokenError(source, token.cid, r, err)
-							return false, err
-						} else if r != nil && r.StatusCode >= 500 {
-							failure++
-							continue
-						}
-						return false, err
-					}
-					break
+				if err := c.addContacts(auth, (int32)(token.cid), active[start:end], -10); err != nil {
+					return false, err
 				}
 			}
 		}
+
 		// Add contacts for pending wars
 		if len(pending) > 0 {
 			for start := 0; start < len(pending); start = start + 100 {
 				end := min(start+100, len(pending))
-				failure := 0
-				for {
-					_, r, err = c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), pending[start:end], -5, nil)
-					if err != nil {
-						var resb []byte
-						if r != nil {
-							resb, _ = httputil.DumpResponse(r, true)
-						}
-						log.Printf("ContactSync: Error Adding Pending %s %s\n", err, resb)
-						// Retry on their failure
-						if failure > 3 {
-							tokenError(source, token.cid, r, err)
-							return false, err
-						} else if r != nil && r.StatusCode >= 500 {
-							failure++
-							continue
-						}
-						return false, err
-					}
-					break
+				if err := c.addContacts(auth, (int32)(token.cid), pending[start:end], -5); err != nil {
+					return false, err
 				}
 			}
 		}
+
 		// Move contacts to active wars
 		if len(activeMove) > 0 {
 			for start := 0; start < len(activeMove); start = start + 20 {
 				end := min(start+20, len(activeMove))
-				failure := 0
-				for {
-					r, err = c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), activeMove[start:end], -10, nil)
-					if err != nil {
-						var resb []byte
-						if r != nil {
-							resb, _ = httputil.DumpResponse(r, true)
-						}
-						log.Printf("ContactSync: Error Moving Active %s %s\n", err, resb)
-						// Retry on their failure
-						if failure > 3 {
-							tokenError(source, token.cid, r, err)
-							return false, err
-						} else if r != nil && r.StatusCode >= 500 {
-							failure++
-							continue
-						}
-						return false, err
-					}
-					break
+				if err := c.updateContacts(auth, (int32)(token.cid), activeMove[start:end], -10); err != nil {
+					return false, err
 				}
 			}
 		}
+
 		// Move contacts to pending wars
 		if len(pendingMove) > 0 {
 			for start := 0; start < len(pendingMove); start = start + 20 {
 				end := min(start+20, len(pendingMove))
-				failure := 0
-				for {
-					r, err = c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), pendingMove[start:end], -5, nil)
-					if err != nil {
-						// Retry on their failure
-						if failure > 3 {
-							tokenError(source, token.cid, r, err)
-							return false, err
-						} else if r != nil && r.StatusCode >= 500 {
-							failure++
-							continue
-						}
-						return false, err
-					}
-					break
+				if err := c.updateContacts(auth, (int32)(token.cid), pendingMove[start:end], -5); err != nil {
+					return false, err
 				}
 			}
 		}
+
 		// set success
 		tokenSuccess(source, token.cid, 200, "OK")
 	}

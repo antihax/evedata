@@ -114,6 +114,41 @@ func (c *EVEConsumer) deleteContactsCREST(auth context.Context, characterID int3
 	return nil
 }
 
+func (c *EVEConsumer) addContacts(auth context.Context, characterID int32, contacts []int32, standing float32) error {
+	_, _, err := c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, characterID, contacts, standing, nil)
+	if err != nil {
+		return c.updateContacts(auth, characterID, contacts, standing)
+	}
+	return nil
+}
+
+func (c *EVEConsumer) updateContacts(auth context.Context, characterID int32, contacts []int32, standing float32) error {
+	_, err := c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, characterID, contacts, standing, nil)
+	if err != nil {
+		return c.updateContacts(auth, characterID, contacts, standing)
+	}
+	return nil
+}
+
+func (c *EVEConsumer) updateContactsCREST(auth context.Context, characterID int32, contacts []int32, standing float32) error {
+	names, _, err := c.ctx.ESI.V2.UniverseApi.PostUniverseNames(contacts, nil)
+	if err != nil {
+		return err
+	}
+
+	tokenSource, ok := auth.Value(goesi.ContextOAuth2).(oauth2.TokenSource)
+	if ok {
+		for _, update := range names {
+			ref := fmt.Sprintf("https://crest-tq.eveonline.com/%ss/%d/", update.Category, update.Id)
+			err := c.ctx.ESI.EVEAPI.ContactSetV1(tokenSource, int64(characterID), int64(update.Id), ref, float64(standing))
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 // Obtain an authenticated client from a stored access/refresh token.
 func (c *EVEConsumer) getToken(characterID int64, tokenCharacterID int64) (oauth2.TokenSource, error) {
 	tok, err := models.GetCRESTToken(characterID, tokenCharacterID)
