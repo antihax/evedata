@@ -96,7 +96,6 @@ func (c *EVEConsumer) deleteContacts(auth context.Context, characterID int32, co
 }
 
 func (c *EVEConsumer) deleteContactsCREST(auth context.Context, characterID int32, contacts []int32) error {
-
 	names, _, err := c.ctx.ESI.V2.UniverseApi.PostUniverseNames(contacts, nil)
 	if err != nil {
 		return err
