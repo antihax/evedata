@@ -12,9 +12,6 @@ import (
 
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
-	"github.com/antihax/goesi/v1"
-	"github.com/antihax/goesi/v3"
-	"github.com/antihax/goesi/v4"
 	"github.com/garyburd/redigo/redis"
 
 	"golang.org/x/oauth2"
@@ -27,7 +24,6 @@ func init() {
 
 // Perform contact sync for wardecs
 func contactSyncTrigger(c *EVEConsumer) (bool, error) {
-
 	// Do quick maintenence to prevent errors.
 	if err := models.MaintContactSync(); err != nil {
 		return false, err
@@ -66,6 +62,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	} else if ret == nil {
 		return false, nil
 	}
+
 	v, err := redis.String(ret, err)
 	if err != nil {
 		return false, err
@@ -78,44 +75,20 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	source, err := strconv.ParseInt(dest[1], 10, 64)
 	if err != nil {
 		return false, err
 	}
 
-	var char goesiv4.GetCharactersCharacterIdOk
-	for {
-		var (
-			r   *http.Response
-			err error
-		)
-		// get the source character information
-		char, r, err = c.ctx.ESI.V4.CharacterApi.GetCharactersCharacterId((int32)(source), nil)
-		if err != nil {
-			// Retry on their failure
-			if r != nil && r.StatusCode >= 500 {
-				continue
-			}
-			return false, err
-		}
-		break
+	char, err := c.getCharacter(int32(source))
+	if err != nil {
+		return false, err
 	}
 
-	var corp goesiv3.GetCorporationsCorporationIdOk
-	for {
-		var (
-			r   *http.Response
-			err error
-		)
-		corp, r, err = c.ctx.ESI.V3.CorporationApi.GetCorporationsCorporationId(char.CorporationId, nil)
-		if err != nil {
-			// Retry on their failure
-			if r != nil && r.StatusCode >= 500 {
-				continue
-			}
-			return false, err
-		}
-		break
+	corp, err := c.getCorporation(char.CorporationId)
+	if err != nil {
+		return false, err
 	}
 
 	// Find the Entity ID to search for wars.
@@ -170,23 +143,13 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		// authentication token context for destination char
 		auth := context.WithValue(context.TODO(), goesi.ContextOAuth2, *token.token)
 		var (
-			contacts []goesiv1.GetCharactersCharacterIdContacts200Ok
-			r        *http.Response
-			err      error
+			r   *http.Response
+			err error
 		)
 
-		// Get current contacts
-		for i := 1; ; i++ {
-			var con []goesiv1.GetCharactersCharacterIdContacts200Ok
-			con, r, err = c.ctx.ESI.V1.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid), map[string]interface{}{"page": (int32)(i)})
-			if err != nil || r.StatusCode != 200 {
-				tokenError(source, token.cid, r, err)
-				return false, err
-			}
-			if len(con) == 0 {
-				break
-			}
-			contacts = append(contacts, con...)
+		contacts, err := c.getContacts(auth, (int32)(token.cid))
+		if err != nil {
+			return false, err
 		}
 
 		// Update cache time.
@@ -264,6 +227,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 				delete(activeCheck, contact.ContactId)
 			}
 		}
+
 		// Build a list of active wars to add
 		for con := range activeCheck {
 			active = append(active, con)
