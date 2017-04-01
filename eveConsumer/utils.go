@@ -2,6 +2,7 @@ package eveConsumer
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -84,6 +85,34 @@ func (c *EVEConsumer) getContactsCREST(auth context.Context, characterID int32) 
 	}
 
 	return contacts, nil
+}
+
+func (c *EVEConsumer) deleteContacts(auth context.Context, characterID int32, contacts []int32) error {
+	_, err := c.ctx.ESI.V1.ContactsApi.DeleteCharactersCharacterIdContacts(auth, characterID, contacts, nil)
+	if err != nil {
+		return c.deleteContactsCREST(auth, characterID, contacts)
+	}
+	return nil
+}
+
+func (c *EVEConsumer) deleteContactsCREST(auth context.Context, characterID int32, contacts []int32) error {
+
+	names, _, err := c.ctx.ESI.V2.UniverseApi.PostUniverseNames(contacts, nil)
+	if err != nil {
+		return err
+	}
+
+	tokenSource, ok := auth.Value(goesi.ContextOAuth2).(oauth2.TokenSource)
+	if ok {
+		for _, erase := range names {
+			ref := fmt.Sprintf("https://crest-tq.eveonline.com/%ss/%d/", erase.Category, erase.Id)
+			err := c.ctx.ESI.EVEAPI.ContactDeleteV1(tokenSource, int64(characterID), int64(erase.Id), ref)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // Obtain an authenticated client from a stored access/refresh token.

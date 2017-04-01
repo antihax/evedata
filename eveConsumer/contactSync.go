@@ -242,29 +242,10 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		if len(erase) > 0 {
 			for start := 0; start < len(erase); start = start + 20 {
 				end := min(start+20, len(erase))
-				failure := 0
-				for {
-					r, err = c.ctx.ESI.V1.ContactsApi.DeleteCharactersCharacterIdContacts(auth, (int32)(token.cid), erase[start:end], nil)
-					if err != nil {
-						var resb []byte
-						if r != nil {
-							resb, _ = httputil.DumpResponse(r, true)
-						}
-						log.Printf("ContactSync: Error Erasing %d %s %s\n", token.cid, err, resb)
-						// Retry on their failure
-						if failure > 3 {
-							tokenError(source, token.cid, r, err)
-							return false, err
-						} else if r != nil && r.StatusCode >= 500 {
-							failure++
-							continue
-						}
-						return false, err
-					}
-					break
-				}
+				c.deleteContacts(auth, (int32)(token.cid), erase[start:end])
 			}
 		}
+
 		// Add contacts for active wars
 		if len(active) > 0 {
 			for start := 0; start < len(active); start = start + 100 {
