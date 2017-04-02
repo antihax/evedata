@@ -14,8 +14,10 @@ func TestAssetSetup(t *testing.T) {
 			,(60012526, 179, 2, 1001, "station", 22, "station", 0)
 			,(60012526, 182, 2, 1001, "station", 23, "station", 0)
 			,(23, 196, 2, 1001, "other", 24, "other", 0)
-			,(23, 199, 2, 1001, "other", 25, "other", 0)
-			,(22, 39, 2, 1001, "other", 26, "other", 0);
+			,(24, 199, 2, 1001, "other", 25, "other", 0)
+			,(25, 199, 2, 1001, "other", 26, "other", 0)
+			,(26, 199, 2, 1001, "other", 27, "other", 0)
+			,(23, 39, 2, 1001, "other", 28, "other", 0);
 		`)
 	if err != nil {
 		t.Error(err)
