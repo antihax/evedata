@@ -68,6 +68,18 @@ func TestGetAsset(t *testing.T) {
 		return
 	}
 
+	subs := false
+	for i := range data {
+		if data[i].SubCount > 0 {
+			subs = true
+		}
+	}
+
+	if !subs {
+		t.Error("failed recursion. should have some sub items.")
+		return
+	}
+
 	data, err = GetAssets(1001, 1001, 60012526)
 	if err != nil {
 		t.Error(err)
@@ -79,4 +91,15 @@ func TestGetAsset(t *testing.T) {
 		return
 	}
 
+	subs = false
+	for i := range data {
+		if data[i].SubCount > 0 {
+			subs = true
+		}
+	}
+
+	if !subs {
+		t.Error("failed recursion. should have some sub items.")
+		return
+	}
 }
