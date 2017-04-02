@@ -38,3 +38,11 @@ func TestDeleteContactSync(t *testing.T) {
 		return
 	}
 }
+
+func TestGetExpiredContactSyncs(t *testing.T) {
+	_, err := GetExpiredContactSyncs()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
