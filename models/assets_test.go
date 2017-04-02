@@ -8,13 +8,19 @@ import (
 )
 
 func TestAssetSetup(t *testing.T) {
-	database.Exec(`
-			INSERT INTO evedata.assets (60012526, 1373, 2, 1001, "station", 11, "somewhere", 0);
-			INSERT INTO evedata.assets (60012526, 1373, 2, 1001, "station", 12, "somewhere", 0);		
-			INSERT INTO evedata.assets (60012526, 1373, 2, 1001, "station", 13, "somewhere", 0);
-			INSERT INTO evedata.assets (13, 1373, 2, 1001, "other", 14, "somewhere", 0);
-			INSERT INTO evedata.assets (14, 1373, 2, 1001, "other", 15, "somewhere", 0);
+	_, err := database.Exec(`
+			INSERT IGNORE INTO evedata.assets VALUES
+			 (60012526, 39, 2, 1001, "station", 21, "station", 0)
+			,(60012526, 179, 2, 1001, "station", 22, "station", 0)
+			,(60012526, 182, 2, 1001, "station", 23, "station", 0)
+			,(23, 196, 2, 1001, "other", 24, "other", 0)
+			,(23, 199, 2, 1001, "other", 25, "other", 0)
+			,(22, 39, 2, 1001, "other", 26, "other", 0);
 		`)
+	if err != nil {
+		t.Error(err)
+		return
+	}
 
 	tok := goesi.CRESTToken{
 		AccessToken:  "FAKE",
@@ -22,7 +28,7 @@ func TestAssetSetup(t *testing.T) {
 		Expiry:       time.Now().UTC().Add(time.Hour * 100000),
 		TokenType:    "Bearer"}
 
-	err := AddCRESTToken(1001, 1001, "Dude", &tok, "")
+	err = AddCRESTToken(1001, 1001, "Dude", &tok, "")
 	if err != nil {
 		t.Error(err)
 		return
@@ -51,9 +57,26 @@ func TestGetAssetCharacters(t *testing.T) {
 }
 
 func TestGetAsset(t *testing.T) {
-	_, err := GetAssets(1001, 1001, 60012526)
+	data, err := GetAssets(1001, 0, 60012526)
 	if err != nil {
 		t.Error(err)
 		return
 	}
+
+	if data[0].CharacterID != 1001 {
+		t.Error("wrong character ID")
+		return
+	}
+
+	data, err = GetAssets(1001, 1001, 60012526)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if data[0].CharacterID != 1001 {
+		t.Error("wrong character ID")
+		return
+	}
+
 }
