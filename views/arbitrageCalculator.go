@@ -38,8 +38,11 @@ func arbitrageCalculatorStations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(v)
+	err = json.NewEncoder(w).Encode(v)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
 }
 
 func arbitrageCalculator(w http.ResponseWriter, r *http.Request) {
