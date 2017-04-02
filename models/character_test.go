@@ -21,6 +21,46 @@ func TestUpdateCharacter(t *testing.T) {
 		log.Fatal(err)
 		return
 	}
+
+	err = UpdateCharacter(1002, "dude 2", 1, 1, 147035273, 0, 2, "Female", -10, time.Now())
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	err = UpdateCorporationHistory(1001, 147035273, 100000222, time.Now())
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	hist, err := GetCorporationHistory(1001)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	if hist[0].CorporationID != 147035273 {
+		log.Fatal("wrong corporationID in history")
+	}
+}
+
+func TestCursor(t *testing.T) {
+	err := SetCursorCharacter(1001, 1001)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	cursor, err := GetCursorCharacter(1001)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	if cursor.CursorCharacterID != 1001 {
+		log.Fatal("Wrong cursor returned")
+	}
 }
 
 func TestAddCRESTToken(t *testing.T) {
@@ -96,6 +136,28 @@ func TestGetCharacterIDByName(t *testing.T) {
 		return
 	}
 	if char != 1001 {
+		t.Error("CharacterID does not match")
+		return
+	}
+}
+
+func TestGetKnownAlts(t *testing.T) {
+
+	_, err := database.Exec(`
+			INSERT IGNORE INTO evedata.characterAssociations VALUES
+			 (1001, 1002,3);
+		`)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	alts, err := GetKnownAlts(1001)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if alts[0].CharacterID != 1002 {
 		t.Error("CharacterID does not match")
 		return
 	}
