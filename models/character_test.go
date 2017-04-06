@@ -140,25 +140,3 @@ func TestGetCharacterIDByName(t *testing.T) {
 		return
 	}
 }
-
-func TestGetKnownAlts(t *testing.T) {
-
-	_, err := database.Exec(`
-			INSERT IGNORE INTO evedata.characterAssociations VALUES
-			 (1001, 1002,3);
-		`)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	alts, err := GetKnownAlts(1001)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	if alts[0].CharacterID != 1002 {
-		t.Error("CharacterID does not match")
-		return
-	}
-}

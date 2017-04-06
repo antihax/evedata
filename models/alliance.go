@@ -4,8 +4,7 @@ import "time"
 
 // Update an alliances information.
 func UpdateAlliance(allianceID int32, name string, memberCount int, shortName string, executorCorp int32,
-	startDate time.Time,
-	cacheUntil time.Time) error {
+	startDate time.Time, cacheUntil time.Time) error {
 
 	cacheUntil = time.Now().UTC().Add(time.Hour * 24 * 1)
 	if _, err := database.Exec(`
