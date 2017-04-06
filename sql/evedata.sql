@@ -39,6 +39,14 @@ CREATE TABLE `characterAssociations` (
   PRIMARY KEY (`characterID`,`associateID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `characterKillmailAssociations` (
+  `characterID` int(10) unsigned NOT NULL,
+  `associateID` int(10) unsigned NOT NULL,
+  `frequency` smallint(5) unsigned NOT NULL,
+  `added` datetime DEFAULT NULL,
+  PRIMARY KEY (`characterID`,`associateID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `characters` (
   `characterID` int(11) unsigned NOT NULL DEFAULT '0',
   `bloodlineID` tinyint(3) unsigned NOT NULL,
