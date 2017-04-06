@@ -24,7 +24,7 @@ func MaintKillmailRelationships() error {
         SELECT K.id, GROUP_CONCAT(characterID) 
         FROM evedata.killmailAttackers A
         INNER JOIN evedata.killmails K ON K.id = A.id
-        WHERE killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 30 DAY)
+        WHERE killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY)
         GROUP BY K.id
         HAVING count(*) > 1 AND count(*) < 12;
         `)

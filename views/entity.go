@@ -3,6 +3,7 @@ package views
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -25,9 +26,9 @@ func init() {
 	evedata.AddRoute("entity", "GET", "/J/alliesForEntity", alliesForEntityAPI)
 	evedata.AddRoute("entity", "GET", "/J/shipsForEntity", shipsForEntityAPI)
 	evedata.AddRoute("entity", "GET", "/J/corporationHistory", corporationHistoryAPI)
-	evedata.AddRoute("entity", "GET", "/J/knownAlts", knownAltsAPI)
 	evedata.AddRoute("entity", "GET", "/J/corporationsForAlliance", corporationsForAllianceAPI)
-
+	evedata.AddRoute("entity", "GET", "/J/characterKnownAssociates", characterKnownAssociatesAPI)
+	evedata.AddRoute("entity", "GET", "/J/characterKnownKillmailAssociates", characterKnownKillmailAssociatesAPI)
 	validEntity = map[string]bool{"alliance": true, "corporation": true, "character": true}
 }
 
@@ -151,7 +152,7 @@ func corporationHistoryAPI(w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(v)
 }
 
-func knownAltsAPI(w http.ResponseWriter, r *http.Request) {
+func characterKnownAssociatesAPI(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
@@ -159,8 +160,27 @@ func knownAltsAPI(w http.ResponseWriter, r *http.Request) {
 		httpErr(w, err)
 		return
 	}
-	v, err := models.GetKnownAlts(id)
+	v, err := models.GetCharacterKnownAssociates(id)
 	if err != nil {
+		httpErrCode(w, http.StatusNotFound)
+		return
+	}
+
+	encoder := json.NewEncoder(w)
+	encoder.Encode(v)
+}
+
+func characterKnownKillmailAssociatesAPI(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 60*60)
+	idStr := r.FormValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+	v, err := models.GetCharacterKnownKillmailAssociates(id)
+	if err != nil {
+		fmt.Println(err)
 		httpErrCode(w, http.StatusNotFound)
 		return
 	}

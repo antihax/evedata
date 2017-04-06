@@ -59,7 +59,8 @@
 	{{ template "activity" . }}
 	{{ template "knownships" . }}
 	{{ template "corporationHistory" . }}
-	{{ template "knownAlts" . }}
+	{{ template "knownAssociates" . }}
+		{{ template "knownKillmailAssociates" . }}
 	
 </div>
 {{end}}
@@ -142,14 +143,14 @@
 		</div>
 {{end}}
 
-{{define "knownAlts"}}
+{{define "knownAssociates"}}
 <div class="col-md-6 well">
 			<h2>
-				Known Associates and Alts
+				Known Associates
 			</h2>	
 			<table id="alts"
-               data-sort-name="name"
-			   data-url="/J/knownAlts?id={{ .entityID }}"
+               data-sort-name="frequency"
+			   data-url="/J/characterKnownAssociates?id={{ .entityID }}"
                data-pagination="true"
                data-search="true"
                data-sort-order="desc">
@@ -163,6 +164,33 @@
 			<script>
 			    $(function () {
        				$('#alts').bootstrapTable();
+       			});
+       		</script>
+		</div>
+{{end}}
+
+
+{{define "knownKillmailAssociates"}}
+<div class="col-md-6 well">
+			<h2>
+				Sharing killmails with
+			</h2>	
+			<table id="killmailalts"
+               data-sort-name="frequency"
+			   data-url="/J/characterKnownKillmailAssociates?id={{ .entityID }}"
+               data-pagination="true"
+               data-search="true"
+               data-sort-order="desc">
+            <thead>
+            <tr>
+                <th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
+                <th data-field="frequency" data-sortable="true">Frequency</th>
+            </tr>
+            </thead>
+        </table>
+			<script>
+			    $(function () {
+       				$('#killmailalts').bootstrapTable();
        			});
        		</script>
 		</div>
