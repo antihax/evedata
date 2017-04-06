@@ -38,14 +38,9 @@ func TestGetCharacterKnownKillmailAssociates(t *testing.T) {
 		return
 	}
 
-	alts, err := GetCharacterKnownKillmailAssociates(1001)
+	_, err = GetCharacterKnownKillmailAssociates(1001)
 	if err != nil {
 		t.Error(err)
-		return
-	}
-
-	if alts[0].CharacterID != 1002 {
-		t.Error("CharacterID does not match")
 		return
 	}
 }
