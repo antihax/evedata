@@ -26,7 +26,7 @@ func GetCharacterKnownAssociates(id int64) ([]KnownAlts, error) {
 		SELECT 	associateID AS characterID,
 				frequency,
 				C.name AS characterName,
-				source
+				IFNULL(source, 0) AS source
 		FROM evedata.characterAssociations A
 		INNER JOIN evedata.characters C ON A.associateID = C.characterID
 		INNER JOIN evedata.characters M ON A.characterID = M.characterID
