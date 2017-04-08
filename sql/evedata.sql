@@ -36,6 +36,8 @@ CREATE TABLE `characterAssociations` (
   `characterID` int(10) unsigned NOT NULL,
   `associateID` int(10) unsigned NOT NULL,
   `frequency` smallint(5) unsigned NOT NULL,
+  `source` tinyint(4) unsigned DEFAULT NULL,
+  `added` datetime DEFAULT NULL,
   PRIMARY KEY (`characterID`,`associateID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

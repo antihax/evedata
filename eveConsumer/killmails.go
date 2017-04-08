@@ -221,9 +221,8 @@ func (c *EVEConsumer) goZKillTemporaryConsumer() error {
 			log.Printf("Delete old killmails")
 			models.MaintKillMails()
 			log.Printf("Find Relationships")
-			models.MaintRelationships()
-			log.Printf("Find Killmail Relationships")
-			models.MaintKillmailRelationships()
+			models.BuildRelationships()
+
 			log.Printf("Restart zKill Consumer to %s", nextCheck.String())
 		}
 

@@ -23,13 +23,6 @@ func TestMaintContactSync(t *testing.T) {
 	}
 }
 
-func TestMaintRelationships(t *testing.T) {
-	err := MaintRelationships()
-	if err != nil {
-		t.Error(err)
-	}
-}
-
 func TestMaintOrphanCharacters(t *testing.T) {
 	_, err := MaintOrphanCharacters()
 	if err != nil {

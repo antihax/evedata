@@ -1,283 +1,5 @@
 package models
 
-import (
-	"fmt"
-	"log"
-	"strconv"
-	"strings"
-
-	"github.com/antihax/evedata/fpGrowth"
-)
-
-func SplitToInt(list string) []int {
-	a := strings.Split(list, ",")
-	b := make([]int, len(a))
-	for i, v := range a {
-		b[i], _ = strconv.Atoi(v)
-	}
-	return b
-}
-
-func MaintKillmailRelationships() error {
-	log.Printf("Character Associations: Pull Database")
-	rows, err := database.Query(`
-        SELECT K.id, GROUP_CONCAT(characterID) 
-        FROM evedata.killmailAttackers A
-        INNER JOIN evedata.killmails K ON K.id = A.id
-        WHERE killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY)
-        GROUP BY K.id
-        HAVING count(*) > 1 AND count(*) < 12;
-        `)
-	if err != nil {
-		return err
-	}
-
-	log.Printf("Character Associations: Build Transaction History")
-	transactions := fpGrowth.ItemSet{}
-
-	for rows.Next() {
-		var (
-			transactionID int
-			items         string
-		)
-		rows.Scan(&transactionID, &items)
-		transactions[transactionID] = SplitToInt(items)
-	}
-	rows.Close()
-	log.Printf("Character Associations: Build fpTree")
-	fp := fpGrowth.NewFPTree(transactions, 2)
-	log.Printf("Character Associations: Growth")
-	associations := fp.Growth()
-
-	log.Printf("Character Associations: Build Values")
-	var values []string
-	for _, association := range associations {
-		for _, char1 := range association.Items {
-			for _, char2 := range association.Items {
-				if char1 != char2 {
-					values = append(values, fmt.Sprintf("(%d,%d,%d,UTC_TIMESTAMP())",
-						char1, char2, association.Frequency))
-				}
-			}
-		}
-	}
-
-	log.Printf("Character Associations: Update Database")
-	for start := 0; start < len(values); start = start + 100000 {
-		//	log.Printf("Character Associations: %.2f%%\n", (float32(start)/float32(len(values)))*100)
-		end := min(start+100000, len(values))
-		stmt := fmt.Sprintf(`INSERT INTO evedata.characterKillmailAssociations (characterID, associateID, frequency, added) VALUES %s 
-        ON DUPLICATE KEY UPDATE added = VALUES(added), frequency = VALUES(frequency);`, strings.Join(values[start:end], ",\n"))
-
-		tx, err := Begin()
-		if err != nil {
-			return err
-		}
-		_, err = tx.Exec(stmt)
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
-		err = RetryTransaction(tx)
-		if err != nil {
-			return err
-		}
-	}
-	log.Printf("Character Associations: Finished")
-	return nil
-}
-
-func min(x, y int) int {
-	if x < y {
-		return x
-	}
-	return y
-}
-
-func MaintRelationships() error {
-	log.Printf("Character Associations: Pull Database")
-	rows, err := database.Query(`
-        SELECT 
-            UNIX_TIMESTAMP(startDate)+FLOOR(1 + (RAND() * 86028157)), 
-            GROUP_CONCAT(DISTINCT H.characterID)
-        FROM evedata.corporationHistory H
-        INNER JOIN evedata.characters C ON C.characterID = H.characterID
-        WHERE H.corporationID > 1999999 AND C.corporationID > 1000001
-        GROUP BY H.corporationID, DATE(startDate)
-        HAVING count(*) > 2 AND count(*) < 12
-        `)
-	if err != nil {
-		return err
-	}
-
-	log.Printf("Character Associations: Build Transaction History")
-	transactions := fpGrowth.ItemSet{}
-
-	for rows.Next() {
-		var (
-			transactionID int
-			items         string
-		)
-		rows.Scan(&transactionID, &items)
-		transactions[transactionID] = SplitToInt(items)
-	}
-	rows.Close()
-	log.Printf("Character Associations: Build fpTree")
-	fp := fpGrowth.NewFPTree(transactions, 2)
-	log.Printf("Character Associations: Growth")
-	associations := fp.Growth()
-
-	log.Printf("Character Associations: Update Database")
-
-	for _, association := range associations {
-		var values []string
-		for _, char1 := range association.Items {
-			for _, char2 := range association.Items {
-				if char1 != char2 {
-					values = append(values, fmt.Sprintf("(%d,%d,%d)",
-						char1, char2, association.Frequency))
-				}
-			}
-		}
-
-		stmt := fmt.Sprintf(`INSERT INTO evedata.characterAssociations (characterID, associateID, frequency) VALUES %s 
-        ON DUPLICATE KEY UPDATE frequency = VALUES(frequency);`, strings.Join(values, ",\n"))
-
-		tx, err := Begin()
-		if err != nil {
-			return err
-		}
-		_, err = tx.Exec(stmt)
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
-		err = RetryTransaction(tx)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func MaintKillMails() error { // Broken into smaller chunks so we have a chance of it getting completed.
-	// Delete stuff older than 90 days, we do not care...
-	if err := RetryExecTillNoRows(`
-				DELETE A.* FROM evedata.killmailAttackers A
-		            JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 50000) K ON A.id = K.id;
-		            `); err != nil {
-		return err
-	}
-	if err := RetryExecTillNoRows(`
-				DELETE A.* FROM evedata.killmailItems A
-		        JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 50000) K ON A.id = K.id;
-		            `); err != nil {
-		return err
-	}
-	if err := RetryExecTillNoRows(`
-				DELETE FROM evedata.killmails
-		        WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 50000;
-		            `); err != nil {
-		return err
-	}
-
-	// Remove any invalid items
-	/*if err := RetryExecTillNoRows(`
-		        DELETE D.* FROM evedata.killmailAttackers D
-	            JOIN (SELECT A.id FROM evedata.killmailAttackers A
-					 LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
-		             WHERE K.id IS NULL LIMIT 10) S ON D.id = S.id;
-		               `); err != nil {
-			return err
-		}*/
-	if err := RetryExecTillNoRows(`
-			DELETE D.* FROM evedata.killmailItems D 
-            JOIN (SELECT A.id FROM evedata.killmailItems A
-				 LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
-	             WHERE K.id IS NULL LIMIT 10) S ON D.id = S.id;
-	               `); err != nil {
-		return err
-	}
-
-	// Prefill stats for known entities that may have no kills
-	if _, err := RetryExec(`
-        INSERT IGNORE INTO evedata.entityKillStats (id)
-	    (SELECT corporationID AS id FROM evedata.corporations WHERE memberCount > 0); 
-            `); err != nil {
-		return err
-	}
-
-	if _, err := RetryExec(`
-        INSERT IGNORE INTO evedata.entityKillStats (id)
-	    (SELECT allianceID AS id FROM evedata.alliances); 
-            `); err != nil {
-		return err
-	}
-
-	// Build entity stats
-	if _, err := RetryExec(`
-        INSERT INTO evedata.entityKillStats (id, losses)
-            (SELECT 
-                victimCorporationID AS id,
-                COUNT(DISTINCT K.id) AS losses
-            FROM evedata.killmails K
-            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 180 DAY)
-            GROUP BY victimCorporationID
-            ) ON DUPLICATE KEY UPDATE losses = values(losses);
-            `); err != nil {
-		return err
-	}
-	if _, err := RetryExec(`
-        INSERT INTO evedata.entityKillStats (id, losses)
-            (SELECT 
-                victimAllianceID AS id,
-                COUNT(DISTINCT K.id) AS losses
-            FROM evedata.killmails K
-            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 180 DAY)
-            GROUP BY victimAllianceID
-            ) ON DUPLICATE KEY UPDATE losses = values(losses);
-            `); err != nil {
-		return err
-	}
-
-	if _, err := RetryExec(`
-        INSERT INTO evedata.entityKillStats (id, kills)
-            (SELECT 
-                corporationID AS id,
-                COUNT(DISTINCT K.id) AS kills
-            FROM evedata.killmails K
-            INNER JOIN evedata.killmailAttackers A ON A.id = K.id
-            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 180 DAY)
-            GROUP BY A.corporationID
-            ) ON DUPLICATE KEY UPDATE kills = values(kills);
-            `); err != nil {
-		return err
-	}
-	if _, err := RetryExec(`
-        INSERT INTO evedata.entityKillStats (id, kills)
-            (SELECT 
-                allianceID AS id,
-                COUNT(DISTINCT K.id) AS kills
-            FROM evedata.killmails K
-            INNER JOIN evedata.killmailAttackers A ON A.id = K.id
-            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 180 DAY)
-            GROUP BY A.allianceID
-            ) ON DUPLICATE KEY UPDATE kills = values(kills);
-            `); err != nil {
-		return err
-	}
-
-	// Update everyone efficiency
-	if _, err := RetryExec(`
-        UPDATE evedata.entityKillStats SET efficiency = IF(losses+kills, (kills/(kills+losses)) , 1.0000);
-            `); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func MaintContactSync() error {
 	if _, err := RetryExec(`
         DELETE S.* FROM evedata.contactSyncs S
@@ -502,6 +224,124 @@ func MaintMarket() error {
 
         GROUP BY S.offerID, S.corporationID
         HAVING ISKperLP > 0) ORDER BY typeID;
+            `); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func MaintKillMails() error { // Broken into smaller chunks so we have a chance of it getting completed.
+	// Delete stuff older than 90 days, we do not care...
+	if err := RetryExecTillNoRows(`
+				DELETE A.* FROM evedata.killmailAttackers A
+		            JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 50000) K ON A.id = K.id;
+		            `); err != nil {
+		return err
+	}
+	if err := RetryExecTillNoRows(`
+				DELETE A.* FROM evedata.killmailItems A
+		        JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 50000) K ON A.id = K.id;
+		            `); err != nil {
+		return err
+	}
+	if err := RetryExecTillNoRows(`
+				DELETE FROM evedata.killmails
+		        WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 50000;
+		            `); err != nil {
+		return err
+	}
+
+	// Remove any invalid items
+	/*if err := RetryExecTillNoRows(`
+		        DELETE D.* FROM evedata.killmailAttackers D
+	            JOIN (SELECT A.id FROM evedata.killmailAttackers A
+					 LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
+		             WHERE K.id IS NULL LIMIT 10) S ON D.id = S.id;
+		               `); err != nil {
+			return err
+		}*/
+	if err := RetryExecTillNoRows(`
+			DELETE D.* FROM evedata.killmailItems D 
+            JOIN (SELECT A.id FROM evedata.killmailItems A
+				 LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
+	             WHERE K.id IS NULL LIMIT 10) S ON D.id = S.id;
+	               `); err != nil {
+		return err
+	}
+
+	// Prefill stats for known entities that may have no kills
+	if _, err := RetryExec(`
+        INSERT IGNORE INTO evedata.entityKillStats (id)
+	    (SELECT corporationID AS id FROM evedata.corporations WHERE memberCount > 0); 
+            `); err != nil {
+		return err
+	}
+
+	if _, err := RetryExec(`
+        INSERT IGNORE INTO evedata.entityKillStats (id)
+	    (SELECT allianceID AS id FROM evedata.alliances); 
+            `); err != nil {
+		return err
+	}
+
+	// Build entity stats
+	if _, err := RetryExec(`
+        INSERT INTO evedata.entityKillStats (id, losses)
+            (SELECT 
+                victimCorporationID AS id,
+                COUNT(DISTINCT K.id) AS losses
+            FROM evedata.killmails K
+            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 180 DAY)
+            GROUP BY victimCorporationID
+            ) ON DUPLICATE KEY UPDATE losses = values(losses);
+            `); err != nil {
+		return err
+	}
+	if _, err := RetryExec(`
+        INSERT INTO evedata.entityKillStats (id, losses)
+            (SELECT 
+                victimAllianceID AS id,
+                COUNT(DISTINCT K.id) AS losses
+            FROM evedata.killmails K
+            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 180 DAY)
+            GROUP BY victimAllianceID
+            ) ON DUPLICATE KEY UPDATE losses = values(losses);
+            `); err != nil {
+		return err
+	}
+
+	if _, err := RetryExec(`
+        INSERT INTO evedata.entityKillStats (id, kills)
+            (SELECT 
+                corporationID AS id,
+                COUNT(DISTINCT K.id) AS kills
+            FROM evedata.killmails K
+            INNER JOIN evedata.killmailAttackers A ON A.id = K.id
+            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 180 DAY)
+            GROUP BY A.corporationID
+            ) ON DUPLICATE KEY UPDATE kills = values(kills);
+            `); err != nil {
+		return err
+	}
+
+	if _, err := RetryExec(`
+        INSERT INTO evedata.entityKillStats (id, kills)
+            (SELECT 
+                allianceID AS id,
+                COUNT(DISTINCT K.id) AS kills
+            FROM evedata.killmails K
+            INNER JOIN evedata.killmailAttackers A ON A.id = K.id
+            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 180 DAY)
+            GROUP BY A.allianceID
+            ) ON DUPLICATE KEY UPDATE kills = values(kills);
+            `); err != nil {
+		return err
+	}
+
+	// Update everyone efficiency
+	if _, err := RetryExec(`
+        UPDATE evedata.entityKillStats SET efficiency = IF(losses+kills, (kills/(kills+losses)) , 1.0000);
             `); err != nil {
 		return err
 	}
