@@ -3,23 +3,23 @@
 	}
 	
 	function characterImage(row) {
-	    return '//image.eveonline.com/character/' + row.characterID + '_32.jpg';
+	    return '//imageserver.eveonline.com/character/' + row.characterID + '_32.jpg';
 	}
 
 	function characterImageByID(characterID, size) {
-	    return '//image.eveonline.com/character/' + characterID + '_'+ size + '.jpg';
+	    return '//imageserver.eveonline.com/character/' + characterID + '_'+ size + '.jpg';
 	}
 
 	function entityImage(row) {
 		if (row.type == "character") {
-			return '//image.eveonline.com/'+ capitalizeFirstLetter(row.type) + '/' + row.id + '_32.jpg';
+			return '//imageserver.eveonline.com/'+ capitalizeFirstLetter(row.type) + '/' + row.id + '_32.jpg';
 		} else {
-	    	return '//image.eveonline.com/'+ capitalizeFirstLetter(row.type) + '/' + row.id + '_32.png';
+	    	return '//imageserver.eveonline.com/'+ capitalizeFirstLetter(row.type) + '/' + row.id + '_32.png';
 		}
 	}
 
 	function typeImage(row) {
-	    return '//image.eveonline.com/Type/' + row.typeID + '_32.png';
+	    return '//imageserver.eveonline.com/Type/' + row.typeID + '_32.png';
 	}
 
 	function corporationFormatter(value, row) {
