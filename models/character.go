@@ -177,7 +177,7 @@ func GetCharacter(id int64) (*Character, error) {
 			characterID,
 			C.name AS characterName,
 		    C.corporationID,
-		    IFNULL("Unknown Name", Co.name) AS corporationName,
+		    IFNULL(Co.name, "Unknown Name") AS corporationName,
 		    C.allianceID,
 		    Al.name AS allianceName,
 		    race,
