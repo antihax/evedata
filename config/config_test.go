@@ -8,4 +8,9 @@ func TestAppContext(t *testing.T) {
 		t.Error(err)
 		return
 	}
+	_, err = ReadConfig("noconfig")
+	if err == nil {
+		t.Error(err)
+		return
+	}
 }
