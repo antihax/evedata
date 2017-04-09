@@ -68,11 +68,11 @@ type Config struct {
 }
 
 // ReadConfig should be run at startup and output shared between services via context.
-func ReadConfig() (*Config, error) {
+func ReadConfig(conf string) (*Config, error) {
 	c := &Config{}
 
 	// Read the config
-	if _, err := toml.DecodeFile("config/config.conf", c); err != nil {
+	if _, err := toml.DecodeFile(conf, c); err != nil {
 		return nil, err
 	}
 	return c, nil

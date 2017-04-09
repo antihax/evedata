@@ -32,7 +32,7 @@ func GoServer() {
 	var err error
 
 	// Read configuation.
-	if ctx.Conf, err = config.ReadConfig(); err != nil {
+	if ctx.Conf, err = config.ReadConfig("config/config.conf"); err != nil {
 		log.Fatalf("Error reading configuration: %v", err)
 	}
 
