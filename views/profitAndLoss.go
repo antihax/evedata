@@ -7,8 +7,8 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/antihax/evedata/evedata"
 	"github.com/antihax/evedata/models"
-	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
 )
 

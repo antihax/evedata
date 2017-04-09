@@ -67,7 +67,7 @@ type Config struct {
 	}
 }
 
-// ReadConfig should be run at startup and output shared between microservices via context.
+// ReadConfig should be run at startup and output shared between services via context.
 func ReadConfig() (*Config, error) {
 	c := Config{}
 

@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/antihax/evedata/server"
+	"github.com/antihax/evedata/evedata"
 )
 
 func init() {

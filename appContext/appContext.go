@@ -32,11 +32,12 @@ type AppContext struct {
 	// Since we need to combine data from multiple characters, we use
 	// one authenticator for the site to act as the main authentication.
 	// second will allow for many alt characters under the main.
-	SSOAuthenticator          *goesi.SSOAuthenticator // CREST authenticator for site authentication
-	TokenAuthenticator        *goesi.SSOAuthenticator // CREST authenticator for site functionality
-	ESIBootstrapAuthenticator *goesi.SSOAuthenticator // CREST authenticator for site functionality
+	SSOAuthenticator          *goesi.SSOAuthenticator // SSO authenticator for site authentication
+	TokenAuthenticator        *goesi.SSOAuthenticator // Token authenticator for site functionality
+	ESIBootstrapAuthenticator *goesi.SSOAuthenticator // Bootstrap authenticator for public information
 }
 
+// NewTestAppContext creates an AppContext for tests
 func NewTestAppContext() AppContext {
 	ctx := AppContext{}
 
@@ -45,6 +46,7 @@ func NewTestAppContext() AppContext {
 	conf.EVEConsumer.Consumers = 10
 	conf.EVEConsumer.ZKillEnabled = false
 
+	// Setup the database connection
 	database, err := models.SetupDatabase("mysql", "root@tcp(127.0.0.1:3306)/eve?allowOldPasswords=1&parseTime=true")
 	if err != nil {
 		log.Fatalln(err)

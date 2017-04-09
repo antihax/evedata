@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/antihax/evedata/server"
+	"github.com/antihax/evedata/evedata"
 )
 
 func init() {

@@ -2,7 +2,7 @@ package main
 
 import (
 	log "github.com/Sirupsen/logrus"
-	evedata "github.com/antihax/evedata/server"
+	"github.com/antihax/evedata/evedata"
 	_ "github.com/antihax/evedata/views"
 )
 

@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"github.com/antihax/evedata/eveConsumer"
+	"github.com/antihax/evedata/evedata"
 	"github.com/antihax/goesi"
 
 	"github.com/antihax/evedata/models"
-	"github.com/antihax/evedata/server"
 	"github.com/antihax/evedata/templates"
 
 	"github.com/garyburd/redigo/redis"
