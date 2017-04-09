@@ -1,7 +1,8 @@
 package main
 
 import (
-	log "github.com/Sirupsen/logrus"
+	"log"
+
 	"github.com/antihax/evedata/evedata"
 	_ "github.com/antihax/evedata/views"
 )

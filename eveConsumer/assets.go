@@ -17,8 +17,11 @@ func init() {
 	addTrigger("assets", assetsTrigger)
 }
 
+// assetsConsumer handles gathering assets from API
 func assetsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
+	// Dereference the redis pointer.
 	r := *redisPtr
+
 	// POP some work of the queue
 	ret, err := r.Do("SPOP", "EVEDATA_assetQueue")
 	if err != nil {
@@ -26,6 +29,8 @@ func assetsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	} else if ret == nil {
 		return false, nil
 	}
+
+	// Get the asset string
 	v, err := redis.String(ret, err)
 	if err != nil {
 		return false, err
