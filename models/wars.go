@@ -151,7 +151,7 @@ func GetActiveWarList() ([]ActiveWarList, error) {
 func GetWarsForEntityByID(id int64) ([]ActiveWarList, error) {
 	wars := []ActiveWarList{}
 	if err := database.Select(&wars, `
-	SELECT 
+	SELECT DISTINCT
 		W.id AS warID, 
 	    timeStarted, 
 	    timeFinished, 
