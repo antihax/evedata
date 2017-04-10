@@ -43,6 +43,54 @@ func GetCharacterKnownAssociates(id int64) ([]KnownAlts, error) {
 	return ref, nil
 }
 
+func GetCorporationKnownAssociates(id int64) ([]KnownAlts, error) {
+	ref := []KnownAlts{}
+	if err := database.Select(&ref, `
+		SELECT	associateID AS characterID,
+				SUM(frequency) AS frequency,
+				C.name AS characterName,
+				IFNULL(source, 0) AS source
+		FROM evedata.characterAssociations A
+        INNER JOIN evedata.characters C ON A.associateID = C.characterID
+        INNER JOIN evedata.characters M ON A.characterID = M.characterID
+        WHERE A.characterID IN (SELECT characterID FROM evedata.characters WHERE corporationID = ?)
+        AND (M.allianceID != C.allianceID OR C.allianceID = 0) AND M.corporationID != C.corporationID
+        GROUP BY associateID
+		`, id); err != nil {
+		return nil, err
+	}
+
+	for i := range ref {
+		ref[i].Type = "character"
+	}
+
+	return ref, nil
+}
+
+func GetAllianceKnownAssociates(id int64) ([]KnownAlts, error) {
+	ref := []KnownAlts{}
+	if err := database.Select(&ref, `
+		SELECT	associateID AS characterID,
+				SUM(frequency) AS frequency,
+				C.name AS characterName,
+				IFNULL(source, 0) AS source
+		FROM evedata.characterAssociations A
+        INNER JOIN evedata.characters C ON A.associateID = C.characterID
+        INNER JOIN evedata.characters M ON A.characterID = M.characterID
+        WHERE A.characterID IN (SELECT characterID FROM evedata.characters WHERE allianceID = ?)
+        AND (M.allianceID != C.allianceID OR C.allianceID = 0) AND M.corporationID != C.corporationID
+        GROUP BY associateID
+		`, id); err != nil {
+		return nil, err
+	}
+
+	for i := range ref {
+		ref[i].Type = "character"
+	}
+
+	return ref, nil
+}
+
 func BuildRelationships() error {
 	if err := buildKillmailRelationships(); err != nil {
 		log.Println(err)

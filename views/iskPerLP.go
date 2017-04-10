@@ -36,8 +36,7 @@ func iskPerLPCorps(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(v)
+	json.NewEncoder(w).Encode(v)
 }
 
 func iskPerLP(w http.ResponseWriter, r *http.Request) {
@@ -49,6 +48,5 @@ func iskPerLP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(v)
+	json.NewEncoder(w).Encode(v)
 }

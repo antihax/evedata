@@ -25,15 +25,15 @@
 					{{end}}
 				</dt>
 			</dl>
-		</header>
-	</div>
+	</header>
 
 	{{ template "wars" . }}
 	{{ template "knownallies" . }}
 	{{ template "activity" . }}
 	{{ template "assets" . }}
 	{{ template "knownships" . }}
-
+	{{ template "knownAssociates" . }}
+</div>
 {{end}}
 
 {{define "character"}}
@@ -66,7 +66,7 @@
 
 {{define "alliance"}}
 <div class="container-fluid">
-	<div class="row">
+	<header class="row">
 		<div class="col-md-2">
 			<img alt="{{.Alliance.AllianceName}}" src="//imageserver.eveonline.com/Alliance/{{.Alliance.AllianceID}}_128.png" />
 		</div>
@@ -78,15 +78,16 @@
 				</dt>
 			</dl>
 		</div>
-	</div>
-	<div class="row">
+	</header>
+
 		{{ template "wars" . }}
 		{{ template "knownallies" . }}
 		{{ template "activity" . }}
 		{{ template "assets" . }}
 		{{ template "knownships" . }}
 		{{ template "corporations" . }}
-	</div>
+		{{ template "knownAssociates" . }}
+
 </div>
 {{end}}
 
@@ -149,8 +150,8 @@
 			</h2>	
 			<table id="alts"
                data-sort-name="frequency"
-			   data-url="/J/characterKnownAssociates?id={{ .entityID }}"
-               data-pagination="true"
+			   data-url="/J/knownAssociatesForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+			   data-pagination="true"
                data-search="true"
                data-sort-order="desc">
             <thead>

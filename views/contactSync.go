@@ -72,14 +72,12 @@ func apiGetContactSyncs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cc, err := models.GetContactSyncs(characterID)
+	v, err := models.GetContactSyncs(characterID)
 	if err != nil {
 		httpErrCode(w, http.StatusNotFound)
 		return
 	}
-
-	encoder := json.NewEncoder(w)
-	encoder.Encode(cc)
+	json.NewEncoder(w).Encode(v)
 }
 
 func apiDeleteContactSync(w http.ResponseWriter, r *http.Request) {

@@ -26,7 +26,8 @@ func init() {
 	evedata.AddRoute("entity", "GET", "/J/shipsForEntity", shipsForEntityAPI)
 	evedata.AddRoute("entity", "GET", "/J/corporationHistory", corporationHistoryAPI)
 	evedata.AddRoute("entity", "GET", "/J/corporationsForAlliance", corporationsForAllianceAPI)
-	evedata.AddRoute("entity", "GET", "/J/characterKnownAssociates", characterKnownAssociatesAPI)
+	evedata.AddRoute("entity", "GET", "/J/knownAssociatesForEntity", knownAssociatesForEntityAPI)
+
 	validEntity = map[string]bool{"alliance": true, "corporation": true, "character": true}
 }
 
@@ -51,8 +52,7 @@ func shipsForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(v)
+	json.NewEncoder(w).Encode(v)
 }
 
 func assetsForEntityAPI(w http.ResponseWriter, r *http.Request) {
@@ -84,8 +84,7 @@ func assetsForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(v)
+	json.NewEncoder(w).Encode(v)
 }
 
 func activityForEntityAPI(w http.ResponseWriter, r *http.Request) {
@@ -110,8 +109,7 @@ func activityForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(v)
+	json.NewEncoder(w).Encode(v)
 }
 
 func alliesForEntityAPI(w http.ResponseWriter, r *http.Request) {
@@ -128,8 +126,7 @@ func alliesForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(v)
+	json.NewEncoder(w).Encode(v)
 }
 
 func corporationHistoryAPI(w http.ResponseWriter, r *http.Request) {
@@ -146,11 +143,10 @@ func corporationHistoryAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(v)
+	json.NewEncoder(w).Encode(v)
 }
 
-func characterKnownAssociatesAPI(w http.ResponseWriter, r *http.Request) {
+func knownAssociatesForEntityAPI(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
@@ -158,14 +154,31 @@ func characterKnownAssociatesAPI(w http.ResponseWriter, r *http.Request) {
 		httpErr(w, err)
 		return
 	}
-	v, err := models.GetCharacterKnownAssociates(id)
+
+	entityType := r.FormValue("entityType")
+	if !validEntity[entityType] {
+		httpErr(w, errors.New("entityType must be corporation, character, or alliance"))
+		return
+	}
+
+	var v []models.KnownAlts
+	if entityType == "alliance" {
+		v, err = models.GetAllianceKnownAssociates(id)
+	} else if entityType == "corporation" {
+		v, err = models.GetCorporationKnownAssociates(id)
+	} else if entityType == "character" {
+		v, err = models.GetCharacterKnownAssociates(id)
+	} else {
+		httpErr(w, errors.New("entityType must be corporation or alliance"))
+		return
+	}
+
 	if err != nil {
 		httpErrCode(w, http.StatusNotFound)
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(v)
+	json.NewEncoder(w).Encode(v)
 }
 
 func warsForEntityAPI(w http.ResponseWriter, r *http.Request) {
@@ -182,8 +195,7 @@ func warsForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(v)
+	json.NewEncoder(w).Encode(v)
 }
 
 func corporationsForAllianceAPI(w http.ResponseWriter, r *http.Request) {
@@ -200,8 +212,7 @@ func corporationsForAllianceAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(v)
+	json.NewEncoder(w).Encode(v)
 }
 
 func alliancePage(w http.ResponseWriter, r *http.Request) {

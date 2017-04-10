@@ -89,6 +89,5 @@ func arbitrageCalculator(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(v)
+	json.NewEncoder(w).Encode(v)
 }

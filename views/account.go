@@ -123,14 +123,13 @@ func apiGetCRESTTokens(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokens, err := models.GetCRESTTokens(characterID)
+	v, err := models.GetCRESTTokens(characterID)
 	if err != nil {
 		httpErr(w, err)
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(tokens)
+	json.NewEncoder(w).Encode(v)
 
 	if err = s.Save(r, w); err != nil {
 		httpErr(w, err)

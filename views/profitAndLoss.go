@@ -57,12 +57,11 @@ func walletSummaryAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	summary, err := models.GetWalletSummary(characterID, rangeI)
+	v, err := models.GetWalletSummary(characterID, rangeI)
 	if err != nil {
 		httpErr(w, err)
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(summary)
+	json.NewEncoder(w).Encode(v)
 }

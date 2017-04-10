@@ -77,8 +77,7 @@ func searchitemsPage(w http.ResponseWriter, r *http.Request) {
 
 	mRows.Rows = &mIL
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(mRows)
+	json.NewEncoder(w).Encode(mRows)
 }
 
 /******************************************************************************
@@ -105,7 +104,6 @@ const (
 // MarketRegionItems Query market orders for a user specified
 func marketRegionItems(w http.ResponseWriter, r *http.Request, buy bool) {
 	var (
-		mRows         Rows
 		err           error
 		secFilter     string
 		secFilterPass int
@@ -175,10 +173,7 @@ func marketRegionItems(w http.ResponseWriter, r *http.Request, buy bool) {
 		return
 	}
 
-	mRows.Rows = &mR
-
-	encoder := json.NewEncoder(w)
-	encoder.Encode(mR)
+	json.NewEncoder(w).Encode(mR)
 }
 
 // MarketSellRegionItems Query market sell orders for a user specified

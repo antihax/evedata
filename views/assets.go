@@ -42,14 +42,13 @@ func assetCharactersAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	assetCharacters, err := models.GetAssetCharacters(characterID)
+	v, err := models.GetAssetCharacters(characterID)
 	if err != nil {
 		httpErr(w, err)
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(assetCharacters)
+	json.NewEncoder(w).Encode(v)
 }
 
 func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
@@ -75,14 +74,13 @@ func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	assetLocations, err := models.GetAssetLocations(characterID, (int64)(filterCharacterID))
+	v, err := models.GetAssetLocations(characterID, (int64)(filterCharacterID))
 	if err != nil {
 		httpErr(w, err)
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(assetLocations)
+	json.NewEncoder(w).Encode(v)
 }
 
 func assetsAPI(w http.ResponseWriter, r *http.Request) {
@@ -121,12 +119,11 @@ func assetsAPI(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	assets, err := models.GetAssets(characterID, filterCharacterID, locationID)
+	v, err := models.GetAssets(characterID, filterCharacterID, locationID)
 	if err != nil {
 		httpErr(w, err)
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.Encode(assets)
+	json.NewEncoder(w).Encode(v)
 }

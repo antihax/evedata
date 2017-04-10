@@ -21,6 +21,22 @@ func TestGetCharacterKnownAssociates(t *testing.T) {
 	}
 }
 
+func TestGetCorporationKnownAssociates(t *testing.T) {
+	_, err := GetCorporationKnownAssociates(1001)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+func TestGetAllianceKnownAssociates(t *testing.T) {
+	_, err := GetAllianceKnownAssociates(1001)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
+
 func TestBuildRelationships(t *testing.T) {
 	err := BuildRelationships()
 	if err != nil {
