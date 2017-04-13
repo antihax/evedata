@@ -312,9 +312,14 @@ func marketHistoryConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	ignoreBefore := time.Now().UTC().Add(time.Hour * 24 * -2)
 
 	for _, e := range h {
-		if e.Date.After(ignoreBefore) {
+		orderDate, err := time.Parse("2006-01-02", e.Date)
+		if err != nil {
+			return false, err
+		}
+
+		if orderDate.After(ignoreBefore) {
 			values = append(values, fmt.Sprintf("(%q,%f,%f,%f,%d,%d,%d,%d)",
-				e.Date.Format("2006-01-02"), e.Lowest, e.Highest, e.Average,
+				e.Date, e.Lowest, e.Highest, e.Average,
 				e.Volume, e.OrderCount, typeID, regionID))
 		}
 	}
