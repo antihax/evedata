@@ -69,7 +69,7 @@
 	   },
 	   queryTokenizer: Bloodhound.tokenizers.whitespace,
 	   remote: {
-	       url: '/J/searchItems?q=%QUERY',
+	       url: '/J/searchMarketItems?q=%QUERY',
 	       filter: function (itemSearch) {
 	           return $.map(itemSearch.rows, function (itemSearch) {
 	               return {

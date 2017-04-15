@@ -38,7 +38,7 @@ func TestGetServiceState(t *testing.T) {
 		return
 	}
 	if i != 1 {
-		t.Error("testStateDats incorrect")
+		t.Error("testStateDays incorrect")
 		return
 	}
 }

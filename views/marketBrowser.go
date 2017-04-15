@@ -8,12 +8,13 @@ import (
 	"strconv"
 
 	"github.com/antihax/evedata/evedata"
+	"github.com/antihax/evedata/models"
 	"github.com/antihax/evedata/templates"
 )
 
 func init() {
 	evedata.AddRoute("marketBrowser", "GET", "/marketBrowser", marketBrowser)
-	evedata.AddRoute("searchItems", "GET", "/J/searchItems", searchitemsPage)
+	evedata.AddRoute("searchMarketItems", "GET", "/J/searchMarketItems", searchMarketItemsAPI)
 	evedata.AddRoute("marketSellRegionItems", "GET", "/J/marketSellRegionItems", MarketSellRegionItems)
 	evedata.AddRoute("marketBuyRegionItems", "GET", "/J/marketBuyRegionItems", MarketBuyRegionItems)
 }
@@ -30,20 +31,12 @@ func marketBrowser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type marketItemList struct {
-	TypeID     int64  `db:"typeID"`
-	TypeName   string `db:"typeName"`
-	Categories string `db:"Categories"`
-	Count      int64
-}
-
 // ARows bridge for old version
 type ARows struct {
-	Rows *[]marketItemList `json:"rows"`
+	Rows *[]models.MarketItemList `json:"rows"`
 }
 
-func searchitemsPage(w http.ResponseWriter, r *http.Request) {
-	c := evedata.GlobalsFromContext(r.Context())
+func searchMarketItemsAPI(w http.ResponseWriter, r *http.Request) {
 
 	var q string
 	q = r.FormValue("q")
@@ -53,28 +46,13 @@ func searchitemsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mIL := []marketItemList{}
-
-	// [BENCHMARK] 0.078 sec / 0.000 sec
-	err := c.Db.Select(&mIL, `SELECT  T.typeID, typeName, CONCAT_WS(',', G5.marketGroupName, G4.marketGroupName, G3.marketGroupName, G2.marketGroupName, G.marketGroupName) AS Categories, count(*) AS count
-           FROM invTypes T 
-           LEFT JOIN invMarketGroups G on T.marketGroupID = G.marketGroupID
-           LEFT JOIN invMarketGroups G2 on G.parentGroupID = G2.marketGroupID
-           LEFT JOIN invMarketGroups G3 on G2.parentGroupID = G3.marketGroupID
-           LEFT JOIN invMarketGroups G4 on G3.parentGroupID = G4.marketGroupID
-           LEFT JOIN invMarketGroups G5 on G4.parentGroupID = G5.marketGroupID
-
-           WHERE published=1 AND T.marketGroupID IS NOT NULL AND typeName LIKE ?
-           GROUP BY T.typeID
-           ORDER BY typeName
-           LIMIT 100`, "%"+q+"%")
+	mIL, err := models.SearchMarketNames(q)
 	if err != nil {
 		httpErr(w, err)
 		return
 	}
 
 	var mRows ARows
-
 	mRows.Rows = &mIL
 
 	json.NewEncoder(w).Encode(mRows)
