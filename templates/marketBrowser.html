@@ -42,9 +42,7 @@
 	</table>
 </div>
 
-
 <script type="text/javascript">
-
     function priceFormatter(nStr) {
          nStr += '';
 		 var x = nStr.split('.');
@@ -71,10 +69,10 @@
 	   remote: {
 	       url: '/J/searchMarketItems?q=%QUERY',
 	       filter: function (itemSearch) {
-	           return $.map(itemSearch.rows, function (itemSearch) {
+	           return $.map(itemSearch, function (s) {
 	               return {
-	                   value: 	itemSearch.TypeName,
-	                   id:		itemSearch.TypeID
+	                   value: 	s.TypeName,
+	                   id:		s.TypeID
 	               };
 	           });
 	       }

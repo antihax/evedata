@@ -31,11 +31,6 @@ func marketBrowser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ARows bridge for old version
-type ARows struct {
-	Rows *[]models.MarketItemList `json:"rows"`
-}
-
 func searchMarketItemsAPI(w http.ResponseWriter, r *http.Request) {
 
 	var q string
@@ -52,15 +47,7 @@ func searchMarketItemsAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var mRows ARows
-	mRows.Rows = &mIL
-
-	json.NewEncoder(w).Encode(mRows)
-}
-
-// Rows is a list of rows for JSON conversion
-type Rows struct {
-	Rows *[]models.MarketItems `json:"rows"`
+	json.NewEncoder(w).Encode(mIL)
 }
 
 func marketRegionItems(w http.ResponseWriter, r *http.Request, buy bool) {
