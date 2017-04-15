@@ -38,8 +38,33 @@ func TestGetMarketRegions(t *testing.T) {
 		return
 	}
 }
+
 func TestGetMarketTypes(t *testing.T) {
 	_, err := GetMarketTypes()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
+func TestMarketRegionItems(t *testing.T) {
+	_, err := MarketRegionItems(10000002, 41, highSec, true)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	_, err = MarketRegionItems(10000002, 41, highSec, false)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	_, err = MarketRegionItems(0, 41, highSec, false)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	_, err = MarketRegionItems(0, 41, highSec, true)
 	if err != nil {
 		t.Error(err)
 		return

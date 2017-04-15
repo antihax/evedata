@@ -194,3 +194,71 @@ func GetMarketTypes() ([]MarketType, error) {
 	}
 	return v, nil
 }
+
+type MarketItems struct {
+	StationName string `db:"stationName" json:"stationName"`
+	StationID   string `db:"stationID"   json:"stationID"   `
+	Quantity    string `db:"quantity"    json:"quantity"   `
+	Price       string `db:"price"       json:"price"      `
+}
+
+const (
+	highSec = 1 << iota
+	lowSec  = 1 << iota
+	nullSec = 1 << iota
+)
+
+func MarketRegionItems(regionID int, itemID int, secFlags int, buy bool) ([]MarketItems, error) {
+	var (
+		secFilter     string
+		secFilterPass int
+		err           error
+	)
+
+	mR := []MarketItems{}
+
+	if secFlags&highSec != 0 {
+		secFilterPass++
+		secFilter += "round(Sy.security,1) >= 0.5"
+	}
+
+	if secFlags&lowSec != 0 {
+		secFilterPass++
+		if secFilterPass > 1 {
+			secFilter += " OR "
+		}
+		secFilter += "round(Sy.security,1) BETWEEN 0.1 AND 0.4"
+	}
+
+	if secFlags&nullSec != 0 {
+		secFilterPass++
+		if secFilterPass > 1 {
+			secFilter += " OR "
+		}
+
+		secFilter += "round(Sy.security,1) <= 0 "
+	}
+
+	if regionID == 0 {
+		err = database.Select(&mR, `
+			SELECT  remainingVolume AS quantity, price, stationName, M.stationID
+				FROM    evedata.market M
+				INNER JOIN staStations S ON S.stationID=M.stationID
+				INNER JOIN mapSolarSystems Sy ON Sy.solarSystemID = S.solarSystemID
+				WHERE	bid=? AND
+						typeID = ? AND (`+secFilter+`);
+			`, buy, itemID)
+	} else {
+		err = database.Select(&mR, `
+			SELECT  remainingVolume AS quantity, price, stationName, M.stationID
+				FROM    evedata.market M
+				INNER JOIN staStations S ON S.stationID=M.stationID
+				INNER JOIN mapSolarSystems Sy ON Sy.solarSystemID = S.solarSystemID
+				WHERE	bid=? AND
+						M.regionID = ? AND
+						typeID = ? AND (`+secFilter+`);
+			`, buy, regionID, itemID)
+	}
+
+	return mR, err
+}
