@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -12,8 +11,7 @@ func TestSearchMarketNames(t *testing.T) {
 		return
 	}
 
-	if res[0].TypeName != "Heavy Warp Disruptor II" {
-		fmt.Printf("%+v\n", res[0])
+	if res[0].TypeName != "Warp Disruptor II" {
 		t.Error("Wrong item returned")
 		return
 	}

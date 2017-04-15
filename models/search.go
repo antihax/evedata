@@ -8,10 +8,10 @@ type MarketItemList struct {
 }
 
 func SearchMarketNames(query string) ([]MarketItemList, error) {
-	mIL := []MarketItemList{}
+	list := []MarketItemList{}
 
 	// [BENCHMARK] 0.078 sec / 0.000 sec
-	err := database.Select(&mIL, `SELECT  T.typeID, typeName, CONCAT_WS(',', G5.marketGroupName, G4.marketGroupName, G3.marketGroupName, G2.marketGroupName, G.marketGroupName) AS Categories, count(*) AS count
+	err := database.Select(&list, `SELECT  T.typeID, typeName, CONCAT_WS(',', G5.marketGroupName, G4.marketGroupName, G3.marketGroupName, G2.marketGroupName, G.marketGroupName) AS Categories, count(*) AS count
            FROM invTypes T 
            LEFT JOIN invMarketGroups G on T.marketGroupID = G.marketGroupID
            LEFT JOIN invMarketGroups G2 on G.parentGroupID = G2.marketGroupID
@@ -22,10 +22,42 @@ func SearchMarketNames(query string) ([]MarketItemList, error) {
            WHERE published=1 AND T.marketGroupID IS NOT NULL AND typeName LIKE ?
            GROUP BY T.typeID
            ORDER BY typeName
-           LIMIT 100`, "%"+query+"%")
+           LIMIT 100`, query+"%")
 	if err != nil {
 		return nil, err
 	}
 
-	return mIL, nil
+	return list, nil
+}
+
+type NamesItemList struct {
+	ID   int64  `db:"id" json:"id"`
+	Name string `db:"name" json:"name"`
+	Type string `db:"type" json:"type"`
+}
+
+func SearchNames(query string) ([]NamesItemList, error) {
+	list := []NamesItemList{}
+	query = query + "%"
+
+	// [BENCHMARK] 0.000 sec / 0.000 sec
+	err := database.Select(&list, `
+		SELECT typeName AS name, typeID AS id, "Item" AS type 
+			FROM invTypes WHERE typeName LIKE ?
+			UNION
+			SELECT name, characterID AS id, "Character" AS type 
+			FROM evedata.characters WHERE name LIKE ?
+			UNION
+			SELECT name, corporationID AS id, "Corporation" AS type 
+			FROM evedata.corporations WHERE name LIKE ?
+			UNION
+			SELECT name, allianceID AS id, "Alliance" AS type 
+			FROM evedata.alliances WHERE name LIKE ?
+			ORDER BY name ASC;
+		`, query, query, query, query)
+	if err != nil {
+		return nil, err
+	}
+
+	return list, nil
 }

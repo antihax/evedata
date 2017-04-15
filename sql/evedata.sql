@@ -102,7 +102,8 @@ CREATE TABLE `corporations` (
   PRIMARY KEY (`corporationID`),
   KEY `allianceID` (`allianceID`),
   KEY `factionID` (`factionID`),
-  KEY `cacheUntil` (`cacheUntil`)
+  KEY `cacheUntil` (`cacheUntil`),
+  KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `crestID` (
