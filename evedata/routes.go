@@ -14,11 +14,13 @@ import (
 	"github.com/gorilla/sessions"
 )
 
+// Context keys
 type key int
 
-const globalsKey key = 1
-const sessionKey key = 2
+const globalsKey key = 1 // Application Context (redis, config, ESI, etc)
+const sessionKey key = 2 // User session data
 
+// Structure for handling routes
 type route struct {
 	Name        string
 	Method      string
@@ -26,6 +28,7 @@ type route struct {
 	HandlerFunc http.HandlerFunc
 }
 
+// Globals for routes so we can add them in `func init()`
 var routes []route
 var authRoutes []route
 var notFoundHandler *route
@@ -52,14 +55,17 @@ func AddNotFoundHandler(handlerFunc http.HandlerFunc) {
 	notFoundHandler = &route{"404", "GET", "", handlerFunc}
 }
 
+// Middleware to add global AppContext to a request.Context
 func contextWithGlobals(ctx context.Context, a *appContext.AppContext) context.Context {
 	return context.WithValue(ctx, globalsKey, a)
 }
 
+// GlobalsFromContext returns attached AppContext from a request.Context
 func GlobalsFromContext(ctx context.Context) *appContext.AppContext {
 	return ctx.Value(globalsKey).(*appContext.AppContext)
 }
 
+// Middleware to add user session data to a request.Context
 func contextWithSession(ctx context.Context, r *http.Request) context.Context {
 	a := GlobalsFromContext(ctx)
 	s, err := a.Store.Get(r, "session")
@@ -70,10 +76,12 @@ func contextWithSession(ctx context.Context, r *http.Request) context.Context {
 	return context.WithValue(ctx, sessionKey, s)
 }
 
+// SessionFromContext returns user session data from a request.Context
 func SessionFromContext(ctx context.Context) *sessions.Session {
 	return ctx.Value(sessionKey).(*sessions.Session)
 }
 
+// Handle authenticated requests
 func authedMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		ctx := contextWithGlobals(req.Context(), GetContext())
@@ -82,6 +90,7 @@ func authedMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// Handle normal requests
 func middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		ctx := contextWithGlobals(req.Context(), GetContext())
@@ -89,6 +98,7 @@ func middleware(next http.Handler) http.Handler {
 	})
 }
 
+// Add /debug information to the router. Make sure this is not exposed publicly.
 func attachProfiler(router *mux.Router) {
 	router.HandleFunc("/debug/pprof", pprof.Index)
 	router.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
@@ -99,6 +109,11 @@ func attachProfiler(router *mux.Router) {
 	router.Handle("/debug/threadcreate", pprof.Handler("threadcreate"))
 	router.Handle("/debug/block", pprof.Handler("block"))
 	router.Handle("/debug/mutex", pprof.Handler("mutex"))
+}
+
+// Serve favicon.ico
+func ServeFavIconHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "static/favicon/favicon.ico")
 }
 
 // NewRouter sets up the routes that were added.
@@ -122,29 +137,47 @@ func NewRouter(ctx *appContext.AppContext) *mux.Router {
 			Handler(authedMiddleware(route.HandlerFunc))
 	}
 
-	// prometheus handler
-	router.Methods("GET").Path("/metrics").Handler(promhttp.Handler())
+	// Serve FavIcon
+	router.Methods("GET").Path("/favicon.ico").HandlerFunc(ServeFavIconHandler)
 
+	// Serve CSS
 	router.PathPrefix("/css/").Handler(http.StripPrefix("/css/",
 		http.FileServer(http.Dir("static/css"))))
 
+	// Serve local images
 	router.PathPrefix("/i/").Handler(http.StripPrefix("/i/",
 		http.FileServer(http.Dir("static/i"))))
 
+	// Serve third party images
 	router.PathPrefix("/images/").Handler(http.StripPrefix("/images/",
 		http.FileServer(http.Dir("static/images"))))
 
+	// Serve java script
 	router.PathPrefix("/js/").Handler(http.StripPrefix("/js/",
 		http.FileServer(http.Dir("static/js"))))
 
+	// Server web fonts
 	router.PathPrefix("/fonts/").Handler(http.StripPrefix("/fonts/",
 		http.FileServer(http.Dir("static/fonts"))))
 
+	// Deal with 404s
 	if notFoundHandler != nil {
 		router.NotFoundHandler = middleware(notFoundHandler.HandlerFunc)
 	}
 
+	/*******************************************************************
+
+	!! WARNING !!
+
+	Make sure to deny access to the following handlers via reverse proxy.
+
+	Both /metrics and /debug should be private and return 403 publicly.
+
+	*******************************************************************/
 	attachProfiler(router)
+
+	// prometheus handler
+	router.Methods("GET").Path("/metrics").Handler(promhttp.Handler())
 
 	return router
 }
