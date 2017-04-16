@@ -7,7 +7,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="icon" href="/i/favicon.ico">
 		<title>{{.Title}}</title>
-
+		{{.Header}}
 		<script>
 		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -52,7 +52,7 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="/"><img src="/images/logo.png" alt="EVEData"></a>
+					<a class="navbar-brand" href="/" style="padding: 15px"><img src="/images/icon.png" alt="EVEData"></a>
 				</div>
 				
 				<div id="navbar" class="navbar-collapse collapse">
@@ -87,9 +87,12 @@
 							</ul>
 						</li>						
 					</ul>
+					<ul class="nav navbar navbar-nav fixNav" id="mainSearchContainer">
+						<input type="text" class="typeahead fixNav" placeholder="Search" name="q">
+					</ul>
 					<div class="nav navbar-nav navbar-right pull-right" style="padding: 9px">
 						<div id="noAuth">
-							<a href="/X/eveAuth"><img src="/images/EVE_SSO_Login_Buttons_Small_Black.png" style="padding: 0px"></a>
+							<a href="/X/eveAuth" style="padding: 2px"><img src="/images/EVE_SSO_Login_Buttons_Small_Black.png" style="padding: 0px"></a>
 						</div>
 						<div id="authed" style="display: none;">
 							<li class="dropdown">
@@ -220,6 +223,59 @@
 		$("body").on("change", "#cursorCharacter", function() {
 			updateCursor($('#cursorCharacter').val(), $('#cursorCharacter option:selected').text());
 		});
+
+		var mainSearch = new Bloodhound({
+			sufficient: 100,
+			limit: 100,
+			datumTokenizer: function (datum) {
+				return Bloodhound.tokenizers.whitespace(datum.value);
+			},
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			remote: {
+				url: '/J/search?q=%QUERY',
+				filter: function (mainSearch) {
+					return $.map(mainSearch, function (s) {
+						return {
+							value: 	s.name,
+							id:		s.id,
+							type:	s.type
+						};
+					});
+				}
+			}
+		});
+		// Initialize the Bloodhound suggestion engine
+		mainSearch.initialize();
+		var datum;
+		
+		$('#mainSearchContainer .typeahead').typeahead(null, {
+			name: 'mainSearch',
+			limit: 100,
+			display: 'value',
+			source: mainSearch.ttAdapter(),
+			templates: {
+				empty: [
+				'<div class="empty-message">',
+					'Nothing Found',
+				'</div>'
+				].join('\n'),
+				suggestion: function(data) {
+					return '<div><strong>'+data.value+'</strong> – '+data.type+'</div>';
+				}
+			}
+		}).on('typeahead:selected', function(obj, d, name) {
+			doSearch(d);
+		});
+
+		$('#mainSearchContainer').on('keyup', function(e) {
+			if(e.which == 13) {
+				$(".tt-suggestion:first-child", this).trigger('click');
+			}
+		});
+
+		function doSearch(obj) {
+			window.location.href = "search?id="+obj.id+"&type="+obj.type
+		}
 	</script>
 </html>
 {{end}}

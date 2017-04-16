@@ -9,6 +9,12 @@
     position: absolute;
 }
 
+#fixNav {
+    display: flex;
+    align-items: center;
+    height: 60px;
+}
+
 #aboutContent {
     padding: 20px;
     float: left;
@@ -209,7 +215,7 @@ p + p {
     border: 1px solid rgba(0, 0, 0, 0.15);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
     margin-top: 2px;
-    min-width: 160px;
+    min-width: 260px;
     padding: 5px 0;
     max-height: 150px;
     overflow-y: auto;
@@ -231,4 +237,10 @@ p + p {
 
 .tt-suggestion p {
     margin: 0;
+}
+
+#twitter-typeahead {
+    display: flex;
+    align-items: center;
+    height: 60px;
 }

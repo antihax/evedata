@@ -13,11 +13,12 @@ import (
 func init() {
 	// Add routes to the http router
 	evedata.AddRoute("searchItems", "GET", "/J/search", searchAPI)
+	evedata.AddRoute("searchItems", "GET", "/search", searchRouter)
 }
 
 // searchAPI for characters, alliances, corporations, and items.
 func searchAPI(w http.ResponseWriter, r *http.Request) {
-
+	setCache(w, 12*60*60)
 	// Get the query
 	q := r.FormValue("q")
 	q = strings.TrimSpace(q)
@@ -37,4 +38,29 @@ func searchAPI(w http.ResponseWriter, r *http.Request) {
 
 	// Return the JSON representation
 	json.NewEncoder(w).Encode(list)
+}
+
+// searchAPI for characters, alliances, corporations, and items.
+func searchRouter(w http.ResponseWriter, r *http.Request) {
+	var endPoint string
+
+	id := r.FormValue("id")
+	entityType := strings.ToLower(r.FormValue("type"))
+
+	switch entityType {
+	case "character":
+		endPoint = "/character?id=" + id
+	case "alliance":
+		endPoint = "/alliance?id=" + id
+	case "corporation":
+		endPoint = "/corporation?id=" + id
+	case "item":
+		endPoint = "/item?id=" + id
+	default:
+		httpErr(w, errors.New("Unknown endpoint"))
+		return
+	}
+
+	http.Redirect(w, r, endPoint, 302)
+	httpErrCode(w, http.StatusMovedPermanently)
 }
