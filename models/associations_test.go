@@ -1,7 +1,9 @@
 package models
 
 import (
+	"log"
 	"testing"
+	"time"
 )
 
 func TestGetCharacterKnownAssociates(t *testing.T) {
@@ -38,7 +40,23 @@ func TestGetAllianceKnownAssociates(t *testing.T) {
 }
 
 func TestBuildRelationships(t *testing.T) {
-	err := BuildRelationships()
+	err := UpdateCorporationHistory(1001, 147035273, 100000222, time.Now())
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	err = UpdateCorporationHistory(1002, 147035273, 100000222, time.Now())
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	err = UpdateCorporationHistory(1003, 147035273, 100000222, time.Now())
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	err = BuildRelationships()
 	if err != nil {
 		t.Error(err)
 	}
