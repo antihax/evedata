@@ -32,7 +32,7 @@ You will need:
     2. Create an SSO only application, make sure the returnURL is your public address with the same path as the config. Put key and secret into the config.
     3. Create a Token application with all scopes. Make sure the return URL is similar as above and also put key and secret in config.
     4. Create a bootstrap application with all scopes. Enter into config.
-    5. `go run eve-dataserver.go` and visit `http://yourpublicip:3000/X/boostrapEveAuth`.
+    5. `go run eve-dataserver.go` and visit `http://yourpublicip:3000/X/bootstrapEveAuth`.
     6. Log in with a charater.
     7. Copy the token information into the config.
 9. Run the mock-esi server on 127.0.0.1:8080

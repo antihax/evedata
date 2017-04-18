@@ -11,11 +11,11 @@ import (
 )
 
 func init() {
-	evedata.AddAuthRoute("boostrap", "GET", "/X/boostrapEveAuth", boostrapEveSSO)
-	evedata.AddAuthRoute("boostrap", "GET", "/X/boostrapEveSSOAnswer", boostrapEveSSOAnswer)
+	evedata.AddAuthRoute("bootstrap", "GET", "/X/bootstrapEveAuth", bootstrapEveSSO)
+	evedata.AddAuthRoute("bootstrap", "GET", "/X/bootstrapEveSSOAnswer", bootstrapEveSSOAnswer)
 }
 
-func boostrapEveSSO(w http.ResponseWriter, r *http.Request) {
+func bootstrapEveSSO(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	s := evedata.SessionFromContext(r.Context())
 	c := evedata.GlobalsFromContext(r.Context())
@@ -37,7 +37,7 @@ func boostrapEveSSO(w http.ResponseWriter, r *http.Request) {
 	httpErrCode(w, http.StatusMovedPermanently)
 }
 
-func boostrapEveSSOAnswer(w http.ResponseWriter, r *http.Request) {
+func bootstrapEveSSOAnswer(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	s := evedata.SessionFromContext(r.Context())
 	c := evedata.GlobalsFromContext(r.Context())
