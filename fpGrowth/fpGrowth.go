@@ -20,16 +20,16 @@ func NewFPNode(item int, parent *FPNode) *FPNode {
 }
 
 type FPTree struct {
-	Root                   *FPNode
-	HeaderTable            map[int]*FPNode
-	MinimumSupportTreshold uint
+	Root                    *FPNode
+	HeaderTable             map[int]*FPNode
+	MinimumSupportThreshold uint
 }
 
 func NewFPTree(transactions ItemSet, minimumSupportThreshold uint) *FPTree {
 	fp := &FPTree{
-		MinimumSupportTreshold: minimumSupportThreshold,
-		HeaderTable:            make(map[int]*FPNode),
-		Root:                   NewFPNode(0, nil),
+		MinimumSupportThreshold: minimumSupportThreshold,
+		HeaderTable:             make(map[int]*FPNode),
+		Root:                    NewFPNode(0, nil),
 	}
 
 	// Find support for each item
@@ -102,6 +102,7 @@ func (fp *FPTree) Growth() []Pattern {
 	if fp.IsEmpty() {
 		return nil
 	}
+
 	patterns := []Pattern{}
 
 	if containSinglePath(fp.Root) {
@@ -113,9 +114,7 @@ func (fp *FPTree) Growth() []Pattern {
 			for _, p := range patterns {
 				p.Items = append([]int{currentNode.Item}, p.Items...)
 				p.Frequency = currentNode.Frequency
-				if len(p.Items) > 1 {
-					patterns = append([]Pattern{p}, patterns...)
-				}
+				patterns = append([]Pattern{p}, patterns...)
 			}
 
 			if len(currentNode.Children) == 1 {
@@ -170,7 +169,7 @@ func (fp *FPTree) ProcessNode(patternChan chan []Pattern, currentItem int, node 
 		}
 	}
 
-	conditionalFPTree := NewFPTree(conditionalTransactions, fp.MinimumSupportTreshold)
+	conditionalFPTree := NewFPTree(conditionalTransactions, fp.MinimumSupportThreshold)
 	conditionalPatterns := conditionalFPTree.Growth()
 
 	currentFrequency := uint(0)
@@ -196,6 +195,10 @@ func (fp *FPTree) IsEmpty() bool {
 		return false
 	}
 	return true
+}
+
+func (fp *FPTree) HeaderTableSize() int {
+	return len(fp.HeaderTable)
 }
 
 func containSinglePath(fpnode *FPNode) bool {
