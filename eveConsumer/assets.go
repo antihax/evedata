@@ -76,6 +76,10 @@ func assetsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 		var values []string
 
+		if len(assets) == 0 {
+			return true, nil
+		}
+
 		// Dump all assets into the DB.
 		for _, asset := range assets {
 			values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%q,%d,%q,%v)",
@@ -85,11 +89,10 @@ func assetsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		stmt := fmt.Sprintf(`INSERT INTO evedata.assets
 							(locationID, typeID, quantity, characterID, 
 							locationFlag, itemID, locationType, isSingleton)
-		VALUES %s ON DUPLICATE KEY UPDATE locationID = locationID`, strings.Join(values, ",\n"))
+		VALUES %s ON DUPLICATE KEY UPDATE locationID = locationID;`, strings.Join(values, ",\n"))
 
 		_, err = tx.Exec(stmt)
 		if err != nil {
-			tx.Rollback()
 			return false, err
 		}
 
