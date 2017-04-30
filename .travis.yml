@@ -22,8 +22,7 @@ before_install:
 
 install:
   - go get -u github.com/antihax/evedata
-  - go test ./...
-  - go build evedata-server.go
+  - CGO_ENABLED=0 GOOS=linux go build -a --installsuffix cgo -o evedata-server .
   - docker build -t antihax/evedata .
 
 after_success:
