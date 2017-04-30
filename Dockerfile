@@ -1,11 +1,9 @@
-FROM golang:latest
+FROM scratch
 
-RUN go get -u github.com/antihax/evedata
-RUN go install github.com/antihax/evedata
-RUN chmod +x /go/src/github.com/antihax/evedata/dockerTest.sh
-RUN cp -r /go/src/github.com/antihax/evedata/static /go/static
-RUN cp -r /go/src/github.com/antihax/evedata/templates /go/templates
+ADD templates /templates
+ADD static /static
+ADD evedata-server /bin
 
-ENTRYPOINT /go/bin/evedata
+ENTRYPOINT /bin/evedata-server
 
 EXPOSE 3000
