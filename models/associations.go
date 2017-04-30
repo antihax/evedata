@@ -152,7 +152,7 @@ func findRelationships(rows *sql.Rows, associationType uint8) error {
 
 		// Build history of common transactions
 		rows.Scan(&transactionID, &items)
-		transactions[transactionID] = splitToInt(items)
+		transactions[transactionID] = SplitToInt(items)
 	}
 	rows.Close()
 
@@ -215,7 +215,7 @@ func min(x, y int) int {
 	return y
 }
 
-func splitToInt(list string) []int {
+func SplitToInt(list string) []int {
 	a := strings.Split(list, ",")
 	b := make([]int, len(a))
 	for i, v := range a {
