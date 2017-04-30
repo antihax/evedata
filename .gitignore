@@ -2,4 +2,5 @@
 .externalToolBuilders
 .settings
 .vscode
+evedata-server
 debug
