@@ -22,11 +22,9 @@ before_install:
 
 install:
   - go get -u github.com/antihax/evedata
+  - go test ./...
   - go build evedata-server.go
   - docker build -t antihax/evedata .
-
-script:
-  - docker run --net="host" -e CODECOV_TOKEN="$CODECOV_TOKEN" --entrypoint=/go/src/github.com/antihax/evedata/dockerTest.sh --name evedata_test antihax/evedata 
 
 after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
