@@ -52,7 +52,7 @@ func goKillmailHunter(ctx *appContext.AppContext) {
             INNER JOIN evedata.killmailAttackers A ON K.id = A.id
             INNER JOIN mapSolarSystems M ON K.solarSystemID = M.solarSystemID
             WHERE A.corporationID IN (
-					SELECT corporationID AS id FROM evedata.corporations WHERE factionID IN ( 500001, 500003 )
+					SELECT corporationID AS id FROM evedata.corporations WHERE factionID IN ( 500002, 500004 )
 				)
 			 AND
             K.id > ? AND 
