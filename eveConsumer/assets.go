@@ -76,7 +76,9 @@ func assetsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 		var values []string
 
+		// Skip if we have no assests
 		if len(assets) == 0 {
+			tx.Commit()
 			return true, nil
 		}
 
@@ -93,6 +95,7 @@ func assetsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 		_, err = tx.Exec(stmt)
 		if err != nil {
+			tx.Rollback()
 			return false, err
 		}
 
