@@ -75,7 +75,6 @@ func goKillmailHunter(ctx *appContext.AppContext) {
 			r.Do("SET", "EVEDATA_killqueue:GALLENTE", killID)
 			SendMessage(fmt.Sprintf("https://zkillboard.com/kill/%d/", killID))
 		}
-
 	}
 }
 

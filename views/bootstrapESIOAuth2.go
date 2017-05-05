@@ -1,15 +1,13 @@
 package views
 
 import (
-	"crypto/rand"
-	"encoding/base64"
-	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/antihax/evedata/evedata"
 )
 
+// Bootstrap Token provides access to public information in EVE Online. This is not used by users.
 func init() {
 	evedata.AddAuthRoute("bootstrap", "GET", "/X/bootstrapEveAuth", bootstrapEveSSO)
 	evedata.AddAuthRoute("bootstrap", "GET", "/X/bootstrapEveSSOAnswer", bootstrapEveSSOAnswer)
@@ -17,38 +15,19 @@ func init() {
 
 func bootstrapEveSSO(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
+
 	c := evedata.GlobalsFromContext(r.Context())
 
-	b := make([]byte, 16)
-	rand.Read(b)
-	state := base64.URLEncoding.EncodeToString(b)
-
-	s.Values["BOOTSTRAPstate"] = state
-
-	err := s.Save(r, w)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
-
-	url := c.ESIBootstrapAuthenticator.AuthorizeURL(state, true, nil)
+	url := c.ESIBootstrapAuthenticator.AuthorizeURL("NONE", true, nil)
 	http.Redirect(w, r, url, 302)
 	httpErrCode(w, http.StatusMovedPermanently)
 }
 
 func bootstrapEveSSOAnswer(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
 	c := evedata.GlobalsFromContext(r.Context())
 
 	code := r.FormValue("code")
-	state := r.FormValue("state")
-
-	if s.Values["BOOTSTRAPstate"] != state {
-		httpErr(w, errors.New("Invalid State. It is possible that the session cookie is missing. Stop eating the cookies!"))
-		return
-	}
 
 	tok, err := c.ESIBootstrapAuthenticator.TokenExchange(code)
 	if err != nil {
@@ -73,13 +52,5 @@ func bootstrapEveSSOAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.Values["BOOTSTRAP"] = tok
-
 	fmt.Fprintf(w, "%+v\n", tok)
-
-	err = s.Save(r, w)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
 }
