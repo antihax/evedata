@@ -22,11 +22,10 @@ before_install:
 
 install:
   - go get -u github.com/antihax/evedata
-  - CGO_ENABLED=0 GOOS=linux go build -a --installsuffix cgo -o evedata-server .
-  - docker build -t antihax/evedata .
+  - build.sh
 
 after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
     docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-    docker push antihax/evedata;
+    docker push antihax/evedata-monolith;
     fi

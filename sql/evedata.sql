@@ -347,7 +347,7 @@ CREATE TABLE `market_vol` (
 CREATE TABLE `states` (
   `state` varchar(45) NOT NULL,
   `value` int(11) NOT NULL,
-  `nextCheck` datetime NOT NULL,
+  `nextCheck` datetime NOT NULL DEFAULT '2011-02-01 00:00:00',
   PRIMARY KEY (`state`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
