@@ -21,7 +21,7 @@ before_install:
   - mysql < ./sql/evedata.sql
 
 install:
-  - go get -u github.com/antihax/evedata
+  - go get -u github.com/antihax/evedata/...
   - build.sh
 
 after_success:
