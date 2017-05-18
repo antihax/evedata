@@ -20,12 +20,9 @@ before_install:
   - mysql -Deve < ./sql/eve.sql
   - mysql < ./sql/evedata.sql
 
-install:
-  - go get -u github.com/antihax/evedata/...
-  - ./build.sh
-
 after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
+    ./build.sh
     docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
     docker push antihax/evedata-monolith;
     fi
