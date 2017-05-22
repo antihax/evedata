@@ -13,7 +13,7 @@ services:
 
 before_install:
   - docker pull antihax/mock-esi
-  - docker run -d -p 127.0.0.1:8080:8080 antihax/mock-esi -h mock-esi
+  - ./mock.sh
   - docker ps -a
   - mysql -e "CREATE DATABASE eve"
   - unzip ./sql/eve.zip -d ./sql/
@@ -21,8 +21,10 @@ before_install:
   - mysql < ./sql/evedata.sql
 
 after_success:
+  - ./test.sh
+  - bash <(curl -s https://codecov.io/bash)
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
     ./build.sh
     docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-    docker push antihax/evedata-monolith;
+      ./dockerpush.sh
     fi

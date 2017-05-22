@@ -1,0 +1,5 @@
+FROM scratch
+
+ADD apps/nail/nail /
+
+ENTRYPOINT ["/nail"]

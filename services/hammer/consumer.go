@@ -1,0 +1,75 @@
+package hammer
+
+import (
+	"errors"
+	"log"
+
+	"github.com/prometheus/client_golang/prometheus"
+)
+
+type consumer struct {
+	name string
+	f    consumerFunc
+}
+
+type consumerFunc func(*Hammer, interface{})
+
+// Register a consumer to a queue operation.
+func registerConsumer(name string, f consumerFunc) {
+	consumers = append(consumers, consumer{name, f})
+	consumerMap[name] = f
+}
+
+func wait(s *Hammer, f consumerFunc, p interface{}) {
+	s.hammerWG.Add(1)
+	defer s.hammerWG.Done()
+	f(s, p)
+}
+
+func (s *Hammer) runConsumers() error {
+	w, err := s.inQueue.GetWork()
+	if err != nil {
+		return err
+	}
+
+	fn := consumerMap[w.Operation]
+	if fn == nil {
+		log.Printf("unknown operation\n")
+		return errors.New("Unknown operation")
+	}
+
+	go wait(s, fn, w.Parameter)
+
+	return nil
+}
+
+// For handling Consumers
+var (
+	consumers       []consumer
+	consumerMap     map[string]consumerFunc
+	consumerMetrics = prometheus.NewHistogramVec(prometheus.HistogramOpts{
+		Namespace: "evedata",
+		Subsystem: "hammer",
+		Name:      "ticks",
+		Help:      "API call statistics.",
+		Buckets:   prometheus.ExponentialBuckets(1, 2, 17),
+	}, []string{"consumer"},
+	)
+
+	queueSizeMetrics = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Namespace: "evedata",
+		Subsystem: "hammer",
+		Name:      "size",
+		Help:      "Entries in queue for consumers",
+	}, []string{"queue"},
+	)
+)
+
+func init() {
+	consumerMap = make(map[string]consumerFunc)
+
+	prometheus.MustRegister(
+		consumerMetrics,
+		queueSizeMetrics,
+	)
+}

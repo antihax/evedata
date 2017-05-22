@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/antihax/evedata/fpGrowth"
+	"github.com/antihax/evedata/internal/fpgrowth"
 )
 
 type KnownAlts struct {
@@ -142,7 +142,7 @@ func buildCorpJoinRelationships() error {
 // Find relationships in the results
 func findRelationships(rows *sql.Rows, associationType uint8) error {
 	log.Printf("Character Associations: Build Transaction History")
-	transactions := fpGrowth.ItemSet{}
+	transactions := fpgrowth.ItemSet{}
 
 	for rows.Next() {
 		var (
@@ -157,7 +157,7 @@ func findRelationships(rows *sql.Rows, associationType uint8) error {
 	rows.Close()
 
 	log.Printf("Character Associations: Build fpTree")
-	fp := fpGrowth.NewFPTree(transactions, 2)
+	fp := fpgrowth.NewFPTree(transactions, 2)
 
 	log.Printf("Character Associations: Growth")
 	associations := fp.Growth()

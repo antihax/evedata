@@ -1,0 +1,5 @@
+FROM scratch
+
+ADD apps/hammer/hammer /
+
+ENTRYPOINT ["/hammer"]
