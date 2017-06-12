@@ -3,6 +3,7 @@ package hammer
 import (
 	"log"
 	"testing"
+	"time"
 
 	"sync"
 
@@ -23,10 +24,27 @@ var (
 		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(3)}},
 		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(4)}},
 		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(5)}},
+		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(6)}},
+		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(7)}},
+		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(8)}},
+		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(9)}},
+		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(10)}},
+		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(11)}},
+		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(12)}},
+		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(13)}},
+		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(14)}},
+		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(15)}},
+		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(16)}},
+		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(17)}},
+		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(18)}},
+		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(19)}},
+		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(20)}},
 	}
 )
 
 func TestHammerService(t *testing.T) {
+
+	// Setup a hammer service
 	redis := redigohelper.ConnectRedisTestPool()
 	defer redis.Close()
 
@@ -41,29 +59,38 @@ func TestHammerService(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(len(testWork))
 
+	// Run Hammer
 	go hammer.Run()
 
-	// Consume the queued data
-	{
-		consumer, err := nsqhelper.NewNSQConsumer("killmail", "hammer-test", 5)
-		assert.Nil(t, err)
-		consumer.AddHandler(nsq.HandlerFunc(func(message *nsq.Message) error {
-			k := goesiv1.GetKillmailsKillmailIdKillmailHashOk{}
+	// Setup 20 consumers to test multi consumers.
+	for i := 0; i < 20; i++ {
+		go func() {
+			consumer, err := nsqhelper.NewNSQConsumer("killmail", "hammer-test", 1)
+			assert.Nil(t, err)
+			consumer.AddHandler(nsq.HandlerFunc(func(message *nsq.Message) error {
+				k := goesiv1.GetKillmailsKillmailIdKillmailHashOk{}
+				err := gobcoder.GobDecoder(message.Body, &k)
+				if err != nil {
+					log.Println(err)
+					return nil
+				}
 
-			err := gobcoder.GobDecoder(message.Body, &k)
-			if err != nil {
-				log.Println(err)
+				assert.Equal(t, int32(56733821), k.KillmailId)
+
+				wg.Done()
+
+				// Hang the consumer so others get a chance.
+				time.Sleep(time.Second)
 				return nil
-			}
-
-			assert.Equal(t, int32(56733821), k.KillmailId)
-			wg.Done()
-			return nil
-		}))
-		consumer.ConnectToNSQLookupds(nsqhelper.Test)
+			}))
+			consumer.ConnectToNSQLookupds(nsqhelper.Test)
+		}()
 	}
 
+	// Load the work into the queue
 	err = hammer.QueueWork(testWork)
 	assert.Nil(t, err)
+
+	// Wait for the consumers to finish
 	wg.Wait()
 }
