@@ -1,5 +1,5 @@
 FROM scratch
 
-ADD apps/hammer/hammer /
+ADD bin/hammer /
 
 ENTRYPOINT ["/hammer"]

@@ -6,3 +6,4 @@ evedata-server
 debug
 profile.out
 coverage.txt
+/bin/*

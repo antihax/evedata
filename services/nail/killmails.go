@@ -1,21 +1,26 @@
 package nail
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
 
+	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/goesi/v1"
+	nsq "github.com/nsqio/go-nsq"
 )
 
 func init() {
-	addConsumer("killmail", killmailsConsumer)
+	AddHandler("killmail", spawnKillmailConsumer)
 }
 
-func killmailsConsumer(s *Nail, killmail []byte) error {
-	var mail goesiv1.GetKillmailsKillmailIdKillmailHashOk
-	err := json.Unmarshal(killmail, &mail)
+func spawnKillmailConsumer(s *Nail, consumer *nsq.Consumer) {
+	consumer.AddHandler(nsq.HandlerFunc(s.killmailHandler))
+}
+
+func (s *Nail) killmailHandler(message *nsq.Message) error {
+	mail := goesiv1.GetKillmailsKillmailIdKillmailHashOk{}
+	err := gobcoder.GobDecoder(message.Body, &mail)
 	if err != nil {
 		log.Println(err)
 		return err

@@ -3,6 +3,7 @@ package nail
 import (
 	"testing"
 
+	"github.com/antihax/evedata/internal/nsqhelper"
 	"github.com/antihax/evedata/internal/redigohelper"
 	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/evedata/internal/sqlhelper"
@@ -20,7 +21,10 @@ func TestNail(t *testing.T) {
 	redis := redigohelper.ConnectRedisTestPool()
 	defer redis.Close()
 
-	hammer := hammer.NewHammer(redis)
+	producer, err := nsqhelper.NewTestNSQProducer()
+	assert.Nil(t, err)
+
+	hammer := hammer.NewHammer(redis, producer)
 	hammer.ChangeBasePath("http://127.0.0.1:8080/latest")
 	go hammer.Run()
 	defer hammer.Close()
@@ -31,7 +35,7 @@ func TestNail(t *testing.T) {
 	nail := NewNail(sql, redis)
 	go nail.Run()
 
-	err := hammer.QueueWork(testWork)
+	err = hammer.QueueWork(testWork)
 	assert.Nil(t, err)
 	defer nail.Close()
 }

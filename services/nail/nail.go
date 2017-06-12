@@ -6,6 +6,7 @@ import (
 	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
+	nsq "github.com/nsqio/go-nsq"
 )
 
 type Nail struct {
@@ -20,10 +21,6 @@ func NewNail(db *sqlx.DB, redis *redis.Pool) *Nail {
 		db:   db,
 		wg:   &sync.WaitGroup{},
 		stop: make(chan bool),
-		inQueue: redisqueue.NewRedisQueue(
-			redis,
-			"evedata-nail",
-		),
 	}
 
 	return n
@@ -43,4 +40,18 @@ func (s *Nail) Run() {
 func (s *Nail) Close() {
 	close(s.stop)
 	s.wg.Wait()
+}
+
+type spawnFunc func(s *Nail, consumer *nsq.Consumer)
+
+// Structure for handling routes
+type nailHandler struct {
+	Topic     string
+	SpawnFunc spawnFunc
+}
+
+var handlers []nailHandler
+
+func AddHandler(topic string, spawnFunc spawnFunc) {
+	handlers = append(handlers, nailHandler{topic, spawnFunc})
 }

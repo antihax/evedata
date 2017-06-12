@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/antihax/evedata/internal/nsqhelper"
 	"github.com/antihax/evedata/internal/redigohelper"
 	"github.com/antihax/evedata/services/hammer"
 )
@@ -18,8 +19,13 @@ func main() {
 		true,
 	)
 
+	producer, err := nsqhelper.NewNSQProducer()
+	if err != nil {
+		log.Panicln(err)
+	}
+
 	// Make a new service and send it into the background.
-	hammer := hammer.NewHammer(redis)
+	hammer := hammer.NewHammer(redis, producer)
 	go hammer.Run()
 	defer hammer.Close()
 

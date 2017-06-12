@@ -1,5 +1,5 @@
 FROM scratch
 
-ADD apps/nail/nail /
+ADD bin/nail /
 
 ENTRYPOINT ["/nail"]
