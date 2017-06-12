@@ -5,7 +5,7 @@ import (
 
 	"encoding/gob"
 
-	"github.com/antihax/evedata/internal/redisqueue"
+	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/goesi/v1"
 	"github.com/garyburd/redigo/redis"
 )
@@ -33,9 +33,13 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 	}
 	s.setKnownKill(id)
 
-	err = s.outQueue.QueueWork([]redisqueue.Work{
-		redisqueue.Work{Operation: "killmail", Parameter: kill},
-	})
+	b, err := gobcoder.GobEncoder(kill)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	err = s.nsq.Publish("killmail", b)
 	if err != nil {
 		log.Println(err)
 		return

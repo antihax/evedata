@@ -1,13 +1,18 @@
 package hammer
 
 import (
+	"log"
 	"testing"
 
 	"sync"
 
+	"github.com/antihax/goesi/v1"
+
+	"github.com/antihax/evedata/internal/gobcoder"
+	"github.com/antihax/evedata/internal/nsqhelper"
 	"github.com/antihax/evedata/internal/redigohelper"
 	"github.com/antihax/evedata/internal/redisqueue"
-	"github.com/antihax/goesi/v1"
+	nsq "github.com/nsqio/go-nsq"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -25,7 +30,10 @@ func TestHammerService(t *testing.T) {
 	redis := redigohelper.ConnectRedisTestPool()
 	defer redis.Close()
 
-	hammer := NewHammer(redis)
+	producer, err := nsqhelper.NewTestNSQProducer()
+	assert.Nil(t, err)
+
+	hammer := NewHammer(redis, producer)
 	hammer.ChangeBasePath("http://127.0.0.1:8080/latest")
 	defer hammer.Close()
 
@@ -36,19 +44,26 @@ func TestHammerService(t *testing.T) {
 	go hammer.Run()
 
 	// Consume the queued data
-	go func() {
-		for {
-			w, err := hammer.outQueue.GetWork()
-			assert.Nil(t, err)
+	{
+		consumer, err := nsqhelper.NewNSQConsumer("killmail", "hammer-test", 5)
+		assert.Nil(t, err)
+		consumer.AddHandler(nsq.HandlerFunc(func(message *nsq.Message) error {
+			k := goesiv1.GetKillmailsKillmailIdKillmailHashOk{}
 
-			k, ok := w.Parameter.(goesiv1.GetKillmailsKillmailIdKillmailHashOk)
-			assert.True(t, ok)
+			err := gobcoder.GobDecoder(message.Body, &k)
+			if err != nil {
+				log.Println(err)
+				return nil
+			}
+
 			assert.Equal(t, int32(56733821), k.KillmailId)
 			wg.Done()
-		}
-	}()
+			return nil
+		}))
+		consumer.ConnectToNSQLookupds(nsqhelper.Test)
+	}
 
-	err := hammer.QueueWork(testWork)
+	err = hammer.QueueWork(testWork)
 	assert.Nil(t, err)
 	wg.Wait()
 }

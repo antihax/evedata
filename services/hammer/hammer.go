@@ -9,6 +9,7 @@ import (
 	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/goesi"
 	"github.com/garyburd/redigo/redis"
+	nsq "github.com/nsqio/go-nsq"
 )
 
 // Hammer provides service control.
@@ -16,13 +17,13 @@ type Hammer struct {
 	stop     chan bool
 	hammerWG *sync.WaitGroup
 	inQueue  *redisqueue.RedisQueue
-	outQueue *redisqueue.RedisQueue
 	esi      *goesi.APIClient
 	redis    *redis.Pool
+	nsq      *nsq.Producer
 }
 
 // NewHammer Service.
-func NewHammer(redis *redis.Pool) *Hammer {
+func NewHammer(redis *redis.Pool, nsq *nsq.Producer) *Hammer {
 	// Get a caching http client
 	cache := apicache.CreateHTTPClientCache(redis)
 
@@ -37,10 +38,7 @@ func NewHammer(redis *redis.Pool) *Hammer {
 			redis,
 			"evedata-hammer",
 		),
-		outQueue: redisqueue.NewRedisQueue(
-			redis,
-			"evedata-nail",
-		),
+		nsq:   nsq,
 		esi:   esi,
 		redis: redis,
 	}
