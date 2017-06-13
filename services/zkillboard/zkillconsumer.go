@@ -1,0 +1,89 @@
+package zkillboard
+
+import (
+	"fmt"
+	"log"
+	"strconv"
+	"time"
+
+	"github.com/antihax/evedata/internal/redisqueue"
+)
+
+// Collect killmails from RedisQ (zkillboard live feed)
+func (s *ZKillboard) redisQ() error {
+	// ZKillboard redisq json format
+	type redisqkill struct {
+		Package struct {
+			KillID int32
+			ZKB    struct {
+				Hash string
+			}
+		}
+	}
+
+	k := redisqkill{}
+	err := s.getJSON(fmt.Sprintf("https://redisq.zkillboard.com/listen.php?queueID=croakroach"), &k)
+	if err != nil {
+		return err
+	}
+	if k.Package.KillID > 0 {
+		err = s.outQueue.QueueWork(
+			[]redisqueue.Work{
+				{Operation: "killmail", Parameter: []interface{}{k.Package.ZKB.Hash, k.Package.KillID}}},
+		)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// Go Routine to collect killmails from ZKill API.
+// Loops collecting one year of kill mails.
+func (s *ZKillboard) apiConsumer() error {
+	// Start from where we left off.
+	nextCheck := time.Now().UTC().Add(time.Hour * 24 * -365)
+
+	rate := time.Second / 2
+	throttle := time.Tick(rate)
+
+	for {
+		<-throttle
+
+		// Move to the next day
+		date := nextCheck.Format("20060102")
+		nextCheck = nextCheck.Add(time.Hour * 24)
+
+		// If we are at today, restart from 90 days
+		if nextCheck.Sub(time.Now().UTC()) > 0 {
+			nextCheck = time.Now().UTC().Add(time.Hour * 24 * -365)
+			log.Printf("Restart zKill Consumer to %s", nextCheck.String())
+		}
+
+		// Get the kill history from ZKill for this day.
+		k := make(map[string]interface{})
+		err := s.getJSON(fmt.Sprintf("https://zkillboard.com/api/history/%s/", date), &k)
+		if err != nil {
+			continue
+		}
+
+		kills := []redisqueue.Work{}
+		// Loop through the killmails
+		for idS, hash := range k {
+			id, err := strconv.ParseInt(idS, 10, 32)
+			if err != nil {
+				log.Printf("Zkill Consumer Error: %v", err)
+				continue
+			}
+
+			// Add to the killmail queue
+			kills = append(kills, redisqueue.Work{Operation: "killmail", Parameter: []interface{}{hash.(string), (int32)(id)}})
+			if err != nil {
+				log.Printf("Zkill Consumer Error: %v", err)
+				continue
+			}
+		}
+
+		err = s.outQueue.QueueWork(kills)
+	}
+}
