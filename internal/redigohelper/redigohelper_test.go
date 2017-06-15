@@ -7,7 +7,7 @@ import (
 )
 
 func TestConnect(t *testing.T) {
-	pool := ConnectRedisPool([]string{"127.0.0.1:6379"}, "", "", false)
+	pool := connectRedisPool([]string{"127.0.0.1:6379"}, "", "", false)
 	conn := pool.Get()
 	defer conn.Close()
 
@@ -16,7 +16,7 @@ func TestConnect(t *testing.T) {
 }
 
 func TestNoConnect(t *testing.T) {
-	pool := ConnectRedisPool([]string{"deadend:6379"}, "", "", false)
+	pool := connectRedisPool([]string{"deadend:6379"}, "", "", false)
 	conn := pool.Get()
 	defer conn.Close()
 
@@ -25,7 +25,7 @@ func TestNoConnect(t *testing.T) {
 }
 
 func TestSentinelNoConnect(t *testing.T) {
-	pool := ConnectRedisPool([]string{"deadend:6379"}, "", "", true)
+	pool := connectRedisPool([]string{"deadend:6379"}, "", "", true)
 	conn := pool.Get()
 	defer conn.Close()
 

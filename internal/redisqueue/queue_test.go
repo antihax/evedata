@@ -8,7 +8,7 @@ import (
 )
 
 func TestHQ(t *testing.T) {
-	pool := redigohelper.ConnectRedisPool([]string{"127.0.0.1:6379"}, "", "", false)
+	pool := redigohelper.ConnectRedisTestPool()
 	hq := NewRedisQueue(pool, "test-redisqueue")
 	err := hq.QueueWork(
 		[]Work{

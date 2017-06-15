@@ -2,33 +2,48 @@ package redigohelper
 
 import (
 	"errors"
+	"log"
+	"os"
 	"time"
 
 	sentinel "github.com/FZambia/go-sentinel"
 	"github.com/garyburd/redigo/redis"
 )
 
-func ConnectRedisPool(addresses []string, password string, masterName string, sentinel bool) *redis.Pool {
-	if sentinel {
-		return newSentinelPool(addresses, masterName, password)
-	} else {
-		return newRedisPool(addresses[0], password)
-	}
+func ConnectRedisProdPool() *redis.Pool {
+	return connectRedisPool(
+		[]string{"sentinel1:26379", "sentinel2:26379", "sentinel3:26379"},
+		os.Getenv("REDIS_PASSWORD"),
+		"evedata",
+		true,
+	)
 }
 
 func ConnectRedisTestPool() *redis.Pool {
-	redis := ConnectRedisPool(
+	redis := connectRedisPool(
 		[]string{"127.0.0.1:6379"},
 		"",
 		"",
 		false,
 	)
 	c := redis.Get()
-	c.Do("FLUSHALL")
-	c.Close()
+	_, err := c.Do("FLUSHALL")
+	if err != nil {
+		panic(err)
+	}
+	err = c.Close()
+	if err != nil {
+		panic(err)
+	}
 	return redis
 }
-
+func connectRedisPool(addresses []string, password string, masterName string, sentinel bool) *redis.Pool {
+	if sentinel {
+		return newSentinelPool(addresses, masterName, password)
+	} else {
+		return newRedisPool(addresses[0], password)
+	}
+}
 func newRedisPool(address string, password string) *redis.Pool {
 	// Build the redis pool
 	return &redis.Pool{
@@ -44,7 +59,7 @@ func newRedisPool(address string, password string) *redis.Pool {
 			if password != "" {
 				if _, err := c.Do("AUTH", password); err != nil {
 					c.Close()
-					return nil, err
+					log.Fatalln(err)
 				}
 			}
 			return c, err
@@ -60,6 +75,7 @@ func newSentinelPool(addresses []string, masterName string, password string) *re
 			timeout := 500 * time.Millisecond
 			c, err := redis.DialTimeout("tcp", addr, timeout, timeout, timeout)
 			if err != nil {
+				log.Println(err)
 				return nil, err
 			}
 			return c, nil
@@ -74,15 +90,18 @@ func newSentinelPool(addresses []string, masterName string, password string) *re
 		Dial: func() (redis.Conn, error) {
 			masterAddr, err := sntnl.MasterAddr()
 			if err != nil {
+				log.Println(err)
 				return nil, err
 			}
 			c, err := redis.Dial("tcp", masterAddr)
 			if err != nil {
+				log.Println(err)
 				return nil, err
 			}
 			if password != "" {
 				if _, err := c.Do("AUTH", password); err != nil {
 					c.Close()
+					log.Fatalln(err)
 					return nil, err
 				}
 			}

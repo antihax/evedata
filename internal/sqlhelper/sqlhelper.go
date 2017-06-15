@@ -13,15 +13,15 @@ import (
 func NewTestDatabase() *sqlx.DB {
 	database, err := models.SetupDatabase("mysql", "root@tcp(127.0.0.1:3306)/eve?allowOldPasswords=1&parseTime=true")
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 	return database
 }
 
 func NewDatabase() *sqlx.DB {
-	database, err := models.SetupDatabase("mysql", os.Getenv("NAILAUTH")+"@tcp("+os.Getenv("SQLHOST")+")/eve?allowOldPasswords=1&parseTime=true")
+	database, err := models.SetupDatabase("mysql", os.Getenv("SQLAUTH")+"@tcp(sql)/eve?allowOldPasswords=1&parseTime=true")
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 	return database
 }

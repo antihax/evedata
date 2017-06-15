@@ -44,7 +44,7 @@ func (s *ZKillboard) apiConsumer() error {
 	// Start from where we left off.
 	nextCheck := time.Now().UTC().Add(time.Hour * 24 * -365)
 
-	rate := time.Second / 2
+	rate := time.Second * 5
 	throttle := time.Tick(rate)
 
 	for {
@@ -64,6 +64,7 @@ func (s *ZKillboard) apiConsumer() error {
 		k := make(map[string]interface{})
 		err := s.getJSON(fmt.Sprintf("https://zkillboard.com/api/history/%s/", date), &k)
 		if err != nil {
+			log.Println(err)
 			continue
 		}
 
@@ -72,18 +73,23 @@ func (s *ZKillboard) apiConsumer() error {
 		for idS, hash := range k {
 			id, err := strconv.ParseInt(idS, 10, 32)
 			if err != nil {
-				log.Printf("Zkill Consumer Error: %v", err)
+				log.Println(err)
 				continue
 			}
 
 			// Add to the killmail queue
 			kills = append(kills, redisqueue.Work{Operation: "killmail", Parameter: []interface{}{hash.(string), (int32)(id)}})
 			if err != nil {
-				log.Printf("Zkill Consumer Error: %v", err)
+				log.Println(err)
 				continue
 			}
 		}
 
 		err = s.outQueue.QueueWork(kills)
+		if err != nil {
+			log.Println(err)
+		}
+
+		s.tickMetrics()
 	}
 }
