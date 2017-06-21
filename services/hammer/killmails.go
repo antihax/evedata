@@ -23,6 +23,7 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 
 	// We know this kill, early out
 	if s.knownKill(id) {
+		log.Printf("known: %d\n", id)
 		return
 	}
 
@@ -44,6 +45,7 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 		log.Println(err)
 		return
 	}
+	log.Printf("found: %d\n", id)
 	return
 }
 

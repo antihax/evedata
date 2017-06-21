@@ -12,7 +12,7 @@ import (
 
 func ConnectRedisProdPool() *redis.Pool {
 	return connectRedisPool(
-		[]string{"sentinel1:26379", "sentinel2:26379", "sentinel3:26379"},
+		[]string{"sentinel1.evedata:26379", "sentinel2.evedata:26379", "sentinel3.evedata:26379"},
 		os.Getenv("REDIS_PASSWORD"),
 		"evedata",
 		true,

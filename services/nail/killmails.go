@@ -15,7 +15,7 @@ func init() {
 }
 
 func spawnKillmailConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(nsq.HandlerFunc(s.killmailHandler))
+	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.killmailHandler)))
 }
 
 func (s *Nail) killmailHandler(message *nsq.Message) error {
@@ -45,30 +45,36 @@ func (s *Nail) killmailHandler(message *nsq.Message) error {
 		return err
 	}
 
-	var parameters []interface{}
+	var attackers []interface{}
 	for _, a := range mail.Attackers {
-		parameters = append(parameters, mail.KillmailId, a.CharacterId, a.CorporationId, a.AllianceId, a.ShipTypeId, a.FinalBlow, a.DamageDone, a.WeaponTypeId, a.SecurityStatus)
+		attackers = append(attackers, mail.KillmailId, a.CharacterId, a.CorporationId, a.AllianceId, a.ShipTypeId, a.FinalBlow, a.DamageDone, a.WeaponTypeId, a.SecurityStatus)
 	}
-	_, err = tx.Exec(fmt.Sprintf(`INSERT INTO evedata.killmailAttackers
+	if len(attackers) > 0 {
+		_, err = tx.Exec(fmt.Sprintf(`INSERT INTO evedata.killmailAttackers
 			(id,characterID,corporationID,allianceID,shipType,finalBlow,damageDone,weaponType,securityStatus)
 			VALUES %s ON DUPLICATE KEY UPDATE id=id;
-			`, joinParameters(9, len(mail.Attackers))), parameters...)
-	if err != nil {
-		log.Println(err)
-		return err
+			`, joinParameters(9, len(mail.Attackers))), attackers...)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
 	}
 
+	var items []interface{}
 	for _, i := range mail.Victim.Items {
-		parameters = append(parameters[:0], mail.KillmailId, i.ItemTypeId, i.Flag, i.QuantityDestroyed, i.QuantityDropped, i.Singleton)
+		items = append(items, mail.KillmailId, i.ItemTypeId, i.Flag, i.QuantityDestroyed, i.QuantityDropped, i.Singleton)
 	}
-	_, err = tx.Exec(fmt.Sprintf(`INSERT INTO evedata.killmailItems
+	if len(items) > 0 {
+		_, err = tx.Exec(fmt.Sprintf(`INSERT INTO evedata.killmailItems
 			(id,itemType,flag,quantityDestroyed,quantityDropped,singleton)
 			VALUES %s ON DUPLICATE KEY UPDATE id=id;;
-			`, joinParameters(6, len(mail.Victim.Items))), parameters...)
-	if err != nil {
-		log.Println(err)
-		return err
+			`, joinParameters(6, len(mail.Victim.Items))), items...)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
 	}
+
 	err = tx.Commit()
 	if err != nil {
 		log.Println(err)

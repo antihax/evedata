@@ -28,6 +28,7 @@ func main() {
 
 	// Run metrics
 	http.Handle("/metrics", promhttp.Handler())
+
 	go log.Fatalln(http.ListenAndServe(":3000", nil))
 
 	// Handle SIGINT and SIGTERM.

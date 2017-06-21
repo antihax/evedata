@@ -35,6 +35,7 @@ func (s *ZKillboard) redisQ() error {
 			return err
 		}
 	}
+	log.Printf("queued: %d\n", k.Package.KillID)
 	return nil
 }
 
@@ -83,6 +84,7 @@ func (s *ZKillboard) apiConsumer() error {
 				log.Println(err)
 				continue
 			}
+			log.Printf("queued: %d\n", id)
 		}
 
 		err = s.outQueue.QueueWork(kills)

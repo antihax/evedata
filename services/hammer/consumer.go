@@ -20,9 +20,10 @@ func registerConsumer(name string, f consumerFunc) {
 	consumerMap[name] = f
 }
 
-func wait(s *Hammer, f consumerFunc, p interface{}) {
+func (s *Hammer) wait(f consumerFunc, p interface{}) {
+	// Limit go routines
 	s.hammerWG.Add(1)
-	defer s.hammerWG.Done()
+	defer func() { <-s.sem; s.hammerWG.Done() }()
 	f(s, p)
 }
 
@@ -38,7 +39,8 @@ func (s *Hammer) runConsumers() error {
 		return errors.New("Unknown operation")
 	}
 
-	go wait(s, fn, w.Parameter)
+	s.sem <- true
+	go s.wait(fn, w.Parameter)
 
 	return nil
 }

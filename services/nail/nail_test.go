@@ -32,7 +32,7 @@ func TestNail(t *testing.T) {
 	sql := sqlhelper.NewTestDatabase()
 	defer sql.Close()
 
-	nail := NewNail(sql, redis)
+	nail := NewNail(sql, nsqhelper.Test)
 	go nail.Run()
 
 	err = hammer.QueueWork(testWork)

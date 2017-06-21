@@ -19,7 +19,7 @@ func NewTestDatabase() *sqlx.DB {
 }
 
 func NewDatabase() *sqlx.DB {
-	database, err := models.SetupDatabase("mysql", os.Getenv("SQLAUTH")+"@tcp(sql)/eve?allowOldPasswords=1&parseTime=true")
+	database, err := models.SetupDatabase("mysql", os.Getenv("SQLAUTH")+"@tcp(sql.evedata:3306)/eve?allowOldPasswords=1&parseTime=true")
 	if err != nil {
 		log.Fatalln(err)
 	}

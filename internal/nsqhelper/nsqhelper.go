@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	Prod = []string{"nsqlookupd1.nsq", "nsqlookupd2.nsq"}
+	Prod = []string{"nsqlookupd1.nsq:4161", "nsqlookupd2.nsq:4161"}
 	Test = []string{"localhost:4161"}
 )
 

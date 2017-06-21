@@ -20,6 +20,7 @@ type Hammer struct {
 	esi      *goesi.APIClient
 	redis    *redis.Pool
 	nsq      *nsq.Producer
+	sem      chan bool
 }
 
 // NewHammer Service.
@@ -41,6 +42,7 @@ func NewHammer(redis *redis.Pool, nsq *nsq.Producer) *Hammer {
 		nsq:   nsq,
 		esi:   esi,
 		redis: redis,
+		sem:   make(chan bool, 100),
 	}
 
 	return s

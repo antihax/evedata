@@ -30,6 +30,7 @@ func NewRedisQueue(r *redis.Pool, key string) *RedisQueue {
 // Size returns number of elements in the queue
 func (hq *RedisQueue) Size() (int, error) {
 	r := hq.redisPool.Get()
+	defer r.Close()
 	return redis.Int(r.Do("LLEN", hq.key))
 }
 
