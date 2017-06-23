@@ -57,7 +57,7 @@ func TestHammerService(t *testing.T) {
 
 	// Create a counter to ensure we get results for all work
 	wg := &sync.WaitGroup{}
-	wg.Add(len(testWork))
+	wg.Add(len(testWork) + 1)
 
 	// Run Hammer
 	go hammer.Run()
@@ -91,6 +91,7 @@ func TestHammerService(t *testing.T) {
 	err = hammer.QueueWork(testWork)
 	assert.Nil(t, err)
 
-	// Wait for the consumers to finish
+	// Wait for the consumers to finish\
+	wg.Done()
 	wg.Wait()
 }

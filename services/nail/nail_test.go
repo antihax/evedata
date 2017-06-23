@@ -8,7 +8,6 @@ import (
 	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/evedata/internal/sqlhelper"
 	"github.com/antihax/evedata/services/hammer"
-	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -18,24 +17,29 @@ var (
 )
 
 func TestNail(t *testing.T) {
+	sql := sqlhelper.NewTestDatabase()
+
 	redis := redigohelper.ConnectRedisTestPool()
-	defer redis.Close()
 
 	producer, err := nsqhelper.NewTestNSQProducer()
-	assert.Nil(t, err)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	hammer := hammer.NewHammer(redis, producer)
 	hammer.ChangeBasePath("http://127.0.0.1:8080/latest")
 	go hammer.Run()
-	defer hammer.Close()
-
-	sql := sqlhelper.NewTestDatabase()
-	defer sql.Close()
 
 	nail := NewNail(sql, nsqhelper.Test)
 	go nail.Run()
 
 	err = hammer.QueueWork(testWork)
-	assert.Nil(t, err)
-	defer nail.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	nail.Close()
+	hammer.Close()
+	redis.Close()
+	sql.Close()
 }
