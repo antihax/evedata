@@ -14,6 +14,7 @@ import (
 )
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Printf("Starting ZKillboard Microservice Go: %s\n", runtime.Version())
 	redis := redigohelper.ConnectRedisProdPool()
 

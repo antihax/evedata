@@ -14,6 +14,7 @@ import (
 )
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	redis := redigohelper.ConnectRedisProdPool()
 
 	producer, err := nsqhelper.NewNSQProducer()

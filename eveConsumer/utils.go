@@ -88,7 +88,7 @@ func (c *EVEConsumer) getContactsCREST(auth context.Context, characterID int32) 
 }
 
 func (c *EVEConsumer) deleteContacts(auth context.Context, characterID int32, contacts []int32) error {
-	_, err := c.ctx.ESI.V1.ContactsApi.DeleteCharactersCharacterIdContacts(auth, characterID, contacts, nil)
+	_, err := c.ctx.ESI.V2.ContactsApi.DeleteCharactersCharacterIdContacts(auth, contacts, characterID, nil)
 	if err != nil {
 		return c.deleteContactsCREST(auth, characterID, contacts)
 	}
@@ -115,7 +115,7 @@ func (c *EVEConsumer) deleteContactsCREST(auth context.Context, characterID int3
 }
 
 func (c *EVEConsumer) addContacts(auth context.Context, characterID int32, contacts []int32, standing float32) error {
-	_, _, err := c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, characterID, contacts, standing, nil)
+	_, _, err := c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, contacts, standing, characterID, nil)
 	if err != nil {
 		return c.updateContacts(auth, characterID, contacts, standing)
 	}
@@ -123,7 +123,7 @@ func (c *EVEConsumer) addContacts(auth context.Context, characterID int32, conta
 }
 
 func (c *EVEConsumer) updateContacts(auth context.Context, characterID int32, contacts []int32, standing float32) error {
-	_, err := c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, characterID, contacts, standing, nil)
+	_, err := c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, contacts, standing, characterID, nil)
 	if err != nil {
 		return c.updateContacts(auth, characterID, contacts, standing)
 	}

@@ -14,6 +14,7 @@ import (
 )
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	db := sqlhelper.NewDatabase()
 
 	// Make a new service and send it into the background.
