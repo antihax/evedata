@@ -6,12 +6,12 @@ import (
 	"encoding/gob"
 
 	"github.com/antihax/evedata/internal/gobcoder"
-	"github.com/antihax/goesi/v1"
+	"github.com/antihax/goesi/esi"
 )
 
 func init() {
 	registerConsumer("marketOrders", marketOrdersConsumer)
-	gob.Register(goesiv1.GetMarketsRegionIdOrders200Ok{})
+	gob.Register(esi.GetMarketsRegionIdOrders200Ok{})
 }
 
 func marketOrdersConsumer(s *Hammer, parameter interface{}) {
@@ -19,7 +19,7 @@ func marketOrdersConsumer(s *Hammer, parameter interface{}) {
 	var page int32 = 1
 
 	for {
-		orders, _, err := s.esi.V1.MarketApi.GetMarketsRegionIdOrders("all", regionID, map[string]interface{}{"page": page})
+		orders, _, err := s.esi.ESI.MarketApi.GetMarketsRegionIdOrders("all", regionID, map[string]interface{}{"page": page})
 		if err != nil {
 			log.Println(err)
 			return

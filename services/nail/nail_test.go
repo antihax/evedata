@@ -27,7 +27,7 @@ func TestNail(t *testing.T) {
 	}
 
 	hammer := hammer.NewHammer(redis, producer)
-	hammer.ChangeBasePath("http://127.0.0.1:8080/latest")
+	hammer.ChangeBasePath("http://127.0.0.1:8080")
 	go hammer.Run()
 
 	nail := NewNail(sql, nsqhelper.Test)

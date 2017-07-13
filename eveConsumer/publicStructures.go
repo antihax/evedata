@@ -42,7 +42,7 @@ func structuresTrigger(c *EVEConsumer) (bool, error) {
 		return false, nil
 	}
 
-	w, r, err := c.ctx.ESI.V1.UniverseApi.GetUniverseStructures(nil)
+	w, r, err := c.ctx.ESI.ESI.UniverseApi.GetUniverseStructures(nil)
 	cache := goesi.CacheExpires(r)
 	if err != nil {
 		return false, err
@@ -93,7 +93,7 @@ func structuresTrigger(c *EVEConsumer) (bool, error) {
 
 func (c *EVEConsumer) updateStructure(s int64) error {
 	ctx := context.WithValue(context.TODO(), goesi.ContextOAuth2, c.ctx.ESIPublicToken)
-	struc, _, err := c.ctx.ESI.V1.UniverseApi.GetUniverseStructuresStructureId(ctx, s, nil)
+	struc, _, err := c.ctx.ESI.ESI.UniverseApi.GetUniverseStructuresStructureId(ctx, s, nil)
 	if err != nil {
 		return err
 	}
@@ -126,7 +126,7 @@ func (c *EVEConsumer) updateStructure(s int64) error {
 
 func (c *EVEConsumer) updateStation(s int64) error {
 	ctx := context.WithValue(context.TODO(), goesi.ContextOAuth2, c.ctx.ESIPublicToken)
-	struc, _, err := c.ctx.ESI.V1.UniverseApi.GetUniverseStructuresStructureId(ctx, s, nil)
+	struc, _, err := c.ctx.ESI.ESI.UniverseApi.GetUniverseStructuresStructureId(ctx, s, nil)
 	if err != nil {
 		return err
 	}

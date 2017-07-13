@@ -7,12 +7,11 @@ import (
 
 	"sync"
 
-	"github.com/antihax/goesi/v1"
-
 	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/evedata/internal/nsqhelper"
 	"github.com/antihax/evedata/internal/redigohelper"
 	"github.com/antihax/evedata/internal/redisqueue"
+	"github.com/antihax/goesi/esi"
 	nsq "github.com/nsqio/go-nsq"
 	"github.com/stretchr/testify/assert"
 )
@@ -52,7 +51,7 @@ func TestHammerService(t *testing.T) {
 	assert.Nil(t, err)
 
 	hammer := NewHammer(redis, producer)
-	hammer.ChangeBasePath("http://127.0.0.1:8080/latest")
+	hammer.ChangeBasePath("http://127.0.0.1:8080")
 	defer hammer.Close()
 
 	// Create a counter to ensure we get results for all work
@@ -68,7 +67,7 @@ func TestHammerService(t *testing.T) {
 			consumer, err := nsqhelper.NewNSQConsumer("killmail", "hammer-test", 1)
 			assert.Nil(t, err)
 			consumer.AddHandler(nsq.HandlerFunc(func(message *nsq.Message) error {
-				k := goesiv1.GetKillmailsKillmailIdKillmailHashOk{}
+				k := esi.GetKillmailsKillmailIdKillmailHashOk{}
 				err := gobcoder.GobDecoder(message.Body, &k)
 				if err != nil {
 					log.Println(err)

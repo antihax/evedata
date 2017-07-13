@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/antihax/evedata/internal/gobcoder"
-	"github.com/antihax/goesi/v1"
+	"github.com/antihax/goesi/esi"
 	nsq "github.com/nsqio/go-nsq"
 )
 
@@ -19,7 +19,7 @@ func spawnKillmailConsumer(s *Nail, consumer *nsq.Consumer) {
 }
 
 func (s *Nail) killmailHandler(message *nsq.Message) error {
-	mail := goesiv1.GetKillmailsKillmailIdKillmailHashOk{}
+	mail := esi.GetKillmailsKillmailIdKillmailHashOk{}
 	err := gobcoder.GobDecoder(message.Body, &mail)
 	if err != nil {
 		log.Println(err)

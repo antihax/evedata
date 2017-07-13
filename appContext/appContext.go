@@ -84,7 +84,7 @@ func NewTestAppContext() AppContext {
 
 	// Setup the EVE ESI Client
 	ctx.ESI = goesi.NewAPIClient(ctx.HTTPClient, "EVEData.Org Test Client (If you can see me.. something broke)")
-	ctx.ESI.ChangeBasePath("http://127.0.0.1:8080/latest")
+	ctx.ESI.ChangeBasePath("http://127.0.0.1:8080")
 
 	// Create a memcached session store.
 	ctx.Store, err = gsr.NewRediStoreWithPool(ctx.Cache, []byte("SOME FAKE RANDOM KEY"))

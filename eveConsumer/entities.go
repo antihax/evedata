@@ -70,7 +70,7 @@ func charSearchConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	// We don't know this person... lets go looking.
 
 	if id == 0 {
-		search, _, err := c.ctx.ESI.V2.SearchApi.GetSearch([]string{"character"}, v, map[string]interface{}{"strict": true})
+		search, _, err := c.ctx.ESI.ESI.SearchApi.GetSearch([]string{"character"}, v, map[string]interface{}{"strict": true})
 		if err != nil {
 			return true, err
 		}
@@ -174,7 +174,7 @@ func (c *EVEConsumer) entitiesFromCREST() error {
 		return nil
 	}
 
-	ids, res, err := c.ctx.ESI.V1.AllianceApi.GetAlliances(nil)
+	ids, res, err := c.ctx.ESI.ESI.AllianceApi.GetAlliances(nil)
 	if err != nil {
 		return err
 	}
@@ -235,7 +235,7 @@ func (c *EVEConsumer) entitySetKnown(id int32) error {
 // [TODO] Rewrite this as ESI matures
 // [TODO] bulk pull IDs
 func (c *EVEConsumer) entityGetAndSave(id int32) error {
-	entity, _, err := c.ctx.ESI.V2.UniverseApi.PostUniverseNames([]int32{id}, nil)
+	entity, _, err := c.ctx.ESI.ESI.UniverseApi.PostUniverseNames([]int32{id}, nil)
 	if err != nil {
 		return err
 	}
@@ -265,12 +265,12 @@ func (c *EVEConsumer) entityGetAndSave(id int32) error {
 }
 
 func (c *EVEConsumer) updateAlliance(id int32) error {
-	a, _, err := c.ctx.ESI.V2.AllianceApi.GetAlliancesAllianceId(id, nil)
+	a, _, err := c.ctx.ESI.ESI.AllianceApi.GetAlliancesAllianceId(id, nil)
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
 	}
 
-	corps, _, err := c.ctx.ESI.V1.AllianceApi.GetAlliancesAllianceIdCorporations(id, nil)
+	corps, _, err := c.ctx.ESI.ESI.AllianceApi.GetAlliancesAllianceIdCorporations(id, nil)
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
 	}
@@ -294,7 +294,7 @@ func (c *EVEConsumer) updateAlliance(id int32) error {
 }
 
 func (c *EVEConsumer) updateCorporation(id int32) error {
-	a, _, err := c.ctx.ESI.V3.CorporationApi.GetCorporationsCorporationId(id, nil)
+	a, _, err := c.ctx.ESI.ESI.CorporationApi.GetCorporationsCorporationId(id, nil)
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with corporation id %d", err, id))
 	}
@@ -317,7 +317,7 @@ func (c *EVEConsumer) updateCorporation(id int32) error {
 }
 
 func (c *EVEConsumer) updateCharacter(id int32) error {
-	a, _, err := c.ctx.ESI.V4.CharacterApi.GetCharactersCharacterId(id, nil)
+	a, _, err := c.ctx.ESI.ESI.CharacterApi.GetCharactersCharacterId(id, nil)
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with character id %d", err, id))
 	}
@@ -330,7 +330,7 @@ func (c *EVEConsumer) updateCharacter(id int32) error {
 	defer redis.Close()
 	err = EntityAddToQueue(id, &redis)
 
-	h, _, err := c.ctx.ESI.V1.CharacterApi.GetCharactersCharacterIdCorporationhistory(id, nil)
+	h, _, err := c.ctx.ESI.ESI.CharacterApi.GetCharactersCharacterIdCorporationhistory(id, nil)
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s with character history id %d", err, id))
 	}
