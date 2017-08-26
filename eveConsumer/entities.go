@@ -3,6 +3,7 @@ package eveConsumer
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/antihax/evedata/models"
@@ -122,15 +123,15 @@ func (c *EVEConsumer) entitiesUpdate() error {
 	entities, err := c.ctx.Db.Query(
 		`SELECT allianceid AS id, crestRef, cacheUntil FROM evedata.alliances A
 			INNER JOIN evedata.crestID C ON A.allianceID = C.id
-						WHERE cacheUntil < UTC_TIMESTAMP()  
+						WHERE cacheUntil < UTC_TIMESTAMP() AND dead = 0
 			UNION
 			SELECT corporationid AS id, crestRef, cacheUntil FROM evedata.corporations A
 			INNER JOIN evedata.crestID C ON A.corporationID = C.id
-						WHERE cacheUntil < UTC_TIMESTAMP() AND memberCount > 0
+						WHERE cacheUntil < UTC_TIMESTAMP() AND memberCount > 0 AND dead = 0
 			UNION
 			(SELECT characterID AS id, crestRef, cacheUntil FROM evedata.characters A
 			INNER JOIN evedata.crestID C ON A.characterID = C.id
-						WHERE cacheUntil < UTC_TIMESTAMP() AND corporationID != 1000001)
+						WHERE cacheUntil < UTC_TIMESTAMP() AND corporationID != 1000001 AND dead = 0) 
             
             ORDER BY cacheUntil ASC`)
 	if err != nil {
@@ -232,11 +233,41 @@ func (c *EVEConsumer) entitySetKnown(id int32) error {
 	return nil
 }
 
+func (c *EVEConsumer) entityDirtyHackToFixCCPDirtyHack(id int32) error {
+	var entityType string
+	row := c.ctx.Db.QueryRow(`SELECT type FROM evedata.crestID WHERE id = ? LIMIT 1`, id)
+	err := row.Scan(&entityType)
+	if err != nil {
+		return err
+	}
+	switch entityType {
+	case "alliance":
+		{
+			_, err = c.ctx.Db.Exec("UPDATE evedata.alliances SET dead = 1 WHERE allianceID = ?", id)
+			return err
+		}
+	case "corporation":
+		{
+			_, err = c.ctx.Db.Exec("UPDATE evedata.corporations SET dead = 1 WHERE corporationID = ?", id)
+			return err
+		}
+	case "character":
+		{
+			_, err = c.ctx.Db.Exec("UPDATE evedata.characters SET dead = 1 WHERE characterID = ?", id)
+			return err
+		}
+	}
+	return nil
+}
+
 // [TODO] Rewrite this as ESI matures
 // [TODO] bulk pull IDs
 func (c *EVEConsumer) entityGetAndSave(id int32) error {
 	entity, _, err := c.ctx.ESI.ESI.UniverseApi.PostUniverseNames([]int32{id}, nil)
 	if err != nil {
+		if strings.Contains(err.Error(), "404") {
+			err = c.entityDirtyHackToFixCCPDirtyHack(id)
+		}
 		return err
 	}
 
