@@ -41,7 +41,7 @@ func goKillmailHunter(ctx *appContext.AppContext) {
 		r := ctx.Cache.Get()
 		defer r.Close()
 		// Skip this entity if we have touched it recently
-		startID, err := redis.Int64(r.Do("GET", "EVEDATA_killqueue:GALLENTE"))
+		startID, err := redis.Int64(r.Do("GET", "EVEDATA_killqueue:99002974"))
 		if err != nil {
 			startID = 0
 		}
@@ -51,12 +51,29 @@ func goKillmailHunter(ctx *appContext.AppContext) {
 			SELECT K.id FROM  evedata.killmails K 
             INNER JOIN evedata.killmailAttackers A ON K.id = A.id
             INNER JOIN mapSolarSystems M ON K.solarSystemID = M.solarSystemID
-            WHERE A.corporationID IN (
-					SELECT corporationID AS id FROM evedata.corporations WHERE factionID IN ( 500002, 500004 )
+            WHERE
+            (
+				A.allianceID IN (
+					SELECT defenderID AS id FROM evedata.wars WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND aggressorID = 99002974
+					UNION
+					SELECT aggressorID AS id FROM evedata.wars WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND defenderID = 99002974
+					UNION
+					SELECT aggressorID  AS id FROM evedata.wars W INNER JOIN evedata.warAllies A on A.id = W.id WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND allyID = 99002974
+					UNION
+					SELECT allyID AS id FROM evedata.wars W INNER JOIN evedata.warAllies A on A.id = W.id WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND aggressorID = 99002974
+				) OR
+				A.corporationID IN (
+					SELECT defenderID AS id FROM evedata.wars WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND aggressorID = 99002974
+					UNION
+					SELECT aggressorID AS id FROM evedata.wars WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND defenderID = 99002974
+					UNION
+					SELECT aggressorID  AS id FROM evedata.wars W INNER JOIN evedata.warAllies A on A.id = W.id WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND allyID = 99002974
+					UNION
+					SELECT allyID AS id FROM evedata.wars W INNER JOIN evedata.warAllies A on A.id = W.id WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND aggressorID = 99002974
 				)
-			 AND
+			) AND
             K.id > ? AND 
-            killTime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 999 MINUTE) AND
+            killTime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 60 MINUTE) AND
             ROUND(M.security, 1) >= 0.5
             GROUP BY K.id
             ORDER BY K.id ASC`, startID)
@@ -72,7 +89,7 @@ func goKillmailHunter(ctx *appContext.AppContext) {
 				log.Printf("EMDRCrestBridge: %v", err)
 			}
 			// Say we touched the entity and expire after one day
-			r.Do("SET", "EVEDATA_killqueue:GALLENTE", killID)
+			r.Do("SET", "EVEDATA_killqueue:99002974", killID)
 			SendMessage(fmt.Sprintf("https://zkillboard.com/kill/%d/", killID))
 		}
 	}
