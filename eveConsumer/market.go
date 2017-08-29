@@ -295,10 +295,12 @@ func marketHistoryConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	typeID, err := strconv.Atoi(data[1])
 
 	// Process Market History
-	h, _, err := c.ctx.ESI.ESI.MarketApi.GetMarketsRegionIdHistory((int32)(regionID), (int32)(typeID), nil)
+	h, res, err := c.ctx.ESI.ESI.MarketApi.GetMarketsRegionIdHistory((int32)(regionID), (int32)(typeID), nil)
 	if err != nil {
-		// Something went wrong... let's try again..
-		r.Do("SADD", "EVEDATA_marketHistory", v)
+		if res.StatusCode >= 500 {
+			// Something went wrong... let's try again..
+			r.Do("SADD", "EVEDATA_marketHistory", v)
+		}
 		return false, err
 	}
 
