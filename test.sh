@@ -1,15 +1,21 @@
 #!/bin/bash
 set -e
+echo "" > coverage.txt
 
-GOMAXPROCS=1 go test -timeout 90s ./...
-GOMAXPROCS=4 go test -timeout 90s -race ./...
+for d in $(go list ./... | grep -v vendor); do
+    go test -coverprofile=profile.out -covermode=atomic $d
+    if [ -f profile.out ]; then
+        cat profile.out >> coverage.txt
+        rm profile.out
+    fi
+done
 
-# no tests, but a build is something
-for dir in apps/*/ bench/*/; do
+# Build everything in apps to test for compile errors
+for dir in cmd/*/; do
     dir=${dir%/}
     if grep -q '^package main$' $dir/*.go 2>/dev/null; then
         echo "building $dir"
-        go build -o $dir/$(basename $dir) ./$dir
+        CGO_ENABLED=0 GOOS=linux go build -a --installsuffix cgo -o bin/$(basename $dir) ./$dir
     else
         echo "(skipped $dir)"
     fi

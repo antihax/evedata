@@ -9,15 +9,14 @@ import (
 
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
-	"github.com/antihax/goesi/v1"
-	"github.com/antihax/goesi/v3"
-	"github.com/antihax/goesi/v4"
+	"github.com/antihax/goesi/esi"
+
 	"golang.org/x/oauth2"
 )
 
-func (c *EVEConsumer) getCharacter(characterID int32) (*goesiv4.GetCharactersCharacterIdOk, error) {
+func (c *EVEConsumer) getCharacter(characterID int32) (*esi.GetCharactersCharacterIdOk, error) {
 	for {
-		char, r, err := c.ctx.ESI.V4.CharacterApi.GetCharactersCharacterId(characterID, nil)
+		char, r, err := c.ctx.ESI.ESI.CharacterApi.GetCharactersCharacterId(characterID, nil)
 		if err != nil {
 			// Retry on their failure
 			if r != nil && r.StatusCode >= 500 {
@@ -29,9 +28,9 @@ func (c *EVEConsumer) getCharacter(characterID int32) (*goesiv4.GetCharactersCha
 	}
 }
 
-func (c *EVEConsumer) getCorporation(corporationID int32) (*goesiv3.GetCorporationsCorporationIdOk, error) {
+func (c *EVEConsumer) getCorporation(corporationID int32) (*esi.GetCorporationsCorporationIdOk, error) {
 	for {
-		corp, r, err := c.ctx.ESI.V3.CorporationApi.GetCorporationsCorporationId(corporationID, nil)
+		corp, r, err := c.ctx.ESI.ESI.CorporationApi.GetCorporationsCorporationId(corporationID, nil)
 		if err != nil {
 			// Retry on their failure
 			if r != nil && r.StatusCode >= 500 {
@@ -43,11 +42,11 @@ func (c *EVEConsumer) getCorporation(corporationID int32) (*goesiv3.GetCorporati
 	}
 }
 
-func (c *EVEConsumer) getContacts(auth context.Context, characterID int32) ([]goesiv1.GetCharactersCharacterIdContacts200Ok, error) {
-	var contacts []goesiv1.GetCharactersCharacterIdContacts200Ok
+func (c *EVEConsumer) getContacts(auth context.Context, characterID int32) ([]esi.GetCharactersCharacterIdContacts200Ok, error) {
+	var contacts []esi.GetCharactersCharacterIdContacts200Ok
 
 	for i := int32(1); ; i++ {
-		con, r, err := c.ctx.ESI.V1.ContactsApi.GetCharactersCharacterIdContacts(auth, characterID, map[string]interface{}{"page": i})
+		con, r, err := c.ctx.ESI.ESI.ContactsApi.GetCharactersCharacterIdContacts(auth, characterID, map[string]interface{}{"page": i})
 		if err != nil || r.StatusCode != 200 {
 			return c.getContactsCREST(auth, characterID)
 		}
@@ -59,8 +58,8 @@ func (c *EVEConsumer) getContacts(auth context.Context, characterID int32) ([]go
 	return contacts, nil
 }
 
-func (c *EVEConsumer) getContactsCREST(auth context.Context, characterID int32) ([]goesiv1.GetCharactersCharacterIdContacts200Ok, error) {
-	var contacts []goesiv1.GetCharactersCharacterIdContacts200Ok
+func (c *EVEConsumer) getContactsCREST(auth context.Context, characterID int32) ([]esi.GetCharactersCharacterIdContacts200Ok, error) {
+	var contacts []esi.GetCharactersCharacterIdContacts200Ok
 
 	tokenSource, ok := auth.Value(goesi.ContextOAuth2).(oauth2.TokenSource)
 	if ok {
@@ -73,7 +72,7 @@ func (c *EVEConsumer) getContactsCREST(auth context.Context, characterID int32) 
 		for ; con != nil; con, err = con.NextPage() {
 			for _, contact := range con.Items {
 				contacts = append(contacts,
-					goesiv1.GetCharactersCharacterIdContacts200Ok{
+					esi.GetCharactersCharacterIdContacts200Ok{
 						ContactId:   int32(contact.Contact.ID),
 						Standing:    float32(contact.Standing),
 						IsBlocked:   contact.Blocked,
@@ -88,7 +87,7 @@ func (c *EVEConsumer) getContactsCREST(auth context.Context, characterID int32) 
 }
 
 func (c *EVEConsumer) deleteContacts(auth context.Context, characterID int32, contacts []int32) error {
-	_, err := c.ctx.ESI.V1.ContactsApi.DeleteCharactersCharacterIdContacts(auth, characterID, contacts, nil)
+	_, err := c.ctx.ESI.ESI.ContactsApi.DeleteCharactersCharacterIdContacts(auth, characterID, contacts, nil)
 	if err != nil {
 		return c.deleteContactsCREST(auth, characterID, contacts)
 	}
@@ -96,7 +95,7 @@ func (c *EVEConsumer) deleteContacts(auth context.Context, characterID int32, co
 }
 
 func (c *EVEConsumer) deleteContactsCREST(auth context.Context, characterID int32, contacts []int32) error {
-	names, _, err := c.ctx.ESI.V2.UniverseApi.PostUniverseNames(contacts, nil)
+	names, _, err := c.ctx.ESI.ESI.UniverseApi.PostUniverseNames(contacts, nil)
 	if err != nil {
 		return err
 	}
@@ -115,7 +114,7 @@ func (c *EVEConsumer) deleteContactsCREST(auth context.Context, characterID int3
 }
 
 func (c *EVEConsumer) addContacts(auth context.Context, characterID int32, contacts []int32, standing float32) error {
-	_, _, err := c.ctx.ESI.V1.ContactsApi.PostCharactersCharacterIdContacts(auth, characterID, contacts, standing, nil)
+	_, _, err := c.ctx.ESI.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, characterID, contacts, standing, nil)
 	if err != nil {
 		return c.updateContacts(auth, characterID, contacts, standing)
 	}
@@ -123,7 +122,7 @@ func (c *EVEConsumer) addContacts(auth context.Context, characterID int32, conta
 }
 
 func (c *EVEConsumer) updateContacts(auth context.Context, characterID int32, contacts []int32, standing float32) error {
-	_, err := c.ctx.ESI.V1.ContactsApi.PutCharactersCharacterIdContacts(auth, characterID, contacts, standing, nil)
+	_, err := c.ctx.ESI.ESI.ContactsApi.PutCharactersCharacterIdContacts(auth, characterID, contacts, standing, nil)
 	if err != nil {
 		return c.updateContacts(auth, characterID, contacts, standing)
 	}
@@ -131,7 +130,7 @@ func (c *EVEConsumer) updateContacts(auth context.Context, characterID int32, co
 }
 
 func (c *EVEConsumer) updateContactsCREST(auth context.Context, characterID int32, contacts []int32, standing float32) error {
-	names, _, err := c.ctx.ESI.V2.UniverseApi.PostUniverseNames(contacts, nil)
+	names, _, err := c.ctx.ESI.ESI.UniverseApi.PostUniverseNames(contacts, nil)
 	if err != nil {
 		return err
 	}

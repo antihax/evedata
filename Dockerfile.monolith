@@ -2,7 +2,7 @@ FROM scratch
 
 ADD templates /templates
 ADD static /static
-ADD apps/monolith/monolith /
+ADD bin/monolith /
 
 ENTRYPOINT ["/monolith"]
 

@@ -1,0 +1,51 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nsqd
+  namespace: nsq
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        name: nsqd
+    spec:
+      containers:
+      -
+        name: nsq
+        image: nsqio/nsq
+        env:
+          -
+            name: IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+        command:
+          - /bin/sh
+          - -c
+          - "/nsqd --lookupd-tcp-address=nsqlookupd1:4160 --lookupd-tcp-address=nsqlookupd2:4160 --broadcast-address=$IP"
+        ports:
+          - containerPort: 4150
+            name: tcp
+            protocol: TCP
+          - containerPort: 4151
+            name: http
+            protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nsqd
+  namespace: nsq
+  labels:
+    name: nsqd
+spec:
+  ports:
+    - port: 4151
+      name: http
+      targetPort: 4151
+    - port: 4150
+      name: tcp
+      targetPort: 4150
+  selector:
+    name: nsqd

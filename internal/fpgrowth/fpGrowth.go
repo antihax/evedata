@@ -1,4 +1,4 @@
-package fpGrowth
+package fpgrowth
 
 type ItemSet map[int][]int
 

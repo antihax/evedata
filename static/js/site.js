@@ -22,10 +22,23 @@
 	    return '//imageserver.eveonline.com/Type/' + row.typeID + '_32.png';
 	}
 
+	function allianceFormatter(value, row) {
+		if (row.allianceID == null) {
+			return '';
+		}
+    	var entityURL = '/alliance?id=' + row.allianceID;
+    	return '<a href="' + entityURL + '">' + value + '</a>';
+	}
+
 	function corporationFormatter(value, row) {
     	var entityURL = '/corporation?id=' + row.corporationID;
     	return '<a href="' + entityURL + '">' + value + '</a>';
 	}
+
+    function zkillFormatter(value, row) {
+    	var killURL = 'https://zkillboard.com/kill/' + row.killID +  '/'
+    	return '<a href="' + killURL + '" target="zkill">View on ZKillBoard</a>';
+    }
 
     function aggressorFormatter(value, row) {
     	var warURL = 'https://zkillboard.com/war/' + row.warID +  '/'

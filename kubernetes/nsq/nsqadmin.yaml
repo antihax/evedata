@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nsqadmin
+  namespace: nsq
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: nsqadmin
+    spec:
+      containers:
+      - name: nsqadmin
+        image: nsqio/nsq
+        command:
+          - /nsqadmin
+          - --lookupd-http-address=nsqlookupd1:4161
+          - --lookupd-http-address=nsqlookupd2:4161
+        ports:
+          - containerPort: 4171
+            name: http
+            protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nsqadmin
+  namespace: nsq
+  labels:
+    name: nsqadmin
+spec:
+  externalIPs:
+    - 192.168.10.5
+  ports:
+    - port: 4171
+      name: http
+      targetPort: 4171
+  selector:
+    name: nsqadmin
+

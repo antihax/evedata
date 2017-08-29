@@ -1,15 +1,18 @@
-package fpGrowth
+package fpgrowth
 
 import "testing"
+import "github.com/stretchr/testify/assert"
 
 func TestFPGrowthMulti(t *testing.T) {
 	x := NewFPTree(testData, 2)
 	x.Growth()
+	assert.Equal(t, 158, x.HeaderTableSize())
 }
 
 func TestFPGrowthSingle(t *testing.T) {
 	x := NewFPTree(testData, 5)
 	x.Growth()
+	assert.Equal(t, 1, x.HeaderTableSize())
 }
 
 var testData ItemSet = ItemSet{

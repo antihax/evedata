@@ -41,7 +41,7 @@ func openMarketWindow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set the destination
-	res, err := c.ESI.V1.UserInterfaceApi.PostUiOpenwindowMarketdetails(auth, (int32)(typeID), nil)
+	res, err := c.ESI.ESI.UserInterfaceApi.PostUiOpenwindowMarketdetails(auth, (int32)(typeID), nil)
 	if err != nil {
 		if res != nil {
 			httpErrCode(w, res.StatusCode)
@@ -80,7 +80,7 @@ func setDestination(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set the destination
-	res, err := c.ESI.V2.UserInterfaceApi.PostUiAutopilotWaypoint(auth, false, true, destinationID, nil)
+	res, err := c.ESI.ESI.UserInterfaceApi.PostUiAutopilotWaypoint(auth, false, true, destinationID, nil)
 	if err != nil {
 		if res != nil {
 			httpErrCode(w, res.StatusCode)
@@ -119,7 +119,7 @@ func addDestination(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set the destination
-	res, err := c.ESI.V2.UserInterfaceApi.PostUiAutopilotWaypoint(auth, false, false, destinationID, nil)
+	res, err := c.ESI.ESI.UserInterfaceApi.PostUiAutopilotWaypoint(auth, false, false, destinationID, nil)
 	if err != nil {
 		if res != nil {
 			httpErrCode(w, res.StatusCode)

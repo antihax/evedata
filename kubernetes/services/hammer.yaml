@@ -1,0 +1,38 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: evedata-hammer
+  namespace: evedata
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: evedata-hammer
+      labels:
+        app: evedata
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+    spec:
+      containers:
+      - name: evedata-hammer
+        image: antihax/evedata-hammer
+        imagePullPolicy: Always
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-password
+              key: password
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - mountPath: /etc/ssl/certs
+          name: ca-certs
+      volumes:
+      - name: ca-certs
+        configMap:
+          name: ca-certificates
+          items:
+          - key: ca-certificates.crt
+            path: ca-certificates.crt
