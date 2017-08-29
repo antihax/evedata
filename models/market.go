@@ -188,6 +188,7 @@ func GetMarketTypes() ([]MarketType, error) {
 		SELECT 	typeID, typeName 
 		FROM 	invTypes 
 		WHERE 	marketGroupID IS NOT NULL
+		AND published = 1
 	`)
 	if err != nil {
 		return nil, err
