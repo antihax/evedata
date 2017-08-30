@@ -150,15 +150,19 @@ func warConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	var aggressor, defender int32
 	if war.Aggressor.AllianceId > 0 {
 		aggressor = war.Aggressor.AllianceId
+		EntityAllianceAddToQueue(aggressor, &r)
 	} else {
 		aggressor = war.Aggressor.CorporationId
+		EntityCorporationAddToQueue(aggressor, &r)
 	}
 
 	// save the defender id
 	if war.Defender.AllianceId > 0 {
 		defender = war.Defender.AllianceId
+		EntityAllianceAddToQueue(defender, &r)
 	} else {
 		defender = war.Defender.CorporationId
+		EntityCorporationAddToQueue(defender, &r)
 	}
 
 	_, err = models.RetryExec(`INSERT INTO evedata.wars
@@ -176,33 +180,19 @@ func warConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		return false, err
 	}
 
-	// Add aggressor to entity queue to get their information
-	err = EntityAddToQueue(aggressor, &r)
-	if err != nil {
-		return false, err
-	}
-
-	// Add defender to entity queue to get their information
-	err = EntityAddToQueue(defender, &r)
-	if err != nil {
-		return false, err
-	}
-
 	// Add information on allies in the war
 	for _, a := range war.Allies {
 		var ally int32
 		if a.AllianceId > 0 {
 			ally = a.AllianceId
+			EntityAllianceAddToQueue(ally, &r)
 		} else {
 			ally = a.CorporationId
+			EntityCorporationAddToQueue(ally, &r)
 		}
 
 		_, err = c.ctx.Db.Exec(`INSERT INTO evedata.warAllies (id, allyID) VALUES(?,?) ON DUPLICATE KEY UPDATE id = id;`, war.Id, ally)
 		if err != nil {
-			return false, err
-		}
-
-		if err = EntityAddToQueue(ally, &r); err != nil {
 			return false, err
 		}
 	}

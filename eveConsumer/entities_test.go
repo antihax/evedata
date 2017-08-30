@@ -5,7 +5,19 @@ import "testing"
 func TestEntities(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
-	err := EntityAddToQueue(1, &r)
+	err := EntityCorporationAddToQueue(1, &r)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	err = EntityCharacterAddToQueue(1, &r)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	err = EntityAllianceAddToQueue(1, &r)
 	if err != nil {
 		t.Error(err)
 		return
@@ -24,7 +36,17 @@ func TestEntitiesConsumer(t *testing.T) {
 	r := ctx.Cache.Get()
 	defer r.Close()
 	for {
-		work, err := entitiesConsumer(eC, &r)
+		work, err := corporationConsumer(eC, &r)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		work, err = characterConsumer(eC, &r)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		work, err = allianceConsumer(eC, &r)
 		if err != nil {
 			t.Error(err)
 			return

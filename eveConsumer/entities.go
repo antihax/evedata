@@ -3,7 +3,6 @@ package eveConsumer
 import (
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/antihax/evedata/models"
@@ -12,7 +11,9 @@ import (
 )
 
 func init() {
-	addConsumer("entities", entitiesConsumer, "EVEDATA_entityQueue")
+	addConsumer("entities", characterConsumer, "EVEDATA_characterQueue")
+	addConsumer("entities", allianceConsumer, "EVEDATA_allianceQueue")
+	addConsumer("entities", corporationConsumer, "EVEDATA_corporationQueue")
 	addConsumer("entities", charSearchConsumer, "EVEDATA_charSearchQueue")
 	addTrigger("entities", entitiesTrigger)
 }
@@ -41,7 +42,21 @@ func entitiesTrigger(c *EVEConsumer) (bool, error) {
 		return false, err
 	}
 
-	err = c.entitiesUpdate()
+	err = c.allianceUpdate()
+	if err != nil {
+		return false, err
+	}
+
+	err = c.corporationUpdate()
+	if err != nil {
+		return false, err
+	}
+
+	err = c.characterUpdate()
+	if err != nil {
+		return false, err
+	}
+
 	return true, err
 }
 
@@ -78,22 +93,22 @@ func charSearchConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		if len(search.Character) > 0 {
 			redis := c.ctx.Cache.Get()
 			for _, nid := range search.Character {
-				EntityAddToQueue(nid, &redis)
+				EntityCharacterAddToQueue(nid, &redis)
 			}
 			redis.Close()
 		}
 	} else { // add the character to the queue so we get latest data.
 		redis := c.ctx.Cache.Get()
-		EntityAddToQueue((int32)(id), &redis)
+		EntityCharacterAddToQueue((int32)(id), &redis)
 		redis.Close()
 	}
 
 	return true, err
 }
 
-func entitiesConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
+func characterConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	r := *redisPtr
-	ret, err := r.Do("SPOP", "EVEDATA_entityQueue")
+	ret, err := r.Do("SPOP", "EVEDATA_characterQueue")
 	if err != nil {
 		return false, err
 	} else if ret == nil {
@@ -111,7 +126,61 @@ func entitiesConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		return false, err
 	}
 
-	err = c.entityGetAndSave((int32)(v))
+	err = c.entityGetAndSaveCategory((int32)(v), "character")
+	if err != nil {
+		return false, err
+	}
+	return true, err
+}
+
+func corporationConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
+	r := *redisPtr
+	ret, err := r.Do("SPOP", "EVEDATA_corporationQueue")
+	if err != nil {
+		return false, err
+	} else if ret == nil {
+		return false, nil
+	}
+	v, err := redis.Int(ret, err)
+	if err != nil {
+		return false, err
+	}
+
+	// Skip this entity if we have touched it recently
+	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", v)
+	i, err := redis.Bool(r.Do("EXISTS", key))
+	if err != nil || i == true {
+		return false, err
+	}
+
+	err = c.entityGetAndSaveCategory((int32)(v), "corporation")
+	if err != nil {
+		return false, err
+	}
+	return true, err
+}
+
+func allianceConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
+	r := *redisPtr
+	ret, err := r.Do("SPOP", "EVEDATA_allianceQueue")
+	if err != nil {
+		return false, err
+	} else if ret == nil {
+		return false, nil
+	}
+	v, err := redis.Int(ret, err)
+	if err != nil {
+		return false, err
+	}
+
+	// Skip this entity if we have touched it recently
+	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", v)
+	i, err := redis.Bool(r.Do("EXISTS", key))
+	if err != nil || i == true {
+		return false, err
+	}
+
+	err = c.entityGetAndSaveCategory((int32)(v), "alliance")
 	if err != nil {
 		return false, err
 	}
@@ -119,20 +188,11 @@ func entitiesConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 }
 
 // update any old entities
-func (c *EVEConsumer) entitiesUpdate() error {
+func (c *EVEConsumer) allianceUpdate() error {
 	entities, err := c.ctx.Db.Query(
 		`SELECT allianceid AS id, crestRef, cacheUntil FROM evedata.alliances A
 			INNER JOIN evedata.crestID C ON A.allianceID = C.id
-						WHERE cacheUntil < UTC_TIMESTAMP() AND dead = 0
-			UNION
-			SELECT corporationid AS id, crestRef, cacheUntil FROM evedata.corporations A
-			INNER JOIN evedata.crestID C ON A.corporationID = C.id
-						WHERE cacheUntil < UTC_TIMESTAMP() AND memberCount > 0 AND dead = 0
-			UNION
-			(SELECT characterID AS id, crestRef, cacheUntil FROM evedata.characters A
-			INNER JOIN evedata.crestID C ON A.characterID = C.id
-						WHERE cacheUntil < UTC_TIMESTAMP() AND corporationID != 1000001 AND dead = 0) 
-            
+						WHERE cacheUntil < UTC_TIMESTAMP()
             ORDER BY cacheUntil ASC`)
 	if err != nil {
 		return err
@@ -155,7 +215,80 @@ func (c *EVEConsumer) entitiesUpdate() error {
 		}
 
 		// Recursively update expired information
-		if err = EntityAddToQueue(id, &r); err != nil {
+		if err = EntityAllianceAddToQueue(id, &r); err != nil {
+			return err
+		}
+
+	}
+	entities.Close()
+
+	return nil
+}
+func (c *EVEConsumer) characterUpdate() error {
+	entities, err := c.ctx.Db.Query(
+		`SELECT characterID AS id, crestRef, cacheUntil FROM evedata.characters A
+			INNER JOIN evedata.crestID C ON A.characterID = C.id
+						WHERE cacheUntil < UTC_TIMESTAMP()  
+            ORDER BY cacheUntil ASC`)
+	if err != nil {
+		return err
+	}
+
+	r := c.ctx.Cache.Get()
+	defer r.Close()
+
+	// Loop the entities
+	for entities.Next() {
+		var (
+			id      int32
+			href    string
+			nothing string
+		)
+
+		err = entities.Scan(&id, &href, &nothing)
+		if err != nil {
+			return err
+		}
+
+		// Recursively update expired information
+		if err = EntityCharacterAddToQueue(id, &r); err != nil {
+			return err
+		}
+
+	}
+	entities.Close()
+
+	return nil
+}
+
+func (c *EVEConsumer) corporationUpdate() error {
+	entities, err := c.ctx.Db.Query(
+		`SELECT corporationid AS id, crestRef, cacheUntil FROM evedata.corporations A
+			INNER JOIN evedata.crestID C ON A.corporationID = C.id
+						WHERE cacheUntil < UTC_TIMESTAMP() AND memberCount > 0
+            ORDER BY cacheUntil ASC`)
+	if err != nil {
+		return err
+	}
+
+	r := c.ctx.Cache.Get()
+	defer r.Close()
+
+	// Loop the entities
+	for entities.Next() {
+		var (
+			id      int32
+			href    string
+			nothing string
+		)
+
+		err = entities.Scan(&id, &href, &nothing)
+		if err != nil {
+			return err
+		}
+
+		// Recursively update expired information
+		if err = EntityCorporationAddToQueue(id, &r); err != nil {
 			return err
 		}
 
@@ -190,7 +323,7 @@ func (c *EVEConsumer) entitiesFromCREST() error {
 	defer redis.Close()
 	// Throw them into the queue
 	for _, allianceID := range ids {
-		if err = EntityAddToQueue(allianceID, &redis); err != nil {
+		if err = EntityAllianceAddToQueue(allianceID, &redis); err != nil {
 			return err
 		}
 	}
@@ -210,7 +343,7 @@ func CharSearchAddToQueue(charList []interface{}, redisPtr *redis.Conn) {
 	r.Flush()
 }
 
-func EntityAddToQueue(id int32, r *redis.Conn) error {
+func EntityAllianceAddToQueue(id int32, r *redis.Conn) error {
 	red := *r
 	// Skip this entity if we have touched it recently
 	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", id)
@@ -220,7 +353,35 @@ func EntityAddToQueue(id int32, r *redis.Conn) error {
 	}
 
 	// Add the entity to the queue
-	_, err = red.Do("SADD", "EVEDATA_entityQueue", id)
+	_, err = red.Do("SADD", "EVEDATA_allianceQueue", id)
+	return err
+}
+
+func EntityCorporationAddToQueue(id int32, r *redis.Conn) error {
+	red := *r
+	// Skip this entity if we have touched it recently
+	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", id)
+	i, err := redis.Bool(red.Do("EXISTS", key))
+	if err != nil || i == true {
+		return err
+	}
+
+	// Add the entity to the queue
+	_, err = red.Do("SADD", "EVEDATA_corporationQueue", id)
+	return err
+}
+
+func EntityCharacterAddToQueue(id int32, r *redis.Conn) error {
+	red := *r
+	// Skip this entity if we have touched it recently
+	key := "EVEDATA_entity:" + fmt.Sprintf("%d\n", id)
+	i, err := redis.Bool(red.Do("EXISTS", key))
+	if err != nil || i == true {
+		return err
+	}
+
+	// Add the entity to the queue
+	_, err = red.Do("SADD", "EVEDATA_characterQueue", id)
 	return err
 }
 
@@ -233,65 +394,27 @@ func (c *EVEConsumer) entitySetKnown(id int32) error {
 	return nil
 }
 
-func (c *EVEConsumer) entityDirtyHackToFixCCPDirtyHack(id int32) error {
-	var entityType string
-	row := c.ctx.Db.QueryRow(`SELECT type FROM evedata.crestID WHERE id = ? LIMIT 1`, id)
-	err := row.Scan(&entityType)
+func (c *EVEConsumer) entityGetAndSaveCategory(id int32, category string) error {
+	var err error
+	h := "https://crest-tq.eveonline.com/" + fmt.Sprintf("%ss/%d/", category, id)
+	if category == "alliance" {
+		err = c.updateAlliance(id)
+	} else if category == "corporation" {
+		err = c.updateCorporation(id)
+	} else if category == "character" {
+		err = c.updateCharacter(id)
+	}
 	if err != nil {
 		return err
 	}
-	switch entityType {
-	case "alliance":
-		{
-			_, err = c.ctx.Db.Exec("UPDATE evedata.alliances SET dead = 1 WHERE allianceID = ?", id)
-			return err
-		}
-	case "corporation":
-		{
-			_, err = c.ctx.Db.Exec("UPDATE evedata.corporations SET dead = 1 WHERE corporationID = ?", id)
-			return err
-		}
-	case "character":
-		{
-			_, err = c.ctx.Db.Exec("UPDATE evedata.characters SET dead = 1 WHERE characterID = ?", id)
-			return err
-		}
-	}
-	return nil
-}
 
-// [TODO] Rewrite this as ESI matures
-// [TODO] bulk pull IDs
-func (c *EVEConsumer) entityGetAndSave(id int32) error {
-	entity, _, err := c.ctx.ESI.ESI.UniverseApi.PostUniverseNames([]int32{id}, nil)
+	c.entitySetKnown(id)
+
+	err = models.AddCRESTRef(((int64)(id)), h)
 	if err != nil {
-		if strings.Contains(err.Error(), "404") {
-			err = c.entityDirtyHackToFixCCPDirtyHack(id)
-		}
 		return err
 	}
 
-	for _, e := range entity {
-
-		h := "https://crest-tq.eveonline.com/" + fmt.Sprintf("%ss/%d/", e.Category, id)
-		if e.Category == "alliance" {
-			err = c.updateAlliance(e.Id)
-		} else if e.Category == "corporation" {
-			err = c.updateCorporation(e.Id)
-		} else if e.Category == "character" {
-			err = c.updateCharacter(e.Id)
-		}
-		if err != nil {
-			return err
-		}
-
-		c.entitySetKnown(e.Id)
-
-		err = models.AddCRESTRef(((int64)(e.Id)), h)
-		if err != nil {
-			return err
-		}
-	}
 	return err
 }
 
@@ -315,7 +438,7 @@ func (c *EVEConsumer) updateAlliance(id int32) error {
 	redis := c.ctx.Cache.Get()
 	defer redis.Close()
 	for _, corp := range corps {
-		err = EntityAddToQueue(corp, &redis)
+		err = EntityCorporationAddToQueue(corp, &redis)
 		if err != nil {
 			return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
 		}
@@ -339,7 +462,7 @@ func (c *EVEConsumer) updateCorporation(id int32) error {
 	if a.CeoId > 1 {
 		redis := c.ctx.Cache.Get()
 		defer redis.Close()
-		err = EntityAddToQueue((int32)(a.CeoId), &redis)
+		err = EntityCharacterAddToQueue((int32)(a.CeoId), &redis)
 		if err != nil {
 			return errors.New(fmt.Sprintf("%s with corporation id %d", err, id))
 		}
@@ -359,7 +482,7 @@ func (c *EVEConsumer) updateCharacter(id int32) error {
 
 	redis := c.ctx.Cache.Get()
 	defer redis.Close()
-	err = EntityAddToQueue(id, &redis)
+	err = EntityCharacterAddToQueue(id, &redis)
 
 	h, _, err := c.ctx.ESI.ESI.CharacterApi.GetCharactersCharacterIdCorporationhistory(id, nil)
 	if err != nil {
