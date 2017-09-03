@@ -198,7 +198,7 @@ func GetLossesInHighsec() ([]LossesInHighsec, error) {
 			INNER JOIN eve.mapSolarSystems S ON S.solarSystemID = K.solarSystemID
 			WHERE 
 				K.killTime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 60 DAY) 
-				AND round(S.security,1) >= 0.5
+				AND round(S.security,1) >= 0.5 AND K.victimAllianceID > 0
 		) K
 		INNER JOIN evedata.alliances A ON K.entityID = A.allianceID
 		LEFT OUTER JOIN evedata.entityKillStats S ON S.id = K.entityID 

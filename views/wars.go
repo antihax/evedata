@@ -78,7 +78,7 @@ func lossesInHighsecPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func lossesInHighsec(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
+	setCache(w, 60*60*24)
 	v, err := models.GetLossesInHighsec()
 	if err != nil {
 		httpErr(w, err)
