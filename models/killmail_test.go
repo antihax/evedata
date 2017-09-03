@@ -76,3 +76,10 @@ func TestGetKnownShipTypes(t *testing.T) {
 		return
 	}
 }
+func TestGetLossesInHighsec(t *testing.T) {
+	_, err := GetLossesInHighsec()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
