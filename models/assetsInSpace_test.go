@@ -17,3 +17,11 @@ func TestGetCorporationAssetsInSpace(t *testing.T) {
 		return
 	}
 }
+
+func TestGetCorporationAssetsInSpaceLostFightersHighsec(t *testing.T) {
+	_, err := GetCorporationAssetsInSpaceLostFightersHighsec()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
