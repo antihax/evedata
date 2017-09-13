@@ -145,6 +145,18 @@ func UpdateCharacter(characterID int32, name string, bloodlineID int32, ancestry
 	return nil
 }
 
+func DeadCharacter(characterID int32) error {
+	if _, err := database.Exec(`
+		INSERT INTO evedata.characters (characterID,dead)
+			VALUES(?,true) 
+			ON DUPLICATE KEY UPDATE 
+			dead=1
+	`, characterID); err != nil {
+		return err
+	}
+	return nil
+}
+
 func UpdateCorporationHistory(characterID int32, corporationID int32, recordID int32, startDate time.Time) error {
 	if _, err := database.Exec(`
 		INSERT INTO evedata.corporationHistory (characterID,startDate,recordID,corporationID)

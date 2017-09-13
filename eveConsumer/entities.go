@@ -228,7 +228,8 @@ func (c *EVEConsumer) characterUpdate() error {
 	entities, err := c.ctx.Db.Query(
 		`SELECT characterID AS id, crestRef, cacheUntil FROM evedata.characters A
 			INNER JOIN evedata.crestID C ON A.characterID = C.id
-						WHERE cacheUntil < UTC_TIMESTAMP()  
+						WHERE cacheUntil < UTC_TIMESTAMP() AND dead = 0
+						AND characterID > 90000000
             ORDER BY cacheUntil ASC`)
 	if err != nil {
 		return err
@@ -471,8 +472,11 @@ func (c *EVEConsumer) updateCorporation(id int32) error {
 }
 
 func (c *EVEConsumer) updateCharacter(id int32) error {
-	a, _, err := c.ctx.ESI.ESI.CharacterApi.GetCharactersCharacterId(id, nil)
+	a, r, err := c.ctx.ESI.ESI.CharacterApi.GetCharactersCharacterId(id, nil)
 	if err != nil {
+		if r.StatusCode == 404 || r.StatusCode == 410 {
+			return models.DeadCharacter(id)
+		}
 		return errors.New(fmt.Sprintf("%s with character id %d", err, id))
 	}
 	err = models.UpdateCharacter(id, a.Name, a.BloodlineId, a.AncestryId, a.CorporationId, a.AllianceId, a.RaceId, a.Gender, a.SecurityStatus, time.Now().UTC().Add(time.Hour*24))
