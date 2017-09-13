@@ -40,6 +40,7 @@ func TestMain(m *testing.M) {
 		"esi-assets.read_assets.v1",
 		"esi-characters.read_contacts.v1",
 		"esi-characters.write_contacts.v1",
+		"esi-characters.read_notifications.v1",
 		"esi-corporations.read_corporation_membership.v1",
 		"esi-location.read_location.v1",
 		"esi-location.read_ship_type.v1",

@@ -15,6 +15,8 @@ var characterScopes = []ScopeGroup{
 	{goesi.ScopeCharacterContactsRead, "contacts"},
 	{goesi.ScopeCharacterContactsWrite, "contacts"},
 
+	{"characters.read_notifications.v1", "notifications"},
+
 	{goesi.ScopeCharacterMarketOrdersRead, "market"},
 	{"esi-universe.read_structures.v1", "market"},
 	{"esi-search.search_structures.v1", "market"},
@@ -33,6 +35,7 @@ var groupReasons = map[string]string{
 	"wallet":     "Profit and Loss Tools",
 	"assets":     "Asset Value Tools",
 	"ui-control": "Control of in-game UI",
+	"notifications": "Notification tools (locators)",
 }
 
 func GetCharacterScopes() []string {
