@@ -15,7 +15,7 @@ var characterScopes = []ScopeGroup{
 	{goesi.ScopeCharacterContactsRead, "contacts"},
 	{goesi.ScopeCharacterContactsWrite, "contacts"},
 
-	{"characters.read_notifications.v1", "notifications"},
+	{"esi-characters.read_notifications.v1", "notifications"},
 
 	{goesi.ScopeCharacterMarketOrdersRead, "market"},
 	{"esi-universe.read_structures.v1", "market"},
@@ -30,11 +30,11 @@ var characterScopes = []ScopeGroup{
 }
 
 var groupReasons = map[string]string{
-	"market":     "Reporting and Market tools",
-	"contacts":   "War Contact Synchronization",
-	"wallet":     "Profit and Loss Tools",
-	"assets":     "Asset Value Tools",
-	"ui-control": "Control of in-game UI",
+	"market":        "Reporting and Market tools",
+	"contacts":      "War Contact Synchronization",
+	"wallet":        "Profit and Loss Tools",
+	"assets":        "Asset Value Tools",
+	"ui-control":    "Control of in-game UI",
 	"notifications": "Notification tools (locators)",
 }
 
