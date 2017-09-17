@@ -134,13 +134,15 @@ func GoServer() {
 
 		if os.Args[1] == "dumpdb" {
 			// Dump the database to sql file.
+			log.Printf("Dumping Database to ./sql/evedata.sql\n")
 			err := models.DumpDatabase("./sql/evedata.sql", "evedata")
 			if err != nil {
 				log.Fatalln(err)
 			}
 
 		} else if os.Args[1] == "bootstrap" {
-			// Run database bootstrap to prepare it for a new deployment
+			// Run database bootstrap to prepare it for a new
+			log.Printf("Running bootstrap interface\n")
 			err := bootstrap(&ctx)
 			if err != nil {
 				log.Fatalln(err)
@@ -148,6 +150,7 @@ func GoServer() {
 
 		} else if os.Args[1] == "flushredis" {
 			// Erase everything in redis for modified deployments
+			log.Printf("Flushing Redis\n")
 			r := ctx.Cache.Get()
 			r.Do("FLUSHALL")
 			r.Close()

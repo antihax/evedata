@@ -52,16 +52,16 @@ CREATE TABLE `characterKillmailAssociations` (
 
 CREATE TABLE `characters` (
   `characterID` int(11) unsigned NOT NULL DEFAULT '0',
-  `bloodlineID` tinyint(3) unsigned NOT NULL,
-  `ancestryID` tinyint(3) unsigned NOT NULL,
-  `corporationID` int(11) unsigned NOT NULL,
-  `allianceID` int(11) unsigned NOT NULL,
-  `race` char(8) CHARACTER SET latin1 NOT NULL,
-  `securityStatus` decimal(4,2) NOT NULL,
-  `updated` datetime NOT NULL,
-  `cacheUntil` datetime NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `gender` varchar(50) NOT NULL,
+  `bloodlineID` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `ancestryID` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `corporationID` int(11) unsigned NOT NULL DEFAULT '0',
+  `allianceID` int(11) unsigned NOT NULL DEFAULT '0',
+  `race` char(8) CHARACTER SET latin1 NOT NULL DEFAULT '0',
+  `securityStatus` decimal(4,2) NOT NULL DEFAULT '0.00',
+  `updated` datetime NOT NULL DEFAULT '2001-01-01 00:00:00',
+  `cacheUntil` datetime NOT NULL DEFAULT '2001-01-01 00:00:00',
+  `name` varchar(50) NOT NULL DEFAULT '0',
+  `gender` varchar(50) NOT NULL DEFAULT '0',
   `dead` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`characterID`),
   KEY `cacheUntil` (`cacheUntil`),
@@ -132,6 +132,7 @@ CREATE TABLE `crestTokens` (
   `response` text CHARACTER SET latin1,
   `assetCacheUntil` datetime NOT NULL DEFAULT '2015-01-01 00:00:00',
   `walletCacheUntil` datetime NOT NULL DEFAULT '2015-01-01 00:00:00',
+  `notificationCacheUntil` datetime NOT NULL DEFAULT '2015-01-01 00:00:00',
   `scopes` text NOT NULL,
   PRIMARY KEY (`characterID`,`tokenCharacterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -260,6 +261,18 @@ CREATE TABLE `killmails` (
   KEY `war` (`warID`),
   KEY `victimCharacterID` (`victimCharacterID`),
   KEY `time_victim` (`killTime`,`victimAllianceID`,`victimCorporationID`,`warID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `locatedCharacters` (
+  `notificationID` int(11) NOT NULL,
+  `characterID` int(11) NOT NULL,
+  `solarSystemID` int(11) NOT NULL,
+  `constellationID` int(11) NOT NULL,
+  `regionID` int(11) NOT NULL,
+  `stationID` int(11) NOT NULL,
+  `locatedCharacterID` int(11) NOT NULL,
+  `time` datetime NOT NULL,
+  PRIMARY KEY (`notificationID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `lpOfferRequirements` (
