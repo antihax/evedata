@@ -77,26 +77,24 @@ func assetsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		var values []string
 
 		// Skip if we have no assests
-		if len(assets) == 0 {
-			tx.Commit()
-			return true, nil
-		}
+		if len(assets) != 0 {
 
-		// Dump all assets into the DB.
-		for _, asset := range assets {
-			values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%q,%d,%q,%v)",
-				asset.LocationId, asset.TypeId, asset.Quantity, tokenChar,
-				asset.LocationFlag, asset.ItemId, asset.LocationType, asset.IsSingleton))
-		}
-		stmt := fmt.Sprintf(`INSERT INTO evedata.assets
+			// Dump all assets into the DB.
+			for _, asset := range assets {
+				values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%q,%d,%q,%v)",
+					asset.LocationId, asset.TypeId, asset.Quantity, tokenChar,
+					asset.LocationFlag, asset.ItemId, asset.LocationType, asset.IsSingleton))
+			}
+			stmt := fmt.Sprintf(`INSERT INTO evedata.assets
 							(locationID, typeID, quantity, characterID, 
 							locationFlag, itemID, locationType, isSingleton)
 		VALUES %s ON DUPLICATE KEY UPDATE locationID = locationID;`, strings.Join(values, ",\n"))
 
-		_, err = tx.Exec(stmt)
-		if err != nil {
-			tx.Rollback()
-			return false, err
+			_, err = tx.Exec(stmt)
+			if err != nil {
+				tx.Rollback()
+				return false, err
+			}
 		}
 
 		// Update our cacheUntil flag
