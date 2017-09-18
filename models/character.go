@@ -37,19 +37,6 @@ type CRESTToken struct {
 	Scopes           string      `db:"scopes" json:"scopes,omitempty"`
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
-func GetCRESTTokens(characterID int64) ([]CRESTToken, error) {
-	tokens := []CRESTToken{}
-	if err := database.Select(&tokens, `
-		SELECT characterID, tokenCharacterID, characterName, lastCode, lastStatus, scopes
-		FROM evedata.crestTokens
-		WHERE characterID = ?;`, characterID); err != nil {
-
-		return nil, err
-	}
-	return tokens, nil
-}
-
 // [BENCHMARK] TODO
 func GetCharacterIDByName(character string) (int64, error) {
 	var id int64
@@ -102,6 +89,19 @@ func SetTokenError(characterID int64, tokenCharacterID int64, code int, status s
 		return err
 	}
 	return nil
+}
+
+// [BENCHMARK] 0.000 sec / 0.000 sec
+func GetCRESTTokens(characterID int64) ([]CRESTToken, error) {
+	tokens := []CRESTToken{}
+	if err := database.Select(&tokens, `
+		SELECT characterID, tokenCharacterID, characterName, lastCode, lastStatus, scopes
+		FROM evedata.crestTokens
+		WHERE characterID = ?;`, characterID); err != nil {
+
+		return nil, err
+	}
+	return tokens, nil
 }
 
 func AddCRESTToken(characterID int64, tokenCharacterID int64, characterName string, tok *goesi.CRESTToken, scopes string) error {

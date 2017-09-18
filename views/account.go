@@ -21,6 +21,11 @@ func init() {
 
 	evedata.AddAuthRoute("crestTokens", "GET", "/U/crestTokens", apiGetCRESTTokens)
 	evedata.AddAuthRoute("crestTokens", "DELETE", "/U/crestTokens", apiDeleteCRESTToken)
+
+	evedata.AddRoute("locatorShares", "GET", "/locatorShares", locatorSharesPage)
+	evedata.AddAuthRoute("locatorShares", "GET", "/U/locatorShares", apiGetLocatorShares)
+	evedata.AddAuthRoute("locatorShares", "DELETE", "/U/locatorShares", apiDeleteLocatorShare)
+	evedata.AddAuthRoute("locatorShares", "POST", "/U/locatorShares", apiAddLocatorShare)
 }
 
 func accountPage(w http.ResponseWriter, r *http.Request) {
@@ -174,5 +179,86 @@ func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 		httpErr(w, err)
 		return
 	}
+}
 
+func locatorSharesPage(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	p := newPage(r, "Account Information")
+	templates.Templates = template.Must(template.ParseFiles("templates/locatorShare.html", templates.LayoutPath))
+
+	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
+		httpErr(w, err)
+		return
+	}
+}
+
+func apiDeleteLocatorShare(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
+
+	// Get the sessions main characterID
+	characterID, ok := s.Values["characterID"].(int64)
+	if !ok {
+		httpErrCode(w, http.StatusUnauthorized)
+		return
+	}
+
+	entity, err := strconv.ParseInt(r.FormValue("entityID"), 10, 64)
+	if err != nil {
+		httpErrCode(w, http.StatusNotFound)
+		return
+	}
+
+	if err := models.DeleteLocatorShare(characterID, entity); err != nil {
+		httpErrCode(w, http.StatusConflict)
+		return
+	}
+}
+
+func apiAddLocatorShare(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
+
+	// Get the sessions main characterID
+	characterID, ok := s.Values["characterID"].(int64)
+	if !ok {
+		httpErrCode(w, http.StatusUnauthorized)
+		return
+	}
+
+	entity, err := strconv.ParseInt(r.FormValue("entityID"), 10, 64)
+	if err != nil {
+		httpErrCode(w, http.StatusNotFound)
+		return
+	}
+
+	if err := models.AddLocatorShare(characterID, entity); err != nil {
+		httpErrCode(w, http.StatusConflict)
+		return
+	}
+}
+
+func apiGetLocatorShares(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	s := evedata.SessionFromContext(r.Context())
+
+	// Get the sessions main characterID
+	characterID, ok := s.Values["characterID"].(int64)
+	if !ok {
+		httpErrCode(w, http.StatusUnauthorized)
+		return
+	}
+
+	v, err := models.GetLocatorShares(characterID)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	json.NewEncoder(w).Encode(v)
+
+	if err = s.Save(r, w); err != nil {
+		httpErr(w, err)
+		return
+	}
 }

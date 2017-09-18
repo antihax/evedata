@@ -275,6 +275,12 @@ CREATE TABLE `locatedCharacters` (
   PRIMARY KEY (`notificationID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `locatorShareWith` (
+  `characterID` int(11) NOT NULL,
+  `entityID` int(11) NOT NULL,
+  PRIMARY KEY (`characterID`,`entityID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `lpOfferRequirements` (
   `offerID` int(11) NOT NULL,
   `typeID` int(11) NOT NULL,

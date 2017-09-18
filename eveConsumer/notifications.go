@@ -102,7 +102,7 @@ func notificationsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 					err = yaml.Unmarshal([]byte(n.Text), &l)
 
 					values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%d,'%s')",
-						n.NotificationId, tokenChar, l.TargetLocation.SolarSystem, l.TargetLocation.Constellation,
+						n.NotificationId, char, l.TargetLocation.SolarSystem, l.TargetLocation.Constellation,
 						l.TargetLocation.Region, l.TargetLocation.Station, l.CharacterID, n.Timestamp.Format(models.SQLTimeFormat)))
 				}
 			}
