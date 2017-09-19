@@ -13,7 +13,32 @@ import (
 func init() {
 	// Add routes to the http router
 	evedata.AddRoute("searchItems", "GET", "/J/search", searchAPI)
+	evedata.AddRoute("searchItems", "GET", "/J/searchEntities", searchEntitiesAPI)
 	evedata.AddRoute("searchItems", "GET", "/search", searchRouter)
+}
+
+// searchAPI for characters, alliances, corporations, and items.
+func searchEntitiesAPI(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 12*60*60)
+	// Get the query
+	q := r.FormValue("q")
+	q = strings.TrimSpace(q)
+
+	// Make sure the query is at least three characters
+	if len(q) <= 3 {
+		httpErr(w, errors.New("Query too short"))
+		return
+	}
+
+	// Do the search
+	list, err := models.SearchEntities(q)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	// Return the JSON representation
+	json.NewEncoder(w).Encode(list)
 }
 
 // searchAPI for characters, alliances, corporations, and items.

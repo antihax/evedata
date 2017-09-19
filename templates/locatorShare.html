@@ -1,22 +1,13 @@
 {{define "body"}}
 <h3>Share Locator Results</h3>
 {{template "checkAuthentication" .}}
-<p>Add entities that you wish to share locator agent searchs with. These entities will be able to see locator responses from any character on the account page.</p>
+<p>Add entities that you wish to share locator agent searchs with. These entities will be able to see locator responses from any character on the account page with the Notification Tools scope.</p>
 	<div class="table-responsive">
 		<div class="toolbar locatorSharestokenToolbar" id="locatorSharestokenToolbar">
 			<div class="dropdown">
-				<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addEntity" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					Add Entity
-					<span class="caret"></span>
-				</button>
-				<ul class="dropdown-menu" id="addEntityMenu" aria-labelledby="addEntity">
-					{{ range $scope, $reason := .ScopeGroups }}
-						<li><a href="#" id="{{ $scope }}" class="small characterScopes" data-value="{{ $scope }}" tabIndex="-1"><input type="checkbox" CHECKED>&nbsp;{{ $reason }}</a></li>
-					{{ end }}   
-					<br> 
-					<li>
-						<a class="addlocatorShares btn btn-default" href="javascript:">Add Entity</a>
-					</li> 
+				<ul class="nav navbar navbar-nav fixNav" id="entitySearchContainer">
+					<input type="text" class="typeahead fixNav" placeholder="Search" name="entity">
+					<a class="addlocatorShares btn btn-default" href="javascript:">Add Entity</a>
 				</ul>
 			</div>
 		</div>
@@ -35,12 +26,62 @@
 	</div>
 
 	<script>
+
+
+var entitySearch = new Bloodhound({
+			sufficient: 100,
+			limit: 100,
+			datumTokenizer: function (datum) {
+				return Bloodhound.tokenizers.whitespace(datum.value);
+			},
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			remote: {
+				url: '/J/searchEntities?q=%QUERY',
+				filter: function (entitySearch) {
+					return $.map(entitySearch, function (s) {
+						return {
+							value: 	s.name,
+							id:		s.id,
+							type:	s.type
+						};
+					});
+				}
+			}
+		});
+		// Initialize the Bloodhound suggestion engine
+		entitySearch.initialize();
+		var datum;
+		
+		$('#entitySearchContainer .typeahead').typeahead(null, {
+			name: 'entitySearch',
+			limit: 100,
+			display: 'value',
+			source: entitySearch.ttAdapter(),
+			templates: {
+				empty: [
+				'<div class="empty-message">',
+					'Nothing Found',
+				'</div>'
+				].join('\n'),
+				suggestion: function(data) {
+					return '<div><strong>'+data.value+'</strong> – '+data.type+'</div>';
+				}
+			}
+		}).on('typeahead:selected', function(obj, d, name) {
+			//doAddEntity(d);
+		});
+
+
+		
 		var 	$locatorSharestable = $('#locatorSharestable').bootstrapTable({url: "/U/locatorShares"}, "changeLocale", "en_US");
 				
 		$(function () {
 			// locatorShares token click event
 			$('.addlocatorShares').click(function () {
-				var scopeGroups = [];
+
+				window.location.href = "searchEntities?id="+obj.id+"&type="+obj.type
+		
+				/*var scopeGroups = [];
 				$('.characterScopes input:checkbox:checked').each(function(idx, val){
 					scopeGroups.push(val.parentElement.id);
 				});
@@ -49,7 +90,7 @@
 					window.location.replace("/X/eveTokenAuth?scopeGroups=" + scopeGroups.join(","));
 				} else {
 					window.location.replace("/X/eveTokenAuth");
-				}
+				}*/
 			});
 		});
 		

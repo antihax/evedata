@@ -61,3 +61,24 @@ func SearchNames(query string) ([]NamesItemList, error) {
 
 	return list, nil
 }
+
+func SearchEntities(query string) ([]NamesItemList, error) {
+	list := []NamesItemList{}
+	query = query + "%"
+
+	// [BENCHMARK] 0.000 sec / 0.000 sec
+	err := database.Select(&list, `
+		SELECT name, id, type FROM (
+			SELECT name, corporationID AS id, "Corporation" AS type 
+			FROM evedata.corporations WHERE name LIKE ?
+			UNION
+			SELECT name, allianceID AS id, "Alliance" AS type 
+			FROM evedata.alliances WHERE name LIKE ?) A
+			ORDER BY name ASC;
+		`, query, query)
+	if err != nil {
+		return nil, err
+	}
+
+	return list, nil
+}
