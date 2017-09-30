@@ -81,45 +81,45 @@ func notificationsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	if err != nil {
 		tokenError(char, tokenChar, res, err)
 		return false, err
-	} else {
-		tokenSuccess(char, tokenChar, 200, "OK")
+	}
+	tokenSuccess(char, tokenChar, 200, "OK")
 
-		tx, err := models.Begin()
-		if err != nil {
-			return false, err
+	tx, err := models.Begin()
+	if err != nil {
+		return false, err
+	}
+
+	// Skip if we have no notifications
+	if len(notifications) != 0 {
+		done := false
+		var values []string
+
+		// Dump all assets into the DB.
+		for _, n := range notifications {
+			if n.Type_ == "LocateCharMsg" {
+				done = true
+				l := Locator{}
+				err = yaml.Unmarshal([]byte(n.Text), &l)
+
+				values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%d,'%s')",
+					n.NotificationId, char, l.TargetLocation.SolarSystem, l.TargetLocation.Constellation,
+					l.TargetLocation.Region, l.TargetLocation.Station, l.CharacterID, n.Timestamp.Format(models.SQLTimeFormat)))
+			}
 		}
 
-		// Skip if we have no notifications
-		if len(notifications) != 0 {
-			done := false
-			var values []string
-
-			// Dump all assets into the DB.
-			for _, n := range notifications {
-				if n.Type_ == "LocateCharMsg" {
-					done = true
-					l := Locator{}
-					err = yaml.Unmarshal([]byte(n.Text), &l)
-
-					values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%d,'%s')",
-						n.NotificationId, char, l.TargetLocation.SolarSystem, l.TargetLocation.Constellation,
-						l.TargetLocation.Region, l.TargetLocation.Station, l.CharacterID, n.Timestamp.Format(models.SQLTimeFormat)))
-				}
-			}
-
-			if done {
-				stmt := fmt.Sprintf(`INSERT INTO evedata.locatedCharacters
+		if done {
+			stmt := fmt.Sprintf(`INSERT INTO evedata.locatedCharacters
 										(notificationID, characterID, solarSystemID, constellationID, 
 											regionID, stationID, locatedCharacterID, time)
 					VALUES %s ON DUPLICATE KEY UPDATE characterID = characterID;`, strings.Join(values, ",\n"))
 
-				_, err = tx.Exec(stmt)
-				if err != nil {
-					tx.Rollback()
-					return false, err
-				}
+			_, err = tx.Exec(stmt)
+			if err != nil {
+				tx.Rollback()
+				return false, err
 			}
 		}
+
 		// Update our cacheUntil flag
 		tx.Exec(`UPDATE evedata.crestTokens SET notificationCacheUntil = ? 
 						WHERE characterID = ? AND tokenCharacterID = ?`,

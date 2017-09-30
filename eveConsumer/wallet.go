@@ -65,7 +65,7 @@ func walletsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 	v, err := redis.String(ret, err)
 	if err != nil {
-		return false, errors.New(fmt.Sprintf("error collecting redis string %s string: %s", err, v))
+		return false, fmt.Errorf("error collecting redis string %s string: %s", err, v)
 	}
 
 	dest := strings.Split(v, ":")
@@ -76,27 +76,28 @@ func walletsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 	char, err := strconv.ParseInt(dest[0], 10, 64)
 	if err != nil {
-		return false, errors.New(fmt.Sprintf("%s string: %s", err, v))
+		return false, fmt.Errorf("%s string: %s", err, v)
 	}
 	tokenChar, err := strconv.ParseInt(dest[1], 10, 64)
 	if err != nil {
-		return false, errors.New(fmt.Sprintf("%s string: %s", err, v))
+		return false, fmt.Errorf("%s string: %s", err, v)
 	}
 
 	token, err := c.getToken(char, tokenChar)
 	if err != nil {
-		return false, errors.New(fmt.Sprintf("%s string: %s", err, v))
+		return false, fmt.Errorf("%s string: %s", err, v)
 	}
 
-	var fromID int64 = 0
+	var fromID int64
 	for {
 		wallets, err := c.ctx.ESI.EVEAPI.CharacterWalletJournalXML(token, tokenChar, fromID)
 		if err != nil {
 			tokenError(char, tokenChar, nil, err)
-			return false, errors.New(fmt.Sprintf("%s %d %d", err, tokenChar, fromID))
-		} else {
-			tokenSuccess(char, tokenChar, 200, "OK")
+			return false, fmt.Errorf("%s %d %d", err, tokenChar, fromID)
 		}
+
+		tokenSuccess(char, tokenChar, 200, "OK")
+
 		// there are no entries in this journal page.
 		if len(wallets.Entries) == 0 {
 			break
@@ -157,9 +158,10 @@ func walletsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		if err != nil || transactions == nil {
 			tokenError(char, tokenChar, nil, err)
 			return false, err
-		} else {
-			tokenSuccess(char, tokenChar, 200, "OK")
 		}
+
+		tokenSuccess(char, tokenChar, 200, "OK")
+
 		// there are no entries in this journal page.
 		if len(transactions.Entries) == 0 {
 			break

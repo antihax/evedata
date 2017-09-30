@@ -1,7 +1,6 @@
 package eveConsumer
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -74,7 +73,7 @@ func charSearchConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	}
 
 	if !goesi.ValidCharacterName(v) {
-		return false, errors.New(fmt.Sprintf("Invalid Character Name: %s", v))
+		return false, fmt.Errorf("Invalid Character Name: %s", v)
 	}
 
 	// Figure out if we know this person already
@@ -422,18 +421,18 @@ func (c *EVEConsumer) entityGetAndSaveCategory(id int32, category string) error 
 func (c *EVEConsumer) updateAlliance(id int32) error {
 	a, _, err := c.ctx.ESI.ESI.AllianceApi.GetAlliancesAllianceId(nil, id, nil)
 	if err != nil {
-		return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
+		return fmt.Errorf("%s with alliance id %d", err, id)
 	}
 
 	corps, _, err := c.ctx.ESI.ESI.AllianceApi.GetAlliancesAllianceIdCorporations(nil, id, nil)
 	if err != nil {
-		return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
+		return fmt.Errorf("%s with alliance id %d", err, id)
 	}
 
 	err = models.UpdateAlliance(id, a.AllianceName, len(corps), a.Ticker, a.ExecutorCorp,
 		a.DateFounded, time.Now().UTC().Add(time.Hour*24))
 	if err != nil {
-		return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
+		return fmt.Errorf("%s with alliance id %d", err, id)
 	}
 
 	redis := c.ctx.Cache.Get()
@@ -441,7 +440,7 @@ func (c *EVEConsumer) updateAlliance(id int32) error {
 	for _, corp := range corps {
 		err = EntityCorporationAddToQueue(corp, &redis)
 		if err != nil {
-			return errors.New(fmt.Sprintf("%s with alliance id %d", err, id))
+			return fmt.Errorf("%s with alliance id %d", err, id)
 		}
 	}
 
@@ -451,21 +450,21 @@ func (c *EVEConsumer) updateAlliance(id int32) error {
 func (c *EVEConsumer) updateCorporation(id int32) error {
 	a, _, err := c.ctx.ESI.ESI.CorporationApi.GetCorporationsCorporationId(nil, id, nil)
 	if err != nil {
-		return errors.New(fmt.Sprintf("%s with corporation id %d", err, id))
+		return fmt.Errorf("%s with corporation id %d", err, id)
 	}
 
 	factionID := goesi.FactionNameToID(a.Faction)
 	err = models.UpdateCorporation(id, a.CorporationName, a.Ticker, a.CeoId,
 		a.AllianceId, factionID, a.MemberCount, time.Now().UTC().Add(time.Hour*24))
 	if err != nil {
-		return errors.New(fmt.Sprintf("%s with corporation id %d", err, id))
+		return fmt.Errorf("%s with corporation id %d", err, id)
 	}
 	if a.CeoId > 1 {
 		redis := c.ctx.Cache.Get()
 		defer redis.Close()
 		err = EntityCharacterAddToQueue((int32)(a.CeoId), &redis)
 		if err != nil {
-			return errors.New(fmt.Sprintf("%s with corporation id %d", err, id))
+			return fmt.Errorf("%s with corporation id %d", err, id)
 		}
 	}
 	return nil
@@ -477,11 +476,11 @@ func (c *EVEConsumer) updateCharacter(id int32) error {
 		if r.StatusCode == 404 || r.StatusCode == 410 {
 			return models.DeadCharacter(id)
 		}
-		return errors.New(fmt.Sprintf("%s with character id %d", err, id))
+		return fmt.Errorf("%s with character id %d", err, id)
 	}
 	err = models.UpdateCharacter(id, a.Name, a.BloodlineId, a.AncestryId, a.CorporationId, a.AllianceId, a.RaceId, a.Gender, a.SecurityStatus, time.Now().UTC().Add(time.Hour*24))
 	if err != nil {
-		return errors.New(fmt.Sprintf("%s with character id %d", err, id))
+		return fmt.Errorf("%s with character id %d", err, id)
 	}
 
 	redis := c.ctx.Cache.Get()
@@ -490,13 +489,13 @@ func (c *EVEConsumer) updateCharacter(id int32) error {
 
 	h, _, err := c.ctx.ESI.ESI.CharacterApi.GetCharactersCharacterIdCorporationhistory(nil, id, nil)
 	if err != nil {
-		return errors.New(fmt.Sprintf("%s with character history id %d", err, id))
+		return fmt.Errorf("%s with character history id %d", err, id)
 	}
 
 	for _, corp := range h {
 		err = models.UpdateCorporationHistory(id, corp.CorporationId, corp.RecordId, corp.StartDate)
 		if err != nil {
-			return errors.New(fmt.Sprintf("%s with character history id %d", err, id))
+			return fmt.Errorf("%s with character history id %d", err, id)
 		}
 	}
 	return nil
