@@ -16,7 +16,7 @@ import (
 
 func (c *EVEConsumer) getCharacter(characterID int32) (*esi.GetCharactersCharacterIdOk, error) {
 	for {
-		char, r, err := c.ctx.ESI.ESI.CharacterApi.GetCharactersCharacterId(characterID, nil)
+		char, r, err := c.ctx.ESI.ESI.CharacterApi.GetCharactersCharacterId(nil, characterID, nil)
 		if err != nil {
 			// Retry on their failure
 			if r != nil && r.StatusCode >= 500 {
@@ -30,7 +30,7 @@ func (c *EVEConsumer) getCharacter(characterID int32) (*esi.GetCharactersCharact
 
 func (c *EVEConsumer) getCorporation(corporationID int32) (*esi.GetCorporationsCorporationIdOk, error) {
 	for {
-		corp, r, err := c.ctx.ESI.ESI.CorporationApi.GetCorporationsCorporationId(corporationID, nil)
+		corp, r, err := c.ctx.ESI.ESI.CorporationApi.GetCorporationsCorporationId(nil, corporationID, nil)
 		if err != nil {
 			// Retry on their failure
 			if r != nil && r.StatusCode >= 500 {
@@ -95,7 +95,7 @@ func (c *EVEConsumer) deleteContacts(auth context.Context, characterID int32, co
 }
 
 func (c *EVEConsumer) deleteContactsCREST(auth context.Context, characterID int32, contacts []int32) error {
-	names, _, err := c.ctx.ESI.ESI.UniverseApi.PostUniverseNames(contacts, nil)
+	names, _, err := c.ctx.ESI.ESI.UniverseApi.PostUniverseNames(nil, contacts, nil)
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,7 @@ func (c *EVEConsumer) updateContacts(auth context.Context, characterID int32, co
 }
 
 func (c *EVEConsumer) updateContactsCREST(auth context.Context, characterID int32, contacts []int32, standing float32) error {
-	names, _, err := c.ctx.ESI.ESI.UniverseApi.PostUniverseNames(contacts, nil)
+	names, _, err := c.ctx.ESI.ESI.UniverseApi.PostUniverseNames(nil, contacts, nil)
 	if err != nil {
 		return err
 	}

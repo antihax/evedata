@@ -26,7 +26,7 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	kill, _, err := s.esi.ESI.KillmailsApi.GetKillmailsKillmailIdKillmailHash(hash, id, nil)
+	kill, _, err := s.esi.ESI.KillmailsApi.GetKillmailsKillmailIdKillmailHash(nil, hash, id, nil)
 	if err != nil {
 		log.Println(err)
 		return

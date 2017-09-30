@@ -8,7 +8,7 @@ import (
 )
 
 func (s *Hammer) runTriggers() {
-	regions, _, err := s.esi.ESI.UniverseApi.GetUniverseRegions(nil)
+	regions, _, err := s.esi.ESI.UniverseApi.GetUniverseRegions(nil, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}

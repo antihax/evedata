@@ -19,7 +19,7 @@ func marketOrdersConsumer(s *Hammer, parameter interface{}) {
 	var page int32 = 1
 
 	for {
-		orders, _, err := s.esi.ESI.MarketApi.GetMarketsRegionIdOrders("all", regionID, map[string]interface{}{"page": page})
+		orders, _, err := s.esi.ESI.MarketApi.GetMarketsRegionIdOrders(nil, "all", regionID, map[string]interface{}{"page": page})
 		if err != nil {
 			log.Println(err)
 			return

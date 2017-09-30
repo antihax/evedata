@@ -218,7 +218,7 @@ func marketOrderConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	var page int32 = 1
 	c.marketRegionAddRegion(v, time.Now().UTC().Unix()+(60*15), &r)
 	for {
-		b, res, err := c.ctx.ESI.ESI.MarketApi.GetMarketsRegionIdOrders("all", (int32)(v), map[string]interface{}{"page": page})
+		b, res, err := c.ctx.ESI.ESI.MarketApi.GetMarketsRegionIdOrders(nil, "all", (int32)(v), map[string]interface{}{"page": page})
 		if err != nil {
 			return false, err
 		} else if len(b) == 0 { // end of the pages
@@ -295,7 +295,7 @@ func marketHistoryConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	typeID, err := strconv.Atoi(data[1])
 
 	// Process Market History
-	h, res, err := c.ctx.ESI.ESI.MarketApi.GetMarketsRegionIdHistory((int32)(regionID), (int32)(typeID), nil)
+	h, res, err := c.ctx.ESI.ESI.MarketApi.GetMarketsRegionIdHistory(nil, (int32)(regionID), (int32)(typeID), nil)
 	if err != nil {
 		if res.StatusCode >= 500 {
 			// Something went wrong... let's try again..

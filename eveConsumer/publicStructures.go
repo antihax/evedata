@@ -42,7 +42,7 @@ func structuresTrigger(c *EVEConsumer) (bool, error) {
 		return false, nil
 	}
 
-	w, r, err := c.ctx.ESI.ESI.UniverseApi.GetUniverseStructures(nil)
+	w, r, err := c.ctx.ESI.ESI.UniverseApi.GetUniverseStructures(nil, nil)
 	cache := goesi.CacheExpires(r)
 	if err != nil {
 		return false, err
