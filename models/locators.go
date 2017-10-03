@@ -42,11 +42,11 @@ type LocatorResults struct {
 }
 
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetLocatorResults(characterID int64) ([]LocatorResults, error) {
+func GetLocatorResponses(characterID int64) ([]LocatorResults, error) {
 	locatorResults := []LocatorResults{}
 	if err := database.Select(&locatorResults, `
 		SELECT DISTINCT Sy.solarSystemID AS systemID, Sy.solarSystemName AS systemName, R.regionID, R.regionName, 
-						Con.constellationID, Con.constellationName, Ca.name AS characterName, L.characterID, 
+						Con.constellationID, Con.constellationName, Ca.name AS characterName, Ca.characterID, 
 						Co.name AS corporationName, Ca.corporationID, A.name AS allianceName, Co.allianceID, time 
 		FROM evedata.locatedCharacters L
 		INNER JOIN evedata.locatorShareWith S ON L.characterID = S.characterID 

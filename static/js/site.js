@@ -67,6 +67,10 @@
 
     function characterFormatter(value, row) {
         return '<img src="' + characterImage(row) + '" height=32 width=32 alt="'+row.characterName+'">';
+	}
+	
+	function characterFormatterName(value, row) {
+        return '<a href="/character?id=' + row.characterID +'"><img src="' + characterImage(row) + '" height=32 width=32 alt="'+row.characterName+'">'+row.characterName+'</a>';
     }
 
     function owner1Formatter(value, row) {
