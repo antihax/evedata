@@ -25,7 +25,7 @@ func AddLocatorShare(characterID int64, entityID int64) error {
 	if _, err := database.Exec(`
 		INSERT INTO evedata.locatorShareWith	(characterID, entityID)
 			VALUES(?,?)
-			ON DUPLICATE KEY UPDATE entityID = entityID"`,
+			ON DUPLICATE KEY UPDATE entityID = entityID`,
 		characterID, entityID); err != nil {
 		return err
 	}

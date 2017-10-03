@@ -51,6 +51,7 @@ var entitySearch = new Bloodhound({
 		// Initialize the Bloodhound suggestion engine
 		entitySearch.initialize();
 		var datum;
+		var selectedID;
 		
 		$('#entitySearchContainer .typeahead').typeahead(null, {
 			name: 'entitySearch',
@@ -68,35 +69,28 @@ var entitySearch = new Bloodhound({
 				}
 			}
 		}).on('typeahead:selected', function(obj, d, name) {
-			//doAddEntity(d);
+			selectedID = d.id;
 		});
-
-
 		
-		var 	$locatorSharestable = $('#locatorSharestable').bootstrapTable({url: "/U/locatorShares"}, "changeLocale", "en_US");
+		var $locatorSharestable = $('#locatorSharestable').bootstrapTable({url: "/U/locatorShares"}, "changeLocale", "en_US");
 				
 		$(function () {
 			// locatorShares token click event
 			$('.addlocatorShares').click(function () {
-
-				window.location.href = "searchEntities?id="+obj.id+"&type="+obj.type
-		
-				/*var scopeGroups = [];
-				$('.characterScopes input:checkbox:checked').each(function(idx, val){
-					scopeGroups.push(val.parentElement.id);
-				});
-
-				if (scopeGroups.length) {
-					window.location.replace("/X/eveTokenAuth?scopeGroups=" + scopeGroups.join(","));
-				} else {
-					window.location.replace("/X/eveTokenAuth");
-				}*/
+				$.ajax({
+					type: "POST",
+					url: "/U/locatorShares",
+					data: {entityID: selectedID}
+					})
+					.done(function() {
+						$('#entitySearchContainer .typeahead').typeahead('val','');
+						$locatorSharestable.bootstrapTable('refresh');
+ 					 })
+					.fail(function() {
+						alert( "Failed to add entity" );
+					});
 			});
 		});
-		
-		function queryParams(params) {
-			return {};
-		}
 
 		function accountNameFormatter(value, row) {
 			var scopes = row.scopes.replace(/\s+/g,  "\n");
@@ -112,7 +106,7 @@ var entitySearch = new Bloodhound({
 		// update and delete events
 		window.actionEvents = {
 			'click .removelocatorShares': function (e, value, row) {
-				if (confirm('Are you sure you want to delete this token?')) {
+				if (confirm('Are you sure you want to stop sharing with this entity?')) {
 					$.ajax({
 						url: "/U/locatorShares?entityID=" + row.id,
 						type: 'delete',
