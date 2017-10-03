@@ -148,19 +148,6 @@ func (c *EVEConsumer) updateContactsCREST(auth context.Context, characterID int3
 	return nil
 }
 
-// Obtain an authenticated client from a stored access/refresh token.
-func (c *EVEConsumer) getToken(characterID int64, tokenCharacterID int64) (oauth2.TokenSource, error) {
-	tok, err := models.GetCRESTToken(characterID, tokenCharacterID)
-	if err != nil {
-		return nil, err
-	}
-
-	token := &goesi.CRESTToken{Expiry: tok.Expiry, AccessToken: tok.AccessToken, RefreshToken: tok.RefreshToken, TokenType: tok.TokenType}
-	n, err := c.ctx.TokenAuthenticator.TokenSource(token)
-
-	return n, err
-}
-
 func min(x, y int) int {
 	if x < y {
 		return x

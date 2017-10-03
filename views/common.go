@@ -8,11 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"golang.org/x/oauth2"
-
 	"github.com/antihax/evedata/appContext"
 
-	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
 	"github.com/gorilla/sessions"
 )
@@ -33,19 +30,6 @@ func setCache(w http.ResponseWriter, cacheTime int) {
 		w.Header().Set("Last-Modified", time.Now().UTC().Format(http.TimeFormat))
 		w.Header().Set("Expires", time.Now().UTC().Add(time.Second*time.Duration(cacheTime)).Format(http.TimeFormat))
 	}
-}
-
-// Obtain an authenticated client from a stored access/refresh token.
-func getToken(ctx *appContext.AppContext, characterID int64, tokenCharacterID int64) (oauth2.TokenSource, error) {
-	tok, err := models.GetCRESTToken(characterID, tokenCharacterID)
-	if err != nil {
-		return nil, err
-	}
-
-	token := &goesi.CRESTToken{Expiry: tok.Expiry, AccessToken: tok.AccessToken, RefreshToken: tok.RefreshToken, TokenType: tok.TokenType}
-	n, err := ctx.TokenAuthenticator.TokenSource(token)
-
-	return n, err
 }
 
 // getCursorCharacterAuth takes a session and returns the auth context or error
