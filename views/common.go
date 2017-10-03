@@ -50,7 +50,6 @@ func getToken(ctx *appContext.AppContext, characterID int64, tokenCharacterID in
 
 // getCursorCharacterAuth takes a session and returns the auth context or error
 func getCursorCharacterAuth(ctx *appContext.AppContext, s *sessions.Session) (context.Context, error) {
-
 	accountInfo, ok := s.Values["accountInfo"].([]byte)
 	if !ok {
 		return nil, errors.New("Cannot access account info")
@@ -61,7 +60,7 @@ func getCursorCharacterAuth(ctx *appContext.AppContext, s *sessions.Session) (co
 		return nil, err
 	}
 
-	token, err := getToken(ctx, info.CharacterID, info.Cursor.CursorCharacterID)
+	token, err := ctx.TokenStore.GetTokenSource(info.CharacterID, info.Cursor.CursorCharacterID)
 	if err != nil {
 		return nil, err
 	}

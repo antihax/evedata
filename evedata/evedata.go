@@ -11,6 +11,7 @@ import (
 	"github.com/antihax/evedata/config"
 	"github.com/antihax/evedata/discord"
 	"github.com/antihax/evedata/eveConsumer"
+	"github.com/antihax/evedata/internal/tokenStore"
 
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
@@ -94,6 +95,9 @@ func GoServer() {
 	if err != nil {
 		log.Fatalf("Error starting bootstrap ESI client: %v", err)
 	}
+
+	// Setup our token store for oauth2 optimizations
+	ctx.TokenStore = tokenStore.NewTokenStore(ctx.Cache, ctx.Db, ctx.TokenAuthenticator)
 
 	// Setup the EVE ESI Client
 	ctx.ESI = goesi.NewAPIClient(ctx.HTTPClient, ctx.Conf.UserAgent)

@@ -54,7 +54,7 @@ func assetsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	}
 
 	// Get the OAuth2 Token from the database.
-	token, err := c.getToken(char, tokenChar)
+	token, err := c.ctx.TokenStore.GetTokenSource(char, tokenChar)
 
 	// Put the token into a context for the API client
 	auth := context.WithValue(context.TODO(), goesi.ContextOAuth2, token)

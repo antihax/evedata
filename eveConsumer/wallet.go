@@ -83,7 +83,7 @@ func walletsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		return false, fmt.Errorf("%s string: %s", err, v)
 	}
 
-	token, err := c.getToken(char, tokenChar)
+	token, err := c.ctx.TokenStore.GetTokenSource(char, tokenChar)
 	if err != nil {
 		return false, fmt.Errorf("%s string: %s", err, v)
 	}
