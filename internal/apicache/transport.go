@@ -5,6 +5,8 @@ import (
 	"strconv"
 
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // Custom transport to chain into the HTTPClient to gather statistics.
@@ -18,11 +20,18 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	// Loop until success
 	tries := 0
 	for {
-		tries++
 		esiRateLimiter := true
-		// Do the request.
+
+		// Time our response
+		start := time.Now().Nanosecond()
+
+		// Tickup retry counter
+		tries++
+
+		// Run the request.
 		res, err := t.next.RoundTrip(req)
 
+		// We got a response
 		if res != nil {
 			// Get the ESI error information
 			resetS := res.Header.Get("x-esi-error-limit-reset")
@@ -38,6 +47,11 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 				esiRateLimiter = false
 			}
 
+			duration := time.Now().Nanosecond() - start
+			metricAPICalls.With(
+				prometheus.Labels{"host": req.Host},
+			).Observe(float64(duration))
+
 			// Sleep to prevent hammering CCP ESI if there are excessive errors
 			if esiRateLimiter {
 				time.Sleep(time.Duration(float64(reset*3) * (1 - (float64(tokens) / 100))))
@@ -48,6 +62,7 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 			}
 
 			if res.StatusCode == 420 || res.StatusCode >= 500 || res.StatusCode == 0 {
+				metricAPIErrors.Inc()
 				// break out after 10 tries
 				if tries > 10 {
 					return res, err
@@ -61,4 +76,30 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 		return res, err
 	}
+}
+
+var (
+	metricAPICalls = prometheus.NewHistogramVec(prometheus.HistogramOpts{
+		Namespace: "evedata",
+		Subsystem: "api",
+		Name:      "calls",
+		Help:      "API call statistics.",
+		Buckets:   prometheus.LinearBuckets(0, 50, 25),
+	},
+		[]string{"host"},
+	)
+
+	metricAPIErrors = prometheus.NewCounter(prometheus.CounterOpts{
+		Namespace: "evedata",
+		Subsystem: "api",
+		Name:      "errors",
+		Help:      "Count of API errors.",
+	})
+)
+
+func init() {
+	prometheus.MustRegister(
+		metricAPICalls,
+		metricAPIErrors,
+	)
 }

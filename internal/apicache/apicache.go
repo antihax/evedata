@@ -10,6 +10,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
+// CreateHTTPClientCache creates an error limiting client with auto retry and redis cache
 func CreateHTTPClientCache(cache *redis.Pool) *http.Client {
 	// Create a Redis http client for the CCP APIs.
 	transportCache := httpcache.NewTransport(httpredis.NewWithClient(cache))
