@@ -14,34 +14,6 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func (c *EVEConsumer) getCharacter(characterID int32) (*esi.GetCharactersCharacterIdOk, error) {
-	for {
-		char, r, err := c.ctx.ESI.ESI.CharacterApi.GetCharactersCharacterId(nil, characterID, nil)
-		if err != nil {
-			// Retry on their failure
-			if r != nil && r.StatusCode >= 500 {
-				continue
-			}
-			return nil, err
-		}
-		return &char, nil
-	}
-}
-
-func (c *EVEConsumer) getCorporation(corporationID int32) (*esi.GetCorporationsCorporationIdOk, error) {
-	for {
-		corp, r, err := c.ctx.ESI.ESI.CorporationApi.GetCorporationsCorporationId(nil, corporationID, nil)
-		if err != nil {
-			// Retry on their failure
-			if r != nil && r.StatusCode >= 500 {
-				continue
-			}
-			return nil, err
-		}
-		return &corp, nil
-	}
-}
-
 func (c *EVEConsumer) getContacts(auth context.Context, characterID int32) ([]esi.GetCharactersCharacterIdContacts200Ok, error) {
 	var contacts []esi.GetCharactersCharacterIdContacts200Ok
 

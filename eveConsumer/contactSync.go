@@ -78,12 +78,12 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		return false, err
 	}
 
-	char, err := c.getCharacter(int32(source))
+	char, _, err := c.ctx.ESI.ESI.CharacterApi.GetCharactersCharacterId(nil, int32(source), nil)
 	if err != nil {
 		return false, err
 	}
 
-	corp, err := c.getCorporation(char.CorporationId)
+	corp, _, err := c.ctx.ESI.ESI.CorporationApi.GetCorporationsCorporationId(nil, char.CorporationId, nil)
 	if err != nil {
 		return false, err
 	}
