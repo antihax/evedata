@@ -47,7 +47,7 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 				esiRateLimiter = false
 			}
 
-			duration := time.Now().Nanosecond() - start
+			duration := (time.Now().Nanosecond() - start) / 1000000
 			metricAPICalls.With(
 				prometheus.Labels{"host": req.Host},
 			).Observe(float64(duration))
@@ -84,7 +84,7 @@ var (
 		Subsystem: "api",
 		Name:      "calls",
 		Help:      "API call statistics.",
-		Buckets:   prometheus.LinearBuckets(0, 50, 25),
+		Buckets:   prometheus.ExponentialBuckets(10, 1.45, 20),
 	},
 		[]string{"host"},
 	)
