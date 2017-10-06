@@ -1,7 +1,6 @@
 package apicache
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
@@ -45,7 +44,6 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 			}
 
 			if res.StatusCode == 420 {
-				log.Printf("CCP asked us to smoke some weed\n")
 				time.Sleep(time.Duration(reset))
 			}
 
