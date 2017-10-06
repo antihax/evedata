@@ -11,6 +11,7 @@ import (
 	"github.com/antihax/evedata/config"
 	"github.com/antihax/evedata/discord"
 	"github.com/antihax/evedata/eveConsumer"
+	"github.com/antihax/evedata/internal/apicache"
 	"github.com/antihax/evedata/internal/tokenStore"
 
 	"github.com/antihax/evedata/models"
@@ -45,7 +46,7 @@ func GoServer() {
 	//   - ZKillboard
 	//   - EVE SSO
 	//   - EVE CREST and XML
-	ctx.HTTPClient = setupHTTPClient(ctx.Cache)
+	ctx.HTTPClient = apicache.CreateHTTPClientCache(ctx.Cache)
 	if ctx.HTTPClient == nil {
 		panic("http client is null")
 	}
