@@ -35,7 +35,6 @@ func (s *ZKillboard) redisQ() error {
 			return err
 		}
 	}
-	log.Printf("queued: %d\n", k.Package.KillID)
 	return nil
 }
 
@@ -45,7 +44,7 @@ func (s *ZKillboard) apiConsumer() error {
 	// Start from where we left off.
 	nextCheck := time.Now().UTC().Add(time.Hour * 24 * -365)
 
-	rate := time.Second * 5
+	rate := time.Second * 2
 	throttle := time.Tick(rate)
 
 	for {
@@ -84,7 +83,6 @@ func (s *ZKillboard) apiConsumer() error {
 				log.Println(err)
 				continue
 			}
-			log.Printf("queued: %d\n", id)
 		}
 
 		err = s.outQueue.QueueWork(kills)
