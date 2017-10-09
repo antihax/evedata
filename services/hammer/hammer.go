@@ -42,7 +42,7 @@ func NewHammer(redis *redis.Pool, nsq *nsq.Producer) *Hammer {
 		nsq:   nsq,
 		esi:   esi,
 		redis: redis,
-		sem:   make(chan bool, 100),
+		sem:   make(chan bool, 50),
 	}
 
 	return s
