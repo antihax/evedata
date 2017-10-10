@@ -23,7 +23,7 @@ func main() {
 	}
 
 	// Make a new service and send it into the background.
-	hammer := hammer.NewHammer(redis, producer)
+	hammer := hammer.NewHammer(redis, producer, os.Getenv("ESI_CLIENTID"), os.Getenv("ESI_SECRET"), os.Getenv("ESI_REFRESHKEY"))
 	go hammer.Run()
 	defer hammer.Close()
 

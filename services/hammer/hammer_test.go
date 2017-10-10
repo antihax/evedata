@@ -50,8 +50,9 @@ func TestHammerService(t *testing.T) {
 	producer, err := nsqhelper.NewTestNSQProducer()
 	assert.Nil(t, err)
 
-	hammer := NewHammer(redis, producer)
+	hammer := NewHammer(redis, producer, "123400", "faaaaaaake", "sofake")
 	hammer.ChangeBasePath("http://127.0.0.1:8080")
+	hammer.ChangeTokenPath("http://127.0.0.1:8080")
 	defer hammer.Close()
 
 	// Create a counter to ensure we get results for all work

@@ -4,7 +4,7 @@ metadata:
   name: evedata-hammer
   namespace: evedata
 spec:
-  replicas: 1
+  replicas: 3
   template:
     metadata:
       name: evedata-hammer
@@ -12,7 +12,6 @@ spec:
         app: evedata
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: "3000"
     spec:
       containers:
       - name: evedata-hammer
@@ -24,6 +23,21 @@ spec:
             secretKeyRef:
               name: redis-password
               key: password
+        - name: ESI_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: secret
+        - name: ESI_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: clientID
+        - name: ESI_REFRESHKEY
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: refreshKey
         ports:
         - containerPort: 3000
         volumeMounts:
@@ -31,8 +45,6 @@ spec:
           name: ca-certs
       volumes:
       - name: ca-certs
-        configMap:
-          name: ca-certificates
-          items:
-          - key: ca-certificates.crt
-            path: ca-certificates.crt
+        hostPath:
+          path: /etc/ssl/certs
+          type: Directory

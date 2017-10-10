@@ -26,8 +26,10 @@ func TestNail(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	hammer := hammer.NewHammer(redis, producer)
+	hammer := hammer.NewHammer(redis, producer, "123400", "faaaaaaake", "sofake")
 	hammer.ChangeBasePath("http://127.0.0.1:8080")
+	hammer.ChangeTokenPath("http://127.0.0.1:8080")
+
 	go hammer.Run()
 
 	nail := NewNail(sql, nsqhelper.Test)

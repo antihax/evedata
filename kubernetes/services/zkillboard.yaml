@@ -31,8 +31,6 @@ spec:
           name: ca-certs
       volumes:
       - name: ca-certs
-        configMap:
-          name: ca-certificates
-          items:
-          - key: ca-certificates.crt
-            path: ca-certificates.crt
+        hostPath:
+          path: /etc/ssl/certs
+          type: Directory

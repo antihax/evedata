@@ -2,3 +2,4 @@ config.json
 config.json.old
 config.conf
 config.conf.old
+secrets.yaml

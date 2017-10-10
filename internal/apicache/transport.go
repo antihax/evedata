@@ -54,11 +54,11 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 			// Sleep to prevent hammering CCP ESI if there are excessive errors
 			if esiRateLimiter {
-				time.Sleep(time.Duration(float64(reset*3) * (1 - (float64(tokens) / 100))))
+				time.Sleep(time.Second * time.Duration(float64(reset*3)*(1-(float64(tokens)/100))))
 			}
 
 			if res.StatusCode == 420 {
-				time.Sleep(time.Duration(reset))
+				time.Sleep(time.Second * time.Duration(reset))
 			}
 
 			if res.StatusCode == 420 || res.StatusCode >= 500 || res.StatusCode == 0 {
@@ -68,12 +68,11 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 					return res, err
 				}
 				if !esiRateLimiter {
-					time.Sleep(time.Duration(tries * 2))
+					time.Sleep(time.Second * time.Duration(tries*2))
 				}
 				continue
 			}
 		}
-
 		return res, err
 	}
 }
