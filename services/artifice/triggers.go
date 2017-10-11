@@ -1,4 +1,4 @@
-package hammer
+package artifice
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/antihax/evedata/internal/redisqueue"
 )
 
-func (s *Hammer) runTriggers() {
+func (s *Artifice) runTriggers() {
 	regions, _, err := s.esi.ESI.UniverseApi.GetUniverseRegions(context.TODO(), nil)
 	if err != nil {
 		log.Fatalln(err)
@@ -19,7 +19,6 @@ func (s *Hammer) runTriggers() {
 	go func() {
 		for {
 			select {
-
 			// Get market orders every 20 minutes
 			case <-marketOrders.C:
 				work := []redisqueue.Work{}
