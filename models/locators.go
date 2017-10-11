@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/guregu/null"
 )
 
 type LocatorShares struct {
@@ -26,19 +28,19 @@ func GetLocatorShares(characterID int64) ([]LocatorShares, error) {
 }
 
 type LocatorResults struct {
-	SystemID          int64     `db:"systemID" json:"systemID,omitempty"`
-	SystemName        string    `db:"systemName" json:"systemName,omitempty"`
-	RegionID          int64     `db:"regionID" json:"regionID,omitempty"`
-	RegionName        string    `db:"regionName" json:"regionName,omitempty"`
-	ConstellationID   int64     `db:"constellationID" json:"constellationID,omitempty"`
-	ConstellationName string    `db:"constellationName" json:"constellationName,omitempty"`
-	CharacterID       int64     `db:"characterID" json:"characterID,omitempty"`
-	CharacterName     string    `db:"characterName" json:"characterName,omitempty"`
-	CorporationID     int64     `db:"corporationID" json:"corporationID,omitempty"`
-	CorporationName   string    `db:"corporationName" json:"corporationName,omitempty"`
-	AllianceID        int64     `db:"allianceID" json:"allianceID,omitempty"`
-	AllianceName      string    `db:"allianceName" json:"allianceName,omitempty"`
-	Time              time.Time `db:"time" json:"time"`
+	SystemID          int64       `db:"systemID" json:"systemID,omitempty"`
+	SystemName        string      `db:"systemName" json:"systemName,omitempty"`
+	RegionID          int64       `db:"regionID" json:"regionID,omitempty"`
+	RegionName        string      `db:"regionName" json:"regionName,omitempty"`
+	ConstellationID   int64       `db:"constellationID" json:"constellationID,omitempty"`
+	ConstellationName string      `db:"constellationName" json:"constellationName,omitempty"`
+	CharacterID       int64       `db:"characterID" json:"characterID,omitempty"`
+	CharacterName     string      `db:"characterName" json:"characterName,omitempty"`
+	CorporationID     int64       `db:"corporationID" json:"corporationID,omitempty"`
+	CorporationName   string      `db:"corporationName" json:"corporationName,omitempty"`
+	AllianceID        int64       `db:"allianceID" json:"allianceID,omitempty"`
+	AllianceName      null.String `db:"allianceName" json:"allianceName,omitempty"`
+	Time              time.Time   `db:"time" json:"time"`
 }
 
 // [BENCHMARK] 0.000 sec / 0.000 sec

@@ -157,7 +157,8 @@ CREATE TABLE `discoveredAssets` (
   `lastSeen` datetime NOT NULL,
   PRIMARY KEY (`corporationID`,`typeID`,`solarSystemID`,`locationID`),
   KEY `corporation` (`corporationID`),
-  KEY `alliance` (`allianceID`)
+  KEY `alliance` (`allianceID`),
+  KEY `lastSeen` (`lastSeen`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `entityKillStats` (
