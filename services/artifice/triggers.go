@@ -1,50 +1,43 @@
 package artifice
 
 import (
-	"context"
 	"log"
+	"reflect"
 	"time"
-
-	"github.com/antihax/evedata/internal/redisqueue"
 )
 
+var (
+	triggers []trigger
+)
+
+type triggerFunc func(*Artifice) error
+
+type trigger struct {
+	name   string
+	f      triggerFunc
+	ticker *time.Ticker
+}
+
+// Register a trigger to a queue operation.
+func registerTrigger(name string, f triggerFunc, minutes int) {
+	triggers = append(triggers, trigger{name, f, time.NewTicker(time.Duration(minutes) * time.Minute)})
+
+}
+
 func (s *Artifice) runTriggers() {
-	regions, _, err := s.esi.ESI.UniverseApi.GetUniverseRegions(context.TODO(), nil)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	marketOrders := time.NewTicker(20 * time.Minute)
-
-	go func() {
-		for {
-			select {
-			// Get market orders every 20 minutes
-			case <-marketOrders.C:
-				work := []redisqueue.Work{}
-				for _, region := range regions {
-					work = append(work, redisqueue.Work{Operation: "marketOrders", Parameter: region})
-				}
-				s.QueueWork(work)
-
-				work = []redisqueue.Work{}
-				// Get a list of structures to rake over for market data also
-				structures, _, err := s.esi.ESI.UniverseApi.GetUniverseStructures(context.TODO(), nil)
-				if err != nil {
-					log.Panicln(err)
-					continue
-				}
-				for _, structure := range structures {
-					work = append(work, redisqueue.Work{Operation: "structureOrders", Parameter: structure})
-					work = append(work, redisqueue.Work{Operation: "structure", Parameter: structure})
-				}
-				s.QueueWork(work)
-
-			case <-s.stop:
-				marketOrders.Stop()
-				return
+	for {
+		cases := make([]reflect.SelectCase, len(triggers))
+		for i, ch := range triggers {
+			cases[i] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(ch.ticker.C)}
+		}
+		chosen, _, ok := reflect.Select(cases)
+		if ok {
+			trigger := triggers[chosen]
+			log.Printf("Running trigger %s\n", trigger.name)
+			err := trigger.f(s)
+			if err != nil {
+				log.Println(err)
 			}
 		}
-	}()
-
+	}
 }
