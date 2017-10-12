@@ -72,7 +72,7 @@ func (hq *RedisQueue) GetWork() (*Work, error) {
 		return nil, err
 	}
 	if v == nil {
-		return nil, errors.New("Timed out")
+		return nil, errors.New("Timed out waiting on data")
 	}
 
 	results := v.([]interface{})

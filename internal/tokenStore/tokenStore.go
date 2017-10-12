@@ -93,7 +93,7 @@ func (c *TokenStore) getTokenFromCache(characterID int64, tokenCharacterID int64
 		return nil, err
 	}
 	if v == nil {
-		return nil, errors.New("Timed out")
+		return nil, errors.New("Timed out waiting on token store")
 	}
 
 	err = gobcoder.GobDecoder(v, tok)
