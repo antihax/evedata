@@ -58,6 +58,7 @@ func structuresTrigger(c *EVEConsumer) (bool, error) {
 	for _, s := range w {
 		// Build a pipeline request to add the structure IDs to redis
 		redis.Send("SADD", "EVEDATA_structureQueue", s)
+		redis.Send("SADD", "EVEDATA_publicOrders", s)
 	}
 	redis.Flush()
 	redis.Close()

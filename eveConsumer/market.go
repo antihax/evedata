@@ -20,31 +20,7 @@ func init() {
 
 	addTrigger("market", marketMaintTrigger)
 	addTrigger("market", marketHistoryTrigger)
-	addTrigger("market", marketPublicStructureTrigger)
-}
 
-func marketPublicStructureTrigger(c *EVEConsumer) (bool, error) {
-
-	rows, err := c.ctx.Db.Query(`SELECT stationID FROM evedata.structures WHERE marketCacheUntil < UTC_TIMESTAMP();`)
-	if err != nil {
-		return false, err
-	}
-	defer rows.Close()
-
-	red := c.ctx.Cache.Get()
-	defer red.Close()
-	for rows.Next() {
-		var id int64
-		err = rows.Scan(&id)
-		if err != nil {
-			return false, err
-		}
-		_, err = red.Do("SADD", "EVEDATA_publicOrders", id)
-		if err != nil {
-			return false, err
-		}
-	}
-	return true, err
 }
 
 func marketPublicStructureConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
