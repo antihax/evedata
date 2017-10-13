@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -139,10 +138,6 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	for _, token := range tokens {
 		// authentication token context for destination char
 		auth := context.WithValue(context.TODO(), goesi.ContextOAuth2, *token.token)
-		var (
-			r   *http.Response
-			err error
-		)
 
 		contacts, err := c.getContacts(auth, (int32)(token.cid))
 		if err != nil {
@@ -150,12 +145,10 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		}
 
 		// Update cache time.
-		if r != nil {
-			contactSync := &models.ContactSync{Source: source, Destination: token.cid}
-			err := contactSync.Updated(time.Now().UTC().Add(time.Second * 900))
-			if err != nil {
-				return false, err
-			}
+		contactSync := &models.ContactSync{Source: source, Destination: token.cid}
+		err = contactSync.Updated(time.Now().UTC().Add(time.Second * 300))
+		if err != nil {
+			return false, err
 		}
 
 		var erase []int32

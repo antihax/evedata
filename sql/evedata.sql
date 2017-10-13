@@ -134,8 +134,6 @@ CREATE TABLE `crestTokens` (
   `walletCacheUntil` datetime NOT NULL DEFAULT '2015-01-01 00:00:00',
   `notificationCacheUntil` datetime NOT NULL DEFAULT '2015-01-01 00:00:00',
   `scopes` text NOT NULL,
-  `corporationID` int(11) NOT NULL,
-  `allianceID` int(11) NOT NULL,
   PRIMARY KEY (`characterID`,`tokenCharacterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

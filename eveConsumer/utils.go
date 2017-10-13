@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
+	"strconv"
 
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
@@ -26,6 +27,14 @@ func (c *EVEConsumer) getContacts(auth context.Context, characterID int32) ([]es
 			break
 		}
 		contacts = append(contacts, con...)
+
+		// Dirty hack to fix CCP breaking my stuff :(
+		xpagesS := r.Header.Get("X-Pages")
+		xpages, _ := strconv.Atoi(xpagesS)
+		if int32(xpages) == i {
+			break
+		}
+
 	}
 	return contacts, nil
 }
