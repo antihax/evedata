@@ -1,6 +1,8 @@
 package apicache
 
 import (
+	"log"
+	"math/rand"
 	"net/http"
 	"strconv"
 
@@ -37,6 +39,10 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 			resetS := res.Header.Get("x-esi-error-limit-reset")
 			tokensS := res.Header.Get("x-esi-error-limit-remain")
 
+			if res.StatusCode >= 300 {
+				log.Printf("St: %d Res: %s Tok: %s - %s\n", res.StatusCode, resetS, tokensS, req.URL)
+			}
+
 			// If we cannot decode this is likely from another source.
 			reset, err := strconv.Atoi(resetS)
 			if err != nil {
@@ -54,11 +60,11 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 			// Sleep to prevent hammering CCP ESI if there are excessive errors
 			if esiRateLimiter {
-				time.Sleep(time.Second * time.Duration(float64(reset*3)*(1-(float64(tokens)/100))))
+				time.Sleep(time.Second * time.Duration(float64(reset)*(1-(float64(tokens)/100))))
 			}
 
 			if res.StatusCode == 420 {
-				time.Sleep(time.Second * time.Duration(reset))
+				time.Sleep(time.Second * time.Duration(reset+rand.Intn(20)))
 			}
 
 			if res.StatusCode == 420 || res.StatusCode >= 500 || res.StatusCode == 0 {
