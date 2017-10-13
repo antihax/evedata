@@ -2,7 +2,6 @@ package hammer
 
 import (
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -41,7 +40,6 @@ func (s *Hammer) runConsumers() error {
 	}
 
 	s.sem <- true
-	fmt.Printf("running %s %v\n", w.Operation, w.Parameter)
 	go s.wait(fn, w.Parameter)
 
 	return nil

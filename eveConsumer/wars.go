@@ -143,7 +143,6 @@ func warConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	// Get the war information
 	war, res, err := c.ctx.ESI.ESI.WarsApi.GetWarsWarId(nil, (int32)(v), nil)
 	if err != nil {
-		r.Do("SADD", "EVEDATA_warQueue", v)
 		return false, err
 	}
 
@@ -178,7 +177,6 @@ func warConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		war.OpenForAllies, goesi.CacheExpires(res), aggressor,
 		defender, war.Mutual)
 	if err != nil {
-		r.Do("SADD", "EVEDATA_warQueue", v)
 		return false, err
 	}
 

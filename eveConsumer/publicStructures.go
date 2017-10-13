@@ -1,6 +1,7 @@
 package eveConsumer
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/antihax/evedata/models"
@@ -54,14 +55,20 @@ func structuresTrigger(c *EVEConsumer) (bool, error) {
 		return false, err
 	}
 
-	redis := c.ctx.Cache.Get()
+	red := c.ctx.Cache.Get()
 	for _, s := range w {
 		// Build a pipeline request to add the structure IDs to redis
-		redis.Send("SADD", "EVEDATA_structureQueue", s)
-		redis.Send("SADD", "EVEDATA_publicOrders", s)
+		red.Do("SADD", "EVEDATA_structureQueue", s)
+
+		v, err := redis.Int64(red.Do("GET", fmt.Sprintf("EVEDATA_ignoreStructure:%d", s)))
+		if err != nil {
+			continue
+		}
+		if v != 1 {
+			red.Do("SADD", "EVEDATA_publicOrders", s)
+		}
 	}
-	redis.Flush()
-	redis.Close()
+	red.Close()
 
 	stations, err := c.ctx.ESI.EVEAPI.ConquerableStationsListXML()
 	if err != nil {

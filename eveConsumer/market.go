@@ -43,8 +43,8 @@ func marketPublicStructureConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, 
 
 		// If we got an access denied, let's not touch it again for 24 hours.
 		if res != nil {
-			if res.StatusCode == 403 || res.StatusCode == 401 {
-				_, err = c.ctx.Db.Exec("UPDATE evedata.structures SET marketCacheUntil = ? WHERE stationID = ?", time.Now().UTC().Add(time.Hour*8), v)
+			if res.StatusCode == 403 || res.StatusCode == 401 || res.StatusCode == 404 {
+				_, err = r.Do("SETEX", fmt.Sprintf("EVEDATA_ignoreStructure:%d", v), 86400, 1)
 				return false, err
 			}
 		}

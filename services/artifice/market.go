@@ -34,8 +34,8 @@ func structuresTrigger(s *Artifice) error {
 
 	work := []redisqueue.Work{}
 	for _, structure := range structures {
-		work = append(work, redisqueue.Work{Operation: "structureOrders", Parameter: structure})
 		work = append(work, redisqueue.Work{Operation: "structure", Parameter: structure})
+		work = append(work, redisqueue.Work{Operation: "structureOrders", Parameter: structure})
 	}
 	s.QueueWork(work)
 	return nil
