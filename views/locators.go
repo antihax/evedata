@@ -119,6 +119,7 @@ func locatorResponsesPage(w http.ResponseWriter, r *http.Request) {
 func apiGetLocatorResponses(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	s := evedata.SessionFromContext(r.Context())
+	c := evedata.GlobalsFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
@@ -127,7 +128,13 @@ func apiGetLocatorResponses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	v, err := models.GetLocatorResponses(characterID)
+	info, err := getAccountInformation(c, s)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	v, err := models.GetLocatorResponses(characterID, info.Cursor.CursorCharacterID)
 	if err != nil {
 		httpErr(w, err)
 		return

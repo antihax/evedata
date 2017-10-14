@@ -19,7 +19,7 @@ func TestGetLocatorShares(t *testing.T) {
 }
 
 func TestGetLocatorResponses(t *testing.T) {
-	_, err := GetLocatorResponses(1)
+	_, err := GetLocatorResponses(1, 1)
 	if err != nil {
 		t.Error(err)
 		return

@@ -1,7 +1,11 @@
 {{define "body"}}
 {{template "checkAuthentication" .}}
 <h3>Locator Responses</h3>
-<p><a href="/locatorShares">Share the results with others</a> and they can log into our site with a character in one of the shared entities to view the results.</p>
+All locator responses from your characters and any shared to your UI Characters corporation or alliance will be listed below.
+<h4>To list responses:</h4>
+<a href="/account">Add characters</a> to your account with notification permissions.
+<h4>Share responses with others:</h4>
+<p><a href="/locatorShares">Add entities you wish to share with</a> and they can view your results by changing their UI Character to one in the shared entity.</p>
 
 <div class="insideContainer">
 	<table id="locatorsTable" class="table" 
@@ -9,7 +13,7 @@
         data-sort-order="desc"
         data-url="/U/locatorResponses"
 		data-toggle="table"
-		data-cache="true" 
+		data-cache="false"
         data-search="true"
         data-show-refresh="true"
         data-show-columns="true"

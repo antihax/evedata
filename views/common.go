@@ -52,3 +52,18 @@ func getCursorCharacterAuth(ctx *appContext.AppContext, s *sessions.Session) (co
 	auth := context.WithValue(context.TODO(), goesi.ContextOAuth2, token)
 	return auth, err
 }
+
+// getAccountInformation takes a session and returns the account information or error
+func getAccountInformation(ctx *appContext.AppContext, s *sessions.Session) (*accountInformation, error) {
+	accountInfo, ok := s.Values["accountInfo"].([]byte)
+	if !ok {
+		return nil, errors.New("Cannot access account info")
+	}
+
+	info := accountInformation{}
+	if err := json.Unmarshal(accountInfo, &info); err != nil {
+		return nil, err
+	}
+
+	return &info, nil
+}
