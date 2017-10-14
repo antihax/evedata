@@ -40,6 +40,7 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 			tokensS := res.Header.Get("x-esi-error-limit-remain")
 
 			if res.StatusCode >= 300 {
+				metricAPIErrors.Inc()
 				log.Printf("St: %d Res: %s Tok: %s - %s\n", res.StatusCode, resetS, tokensS, req.URL)
 			}
 
@@ -64,17 +65,16 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 			}
 
 			if res.StatusCode == 420 {
-				time.Sleep(time.Second * time.Duration(reset+rand.Intn(20)))
+				time.Sleep(time.Second * time.Duration(reset+rand.Intn(5)))
 			}
 
 			if res.StatusCode == 420 || res.StatusCode >= 500 || res.StatusCode == 0 {
-				metricAPIErrors.Inc()
 				// break out after 10 tries
 				if tries > 10 {
 					return res, err
 				}
 				if !esiRateLimiter {
-					time.Sleep(time.Second * time.Duration(tries*2))
+					time.Sleep(time.Second * time.Duration(tries))
 				}
 				continue
 			}

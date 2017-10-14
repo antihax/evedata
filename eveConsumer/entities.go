@@ -419,6 +419,10 @@ func (c *EVEConsumer) entityGetAndSaveCategory(id int32, category string) error 
 }
 
 func (c *EVEConsumer) updateAlliance(id int32) error {
+	if id == 0 {
+		return nil
+	}
+
 	a, _, err := c.ctx.ESI.ESI.AllianceApi.GetAlliancesAllianceId(nil, id, nil)
 	if err != nil {
 		return fmt.Errorf("%s with alliance id %d", err, id)
@@ -448,6 +452,10 @@ func (c *EVEConsumer) updateAlliance(id int32) error {
 }
 
 func (c *EVEConsumer) updateCorporation(id int32) error {
+	if id == 0 {
+		return nil
+	}
+
 	a, _, err := c.ctx.ESI.ESI.CorporationApi.GetCorporationsCorporationId(nil, id, nil)
 	if err != nil {
 		return fmt.Errorf("%s with corporation id %d", err, id)
@@ -471,6 +479,10 @@ func (c *EVEConsumer) updateCorporation(id int32) error {
 }
 
 func (c *EVEConsumer) updateCharacter(id int32) error {
+	if id == 0 {
+		return nil
+	}
+
 	a, r, err := c.ctx.ESI.ESI.CharacterApi.GetCharactersCharacterId(nil, id, nil)
 	if err != nil {
 		if r.StatusCode == 404 || r.StatusCode == 410 {
