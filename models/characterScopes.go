@@ -1,6 +1,11 @@
 package models
 
-import "github.com/antihax/goesi"
+import (
+	"sort"
+	"strings"
+
+	"github.com/antihax/goesi"
+)
 
 type ScopeGroup struct {
 	Scope string
@@ -60,4 +65,25 @@ func GetCharacterScopesByGroups(groups []string) []string {
 		}
 	}
 	return s
+}
+
+// GetCharacterGroupsByScopesString takes a space seperated string of scopes and returns the groups
+func GetCharacterGroupsByScopesString(scopes string) string {
+	groups := make(map[string]bool)
+	for _, scope := range strings.Split(scopes, " ") {
+		for _, charScope := range characterScopes {
+			if charScope.Scope == scope {
+				groups[charScope.Group] = true
+			}
+		}
+	}
+
+	m := make([]string, len(groups))
+	i := 0
+	for k := range groups {
+		m[i] = k
+		i++
+	}
+	sort.Strings(m)
+	return strings.Join(m, ", ")
 }

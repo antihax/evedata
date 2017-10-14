@@ -130,6 +130,11 @@ func apiGetCRESTTokens(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Change scopes to groups
+	for i := range v {
+		v[i].Scopes = models.GetCharacterGroupsByScopesString(v[i].Scopes)
+	}
+
 	json.NewEncoder(w).Encode(v)
 
 	if err = s.Save(r, w); err != nil {
