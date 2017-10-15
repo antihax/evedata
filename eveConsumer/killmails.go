@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -62,10 +63,27 @@ func (c *EVEConsumer) killmailAddToQueue(id int32, hash string) error {
 	if err == nil && i == 1 {
 		return err
 	}
+	c.killmailSendToZKillboard(id, hash)
 
 	// Add the mail to the queue
 	_, err = r.Do("SADD", "EVEDATA_killQueue", key)
 	return err
+}
+
+// Send a killmail to zkillboard
+func (c *EVEConsumer) killmailSendToZKillboard(id int32, hash string) {
+	mail := fmt.Sprintf("https://zkillboard.com/crestmail/%d/%s/", id, hash)
+
+	data := url.Values{}
+	data.Set("killmailurl", mail)
+
+	r, _ := http.NewRequest("GET", mail, nil)
+	r.Header.Add("Content-Type", "text/text")
+	r.Header.Set("User-Agent", "EVEData.org - from croakroach with love.")
+	resp, _ := c.ctx.HTTPClient.Do(r)
+
+	fmt.Printf("Posted to Zkillboard %s %s\n", resp.Status, mail)
+	return
 }
 
 // Say we know this killmail
