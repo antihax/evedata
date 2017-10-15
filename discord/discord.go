@@ -100,7 +100,7 @@ func SendMessage(message string) error {
 	if dg == nil {
 		return errors.New("Not Connected")
 	}
-	//351523507944816641 - 229342742399025154
+	//351523507944816641 - 229342742399025154 - new soon 369208842443292675
 	_, err := dg.ChannelMessageSend("351523507944816641", message)
 	return err
 }
