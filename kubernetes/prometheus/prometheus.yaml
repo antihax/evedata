@@ -16,6 +16,7 @@ rules:
   - services
   - endpoints
   - pods
+  - ingresses
   verbs: ["get", "list", "watch"]
 - nonResourceURLs: ["/metrics"]
   verbs: ["get"]
@@ -57,6 +58,7 @@ spec:
       serviceAccountName: prometheus
       containers:
       - image: prom/prometheus
+        imagePullPolicy: Always
         name: prometheus-pod
         command:
         - "/bin/prometheus"
@@ -241,6 +243,38 @@ data:
         target_label: __metrics_path__
         replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
 
+    - job_name: kubernetes-nodes-cadvisor
+      scrape_interval: 10s
+      scrape_timeout: 10s
+      scheme: https  # remove if you want to scrape metrics on insecure port
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      kubernetes_sd_configs:
+      - role: node
+      relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      # Only for Kubernetes ^1.7.3.
+      # See: https://github.com/prometheus/prometheus/issues/2916
+      - target_label: __address__
+        replacement: kubernetes.default.svc:443
+      - source_labels: [__meta_kubernetes_node_name]
+        regex: (.+)
+        target_label: __metrics_path__
+        replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+      metric_relabel_configs:
+      - action: replace
+        source_labels: [id]
+        regex: '^/machine\.slice/machine-rkt\\x2d([^\\]+)\\.+/([^/]+)\.service$'
+        target_label: rkt_container_name
+        replacement: '${2}-${1}'
+      - action: replace
+        source_labels: [id]
+        regex: '^/system\.slice/(.+)\.service$'
+        target_label: systemd_service_name
+        replacement: '${1}'
+
     # Scrape config for service endpoints.
     #
     # The relabeling allows the actual service scrape endpoint to be configured
@@ -314,40 +348,6 @@ data:
         target_label: kubernetes_namespace
       - source_labels: [__meta_kubernetes_service_name]
         target_label: kubernetes_name
-
-    # Example scrape config for probing ingresses via the Blackbox Exporter.
-    #
-    # The relabeling allows the actual ingress scrape endpoint to be configured
-    # via the following annotations:
-    #
-    # * `prometheus.io/probe`: Only probe services that have a value of `true`
-    - job_name: 'kubernetes-ingresses'
-
-      metrics_path: /probe
-      params:
-        module: [http_2xx]
-
-      kubernetes_sd_configs:
-        - role: ingress
-
-      relabel_configs:
-        - source_labels: [__meta_kubernetes_ingress_annotation_prometheus_io_probe]
-          action: keep
-          regex: true
-        - source_labels: [__meta_kubernetes_ingress_scheme,__address__,__meta_kubernetes_ingress_path]
-          regex: (.+);(.+);(.+)
-          replacement: ${1}://${2}${3}
-          target_label: __param_target
-        - target_label: __address__
-          replacement: blackbox-exporter.example.com:9115
-        - source_labels: [__param_target]
-          target_label: instance
-        - action: labelmap
-          regex: __meta_kubernetes_ingress_label_(.+)
-        - source_labels: [__meta_kubernetes_namespace]
-          target_label: kubernetes_namespace
-        - source_labels: [__meta_kubernetes_ingress_name]
-          target_label: kubernetes_name
 
     # Example scrape config for pods
     #
