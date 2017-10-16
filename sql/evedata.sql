@@ -367,6 +367,18 @@ CREATE TABLE `market_vol` (
   PRIMARY KEY (`regionID`,`itemID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `notifications` (
+  `notificationID` int(11) NOT NULL,
+  `characterID` int(11) DEFAULT NULL,
+  `notificationCharacterID` int(11) DEFAULT NULL,
+  `senderID` int(11) DEFAULT NULL,
+  `senderType` varchar(255) DEFAULT NULL,
+  `timestamp` datetime DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `text` text,
+  PRIMARY KEY (`notificationID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `states` (
   `state` varchar(45) NOT NULL,
   `value` int(11) NOT NULL,
