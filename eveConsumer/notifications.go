@@ -92,32 +92,45 @@ func notificationsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	// Skip if we have no notifications
 	if len(notifications) != 0 {
 		done := false
-		var values []string
+		var locatorValues, allValues []string
 
-		// Dump all assets into the DB.
+		// Dump all locators into the DB.
 		for _, n := range notifications {
 			if n.Type_ == "LocateCharMsg" {
 				done = true
 				l := Locator{}
 				err = yaml.Unmarshal([]byte(n.Text), &l)
 
-				values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%d,'%s')",
+				locatorValues = append(locatorValues, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%d,'%s')",
 					n.NotificationId, char, l.TargetLocation.SolarSystem, l.TargetLocation.Constellation,
 					l.TargetLocation.Region, l.TargetLocation.Station, l.CharacterID, n.Timestamp.Format(models.SQLTimeFormat)))
 			}
+			allValues = append(allValues, fmt.Sprintf("(%d,%d,%d,%d,'%s','%s','%s','%s')",
+				n.NotificationId, char, tokenChar, n.SenderId, n.SenderType,
+				n.Timestamp.Format(models.SQLTimeFormat), n.Type_, models.Escape(n.Text)))
 		}
 
 		if done {
 			stmt := fmt.Sprintf(`INSERT INTO evedata.locatedCharacters
 										(notificationID, characterID, solarSystemID, constellationID, 
 											regionID, stationID, locatedCharacterID, time)
-					VALUES %s ON DUPLICATE KEY UPDATE characterID = characterID;`, strings.Join(values, ",\n"))
+					VALUES %s ON DUPLICATE KEY UPDATE characterID = characterID;`, strings.Join(locatorValues, ",\n"))
 
 			_, err = tx.Exec(stmt)
 			if err != nil {
 				tx.Rollback()
 				return false, err
 			}
+		}
+
+		stmt := fmt.Sprintf(`INSERT INTO evedata.notifications
+			(notificationID,characterID,notificationCharacterID,senderID,senderType,timestamp,type,text)
+			VALUES %s ON DUPLICATE KEY UPDATE characterID = characterID;`, strings.Join(allValues, ",\n"))
+
+		_, err = tx.Exec(stmt)
+		if err != nil {
+			tx.Rollback()
+			return false, err
 		}
 
 		// Update our cacheUntil flag

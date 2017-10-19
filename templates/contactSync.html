@@ -64,7 +64,7 @@
 				
 				$.each(data, function(key, val){
 					$('#source').append('<option id=' + val.tokenCharacterID + '>' + val.characterName + '</option>');
-					if (~val.scopes.indexOf("write_contacts")) {
+					if (~val.scopes.indexOf("contacts")) {
 						$('#destination').append('<option id=' + val.tokenCharacterID + '>' + val.characterName + '</option>');
 					}
 				})

@@ -27,12 +27,14 @@ func (s *ZKillboard) redisQ() error {
 		return err
 	}
 	if k.Package.KillID > 0 {
-		err = s.outQueue.QueueWork(
-			[]redisqueue.Work{
-				{Operation: "killmail", Parameter: []interface{}{k.Package.ZKB.Hash, k.Package.KillID}}},
-		)
-		if err != nil {
-			return err
+		if !s.outQueue.CheckWorkCompleted("evedata_known_kills", int64(k.Package.KillID)) {
+			err = s.outQueue.QueueWork(
+				[]redisqueue.Work{
+					{Operation: "killmail", Parameter: []interface{}{k.Package.ZKB.Hash, k.Package.KillID}}},
+			)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -71,17 +73,19 @@ func (s *ZKillboard) apiConsumer() error {
 		kills := []redisqueue.Work{}
 		// Loop through the killmails
 		for idS, hash := range k {
-			id, err := strconv.ParseInt(idS, 10, 32)
+			id, err := strconv.ParseInt(idS, 10, 64)
 			if err != nil {
 				log.Println(err)
 				continue
 			}
 
-			// Add to the killmail queue
-			kills = append(kills, redisqueue.Work{Operation: "killmail", Parameter: []interface{}{hash.(string), (int32)(id)}})
-			if err != nil {
-				log.Println(err)
-				continue
+			if !s.outQueue.CheckWorkCompleted("evedata_known_kills", id) {
+				// Add to the killmail queue
+				kills = append(kills, redisqueue.Work{Operation: "killmail", Parameter: []interface{}{hash.(string), (int32)(id)}})
+				if err != nil {
+					log.Println(err)
+					continue
+				}
 			}
 		}
 

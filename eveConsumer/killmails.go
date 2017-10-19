@@ -32,14 +32,14 @@ func killmailsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		return false, errors.New("string must be id:hash")
 	}
 	// convert ID to int64
-	id, err := strconv.ParseInt(split[0], 10, 32)
+	id, err := strconv.ParseInt(split[0], 10, 64)
 	if err != nil {
 		return false, err
 	}
 
 	// We know this kill. Early out.
 	// If this errors, we don't care; let's pull the mail again.
-	i, err := redis.Int(r.Do("SISMEMBER", "EVEDATA_knownKills", (int32)(id)))
+	i, err := redis.Int(r.Do("SISMEMBER", "evedata_known_kills", id))
 	if err == nil && i == 1 {
 		return false, err
 	}
@@ -59,7 +59,7 @@ func (c *EVEConsumer) killmailAddToQueue(id int32, hash string) error {
 	key := fmt.Sprintf("%d:%s", id, hash)
 
 	// We know this kill. Early out.
-	i, err := redis.Int(r.Do("SISMEMBER", "EVEDATA_knownKills", id))
+	i, err := redis.Int(r.Do("SISMEMBER", "evedata_known_kills", int64(id)))
 	if err == nil && i == 1 {
 		return err
 	}
@@ -72,6 +72,11 @@ func (c *EVEConsumer) killmailAddToQueue(id int32, hash string) error {
 
 // Send a killmail to zkillboard
 func (c *EVEConsumer) killmailSendToZKillboard(id int32, hash string) {
+	// Ignore tests
+	if id <= 50 {
+		return
+	}
+
 	mail := fmt.Sprintf("https://zkillboard.com/crestmail/%d/%s/", id, hash)
 
 	data := url.Values{}
@@ -87,9 +92,9 @@ func (c *EVEConsumer) killmailSendToZKillboard(id int32, hash string) {
 }
 
 // Say we know this killmail
-func (c *EVEConsumer) killmailSetKnown(id int32) error {
+func (c *EVEConsumer) killmailSetKnown(id int64) error {
 	r := c.ctx.Cache.Get()
-	r.Do("SADD", "EVEDATA_knownKills", id)
+	r.Do("SADD", "evedata_known_kills", id)
 	r.Close()
 	return nil
 }
@@ -106,7 +111,7 @@ func (c *EVEConsumer) initKillConsumer() {
 
 	// Build a pipeline request to add the killmail IDs to redis
 	for _, m := range k {
-		r.Send("SADD", "EVEDATA_knownKills", m)
+		r.Send("SADD", "evedata_known_kills", m)
 	}
 
 	// Send the request to add
@@ -178,7 +183,7 @@ func (c *EVEConsumer) killmailGetAndSave(id int32, hash string) error {
 			}
 		}
 	}
-	c.killmailSetKnown((int32)(id))
+	c.killmailSetKnown(int64(id))
 	return nil
 }
 

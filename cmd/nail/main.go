@@ -15,6 +15,7 @@ import (
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetPrefix("evedata nail: ")
 	db := sqlhelper.NewDatabase()
 
 	// Make a new service and send it into the background.

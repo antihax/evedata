@@ -10,6 +10,7 @@ import (
 // bootstrap interface
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetPrefix("evedata monolith: ")
 	log.Println("Starting EVEData")
 	evedata.GoServer()
 	log.Println("Ended EVEData")

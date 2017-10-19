@@ -3,7 +3,7 @@ package redisqueue
 import (
 	"bytes"
 	"encoding/gob"
-	"errors"
+	"time"
 
 	"github.com/garyburd/redigo/redis"
 )
@@ -31,7 +31,7 @@ func NewRedisQueue(r *redis.Pool, key string) *RedisQueue {
 func (hq *RedisQueue) Size() (int, error) {
 	r := hq.redisPool.Get()
 	defer r.Close()
-	return redis.Int(r.Do("LLEN", hq.key))
+	return redis.Int(r.Do("SCARD", hq.key))
 }
 
 // QueueWork adds work to the queue
@@ -49,15 +49,28 @@ func (hq *RedisQueue) QueueWork(work []Work) error {
 		if err != nil {
 			return err
 		}
-		if err := conn.Send("LPUSH", hq.key, b.Bytes()); err != nil {
+		if _, err := conn.Do("SADD", hq.key, b.Bytes()); err != nil {
 			return err
 		}
 	}
-	if err := conn.Flush(); err != nil {
-		return err
-	}
-
+	//	err := conn.Flush()
 	return nil
+}
+
+// CheckWorkCompleted takes a key and checks if the ID has been completed to prevent duplicates
+func (hq *RedisQueue) CheckWorkCompleted(key string, id int64) bool {
+	conn := hq.redisPool.Get()
+	defer conn.Close()
+	found, _ := redis.Bool(conn.Do("SISMEMBER", key, id))
+	return found
+}
+
+// SetWorkCompleted takes a key and sets if the ID has been completed to prevent duplicates
+func (hq *RedisQueue) SetWorkCompleted(key string, id int64) error {
+	conn := hq.redisPool.Get()
+	defer conn.Close()
+	_, err := conn.Do("SADD", key, id)
+	return err
 }
 
 // GetWork retreives up to `n` items from the queue
@@ -66,18 +79,24 @@ func (hq *RedisQueue) GetWork() (*Work, error) {
 	conn := hq.redisPool.Get()
 	defer conn.Close()
 
-	var w Work
-	v, err := conn.Do("BRPOP", hq.key, "5")
-	if err != nil {
-		return nil, err
-	}
-	if v == nil {
-		return nil, errors.New("Timed out waiting on data")
+	var (
+		w   Work
+		v   interface{}
+		err error
+	)
+
+	// Block until we get data.
+	for {
+		v, err = conn.Do("SPOP", hq.key)
+		if err != nil || v == nil {
+			time.Sleep(time.Second)
+			continue
+		}
+		break
 	}
 
-	results := v.([]interface{})
-
-	b := bytes.NewBuffer(results[1].([]byte))
+	// Decode the data back into its structure
+	b := bytes.NewBuffer(v.([]byte))
 	dec := gob.NewDecoder(b)
 	if err := dec.Decode(&w); err != nil {
 		return nil, err

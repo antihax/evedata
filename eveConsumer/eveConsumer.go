@@ -125,7 +125,6 @@ func (c *EVEConsumer) goMetrics() {
 func (c *EVEConsumer) goConsumer() {
 	// Run Phase
 	for {
-
 		workDone := false
 		select {
 		case <-c.consumerStopChannel:

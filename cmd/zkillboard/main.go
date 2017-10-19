@@ -15,6 +15,7 @@ import (
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetPrefix("evedata zkillboard: ")
 	log.Printf("Starting ZKillboard Microservice Go: %s\n", runtime.Version())
 	redis := redigohelper.ConnectRedisProdPool()
 

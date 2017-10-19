@@ -22,7 +22,7 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 	id := parameters[1].(int32)
 
 	// We know this kill, early out
-	if s.knownKill(id) {
+	if !s.inQueue.CheckWorkCompleted("evedata_known_kills", int64(id)) {
 		return
 	}
 
@@ -31,7 +31,11 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 		log.Println(err)
 		return
 	}
-	s.setKnownKill(id)
+
+	err = s.inQueue.SetWorkCompleted("evedata_known_kills", int64(id))
+	if err != nil {
+		log.Println(err)
+	}
 
 	b, err := gobcoder.GobEncoder(kill)
 	if err != nil {
@@ -48,7 +52,7 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 	return
 }
 
-func (c *Hammer) knownKill(id int32) bool {
+func (c *Hammer) knownKill(id int64) bool {
 	conn := c.redis.Get()
 	defer conn.Close()
 
@@ -56,9 +60,10 @@ func (c *Hammer) knownKill(id int32) bool {
 	return found
 }
 
-func (c *Hammer) setKnownKill(id int32) {
+func (c *Hammer) setKnownKill(id int64) error {
 	conn := c.redis.Get()
 	defer conn.Close()
 
-	conn.Do("SADD", "evedata_known_kills", id)
+	_, err := conn.Do("SADD", "evedata_known_kills", id)
+	return err
 }

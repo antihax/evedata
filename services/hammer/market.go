@@ -37,6 +37,7 @@ func marketOrdersConsumer(s *Hammer, parameter interface{}) {
 			log.Println(err)
 			return
 		}
+		page++
 	}
 
 	return

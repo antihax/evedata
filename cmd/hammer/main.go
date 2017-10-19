@@ -15,6 +15,7 @@ import (
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetPrefix("evedata hammer: ")
 	redis := redigohelper.ConnectRedisProdPool()
 
 	producer, err := nsqhelper.NewNSQProducer()

@@ -15,6 +15,7 @@ import (
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetPrefix("evedata artifice: ")
 	redis := redigohelper.ConnectRedisProdPool()
 
 	producer, err := nsqhelper.NewNSQProducer()

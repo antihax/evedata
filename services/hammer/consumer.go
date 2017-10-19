@@ -3,6 +3,7 @@ package hammer
 import (
 	"errors"
 	"log"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -33,14 +34,21 @@ func (s *Hammer) runConsumers() error {
 		return err
 	}
 
+	start := time.Now().Nanosecond()
+
 	fn := consumerMap[w.Operation]
 	if fn == nil {
-		log.Printf("unknown operation\n")
+		log.Printf("unknown operation %s %+v\n", w.Operation, w.Parameter)
 		return errors.New("Unknown operation")
 	}
+	log.Printf("operation complete %s %+v\n", w.Operation, w.Parameter)
 
 	s.sem <- true
 	go s.wait(fn, w.Parameter)
+	duration := (time.Now().Nanosecond() - start) / 1000000
+	consumerMetrics.With(
+		prometheus.Labels{"operation": w.Operation},
+	).Observe(float64(duration))
 
 	return nil
 }
@@ -55,15 +63,7 @@ var (
 		Name:      "ticks",
 		Help:      "API call statistics.",
 		Buckets:   prometheus.ExponentialBuckets(1, 2, 17),
-	}, []string{"consumer"},
-	)
-
-	queueSizeMetrics = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "evedata",
-		Subsystem: "hammer",
-		Name:      "size",
-		Help:      "Entries in queue for consumers",
-	}, []string{"queue"},
+	}, []string{"operation"},
 	)
 )
 
@@ -72,6 +72,5 @@ func init() {
 
 	prometheus.MustRegister(
 		consumerMetrics,
-		queueSizeMetrics,
 	)
 }

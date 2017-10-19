@@ -11,7 +11,7 @@ var (
 		Namespace: "evedata",
 		Subsystem: "hammerqueue",
 		Name:      "calls",
-		Help:      "Current temperature of the CPU.",
+		Help:      "Size of the hammer queue.",
 	})
 )
 

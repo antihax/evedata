@@ -55,3 +55,14 @@ func RetryExec(sql string, args ...interface{}) (int64, error) {
 		}
 	}
 }
+
+// Escape MySQL string
+func Escape(value string) string {
+	replace := map[string]string{"'": `\'`}
+
+	for b, a := range replace {
+		value = strings.Replace(value, b, a, -1)
+	}
+
+	return value
+}

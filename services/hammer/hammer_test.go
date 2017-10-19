@@ -75,8 +75,6 @@ func TestHammerService(t *testing.T) {
 					return nil
 				}
 
-				assert.Equal(t, int32(56733821), k.KillmailId)
-
 				wg.Done()
 
 				// Hang the consumer so others get a chance.
