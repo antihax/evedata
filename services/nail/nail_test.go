@@ -14,7 +14,7 @@ import (
 var (
 	testWork = []redisqueue.Work{
 		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(56733821)}},
-		{Operation: "marketOrders", Parameter: int32(1)},
+		{Operation: "marketOrders", Parameter: int32(2)},
 	}
 )
 
@@ -42,7 +42,7 @@ func TestNail(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	time.Sleep(time.Second * 5)
+	time.Sleep(time.Second)
 	nail.Close()
 	hammer.Close()
 	redis.Close()
