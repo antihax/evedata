@@ -26,7 +26,7 @@ func marketOrdersConsumer(s *Hammer, parameter interface{}) {
 		if err != nil {
 			log.Println(err)
 			return
-		} else if len(orders) == 0 { // end of the pages
+		} else if len(o) == 0 { // end of the pages
 			break
 		}
 		orders = append(orders, o...)

@@ -2,6 +2,7 @@ package nail
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/antihax/evedata/internal/datapackages"
@@ -11,7 +12,7 @@ import (
 )
 
 func init() {
-	AddHandler("marketOrders", spawnKillmailConsumer)
+	AddHandler("marketOrders", spawnMarketConsumer)
 }
 
 func spawnMarketConsumer(s *Nail, consumer *nsq.Consumer) {
@@ -23,6 +24,10 @@ func (s *Nail) marketHandler(message *nsq.Message) error {
 	err := gobcoder.GobDecoder(message.Body, &b)
 	if err != nil {
 		return err
+	}
+	log.Printf("%+v\n", b)
+	if len(b.Orders) == 0 {
+		return nil
 	}
 
 	var values []string
@@ -46,6 +51,7 @@ func (s *Nail) marketHandler(message *nsq.Message) error {
 				duration=VALUES(duration),
 				reported=VALUES(reported);
 				`, strings.Join(values, ",\n"))
+	log.Println(stmt)
 
 	return s.DoSQL(stmt)
 }
