@@ -2,7 +2,9 @@ package nail
 
 import (
 	"log"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	nsq "github.com/nsqio/go-nsq"
@@ -83,4 +85,41 @@ var handlers []nailHandler
 
 func AddHandler(topic string, spawnFunc spawnFunc) {
 	handlers = append(handlers, nailHandler{topic, spawnFunc})
+}
+
+// RetryTransaction on deadlocks
+func RetryTransaction(tx *sqlx.Tx) error {
+	for {
+		err := tx.Commit()
+		if err != nil {
+			if strings.Contains(err.Error(), "1213") == false {
+				return err
+			}
+			time.Sleep(500 * time.Millisecond)
+			continue
+		} else {
+			return err
+		}
+	}
+}
+
+// DoSQL executes a sql statement
+func (s *Nail) DoSQL(stmt string) error {
+	tx, err := s.db.Beginx()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	_, err = tx.Exec(stmt)
+	if err != nil {
+		return err
+	}
+
+	err = RetryTransaction(tx)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
 }

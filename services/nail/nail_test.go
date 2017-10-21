@@ -2,6 +2,7 @@ package nail
 
 import (
 	"testing"
+	"time"
 
 	"github.com/antihax/evedata/internal/nsqhelper"
 	"github.com/antihax/evedata/internal/redigohelper"
@@ -11,8 +12,9 @@ import (
 )
 
 var (
-	testWork []redisqueue.Work = []redisqueue.Work{
+	testWork = []redisqueue.Work{
 		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(56733821)}},
+		{Operation: "marketOrders", Parameter: int32(1)},
 	}
 )
 
@@ -40,6 +42,7 @@ func TestNail(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	time.Sleep(time.Second * 5)
 	nail.Close()
 	hammer.Close()
 	redis.Close()

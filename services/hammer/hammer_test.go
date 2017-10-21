@@ -1,18 +1,12 @@
 package hammer
 
 import (
-	"log"
 	"testing"
 	"time"
 
-	"sync"
-
-	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/evedata/internal/nsqhelper"
 	"github.com/antihax/evedata/internal/redigohelper"
 	"github.com/antihax/evedata/internal/redisqueue"
-	"github.com/antihax/goesi/esi"
-	nsq "github.com/nsqio/go-nsq"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -38,6 +32,7 @@ var (
 		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(18)}},
 		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(19)}},
 		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(20)}},
+		{Operation: "marketOrders", Parameter: int32(1)},
 	}
 )
 
@@ -55,41 +50,13 @@ func TestHammerService(t *testing.T) {
 	hammer.ChangeTokenPath("http://127.0.0.1:8080")
 	defer hammer.Close()
 
-	// Create a counter to ensure we get results for all work
-	wg := &sync.WaitGroup{}
-	wg.Add(len(testWork) + 1)
-
 	// Run Hammer
 	go hammer.Run()
-
-	// Setup 20 consumers to test multi consumers.
-	for i := 0; i < 20; i++ {
-		go func() {
-			consumer, err := nsqhelper.NewNSQConsumer("killmail", "hammer-test", 1)
-			assert.Nil(t, err)
-			consumer.AddHandler(nsq.HandlerFunc(func(message *nsq.Message) error {
-				k := esi.GetKillmailsKillmailIdKillmailHashOk{}
-				err := gobcoder.GobDecoder(message.Body, &k)
-				if err != nil {
-					log.Println(err)
-					return nil
-				}
-
-				wg.Done()
-
-				// Hang the consumer so others get a chance.
-				time.Sleep(time.Second)
-				return nil
-			}))
-			consumer.ConnectToNSQLookupds(nsqhelper.Test)
-		}()
-	}
 
 	// Load the work into the queue
 	err = hammer.QueueWork(testWork)
 	assert.Nil(t, err)
 
-	// Wait for the consumers to finish\
-	wg.Done()
-	wg.Wait()
+	time.Sleep(time.Second)
+	// Wait for the consumers to finish
 }

@@ -3,42 +3,46 @@ package hammer
 import (
 	"log"
 
+	"github.com/antihax/evedata/internal/datapackages"
+	"github.com/antihax/goesi/esi"
+
 	"encoding/gob"
 
 	"github.com/antihax/evedata/internal/gobcoder"
-	"github.com/antihax/goesi/esi"
 )
 
 func init() {
 	registerConsumer("marketOrders", marketOrdersConsumer)
-	gob.Register(esi.GetMarketsRegionIdOrders200Ok{})
+	gob.Register(datapackages.MarketOrders{})
 }
 
 func marketOrdersConsumer(s *Hammer, parameter interface{}) {
 	regionID := parameter.(int32)
 	var page int32 = 1
+	orders := []esi.GetMarketsRegionIdOrders200Ok{}
 
 	for {
-		orders, _, err := s.esi.ESI.MarketApi.GetMarketsRegionIdOrders(nil, "all", regionID, map[string]interface{}{"page": page})
+		o, _, err := s.esi.ESI.MarketApi.GetMarketsRegionIdOrders(nil, "all", regionID, map[string]interface{}{"page": page})
 		if err != nil {
 			log.Println(err)
 			return
 		} else if len(orders) == 0 { // end of the pages
 			break
 		}
-		b, err := gobcoder.GobEncoder(orders)
-		if err != nil {
-			log.Println(err)
-			return
-		}
+		orders = append(orders, o...)
 
-		err = s.nsq.Publish("marketOrders", b)
-		if err != nil {
-			log.Println(err)
-			return
-		}
 		page++
 	}
 
+	b, err := gobcoder.GobEncoder(&datapackages.MarketOrders{Orders: orders, RegionID: regionID})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = s.nsq.Publish("marketOrders", b)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	return
 }
