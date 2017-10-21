@@ -13,8 +13,8 @@ import (
 
 var (
 	testWork = []redisqueue.Work{
-		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(56733821)}},
-		{Operation: "marketOrders", Parameter: int32(2)},
+		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(5671)}},
+		{Operation: "marketOrders", Parameter: int32(22)},
 	}
 )
 
