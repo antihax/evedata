@@ -133,12 +133,14 @@ func (c *TokenStore) setTokenToCache(characterID int64, tokenCharacterID int64, 
 func (c *TokenStore) updateTokenToDB(characterID int64, tokenCharacterID int64, token *oauth2.Token) error {
 	_, err := c.db.Exec(`
 		UPDATE evedata.crestTokens 
-		SET accessToken = ?,  
+		SET accessToken = ?,
+			refreshToken = ?, 
 			expiry = ?
 		WHERE 
 			characterID = ? AND
 			tokenCharacterID = ?`,
 		token.AccessToken,
+		token.RefreshToken,
 		token.Expiry,
 		characterID,
 		tokenCharacterID)

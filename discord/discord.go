@@ -133,7 +133,7 @@ func checkNotifications(ctx *appContext.AppContext) error {
 	rows, err := ctx.Db.Query(`
 		SELECT notificationID, type, text FROM evedata.notifications
 		WHERE type IN ('TowerAlertMsg', 'StructureUnderAttack', 'OrbitalReinforced', 'OrbitalAttacked', 'CorpWarDeclaredMsg', 'AllWarDeclaredMsg')
-		AND timestamp > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 60 MINUTE) AND notificationCharacterID IN (1962167517,94135910) AND notificationID > ? ORDER BY notificationID ASC
+		AND timestamp > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 1440 MINUTE) AND notificationCharacterID IN (1962167517,94135910) AND notificationID > ? ORDER BY notificationID ASC
 		`, startID)
 	if err != nil {
 		return err

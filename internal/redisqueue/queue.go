@@ -3,6 +3,8 @@ package redisqueue
 import (
 	"bytes"
 	"encoding/gob"
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/garyburd/redigo/redis"
@@ -61,7 +63,10 @@ func (hq *RedisQueue) QueueWork(work []Work) error {
 func (hq *RedisQueue) CheckWorkCompleted(key string, id int64) bool {
 	conn := hq.redisPool.Get()
 	defer conn.Close()
-	found, _ := redis.Bool(conn.Do("SISMEMBER", key, id))
+	found, err := redis.Bool(conn.Do("SISMEMBER", key, id))
+	if err != nil {
+		log.Println(err)
+	}
 	return found
 }
 
@@ -70,6 +75,25 @@ func (hq *RedisQueue) SetWorkCompleted(key string, id int64) error {
 	conn := hq.redisPool.Get()
 	defer conn.Close()
 	_, err := conn.Do("SADD", key, id)
+	return err
+}
+
+// CheckWorkFailure takes a key and checks if the ID has failed to prevent failed
+func (hq *RedisQueue) CheckWorkFailure(key string, id int64) bool {
+	conn := hq.redisPool.Get()
+	defer conn.Close()
+	found, err := redis.Bool(conn.Do("GET", fmt.Sprintf("%s:%d", key, id)))
+	if err != nil {
+		log.Println(err)
+	}
+	return found
+}
+
+// SetWorkFailure takes a key and sets if the ID has failed to prevent multiple failed
+func (hq *RedisQueue) SetWorkFailure(key string, id int64) error {
+	conn := hq.redisPool.Get()
+	defer conn.Close()
+	_, err := conn.Do("SETEX", fmt.Sprintf("%s:%d", key, id), 86400, true)
 	return err
 }
 

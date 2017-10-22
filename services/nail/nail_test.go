@@ -15,6 +15,7 @@ var (
 	testWork = []redisqueue.Work{
 		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(5671)}},
 		{Operation: "marketOrders", Parameter: int32(22)},
+		{Operation: "structure", Parameter: int64(11)},
 	}
 )
 

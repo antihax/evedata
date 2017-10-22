@@ -2,6 +2,7 @@ package artifice
 
 import (
 	"context"
+	"log"
 
 	"github.com/antihax/evedata/internal/redisqueue"
 )
@@ -34,8 +35,12 @@ func structuresTrigger(s *Artifice) error {
 
 	work := []redisqueue.Work{}
 	for _, structure := range structures {
-		work = append(work, redisqueue.Work{Operation: "structure", Parameter: structure})
-		work = append(work, redisqueue.Work{Operation: "structureOrders", Parameter: structure})
+		if !s.inQueue.CheckWorkFailure("evedata-structure-failure", structure) {
+			work = append(work, redisqueue.Work{Operation: "structure", Parameter: structure})
+			work = append(work, redisqueue.Work{Operation: "structureOrders", Parameter: structure})
+		} else {
+			log.Printf("wont queue structure %d\n", structure)
+		}
 	}
 	s.QueueWork(work)
 	return nil

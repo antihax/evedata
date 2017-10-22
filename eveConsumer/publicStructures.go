@@ -60,11 +60,11 @@ func structuresTrigger(c *EVEConsumer) (bool, error) {
 		// Build a pipeline request to add the structure IDs to redis
 		red.Do("SADD", "EVEDATA_structureQueue", s)
 
-		v, err := redis.Int64(red.Do("GET", fmt.Sprintf("EVEDATA_ignoreStructure:%d", s)))
+		v, err := redis.Bool(red.Do("GET", fmt.Sprintf("evedata-structure-failure:%d", s)))
 		if err != nil {
 			continue
 		}
-		if v != 1 {
+		if !v {
 			red.Do("SADD", "EVEDATA_publicOrders", s)
 		}
 	}

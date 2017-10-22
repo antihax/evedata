@@ -49,3 +49,23 @@ func TestHQ(t *testing.T) {
 	}
 	assert.Empty(t, check)
 }
+
+func TestFailure(t *testing.T) {
+	pool := redigohelper.ConnectRedisTestPool()
+	hq := NewRedisQueue(pool, "test-redisqueue")
+	err := hq.SetWorkFailure("testKey", 1)
+	assert.Nil(t, err)
+
+	b := hq.CheckWorkFailure("testKey", 1)
+	assert.Equal(t, b, true)
+}
+
+func TestCompletion(t *testing.T) {
+	pool := redigohelper.ConnectRedisTestPool()
+	hq := NewRedisQueue(pool, "test-redisqueue")
+	err := hq.SetWorkCompleted("testKeyComp", 1)
+	assert.Nil(t, err)
+
+	b := hq.CheckWorkCompleted("testKeyComp", 1)
+	assert.Equal(t, b, true)
+}

@@ -44,7 +44,7 @@ func marketPublicStructureConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, 
 		// If we got an access denied, let's not touch it again for 24 hours.
 		if res != nil {
 			if res.StatusCode == 403 || res.StatusCode == 401 || res.StatusCode == 404 {
-				_, err = r.Do("SETEX", fmt.Sprintf("EVEDATA_ignoreStructure:%d", v), 86400, 1)
+				_, err = r.Do("SETEX", fmt.Sprintf("evedata-structure-failure:%d", v), 86400, true)
 				return false, err
 			}
 		}

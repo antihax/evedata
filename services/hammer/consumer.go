@@ -41,10 +41,10 @@ func (s *Hammer) runConsumers() error {
 		log.Printf("unknown operation %s %+v\n", w.Operation, w.Parameter)
 		return errors.New("Unknown operation")
 	}
-	log.Printf("operation complete %s %+v\n", w.Operation, w.Parameter)
 
 	s.sem <- true
 	go s.wait(fn, w.Parameter)
+	log.Printf("operation complete %s %+v\n", w.Operation, w.Parameter)
 	duration := (time.Now().Nanosecond() - start) / 1000000
 	consumerMetrics.With(
 		prometheus.Labels{"operation": w.Operation},

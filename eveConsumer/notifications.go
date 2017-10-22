@@ -73,6 +73,9 @@ func notificationsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 	// Get the OAuth2 Token from the database.
 	token, err := c.ctx.TokenStore.GetTokenSource(char, tokenChar)
+	if err != nil {
+		return false, err
+	}
 
 	// Put the token into a context for the API client
 	auth := context.WithValue(context.TODO(), goesi.ContextOAuth2, token)

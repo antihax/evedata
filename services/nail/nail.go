@@ -69,7 +69,14 @@ func (s *Nail) wait(next nsq.Handler) nsq.Handler {
 	return nsq.HandlerFunc(func(m *nsq.Message) error {
 		s.wg.Add(1)
 		defer s.wg.Done()
-		return next.HandleMessage(m)
+		err := next.HandleMessage(m)
+		if err != nil {
+			log.Println(err)
+			m.Requeue(time.Second)
+		} else {
+			m.Finish()
+		}
+		return err
 	})
 }
 
