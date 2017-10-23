@@ -160,9 +160,6 @@ func checkNotifications(ctx *appContext.AppContext) error {
 			defender, _ := models.GetEntityName(l.AgainstID)
 			attacker, _ := models.GetEntityName(l.DeclaredByID)
 
-			fmt.Printf("@everyone [%s](https://www.evedata.org/%s?id=%d) just declared war on [%s](https://www.evedata.org/%s?id=%d)\n", attacker.Name,
-				attacker.EntityType, l.DeclaredByID, defender.Name, defender.EntityType, l.AgainstID)
-
 			sendNotificationMessage(fmt.Sprintf("@everyone [%s](https://www.evedata.org/%s?id=%d) just declared war on [%s](https://www.evedata.org/%s?id=%d)\n", attacker.Name,
 				attacker.EntityType, l.DeclaredByID, defender.Name, defender.EntityType, l.AgainstID))
 		case "StructureUnderAttack", "OrbitalAttacked", "TowerAlertMsg":
@@ -190,8 +187,6 @@ func checkNotifications(ctx *appContext.AppContext) error {
 			systemName, _ := models.GetCelestialName(l.SolarSystemID)
 			structureType, _ := models.GetTypeName(l.TypeID)
 			attackerName, _ := models.GetEntityName(attacker)
-			fmt.Printf("@everyone %s is under attack at %s in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%  A: %.1f%%  H: %.1f%% \n",
-				structureType, locationName, systemName, attackerName.Name, attackerType, attacker, l.ShieldLevel*100, l.ArmorValue*100, l.HullValue*100)
 
 			sendNotificationMessage(fmt.Sprintf("@everyone %s is under attack at %s in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%  A: %.1f%%  H: %.1f%% \n",
 				structureType, locationName, systemName, attackerName.Name, attackerType, attacker, l.ShieldLevel*100, l.ArmorValue*100, l.HullValue*100))

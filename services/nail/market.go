@@ -2,7 +2,6 @@ package nail
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/antihax/evedata/internal/datapackages"
@@ -25,7 +24,7 @@ func (s *Nail) marketHandler(message *nsq.Message) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("%+v\n", b)
+
 	if len(b.Orders) == 0 {
 		return nil
 	}
@@ -51,7 +50,5 @@ func (s *Nail) marketHandler(message *nsq.Message) error {
 				duration=VALUES(duration),
 				reported=VALUES(reported);
 				`, strings.Join(values, ",\n"))
-	log.Println(stmt)
-
 	return s.DoSQL(stmt)
 }

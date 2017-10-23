@@ -59,8 +59,8 @@ func (c *EVEConsumer) killmailAddToQueue(id int32, hash string) error {
 	key := fmt.Sprintf("%d:%s", id, hash)
 
 	// We know this kill. Early out.
-	i, err := redis.Int(r.Do("SISMEMBER", "evedata_known_kills", int64(id)))
-	if err == nil && i == 1 {
+	i, err := redis.Bool(r.Do("SISMEMBER", "evedata_known_kills", int64(id)))
+	if err == nil || i {
 		return err
 	}
 	c.killmailSendToZKillboard(id, hash)
@@ -86,8 +86,7 @@ func (c *EVEConsumer) killmailSendToZKillboard(id int32, hash string) {
 	r.Header.Add("Content-Type", "text/text")
 	r.Header.Set("User-Agent", "EVEData.org - from croakroach with love.")
 	resp, _ := c.ctx.HTTPClient.Do(r)
-
-	fmt.Printf("Posted to Zkillboard %s %s\n", resp.Status, mail)
+	log.Printf("Posted to Zkillboard %s %s\n", resp.Status, mail)
 	return
 }
 
