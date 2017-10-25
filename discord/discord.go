@@ -6,6 +6,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/antihax/evedata/internal/datapackages"
+
 	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/models"
 	"github.com/bwmarrin/discordgo"
@@ -121,6 +123,16 @@ type OrbitalAttacked struct {
 	SolarSystemID       int64   `yaml:"solarSystemID"`
 }
 
+type OrbitalReinforced struct {
+	AggressorAllianceID int64 `yaml:"aggressorAllianceID"`
+	AggressorCorpID     int64 `yaml:"aggressorCorpID"`
+	PlanetID            int64 `yaml:"planetID"`
+	MoonID              int64 `yaml:"moonID"`
+	ReinforceExitTime   int64 `yaml:"reinforceExitTime"`
+	TypeID              int64 `yaml:"typeID"`
+	SolarSystemID       int64 `yaml:"solarSystemID"`
+}
+
 func checkNotifications(ctx *appContext.AppContext) error {
 	r := ctx.Cache.Get()
 	defer r.Close()
@@ -190,6 +202,37 @@ func checkNotifications(ctx *appContext.AppContext) error {
 
 			sendNotificationMessage(fmt.Sprintf("@everyone %s is under attack at %s in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%  A: %.1f%%  H: %.1f%% \n",
 				structureType, locationName, systemName, attackerName.Name, attackerType, attacker, l.ShieldLevel*100, l.ArmorValue*100, l.HullValue*100))
+
+		case "OrbitalReinforced":
+			l := OrbitalReinforced{}
+			err = yaml.Unmarshal([]byte(text), &l)
+
+			location := int64(0)
+			if l.MoonID > 0 {
+				location = l.MoonID
+			} else if l.PlanetID > 0 {
+				location = l.PlanetID
+			}
+
+			attacker := int64(0)
+			attackerType := ""
+			if l.AggressorAllianceID > 0 {
+				attacker = l.AggressorAllianceID
+				attackerType = "alliance"
+			} else if l.AggressorCorpID > 0 {
+				attacker = l.AggressorCorpID
+				attackerType = "corporation"
+			}
+
+			locationName, _ := models.GetCelestialName(location)
+			systemName, _ := models.GetCelestialName(l.SolarSystemID)
+			structureType, _ := models.GetTypeName(l.TypeID)
+			attackerName, _ := models.GetEntityName(attacker)
+
+			sendNotificationMessage(fmt.Sprintf("@everyone %s was reinforced at %s in %s by [%s](https://www.evedata.org/%s?id=%d). Timer expires at %s\n",
+				structureType, locationName, systemName, attackerName.Name, attackerType, attacker,
+				time.Unix(datapackages.WintoUnixTimestamp(l.ReinforceExitTime), 0).String()))
+
 		}
 		r.Do("SET", "EVEDATA_notificationqueue:99002974", notificationID)
 	}
