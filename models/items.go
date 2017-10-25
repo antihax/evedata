@@ -1,5 +1,7 @@
 package models
 
+import "github.com/guregu/null"
+
 type ItemType struct {
 	TypeID      int64   `db:"typeID" json:"typeID"`
 	TypeName    string  `db:"typeName" json:"typeName"`
@@ -45,13 +47,13 @@ func GetItem(id int64) (*ItemType, error) {
 }
 
 type ItemAttributes struct {
-	AttributeID         int64   `db:"attributeID" json:"attributeID"`
-	Value               float64 `db:"value" json:"value"`
-	AttributeName       string  `db:"attributeName" json:"attributeName"`
-	Description         string  `db:"description" json:"description"`
-	CategoryID          int64   `db:"categoryID" json:"categoryID"`
-	CategoryName        string  `db:"categoryName" json:"categoryName"`
-	CategoryDescription string  `db:"categoryDescription" json:"categoryDescription"`
+	AttributeID         int64       `db:"attributeID" json:"attributeID"`
+	Value               float64     `db:"value" json:"value"`
+	AttributeName       string      `db:"attributeName" json:"attributeName"`
+	Description         null.String `db:"description" json:"description"`
+	CategoryID          int64       `db:"categoryID" json:"categoryID"`
+	CategoryName        null.String `db:"categoryName" json:"categoryName"`
+	CategoryDescription null.String `db:"categoryDescription" json:"categoryDescription"`
 }
 
 // Obtain Item Attributes by ID.

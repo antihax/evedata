@@ -111,14 +111,14 @@ func RetryTransaction(tx *sqlx.Tx) error {
 }
 
 // DoSQL executes a sql statement
-func (s *Nail) DoSQL(stmt string) error {
+func (s *Nail) DoSQL(stmt string, args ...interface{}) error {
 	tx, err := s.db.Beginx()
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	_, err = tx.Exec(stmt)
+	_, err = tx.Exec(stmt, args...)
 	if err != nil {
 		return err
 	}

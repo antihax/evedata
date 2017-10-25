@@ -73,11 +73,17 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 		page++
 	}
 
+	// early out if there are no orders
+	if len(orders) == 0 {
+		return
+	}
+
 	b, err := gobcoder.GobEncoder(&datapackages.StructureOrders{Orders: orders, StructureID: structureID})
 	if err != nil {
 		log.Println(err)
 		return
 	}
+
 	err = s.nsq.Publish("structureOrders", b)
 	if err != nil {
 		log.Println(err)
