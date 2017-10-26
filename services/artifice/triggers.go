@@ -16,12 +16,19 @@ type trigger struct {
 	name   string
 	f      triggerFunc
 	ticker *time.Ticker
+	daily  bool
+	hour   int
 }
 
 // Register a trigger to a queue operation.
-func registerTrigger(name string, f triggerFunc, minutes int) {
-	triggers = append(triggers, trigger{name, f, time.NewTicker(time.Duration(minutes) * time.Minute)})
+func registerTrigger(name string, f triggerFunc, ticker *time.Ticker) {
+	triggers = append(triggers, trigger{name, f, ticker, false, 0})
+}
 
+// Register a daily trigger to a queue operation.
+func registerDailyTrigger(name string, f triggerFunc, hour int) {
+	ticker := time.NewTicker(getNextTickDuration(hour))
+	triggers = append(triggers, trigger{name, f, ticker, true, hour})
 }
 
 func (s *Artifice) runTriggers() {
@@ -33,6 +40,10 @@ func (s *Artifice) runTriggers() {
 		chosen, _, ok := reflect.Select(cases)
 		if ok {
 			trigger := triggers[chosen]
+			if trigger.daily {
+				trigger.ticker.Stop()
+				trigger.ticker = time.NewTicker(getNextTickDuration(trigger.hour))
+			}
 			log.Printf("Running trigger %s\n", trigger.name)
 			err := trigger.f(s)
 			if err != nil {
@@ -40,4 +51,13 @@ func (s *Artifice) runTriggers() {
 			}
 		}
 	}
+}
+
+func getNextTickDuration(hour int) time.Duration {
+	now := time.Now()
+	nextTick := time.Date(now.Year(), now.Month(), now.Day(), hour, 1, 1, 1, time.UTC)
+	if nextTick.Before(now) {
+		nextTick = nextTick.Add(24 * time.Hour)
+	}
+	return nextTick.Sub(time.Now())
 }

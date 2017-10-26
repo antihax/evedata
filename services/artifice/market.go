@@ -3,13 +3,15 @@ package artifice
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/antihax/evedata/internal/redisqueue"
 )
 
 func init() {
-	registerTrigger("marketOrders", marketTrigger, 30)
-	registerTrigger("structures", structuresTrigger, 60)
+	registerTrigger("marketOrders", marketTrigger, time.NewTicker(time.Minute*30))
+	registerTrigger("structures", structuresTrigger, time.NewTicker(time.Minute*60))
+	registerDailyTrigger("marketHistory", historyTrigger, 1)
 }
 
 func marketTrigger(s *Artifice) error {
@@ -20,8 +22,17 @@ func marketTrigger(s *Artifice) error {
 
 	work := []redisqueue.Work{}
 	for _, region := range regions {
-		work = append(work, redisqueue.Work{Operation: "marketOrders", Parameter: region})
+		if region < 11000000 {
+			work = append(work, redisqueue.Work{Operation: "marketOrders", Parameter: region})
+		}
 	}
+	s.QueueWork(work)
+	return nil
+}
+
+func historyTrigger(s *Artifice) error {
+	work := []redisqueue.Work{}
+	work = append(work, redisqueue.Work{Operation: "marketHistoryTrigger", Parameter: true})
 	s.QueueWork(work)
 	return nil
 }

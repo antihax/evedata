@@ -33,6 +33,7 @@ var (
 		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(19)}},
 		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(20)}},
 		{Operation: "marketOrders", Parameter: int32(1)},
+		{Operation: "marketHistoryTrigger", Parameter: int32(1)},
 		{Operation: "structure", Parameter: int64(1)},
 	}
 )

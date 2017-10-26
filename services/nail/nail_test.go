@@ -16,12 +16,12 @@ import (
 
 var (
 	testWork = []redisqueue.Work{
-
 		{Operation: "marketOrders", Parameter: int32(22)},
 		{Operation: "structure", Parameter: int64(1000000017013)},
 		{Operation: "structure", Parameter: int64(1000000025062)},
 		{Operation: "structureOrders", Parameter: int64(1000000017013)},
 		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(56271)}},
+		{Operation: "marketHistoryTrigger", Parameter: int32(1)},
 	}
 	ham          *hammer.Hammer
 	nailInstance *Nail

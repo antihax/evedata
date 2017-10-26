@@ -1,105 +1,23 @@
 package eveConsumer
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/antihax/evedata/models"
-	"github.com/antihax/goesi"
 	"github.com/garyburd/redigo/redis"
 )
 
 func init() {
-	addConsumer("market", marketOrderConsumer, "EVEDATA_marketOrders")
+
 	addConsumer("market", marketHistoryConsumer, "EVEDATA_marketHistory")
 	addConsumer("market", marketRegionConsumer, "")
-	addConsumer("market", marketPublicStructureConsumer, "EVEDATA_publicOrders")
 
 	addTrigger("market", marketMaintTrigger)
 	addTrigger("market", marketHistoryTrigger)
 
-}
-
-func marketPublicStructureConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
-	r := *redisPtr
-	ret, err := r.Do("SPOP", "EVEDATA_publicOrders")
-	if err != nil {
-		return false, err
-	} else if ret == nil {
-		return false, nil
-	}
-	v, err := redis.Int64(ret, err)
-	if err != nil {
-		return false, err
-	}
-
-	var page int32 = 1
-	ctx := context.WithValue(context.TODO(), goesi.ContextOAuth2, c.ctx.ESIPublicToken)
-	for {
-		b, res, err := c.ctx.ESI.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, v, map[string]interface{}{"page": page})
-
-		// If we got an access denied, let's not touch it again for 24 hours.
-		if res != nil {
-			if res.StatusCode == 403 || res.StatusCode == 401 || res.StatusCode == 404 {
-				_, err = r.Do("SETEX", fmt.Sprintf("evedata-structure-failure:%d", v), 86400, true)
-				return false, err
-			}
-		}
-
-		// If we error, get out early.
-		if err != nil {
-			return false, err
-		} else if len(b) == 0 { // end of the pages
-			break
-		}
-
-		var values []string
-		for _, e := range b {
-			var buy byte
-			if e.IsBuyOrder == true {
-				buy = 1
-			} else {
-				buy = 0
-			}
-			values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,%q,%d,%d,evedata.regionIDByStructureID(%d),UTC_TIMESTAMP())",
-				e.OrderId, e.Price, e.VolumeRemain, e.TypeId, e.VolumeTotal, e.MinVolume,
-				buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, e.LocationId))
-		}
-
-		stmt := fmt.Sprintf(`INSERT INTO evedata.market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, reported)
-				VALUES %s
-				ON DUPLICATE KEY UPDATE price=VALUES(price),
-					remainingVolume=VALUES(remainingVolume),
-					issued=VALUES(issued),
-					duration=VALUES(duration),
-					reported=VALUES(reported);
-					`, strings.Join(values, ",\n"))
-
-		tx, err := models.Begin()
-		if err != nil {
-			continue
-		}
-		_, err = tx.Exec(stmt)
-		if err != nil {
-			tx.Rollback()
-			continue
-		}
-		_, err = tx.Exec("UPDATE evedata.structures SET marketCacheUntil = ?  WHERE stationID = ?", goesi.CacheExpires(res), v)
-
-		err = models.RetryTransaction(tx)
-		if err != nil {
-			return false, err
-		}
-
-		// Cache the greater of one hour, or the returned cache-control
-
-		// Next page
-		page++
-	}
-	return true, nil
 }
 
 // Add market history items to the queue
@@ -176,76 +94,6 @@ func marketHistoryTrigger(c *EVEConsumer) (bool, error) {
 		red.Flush()
 	}
 	return true, err
-}
-
-func marketOrderConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
-	r := *redisPtr
-	ret, err := r.Do("SPOP", "EVEDATA_marketOrders")
-	if err != nil {
-		return false, err
-	} else if ret == nil {
-		return false, nil
-	}
-	v, err := redis.Int(ret, err)
-	if err != nil {
-		return false, err
-	}
-
-	var page int32 = 1
-	c.marketRegionAddRegion(v, time.Now().UTC().Unix()+(60*15), &r)
-	for {
-		b, res, err := c.ctx.ESI.ESI.MarketApi.GetMarketsRegionIdOrders(nil, "all", (int32)(v), map[string]interface{}{"page": page})
-		if err != nil {
-			return false, err
-		} else if len(b) == 0 { // end of the pages
-			break
-		}
-		var values []string
-		for _, e := range b {
-			var buy byte
-			if e.IsBuyOrder == true {
-				buy = 1
-			} else {
-				buy = 0
-			}
-			values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,%q,%d,%d,%d,UTC_TIMESTAMP())",
-				e.OrderId, e.Price, e.VolumeRemain, e.TypeId, e.VolumeTotal, e.MinVolume,
-				buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, (int32)(v)))
-		}
-
-		stmt := fmt.Sprintf(`INSERT INTO evedata.market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, reported)
-				VALUES %s
-				ON DUPLICATE KEY UPDATE price=VALUES(price),
-					remainingVolume=VALUES(remainingVolume),
-					issued=VALUES(issued),
-					duration=VALUES(duration),
-					reported=VALUES(reported);
-					`, strings.Join(values, ",\n"))
-
-		tx, err := models.Begin()
-		if err != nil {
-			continue
-		}
-		_, err = tx.Exec(stmt)
-		if err != nil {
-			tx.Rollback()
-			continue
-		}
-
-		err = models.RetryTransaction(tx)
-		if err != nil {
-
-			return false, err
-		}
-
-		// Cache the greater of one hour, or the returned cache-control
-		cacheUntil := max(time.Now().UTC().Add(time.Hour*1).Unix(), goesi.CacheExpires(res).UTC().Unix())
-		c.marketRegionAddRegion(v, cacheUntil, &r)
-
-		// Next page
-		page++
-	}
-	return true, nil
 }
 
 func (c *EVEConsumer) marketRegionAddRegion(v int, t int64, redisPtr *redis.Conn) {

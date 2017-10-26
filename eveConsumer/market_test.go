@@ -29,21 +29,6 @@ func TestMarketHistoryTrigger(t *testing.T) {
 	}
 }
 
-func TestMarketOrderConsumer(t *testing.T) {
-	r := ctx.Cache.Get()
-	defer r.Close()
-	for {
-		work, err := marketOrderConsumer(eC, &r)
-		if err != nil {
-			t.Error(err)
-			return
-		}
-		if work == false {
-			break
-		}
-	}
-}
-
 // This is bugged due to the ESI Spec.
 func TestMarketHistoryConsumer(t *testing.T) {
 	r := ctx.Cache.Get()

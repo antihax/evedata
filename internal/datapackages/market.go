@@ -7,6 +7,12 @@ type MarketOrders struct {
 	RegionID int32
 }
 
+type MarketHistory struct {
+	History  []esi.GetMarketsRegionIdHistory200Ok
+	RegionID int32
+	TypeID   int32
+}
+
 type Structure struct {
 	Structure   esi.GetUniverseStructuresStructureIdOk
 	StructureID int64
