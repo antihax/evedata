@@ -60,7 +60,6 @@ func marketHistoryTrigger(s *Hammer, parameter interface{}) {
 		}
 		page++
 	}
-
 }
 
 func marketHistoryConsumer(s *Hammer, parameter interface{}) {

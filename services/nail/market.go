@@ -3,6 +3,7 @@ package nail
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/antihax/evedata/internal/datapackages"
 
@@ -11,14 +12,18 @@ import (
 )
 
 func init() {
-	AddHandler("marketOrders", spawnMarketConsumer)
+	AddHandler("marketOrders", spawnMarketOrderConsumer)
+	AddHandler("marketHistory", spawnMarketHistoryConsumer)
 }
 
-func spawnMarketConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.marketHandler)))
+func spawnMarketOrderConsumer(s *Nail, consumer *nsq.Consumer) {
+	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.marketOrderHandler)))
+}
+func spawnMarketHistoryConsumer(s *Nail, consumer *nsq.Consumer) {
+	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.marketHistoryHandler)))
 }
 
-func (s *Nail) marketHandler(message *nsq.Message) error {
+func (s *Nail) marketOrderHandler(message *nsq.Message) error {
 	b := datapackages.MarketOrders{}
 	err := gobcoder.GobDecoder(message.Body, &b)
 	if err != nil {
@@ -50,5 +55,37 @@ func (s *Nail) marketHandler(message *nsq.Message) error {
 				duration=VALUES(duration),
 				reported=VALUES(reported);
 				`, strings.Join(values, ",\n"))
+	return s.DoSQL(stmt)
+}
+
+func (s *Nail) marketHistoryHandler(message *nsq.Message) error {
+
+	b := datapackages.MarketHistory{}
+	err := gobcoder.GobDecoder(message.Body, &b)
+	if err != nil {
+		return err
+	}
+	var values []string
+	ignoreBefore := time.Now().UTC().Add(time.Hour * 24 * -5)
+
+	for _, e := range b.History {
+		orderDate, err := time.Parse("2006-01-02", e.Date)
+		if err != nil {
+			return err
+		}
+
+		if orderDate.After(ignoreBefore) {
+			values = append(values, fmt.Sprintf("(%q,%f,%f,%f,%d,%d,%d,%d)",
+				e.Date, e.Lowest, e.Highest, e.Average,
+				e.Volume, e.OrderCount, b.TypeID, b.RegionID))
+		}
+	}
+
+	if len(values) == 0 {
+		return nil
+	}
+
+	stmt := fmt.Sprintf("INSERT INTO evedata.market_history (date, low, high, mean, quantity, orders, itemID, regionID) VALUES \n%s ON DUPLICATE KEY UPDATE date=date", strings.Join(values, ",\n"))
+
 	return s.DoSQL(stmt)
 }
