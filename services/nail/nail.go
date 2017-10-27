@@ -10,6 +10,7 @@ import (
 	nsq "github.com/nsqio/go-nsq"
 )
 
+// Nail handles storage of data from NSQ
 type Nail struct {
 	stop    chan bool
 	wg      *sync.WaitGroup
@@ -17,6 +18,7 @@ type Nail struct {
 	inQueue map[string]*nsq.Consumer
 }
 
+// NewNail creates a new storage engine
 func NewNail(db *sqlx.DB, addresses []string) *Nail {
 	n := &Nail{
 		db:      db,
@@ -99,7 +101,7 @@ func RetryTransaction(tx *sqlx.Tx) error {
 	for {
 		err := tx.Commit()
 		if err != nil {
-			if strings.Contains(err.Error(), "1213") == false {
+			if !strings.Contains(err.Error(), "1213") {
 				return err
 			}
 			time.Sleep(500 * time.Millisecond)

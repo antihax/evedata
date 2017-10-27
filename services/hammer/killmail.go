@@ -7,7 +7,6 @@ import (
 
 	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/goesi/esi"
-	"github.com/garyburd/redigo/redis"
 )
 
 func init() {
@@ -50,20 +49,4 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 	}
 
 	return
-}
-
-func (c *Hammer) knownKill(id int64) bool {
-	conn := c.redis.Get()
-	defer conn.Close()
-
-	found, _ := redis.Bool(conn.Do("SISMEMBER", "evedata_known_kills", id))
-	return found
-}
-
-func (c *Hammer) setKnownKill(id int64) error {
-	conn := c.redis.Get()
-	defer conn.Close()
-
-	_, err := conn.Do("SADD", "evedata_known_kills", id)
-	return err
 }

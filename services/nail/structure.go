@@ -20,6 +20,7 @@ func spawnStructureMarketConsumer(s *Nail, consumer *nsq.Consumer) {
 }
 
 func (s *Nail) structureMarketHandler(message *nsq.Message) error {
+
 	b := datapackages.StructureOrders{}
 	err := gobcoder.GobDecoder(message.Body, &b)
 	if err != nil {
@@ -33,7 +34,7 @@ func (s *Nail) structureMarketHandler(message *nsq.Message) error {
 	var values []string
 	for _, e := range b.Orders {
 		var buy byte
-		if e.IsBuyOrder == true {
+		if e.IsBuyOrder {
 			buy = 1
 		} else {
 			buy = 0
@@ -62,6 +63,7 @@ func (s *Nail) structureHandler(message *nsq.Message) error {
 	b := datapackages.Structure{}
 	err := gobcoder.GobDecoder(message.Body, &b)
 	if err != nil {
+		fmt.Printf("HALP!!! %#v\n", b)
 		return err
 	}
 
@@ -84,9 +86,5 @@ func (s *Nail) structureHandler(message *nsq.Message) error {
 		x=VALUES(x),y=VALUES(y),z=VALUES(z);`,
 		b.StructureID, b.Structure.SolarSystemId, b.Structure.Name, b.Structure.Position.X, b.Structure.Position.Y, b.Structure.Position.Z)
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

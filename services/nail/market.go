@@ -32,7 +32,7 @@ func (s *Nail) marketHandler(message *nsq.Message) error {
 	var values []string
 	for _, e := range b.Orders {
 		var buy byte
-		if e.IsBuyOrder == true {
+		if e.IsBuyOrder {
 			buy = 1
 		} else {
 			buy = 0

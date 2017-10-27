@@ -24,15 +24,17 @@ func init() {
 func marketHistoryTrigger(s *Hammer, parameter interface{}) {
 	regions, _, err := s.esi.ESI.UniverseApi.GetUniverseRegions(context.TODO(), nil)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 
-	page := 1
+	var page int32 = 1
 
 	for {
 		items, r, err := s.esi.ESI.UniverseApi.GetUniverseTypes(context.TODO(), map[string]interface{}{"page": page})
 		if err != nil {
-			return
+			log.Println(err)
+			continue
 		}
 
 		for _, itemID := range items {
@@ -53,7 +55,7 @@ func marketHistoryTrigger(s *Hammer, parameter interface{}) {
 
 		xpagesS := r.Header.Get("X-Pages")
 		xpages, _ := strconv.Atoi(xpagesS)
-		if xpages == page || len(items) == 0 {
+		if int32(xpages) == page || len(items) == 0 {
 			return
 		}
 		page++
@@ -104,7 +106,5 @@ func marketOrdersConsumer(s *Hammer, parameter interface{}) {
 	err = s.nsq.Publish("marketOrders", b)
 	if err != nil {
 		log.Println(err)
-		return
 	}
-	return
 }
