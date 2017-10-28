@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -42,6 +43,9 @@ func SetupDatabase(driver string, spec string) (*sqlx.DB, error) {
 
 func DumpDatabase(file string, db string) (err error) {
 	f, err := os.Create(file)
+	if err != nil {
+		log.Panicln(err)
+	}
 	defer f.Close()
 
 	f.WriteString(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;\n\n", db))
@@ -51,7 +55,7 @@ func DumpDatabase(file string, db string) (err error) {
 	tables, err := database.Query(`SELECT table_name
 			FROM information_schema.TABLES WHERE table_schema = ?;`, db)
 	if err != nil {
-		return err
+		log.Panicln(err)
 	}
 	defer tables.Close()
 
@@ -59,12 +63,12 @@ func DumpDatabase(file string, db string) (err error) {
 		var table, create string
 		err = tables.Scan(&table)
 		if err != nil {
-			return err
+			log.Panicln(err)
 		}
 		row := database.QueryRow(fmt.Sprintf(`SHOW CREATE TABLE %s.%s;`, db, table))
 		err = row.Scan(&table, &create)
 		if err != nil {
-			return err
+			log.Panicln(err)
 		}
 		f.WriteString(fmt.Sprintf("%s;\n\n", create))
 	}
@@ -148,5 +152,5 @@ func DumpDatabase(file string, db string) (err error) {
 		DELIMITER ;
 		`)
 
-	return
+	return err
 }

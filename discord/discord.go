@@ -20,6 +20,7 @@ import (
 
 var dg *discordgo.Session
 
+// GoDiscordBot runs a temporary hack of a bot as I line out functionality.
 func GoDiscordBot(ctx *appContext.AppContext) {
 	var err error
 	log.Printf("DiscordBot: Starting \n")
@@ -103,6 +104,7 @@ func goKillmailHunter(ctx *appContext.AppContext) {
 	}
 }
 
+// AllWarDeclaredMsg message
 type AllWarDeclaredMsg struct {
 	AgainstID    int64   `yaml:"againstID"`
 	Cost         float64 `yaml:"cost"`
@@ -111,6 +113,7 @@ type AllWarDeclaredMsg struct {
 	HostileState int64   `yaml:"hostileState"`
 }
 
+// OrbitalAttacked message
 type OrbitalAttacked struct {
 	AggressorAllianceID int64   `yaml:"aggressorAllianceID"`
 	AggressorCorpID     int64   `yaml:"aggressorCorpID"`
@@ -123,6 +126,7 @@ type OrbitalAttacked struct {
 	SolarSystemID       int64   `yaml:"solarSystemID"`
 }
 
+// OrbitalReinforced message
 type OrbitalReinforced struct {
 	AggressorAllianceID int64 `yaml:"aggressorAllianceID"`
 	AggressorCorpID     int64 `yaml:"aggressorCorpID"`
@@ -167,7 +171,7 @@ func checkNotifications(ctx *appContext.AppContext) error {
 
 		case "AllWarDeclaredMsg", "CorpWarDeclaredMsg":
 			l := AllWarDeclaredMsg{}
-			err = yaml.Unmarshal([]byte(text), &l)
+			 yaml.Unmarshal([]byte(text), &l)
 
 			defender, _ := models.GetEntityName(l.AgainstID)
 			attacker, _ := models.GetEntityName(l.DeclaredByID)
@@ -176,7 +180,7 @@ func checkNotifications(ctx *appContext.AppContext) error {
 				attacker.EntityType, l.DeclaredByID, defender.Name, defender.EntityType, l.AgainstID))
 		case "StructureUnderAttack", "OrbitalAttacked", "TowerAlertMsg":
 			l := OrbitalAttacked{}
-			err = yaml.Unmarshal([]byte(text), &l)
+			 yaml.Unmarshal([]byte(text), &l)
 
 			location := int64(0)
 			if l.MoonID > 0 {
@@ -205,7 +209,7 @@ func checkNotifications(ctx *appContext.AppContext) error {
 
 		case "OrbitalReinforced":
 			l := OrbitalReinforced{}
-			err = yaml.Unmarshal([]byte(text), &l)
+			 yaml.Unmarshal([]byte(text), &l)
 
 			location := int64(0)
 			if l.MoonID > 0 {

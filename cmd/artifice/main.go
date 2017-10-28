@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/antihax/evedata/internal/nsqhelper"
 	"github.com/antihax/evedata/internal/redigohelper"
+	"github.com/antihax/evedata/internal/sqlhelper"
 	"github.com/antihax/evedata/services/artifice"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -18,13 +18,10 @@ func main() {
 	log.SetPrefix("evedata artifice: ")
 	redis := redigohelper.ConnectRedisProdPool()
 
-	producer, err := nsqhelper.NewNSQProducer()
-	if err != nil {
-		log.Panicln(err)
-	}
+	db := sqlhelper.NewDatabase()
 
 	// Make a new service and send it into the background.
-	artifice := artifice.NewArtifice(redis, producer, os.Getenv("ESI_CLIENTID"), os.Getenv("ESI_SECRET"), os.Getenv("ESI_REFRESHKEY"))
+	artifice := artifice.NewArtifice(redis, db, os.Getenv("ESI_CLIENTID"), os.Getenv("ESI_SECRET"), os.Getenv("ESI_REFRESHKEY"))
 	go artifice.Run()
 	defer artifice.Close()
 

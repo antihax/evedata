@@ -66,6 +66,10 @@ func marketHistoryConsumer(s *Hammer, parameter interface{}) {
 	regionID := parameter.([]int32)[0]
 	typeID := parameter.([]int32)[1]
 	h, _, err := s.esi.ESI.MarketApi.GetMarketsRegionIdHistory(nil, regionID, typeID, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
 	b, err := gobcoder.GobEncoder(&datapackages.MarketHistory{History: h, RegionID: regionID, TypeID: typeID})
 	if err != nil {

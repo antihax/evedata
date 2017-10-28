@@ -103,7 +103,9 @@ func notificationsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 				done = true
 				l := Locator{}
 				err = yaml.Unmarshal([]byte(n.Text), &l)
-
+				if err != nil {
+					return false, err
+				}
 				locatorValues = append(locatorValues, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%d,'%s')",
 					n.NotificationId, char, l.TargetLocation.SolarSystem, l.TargetLocation.Constellation,
 					l.TargetLocation.Region, l.TargetLocation.Station, l.CharacterID, n.Timestamp.Format(models.SQLTimeFormat)))
@@ -121,7 +123,6 @@ func notificationsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 			_, err = tx.Exec(stmt)
 			if err != nil {
-				tx.Rollback()
 				return false, err
 			}
 		}

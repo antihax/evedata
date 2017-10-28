@@ -125,7 +125,11 @@ func (c *EVEConsumer) goMetrics() {
 func (c *EVEConsumer) goConsumer() {
 	// Run Phase
 	for {
-		workDone := false
+		var (
+			err      error
+			workDone bool
+		)
+
 		select {
 		case <-c.consumerStopChannel:
 			return
@@ -135,7 +139,7 @@ func (c *EVEConsumer) goConsumer() {
 			for _, consumer := range consumers {
 				start := monotime.Now()
 				// Call the function
-				if workDone, err := consumer.f(c, &r); err == nil {
+				if workDone, err = consumer.f(c, &r); err == nil {
 					if workDone {
 						duration := monotime.Duration(start, monotime.Now())
 						consumerMetrics.With(
@@ -151,7 +155,7 @@ func (c *EVEConsumer) goConsumer() {
 
 		// Sleep a brief bit if we didnt do anything
 		if workDone == false {
-			time.Sleep(time.Second * 5)
+			time.Sleep(time.Second)
 		}
 	}
 }

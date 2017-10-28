@@ -3,6 +3,7 @@ package views
 import (
 	"encoding/json"
 	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -86,6 +87,10 @@ func marketHistory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	regionID, err := strconv.Atoi(region)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
 	v, err := models.GetMarketHistory(itemID, (int32)(regionID))
 	if err != nil {

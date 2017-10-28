@@ -127,6 +127,9 @@ func updateAccountInfo(s *sessions.Session, characterID int64, characterName str
 	}
 
 	a.Cursor, err = models.GetCursorCharacter(characterID)
+	if err != nil {
+		return err
+	}
 	b, err := json.Marshal(a)
 	s.Values["accountInfo"] = b
 

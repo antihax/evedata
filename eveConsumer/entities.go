@@ -331,6 +331,7 @@ func (c *EVEConsumer) entitiesFromCREST() error {
 	return nil
 }
 
+// CharSearchAddToQueue add a character to the search queue
 func CharSearchAddToQueue(charList []interface{}, redisPtr *redis.Conn) {
 	r := *redisPtr
 
@@ -498,7 +499,9 @@ func (c *EVEConsumer) updateCharacter(id int32) error {
 	redis := c.ctx.Cache.Get()
 	defer redis.Close()
 	err = EntityCharacterAddToQueue(id, &redis)
-
+	if err != nil {
+		return fmt.Errorf("%s with character id %d", err, id)
+	}
 	h, _, err := c.ctx.ESI.ESI.CharacterApi.GetCharactersCharacterIdCorporationhistory(nil, id, nil)
 	if err != nil {
 		return fmt.Errorf("%s with character history id %d", err, id)

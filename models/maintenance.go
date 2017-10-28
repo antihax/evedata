@@ -141,7 +141,9 @@ func MaintMarket() error {
         WHERE
             date > UTC_TIMESTAMP() - INTERVAL 5 DAY
         GROUP BY regionID , itemID`)
-
+	if err != nil {
+		return err
+	}
 	for rows.Next() {
 		var (
 			itemID, regionID, quantity, orders int64

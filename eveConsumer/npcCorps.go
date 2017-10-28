@@ -48,6 +48,9 @@ func npcCorpTrigger(c *EVEConsumer) (bool, error) {
 			}
 
 			for ; store != nil; store, err = store.NextPage() {
+				if err != nil {
+					return false, err
+				}
 				for _, item := range store.Items {
 					models.AddLPOffer(item.ID, npcCorp.ID, item.Item.ID, item.Quantity, item.LpCost, item.AkCost, item.IskCost)
 					for _, requirement := range item.RequiredItems {

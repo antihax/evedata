@@ -10,7 +10,7 @@ import (
 	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/goesi"
 	"github.com/garyburd/redigo/redis"
-	nsq "github.com/nsqio/go-nsq"
+	"github.com/jmoiron/sqlx"
 )
 
 // Artifice handles the scheduling of routine tasks.
@@ -20,8 +20,7 @@ type Artifice struct {
 	inQueue  *redisqueue.RedisQueue
 	esi      *goesi.APIClient
 	redis    *redis.Pool
-	nsq      *nsq.Producer
-	sem      chan bool
+	db       *sqlx.DB
 
 	// authentication
 	token *goesi.CRESTTokenSource
@@ -29,7 +28,7 @@ type Artifice struct {
 }
 
 // NewArtifice Service.
-func NewArtifice(redis *redis.Pool, nsq *nsq.Producer, clientID string, secret string, refresh string) *Artifice {
+func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string, refresh string) *Artifice {
 
 	// Get a caching http client
 	cache := apicache.CreateHTTPClientCache(redis)
@@ -64,12 +63,11 @@ func NewArtifice(redis *redis.Pool, nsq *nsq.Producer, clientID string, secret s
 			redis,
 			"evedata-hammer",
 		),
-		nsq:   nsq,
+		db:    db,
 		auth:  auth,
 		esi:   esi,
 		redis: redis,
 		token: &token,
-		sem:   make(chan bool, 50),
 	}
 
 	return s

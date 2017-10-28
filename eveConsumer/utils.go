@@ -51,6 +51,9 @@ func (c *EVEConsumer) getContactsCREST(auth context.Context, characterID int32) 
 		}
 
 		for ; con != nil; con, err = con.NextPage() {
+			if err != nil {
+				return nil, err
+			}
 			for _, contact := range con.Items {
 				contacts = append(contacts,
 					esi.GetCharactersCharacterIdContacts200Ok{
@@ -134,20 +137,6 @@ func min(x, y int) int {
 		return x
 	}
 	return y
-}
-
-func max(a, b int64) int64 {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func maxint(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }
 
 func tokenError(cid int64, tcid int64, r *http.Response, err error) {

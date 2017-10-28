@@ -41,10 +41,16 @@ func TestEntitiesConsumer(t *testing.T) {
 			t.Error(err)
 			return
 		}
+		if work == false {
+			break
+		}
 		work, err = characterConsumer(eC, &r)
 		if err != nil {
 			t.Error(err)
 			return
+		}
+		if work == false {
+			break
 		}
 		work, err = allianceConsumer(eC, &r)
 		if err != nil {

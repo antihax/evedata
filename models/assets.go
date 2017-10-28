@@ -38,7 +38,7 @@ type AssetCharacters struct {
 }
 
 func GetAssetLocations(characterID int64, filterCharacterID int64) ([]AssetLocations, error) {
-	filter := ""
+	var filter string
 
 	if filterCharacterID == 0 {
 		filter = "IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)"
@@ -84,7 +84,7 @@ func GetAssetCharacters(characterID int64) ([]AssetCharacters, error) {
 // [BENCHMARK] 0.000 sec / 0.000 sec
 func GetAssets(characterID int64, filterCharacterID int64, locationID int64) ([]Assets, error) {
 
-	filter := ""
+	var filter string
 
 	if filterCharacterID == 0 {
 		filter = "IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)"

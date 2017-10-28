@@ -6,12 +6,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/antihax/evedata/models"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
 func NewTestDatabase() *sqlx.DB {
-	database, err := models.SetupDatabase("mysql", "root@tcp(127.0.0.1:3306)/eve?allowOldPasswords=1&parseTime=true")
+	database, err := setupDatabase("mysql", "root@tcp(127.0.0.1:3306)/eve?allowOldPasswords=1&parseTime=true")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -19,7 +19,7 @@ func NewTestDatabase() *sqlx.DB {
 }
 
 func NewDatabase() *sqlx.DB {
-	database, err := models.SetupDatabase("mysql", os.Getenv("SQLAUTH")+"@tcp(sql.evedata:3306)/eve?allowOldPasswords=1&parseTime=true")
+	database, err := setupDatabase("mysql", os.Getenv("SQLAUTH")+"@tcp(sql.evedata:3306)/eve?allowOldPasswords=1&parseTime=true")
 	if err != nil {
 		log.Fatalln(err)
 	}
