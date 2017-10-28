@@ -302,7 +302,7 @@ CREATE TABLE `lpOffers` (
   KEY `lpOffers_typeid` (`typeID`),
   KEY `lpOffers_corporation` (`corporationID`),
   KEY `lpOffers_corp_type` (`corporationID`,`typeID`)
-) ENGINE=InnoDB AUTO_INCREMENT=16275 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=16310 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `market` (
   `orderID` bigint(11) unsigned NOT NULL DEFAULT '0',
@@ -350,7 +350,7 @@ CREATE TABLE `market_history` (
   `low` decimal(20,2) unsigned NOT NULL,
   `high` decimal(20,2) unsigned NOT NULL,
   `mean` decimal(20,2) unsigned NOT NULL,
-  `quantity` int(10) unsigned NOT NULL,
+  `quantity` bigint(20) unsigned NOT NULL,
   `orders` smallint(4) unsigned NOT NULL,
   `itemID` smallint(5) unsigned NOT NULL,
   `regionID` mediumint(8) unsigned NOT NULL,
