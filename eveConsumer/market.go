@@ -12,11 +12,11 @@ import (
 
 func init() {
 
-	addConsumer("market", marketHistoryConsumer, "EVEDATA_marketHistory")
-	addConsumer("market", marketRegionConsumer, "")
+	//addConsumer("market", marketHistoryConsumer, "EVEDATA_marketHistory")
+	//addConsumer("market", marketRegionConsumer, "")
 
 	addTrigger("market", marketMaintTrigger)
-	addTrigger("market", marketHistoryTrigger)
+	//addTrigger("market", marketHistoryTrigger)
 
 }
 
