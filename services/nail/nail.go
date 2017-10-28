@@ -10,7 +10,7 @@ import (
 	nsq "github.com/nsqio/go-nsq"
 )
 
-// Nail handles storage of data from NSQ
+// Nail handles storage of data to SQL
 type Nail struct {
 	stop    chan bool
 	wg      *sync.WaitGroup

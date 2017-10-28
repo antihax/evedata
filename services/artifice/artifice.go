@@ -13,7 +13,7 @@ import (
 	nsq "github.com/nsqio/go-nsq"
 )
 
-// Artifice does things
+// Artifice handles the scheduling of routine tasks.
 type Artifice struct {
 	stop     chan bool
 	hammerWG *sync.WaitGroup

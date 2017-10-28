@@ -12,7 +12,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-// Hammer provides service control.
+// NewZKillboard sucks down killmails from zkillboard redisq and API.
 type ZKillboard struct {
 	stop     chan bool
 	wg       *sync.WaitGroup
@@ -21,7 +21,7 @@ type ZKillboard struct {
 	http     *http.Client
 }
 
-// NewHammer Service.
+// NewZKillboard Service.
 func NewZKillboard(redis *redis.Pool) *ZKillboard {
 	// Setup a new hammer
 	s := &ZKillboard{

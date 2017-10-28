@@ -13,7 +13,7 @@ import (
 	nsq "github.com/nsqio/go-nsq"
 )
 
-// Hammer provides service control.
+// Hammer completes work handling CCP ESI and other API.
 type Hammer struct {
 	stop     chan bool
 	hammerWG *sync.WaitGroup
