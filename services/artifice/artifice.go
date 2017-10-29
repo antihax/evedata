@@ -70,6 +70,8 @@ func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string,
 		token: &token,
 	}
 
+
+
 	return s
 }
 
@@ -97,5 +99,6 @@ func (s *Artifice) QueueWork(work []redisqueue.Work) error {
 
 // Run the hammer service
 func (s *Artifice) Run() {
+	go s.zkillboardPost()
 	s.runTriggers()
 }
