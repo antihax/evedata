@@ -55,7 +55,7 @@ func (s *Artifice) runTriggers() {
 
 func getNextTickDuration(hour int) time.Duration {
 	now := time.Now()
-	nextTick := time.Date(now.Year(), now.Month(), now.Day(), hour, 1, 1, 1, time.UTC)
+	nextTick := time.Date(now.UTC().Year(), now.UTC().Month(), now.UTC().Day(), hour, 1, 1, 1, time.UTC)
 	if nextTick.Before(now) {
 		nextTick = nextTick.Add(24 * time.Hour)
 	}
