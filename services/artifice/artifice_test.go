@@ -1,6 +1,7 @@
 package artifice
 
 import (
+	"log"
 	"os"
 	"testing"
 	"time"
@@ -36,6 +37,9 @@ func TestMain(m *testing.M) {
 func TestTriggers(t *testing.T) {
 	for _, trigger := range triggers {
 		err := trigger.f(artificeInstance)
+		if err != nil {
+			log.Println(err)
+		}
 		assert.Nil(t, err)
 	}
 }
