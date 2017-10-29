@@ -22,6 +22,8 @@ func TestMain(m *testing.M) {
 	redConn.Do("FLUSHALL")
 
 	artificeInstance = NewArtifice(redis, sql, "123400", "faaaaaaake", "sofake")
+	artificeInstance.ChangeBasePath("http://127.0.0.1:8080")
+	artificeInstance.ChangeTokenPath("http://127.0.0.1:8080")
 
 	go artificeInstance.Run()
 	retCode := m.Run()
