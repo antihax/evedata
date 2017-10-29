@@ -33,7 +33,7 @@ func (c *EVEConsumer) warAddToQueue(id int32) error {
 	defer r.Close()
 
 	// This war is over. Early out.
-	i, err := redis.Int(r.Do("SISMEMBER", "EVEDATA_knownFinishedWars", id))
+	i, err := redis.Int(r.Do("SISMEMBER", "evedata_war_finished", id))
 	if err == nil && i == 1 {
 		return err
 	}
@@ -63,7 +63,7 @@ func (c *EVEConsumer) updateWars() error {
 			r.Flush()
 			return err
 		}
-		r.Send("SREM", "EVEDATA_knownFinishedWars", id)
+		r.Send("SREM", "evedata_war_finished", id)
 		r.Send("SADD", "EVEDATA_warQueue", id)
 	}
 
@@ -199,7 +199,7 @@ func warConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 	// If the war ended, cache the ID in redis to prevent needlessly pulling
 	if war.Finished.IsZero() == false && war.Finished.Before(time.Now().UTC()) {
-		r.Do("SADD", "EVEDATA_knownFinishedWars", war.Id)
+		r.Do("SADD", "evedata_war_finished", war.Id)
 	}
 
 	// Loop through all the killmail pages
