@@ -23,12 +23,12 @@ func (s *Artifice) zkillboardPost() {
 	httpClient := http.Client{}
 
 	// Throttle requests
-	throttle := time.Tick(time.Second / 2)
+	throttle := time.Tick(time.Second / 9)
 
 	for {
 		// pop a killmail off the channel
 		k := <-zkillChan
-		if (k.ID < 100) {
+		if k.ID < 100 {
 			continue
 		}
 		mail := fmt.Sprintf("https://zkillboard.com/crestmail/%d/%s/", k.ID, k.Hash)
