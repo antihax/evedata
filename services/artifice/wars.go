@@ -25,10 +25,12 @@ func warsTrigger(s *Artifice) error {
 
 		work := []redisqueue.Work{}
 		for _, war := range wars {
-			if !s.inQueue.CheckWorkCompleted("evedata-war-finished", int64(war)) {
-				if maxWarID > war {
-					maxWarID = war
-				}
+			// tick down the pages
+			if maxWarID > war {
+				maxWarID = war
+			}
+
+			if !s.inQueue.CheckWorkCompleted("evedata_war_finished", int64(war)) {
 				work = append(work, redisqueue.Work{Operation: "war", Parameter: war})
 				err = getWarKills(s, war)
 				if err != nil {
