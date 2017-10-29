@@ -78,8 +78,8 @@ func (hq *RedisQueue) SetWorkCompleted(key string, id int64) error {
 	return err
 }
 
-// CheckWorkFailure takes a key and checks if the ID has failed to prevent failed
-func (hq *RedisQueue) CheckWorkFailure(key string, id int64) bool {
+// CheckWorkExpired takes a key and checks if the ID has expired
+func (hq *RedisQueue) CheckWorkExpired(key string, id int64) bool {
 	conn := hq.redisPool.Get()
 	defer conn.Close()
 	found, err := redis.Bool(conn.Do("GET", fmt.Sprintf("%s:%d", key, id)))
@@ -89,11 +89,11 @@ func (hq *RedisQueue) CheckWorkFailure(key string, id int64) bool {
 	return found
 }
 
-// SetWorkFailure takes a key and sets if the ID has failed to prevent multiple failed
-func (hq *RedisQueue) SetWorkFailure(key string, id int64) error {
+// SetWorkExpire takes a key and sets if the ID has failed to prevent multiple failed
+func (hq *RedisQueue) SetWorkExpire(key string, id int64, seconds int) error {
 	conn := hq.redisPool.Get()
 	defer conn.Close()
-	_, err := conn.Do("SETEX", fmt.Sprintf("%s:%d", key, id), 86400, true)
+	_, err := conn.Do("SETEX", fmt.Sprintf("%s:%d", key, id), seconds, true)
 	return err
 }
 

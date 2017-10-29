@@ -46,7 +46,7 @@ func structuresTrigger(s *Artifice) error {
 
 	work := []redisqueue.Work{}
 	for _, structure := range structures {
-		if !s.inQueue.CheckWorkFailure("evedata-structure-failure", structure) {
+		if !s.inQueue.CheckWorkExpired("evedata_structure_failure", structure) {
 			work = append(work, redisqueue.Work{Operation: "structure", Parameter: structure})
 			work = append(work, redisqueue.Work{Operation: "structureOrders", Parameter: structure})
 		} else {

@@ -23,7 +23,7 @@ func init() {
 func structureConsumer(s *Hammer, parameter interface{}) {
 	structureID := parameter.(int64)
 
-	if s.inQueue.CheckWorkFailure("evedata-structure-failure", structureID) {
+	if s.inQueue.CheckWorkExpired("evedata_structure_failure", structureID) {
 		log.Printf("ignoring structure %d\n", structureID)
 		return
 	}
@@ -31,7 +31,7 @@ func structureConsumer(s *Hammer, parameter interface{}) {
 	ctx := context.WithValue(context.TODO(), goesi.ContextOAuth2, s.token)
 	struc, _, err := s.esi.ESI.UniverseApi.GetUniverseStructuresStructureId(ctx, structureID, nil)
 	if err != nil {
-		s.inQueue.SetWorkFailure("evedata-structure-failure", structureID)
+		s.inQueue.SetWorkExpire("evedata_structure_failure", structureID, 86400)
 		return
 	}
 
@@ -53,7 +53,7 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 	var page int32 = 1
 	orders := []esi.GetMarketsStructuresStructureId200Ok{}
 
-	if s.inQueue.CheckWorkFailure("evedata-structure-failure", structureID) {
+	if s.inQueue.CheckWorkExpired("evedata_structure_failure", structureID) {
 		log.Printf("ignoring structure %d\n", structureID)
 		return
 	}
@@ -63,7 +63,7 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 	for {
 		o, _, err := s.esi.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, structureID, map[string]interface{}{"page": page})
 		if err != nil {
-			s.inQueue.SetWorkFailure("evedata-structure-failure", structureID)
+			s.inQueue.SetWorkExpire("evedata_structure_failure", structureID, 86400)
 			return
 		} else if len(o) == 0 { // end of the pages
 			break

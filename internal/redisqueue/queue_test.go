@@ -53,10 +53,10 @@ func TestHQ(t *testing.T) {
 func TestFailure(t *testing.T) {
 	pool := redigohelper.ConnectRedisTestPool()
 	hq := NewRedisQueue(pool, "test-redisqueue")
-	err := hq.SetWorkFailure("testKey", 1)
+	err := hq.SetWorkExpire("testKey", 1, 9999)
 	assert.Nil(t, err)
 
-	b := hq.CheckWorkFailure("testKey", 1)
+	b := hq.CheckWorkExpired("testKey", 1)
 	assert.Equal(t, b, true)
 }
 

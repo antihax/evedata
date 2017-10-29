@@ -34,6 +34,9 @@ var (
 		{Operation: "killmail", Parameter: []interface{}{"FAKEHASH", int32(20)}},
 		{Operation: "marketOrders", Parameter: int32(1)},
 		{Operation: "war", Parameter: int32(1)},
+		{Operation: "alliance", Parameter: int32(1)},
+		{Operation: "corporation", Parameter: int32(1)},
+		{Operation: "character", Parameter: int32(1)},
 		{Operation: "marketHistoryTrigger", Parameter: int32(1)},
 		{Operation: "structure", Parameter: int64(1)},
 		{Operation: "marketHistory", Parameter: []int32{1, 1}},
@@ -52,7 +55,6 @@ func TestHammerService(t *testing.T) {
 	hammer := NewHammer(redis, producer, "123400", "faaaaaaake", "sofake")
 	hammer.ChangeBasePath("http://127.0.0.1:8080")
 	hammer.ChangeTokenPath("http://127.0.0.1:8080")
-	defer hammer.Close()
 
 	// Run Hammer
 	go hammer.Run()
@@ -63,4 +65,6 @@ func TestHammerService(t *testing.T) {
 
 	time.Sleep(time.Second)
 	// Wait for the consumers to finish
+
+	hammer.Close()
 }
