@@ -33,6 +33,11 @@ spec:
             secretKeyRef:
               name: esi-secret
               key: clientID
+        - name: SQLAUTH
+          valueFrom:
+            secretKeyRef:
+              name: sql-password
+              key: sqlauth
         - name: ESI_REFRESHKEY
           valueFrom:
             secretKeyRef:
