@@ -15,3 +15,9 @@ type Character struct {
 	CorporationHistory []esi.GetCharactersCharacterIdCorporationhistory200Ok
 	CharacterID        int32
 }
+
+// Corporation contains corp history and character information
+type Corporation struct {
+	CorporationID int32
+	Corporation   esi.GetCorporationsCorporationIdOk
+}

@@ -8,12 +8,15 @@ import (
 
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/gobcoder"
+	"github.com/antihax/goesi"
 	nsq "github.com/nsqio/go-nsq"
 )
 
 func init() {
 	AddHandler("character", spawnCharacterConsumer)
 	AddHandler("alliance", spawnAllianceConsumer)
+	AddHandler("corporation", spawnCorporationConsumer)
+
 }
 
 func spawnCharacterConsumer(s *Nail, consumer *nsq.Consumer) {
@@ -22,6 +25,31 @@ func spawnCharacterConsumer(s *Nail, consumer *nsq.Consumer) {
 
 func spawnAllianceConsumer(s *Nail, consumer *nsq.Consumer) {
 	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.allianceHandler)))
+}
+
+func spawnCorporationConsumer(s *Nail, consumer *nsq.Consumer) {
+	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.corporationHandler)))
+}
+
+func (s *Nail) corporationHandler(message *nsq.Message) error {
+	c := datapackages.Corporation{}
+	err := gobcoder.GobDecoder(message.Body, &c)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 7)
+
+	return s.DoSQL(`INSERT INTO evedata.corporations
+		(corporationID,name,ticker,ceoID,allianceID,factionID,memberCount,updated,cacheUntil)
+		VALUES(?,?,?,?,?,?,?,UTC_TIMESTAMP(),?) 
+		ON DUPLICATE KEY UPDATE 
+		ceoID=VALUES(ceoID), name=VALUES(name), ticker=VALUES(ticker), allianceID=VALUES(allianceID), 
+		factionID=VALUES(factionID), memberCount=VALUES(memberCount),  
+		updated=UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil)
+	`, c.CorporationID, c.Corporation.CorporationName, c.Corporation.Ticker, c.Corporation.CeoId, c.Corporation.AllianceId, goesi.FactionNameToID(c.Corporation.Faction), c.Corporation.MemberCount, cacheUntil)
+
 }
 
 func (s *Nail) allianceHandler(message *nsq.Message) error {

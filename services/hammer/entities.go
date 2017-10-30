@@ -11,16 +11,15 @@ import (
 	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/goesi"
-	"github.com/antihax/goesi/esi"
 )
 
 func init() {
 	registerConsumer("alliance", allianceConsumer)
 	registerConsumer("corporation", corporationConsumer)
 	registerConsumer("character", characterConsumer)
+	gob.Register(datapackages.Corporation{})
 	gob.Register(datapackages.Alliance{})
 	gob.Register(datapackages.Character{})
-	gob.Register(esi.GetCorporationsCorporationIdOk{})
 
 }
 
@@ -114,7 +113,7 @@ func corporationConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	b, err := gobcoder.GobEncoder(corporation)
+	b, err := gobcoder.GobEncoder(&datapackages.Corporation{CorporationID: corporationID, Corporation: corporation})
 	if err != nil {
 		log.Println(err)
 		return
