@@ -82,10 +82,7 @@ func (hq *RedisQueue) SetWorkCompleted(key string, id int64) error {
 func (hq *RedisQueue) CheckWorkExpired(key string, id int64) bool {
 	conn := hq.redisPool.Get()
 	defer conn.Close()
-	found, err := redis.Bool(conn.Do("GET", fmt.Sprintf("%s:%d", key, id)))
-	if err != nil {
-		log.Println(err)
-	}
+	found, _ := redis.Bool(conn.Do("GET", fmt.Sprintf("%s:%d", key, id)))
 	return found
 }
 
