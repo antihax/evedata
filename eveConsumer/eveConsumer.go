@@ -7,6 +7,7 @@ import (
 
 	"github.com/ScaleFT/monotime"
 	"github.com/antihax/evedata/appContext"
+	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/garyburd/redigo/redis"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -82,8 +83,11 @@ type EVEConsumer struct {
 	errorRate           int32
 }
 
+var hammerQueue *redisqueue.RedisQueue
+
 // NewEVEConsumer creates a new EveConsumer
 func NewEVEConsumer(ctx *appContext.AppContext) *EVEConsumer {
+	hammerQueue = redisqueue.NewRedisQueue(ctx.Cache, "evedata-hammer")
 	e := &EVEConsumer{ctx, make(chan bool), make(chan bool), make(chan bool), 0}
 	return e
 }

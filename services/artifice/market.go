@@ -9,8 +9,8 @@ import (
 )
 
 func init() {
-	registerTrigger("marketOrders", marketTrigger, time.NewTicker(time.Minute*30))
-	registerTrigger("structures", structuresTrigger, time.NewTicker(time.Minute*60))
+	registerTrigger("marketOrders", marketTrigger, time.NewTicker(time.Second*3600))
+	registerTrigger("structures", structuresTrigger, time.NewTicker(time.Second*3600))
 	registerDailyTrigger("marketHistory", historyTrigger, 1)
 }
 

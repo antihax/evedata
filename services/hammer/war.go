@@ -50,5 +50,21 @@ func warConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
+	if war.Aggressor.AllianceId == 0 {
+		err = s.AddCorporation(war.Aggressor.CorporationId)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
+
+	if war.Defender.AllianceId == 0 {
+		err = s.AddCorporation(war.Defender.CorporationId)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
+
 	return
 }

@@ -48,5 +48,19 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
+	err = s.AddCharacter(kill.Victim.CharacterId)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	for _, a := range kill.Attackers {
+		err = s.AddCharacter(a.CharacterId)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
+
 	return
 }
