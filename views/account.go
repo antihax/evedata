@@ -2,6 +2,7 @@ package views
 
 import (
 	"encoding/json"
+	"errors"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -44,13 +45,14 @@ func accountInfo(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, errors.New("could not find character ID"), http.StatusUnauthorized)
 		return
+
 	}
 
 	char, ok := s.Values["character"].(goesi.VerifyResponse)
 	if !ok {
-		httpErrCode(w, http.StatusForbidden)
+		httpErrCode(w, errors.New("could not find verify response"), http.StatusForbidden)
 		return
 	}
 
@@ -77,14 +79,14 @@ func cursorChar(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, errors.New("could not find character ID for cursor"), http.StatusUnauthorized)
 		return
 	}
 
 	// Parse the cursorCharacterID
 	cursorCharacterID, err := strconv.ParseInt(r.FormValue("cursorCharacterID"), 10, 64)
 	if err != nil {
-		httpErrCode(w, http.StatusForbidden)
+		httpErrCode(w, err, http.StatusForbidden)
 		return
 	}
 
@@ -97,7 +99,7 @@ func cursorChar(w http.ResponseWriter, r *http.Request) {
 
 	char, ok := s.Values["character"].(goesi.VerifyResponse)
 	if !ok {
-		httpErrCode(w, http.StatusForbidden)
+		httpErrCode(w, errors.New("could not find verify for cursor"), http.StatusForbidden)
 		return
 	}
 
@@ -120,7 +122,7 @@ func apiGetCRESTTokens(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, errors.New("could not find character ID for crest token"), http.StatusUnauthorized)
 		return
 	}
 
@@ -150,24 +152,24 @@ func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, errors.New("could not find character ID to delete"), http.StatusUnauthorized)
 		return
 	}
 
 	cid, err := strconv.ParseInt(r.FormValue("tokenCharacterID"), 10, 64)
 	if err != nil {
-		httpErrCode(w, http.StatusNotFound)
+		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 
 	if err := models.DeleteCRESTToken(characterID, cid); err != nil {
-		httpErrCode(w, http.StatusConflict)
+		httpErrCode(w, err, http.StatusConflict)
 		return
 	}
 
 	char, ok := s.Values["character"].(goesi.VerifyResponse)
 	if !ok {
-		httpErrCode(w, http.StatusForbidden)
+		httpErrCode(w, errors.New("could not find verify response to delete"), http.StatusForbidden)
 		return
 	}
 

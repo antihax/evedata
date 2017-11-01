@@ -48,7 +48,7 @@ func shipsForEntityAPI(w http.ResponseWriter, r *http.Request) {
 
 	v, err := models.GetKnownShipTypes(id, entityType)
 	if err != nil {
-		httpErrCode(w, http.StatusNotFound)
+		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 
@@ -80,7 +80,7 @@ func assetsForEntityAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		httpErrCode(w, http.StatusNotFound)
+		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 
@@ -105,7 +105,7 @@ func activityForEntityAPI(w http.ResponseWriter, r *http.Request) {
 
 	v, err := models.GetConstellationActivity(id, entityType)
 	if err != nil {
-		httpErrCode(w, http.StatusNotFound)
+		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 
@@ -122,7 +122,7 @@ func alliesForEntityAPI(w http.ResponseWriter, r *http.Request) {
 	}
 	v, err := models.GetKnownAlliesByID(id)
 	if err != nil {
-		httpErrCode(w, http.StatusNotFound)
+		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 
@@ -139,7 +139,7 @@ func corporationHistoryAPI(w http.ResponseWriter, r *http.Request) {
 	}
 	v, err := models.GetCorporationHistory(id)
 	if err != nil {
-		httpErrCode(w, http.StatusNotFound)
+		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 
@@ -174,7 +174,7 @@ func knownAssociatesForEntityAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		httpErrCode(w, http.StatusNotFound)
+		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 
@@ -191,7 +191,7 @@ func warsForEntityAPI(w http.ResponseWriter, r *http.Request) {
 	}
 	v, err := models.GetWarsForEntityByID(id)
 	if err != nil {
-		httpErrCode(w, http.StatusNotFound)
+		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 
@@ -208,7 +208,7 @@ func corporationsForAllianceAPI(w http.ResponseWriter, r *http.Request) {
 	}
 	v, err := models.GetAllianceMembers(id)
 	if err != nil {
-		httpErrCode(w, http.StatusNotFound)
+		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 

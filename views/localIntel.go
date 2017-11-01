@@ -59,12 +59,12 @@ func localIntel(w http.ResponseWriter, r *http.Request) {
 	}
 	var locl localdata
 	if r.Body == nil {
-		httpErrCode(w, http.StatusBadRequest)
+		httpErrCode(w, err, http.StatusBadRequest)
 		return
 	}
 	err = json.NewDecoder(r.Body).Decode(&locl)
 	if err != nil || len(locl.Local) == 0 {
-		httpErrCode(w, http.StatusNotFound)
+		httpErrCode(w,err, http.StatusNotFound)
 		return
 	}
 

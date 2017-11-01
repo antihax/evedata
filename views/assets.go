@@ -2,6 +2,7 @@ package views
 
 import (
 	"encoding/json"
+	"errors"
 	"strconv"
 
 	"html/template"
@@ -38,7 +39,7 @@ func assetCharactersAPI(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, errors.New("could not find character ID for assets"), http.StatusUnauthorized)
 		return
 	}
 
@@ -59,7 +60,7 @@ func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, errors.New("could not find character ID for asset locations"), http.StatusUnauthorized)
 		return
 	}
 
@@ -69,7 +70,7 @@ func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
 	if filter != "" {
 		filterCharacterID, err = strconv.Atoi(filter)
 		if err != nil {
-			httpErrCode(w, http.StatusNotFound)
+			httpErrCode(w, err, http.StatusNotFound)
 			return
 		}
 	}
@@ -96,7 +97,7 @@ func assetsAPI(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, errors.New("could not find character ID for asset API"), http.StatusUnauthorized)
 		return
 	}
 
@@ -105,7 +106,7 @@ func assetsAPI(w http.ResponseWriter, r *http.Request) {
 	if filter != "" {
 		filterCharacterID, err = strconv.ParseInt(filter, 10, 64)
 		if err != nil {
-			httpErrCode(w, http.StatusNotFound)
+			httpErrCode(w, err, http.StatusNotFound)
 			return
 		}
 	}
@@ -114,7 +115,7 @@ func assetsAPI(w http.ResponseWriter, r *http.Request) {
 	if location != "" {
 		locationID, err = strconv.ParseInt(location, 10, 64)
 		if err != nil {
-			httpErrCode(w, http.StatusNotFound)
+			httpErrCode(w, err, http.StatusNotFound)
 			return
 		}
 	}

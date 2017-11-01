@@ -40,7 +40,7 @@ func walletSummaryAPI(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
 	}
 
@@ -49,11 +49,11 @@ func walletSummaryAPI(w http.ResponseWriter, r *http.Request) {
 	if rangeTxt != "" {
 		rangeI, err = strconv.ParseInt(rangeTxt, 10, 64)
 		if err != nil {
-			httpErrCode(w, http.StatusBadRequest)
+			httpErrCode(w, err, http.StatusBadRequest)
 			return
 		}
 	} else {
-		httpErrCode(w, http.StatusBadRequest)
+		httpErrCode(w, err, http.StatusBadRequest)
 		return
 	}
 

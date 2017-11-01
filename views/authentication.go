@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"strings"
 
@@ -34,7 +35,7 @@ func logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/", 302)
-	httpErrCode(w, http.StatusMovedPermanently)
+	httpErrCode(w, nil, http.StatusMovedPermanently)
 }
 
 func eveSSO(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +57,7 @@ func eveSSO(w http.ResponseWriter, r *http.Request) {
 
 	url := c.SSOAuthenticator.AuthorizeURL(state, true, nil)
 	http.Redirect(w, r, url, 302)
-	httpErrCode(w, http.StatusMovedPermanently)
+	httpErrCode(w, nil, http.StatusMovedPermanently)
 }
 
 func eveSSOAnswer(w http.ResponseWriter, r *http.Request) {
@@ -68,24 +69,27 @@ func eveSSOAnswer(w http.ResponseWriter, r *http.Request) {
 	state := r.FormValue("state")
 
 	if s.Values["state"] != state {
-		httpErr(w, errors.New("State does not match. We likely could not read the sessin cookie. Please make sure cookies are enabled."))
+		httpErr(w, errors.New("state does not match. We likely could not read the session cookie. Please make sure cookies are enabled."))
 		return
 	}
 
 	tok, err := c.SSOAuthenticator.TokenExchange(code)
 	if err != nil {
+		log.Println(err)
 		httpErr(w, err)
 		return
 	}
 
 	tokSrc, err := c.SSOAuthenticator.TokenSource(tok)
 	if err != nil {
+		log.Println(err)
 		httpErr(w, err)
 		return
 	}
 
 	v, err := c.SSOAuthenticator.Verify(tokSrc)
 	if err != nil {
+		log.Println(err)
 		httpErr(w, err)
 		return
 	}
@@ -95,17 +99,19 @@ func eveSSOAnswer(w http.ResponseWriter, r *http.Request) {
 	s.Values["token"] = tok
 
 	if err = updateAccountInfo(s, v.CharacterID, v.CharacterName); err != nil {
+		log.Println(err)
 		httpErr(w, err)
 		return
 	}
 
 	if err = s.Save(r, w); err != nil {
+		log.Println(err)
 		httpErr(w, err)
 		return
 	}
 
 	http.Redirect(w, r, "/account", 302)
-	httpErrCode(w, http.StatusMovedPermanently)
+	httpErrCode(w, nil, http.StatusMovedPermanently)
 }
 
 type accountInformation struct {
@@ -123,12 +129,12 @@ func updateAccountInfo(s *sessions.Session, characterID int64, characterName str
 	a.CharacterID = characterID
 	a.Characters, err = models.GetCRESTTokens(characterID)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 
 	a.Cursor, err = models.GetCursorCharacter(characterID)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 	b, err := json.Marshal(a)
 	s.Values["accountInfo"] = b
@@ -154,7 +160,7 @@ func eveCRESTToken(w http.ResponseWriter, r *http.Request) {
 		validate := models.GetCharacterScopeGroups()
 		for _, group := range scopeGroups {
 			if validate[group] == "" {
-				httpErrCode(w, http.StatusBadRequest)
+				httpErrCode(w, nil, http.StatusBadRequest)
 				return
 			}
 		}
@@ -181,7 +187,7 @@ func eveCRESTToken(w http.ResponseWriter, r *http.Request) {
 	url := c.TokenAuthenticator.AuthorizeURL(state, true, scopes)
 
 	http.Redirect(w, r, url, 302)
-	httpErrCode(w, http.StatusMovedPermanently)
+	httpErrCode(w, nil, http.StatusMovedPermanently)
 }
 
 func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {
@@ -223,5 +229,5 @@ func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/account", 302)
-	httpErrCode(w, http.StatusMovedPermanently)
+	httpErrCode(w, nil, http.StatusMovedPermanently)
 }

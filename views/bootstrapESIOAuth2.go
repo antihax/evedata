@@ -20,7 +20,7 @@ func bootstrapEveSSO(w http.ResponseWriter, r *http.Request) {
 
 	url := c.ESIBootstrapAuthenticator.AuthorizeURL("NONE", true, nil)
 	http.Redirect(w, r, url, 302)
-	httpErrCode(w, http.StatusMovedPermanently)
+	httpErrCode(w, nil,  http.StatusMovedPermanently)
 }
 
 func bootstrapEveSSOAnswer(w http.ResponseWriter, r *http.Request) {

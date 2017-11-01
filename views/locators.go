@@ -40,18 +40,18 @@ func apiDeleteLocatorShare(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
 	}
 
 	entity, err := strconv.ParseInt(r.FormValue("entityID"), 10, 64)
 	if err != nil {
-		httpErrCode(w, http.StatusNotFound)
+		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 
 	if err := models.DeleteLocatorShare(characterID, entity); err != nil {
-		httpErrCode(w, http.StatusConflict)
+		httpErrCode(w, err, http.StatusConflict)
 		return
 	}
 }
@@ -63,19 +63,19 @@ func apiAddLocatorShare(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
 	}
 
 	entity, err := strconv.ParseInt(r.FormValue("entityID"), 10, 64)
 	if err != nil {
-		httpErrCode(w, http.StatusNotFound)
+		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 
 	if err := models.AddLocatorShare(characterID, entity); err != nil {
 		fmt.Println(err)
-		httpErrCode(w, http.StatusConflict)
+		httpErrCode(w, err, http.StatusConflict)
 		return
 	}
 }
@@ -87,7 +87,7 @@ func apiGetLocatorShares(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
 	}
 
@@ -124,7 +124,7 @@ func apiGetLocatorResponses(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
 	}
 

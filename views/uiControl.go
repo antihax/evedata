@@ -21,7 +21,7 @@ func openMarketWindow(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	_, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
 	}
 
@@ -44,7 +44,7 @@ func openMarketWindow(w http.ResponseWriter, r *http.Request) {
 	res, err := c.ESI.ESI.UserInterfaceApi.PostUiOpenwindowMarketdetails(auth, (int32)(typeID), nil)
 	if err != nil {
 		if res != nil {
-			httpErrCode(w, res.StatusCode)
+			httpErrCode(w, err, res.StatusCode)
 			return
 		}
 		httpErr(w, err)
@@ -60,7 +60,7 @@ func setDestination(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	_, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
 	}
 
@@ -83,7 +83,7 @@ func setDestination(w http.ResponseWriter, r *http.Request) {
 	res, err := c.ESI.ESI.UserInterfaceApi.PostUiAutopilotWaypoint(auth, false, true, destinationID, nil)
 	if err != nil {
 		if res != nil {
-			httpErrCode(w, res.StatusCode)
+			httpErrCode(w, err, res.StatusCode)
 			return
 		}
 		httpErr(w, err)
@@ -99,7 +99,7 @@ func addDestination(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	_, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
 	}
 
@@ -122,7 +122,7 @@ func addDestination(w http.ResponseWriter, r *http.Request) {
 	res, err := c.ESI.ESI.UserInterfaceApi.PostUiAutopilotWaypoint(auth, false, false, destinationID, nil)
 	if err != nil {
 		if res != nil {
-			httpErrCode(w, res.StatusCode)
+			httpErrCode(w, err, res.StatusCode)
 			return
 		}
 		httpErr(w, err)

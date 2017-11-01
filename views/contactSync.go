@@ -41,23 +41,23 @@ func apiAddContactSync(w http.ResponseWriter, r *http.Request) {
 
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
 	}
 
 	if r.Body == nil {
-		httpErrCode(w, http.StatusBadRequest)
+		httpErrCode(w, nil, http.StatusBadRequest)
 		return
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&cc)
 	if err != nil {
-		httpErrCode(w, http.StatusNotFound)
+		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 
 	if err := models.AddContactSync(characterID, cc.Source, cc.Destination); err != nil {
-		httpErrCode(w, http.StatusConflict)
+		httpErrCode(w, err, http.StatusConflict)
 		return
 	}
 }
@@ -68,13 +68,13 @@ func apiGetContactSyncs(w http.ResponseWriter, r *http.Request) {
 
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
 	}
 
 	v, err := models.GetContactSyncs(characterID)
 	if err != nil {
-		httpErrCode(w, http.StatusNotFound)
+		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 	json.NewEncoder(w).Encode(v)
@@ -86,18 +86,18 @@ func apiDeleteContactSync(w http.ResponseWriter, r *http.Request) {
 
 	characterID, ok := s.Values["characterID"].(int64)
 	if !ok {
-		httpErrCode(w, http.StatusUnauthorized)
+		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
 	}
 
 	destination, err := strconv.Atoi(r.FormValue("destination"))
 	if err != nil {
-		httpErrCode(w, http.StatusNotFound)
+		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 
 	if err := models.DeleteContactSync(characterID, destination); err != nil {
-		httpErrCode(w, http.StatusConflict)
+		httpErrCode(w, err, http.StatusConflict)
 		return
 	}
 }

@@ -87,5 +87,5 @@ func searchRouter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, endPoint, 302)
-	httpErrCode(w, http.StatusMovedPermanently)
+	httpErrCode(w, nil, http.StatusMovedPermanently)
 }
