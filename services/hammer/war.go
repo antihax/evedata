@@ -19,11 +19,6 @@ func init() {
 func warConsumer(s *Hammer, parameter interface{}) {
 	id := parameter.(int32)
 
-	// We know this kill, early out
-	if s.inQueue.CheckWorkCompleted("evedata_war_finished", int64(id)) {
-		return
-	}
-
 	war, _, err := s.esi.ESI.WarsApi.GetWarsWarId(context.TODO(), id, nil)
 	if err != nil {
 		log.Println(err)

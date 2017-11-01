@@ -16,11 +16,9 @@ func init() {
 
 func killmailConsumer(s *Hammer, parameter interface{}) {
 	parameters := parameter.([]interface{})
-
 	hash := parameters[0].(string)
 	id := parameters[1].(int32)
 
-	// We know this kill, early out
 	if s.inQueue.CheckWorkCompleted("evedata_known_kills", int64(id)) {
 		return
 	}

@@ -110,7 +110,7 @@ func (hq *RedisQueue) GetWork() (*Work, error) {
 	for {
 		v, err = conn.Do("SPOP", hq.key)
 		if err != nil || v == nil {
-			time.Sleep(time.Second)
+			time.Sleep(time.Millisecond * 100)
 			continue
 		}
 		break

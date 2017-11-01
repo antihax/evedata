@@ -22,16 +22,22 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	// Loop until success
 	tries := 0
 	for {
-		esiRateLimiter := true
 
-		// Time our response
-		start := time.Now().Nanosecond()
+		esiRateLimiter := true
 
 		// Tickup retry counter
 		tries++
 
+		// Time our response
+		start := time.Now().Nanosecond()
+
 		// Run the request.
 		res, err := t.next.RoundTrip(req)
+
+		duration := float64((time.Now().Nanosecond() - start)) / 1000
+		metricAPICalls.With(
+			prometheus.Labels{"host": req.Host},
+		).Observe(duration)
 
 		// We got a response
 		if res != nil {
@@ -53,11 +59,6 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 			if err != nil {
 				esiRateLimiter = false
 			}
-
-			duration := (time.Now().Nanosecond() - start) / 1000
-			metricAPICalls.With(
-				prometheus.Labels{"host": req.Host},
-			).Observe(float64(duration))
 
 			// Sleep to prevent hammering CCP ESI if there are excessive errors
 			if esiRateLimiter {

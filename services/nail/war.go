@@ -44,8 +44,7 @@ func (s *Nail) warHandler(message *nsq.Message) error {
 	err = s.DoSQL(`INSERT INTO evedata.wars
 		(id, timeFinished,timeStarted,timeDeclared,openForAllies,cacheUntil,aggressorID,defenderID,mutual)
 		VALUES(?,?,?,?,?,?,?,?,?)
-		ON DUPLICATE KEY UPDATE 
-			timeFinished=VALUES(timeFinished), 
+		ON DUPLICATE KEY UPDATE timeFinished=VALUES(timeFinished), 
 			openForAllies=VALUES(openForAllies), 
 			mutual=VALUES(mutual), 
 			cacheUntil=VALUES(cacheUntil);`,

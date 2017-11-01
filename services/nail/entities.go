@@ -44,8 +44,7 @@ func (s *Nail) corporationHandler(message *nsq.Message) error {
 	return s.DoSQL(`INSERT INTO evedata.corporations
 		(corporationID,name,ticker,ceoID,allianceID,factionID,memberCount,updated,cacheUntil)
 		VALUES(?,?,?,?,?,?,?,UTC_TIMESTAMP(),?) 
-		ON DUPLICATE KEY UPDATE 
-		ceoID=VALUES(ceoID), name=VALUES(name), ticker=VALUES(ticker), allianceID=VALUES(allianceID), 
+		ON DUPLICATE KEY UPDATE ceoID=VALUES(ceoID), name=VALUES(name), ticker=VALUES(ticker), allianceID=VALUES(allianceID), 
 		factionID=VALUES(factionID), memberCount=VALUES(memberCount),  
 		updated=UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil)
 	`, c.CorporationID, c.Corporation.CorporationName, c.Corporation.Ticker, c.Corporation.CeoId, c.Corporation.AllianceId, goesi.FactionNameToID(c.Corporation.Faction), c.Corporation.MemberCount, cacheUntil)
@@ -75,8 +74,7 @@ func (s *Nail) allianceHandler(message *nsq.Message) error {
 				cacheUntil
 			)
 			VALUES(?,?,?,?,?,?,UTC_TIMESTAMP(),?) 
-			ON DUPLICATE KEY UPDATE 
-				executorCorpID = VALUES(executorCorpID),
+			ON DUPLICATE KEY UPDATE executorCorpID = VALUES(executorCorpID),
 				corporationsCount = VALUES(corporationsCount), 
 				updated = UTC_TIMESTAMP(), 
 				cacheUntil=VALUES(cacheUntil)
@@ -96,8 +94,7 @@ func (s *Nail) characterHandler(message *nsq.Message) error {
 	err = s.DoSQL(`
 		INSERT INTO evedata.characters (characterID,name,bloodlineID,ancestryID,corporationID,allianceID,race,gender,securityStatus,updated,cacheUntil)
 			VALUES(?,?,?,?,?,?,evedata.raceByID(?),?,?,UTC_TIMESTAMP(),?) 
-			ON DUPLICATE KEY UPDATE 
-			corporationID=VALUES(corporationID), gender=VALUES(gender), allianceID=VALUES(allianceID), securityStatus=VALUES(securityStatus), updated = UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil)
+			ON DUPLICATE KEY UPDATE corporationID=VALUES(corporationID), gender=VALUES(gender), allianceID=VALUES(allianceID), securityStatus=VALUES(securityStatus), updated = UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil)
 	`, c.CharacterID, c.Character.Name, c.Character.BloodlineId, c.Character.AncestryId, c.Character.CorporationId, c.Character.AllianceId, c.Character.RaceId, c.Character.Gender, c.Character.SecurityStatus, cacheUntil)
 	if err != nil {
 		log.Println(err)
@@ -106,16 +103,18 @@ func (s *Nail) characterHandler(message *nsq.Message) error {
 
 	var values []string
 	for _, e := range c.CorporationHistory {
-
-		values = append(values, fmt.Sprintf("(%d,'%s',%d,%d)",
+		values = append(values, fmt.Sprintf("(%d,%q,%d,%d)",
 			c.CharacterID, e.StartDate.UTC().Format("2006-01-02 15:04:05"), e.RecordId, e.CorporationId))
 	}
 
-	stmt := fmt.Sprintf(`INSERT INTO evedata.corporationHistory (characterID,startDate,recordID,corporationID)
-			VALUES %s
-			ON DUPLICATE KEY UPDATE 
-			startDate=VALUES(startDate);
-				`, strings.Join(values, ",\n"))
+	if len(values) > 0 {
+		stmt := fmt.Sprintf("INSERT INTO evedata.corporationHistory (characterID,startDate,recordID,corporationID) VALUES %s ON DUPLICATE KEY UPDATE startDate=VALUES(startDate);", strings.Join(values, ",\n"))
+		err = s.DoSQL(stmt)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+	}
 
-	return s.DoSQL(stmt)
+	return err
 }

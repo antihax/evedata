@@ -73,7 +73,7 @@ func (s *Nail) wait(next nsq.Handler) nsq.Handler {
 		defer s.wg.Done()
 		err := next.HandleMessage(m)
 		if err != nil {
-			log.Println(err)
+			log.Printf("%s\n", err)
 			m.Requeue(time.Second)
 		} else {
 			m.Finish()

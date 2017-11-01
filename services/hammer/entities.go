@@ -86,7 +86,7 @@ func allianceConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	err = s.inQueue.SetWorkExpire("evedata_entity", int64(allianceID), int(time.Since(goesi.CacheExpires(r)).Seconds()))
+	err = s.inQueue.SetWorkExpire("evedata_entity", int64(allianceID), int(time.Until(goesi.CacheExpires(r)).Seconds()))
 	if err != nil {
 		log.Println(err)
 		return
@@ -125,7 +125,7 @@ func corporationConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	s.inQueue.SetWorkExpire("evedata_entity", int64(corporationID), int(time.Since(goesi.CacheExpires(r)).Seconds()))
+	s.inQueue.SetWorkExpire("evedata_entity", int64(corporationID), int(time.Until(goesi.CacheExpires(r)).Seconds()))
 
 	// Grab intel from meta data
 	err = s.AddCharacter(corporation.CeoId)
@@ -171,7 +171,7 @@ func characterConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	s.inQueue.SetWorkExpire("evedata_entity", int64(characterID), int(time.Since(goesi.CacheExpires(r)).Seconds()))
+	s.inQueue.SetWorkExpire("evedata_entity", int64(characterID), int(time.Until(goesi.CacheExpires(r)).Seconds()))
 
 	// Grab intel from meta data
 	err = s.AddCorporation(character.CorporationId)

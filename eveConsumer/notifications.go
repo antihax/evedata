@@ -106,11 +106,11 @@ func notificationsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 				if err != nil {
 					return false, err
 				}
-				locatorValues = append(locatorValues, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%d,'%s')",
+				locatorValues = append(locatorValues, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%d,%q)",
 					n.NotificationId, char, l.TargetLocation.SolarSystem, l.TargetLocation.Constellation,
 					l.TargetLocation.Region, l.TargetLocation.Station, l.CharacterID, n.Timestamp.Format(models.SQLTimeFormat)))
 			}
-			allValues = append(allValues, fmt.Sprintf("(%d,%d,%d,%d,'%s','%s','%s','%s')",
+			allValues = append(allValues, fmt.Sprintf("(%d,%d,%d,%d,%q,%q,%q,%q)",
 				n.NotificationId, char, tokenChar, n.SenderId, n.SenderType,
 				n.Timestamp.Format(models.SQLTimeFormat), n.Type_, models.Escape(n.Text)))
 		}
