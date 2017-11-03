@@ -2,7 +2,7 @@ package artifice
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"math"
 	"strconv"
 	"time"
@@ -18,7 +18,8 @@ func warsTrigger(s *Artifice) error {
 
 	maxWarID := int32(math.MaxInt32)
 	for {
-		wars, _, err := s.esi.ESI.WarsApi.GetWars(context.TODO(), map[string]interface{}{"max_war_id": int32(maxWarID)})
+		fmt.Println(maxWarID)
+		wars, _, err := s.esi.ESI.WarsApi.GetWars(context.TODO(), map[string]interface{}{"maxWarId": int32(maxWarID)})
 		if err != nil {
 			return err
 		}
@@ -32,10 +33,7 @@ func warsTrigger(s *Artifice) error {
 
 			if !s.inQueue.CheckWorkCompleted("evedata_war_finished", int64(war)) {
 				work = append(work, redisqueue.Work{Operation: "war", Parameter: war})
-				err = getWarKills(s, war)
-				if err != nil {
-					log.Println(err)
-				}
+				getWarKills(s, war)
 			}
 		}
 		s.QueueWork(work)

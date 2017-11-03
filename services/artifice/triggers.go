@@ -1,6 +1,7 @@
 package artifice
 
 import (
+	"fmt"
 	"log"
 	"reflect"
 	"time"
@@ -41,11 +42,15 @@ func (s *Artifice) runTriggers() {
 		if ok {
 			trigger := triggers[chosen]
 			if trigger.daily {
+				fmt.Printf("reset market hist trigger\n")
 				trigger.ticker.Stop()
 				trigger.ticker = time.NewTicker(getNextTickDuration(trigger.hour))
+				fmt.Printf("market hist trigger reset\n")
 			}
+			start := time.Now()
 			log.Printf("Running trigger %s\n", trigger.name)
 			err := trigger.f(s)
+			log.Printf("trigger %s ran for %s\n", trigger.name, time.Since(start).String())
 			if err != nil {
 				log.Println(err)
 			}
