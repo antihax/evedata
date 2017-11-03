@@ -29,15 +29,14 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 		tries++
 
 		// Time our response
-		start := time.Now().Nanosecond()
+		start := time.Now()
 
 		// Run the request.
 		res, err := t.next.RoundTrip(req)
 
-		duration := float64((time.Now().Nanosecond() - start)) / 1000
 		metricAPICalls.With(
 			prometheus.Labels{"host": req.Host},
-		).Observe(duration)
+		).Observe(float64(time.Since(start).Nanoseconds()) / 1000.0)
 
 		// We got a response
 		if res != nil {

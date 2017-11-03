@@ -34,7 +34,7 @@ func (s *Hammer) runConsumers() error {
 		return err
 	}
 
-	start := time.Now().Nanosecond()
+	start := time.Now()
 
 	fn := consumerMap[w.Operation]
 	if fn == nil {
@@ -45,7 +45,7 @@ func (s *Hammer) runConsumers() error {
 	s.sem <- true
 	go s.wait(fn, w.Parameter)
 
-	duration := float64((time.Now().Nanosecond() - start)) / 1000.0
+	duration := float64(time.Since(start).Nanoseconds()) / 1000.0
 	consumerMetrics.With(
 		prometheus.Labels{"operation": w.Operation},
 	).Observe(duration)

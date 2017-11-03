@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ScaleFT/monotime"
 	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/garyburd/redigo/redis"
@@ -141,14 +140,14 @@ func (c *EVEConsumer) goConsumer() {
 			r := c.ctx.Cache.Get()
 			// loop through all the consumers
 			for _, consumer := range consumers {
-				start := monotime.Now()
+				start := time.Now()
 				// Call the function
 				if workDone, err = consumer.f(c, &r); err == nil {
 					if workDone {
-						duration := monotime.Duration(start, monotime.Now())
+						duration := float64(time.Since(start).Nanoseconds()) / 1000.0
 						consumerMetrics.With(
 							prometheus.Labels{"consumer": consumer.name},
-						).Observe(float64(duration / time.Millisecond))
+						).Observe(duration)
 					}
 				} else if err != nil {
 					log.Printf("%s: %v\n", consumer.name, err)
@@ -177,13 +176,13 @@ func (c *EVEConsumer) goTriggers() {
 		default:
 			// loop through all the consumers
 			for _, trigger := range triggers {
-				start := monotime.Now()
+				start := time.Now()
 				if workDone, err := trigger.f(c); err == nil {
 					if workDone {
-						duration := monotime.Duration(start, monotime.Now())
+						duration := float64(time.Since(start).Nanoseconds()) / 1000.0
 						triggerMetrics.With(
 							prometheus.Labels{"trigger": trigger.name},
-						).Observe(float64(duration / time.Millisecond))
+						).Observe(duration)
 					}
 				} else if err != nil {
 					log.Printf("%s: %v\n", trigger.name, err)
