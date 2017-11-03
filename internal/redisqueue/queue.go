@@ -70,6 +70,31 @@ func (hq *RedisQueue) CheckWorkCompleted(key string, id int64) bool {
 	return found
 }
 
+// CheckWorkCompletedInBulk takes a key and checks if the list of IDs has completed
+func (hq *RedisQueue) CheckWorkCompletedInBulk(key string, id []int64) ([]bool, error) {
+	conn := hq.redisPool.Get()
+	defer conn.Close()
+	var found []bool
+
+	conn.Send("MULTI")
+	for _, i := range id {
+		conn.Send("SISMEMBER", key, i)
+	}
+
+	res, err := conn.Do("EXEC")
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	for _, r := range res.([]interface{}) {
+		b, _ := redis.Bool(r, nil)
+		found = append(found, b)
+	}
+
+	return found, nil
+}
+
 // SetWorkCompleted takes a key and sets if the ID has been completed to prevent duplicates
 func (hq *RedisQueue) SetWorkCompleted(key string, id int64) error {
 	conn := hq.redisPool.Get()
@@ -84,6 +109,31 @@ func (hq *RedisQueue) CheckWorkExpired(key string, id int64) bool {
 	defer conn.Close()
 	found, _ := redis.Bool(conn.Do("GET", fmt.Sprintf("%s:%d", key, id)))
 	return found
+}
+
+// CheckWorkExpiredInBulk takes a key and checks if the list of IDs has expired
+func (hq *RedisQueue) CheckWorkExpiredInBulk(key string, id []int64) ([]bool, error) {
+	conn := hq.redisPool.Get()
+	defer conn.Close()
+	var found []bool
+
+	conn.Send("MULTI")
+	for _, i := range id {
+		conn.Send("GET", fmt.Sprintf("%s:%d", key, i))
+	}
+
+	res, err := conn.Do("EXEC")
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	for _, r := range res.([]interface{}) {
+		b, _ := redis.Bool(r, nil)
+		found = append(found, b)
+	}
+
+	return found, nil
 }
 
 // SetWorkExpire takes a key and sets if the ID has failed to prevent multiple failed

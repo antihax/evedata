@@ -3,6 +3,7 @@ package artifice
 import (
 	"context"
 	"fmt"
+	"log"
 	"math"
 	"strconv"
 	"time"
@@ -15,32 +16,49 @@ func init() {
 }
 
 func warsTrigger(s *Artifice) error {
-
 	maxWarID := int32(math.MaxInt32)
+	cycle := 0
 	for {
-		fmt.Println(maxWarID)
 		wars, _, err := s.esi.ESI.WarsApi.GetWars(context.TODO(), map[string]interface{}{"maxWarId": int32(maxWarID)})
 		if err != nil {
 			return err
 		}
 
-		work := []redisqueue.Work{}
-		for _, war := range wars {
-			// tick down the pages
-			if maxWarID > war {
-				maxWarID = war
-			}
+		wars64 := make([]int64, len(wars))
+		for i := range wars64 {
+			wars64[i] = int64(wars[i])
+		}
 
-			if !s.inQueue.CheckWorkCompleted("evedata_war_finished", int64(war)) {
-				work = append(work, redisqueue.Work{Operation: "war", Parameter: war})
-				getWarKills(s, war)
+		work := []redisqueue.Work{}
+
+		known, err := s.inQueue.CheckWorkCompletedInBulk("evedata_war_finished", wars64)
+		if err != nil {
+			return err
+		}
+
+		for i := range known {
+			if maxWarID > wars[i] {
+				maxWarID = wars[i]
+			}
+			if !known[i] {
+				work = append(work, redisqueue.Work{Operation: "war", Parameter: wars[i]})
+				err := getWarKills(s, wars[i])
+				if err != nil {
+					return err
+				}
 			}
 		}
+
 		s.QueueWork(work)
 
 		if maxWarID < 100 {
 			return nil
 		}
+
+		if cycle > 10 {
+			return nil
+		}
+		cycle++
 	}
 }
 
@@ -49,16 +67,29 @@ func getWarKills(s *Artifice, id int32) error {
 	for {
 		kills, r, err := s.esi.ESI.WarsApi.GetWarsWarIdKillmails(context.TODO(), id, map[string]interface{}{"page": int32(page)})
 		if err != nil {
+			log.Println(err)
+			return err
+		}
+
+		kills64 := make([]int64, len(kills))
+		for i := range kills64 {
+			kills64[i] = int64(kills[i].KillmailId)
+		}
+
+		known, err := s.inQueue.CheckWorkCompletedInBulk("evedata_known_kills", kills64)
+		if err != nil {
+			log.Println(err)
 			return err
 		}
 
 		work := []redisqueue.Work{}
-		for _, kill := range kills {
-			if !s.inQueue.CheckWorkCompleted("evedata_known_kills", int64(kill.KillmailId)) {
-				work = append(work, redisqueue.Work{Operation: "killmail", Parameter: []interface{}{kill.KillmailHash, kill.KillmailId}})
+		for i := range known {
+			fmt.Println(kills[i].KillmailId)
+			if !known[i] {
+				work = append(work, redisqueue.Work{Operation: "killmail", Parameter: []interface{}{kills[i].KillmailHash, kills[i].KillmailId}})
 
 				// Send to zkillboard
-				zkillChan <- killmail{ID: kill.KillmailId, Hash: kill.KillmailHash}
+				zkillChan <- killmail{ID: kills[i].KillmailId, Hash: kills[i].KillmailHash}
 			}
 		}
 

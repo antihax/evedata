@@ -50,7 +50,7 @@ func TestHQ(t *testing.T) {
 	assert.Empty(t, check)
 }
 
-func TestFailure(t *testing.T) {
+func TestExpired(t *testing.T) {
 	pool := redigohelper.ConnectRedisTestPool()
 	hq := NewRedisQueue(pool, "test-redisqueue")
 	err := hq.SetWorkExpire("testKey", 1, 9999)
@@ -68,4 +68,39 @@ func TestCompletion(t *testing.T) {
 
 	b := hq.CheckWorkCompleted("testKeyComp", 1)
 	assert.Equal(t, b, true)
+}
+func TestExpiredInBulk(t *testing.T) {
+	pool := redigohelper.ConnectRedisTestPool()
+	hq := NewRedisQueue(pool, "test-redisqueue")
+	err := hq.SetWorkExpire("testKey", 1, 9999)
+	assert.Nil(t, err)
+
+	err = hq.SetWorkExpire("testKey", 3, 9999)
+	assert.Nil(t, err)
+
+	b, err := hq.CheckWorkExpiredInBulk("testKey", []int64{1, 2, 3, 4})
+
+	assert.Nil(t, err)
+	assert.Equal(t, b[0], true)
+	assert.Equal(t, b[2], true)
+	assert.Equal(t, b[1], false)
+	assert.Equal(t, b[3], false)
+}
+
+func TestCompletionInBulk(t *testing.T) {
+	pool := redigohelper.ConnectRedisTestPool()
+	hq := NewRedisQueue(pool, "test-redisqueue")
+	err := hq.SetWorkCompleted("testKeyComp", 1)
+	assert.Nil(t, err)
+
+	err = hq.SetWorkCompleted("testKeyComp", 3)
+	assert.Nil(t, err)
+
+	b, err := hq.CheckWorkCompletedInBulk("testKeyComp", []int64{1, 2, 3, 4})
+
+	assert.Nil(t, err)
+	assert.Equal(t, b[0], true)
+	assert.Equal(t, b[2], true)
+	assert.Equal(t, b[1], false)
+	assert.Equal(t, b[3], false)
 }
