@@ -45,11 +45,11 @@ func (s *Hammer) runConsumers() error {
 	s.sem <- true
 	go s.wait(fn, w.Parameter)
 
-	duration := float64(time.Since(start).Nanoseconds()) / 1000.0
+	duration := float64(time.Since(start).Nanoseconds()) / 1000000.0
 	consumerMetrics.With(
 		prometheus.Labels{"operation": w.Operation},
 	).Observe(duration)
-	log.Printf("complete operation %s %+v %f\n", w.Operation, w.Parameter, duration)
+	log.Printf("complete operation %s %+v %fms\n", w.Operation, w.Parameter, duration)
 	return nil
 }
 
@@ -62,7 +62,7 @@ var (
 		Subsystem: "hammer",
 		Name:      "ticks",
 		Help:      "API call statistics.",
-		Buckets:   prometheus.ExponentialBuckets(1, 2, 17),
+		Buckets:   prometheus.ExponentialBuckets(10, 1.45, 20),
 	}, []string{"operation"},
 	)
 )

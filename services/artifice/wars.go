@@ -2,7 +2,6 @@ package artifice
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"math"
 	"strconv"
@@ -19,13 +18,16 @@ func warsTrigger(s *Artifice) error {
 	maxWarID := int32(math.MaxInt32)
 	cycle := 0
 	for {
-		wars, _, err := s.esi.ESI.WarsApi.GetWars(context.TODO(), map[string]interface{}{"maxWarId": int32(maxWarID)})
+		wars, _, err := s.esi.ESI.WarsApi.GetWars(context.TODO(), map[string]interface{}{"maxWarId": maxWarID})
 		if err != nil {
 			return err
 		}
 
 		wars64 := make([]int64, len(wars))
 		for i := range wars64 {
+			if maxWarID > wars[i] {
+				maxWarID = wars[i]
+			}
 			wars64[i] = int64(wars[i])
 		}
 
@@ -37,15 +39,9 @@ func warsTrigger(s *Artifice) error {
 		}
 
 		for i := range known {
-			if maxWarID > wars[i] {
-				maxWarID = wars[i]
-			}
 			if !known[i] {
 				work = append(work, redisqueue.Work{Operation: "war", Parameter: wars[i]})
-				err := getWarKills(s, wars[i])
-				if err != nil {
-					return err
-				}
+				warChan <- wars[i]
 			}
 		}
 
@@ -55,10 +51,28 @@ func warsTrigger(s *Artifice) error {
 			return nil
 		}
 
-		if cycle > 10 {
+		if cycle > 300 {
 			return nil
 		}
+
 		cycle++
+	}
+}
+
+var warChan chan int32
+
+// zkillboardPost posts killmails to zkillboard from zkillChan
+func (s *Artifice) warKillmails() {
+	// Create the channel for feeding kills
+	warChan = make(chan int32, 1000000)
+
+	for {
+		// pop a war off the channel
+		war := <-warChan
+		err := getWarKills(s, war)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 }
 
@@ -84,7 +98,6 @@ func getWarKills(s *Artifice, id int32) error {
 
 		work := []redisqueue.Work{}
 		for i := range known {
-			fmt.Println(kills[i].KillmailId)
 			if !known[i] {
 				work = append(work, redisqueue.Work{Operation: "killmail", Parameter: []interface{}{kills[i].KillmailHash, kills[i].KillmailId}})
 

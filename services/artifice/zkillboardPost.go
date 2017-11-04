@@ -17,7 +17,7 @@ var zkillChan chan killmail
 // zkillboardPost posts killmails to zkillboard from zkillChan
 func (s *Artifice) zkillboardPost() {
 	// Create the channel for feeding kills
-	zkillChan = make(chan killmail, 100)
+	zkillChan = make(chan killmail, 1000000)
 
 	// Need a http client for keep-alive/http2
 	httpClient := http.Client{}

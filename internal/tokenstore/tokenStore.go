@@ -1,4 +1,4 @@
-package tokenStore
+package tokenstore
 
 import (
 	"bytes"

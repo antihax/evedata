@@ -7,10 +7,11 @@ import (
 	"time"
 
 	"github.com/antihax/evedata/config"
-	"github.com/antihax/evedata/internal/tokenStore"
+	"github.com/antihax/evedata/internal/tokenstore"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
 	"github.com/antihax/httpcache"
+
 	httpredis "github.com/antihax/httpcache/redis"
 
 	gsr "github.com/antihax/redistore"
@@ -29,7 +30,7 @@ type AppContext struct {
 	Cache          *redis.Pool    // Redis connection Pool for HTTP Cache and session store.
 	ESI            *goesi.APIClient
 	ESIPublicToken oauth2.TokenSource
-	TokenStore     *tokenStore.TokenStore
+	TokenStore     *tokenstore.TokenStore
 
 	// Since we need to combine data from multiple characters, we use
 	// one authenticator for the site to act as the main authentication.
@@ -132,7 +133,7 @@ func NewTestAppContext() AppContext {
 		tokenScopes)
 
 	// Setup our token store for oauth2 optimizations
-	ctx.TokenStore = tokenStore.NewTokenStore(ctx.Cache, ctx.Db, ctx.TokenAuthenticator)
+	ctx.TokenStore = tokenstore.NewTokenStore(ctx.Cache, ctx.Db, ctx.TokenAuthenticator)
 
 	return ctx
 }

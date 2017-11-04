@@ -41,7 +41,7 @@ var (
 		Subsystem: "consumer",
 		Name:      "ticks",
 		Help:      "API call statistics.",
-		Buckets:   prometheus.ExponentialBuckets(1, 2, 17),
+		Buckets:   prometheus.ExponentialBuckets(10, 1.45, 20),
 	}, []string{"consumer"},
 	)
 
@@ -51,7 +51,7 @@ var (
 		Subsystem: "trigger",
 		Name:      "ticks",
 		Help:      "API call statistics.",
-		Buckets:   prometheus.ExponentialBuckets(1, 2, 17),
+		Buckets:   prometheus.ExponentialBuckets(10, 1.45, 20),
 	}, []string{"trigger"},
 	)
 
@@ -144,7 +144,7 @@ func (c *EVEConsumer) goConsumer() {
 				// Call the function
 				if workDone, err = consumer.f(c, &r); err == nil {
 					if workDone {
-						duration := float64(time.Since(start).Nanoseconds()) / 1000.0
+						duration := float64(time.Since(start).Nanoseconds()) / 1000000.0
 						consumerMetrics.With(
 							prometheus.Labels{"consumer": consumer.name},
 						).Observe(duration)
@@ -179,7 +179,7 @@ func (c *EVEConsumer) goTriggers() {
 				start := time.Now()
 				if workDone, err := trigger.f(c); err == nil {
 					if workDone {
-						duration := float64(time.Since(start).Nanoseconds()) / 1000.0
+						duration := float64(time.Since(start).Nanoseconds()) / 1000000.0
 						triggerMetrics.With(
 							prometheus.Labels{"trigger": trigger.name},
 						).Observe(duration)

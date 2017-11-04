@@ -1,0 +1,12 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+package tokenstore;
+
+message Token {
+  string tokenType = 1;
+  string accessToken = 2;  // Unique ID number for this person.
+  string refreshToken = 3;
+  google.protobuf.Timestamp Expiry = 4;
+}
+

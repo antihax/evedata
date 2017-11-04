@@ -12,7 +12,7 @@ import (
 	"github.com/antihax/evedata/discord"
 	"github.com/antihax/evedata/eveConsumer"
 	"github.com/antihax/evedata/internal/apicache"
-	"github.com/antihax/evedata/internal/tokenStore"
+	"github.com/antihax/evedata/internal/tokenstore"
 
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
@@ -98,7 +98,7 @@ func GoServer() {
 	}
 
 	// Setup our token store for oauth2 optimizations
-	ctx.TokenStore = tokenStore.NewTokenStore(ctx.Cache, ctx.Db, ctx.TokenAuthenticator)
+	ctx.TokenStore = tokenstore.NewTokenStore(ctx.Cache, ctx.Db, ctx.TokenAuthenticator)
 
 	// Setup the EVE ESI Client
 	ctx.ESI = goesi.NewAPIClient(ctx.HTTPClient, ctx.Conf.UserAgent)
