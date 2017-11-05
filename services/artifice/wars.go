@@ -31,13 +31,12 @@ func warsTrigger(s *Artifice) error {
 			wars64[i] = int64(wars[i])
 		}
 
-		work := []redisqueue.Work{}
-
 		known, err := s.inQueue.CheckWorkCompletedInBulk("evedata_war_finished", wars64)
 		if err != nil {
 			return err
 		}
 
+		work := []redisqueue.Work{}
 		for i := range known {
 			if !known[i] {
 				work = append(work, redisqueue.Work{Operation: "war", Parameter: wars[i]})
@@ -51,7 +50,7 @@ func warsTrigger(s *Artifice) error {
 			return nil
 		}
 
-		if cycle > 300 {
+		if cycle > 3 {
 			return nil
 		}
 
