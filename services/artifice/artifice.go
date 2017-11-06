@@ -3,6 +3,7 @@ package artifice
 
 import (
 	"log"
+	"strings"
 	"sync"
 	"time"
 
@@ -100,4 +101,57 @@ func (s *Artifice) Run() {
 	go s.zkillboardPost()
 	go s.warKillmails()
 	s.runTriggers()
+}
+
+// RetryTransaction on deadlocks
+func retryTransaction(tx *sqlx.Tx) error {
+	for {
+		err := tx.Commit()
+		if err != nil {
+			if !strings.Contains(err.Error(), "1213") {
+				return err
+			}
+			time.Sleep(250 * time.Millisecond)
+			continue
+		} else {
+			return err
+		}
+	}
+}
+
+// DoSQL executes a sql statement
+func (s *Artifice) doSQL(stmt string, args ...interface{}) error {
+	for {
+		err := s.doSQLTranq(stmt, args...)
+		if err != nil {
+			if !strings.Contains(err.Error(), "1213") {
+
+				return err
+			}
+			time.Sleep(250 * time.Millisecond)
+			continue
+		} else {
+			return err
+		}
+	}
+	return nil
+}
+
+// DoSQL executes a sql statement
+func (s *Artifice) doSQLTranq(stmt string, args ...interface{}) error {
+	tx, err := s.db.Beginx()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(stmt, args...)
+	if err != nil {
+		return err
+	}
+
+	err = retryTransaction(tx)
+	if err != nil {
+		return err
+	}
+	return nil
 }

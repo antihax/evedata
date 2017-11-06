@@ -139,7 +139,7 @@ func min(x, y int) int {
 	return y
 }
 
-func tokenError(cid int64, tcid int64, r *http.Response, err error) {
+func tokenError(cid int32, tcid int32, r *http.Response, err error) {
 	if r != nil {
 		req, _ := httputil.DumpRequest(r.Request, true)
 		res, _ := httputil.DumpResponse(r, true)
@@ -155,6 +155,6 @@ func tokenError(cid int64, tcid int64, r *http.Response, err error) {
 	}
 }
 
-func tokenSuccess(cid int64, tcid int64, code int, status string) {
+func tokenSuccess(cid int32, tcid int32, code int, status string) {
 	models.SetTokenError(cid, tcid, code, status, []byte{}, []byte{})
 }

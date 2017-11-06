@@ -62,14 +62,16 @@ func notificationsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		return false, errors.New("Invalid notification string")
 	}
 
-	char, err := strconv.ParseInt(dest[0], 10, 64)
+	char64, err := strconv.ParseInt(dest[0], 10, 64)
 	if err != nil {
 		return false, err
 	}
-	tokenChar, err := strconv.ParseInt(dest[1], 10, 64)
+	tokenChar64, err := strconv.ParseInt(dest[1], 10, 64)
 	if err != nil {
 		return false, err
 	}
+	char := int32(char64)
+	tokenChar := int32(tokenChar64)
 
 	// Get the OAuth2 Token from the database.
 	token, err := c.ctx.TokenStore.GetTokenSource(char, tokenChar)

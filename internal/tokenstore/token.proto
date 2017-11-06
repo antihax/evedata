@@ -3,6 +3,17 @@ import "google/protobuf/timestamp.proto";
 
 package tokenstore;
 
+// The greeting service definition.
+service TokenStore {
+  // Sends a greeting
+  rpc GetToken (TokenRequest) returns (Token) {}
+}
+
+message TokenRequest {
+  int32 characterID = 1;
+  int32 tokenCharacterID = 2;
+}
+
 message Token {
   string tokenType = 1;
   string accessToken = 2;  // Unique ID number for this person.

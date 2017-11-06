@@ -25,7 +25,43 @@ func NewTokenStore(redis *redis.Pool, db *sqlx.DB, auth *goesi.SSOAuthenticator)
 	return t
 }
 
-func (c *TokenStore) GetTokenSource(characterID int64, tokenCharacterID int64) (goesi.CRESTTokenSource, error) {
+// GetToken retreives a token from storage
+func (c *TokenStore) GetToken(characterID int32, tokenCharacterID int32) (*goesi.CRESTToken, error) {
+	t, err := c.getTokenFromCache(characterID, tokenCharacterID)
+	if err != nil || t == nil {
+		t, err = c.getTokenFromDB(characterID, tokenCharacterID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if t.Expiry.Before(time.Now()) {
+		a, err := c.auth.TokenSource(t)
+		if err != nil {
+			return nil, err
+		}
+		token, err := a.Token()
+		if err != nil {
+			return nil, err
+		}
+		c.setTokenToCache(characterID, tokenCharacterID, token)
+		c.updateTokenToDB(characterID, tokenCharacterID, token)
+
+		tok := &goesi.CRESTToken{
+			Expiry:       token.Expiry,
+			AccessToken:  token.AccessToken,
+			RefreshToken: token.RefreshToken,
+			TokenType:    token.TokenType,
+		}
+
+		return tok, nil
+	}
+
+	return t, nil
+}
+
+// GetTokenSource retreives a token from storage and returns a token source
+func (c *TokenStore) GetTokenSource(characterID int32, tokenCharacterID int32) (goesi.CRESTTokenSource, error) {
 	t, err := c.getTokenFromCache(characterID, tokenCharacterID)
 	if err != nil || t == nil {
 		t, err = c.getTokenFromDB(characterID, tokenCharacterID)
@@ -51,7 +87,7 @@ func (c *TokenStore) GetTokenSource(characterID int64, tokenCharacterID int64) (
 	return a, err
 }
 
-func (c *TokenStore) getTokenFromDB(characterID int64, tokenCharacterID int64) (*goesi.CRESTToken, error) {
+func (c *TokenStore) getTokenFromDB(characterID int32, tokenCharacterID int32) (*goesi.CRESTToken, error) {
 
 	type CRESTToken struct {
 		Expiry       time.Time `db:"expiry" json:"expiry,omitempty"`
@@ -81,7 +117,7 @@ func (c *TokenStore) getTokenFromDB(characterID int64, tokenCharacterID int64) (
 	return tok, nil
 }
 
-func (c *TokenStore) getTokenFromCache(characterID int64, tokenCharacterID int64) (*goesi.CRESTToken, error) {
+func (c *TokenStore) getTokenFromCache(characterID int32, tokenCharacterID int32) (*goesi.CRESTToken, error) {
 	r := c.redis.Get()
 	defer r.Close()
 	tok := &goesi.CRESTToken{}
@@ -104,7 +140,7 @@ func (c *TokenStore) getTokenFromCache(characterID int64, tokenCharacterID int64
 	return tok, nil
 }
 
-func (c *TokenStore) setTokenToCache(characterID int64, tokenCharacterID int64, token *oauth2.Token) error {
+func (c *TokenStore) setTokenToCache(characterID int32, tokenCharacterID int32, token *oauth2.Token) error {
 	r := c.redis.Get()
 	defer r.Close()
 
@@ -130,7 +166,7 @@ func (c *TokenStore) setTokenToCache(characterID int64, tokenCharacterID int64, 
 	return nil
 }
 
-func (c *TokenStore) updateTokenToDB(characterID int64, tokenCharacterID int64, token *oauth2.Token) error {
+func (c *TokenStore) updateTokenToDB(characterID int32, tokenCharacterID int32, token *oauth2.Token) error {
 	_, err := c.db.Exec(`
 		UPDATE evedata.crestTokens 
 		SET accessToken = ?,

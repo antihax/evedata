@@ -38,7 +38,7 @@ func apiDeleteLocatorShare(w http.ResponseWriter, r *http.Request) {
 	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int64)
+	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
@@ -50,7 +50,7 @@ func apiDeleteLocatorShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := models.DeleteLocatorShare(characterID, entity); err != nil {
+	if err := models.DeleteLocatorShare(characterID, int32(entity)); err != nil {
 		httpErrCode(w, err, http.StatusConflict)
 		return
 	}
@@ -61,7 +61,7 @@ func apiAddLocatorShare(w http.ResponseWriter, r *http.Request) {
 	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int64)
+	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
@@ -73,7 +73,7 @@ func apiAddLocatorShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := models.AddLocatorShare(characterID, entity); err != nil {
+	if err := models.AddLocatorShare(characterID, int32(entity)); err != nil {
 		fmt.Println(err)
 		httpErrCode(w, err, http.StatusConflict)
 		return
@@ -85,7 +85,7 @@ func apiGetLocatorShares(w http.ResponseWriter, r *http.Request) {
 	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int64)
+	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
@@ -122,7 +122,7 @@ func apiGetLocatorResponses(w http.ResponseWriter, r *http.Request) {
 	c := evedata.GlobalsFromContext(r.Context())
 
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int64)
+	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, nil, http.StatusUnauthorized)
 		return

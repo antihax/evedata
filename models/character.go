@@ -9,7 +9,7 @@ import (
 )
 
 // Obtain an authenticated client from a stored access/refresh token.
-func GetCRESTToken(characterID int64, tokenCharacterID int64) (*CRESTToken, error) {
+func GetCRESTToken(characterID int32, tokenCharacterID int32) (*CRESTToken, error) {
 	tok := &CRESTToken{}
 	if err := database.QueryRowx(
 		`SELECT expiry, tokenType, accessToken, refreshToken, tokenCharacterID, characterID, characterName
@@ -26,9 +26,9 @@ func GetCRESTToken(characterID int64, tokenCharacterID int64) (*CRESTToken, erro
 
 type CRESTToken struct {
 	Expiry           time.Time   `db:"expiry" json:"expiry,omitempty"`
-	CharacterID      int64       `db:"characterID" json:"characterID,omitempty"`
+	CharacterID      int32       `db:"characterID" json:"characterID,omitempty"`
 	TokenType        string      `db:"tokenType" json:"tokenType,omitempty"`
-	TokenCharacterID int64       `db:"tokenCharacterID" json:"tokenCharacterID,omitempty"`
+	TokenCharacterID int32       `db:"tokenCharacterID" json:"tokenCharacterID,omitempty"`
 	CharacterName    string      `db:"characterName" json:"characterName,omitempty"`
 	LastCode         int64       `db:"lastCode" json:"lastCode,omitempty"`
 	LastStatus       null.String `db:"lastStatus" json:"lastStatus,omitempty"`
@@ -38,8 +38,8 @@ type CRESTToken struct {
 }
 
 // [BENCHMARK] TODO
-func GetCharacterIDByName(character string) (int64, error) {
-	var id int64
+func GetCharacterIDByName(character string) (int32, error) {
+	var id int32
 	if err := database.Get(&id, `
 		SELECT characterID 
 		FROM evedata.characters C
@@ -50,12 +50,12 @@ func GetCharacterIDByName(character string) (int64, error) {
 }
 
 type CursorCharacter struct {
-	CursorCharacterID   int64  `db:"cursorCharacterID" json:"cursorCharacterID"`
+	CursorCharacterID   int32  `db:"cursorCharacterID" json:"cursorCharacterID"`
 	CursorCharacterName string `db:"cursorCharacterName" json:"cursorCharacterName"`
 }
 
 // [BENCHMARK] TODO
-func GetCursorCharacter(characterID int64) (CursorCharacter, error) {
+func GetCursorCharacter(characterID int32) (CursorCharacter, error) {
 	cursor := CursorCharacter{}
 
 	if err := database.Get(&cursor, `
@@ -69,7 +69,7 @@ func GetCursorCharacter(characterID int64) (CursorCharacter, error) {
 }
 
 // [BENCHMARK] TODO
-func SetCursorCharacter(characterID int64, cursorCharacterID int64) error {
+func SetCursorCharacter(characterID int32, cursorCharacterID int32) error {
 	if _, err := database.Exec(`
 	INSERT INTO evedata.cursorCharacter (characterID, cursorCharacterID)
 		SELECT characterID, tokenCharacterID AS cursorCharacterID
@@ -81,7 +81,7 @@ func SetCursorCharacter(characterID int64, cursorCharacterID int64) error {
 	return nil
 }
 
-func SetTokenError(characterID int64, tokenCharacterID int64, code int, status string, req []byte, res []byte) error {
+func SetTokenError(characterID int32, tokenCharacterID int32, code int, status string, req []byte, res []byte) error {
 	if _, err := database.Exec(`
 		UPDATE evedata.crestTokens SET lastCode = ?, lastStatus = ?, request = ?, response = ? 
 		WHERE characterID = ? AND tokenCharacterID = ? `,
@@ -92,7 +92,7 @@ func SetTokenError(characterID int64, tokenCharacterID int64, code int, status s
 }
 
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetCRESTTokens(characterID int64) ([]CRESTToken, error) {
+func GetCRESTTokens(characterID int32) ([]CRESTToken, error) {
 	tokens := []CRESTToken{}
 	if err := database.Select(&tokens, `
 		SELECT characterID, tokenCharacterID, characterName, lastCode, lastStatus, scopes
@@ -104,7 +104,7 @@ func GetCRESTTokens(characterID int64) ([]CRESTToken, error) {
 	return tokens, nil
 }
 
-func AddCRESTToken(characterID int64, tokenCharacterID int64, characterName string, tok *goesi.CRESTToken, scopes string) error {
+func AddCRESTToken(characterID int32, tokenCharacterID int32, characterName string, tok *goesi.CRESTToken, scopes string) error {
 	if _, err := database.Exec(`
 		INSERT INTO evedata.crestTokens	(characterID, tokenCharacterID, accessToken, refreshToken, expiry, tokenType, characterName, scopes, lastStatus)
 			VALUES		(?,?,?,?,?,?,?,?,"Unused")
@@ -122,7 +122,7 @@ func AddCRESTToken(characterID int64, tokenCharacterID int64, characterName stri
 	return nil
 }
 
-func DeleteCRESTToken(characterID int64, tokenCharacterID int64) error {
+func DeleteCRESTToken(characterID int32, tokenCharacterID int32) error {
 	if _, err := database.Exec(`DELETE FROM evedata.crestTokens WHERE characterID = ? AND tokenCharacterID = ? LIMIT 1`,
 		characterID, tokenCharacterID); err != nil {
 
@@ -170,11 +170,11 @@ func UpdateCorporationHistory(characterID int32, corporationID int32, recordID i
 }
 
 type Character struct {
-	CharacterID     int64       `db:"characterID" json:"characterID"`
+	CharacterID     int32       `db:"characterID" json:"characterID"`
 	CharacterName   string      `db:"characterName" json:"characterName"`
-	CorporationID   int64       `db:"corporationID" json:"corporationID"`
+	CorporationID   int32       `db:"corporationID" json:"corporationID"`
 	CorporationName string      `db:"corporationName" json:"corporationName"`
-	AllianceID      int64       `db:"allianceID" json:"allianceID"`
+	AllianceID      int32       `db:"allianceID" json:"allianceID"`
 	AllianceName    null.String `db:"allianceName" json:"allianceName"`
 	Race            string      `db:"race" json:"race"`
 	SecurityStatus  float64     `db:"securityStatus" json:"securityStatus"`
@@ -182,7 +182,7 @@ type Character struct {
 
 // Obtain Character information by ID.
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetCharacter(id int64) (*Character, error) {
+func GetCharacter(id int32) (*Character, error) {
 	ref := Character{}
 	if err := database.QueryRowx(`
 		SELECT 
@@ -206,7 +206,7 @@ func GetCharacter(id int64) (*Character, error) {
 }
 
 type CorporationHistory struct {
-	CorporationID   int64     `db:"corporationID" json:"id"`
+	CorporationID   int32     `db:"corporationID" json:"id"`
 	CorporationName string    `db:"corporationName" json:"name"`
 	StartDate       time.Time `db:"startDate" json:"startDate"`
 	Type            string    `db:"type" json:"type"`
@@ -214,7 +214,7 @@ type CorporationHistory struct {
 
 // Obtain Character information by ID.
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetCorporationHistory(id int64) ([]CorporationHistory, error) {
+func GetCorporationHistory(id int32) ([]CorporationHistory, error) {
 	ref := []CorporationHistory{}
 	if err := database.Select(&ref, `
 		SELECT 

@@ -115,13 +115,13 @@ func eveSSOAnswer(w http.ResponseWriter, r *http.Request) {
 }
 
 type accountInformation struct {
-	CharacterID   int64                  `json:"characterID"`
+	CharacterID   int32                  `json:"characterID"`
 	CharacterName string                 `json:"characterName"`
 	Characters    []models.CRESTToken    `json:"characters"`
 	Cursor        models.CursorCharacter `json:"cursor"`
 }
 
-func updateAccountInfo(s *sessions.Session, characterID int64, characterName string) error {
+func updateAccountInfo(s *sessions.Session, characterID int32, characterName string) error {
 	var err error
 	a := accountInformation{}
 
@@ -221,7 +221,7 @@ func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	characterID := s.Values["characterID"].(int64)
+	characterID := s.Values["characterID"].(int32)
 	err = models.AddCRESTToken(characterID, v.CharacterID, v.CharacterName, tok, v.Scopes)
 	if err != nil {
 		httpErr(w, err)

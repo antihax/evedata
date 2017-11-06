@@ -137,7 +137,7 @@ func corporationHistoryAPI(w http.ResponseWriter, r *http.Request) {
 		httpErr(w, err)
 		return
 	}
-	v, err := models.GetCorporationHistory(id)
+	v, err := models.GetCorporationHistory(int32(id))
 	if err != nil {
 		httpErrCode(w, err, http.StatusNotFound)
 		return
@@ -289,7 +289,7 @@ func characterPage(w http.ResponseWriter, r *http.Request) {
 	p["entityID"] = idStr
 	p["entityType"] = "character"
 
-	ref, err := models.GetCharacter(id)
+	ref, err := models.GetCharacter(int32(id))
 	if err != nil {
 		httpErr(w, err)
 		return

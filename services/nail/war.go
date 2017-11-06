@@ -41,7 +41,7 @@ func (s *Nail) warHandler(message *nsq.Message) error {
 		defender = war.Defender.CorporationId
 	}
 
-	err = s.DoSQL(`INSERT INTO evedata.wars
+	err = s.doSQL(`INSERT INTO evedata.wars
 		(id, timeFinished,timeStarted,timeDeclared,openForAllies,cacheUntil,aggressorID,defenderID,mutual)
 		VALUES(?,?,?,?,?,?,?,?,?)
 		ON DUPLICATE KEY UPDATE timeFinished=VALUES(timeFinished), 
@@ -63,7 +63,7 @@ func (s *Nail) warHandler(message *nsq.Message) error {
 		} else {
 			ally = a.CorporationId
 		}
-		err = s.DoSQL(`INSERT INTO evedata.warAllies (id, allyID) VALUES(?,?) ON DUPLICATE KEY UPDATE id = id;`, war.Id, ally)
+		err = s.doSQL(`INSERT INTO evedata.warAllies (id, allyID) VALUES(?,?) ON DUPLICATE KEY UPDATE id = id;`, war.Id, ally)
 		if err != nil {
 			return err
 		}

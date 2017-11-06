@@ -74,14 +74,16 @@ func walletsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		return false, errors.New("Invalid wallet string")
 	}
 
-	char, err := strconv.ParseInt(dest[0], 10, 64)
+	char64, err := strconv.ParseInt(dest[0], 10, 64)
 	if err != nil {
-		return false, fmt.Errorf("%s string: %s", err, v)
+		return false, err
 	}
-	tokenChar, err := strconv.ParseInt(dest[1], 10, 64)
+	tokenChar64, err := strconv.ParseInt(dest[1], 10, 64)
 	if err != nil {
-		return false, fmt.Errorf("%s string: %s", err, v)
+		return false, err
 	}
+	char := int32(char64)
+	tokenChar := int32(tokenChar64)
 
 	token, err := c.ctx.TokenStore.GetTokenSource(char, tokenChar)
 	if err != nil {
@@ -90,7 +92,7 @@ func walletsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 	var fromID int64
 	for {
-		wallets, err := c.ctx.ESI.EVEAPI.CharacterWalletJournalXML(token, tokenChar, fromID)
+		wallets, err := c.ctx.ESI.EVEAPI.CharacterWalletJournalXML(token, int64(tokenChar), fromID)
 		if err != nil {
 			tokenError(char, tokenChar, nil, err)
 			return false, fmt.Errorf("%s %d %d", err, tokenChar, fromID)

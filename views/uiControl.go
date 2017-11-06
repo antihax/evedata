@@ -19,7 +19,7 @@ func openMarketWindow(w http.ResponseWriter, r *http.Request) {
 	c := evedata.GlobalsFromContext(r.Context())
 
 	// Get the sessions main characterID
-	_, ok := s.Values["characterID"].(int64)
+	_, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
@@ -58,7 +58,7 @@ func setDestination(w http.ResponseWriter, r *http.Request) {
 	c := evedata.GlobalsFromContext(r.Context())
 
 	// Get the sessions main characterID
-	_, ok := s.Values["characterID"].(int64)
+	_, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
@@ -97,7 +97,7 @@ func addDestination(w http.ResponseWriter, r *http.Request) {
 	c := evedata.GlobalsFromContext(r.Context())
 
 	// Get the sessions main characterID
-	_, ok := s.Values["characterID"].(int64)
+	_, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, nil, http.StatusUnauthorized)
 		return

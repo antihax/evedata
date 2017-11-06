@@ -44,14 +44,16 @@ func assetsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		return false, errors.New("Invalid asset string")
 	}
 
-	char, err := strconv.ParseInt(dest[0], 10, 64)
+	char64, err := strconv.ParseInt(dest[0], 10, 64)
 	if err != nil {
 		return false, err
 	}
-	tokenChar, err := strconv.ParseInt(dest[1], 10, 64)
+	tokenChar64, err := strconv.ParseInt(dest[1], 10, 64)
 	if err != nil {
 		return false, err
 	}
+	char := int32(char64)
+	tokenChar := int32(tokenChar64)
 
 	// Get the OAuth2 Token from the database.
 	token, err := c.ctx.TokenStore.GetTokenSource(char, tokenChar)
@@ -62,7 +64,7 @@ func assetsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	// Put the token into a context for the API client
 	auth := context.WithValue(context.TODO(), goesi.ContextOAuth2, token)
 
-	assets, res, err := c.ctx.ESI.ESI.AssetsApi.GetCharactersCharacterIdAssets(auth, (int32)(tokenChar), nil)
+	assets, res, err := c.ctx.ESI.ESI.AssetsApi.GetCharactersCharacterIdAssets(auth, tokenChar, nil)
 	if err != nil {
 		tokenError(char, tokenChar, res, err)
 		return false, err

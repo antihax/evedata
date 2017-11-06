@@ -7,14 +7,14 @@ import (
 )
 
 type LocatorShares struct {
-	CharacterID int64  `db:"characterID" json:"characterID,omitempty"`
-	ID          int64  `db:"entityID" json:"id,omitempty"`
+	CharacterID int32  `db:"characterID" json:"characterID,omitempty"`
+	ID          int32  `db:"entityID" json:"id,omitempty"`
 	EntityName  string `db:"entityName" json:"entityName,omitempty"`
 	EntityType  string `db:"type" json:"type,omitempty"`
 }
 
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetLocatorShares(characterID int64) ([]LocatorShares, error) {
+func GetLocatorShares(characterID int32) ([]LocatorShares, error) {
 	locatorShares := []LocatorShares{}
 	if err := database.Select(&locatorShares, `
 		SELECT characterID, entityID, IFNULL(A.name, C.name) AS entityName, IF(A.name IS NULL, "corporation", "alliance") AS type
@@ -34,17 +34,17 @@ type LocatorResults struct {
 	RegionName        string      `db:"regionName" json:"regionName,omitempty"`
 	ConstellationID   int64       `db:"constellationID" json:"constellationID,omitempty"`
 	ConstellationName string      `db:"constellationName" json:"constellationName,omitempty"`
-	CharacterID       int64       `db:"characterID" json:"characterID,omitempty"`
+	CharacterID       int32       `db:"characterID" json:"characterID,omitempty"`
 	CharacterName     string      `db:"characterName" json:"characterName,omitempty"`
-	CorporationID     int64       `db:"corporationID" json:"corporationID,omitempty"`
+	CorporationID     int32       `db:"corporationID" json:"corporationID,omitempty"`
 	CorporationName   string      `db:"corporationName" json:"corporationName,omitempty"`
-	AllianceID        int64       `db:"allianceID" json:"allianceID,omitempty"`
+	AllianceID        int32       `db:"allianceID" json:"allianceID,omitempty"`
 	AllianceName      null.String `db:"allianceName" json:"allianceName,omitempty"`
 	Time              time.Time   `db:"time" json:"time"`
 }
 
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetLocatorResponses(characterID int64, cursorCharacterID int64) ([]LocatorResults, error) {
+func GetLocatorResponses(characterID int32, cursorCharacterID int32) ([]LocatorResults, error) {
 	locatorResults := []LocatorResults{}
 	if err := database.Select(&locatorResults, `
 		SELECT DISTINCT Sy.solarSystemID AS systemID, Sy.solarSystemName AS systemName, R.regionID, R.regionName, 
@@ -67,7 +67,7 @@ func GetLocatorResponses(characterID int64, cursorCharacterID int64) ([]LocatorR
 	return locatorResults, nil
 }
 
-func AddLocatorShare(characterID int64, entityID int64) error {
+func AddLocatorShare(characterID int32, entityID int32) error {
 	if _, err := database.Exec(`
 		INSERT INTO evedata.locatorShareWith	(characterID, entityID)
 			VALUES(?,?)
@@ -78,7 +78,7 @@ func AddLocatorShare(characterID int64, entityID int64) error {
 	return nil
 }
 
-func DeleteLocatorShare(characterID int64, entityID int64) error {
+func DeleteLocatorShare(characterID int32, entityID int32) error {
 	if _, err := database.Exec(`DELETE FROM evedata.locatorShareWith WHERE characterID = ? AND entityID = ? LIMIT 1`,
 		characterID, entityID); err != nil {
 		return err

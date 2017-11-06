@@ -43,7 +43,7 @@ func accountInfo(w http.ResponseWriter, r *http.Request) {
 
 	s := evedata.SessionFromContext(r.Context())
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int64)
+	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, errors.New("could not find character ID"), http.StatusUnauthorized)
 		return
@@ -58,7 +58,7 @@ func accountInfo(w http.ResponseWriter, r *http.Request) {
 
 	accountInfo, ok := s.Values["accountInfo"].([]byte)
 	if !ok {
-		if err := updateAccountInfo(s, characterID, char.CharacterName); err != nil {
+		if err := updateAccountInfo(s, int32(characterID), char.CharacterName); err != nil {
 			httpErr(w, err)
 			return
 		}
@@ -77,7 +77,7 @@ func cursorChar(w http.ResponseWriter, r *http.Request) {
 	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int64)
+	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, errors.New("could not find character ID for cursor"), http.StatusUnauthorized)
 		return
@@ -91,7 +91,7 @@ func cursorChar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set our new cursor
-	err = models.SetCursorCharacter(characterID, cursorCharacterID)
+	err = models.SetCursorCharacter(characterID, int32(cursorCharacterID))
 	if err != nil {
 		httpErr(w, err)
 		return
@@ -120,7 +120,7 @@ func apiGetCRESTTokens(w http.ResponseWriter, r *http.Request) {
 	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int64)
+	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, errors.New("could not find character ID for crest token"), http.StatusUnauthorized)
 		return
@@ -150,7 +150,7 @@ func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int64)
+	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, errors.New("could not find character ID to delete"), http.StatusUnauthorized)
 		return
@@ -162,7 +162,7 @@ func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := models.DeleteCRESTToken(characterID, cid); err != nil {
+	if err := models.DeleteCRESTToken(characterID, int32(cid)); err != nil {
 		httpErrCode(w, err, http.StatusConflict)
 		return
 	}

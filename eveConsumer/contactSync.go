@@ -20,11 +20,6 @@ func init() {
 
 // Perform contact sync for wardecs
 func contactSyncTrigger(c *EVEConsumer) (bool, error) {
-	// Do quick maintenence to prevent errors.
-	if err := models.MaintContactSync(); err != nil {
-		return false, err
-	}
-
 	ecc, err := models.GetExpiredContactSyncs()
 	if err != nil {
 		return false, err
@@ -67,12 +62,12 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	// Split off characters into an array
 	dest := strings.Split(v, ":")
 	destinations := strings.Split(dest[2], ",")
-	characterID, err := strconv.ParseInt(dest[0], 10, 64)
+	characterID, err := strconv.ParseInt(dest[0], 10, 32)
 	if err != nil {
 		return false, err
 	}
 
-	source, err := strconv.ParseInt(dest[1], 10, 64)
+	source, err := strconv.ParseInt(dest[1], 10, 32)
 	if err != nil {
 		return false, err
 	}
@@ -98,19 +93,19 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	// Map of tokens
 	type characterToken struct {
 		token *goesi.CRESTTokenSource
-		cid   int64
+		cid   int32
 	}
 	tokens := make(map[int64]characterToken)
 
 	// Get the tokens for our destinations
 	for _, cidS := range destinations {
 		cid, _ := strconv.ParseInt(cidS, 10, 64)
-		a, err := c.ctx.TokenStore.GetTokenSource(characterID, cid)
+		a, err := c.ctx.TokenStore.GetTokenSource(int32(characterID), int32(cid))
 		if err != nil {
 			return false, err
 		}
 		// Save the token.
-		tokens[cid] = characterToken{token: &a, cid: cid}
+		tokens[cid] = characterToken{token: &a, cid: int32(cid)}
 	}
 
 	// Active Wars
@@ -145,7 +140,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		}
 
 		// Update cache time.
-		contactSync := &models.ContactSync{Source: source, Destination: token.cid}
+		contactSync := &models.ContactSync{Source: int32(source), Destination: token.cid}
 		err = contactSync.Updated(time.Now().UTC().Add(time.Second * 300))
 		if err != nil {
 			return false, err
@@ -279,7 +274,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		}
 
 		// set success
-		tokenSuccess(source, token.cid, 200, "OK")
+		tokenSuccess(int32(source), token.cid, 200, "OK")
 	}
 	return true, err
 }

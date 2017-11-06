@@ -57,7 +57,7 @@ func (s *Nail) Run() {
 	}
 }
 
-// Stop the nail service
+// Close stop the nail service
 func (s *Nail) Close() {
 	close(s.stop)
 	s.wg.Wait()
@@ -92,19 +92,20 @@ type nailHandler struct {
 
 var handlers []nailHandler
 
+// AddHandler adds a nail handler
 func AddHandler(topic string, spawnFunc spawnFunc) {
 	handlers = append(handlers, nailHandler{topic, spawnFunc})
 }
 
 // RetryTransaction on deadlocks
-func RetryTransaction(tx *sqlx.Tx) error {
+func retryTransaction(tx *sqlx.Tx) error {
 	for {
 		err := tx.Commit()
 		if err != nil {
 			if !strings.Contains(err.Error(), "1213") {
 				return err
 			}
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(250 * time.Millisecond)
 			continue
 		} else {
 			return err
@@ -113,10 +114,27 @@ func RetryTransaction(tx *sqlx.Tx) error {
 }
 
 // DoSQL executes a sql statement
-func (s *Nail) DoSQL(stmt string, args ...interface{}) error {
+func (s *Nail) doSQL(stmt string, args ...interface{}) error {
+	for {
+		err := s.doSQLTranq(stmt, args...)
+		if err != nil {
+			if !strings.Contains(err.Error(), "1213") {
+
+				return err
+			}
+			time.Sleep(250 * time.Millisecond)
+			continue
+		} else {
+			return err
+		}
+	}
+	return nil
+}
+
+// DoSQL executes a sql statement
+func (s *Nail) doSQLTranq(stmt string, args ...interface{}) error {
 	tx, err := s.db.Beginx()
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 
@@ -125,9 +143,8 @@ func (s *Nail) DoSQL(stmt string, args ...interface{}) error {
 		return err
 	}
 
-	err = RetryTransaction(tx)
+	err = retryTransaction(tx)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 	return nil

@@ -55,7 +55,7 @@ func (s *Nail) marketOrderHandler(message *nsq.Message) error {
 				duration=VALUES(duration),
 				reported=VALUES(reported);
 				`, strings.Join(values, ",\n"))
-	return s.DoSQL(stmt)
+	return s.doSQL(stmt)
 }
 
 func (s *Nail) marketHistoryHandler(message *nsq.Message) error {
@@ -87,5 +87,5 @@ func (s *Nail) marketHistoryHandler(message *nsq.Message) error {
 
 	stmt := fmt.Sprintf("INSERT INTO evedata.market_history (date, low, high, mean, quantity, orders, itemID, regionID) VALUES \n%s ON DUPLICATE KEY UPDATE date=date", strings.Join(values, ",\n"))
 
-	return s.DoSQL(stmt)
+	return s.doSQL(stmt)
 }

@@ -41,7 +41,7 @@ func (s *Nail) corporationHandler(message *nsq.Message) error {
 
 	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 7)
 
-	return s.DoSQL(`INSERT INTO evedata.corporations
+	return s.doSQL(`INSERT INTO evedata.corporations
 		(corporationID,name,ticker,ceoID,allianceID,factionID,memberCount,updated,cacheUntil)
 		VALUES(?,?,?,?,?,?,?,UTC_TIMESTAMP(),?) 
 		ON DUPLICATE KEY UPDATE ceoID=VALUES(ceoID), name=VALUES(name), ticker=VALUES(ticker), allianceID=VALUES(allianceID), 
@@ -61,7 +61,7 @@ func (s *Nail) allianceHandler(message *nsq.Message) error {
 
 	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 7)
 
-	return s.DoSQL(`
+	return s.doSQL(`
 		INSERT INTO evedata.alliances 
 			(
 				allianceID,
@@ -91,7 +91,7 @@ func (s *Nail) characterHandler(message *nsq.Message) error {
 
 	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 7)
 
-	err = s.DoSQL(`
+	err = s.doSQL(`
 		INSERT INTO evedata.characters (characterID,name,bloodlineID,ancestryID,corporationID,allianceID,race,gender,securityStatus,updated,cacheUntil)
 			VALUES(?,?,?,?,?,?,evedata.raceByID(?),?,?,UTC_TIMESTAMP(),?) 
 			ON DUPLICATE KEY UPDATE corporationID=VALUES(corporationID), gender=VALUES(gender), allianceID=VALUES(allianceID), securityStatus=VALUES(securityStatus), updated = UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil)
@@ -109,7 +109,7 @@ func (s *Nail) characterHandler(message *nsq.Message) error {
 
 	if len(values) > 0 {
 		stmt := fmt.Sprintf("INSERT INTO evedata.corporationHistory (characterID,startDate,recordID,corporationID) VALUES %s ON DUPLICATE KEY UPDATE startDate=VALUES(startDate);", strings.Join(values, ",\n"))
-		err = s.DoSQL(stmt)
+		err = s.doSQL(stmt)
 		if err != nil {
 			log.Println(err)
 			return err

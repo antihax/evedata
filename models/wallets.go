@@ -30,7 +30,7 @@ type JournalEntry struct {
 	CharacterName string      `db:"characterName" json:"characterName"`
 }
 
-func GetWalletSummary(characterID int64, rangeI int64) ([]WalletSummary, error) {
+func GetWalletSummary(characterID int32, rangeI int64) ([]WalletSummary, error) {
 
 	walletSummary := []WalletSummary{}
 	if err := database.Select(&walletSummary, `
@@ -61,7 +61,7 @@ func GetWalletSummary(characterID int64, rangeI int64) ([]WalletSummary, error) 
 	return walletSummary, nil
 }
 
-func getJournalEntries(characterID int64, rangeI int64, refTypeID int64, entries *[]JournalEntry, errc chan error, limit chan bool) {
+func getJournalEntries(characterID int32, rangeI int64, refTypeID int64, entries *[]JournalEntry, errc chan error, limit chan bool) {
 	limit <- true
 	defer func() { <-limit }()
 

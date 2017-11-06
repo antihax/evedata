@@ -8,11 +8,11 @@ import (
 )
 
 type ContactSync struct {
-	Source          int64       `db:"source" json:"source"`
+	Source          int32       `db:"source" json:"source"`
 	SourceName      null.String `db:"sourceName" json:"sourceName"`
-	Destination     int64       `db:"destination" json:"destination"`
+	Destination     int32       `db:"destination" json:"destination"`
 	DestinationName null.String `db:"destinationName" json:"destinationName"`
-	CharacterID     int64       `db:"characterID" json:"characterID"`
+	CharacterID     int32       `db:"characterID" json:"characterID"`
 	LastError       null.String `db:"lastError" json:"lastError"`
 	NextSync        time.Time   `db:"nextSync" json:"nextSync"`
 }
@@ -30,7 +30,7 @@ func (c *ContactSync) Updated(nextSync time.Time) error {
 }
 
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetContactSyncs(characterID int64) ([]ContactSync, error) {
+func GetContactSyncs(characterID int32) ([]ContactSync, error) {
 	cc := []ContactSync{}
 	if err := database.Select(&cc, `
 		SELECT C.characterID, source, S.characterName AS sourceName, destination, D.characterName AS destinationName, nextSync
@@ -44,7 +44,7 @@ func GetContactSyncs(characterID int64) ([]ContactSync, error) {
 	return cc, nil
 }
 
-func AddContactSync(characterID int64, source int, destination int) error {
+func AddContactSync(characterID int32, source int, destination int) error {
 
 	if source == destination {
 		return errors.New("Source and Destination cannot be the same.")
@@ -57,7 +57,7 @@ func AddContactSync(characterID int64, source int, destination int) error {
 	return nil
 }
 
-func DeleteContactSync(characterID int64, destination int) error {
+func DeleteContactSync(characterID int32, destination int) error {
 	if _, err := database.Exec(`DELETE FROM evedata.contactSyncs WHERE characterID = ? AND destination = ? LIMIT 1`,
 		characterID, destination); err != nil {
 
@@ -67,9 +67,9 @@ func DeleteContactSync(characterID int64, destination int) error {
 }
 
 type ExpiredContactSync struct {
-	Source       int64  `db:"source" json:"source"`
+	Source       int32  `db:"source" json:"source"`
 	Destinations string `db:"destinations" json:"destinations"`
-	CharacterID  int64  `db:"characterID" json:"characterID"`
+	CharacterID  int32  `db:"characterID" json:"characterID"`
 }
 
 // [BENCHMARK] 0.000 sec / 0.000 sec

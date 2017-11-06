@@ -12,6 +12,8 @@ import (
 
 func init() {
 	registerTrigger("wars", warsTrigger, time.NewTicker(time.Second*3600))
+	registerTrigger("warsFromDB", warsUpdate, time.NewTicker(time.Second*120))
+
 }
 
 func warsTrigger(s *Artifice) error {
@@ -114,4 +116,35 @@ func getWarKills(s *Artifice, id int32) error {
 		}
 		page++
 	}
+}
+
+func warsUpdate(s *Artifice) error {
+	wars, err := s.db.Query(`
+		SELECT id 
+		FROM evedata.wars 
+		WHERE (timeFinished > UTC_TIMESTAMP() 
+			or timeFinished = "0001-01-01 00:00:00") 
+			AND cacheUntil < UTC_TIMESTAMP();`)
+	if err != nil {
+		return err
+	}
+
+	work := []redisqueue.Work{}
+
+	// Loop the wars
+	for wars.Next() {
+		var id int32
+
+		err = wars.Scan(&id)
+		if err != nil {
+			return err
+		}
+
+		work = append(work, redisqueue.Work{Operation: "war", Parameter: id})
+
+	}
+	s.QueueWork(work)
+	wars.Close()
+
+	return nil
 }

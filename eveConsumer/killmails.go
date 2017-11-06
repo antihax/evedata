@@ -240,8 +240,7 @@ func (c *EVEConsumer) goZKillTemporaryConsumer() error {
 		// If we are at today, restart from 90 days
 		if nextCheck.Sub(time.Now().UTC()) > 0 {
 			nextCheck = time.Now().UTC().Add(time.Hour * 24 * -365)
-			log.Printf("Delete old killmails")
-			models.MaintKillMails()
+
 			log.Printf("Find Relationships")
 			models.BuildRelationships()
 

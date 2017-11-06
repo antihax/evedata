@@ -52,7 +52,7 @@ func (s *Nail) structureMarketHandler(message *nsq.Message) error {
 				duration=VALUES(duration),
 				reported=VALUES(reported);
 				`, strings.Join(values, ",\n"))
-	return s.DoSQL(stmt)
+	return s.doSQL(stmt)
 }
 
 func spawnStructureConsumer(s *Nail, consumer *nsq.Consumer) {
@@ -68,7 +68,7 @@ func (s *Nail) structureHandler(message *nsq.Message) error {
 	}
 
 	// Push into the denormalized table. This table is volitile.
-	err = s.DoSQL(`INSERT INTO staStations
+	err = s.doSQL(`INSERT INTO staStations
 		(stationID, solarSystemID, stationName, x, y, z, constellationID, regionID)
 		VALUES(?,?,?,?,?,?,evedata.constellationIDBySolarSystem(solarSystemID),evedata.regionIDBySolarSystem(solarSystemID))
 		ON DUPLICATE KEY UPDATE stationName=VALUES(stationName),solarSystemID=VALUES(solarSystemID),
@@ -79,7 +79,7 @@ func (s *Nail) structureHandler(message *nsq.Message) error {
 	}
 
 	// Insert into our table for tracking.
-	err = s.DoSQL(`INSERT INTO evedata.structures
+	err = s.doSQL(`INSERT INTO evedata.structures
 		(stationID, solarSystemID, stationName, x, y, z, updated)
 		VALUES(?,?,?,?,?,?, UTC_TIMESTAMP())
 		ON DUPLICATE KEY UPDATE stationName=VALUES(stationName),solarSystemID=VALUES(solarSystemID),

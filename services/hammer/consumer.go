@@ -49,7 +49,6 @@ func (s *Hammer) runConsumers() error {
 	consumerMetrics.With(
 		prometheus.Labels{"operation": w.Operation},
 	).Observe(duration)
-	log.Printf("complete operation %s %+v %fms\n", w.Operation, w.Parameter, duration)
 	return nil
 }
 

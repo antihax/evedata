@@ -37,7 +37,7 @@ func assetCharactersAPI(w http.ResponseWriter, r *http.Request) {
 	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int64)
+	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, errors.New("could not find character ID for assets"), http.StatusUnauthorized)
 		return
@@ -58,7 +58,7 @@ func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
 	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int64)
+	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, errors.New("could not find character ID for asset locations"), http.StatusUnauthorized)
 		return
@@ -75,7 +75,7 @@ func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	v, err := models.GetAssetLocations(characterID, (int64)(filterCharacterID))
+	v, err := models.GetAssetLocations(characterID, (int32)(filterCharacterID))
 	if err != nil {
 		httpErr(w, err)
 		return
@@ -88,14 +88,14 @@ func assetsAPI(w http.ResponseWriter, r *http.Request) {
 	var (
 		err               error
 		locationID        int64
-		filterCharacterID int64
+		filterCharacterID int32
 	)
 
 	setCache(w, 5*60)
 	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int64)
+	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, errors.New("could not find character ID for asset API"), http.StatusUnauthorized)
 		return
@@ -104,11 +104,12 @@ func assetsAPI(w http.ResponseWriter, r *http.Request) {
 	// Get arguments
 	filter := r.FormValue("filterCharacterID")
 	if filter != "" {
-		filterCharacterID, err = strconv.ParseInt(filter, 10, 64)
+		filterCharacterID64, err := strconv.ParseInt(filter, 10, 64)
 		if err != nil {
 			httpErrCode(w, err, http.StatusNotFound)
 			return
 		}
+		filterCharacterID = int32(filterCharacterID64)
 	}
 
 	location := r.FormValue("locationID")

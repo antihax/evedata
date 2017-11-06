@@ -7,7 +7,7 @@ import (
 )
 
 type Assets struct {
-	CharacterID   int64      `db:"characterID" json:"characterID"`
+	CharacterID   int32      `db:"characterID" json:"characterID"`
 	CharacterName string     `db:"characterName" json:"characterName"`
 	LocationFlag  string     `db:"locationFlag" json:"locationFlag"`
 	LocationID    int64      `db:"locationID" json:"locationID"`
@@ -31,13 +31,13 @@ type AssetLocations struct {
 }
 
 type AssetCharacters struct {
-	CharacterID   int64      `db:"characterID" json:"characterID"`
+	CharacterID   int32      `db:"characterID" json:"characterID"`
 	CharacterName string     `db:"characterName" json:"characterName"`
 	Buy           null.Float `db:"buy" json:"buy,omitempty"`
 	Sell          null.Float `db:"sell" json:"sell,omitempty"`
 }
 
-func GetAssetLocations(characterID int64, filterCharacterID int64) ([]AssetLocations, error) {
+func GetAssetLocations(characterID int32, filterCharacterID int32) ([]AssetLocations, error) {
 	var filter string
 
 	if filterCharacterID == 0 {
@@ -63,7 +63,7 @@ func GetAssetLocations(characterID int64, filterCharacterID int64) ([]AssetLocat
 	return assetLocations, nil
 }
 
-func GetAssetCharacters(characterID int64) ([]AssetCharacters, error) {
+func GetAssetCharacters(characterID int32) ([]AssetCharacters, error) {
 	assetCharacters := []AssetCharacters{}
 	if err := database.Select(&assetCharacters, `
 		SELECT  A.characterID, characterName, 
@@ -82,7 +82,7 @@ func GetAssetCharacters(characterID int64) ([]AssetCharacters, error) {
 
 // Obtain alliance information by ID.
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetAssets(characterID int64, filterCharacterID int64, locationID int64) ([]Assets, error) {
+func GetAssets(characterID int32, filterCharacterID int32, locationID int64) ([]Assets, error) {
 
 	var filter string
 

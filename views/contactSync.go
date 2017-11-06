@@ -39,7 +39,7 @@ func apiAddContactSync(w http.ResponseWriter, r *http.Request) {
 	}
 	var cc localContactSync
 
-	characterID, ok := s.Values["characterID"].(int64)
+	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
@@ -66,7 +66,7 @@ func apiGetContactSyncs(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	s := evedata.SessionFromContext(r.Context())
 
-	characterID, ok := s.Values["characterID"].(int64)
+	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, nil, http.StatusUnauthorized)
 		return
@@ -84,7 +84,7 @@ func apiDeleteContactSync(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	s := evedata.SessionFromContext(r.Context())
 
-	characterID, ok := s.Values["characterID"].(int64)
+	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, nil, http.StatusUnauthorized)
 		return

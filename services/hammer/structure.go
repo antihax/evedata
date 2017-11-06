@@ -24,7 +24,6 @@ func structureConsumer(s *Hammer, parameter interface{}) {
 	structureID := parameter.(int64)
 
 	if s.inQueue.CheckWorkExpired("evedata_structure_failure", structureID) {
-		log.Printf("ignoring structure %d\n", structureID)
 		return
 	}
 
@@ -54,7 +53,6 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 	orders := []esi.GetMarketsStructuresStructureId200Ok{}
 
 	if s.inQueue.CheckWorkExpired("evedata_structure_failure", structureID) {
-		log.Printf("ignoring structure %d\n", structureID)
 		return
 	}
 
@@ -63,7 +61,7 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 	for {
 		o, _, err := s.esi.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, structureID, map[string]interface{}{"page": page})
 		if err != nil {
-			s.inQueue.SetWorkExpire("evedata_structure_failure", structureID, 86400)
+			s.inQueue.SetWorkExpire("evedata_structure_failure", structureID, 172800)
 			return
 		} else if len(o) == 0 { // end of the pages
 			break

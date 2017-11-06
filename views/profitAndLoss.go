@@ -38,7 +38,7 @@ func walletSummaryAPI(w http.ResponseWriter, r *http.Request) {
 	s := evedata.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int64)
+	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
 		httpErrCode(w, nil, http.StatusUnauthorized)
 		return

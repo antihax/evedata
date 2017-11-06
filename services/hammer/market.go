@@ -7,7 +7,6 @@ import (
 
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/redisqueue"
-	"github.com/antihax/goesi/esi"
 
 	"encoding/gob"
 
@@ -19,6 +18,7 @@ func init() {
 	registerConsumer("marketHistoryTrigger", marketHistoryTrigger)
 	registerConsumer("marketHistory", marketHistoryConsumer)
 	gob.Register(datapackages.MarketOrders{})
+	gob.Register(datapackages.MarketHistory{})
 }
 
 func marketHistoryTrigger(s *Hammer, parameter interface{}) {
@@ -86,28 +86,30 @@ func marketHistoryConsumer(s *Hammer, parameter interface{}) {
 func marketOrdersConsumer(s *Hammer, parameter interface{}) {
 	regionID := parameter.(int32)
 	var page int32 = 1
-	orders := []esi.GetMarketsRegionIdOrders200Ok{}
 
 	for {
-		o, _, err := s.esi.ESI.MarketApi.GetMarketsRegionIdOrders(context.TODO(), "all", regionID, map[string]interface{}{"page": page})
+		orders, r, err := s.esi.ESI.MarketApi.GetMarketsRegionIdOrders(context.TODO(), "all", regionID, map[string]interface{}{"page": page})
 		if err != nil {
 			log.Println(err)
 			return
-		} else if len(o) == 0 { // end of the pages
-			break
 		}
-		orders = append(orders, o...)
 
+		b, err := gobcoder.GobEncoder(&datapackages.MarketOrders{Orders: orders, RegionID: regionID})
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		err = s.nsq.Publish("marketOrders", b)
+		if err != nil {
+			log.Println(err)
+		}
+
+		xpagesS := r.Header.Get("X-Pages")
+		xpages, _ := strconv.Atoi(xpagesS)
+		if int32(xpages) == page || len(orders) == 0 {
+			return
+		}
 		page++
-	}
-
-	b, err := gobcoder.GobEncoder(&datapackages.MarketOrders{Orders: orders, RegionID: regionID})
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	err = s.nsq.Publish("marketOrders", b)
-	if err != nil {
-		log.Println(err)
 	}
 }
