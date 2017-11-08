@@ -34,6 +34,9 @@ func TestTokenServer(t *testing.T) {
 	ts := NewTokenServer(redis, sql, auth)
 	go ts.Run()
 
+	// sleep to allow server to start
+	time.Sleep(time.Millisecond * 50)
+
 	conn, err := grpc.Dial("localhost:4001", grpc.WithInsecure())
 	if err != nil {
 		t.Fatal(err)
