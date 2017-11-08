@@ -3,7 +3,6 @@ package hammer
 import (
 	"context"
 	"log"
-	"time"
 
 	"encoding/gob"
 
