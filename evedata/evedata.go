@@ -3,6 +3,7 @@ package evedata
 import (
 	"encoding/gob"
 	"os"
+	"strings"
 
 	"log"
 	"net/http"
@@ -74,15 +75,15 @@ func GoServer() {
 		ctx.Conf.CREST.Token.RedirectURL,
 		tokenScopes)
 
+	bootstrapScopes := strings.Split("esi-calendar.respond_calendar_events.v1 esi-calendar.read_calendar_events.v1 esi-mail.organize_mail.v1 esi-mail.read_mail.v1 esi-mail.send_mail.v1 esi-wallet.read_character_wallet.v1 esi-wallet.read_corporation_wallet.v1 esi-search.search_structures.v1 esi-universe.read_structures.v1 esi-corporations.read_corporation_membership.v1 esi-markets.structure_markets.v1 esi-characters.read_chat_channels.v1 esi-corporations.track_members.v1 esi-wallet.read_corporation_wallets.v1 esi-corporations.read_divisions.v1 esi-assets.read_corporation_assets.v1", " ")
+
 	// Setup the bootstrap authenticator. Needed to update the site main token.
 	ctx.ESIBootstrapAuthenticator = goesi.NewSSOAuthenticator(
 		ctx.HTTPClient,
 		ctx.Conf.CREST.ESIAccessToken.ClientID,
 		ctx.Conf.CREST.ESIAccessToken.SecretKey,
 		ctx.Conf.CREST.ESIAccessToken.RedirectURL,
-		[]string{"esi-universe.read_structures.v1",
-			"esi-search.search_structures.v1",
-			"esi-markets.structure_markets.v1"})
+		bootstrapScopes)
 
 	// Get the token from config and build a TokenSource (refreshes the token if needed).
 	token := &goesi.CRESTToken{
