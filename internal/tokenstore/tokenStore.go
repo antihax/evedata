@@ -14,6 +14,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// TokenStore provides storage and caching of OAuth2 Tokens
 type TokenStore struct {
 	redis *redis.Pool
 	db    *sqlx.DB
@@ -60,6 +61,16 @@ func (c *TokenStore) GetToken(characterID int32, tokenCharacterID int32) (*goesi
 	return t, nil
 }
 
+// SetToken a token to storage
+func (c *TokenStore) SetToken(characterID int32, tokenCharacterID int32, token *oauth2.Token) error {
+	err := c.setTokenToCache(characterID, tokenCharacterID, token)
+	if err != nil {
+		return err
+	}
+
+	return c.updateTokenToDB(characterID, tokenCharacterID, token)
+}
+
 // GetTokenSource retreives a token from storage and returns a token source
 func (c *TokenStore) GetTokenSource(characterID int32, tokenCharacterID int32) (goesi.CRESTTokenSource, error) {
 	t, err := c.getTokenFromCache(characterID, tokenCharacterID)
@@ -95,14 +106,14 @@ func (c *TokenStore) getTokenFromDB(characterID int32, tokenCharacterID int32) (
 		AccessToken  string    `db:"accessToken" json:"accessToken,omitempty"`
 		RefreshToken string    `db:"refreshToken" json:"refreshToken,omitempty"`
 	}
-	token := &CRESTToken{}
+	token := CRESTToken{}
 
 	if err := c.db.QueryRowx(
 		`SELECT expiry, tokenType, accessToken, refreshToken
 			FROM evedata.crestTokens
 			WHERE characterID = ? AND tokenCharacterID = ?
 			LIMIT 1`,
-		characterID, tokenCharacterID).StructScan(token); err != nil {
+		characterID, tokenCharacterID).StructScan(&token); err != nil {
 
 		return nil, err
 	}

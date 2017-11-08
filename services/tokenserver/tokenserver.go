@@ -3,12 +3,14 @@ package tokenserver
 import (
 	"context"
 	"net"
+	"time"
 
 	"github.com/antihax/evedata/internal/tokenstore"
 	"github.com/antihax/goesi"
 	"github.com/garyburd/redigo/redis"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/jmoiron/sqlx"
+	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -23,7 +25,7 @@ type TokenServer struct {
 }
 
 // GetToken returns a token from the store
-func (s *TokenServer) GetToken(ctx context.Context, in *tokenstore.TokenRequest) (*tokenstore.Token, error) {
+func (s *TokenServer) GetToken(ctx context.Context, in *tokenstore.GetTokenRequest) (*tokenstore.Token, error) {
 
 	tok, err := s.tokenStore.GetToken(in.GetCharacterID(), in.GetTokenCharacterID())
 	if err != nil {
@@ -41,6 +43,24 @@ func (s *TokenServer) GetToken(ctx context.Context, in *tokenstore.TokenRequest)
 		Expiry:       expire,
 		TokenType:    tok.TokenType,
 	}, err
+}
+
+// GetToken returns a token from the store
+func (s *TokenServer) SetToken(ctx context.Context, in *tokenstore.SetTokenRequest) (*tokenstore.SetResponse, error) {
+
+	token := &oauth2.Token{
+		AccessToken:  in.GetAccessToken(),
+		RefreshToken: in.GetRefreshToken(),
+		Expiry:       time.Unix(in.GetExpiry().GetSeconds(), 0),
+		TokenType:    in.GetTokenType(),
+	}
+
+	err := s.tokenStore.SetToken(in.GetCharacterID(), in.GetTokenCharacterID(), token)
+	if err != nil {
+		return &tokenstore.SetResponse{false}, err
+	}
+
+	return &tokenstore.SetResponse{true}, nil
 }
 
 // NewTokenServer creates a new token server
