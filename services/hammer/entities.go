@@ -9,7 +9,6 @@ import (
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/evedata/internal/redisqueue"
-	"github.com/antihax/goesi"
 )
 
 func init() {
