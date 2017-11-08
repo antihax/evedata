@@ -1,0 +1,50 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: evedata-tokenserver
+  namespace: evedata
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: evedata-tokenserver
+      labels:
+        app: evedata
+      annotations:
+        prometheus.io/scrape: "true"
+    spec:
+      containers:
+      - name: evedata-tokenserver
+        image: antihax/evedata-tokenserver
+        imagePullPolicy: Always
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-password
+              key: password
+        - name: ESI_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: secret-tokenstore
+        - name: ESI_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: clientID-tokenstore
+        - name: SQLAUTH
+          valueFrom:
+            secretKeyRef:
+              name: sql-password
+              key: sqlauth
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - mountPath: /etc/ssl/certs
+          name: ca-certs
+      volumes:
+      - name: ca-certs
+        hostPath:
+          path: /etc/ssl/certs
+          type: Directory
