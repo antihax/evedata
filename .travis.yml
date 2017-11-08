@@ -25,9 +25,10 @@ before_install:
 
 after_success:
   - ./test.sh
-    if [ "$TRAVIS_BRANCH" == "master" ]; then
-    ./build.sh
-    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-    ./dockerpush.sh
-    fi
-    bash <(curl -s https://codecov.io/bash)
+  - if [ "$TRAVIS_BRANCH" == "master" ]
+  - then
+  - ./build.sh
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+  - ./dockerpush.sh
+  - fi
+  - bash <(curl -s https://codecov.io/bash)
