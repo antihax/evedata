@@ -3,6 +3,7 @@ package views
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -42,6 +43,7 @@ func accountInfo(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 
 	s := evedata.SessionFromContext(r.Context())
+
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
@@ -148,7 +150,7 @@ func apiGetCRESTTokens(w http.ResponseWriter, r *http.Request) {
 func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	s := evedata.SessionFromContext(r.Context())
-
+	g := evedata.GlobalsFromContext(r.Context())
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
@@ -177,6 +179,11 @@ func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 		httpErr(w, err)
 		return
 	}
+
+	key := fmt.Sprintf("EVEDATA_TOKENSTORE_%d_%d", characterID, cid)
+	red := g.Cache.Get()
+	red.Do("DEL", key)
+	red.Close()
 
 	if err = s.Save(r, w); err != nil {
 		httpErr(w, err)

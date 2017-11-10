@@ -45,7 +45,7 @@ func (s *TokenServer) GetToken(ctx context.Context, in *tokenstore.GetTokenReque
 	}, err
 }
 
-// GetToken returns a token from the store
+// SetToken sends a token from to the store
 func (s *TokenServer) SetToken(ctx context.Context, in *tokenstore.SetTokenRequest) (*tokenstore.SetResponse, error) {
 
 	token := &oauth2.Token{

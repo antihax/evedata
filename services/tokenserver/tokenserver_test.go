@@ -42,10 +42,10 @@ func TestTokenServer(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer conn.Close()
+	client := tokenstore.NewTokenStoreClient(conn)
 
 	expire, _ := ptypes.TimestampProto(time.Now().Add(time.Hour))
 
-	client := tokenstore.NewTokenStoreClient(conn)
 	resp, err := client.SetToken(context.TODO(), &tokenstore.SetTokenRequest{
 		CharacterID:      1,
 		TokenCharacterID: 1,

@@ -40,6 +40,7 @@ spec:
               key: sqlauth
         ports:
         - containerPort: 3000
+        - containerPort: 4001
         volumeMounts:
         - mountPath: /etc/ssl/certs
           name: ca-certs

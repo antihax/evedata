@@ -113,7 +113,7 @@ func AddCRESTToken(characterID int32, tokenCharacterID int32, characterName stri
 				refreshToken 	= VALUES(refreshToken),
 				expiry 			= VALUES(expiry),
 				tokenType 		= VALUES(tokenType),
-				scopes 		= VALUES(scopes),
+				scopes 			= VALUES(scopes),
 				lastStatus		= "Unused"`,
 		characterID, tokenCharacterID, tok.AccessToken, tok.RefreshToken, tok.Expiry, tok.TokenType, characterName, scopes); err != nil {
 		return err

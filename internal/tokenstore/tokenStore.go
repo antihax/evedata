@@ -39,10 +39,12 @@ func (c *TokenStore) GetToken(characterID int32, tokenCharacterID int32) (*goesi
 	if t.Expiry.Before(time.Now()) {
 		a, err := c.auth.TokenSource(t)
 		if err != nil {
+			c.tokenError(characterID, tokenCharacterID, 999, err.Error())
 			return nil, err
 		}
 		token, err := a.Token()
 		if err != nil {
+			c.tokenError(characterID, tokenCharacterID, 999, err.Error())
 			return nil, err
 		}
 		c.setTokenToCache(characterID, tokenCharacterID, token)
@@ -83,12 +85,15 @@ func (c *TokenStore) GetTokenSource(characterID int32, tokenCharacterID int32) (
 
 	a, err := c.auth.TokenSource(t)
 	if err != nil {
+		c.tokenError(characterID, tokenCharacterID, 999, err.Error())
 		return nil, err
 	}
 
 	if t.Expiry.Before(time.Now()) {
 		token, err := a.Token()
 		if err != nil {
+			c.invalidateTokenCache(characterID, tokenCharacterID)
+			c.tokenError(characterID, tokenCharacterID, 999, err.Error())
 			return nil, err
 		}
 		c.setTokenToCache(characterID, tokenCharacterID, token)
@@ -171,7 +176,19 @@ func (c *TokenStore) setTokenToCache(characterID int32, tokenCharacterID int32, 
 	if err != nil {
 		return err
 	}
-	if err := r.Send("SET", key, b.Bytes()); err != nil {
+	if err := r.Send("SETEX", key, 80000, b.Bytes()); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *TokenStore) invalidateTokenCache(characterID int32, tokenCharacterID int32) error {
+	r := c.redis.Get()
+	defer r.Close()
+
+	key := fmt.Sprintf("EVEDATA_TOKENSTORE_%d_%d", characterID, tokenCharacterID)
+
+	if err := r.Send("DEL", key); err != nil {
 		return err
 	}
 	return nil
@@ -192,4 +209,14 @@ func (c *TokenStore) updateTokenToDB(characterID int32, tokenCharacterID int32, 
 		characterID,
 		tokenCharacterID)
 	return err
+}
+
+func (c *TokenStore) tokenError(characterID int32, tokenCharacterID int32, code int, status string) error {
+	if _, err := c.db.Exec(`
+		UPDATE evedata.crestTokens SET lastCode = ?, lastStatus = ?
+		WHERE characterID = ? AND tokenCharacterID = ?`,
+		code, status, characterID, tokenCharacterID); err != nil {
+		return err
+	}
+	return nil
 }

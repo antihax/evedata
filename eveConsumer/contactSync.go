@@ -56,6 +56,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 	v, err := redis.String(ret, err)
 	if err != nil {
+		log.Println(err)
 		return false, err
 	}
 
@@ -64,21 +65,25 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	destinations := strings.Split(dest[2], ",")
 	characterID, err := strconv.ParseInt(dest[0], 10, 32)
 	if err != nil {
+		log.Println(err)
 		return false, err
 	}
 
 	source, err := strconv.ParseInt(dest[1], 10, 32)
 	if err != nil {
+		log.Println(err)
 		return false, err
 	}
 
 	char, _, err := c.ctx.ESI.ESI.CharacterApi.GetCharactersCharacterId(nil, int32(source), nil)
 	if err != nil {
+		log.Println(err)
 		return false, err
 	}
 
 	corp, _, err := c.ctx.ESI.ESI.CorporationApi.GetCorporationsCorporationId(nil, char.CorporationId, nil)
 	if err != nil {
+		log.Println(err)
 		return false, err
 	}
 
@@ -102,6 +107,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		cid, _ := strconv.ParseInt(cidS, 10, 64)
 		a, err := c.ctx.TokenStore.GetTokenSource(int32(characterID), int32(cid))
 		if err != nil {
+			log.Println(err, characterID, cidS)
 			return false, err
 		}
 		// Save the token.
@@ -111,12 +117,14 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	// Active Wars
 	activeWars, err := models.GetActiveWarsByID((int64)(searchID))
 	if err != nil {
+		log.Println(err)
 		return false, err
 	}
 
 	// Pending Wars
 	pendingWars, err := models.GetPendingWarsByID((int64)(searchID))
 	if err != nil {
+		log.Println(err)
 		return false, err
 	}
 
@@ -125,6 +133,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	if corp.Faction != "" {
 		factionWars, err = models.GetFactionWarEntitiesForID(models.FactionsByName[corp.Faction])
 		if err != nil {
+			log.Println(err)
 			return false, err
 		}
 	}
@@ -136,6 +145,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 		contacts, err := c.getContacts(auth, (int32)(token.cid))
 		if err != nil {
+			log.Println(err)
 			return false, err
 		}
 
@@ -143,6 +153,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 		contactSync := &models.ContactSync{Source: int32(source), Destination: token.cid}
 		err = contactSync.Updated(time.Now().UTC().Add(time.Second * 300))
 		if err != nil {
+			log.Println(err)
 			return false, err
 		}
 
@@ -228,6 +239,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 			for start := 0; start < len(erase); start = start + 20 {
 				end := min(start+20, len(erase))
 				if err := c.deleteContacts(auth, (int32)(token.cid), erase[start:end]); err != nil {
+					log.Println(err)
 					return false, err
 				}
 			}
@@ -238,6 +250,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 			for start := 0; start < len(active); start = start + 100 {
 				end := min(start+100, len(active))
 				if err := c.addContacts(auth, (int32)(token.cid), active[start:end], -10); err != nil {
+					log.Println(err)
 					return false, err
 				}
 			}
@@ -248,6 +261,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 			for start := 0; start < len(pending); start = start + 100 {
 				end := min(start+100, len(pending))
 				if err := c.addContacts(auth, (int32)(token.cid), pending[start:end], -5); err != nil {
+					log.Println(err)
 					return false, err
 				}
 			}
@@ -258,6 +272,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 			for start := 0; start < len(activeMove); start = start + 20 {
 				end := min(start+20, len(activeMove))
 				if err := c.updateContacts(auth, (int32)(token.cid), activeMove[start:end], -10); err != nil {
+					log.Println(err)
 					return false, err
 				}
 			}
@@ -268,6 +283,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 			for start := 0; start < len(pendingMove); start = start + 20 {
 				end := min(start+20, len(pendingMove))
 				if err := c.updateContacts(auth, (int32)(token.cid), pendingMove[start:end], -5); err != nil {
+					log.Println(err)
 					return false, err
 				}
 			}

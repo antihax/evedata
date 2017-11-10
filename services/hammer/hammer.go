@@ -6,6 +6,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/antihax/evedata/internal/tokenstore"
+	"google.golang.org/grpc"
+
 	"github.com/antihax/evedata/internal/apicache"
 	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/goesi"
@@ -15,13 +18,14 @@ import (
 
 // Hammer completes work handling CCP ESI and other API.
 type Hammer struct {
-	stop     chan bool
-	hammerWG *sync.WaitGroup
-	inQueue  *redisqueue.RedisQueue
-	esi      *goesi.APIClient
-	redis    *redis.Pool
-	nsq      *nsq.Producer
-	sem      chan bool
+	stop       chan bool
+	hammerWG   *sync.WaitGroup
+	inQueue    *redisqueue.RedisQueue
+	esi        *goesi.APIClient
+	redis      *redis.Pool
+	nsq        *nsq.Producer
+	sem        chan bool
+	tokenStore *tokenstore.TokenStoreClient
 
 	// authentication
 	token *goesi.CRESTTokenSource
@@ -99,6 +103,15 @@ func (s *Hammer) QueueWork(work []redisqueue.Work) error {
 
 // Run the hammer service
 func (s *Hammer) Run() {
+
+	conn, err := grpc.Dial("tokenstore:4001", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalln("could not connect to tokenstore ", err)
+	}
+
+	defer conn.Close()
+	ts := tokenstore.NewTokenStoreClient(conn)
+	s.tokenStore = &ts
 
 	for {
 		select {
