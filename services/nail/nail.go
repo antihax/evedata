@@ -128,7 +128,6 @@ func (s *Nail) doSQL(stmt string, args ...interface{}) error {
 			return err
 		}
 	}
-	return nil
 }
 
 // DoSQL executes a sql statement

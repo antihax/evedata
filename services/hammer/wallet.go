@@ -7,7 +7,6 @@ import (
 	"encoding/gob"
 
 	"github.com/antihax/evedata/internal/datapackages"
-	"github.com/antihax/evedata/internal/gobcoder"
 )
 
 func init() {
@@ -17,6 +16,7 @@ func init() {
 }
 
 func walletTransactionConsumer(s *Hammer, parameter interface{}) {
+	// dereference the parameters
 	parameters := parameter.([]interface{})
 	characterID := parameters[0].(int32)
 	tokenCharacterID := parameters[1].(int32)
@@ -26,24 +26,19 @@ func walletTransactionConsumer(s *Hammer, parameter interface{}) {
 		log.Println(err)
 		return
 	}
+
 	transactions, _, err := s.esi.ESI.WalletApi.GetCharactersCharacterIdWalletTransactions(ctx, tokenCharacterID, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	b, err := gobcoder.GobEncoder(&datapackages.CharacterWalletTransactions{
+	// Send out the result
+	err = s.QueueResult(&datapackages.CharacterWalletTransactions{
 		CharacterID:      characterID,
 		TokenCharacterID: tokenCharacterID,
 		Transcations:     transactions,
-	})
-
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	err = s.nsq.Publish("characterWalletTransactions", b)
+	}, "characterWalletTransactions")
 	if err != nil {
 		log.Println(err)
 		return

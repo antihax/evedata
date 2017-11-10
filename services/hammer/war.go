@@ -7,7 +7,6 @@ import (
 
 	"encoding/gob"
 
-	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/goesi/esi"
 )
 
@@ -33,18 +32,14 @@ func warConsumer(s *Hammer, parameter interface{}) {
 		}
 	}
 
-	b, err := gobcoder.GobEncoder(war)
+	// Send out the result
+	err = s.QueueResult(war, "war")
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	err = s.nsq.Publish("war", b)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
+	// Add the alliance corporation for intel purposes
 	if war.Aggressor.AllianceId == 0 {
 		err = s.AddCorporation(war.Aggressor.CorporationId)
 		if err != nil {
@@ -53,6 +48,7 @@ func warConsumer(s *Hammer, parameter interface{}) {
 		}
 	}
 
+	// Add the alliance corporation for intel purposes
 	if war.Defender.AllianceId == 0 {
 		err = s.AddCorporation(war.Defender.CorporationId)
 		if err != nil {
@@ -60,6 +56,4 @@ func warConsumer(s *Hammer, parameter interface{}) {
 			return
 		}
 	}
-
-	return
 }

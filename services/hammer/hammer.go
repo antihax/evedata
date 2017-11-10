@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/evedata/internal/tokenstore"
 	"github.com/jmoiron/sqlx"
 
@@ -135,4 +136,14 @@ func (s *Hammer) GetTokenSourceContext(c context.Context, characterID, tokenChar
 	}
 	auth := context.WithValue(c, goesi.ContextOAuth2, tokenSource)
 	return auth, nil
+}
+
+// QueueResult queues a result to NSQ topic
+func (s *Hammer) QueueResult(v interface{}, topic string) error {
+	b, err := gobcoder.GobEncoder(v)
+	if err != nil {
+		return err
+	}
+
+	return s.nsq.Publish(topic, b)
 }

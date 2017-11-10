@@ -5,7 +5,6 @@ import (
 
 	"encoding/gob"
 
-	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/goesi/esi"
 )
 
@@ -34,13 +33,8 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 		log.Println(err)
 	}
 
-	b, err := gobcoder.GobEncoder(kill)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	err = s.nsq.Publish("killmail", b)
+	// Send out the result
+	err = s.QueueResult(kill, "killmail")
 	if err != nil {
 		log.Println(err)
 		return
@@ -59,6 +53,4 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 			return
 		}
 	}
-
-	return
 }

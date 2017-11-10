@@ -7,7 +7,6 @@ import (
 	"encoding/gob"
 
 	"github.com/antihax/evedata/internal/datapackages"
-	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/evedata/internal/redisqueue"
 )
 
@@ -72,13 +71,12 @@ func allianceConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	b, err := gobcoder.GobEncoder(&datapackages.Alliance{AllianceID: allianceID, Alliance: alliance, AllianceCorporations: allianceCorporations})
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	err = s.nsq.Publish("alliance", b)
+	// Send out the result
+	err = s.QueueResult(&datapackages.Alliance{
+		AllianceID:           allianceID,
+		Alliance:             alliance,
+		AllianceCorporations: allianceCorporations},
+		"alliance")
 	if err != nil {
 		log.Println(err)
 		return
@@ -111,13 +109,11 @@ func corporationConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	b, err := gobcoder.GobEncoder(&datapackages.Corporation{CorporationID: corporationID, Corporation: corporation})
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	err = s.nsq.Publish("corporation", b)
+	// Send out the result
+	err = s.QueueResult(&datapackages.Corporation{
+		CorporationID: corporationID,
+		Corporation:   corporation},
+		"corporation")
 	if err != nil {
 		log.Println(err)
 		return
@@ -139,7 +135,6 @@ func corporationConsumer(s *Hammer, parameter interface{}) {
 			return
 		}
 	}
-	return
 }
 
 func characterConsumer(s *Hammer, parameter interface{}) {
@@ -157,13 +152,12 @@ func characterConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	b, err := gobcoder.GobEncoder(&datapackages.Character{CharacterID: characterID, Character: character, CorporationHistory: corporationHistory})
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	err = s.nsq.Publish("character", b)
+	// Send out the result
+	err = s.QueueResult(&datapackages.Character{
+		CharacterID:        characterID,
+		Character:          character,
+		CorporationHistory: corporationHistory},
+		"character")
 	if err != nil {
 		log.Println(err)
 		return
@@ -186,6 +180,4 @@ func characterConsumer(s *Hammer, parameter interface{}) {
 			return
 		}
 	}
-
-	return
 }

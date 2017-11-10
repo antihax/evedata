@@ -9,8 +9,6 @@ import (
 	"github.com/antihax/evedata/internal/redisqueue"
 
 	"encoding/gob"
-
-	"github.com/antihax/evedata/internal/gobcoder"
 )
 
 func init() {
@@ -71,12 +69,11 @@ func marketHistoryConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	b, err := gobcoder.GobEncoder(&datapackages.MarketHistory{History: h, RegionID: regionID, TypeID: typeID})
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	err = s.nsq.Publish("marketHistory", b)
+	// Send out the result
+	err = s.QueueResult(&datapackages.MarketHistory{
+		History:  h,
+		RegionID: regionID,
+		TypeID:   typeID}, "marketHistory")
 	if err != nil {
 		log.Println(err)
 		return
@@ -94,15 +91,14 @@ func marketOrdersConsumer(s *Hammer, parameter interface{}) {
 			return
 		}
 
-		b, err := gobcoder.GobEncoder(&datapackages.MarketOrders{Orders: orders, RegionID: regionID})
+		// Send out the result
+		err = s.QueueResult(&datapackages.MarketOrders{
+			Orders:   orders,
+			RegionID: regionID},
+			"marketOrders")
 		if err != nil {
 			log.Println(err)
 			return
-		}
-
-		err = s.nsq.Publish("marketOrders", b)
-		if err != nil {
-			log.Println(err)
 		}
 
 		xpagesS := r.Header.Get("X-Pages")

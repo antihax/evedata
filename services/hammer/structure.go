@@ -9,8 +9,6 @@ import (
 	"github.com/antihax/goesi/esi"
 
 	"encoding/gob"
-
-	"github.com/antihax/evedata/internal/gobcoder"
 )
 
 func init() {
@@ -34,17 +32,12 @@ func structureConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	b, err := gobcoder.GobEncoder(datapackages.Structure{Structure: struc, StructureID: structureID})
+	// Send out the result
+	err = s.QueueResult(&datapackages.Structure{Structure: struc, StructureID: structureID}, "structure")
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	err = s.nsq.Publish("structure", b)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	return
 }
 
 func structureOrdersConsumer(s *Hammer, parameter interface{}) {
@@ -76,16 +69,10 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	b, err := gobcoder.GobEncoder(&datapackages.StructureOrders{Orders: orders, StructureID: structureID})
+	// Send out the result
+	err := s.QueueResult(&datapackages.StructureOrders{Orders: orders, StructureID: structureID}, "structureOrders")
 	if err != nil {
 		log.Println(err)
 		return
 	}
-
-	err = s.nsq.Publish("structureOrders", b)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	return
 }

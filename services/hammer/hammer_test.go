@@ -41,6 +41,7 @@ var (
 		{Operation: "marketHistoryTrigger", Parameter: int32(1)},
 		{Operation: "structure", Parameter: int64(1)},
 		{Operation: "marketHistory", Parameter: []int32{1, 1}},
+		{Operation: "characterWalletTransactions", Parameter: []interface{}{int32(1), int32(1)}},
 	}
 )
 
