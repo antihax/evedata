@@ -2,12 +2,13 @@
 package hammer
 
 import (
+	"context"
 	"log"
 	"sync"
 	"time"
 
 	"github.com/antihax/evedata/internal/tokenstore"
-	"google.golang.org/grpc"
+	"github.com/jmoiron/sqlx"
 
 	"github.com/antihax/evedata/internal/apicache"
 	"github.com/antihax/evedata/internal/redisqueue"
@@ -25,24 +26,28 @@ type Hammer struct {
 	redis      *redis.Pool
 	nsq        *nsq.Producer
 	sem        chan bool
-	tokenStore *tokenstore.TokenStoreClient
+	tokenStore *tokenstore.TokenStore
 
 	// authentication
-	token *goesi.CRESTTokenSource
-	auth  *goesi.SSOAuthenticator
+	token       *goesi.CRESTTokenSource
+	privateAuth *goesi.SSOAuthenticator
+	tokenAuth   *goesi.SSOAuthenticator
 }
 
 // NewHammer Service.
-func NewHammer(redis *redis.Pool, nsq *nsq.Producer, clientID string, secret string, refresh string) *Hammer {
-
+func NewHammer(redis *redis.Pool, db *sqlx.DB, nsq *nsq.Producer, clientID, secret, refresh, tokenClientID, tokenSecret string) *Hammer {
 	// Get a caching http client
 	cache := apicache.CreateHTTPClientCache(redis)
 
 	// Create our ESI API Client
 	esi := goesi.NewAPIClient(cache, "EVEData-API-Hammer")
 
-	// Setup an authenticator
-	auth := goesi.NewSSOAuthenticator(cache, clientID, secret, "",
+	// Setup an authenticator for our user tokens
+	tauth := goesi.NewSSOAuthenticator(cache, clientID, secret, "",
+		[]string{})
+
+	// Setup an authenticator for our private token
+	pauth := goesi.NewSSOAuthenticator(cache, clientID, secret, "",
 		[]string{"esi-universe.read_structures.v1",
 			"esi-search.search_structures.v1",
 			"esi-markets.structure_markets.v1"})
@@ -54,11 +59,13 @@ func NewHammer(redis *redis.Pool, nsq *nsq.Producer, clientID string, secret str
 		TokenType:    "Bearer",
 	}
 
-	// Build our token
-	token, err := auth.TokenSource(tok)
+	// Build our private token
+	token, err := pauth.TokenSource(tok)
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	tokenStore := tokenstore.NewTokenStore(redis, db, tauth)
 
 	// Setup a new hammer
 	s := &Hammer{
@@ -68,12 +75,14 @@ func NewHammer(redis *redis.Pool, nsq *nsq.Producer, clientID string, secret str
 			redis,
 			"evedata-hammer",
 		),
-		nsq:   nsq,
-		auth:  auth,
-		esi:   esi,
-		redis: redis,
-		token: &token,
-		sem:   make(chan bool, 50),
+		nsq:         nsq,
+		privateAuth: pauth,
+		tokenAuth:   tauth,
+		esi:         esi,
+		redis:       redis,
+		token:       &token,
+		tokenStore:  tokenStore,
+		sem:         make(chan bool, 50),
 	}
 
 	return s
@@ -92,8 +101,10 @@ func (s *Hammer) ChangeBasePath(path string) {
 
 // ChangeTokenPath for ESI (sisi/mock/tranquility)
 func (s *Hammer) ChangeTokenPath(path string) {
-	s.auth.ChangeTokenURL(path)
-	s.auth.ChangeAuthURL(path)
+	s.privateAuth.ChangeTokenURL(path)
+	s.privateAuth.ChangeAuthURL(path)
+	s.tokenAuth.ChangeTokenURL(path)
+	s.tokenAuth.ChangeAuthURL(path)
 }
 
 // QueueWork directly
@@ -103,16 +114,6 @@ func (s *Hammer) QueueWork(work []redisqueue.Work) error {
 
 // Run the hammer service
 func (s *Hammer) Run() {
-
-	conn, err := grpc.Dial("tokenstore:4001", grpc.WithInsecure())
-	if err != nil {
-		log.Fatalln("could not connect to tokenstore ", err)
-	}
-
-	defer conn.Close()
-	ts := tokenstore.NewTokenStoreClient(conn)
-	s.tokenStore = &ts
-
 	for {
 		select {
 		case <-s.stop:
@@ -124,4 +125,14 @@ func (s *Hammer) Run() {
 			}
 		}
 	}
+}
+
+// GetTokenSourceContext sets a token source to a context value for authentication
+func (s *Hammer) GetTokenSourceContext(c context.Context, characterID, tokenCharacterID int32) (context.Context, error) {
+	tokenSource, err := s.tokenStore.GetTokenSource(characterID, tokenCharacterID)
+	if err != nil {
+		return c, err
+	}
+	auth := context.WithValue(c, goesi.ContextOAuth2, tokenSource)
+	return auth, nil
 }

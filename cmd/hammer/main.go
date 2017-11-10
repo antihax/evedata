@@ -9,6 +9,7 @@ import (
 
 	"github.com/antihax/evedata/internal/nsqhelper"
 	"github.com/antihax/evedata/internal/redigohelper"
+	"github.com/antihax/evedata/internal/sqlhelper"
 	"github.com/antihax/evedata/services/hammer"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -17,6 +18,7 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetPrefix("evedata hammer: ")
 	redis := redigohelper.ConnectRedisProdPool()
+	db := sqlhelper.NewDatabase()
 
 	producer, err := nsqhelper.NewNSQProducer()
 	if err != nil {
@@ -24,7 +26,7 @@ func main() {
 	}
 
 	// Make a new service and send it into the background.
-	hammer := hammer.NewHammer(redis, producer, os.Getenv("ESI_CLIENTID"), os.Getenv("ESI_SECRET"), os.Getenv("ESI_REFRESHKEY"))
+	hammer := hammer.NewHammer(redis, db, producer, os.Getenv("ESI_CLIENTID"), os.Getenv("ESI_SECRET"), os.Getenv("ESI_REFRESHKEY"), os.Getenv("ESI_CLIENTID_TOKENSTORE"), os.Getenv("ESI_SECRET_TOKENSTORE"))
 	go hammer.Run()
 	defer hammer.Close()
 

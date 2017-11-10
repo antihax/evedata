@@ -48,7 +48,7 @@ func TestMain(m *testing.M) {
 		log.Fatalln(err)
 	}
 
-	ham = hammer.NewHammer(redis, producer, "123400", "faaaaaaake", "sofake")
+	ham = hammer.NewHammer(redis, sql, producer, "123400", "faaaaaaake", "sofake", "faaaaaaake", "sofake")
 	ham.ChangeBasePath("http://127.0.0.1:8080")
 	ham.ChangeTokenPath("http://127.0.0.1:8080")
 

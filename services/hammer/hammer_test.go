@@ -7,6 +7,7 @@ import (
 	"github.com/antihax/evedata/internal/nsqhelper"
 	"github.com/antihax/evedata/internal/redigohelper"
 	"github.com/antihax/evedata/internal/redisqueue"
+	"github.com/antihax/evedata/internal/sqlhelper"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -44,7 +45,7 @@ var (
 )
 
 func TestHammerService(t *testing.T) {
-
+	sql := sqlhelper.NewTestDatabase()
 	// Setup a hammer service
 	redis := redigohelper.ConnectRedisTestPool()
 	defer redis.Close()
@@ -52,7 +53,7 @@ func TestHammerService(t *testing.T) {
 	producer, err := nsqhelper.NewTestNSQProducer()
 	assert.Nil(t, err)
 
-	hammer := NewHammer(redis, producer, "123400", "faaaaaaake", "sofake")
+	hammer := NewHammer(redis, sql, producer, "123400", "faaaaaaake", "sofake", "1232423423", "now with 200% more fake!")
 	hammer.ChangeBasePath("http://127.0.0.1:8080")
 	hammer.ChangeTokenPath("http://127.0.0.1:8080")
 
