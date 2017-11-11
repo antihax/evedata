@@ -14,7 +14,6 @@ import (
 
 func TestTokenStore(t *testing.T) {
 	sql := sqlhelper.NewTestDatabase()
-	// Setup a hammer service
 	models.SetDatabase(sql)
 	err := models.AddCRESTToken(133, 133, "dude", &goesi.CRESTToken{
 		AccessToken:  "FAKE",
