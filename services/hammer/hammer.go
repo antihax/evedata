@@ -10,6 +10,7 @@ import (
 	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/evedata/internal/tokenstore"
 	"github.com/jmoiron/sqlx"
+	"golang.org/x/oauth2"
 
 	"github.com/antihax/evedata/internal/apicache"
 	"github.com/antihax/evedata/internal/redisqueue"
@@ -146,4 +147,9 @@ func (s *Hammer) QueueResult(v interface{}, topic string) error {
 	}
 
 	return s.nsq.Publish(topic, b)
+}
+
+// SetToken Sets a token to the store
+func (s *Hammer) SetToken(cid, tcid int32, token *oauth2.Token) error {
+	return s.tokenStore.SetToken(cid, tcid, token)
 }

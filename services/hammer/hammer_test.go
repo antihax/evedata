@@ -9,6 +9,7 @@ import (
 	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/evedata/internal/sqlhelper"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/oauth2"
 )
 
 var (
@@ -57,6 +58,12 @@ func TestHammerService(t *testing.T) {
 	hammer := NewHammer(redis, sql, producer, "123400", "faaaaaaake", "sofake", "1232423423", "now with 200% more fake!")
 	hammer.ChangeBasePath("http://127.0.0.1:8080")
 	hammer.ChangeTokenPath("http://127.0.0.1:8080")
+	hammer.tokenStore.SetToken(1, 1, &oauth2.Token{
+		RefreshToken: "fake",
+		AccessToken:  "really fake",
+		TokenType:    "Bearer",
+		Expiry:       time.Now().Add(time.Hour),
+	})
 
 	// Run Hammer
 	go hammer.Run()

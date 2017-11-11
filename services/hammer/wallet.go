@@ -10,12 +10,12 @@ import (
 )
 
 func init() {
-	registerConsumer("characterWalletTransactions", walletTransactionConsumer)
+	registerConsumer("characterWalletTransactions", characterWalletTransactionConsumer)
 	gob.Register(datapackages.CharacterWalletTransactions{})
 	gob.Register(datapackages.CharacterJournal{})
 }
 
-func walletTransactionConsumer(s *Hammer, parameter interface{}) {
+func characterWalletTransactionConsumer(s *Hammer, parameter interface{}) {
 	// dereference the parameters
 	parameters := parameter.([]interface{})
 	characterID := parameters[0].(int32)
