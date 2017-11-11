@@ -86,7 +86,7 @@ func GoServer() {
 		bootstrapScopes)
 
 	// Get the token from config and build a TokenSource (refreshes the token if needed).
-	token := &goesi.CRESTToken{
+	token := &oauth2.Token{
 		AccessToken:  ctx.Conf.CREST.ESIAccessToken.AccessToken,
 		TokenType:    ctx.Conf.CREST.ESIAccessToken.TokenType,
 		RefreshToken: ctx.Conf.CREST.ESIAccessToken.RefreshToken,
@@ -117,7 +117,6 @@ func GoServer() {
 
 	// Register structs for storage.
 	gob.Register(oauth2.Token{})
-	gob.Register(goesi.CRESTToken{})
 	gob.Register(goesi.VerifyResponse{})
 
 	// Set our logging flags.

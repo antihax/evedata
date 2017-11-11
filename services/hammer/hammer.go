@@ -31,7 +31,7 @@ type Hammer struct {
 	tokenStore *tokenstore.TokenStore
 
 	// authentication
-	token       *goesi.CRESTTokenSource
+	token       *oauth2.TokenSource
 	privateAuth *goesi.SSOAuthenticator
 	tokenAuth   *goesi.SSOAuthenticator
 }
@@ -54,7 +54,7 @@ func NewHammer(redis *redis.Pool, db *sqlx.DB, nsq *nsq.Producer, clientID, secr
 			"esi-search.search_structures.v1",
 			"esi-markets.structure_markets.v1"})
 
-	tok := &goesi.CRESTToken{
+	tok := &oauth2.Token{
 		Expiry:       time.Now(),
 		AccessToken:  "",
 		RefreshToken: refresh,

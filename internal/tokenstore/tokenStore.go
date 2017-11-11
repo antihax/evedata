@@ -21,13 +21,15 @@ type TokenStore struct {
 	auth  *goesi.SSOAuthenticator
 }
 
+// NewTokenStore provides mechinism for caching and storing SSO Tokens
+// If a refresh token changes, do remember to invalidate the cache
 func NewTokenStore(redis *redis.Pool, db *sqlx.DB, auth *goesi.SSOAuthenticator) *TokenStore {
 	t := &TokenStore{redis, db, auth}
 	return t
 }
 
 // GetToken retreives a token from storage
-func (c *TokenStore) GetToken(characterID int32, tokenCharacterID int32) (*goesi.CRESTToken, error) {
+func (c *TokenStore) GetToken(characterID int32, tokenCharacterID int32) (*oauth2.Token, error) {
 	t, err := c.getTokenFromCache(characterID, tokenCharacterID)
 	if err != nil || t == nil {
 		t, err = c.getTokenFromDB(characterID, tokenCharacterID)
@@ -50,7 +52,7 @@ func (c *TokenStore) GetToken(characterID int32, tokenCharacterID int32) (*goesi
 		c.setTokenToCache(characterID, tokenCharacterID, token)
 		c.updateTokenToDB(characterID, tokenCharacterID, token)
 
-		tok := &goesi.CRESTToken{
+		tok := &oauth2.Token{
 			Expiry:       token.Expiry,
 			AccessToken:  token.AccessToken,
 			RefreshToken: token.RefreshToken,
@@ -74,7 +76,7 @@ func (c *TokenStore) SetToken(characterID int32, tokenCharacterID int32, token *
 }
 
 // GetTokenSource retreives a token from storage and returns a token source
-func (c *TokenStore) GetTokenSource(characterID int32, tokenCharacterID int32) (goesi.CRESTTokenSource, error) {
+func (c *TokenStore) GetTokenSource(characterID int32, tokenCharacterID int32) (oauth2.TokenSource, error) {
 	t, err := c.getTokenFromCache(characterID, tokenCharacterID)
 	if err != nil || t == nil {
 		t, err = c.getTokenFromDB(characterID, tokenCharacterID)
@@ -103,7 +105,7 @@ func (c *TokenStore) GetTokenSource(characterID int32, tokenCharacterID int32) (
 	return a, err
 }
 
-func (c *TokenStore) getTokenFromDB(characterID int32, tokenCharacterID int32) (*goesi.CRESTToken, error) {
+func (c *TokenStore) getTokenFromDB(characterID int32, tokenCharacterID int32) (*oauth2.Token, error) {
 
 	type CRESTToken struct {
 		Expiry       time.Time `db:"expiry" json:"expiry,omitempty"`
@@ -123,7 +125,7 @@ func (c *TokenStore) getTokenFromDB(characterID int32, tokenCharacterID int32) (
 		return nil, err
 	}
 
-	tok := &goesi.CRESTToken{
+	tok := &oauth2.Token{
 		Expiry:       token.Expiry,
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
@@ -133,10 +135,10 @@ func (c *TokenStore) getTokenFromDB(characterID int32, tokenCharacterID int32) (
 	return tok, nil
 }
 
-func (c *TokenStore) getTokenFromCache(characterID int32, tokenCharacterID int32) (*goesi.CRESTToken, error) {
+func (c *TokenStore) getTokenFromCache(characterID int32, tokenCharacterID int32) (*oauth2.Token, error) {
 	r := c.redis.Get()
 	defer r.Close()
-	tok := &goesi.CRESTToken{}
+	tok := &oauth2.Token{}
 
 	key := fmt.Sprintf("EVEDATA_TOKENSTORE_%d_%d", characterID, tokenCharacterID)
 
@@ -165,7 +167,7 @@ func (c *TokenStore) setTokenToCache(characterID int32, tokenCharacterID int32, 
 	var b bytes.Buffer
 	enc := gob.NewEncoder(&b)
 
-	tok := &goesi.CRESTToken{
+	tok := &oauth2.Token{
 		Expiry:       token.Expiry,
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,

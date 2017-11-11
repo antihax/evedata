@@ -97,7 +97,6 @@ func NewTestAppContext() AppContext {
 
 	// Register structs for storage
 	gob.Register(oauth2.Token{})
-	gob.Register(goesi.CRESTToken{})
 	gob.Register(goesi.VerifyResponse{})
 
 	// Setup the Token authenticator, this handles sub characters.

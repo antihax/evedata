@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/antihax/goesi"
+	"golang.org/x/oauth2"
 )
 
 func TestAssetSetup(t *testing.T) {
@@ -24,7 +24,7 @@ func TestAssetSetup(t *testing.T) {
 		return
 	}
 
-	tok := goesi.CRESTToken{
+	tok := oauth2.Token{
 		AccessToken:  "FAKE",
 		RefreshToken: "So Fake",
 		Expiry:       time.Now().UTC().Add(time.Hour * 100000),

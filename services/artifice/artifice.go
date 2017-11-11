@@ -12,6 +12,7 @@ import (
 	"github.com/antihax/goesi"
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
+	"golang.org/x/oauth2"
 )
 
 // Artifice handles the scheduling of routine tasks.
@@ -24,7 +25,7 @@ type Artifice struct {
 	db       *sqlx.DB
 
 	// authentication
-	token *goesi.CRESTTokenSource
+	token *oauth2.TokenSource
 	auth  *goesi.SSOAuthenticator
 }
 
@@ -43,7 +44,7 @@ func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string,
 			"esi-search.search_structures.v1",
 			"esi-markets.structure_markets.v1"})
 
-	tok := &goesi.CRESTToken{
+	tok := &oauth2.Token{
 		Expiry:       time.Now(),
 		AccessToken:  "",
 		RefreshToken: refresh,
@@ -134,7 +135,6 @@ func (s *Artifice) doSQL(stmt string, args ...interface{}) error {
 			return err
 		}
 	}
-	return nil
 }
 
 // DoSQL executes a sql statement

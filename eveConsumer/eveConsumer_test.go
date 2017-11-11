@@ -10,6 +10,7 @@ import (
 	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
+	"golang.org/x/oauth2"
 )
 
 var (
@@ -52,7 +53,7 @@ func TestMain(m *testing.M) {
 		"esi-universe.read_structures.v1",
 		"esi-wallet.read_character_wallet.v1",
 	}
-	tok := goesi.CRESTToken{
+	tok := oauth2.Token{
 		AccessToken:  "FAKE",
 		RefreshToken: "So Fake",
 		Expiry:       time.Now().Add(time.Hour * 100000),
@@ -63,7 +64,7 @@ func TestMain(m *testing.M) {
 		log.Fatal(err)
 		return
 	}
-	tok2 := goesi.CRESTToken{
+	tok2 := oauth2.Token{
 		AccessToken:  "FAKE",
 		RefreshToken: "So Fake",
 		Expiry:       time.Now().Add(time.Hour * 100000),

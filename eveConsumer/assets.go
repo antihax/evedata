@@ -64,6 +64,7 @@ func assetsConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	// Put the token into a context for the API client
 	auth := context.WithValue(context.TODO(), goesi.ContextOAuth2, token)
 
+	fmt.Printf("%+v\n", auth)
 	assets, res, err := c.ctx.ESI.ESI.AssetsApi.GetCharactersCharacterIdAssets(auth, tokenChar, nil)
 	if err != nil {
 		tokenError(char, tokenChar, res, err)

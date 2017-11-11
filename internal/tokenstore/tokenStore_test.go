@@ -15,7 +15,7 @@ import (
 func TestTokenStore(t *testing.T) {
 	sql := sqlhelper.NewTestDatabase()
 	models.SetDatabase(sql)
-	err := models.AddCRESTToken(133, 133, "dude", &goesi.CRESTToken{
+	err := models.AddCRESTToken(133, 133, "dude", &oauth2.Token{
 		AccessToken:  "FAKE",
 		RefreshToken: "So Fake",
 		Expiry:       time.Now().Add(time.Hour * 100000),

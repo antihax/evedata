@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/antihax/goesi"
 	"github.com/guregu/null"
+	"golang.org/x/oauth2"
 )
 
 // Obtain an authenticated client from a stored access/refresh token.
@@ -104,7 +104,7 @@ func GetCRESTTokens(characterID int32) ([]CRESTToken, error) {
 	return tokens, nil
 }
 
-func AddCRESTToken(characterID int32, tokenCharacterID int32, characterName string, tok *goesi.CRESTToken, scopes string) error {
+func AddCRESTToken(characterID int32, tokenCharacterID int32, characterName string, tok *oauth2.Token, scopes string) error {
 	if _, err := database.Exec(`
 		INSERT INTO evedata.crestTokens	(characterID, tokenCharacterID, accessToken, refreshToken, expiry, tokenType, characterName, scopes, lastStatus)
 			VALUES		(?,?,?,?,?,?,?,?,"Unused")

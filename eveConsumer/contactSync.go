@@ -11,6 +11,7 @@ import (
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
 	"github.com/garyburd/redigo/redis"
+	"golang.org/x/oauth2"
 )
 
 func init() {
@@ -97,7 +98,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 
 	// Map of tokens
 	type characterToken struct {
-		token *goesi.CRESTTokenSource
+		token *oauth2.TokenSource
 		cid   int32
 	}
 	tokens := make(map[int64]characterToken)
@@ -142,7 +143,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	for _, token := range tokens {
 		// authentication token context for destination char
 		auth := context.WithValue(context.TODO(), goesi.ContextOAuth2, *token.token)
-
+		fmt.Printf("%+v\n", auth)
 		contacts, err := c.getContacts(auth, (int32)(token.cid))
 		if err != nil {
 			log.Println(err)
