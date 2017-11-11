@@ -7,6 +7,7 @@ import (
 	"github.com/antihax/evedata/internal/apicache"
 	"github.com/antihax/evedata/internal/redigohelper"
 	"github.com/antihax/evedata/internal/sqlhelper"
+	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
 	"golang.org/x/oauth2"
 )
@@ -14,6 +15,18 @@ import (
 func TestTokenStore(t *testing.T) {
 	sql := sqlhelper.NewTestDatabase()
 	// Setup a hammer service
+	models.SetDatabase(sql)
+	err := models.AddCRESTToken(1, 1, "dude", &goesi.CRESTToken{
+		AccessToken:  "FAKE",
+		RefreshToken: "So Fake",
+		Expiry:       time.Now().Add(time.Hour * 100000),
+		TokenType:    "Bearer"},
+		"")
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+
 	redis := redigohelper.ConnectRedisTestPool()
 	defer redis.Close()
 	// Get a caching http client
@@ -27,7 +40,7 @@ func TestTokenStore(t *testing.T) {
 
 	ts := NewTokenStore(redis, sql, auth)
 
-	err := ts.SetToken(1, 1, &oauth2.Token{
+	err = ts.SetToken(1, 1, &oauth2.Token{
 		RefreshToken: "fake",
 		AccessToken:  "really fake",
 		TokenType:    "Bearer",
@@ -55,11 +68,15 @@ func TestTokenStore(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	token, err = ts.GetToken(1, 1)
+	tokensource, err := ts.GetTokenSource(1, 1)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if token.AccessToken != "really very fake" {
+	tok, err := tokensource.Token()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if tok.AccessToken != "really very fake" {
 		t.Fatal("Token is incorrect 2")
 	}
 
@@ -68,6 +85,10 @@ func TestTokenStore(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	token, err = ts.GetToken(1, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if token.AccessToken != "really very fake" {
 		t.Fatal("Token is incorrect 3")
 	}
