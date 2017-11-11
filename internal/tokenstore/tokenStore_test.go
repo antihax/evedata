@@ -16,7 +16,7 @@ func TestTokenStore(t *testing.T) {
 	sql := sqlhelper.NewTestDatabase()
 	// Setup a hammer service
 	models.SetDatabase(sql)
-	err := models.AddCRESTToken(1, 1, "dude", &goesi.CRESTToken{
+	err := models.AddCRESTToken(133, 133, "dude", &goesi.CRESTToken{
 		AccessToken:  "FAKE",
 		RefreshToken: "So Fake",
 		Expiry:       time.Now().Add(time.Hour * 100000),
@@ -40,7 +40,7 @@ func TestTokenStore(t *testing.T) {
 
 	ts := NewTokenStore(redis, sql, auth)
 
-	err = ts.SetToken(1, 1, &oauth2.Token{
+	err = ts.SetToken(133, 133, &oauth2.Token{
 		RefreshToken: "fake",
 		AccessToken:  "really fake",
 		TokenType:    "Bearer",
@@ -50,7 +50,7 @@ func TestTokenStore(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	token, err := ts.GetToken(1, 1)
+	token, err := ts.GetToken(133, 133)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +58,7 @@ func TestTokenStore(t *testing.T) {
 		t.Fatal("Token is incorrect 1")
 	}
 
-	err = ts.SetToken(1, 1, &oauth2.Token{
+	err = ts.SetToken(133, 133, &oauth2.Token{
 		RefreshToken: "fake",
 		AccessToken:  "really very fake",
 		TokenType:    "Bearer",
@@ -68,7 +68,7 @@ func TestTokenStore(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tokensource, err := ts.GetTokenSource(1, 1)
+	tokensource, err := ts.GetTokenSource(133, 133)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,15 +77,13 @@ func TestTokenStore(t *testing.T) {
 		t.Fatal(err)
 	}
 	if tok.AccessToken != "really very fake" {
-		t.Fatal("Token is incorrect 2")
+		t.Fatal("Token is incorrect 2", tok.AccessToken)
 	}
-
-	err = ts.invalidateTokenCache(1, 1)
+	err = ts.invalidateTokenCache(133, 133)
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	token, err = ts.GetToken(1, 1)
+	token, err = ts.GetToken(133, 133)
 	if err != nil {
 		t.Fatal(err)
 	}
