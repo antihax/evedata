@@ -143,7 +143,7 @@ func contactSyncConsumer(c *EVEConsumer, redisPtr *redis.Conn) (bool, error) {
 	for _, token := range tokens {
 		// authentication token context for destination char
 		auth := context.WithValue(context.TODO(), goesi.ContextOAuth2, *token.token)
-		fmt.Printf("%+v\n", auth)
+
 		contacts, err := c.getContacts(auth, (int32)(token.cid))
 		if err != nil {
 			log.Println(err)
