@@ -13,10 +13,15 @@ import (
 
 func init() {
 	AddHandler("characterWalletTransactions", spawnCharacterWalletTransactionConsumer)
+	AddHandler("characterWalletJournal", spawnCharacterWalletJournalConsumer)
 }
 
 func spawnCharacterWalletTransactionConsumer(s *Nail, consumer *nsq.Consumer) {
 	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterWalletTransactionConsumer)))
+}
+
+func spawnCharacterWalletJournalConsumer(s *Nail, consumer *nsq.Consumer) {
+	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterWalletJournalConsumer)))
 }
 
 func (s *Nail) characterWalletTransactionConsumer(message *nsq.Message) error {
@@ -53,6 +58,33 @@ func (s *Nail) characterWalletTransactionConsumer(message *nsq.Message) error {
 									clientID,  stationID, transactionType,
 									transactionFor, journalTransactionID, transactionDateTime)
 									VALUES %s ON DUPLICATE KEY UPDATE characterID=characterID;`, strings.Join(values, ",\n"))
+
+	return s.doSQL(stmt)
+
+}
+
+func (s *Nail) characterWalletJournalConsumer(message *nsq.Message) error {
+	journal := datapackages.CharacterJournal{}
+	err := gobcoder.GobDecoder(message.Body, &journal)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	var values []string
+
+	for _, wallet := range journal.Journal.Entries {
+		values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%q,%f,%f,%q,%d,%f,%q)",
+			journal.TokenCharacterID, wallet.RefID, wallet.RefTypeID, wallet.OwnerID1, wallet.OwnerID2,
+			wallet.ArgID1, wallet.ArgName1, wallet.Amount, wallet.Balance,
+			wallet.Reason, wallet.TaxReceiverID.Int64, wallet.TaxAmount.Float64, wallet.Date.UTC().Format(models.SQLTimeFormat)))
+	}
+
+	stmt := fmt.Sprintf(`INSERT INTO evedata.walletJournal
+							(characterID, refID, refTypeID, ownerID1, ownerID2,
+							argID1, argName1, amount, balance,
+							reason, taxReceiverID, taxAmount, date)
+							VALUES %s ON DUPLICATE KEY UPDATE characterID=characterID;`, strings.Join(values, ",\n"))
 
 	return s.doSQL(stmt)
 

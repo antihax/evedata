@@ -1,6 +1,9 @@
 package datapackages
 
-import "github.com/antihax/goesi/esi"
+import (
+	"github.com/antihax/goesi/esi"
+	"github.com/antihax/goesi/eveapi"
+)
 
 type CharacterWalletTransactions struct {
 	Transcations     []esi.GetCharactersCharacterIdWalletTransactions200Ok
@@ -9,7 +12,7 @@ type CharacterWalletTransactions struct {
 }
 
 type CharacterJournal struct {
-	Journal          []esi.GetCharactersCharacterIdWalletJournal200Ok
+	Journal          eveapi.WalletJournalXML
 	CharacterID      int32
 	TokenCharacterID int32
 }
