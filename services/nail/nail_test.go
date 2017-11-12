@@ -31,8 +31,8 @@ var (
 		{Operation: "alliance", Parameter: int32(1)},
 		{Operation: "corporation", Parameter: int32(1)},
 		{Operation: "character", Parameter: int32(1)},
-		{Operation: "characterWalletTransactions", Parameter: []interface{}{int32(1), int32(1)}},
-		{Operation: "characterWalletJournal", Parameter: []interface{}{int32(1), int32(1)}},
+		{Operation: "characterWalletTransactions", Parameter: []int32{int32(1), int32(1)}},
+		//	{Operation: "characterWalletJournal", Parameter: []int32{int32(1), int32(1)}},
 	}
 	ham          *hammer.Hammer
 	nailInstance *Nail
