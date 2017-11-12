@@ -31,10 +31,12 @@ func (s *Nail) characterWalletTransactionConsumer(message *nsq.Message) error {
 		log.Println(err)
 		return err
 	}
-
+	if len(wallet.Transactions) == 0 {
+		return nil
+	}
 	var values []string
 
-	for _, transaction := range wallet.Transcations {
+	for _, transaction := range wallet.Transactions {
 		var isFor, order string
 		if transaction.IsPersonal {
 			isFor = "personal"
@@ -69,6 +71,10 @@ func (s *Nail) characterWalletJournalConsumer(message *nsq.Message) error {
 	if err != nil {
 		log.Println(err)
 		return err
+	}
+
+	if len(journal.Journal.Entries) == 0 {
+		return nil
 	}
 
 	var values []string

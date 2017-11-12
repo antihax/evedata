@@ -18,9 +18,9 @@ func init() {
 
 func characterWalletTransactionConsumer(s *Hammer, parameter interface{}) {
 	// dereference the parameters
-	parameters := parameter.([]interface{})
-	characterID := parameters[0].(int32)
-	tokenCharacterID := parameters[1].(int32)
+	parameters := parameter.([]int32)
+	characterID := parameters[0]
+	tokenCharacterID := parameters[1]
 
 	ctx, err := s.GetTokenSourceContext(context.Background(), characterID, tokenCharacterID)
 	if err != nil {
@@ -33,12 +33,15 @@ func characterWalletTransactionConsumer(s *Hammer, parameter interface{}) {
 		log.Println(err)
 		return
 	}
+	if len(transactions) == 0 {
+		return
+	}
 
 	// Send out the result
 	err = s.QueueResult(&datapackages.CharacterWalletTransactions{
 		CharacterID:      characterID,
 		TokenCharacterID: tokenCharacterID,
-		Transcations:     transactions,
+		Transactions:     transactions,
 	}, "characterWalletTransactions")
 	if err != nil {
 		log.Println(err)
@@ -48,9 +51,9 @@ func characterWalletTransactionConsumer(s *Hammer, parameter interface{}) {
 
 func characterWalletJournalConsumer(s *Hammer, parameter interface{}) {
 	// dereference the parameters
-	parameters := parameter.([]interface{})
-	characterID := parameters[0].(int32)
-	tokenCharacterID := parameters[1].(int32)
+	parameters := parameter.([]int32)
+	characterID := parameters[0]
+	tokenCharacterID := parameters[1]
 
 	tokenSource, err := s.tokenStore.GetTokenSource(characterID, tokenCharacterID)
 	if err != nil {
@@ -61,6 +64,10 @@ func characterWalletJournalConsumer(s *Hammer, parameter interface{}) {
 	journal, err := s.esi.EVEAPI.CharacterWalletJournalXML(tokenSource, int64(characterID), int64(tokenCharacterID))
 	if err != nil {
 		log.Println(err)
+		return
+	}
+
+	if len(journal.Entries) == 0 {
 		return
 	}
 

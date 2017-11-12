@@ -6,7 +6,7 @@ import (
 )
 
 type CharacterWalletTransactions struct {
-	Transcations     []esi.GetCharactersCharacterIdWalletTransactions200Ok
+	Transactions     []esi.GetCharactersCharacterIdWalletTransactions200Ok
 	CharacterID      int32
 	TokenCharacterID int32
 }
