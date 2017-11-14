@@ -193,26 +193,14 @@ func (c *EVEConsumer) goTriggers() {
 	}
 }
 
-// Load deferrable data.
-func (c *EVEConsumer) initConsumer() {
-	c.initKillConsumer()
-}
-
 // RunConsumer starts the consumer and returns.
 func (c *EVEConsumer) RunConsumer() {
 	// Load deferrable data.
-	go c.initConsumer()
 	go c.goMetrics()
 
 	for i := 0; i < c.ctx.Conf.EVEConsumer.Consumers; i++ {
 		go c.goConsumer()                 // Run consumers in a loop
 		time.Sleep(time.Millisecond * 37) // Stagger starting the routines
-	}
-
-	go c.goTriggers() // Time triggered queries
-	if c.ctx.Conf.EVEConsumer.ZKillEnabled == true {
-		go c.goZKillConsumer()
-		go c.goZKillTemporaryConsumer()
 	}
 }
 

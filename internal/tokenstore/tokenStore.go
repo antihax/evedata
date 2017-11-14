@@ -5,6 +5,8 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
+	"log"
+	"runtime/debug"
 	"time"
 
 	"github.com/antihax/evedata/internal/gobcoder"
@@ -96,6 +98,10 @@ func (c *TokenStore) GetTokenSource(characterID int32, tokenCharacterID int32) (
 		if err != nil {
 			c.invalidateTokenCache(characterID, tokenCharacterID)
 			c.tokenError(characterID, tokenCharacterID, 999, err.Error())
+
+			log.Println(err)
+			debug.PrintStack()
+
 			return nil, err
 		}
 		c.setTokenToCache(characterID, tokenCharacterID, token)

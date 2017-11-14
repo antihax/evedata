@@ -44,7 +44,7 @@ func (s *Hammer) runConsumers() error {
 
 	s.sem <- true
 	go s.wait(fn, w.Parameter)
-
+	log.Printf("complete operation %s %+v\n", w.Operation, w.Parameter)
 	duration := float64(time.Since(start).Nanoseconds()) / 1000000.0
 	consumerMetrics.With(
 		prometheus.Labels{"operation": w.Operation},
@@ -52,10 +52,7 @@ func (s *Hammer) runConsumers() error {
 	return nil
 }
 
-// For handling Consumers
 var (
-	consumers       []consumer
-	consumerMap     map[string]consumerFunc
 	consumerMetrics = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Namespace: "evedata",
 		Subsystem: "hammer",
@@ -67,8 +64,6 @@ var (
 )
 
 func init() {
-	consumerMap = make(map[string]consumerFunc)
-
 	prometheus.MustRegister(
 		consumerMetrics,
 	)

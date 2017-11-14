@@ -45,8 +45,7 @@ func NewHammer(redis *redis.Pool, db *sqlx.DB, nsq *nsq.Producer, clientID, secr
 	esi := goesi.NewAPIClient(cache, "EVEData-API-Hammer")
 
 	// Setup an authenticator for our user tokens
-	tauth := goesi.NewSSOAuthenticator(cache, clientID, secret, "",
-		[]string{})
+	tauth := goesi.NewSSOAuthenticator(cache, tokenClientID, tokenSecret, "", []string{})
 
 	// Setup an authenticator for our private token
 	pauth := goesi.NewSSOAuthenticator(cache, clientID, secret, "",
