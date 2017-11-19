@@ -166,7 +166,7 @@ func (c *EVEConsumer) goConsumer() {
 func (c *EVEConsumer) goTriggers() {
 	// Run this every 5 minutes.
 	// The triggers should have their own internal checks for cache timers
-	rate := time.Second * 60 * 1
+	rate := time.Second * 30
 	throttle := time.Tick(rate)
 	for {
 		select {
@@ -202,6 +202,8 @@ func (c *EVEConsumer) RunConsumer() {
 		go c.goConsumer()                 // Run consumers in a loop
 		time.Sleep(time.Millisecond * 37) // Stagger starting the routines
 	}
+
+	go c.goTriggers() // Time triggered queries
 }
 
 // StopConsumer shuts down any running go routines and returns.
