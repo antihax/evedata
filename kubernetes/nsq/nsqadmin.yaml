@@ -9,8 +9,18 @@ spec:
     metadata:
       labels:
         name: nsqadmin
+        app: nsqadmin
     spec:
-      containers:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nsqadmin
+            topologyKey: "kubernetes.io/hostname"
       - name: nsqadmin
         image: nsqio/nsq
         command:

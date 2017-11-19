@@ -9,7 +9,18 @@ spec:
     metadata:
       labels:
         name: nsqlookupd1
+        app: nsqlookupd
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nsqlookupd
+            topologyKey: "kubernetes.io/hostname"
       containers:
       - name: nsqlookup1
         image: nsqio/nsq
@@ -52,7 +63,18 @@ spec:
     metadata:
       labels:
         name: nsqlookupd2
+        app: nsqlookupd
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nsqlookupd
+            topologyKey: "kubernetes.io/hostname"
       containers:
       - name: nsqlookup2
         image: nsqio/nsq

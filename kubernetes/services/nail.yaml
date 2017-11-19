@@ -4,15 +4,25 @@ metadata:
   name: evedata-nail
   namespace: evedata
 spec:
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       name: evedata-nail
       labels:
-        app: evedata
+        app: nail
       annotations:
         prometheus.io/scrape: "true"
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nail
+            topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-nail
         image: antihax/evedata-nail

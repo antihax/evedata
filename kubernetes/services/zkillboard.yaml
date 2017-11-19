@@ -1,3 +1,4 @@
+
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -9,11 +10,20 @@ spec:
     metadata:
       name: evedata-zkillboard
       labels:
-        app: evedata
+        app: zkillboard
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: "3000"
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - zkillboard
+            topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-zkillboard
         image: antihax/evedata-zkillboard

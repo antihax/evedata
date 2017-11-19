@@ -9,10 +9,20 @@ spec:
     metadata:
       name: evedata-hammer
       labels:
-        app: evedata
+        app: hammer
       annotations:
         prometheus.io/scrape: "true"
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - hammer
+            topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-hammer
         image: antihax/evedata-hammer
