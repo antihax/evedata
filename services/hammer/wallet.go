@@ -61,7 +61,7 @@ func characterWalletJournalConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	journal, err := s.esi.EVEAPI.CharacterWalletJournalXML(tokenSource, int64(characterID), int64(tokenCharacterID))
+	journal, err := s.esi.EVEAPI.CharacterWalletJournalXML(tokenSource, int64(tokenCharacterID), 0)
 	if err != nil {
 		log.Println(err)
 		return

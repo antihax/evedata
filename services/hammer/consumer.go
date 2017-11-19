@@ -44,7 +44,7 @@ func (s *Hammer) runConsumers() error {
 
 	s.sem <- true
 	go s.wait(fn, w.Parameter)
-	log.Printf("complete operation %s %+v\n", w.Operation, w.Parameter)
+	//	log.Printf("complete operation %s %+v\n", w.Operation, w.Parameter)
 	duration := float64(time.Since(start).Nanoseconds()) / 1000000.0
 	consumerMetrics.With(
 		prometheus.Labels{"operation": w.Operation},
