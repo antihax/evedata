@@ -16,6 +16,7 @@ func init() {
 	AddHandler("character", spawnCharacterConsumer)
 	AddHandler("alliance", spawnAllianceConsumer)
 	AddHandler("corporation", spawnCorporationConsumer)
+	AddHandler("loyaltyStore", spawnLoyaltyStoreConsumer)
 
 }
 
@@ -29,6 +30,10 @@ func spawnAllianceConsumer(s *Nail, consumer *nsq.Consumer) {
 
 func spawnCorporationConsumer(s *Nail, consumer *nsq.Consumer) {
 	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.corporationHandler)))
+}
+
+func spawnLoyaltyStoreConsumer(s *Nail, consumer *nsq.Consumer) {
+	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.loyaltyStoreHandler)))
 }
 
 func (s *Nail) corporationHandler(message *nsq.Message) error {
@@ -114,6 +119,42 @@ func (s *Nail) characterHandler(message *nsq.Message) error {
 			log.Println(err)
 			return err
 		}
+	}
+
+	return err
+}
+
+func (s *Nail) loyaltyStoreHandler(message *nsq.Message) error {
+	c := datapackages.Store{}
+	err := gobcoder.GobDecoder(message.Body, &c)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	var offers, requirements []string
+
+	for _, offer := range c.Store {
+		offers = append(offers, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%d)",
+			offer.OfferId, c.CorporationID, offer.TypeId, offer.Quantity, offer.LpCost, 0, int(offer.IskCost)))
+		for _, requirement := range offer.RequiredItems {
+			requirements = append(requirements, fmt.Sprintf("(%d,%d,%d)",
+				offer.OfferId, requirement.TypeId, requirement.Quantity))
+		}
+	}
+
+	stmt := fmt.Sprintf("INSERT INTO evedata.lpOffers (offerID,corporationID,typeID,quantity,lpCost,akCost,iskCost) VALUES %s ON DUPLICATE KEY UPDATE iskCost=VALUES(akCost),iskCost=VALUES(akCost), lpCost=VALUES(lpCost);", strings.Join(offers, ",\n"))
+	err = s.doSQL(stmt)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	stmt = fmt.Sprintf("INSERT IGNORE INTO evedata.lpOfferRequirements (offerID,typeID,quantity) VALUES %s ON DUPLICATE KEY UPDATE quantity=VALUES(quantity);", strings.Join(requirements, ",\n"))
+	err = s.doSQL(stmt)
+	if err != nil {
+		log.Println(err)
+		return err
 	}
 
 	return err

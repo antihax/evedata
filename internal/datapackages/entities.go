@@ -21,3 +21,9 @@ type Corporation struct {
 	CorporationID int32
 	Corporation   esi.GetCorporationsCorporationIdOk
 }
+
+// Store contains NPC Corp loyalty point offers
+type Store struct {
+	CorporationID int32
+	Store         []esi.GetLoyaltyStoresCorporationIdOffers200Ok
+}

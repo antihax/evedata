@@ -14,6 +14,9 @@ func init() {
 	registerConsumer("alliance", allianceConsumer)
 	registerConsumer("corporation", corporationConsumer)
 	registerConsumer("character", characterConsumer)
+
+	registerConsumer("loyaltyStore", loyaltyStoreConsumer)
+
 	gob.Register(datapackages.Corporation{})
 	gob.Register(datapackages.Alliance{})
 	gob.Register(datapackages.Character{})
@@ -100,9 +103,28 @@ func allianceConsumer(s *Hammer, parameter interface{}) {
 	return
 }
 
+func loyaltyStoreConsumer(s *Hammer, parameter interface{}) {
+	corporationID := parameter.(int32)
+	store, _, err := s.esi.ESI.LoyaltyApi.GetLoyaltyStoresCorporationIdOffers(context.Background(), corporationID, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// Send out the result
+	err = s.QueueResult(&datapackages.Store{
+		CorporationID: corporationID,
+		Store:         store},
+		"loyaltyStore")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	return
+}
+
 func corporationConsumer(s *Hammer, parameter interface{}) {
 	corporationID := parameter.(int32)
-
 	corporation, _, err := s.esi.ESI.CorporationApi.GetCorporationsCorporationId(context.TODO(), corporationID, nil)
 	if err != nil {
 		log.Println(err)
