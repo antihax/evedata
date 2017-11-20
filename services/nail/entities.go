@@ -46,14 +46,19 @@ func (s *Nail) corporationHandler(message *nsq.Message) error {
 
 	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 7)
 
-	return s.doSQL(`INSERT INTO evedata.corporations
+	err = s.doSQL(`INSERT INTO evedata.corporations
 		(corporationID,name,ticker,ceoID,allianceID,factionID,memberCount,updated,cacheUntil)
 		VALUES(?,?,?,?,?,?,?,UTC_TIMESTAMP(),?) 
 		ON DUPLICATE KEY UPDATE ceoID=VALUES(ceoID), name=VALUES(name), ticker=VALUES(ticker), allianceID=VALUES(allianceID), 
 		factionID=VALUES(factionID), memberCount=VALUES(memberCount),  
 		updated=UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil)
 	`, c.CorporationID, c.Corporation.CorporationName, c.Corporation.Ticker, c.Corporation.CeoId, c.Corporation.AllianceId, goesi.FactionNameToID(c.Corporation.Faction), c.Corporation.MemberCount, cacheUntil)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 
+	return s.addEntity(c.CorporationID, "corporation")
 }
 
 func (s *Nail) allianceHandler(message *nsq.Message) error {
@@ -66,7 +71,7 @@ func (s *Nail) allianceHandler(message *nsq.Message) error {
 
 	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 7)
 
-	return s.doSQL(`
+	err = s.doSQL(`
 		INSERT INTO evedata.alliances 
 			(
 				allianceID,
@@ -84,6 +89,12 @@ func (s *Nail) allianceHandler(message *nsq.Message) error {
 				updated = UTC_TIMESTAMP(), 
 				cacheUntil=VALUES(cacheUntil)
 	`, c.AllianceID, c.Alliance.AllianceName, c.Alliance.Ticker, c.Alliance.ExecutorCorp, c.Alliance.DateFounded.UTC().Format("2006-01-02 15:04:05"), len(c.AllianceCorporations), cacheUntil)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return s.addEntity(c.AllianceID, "alliance")
 }
 
 func (s *Nail) characterHandler(message *nsq.Message) error {
@@ -121,7 +132,7 @@ func (s *Nail) characterHandler(message *nsq.Message) error {
 		}
 	}
 
-	return err
+	return s.addEntity(c.CharacterID, "character")
 }
 
 func (s *Nail) loyaltyStoreHandler(message *nsq.Message) error {
@@ -158,4 +169,8 @@ func (s *Nail) loyaltyStoreHandler(message *nsq.Message) error {
 	}
 
 	return err
+}
+
+func (s *Nail) addEntity(id int32, entityType string) error {
+	return s.doSQL("INSERT INTO evedata.entities (id, type) VALUES (?,?) ON DUPLICATE KEY UPDATE id = id;", id, entityType)
 }

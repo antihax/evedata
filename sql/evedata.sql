@@ -109,13 +109,11 @@ CREATE TABLE `corporations` (
   KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `crestID` (
+CREATE TABLE `entities` (
   `id` int(11) NOT NULL,
-  `crestRef` varchar(60) CHARACTER SET latin1 NOT NULL,
   `type` enum('alliance','corporation','character') CHARACTER SET latin1 NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
-  UNIQUE KEY `crestRef_UNIQUE` (`crestRef`)
+  UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `crestTokens` (

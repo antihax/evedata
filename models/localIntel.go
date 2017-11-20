@@ -45,7 +45,7 @@ func GetLocalIntel(names []interface{}) ([]LocalIntelData, error) {
 			   	LEFT OUTER JOIN evedata.alliances A ON Ch.allianceID = A.allianceID
 			   	LEFT OUTER JOIN evedata.corporations Co ON Ch.corporationID = Co.corporationID
 				LEFT OUTER JOIN invNames Fa ON Fa.itemID = Co.factionID
-			   	INNER JOIN evedata.crestID CREST ON CREST.id = IF(A.allianceID, A.allianceID, Co.corporationID)
+			   	INNER JOIN evedata.entities CREST ON CREST.id = IF(A.allianceID, A.allianceID, Co.corporationID)
 
 			   	WHERE Ch.name IN (?`+strings.Repeat(",?", len(names)-1)+`)
 			   	GROUP BY CREST.id) SUB1
