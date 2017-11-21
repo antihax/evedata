@@ -10,7 +10,7 @@ func init() {
 	registerTrigger("characterTransactions", characterTransactions, time.NewTicker(time.Second*3600))
 	registerTrigger("characterAssets", characterAssets, time.NewTicker(time.Second*3600))
 	registerTrigger("characterNotifications", characterNotifications, time.NewTicker(time.Second*600))
-	//registerTrigger("characterContactSync", characterContactSync, time.NewTicker(time.Second*300))
+	registerTrigger("characterContactSync", characterContactSync, time.NewTicker(time.Second*300))
 }
 
 func characterTransactions(s *Artifice) error {
@@ -97,7 +97,6 @@ func characterNotifications(s *Artifice) error {
 	return nil
 }
 
-/*
 func characterContactSync(s *Artifice) error {
 	entities, err := s.db.Query(
 		`SELECT S.characterID, source, group_concat(destination) AS destinations
@@ -124,10 +123,10 @@ func characterContactSync(s *Artifice) error {
 			return err
 		}
 
-		work = append(work, redisqueue.Work{Operation: "characterNotifications", Parameter: map[string]interface{}{
-			"characterID":  cid,
-			"source":       source,
-			"destinations": destinations,
+		work = append(work, redisqueue.Work{Operation: "characterContactSync", Parameter: []interface{}{
+			cid,
+			source,
+			destinations,
 		}})
 	}
 	s.QueueWork(work)
@@ -135,4 +134,3 @@ func characterContactSync(s *Artifice) error {
 
 	return nil
 }
-*/

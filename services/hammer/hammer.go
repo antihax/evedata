@@ -25,6 +25,7 @@ type Hammer struct {
 	hammerWG   *sync.WaitGroup
 	inQueue    *redisqueue.RedisQueue
 	esi        *goesi.APIClient
+	db         *sqlx.DB
 	redis      *redis.Pool
 	nsq        *nsq.Producer
 	sem        chan bool
@@ -80,10 +81,11 @@ func NewHammer(redis *redis.Pool, db *sqlx.DB, nsq *nsq.Producer, clientID, secr
 		privateAuth: pauth,
 		tokenAuth:   tauth,
 		esi:         esi,
+		db:          db,
 		redis:       redis,
 		token:       &token,
 		tokenStore:  tokenStore,
-		sem:         make(chan bool, 50),
+		sem:         make(chan bool, 100),
 	}
 
 	return s
