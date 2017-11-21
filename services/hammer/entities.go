@@ -20,7 +20,7 @@ func init() {
 	gob.Register(datapackages.Corporation{})
 	gob.Register(datapackages.Alliance{})
 	gob.Register(datapackages.Character{})
-
+	gob.Register(datapackages.Store{})
 }
 
 // AddAlliance adds an alliance to queue
