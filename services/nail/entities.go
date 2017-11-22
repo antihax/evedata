@@ -44,7 +44,7 @@ func (s *Nail) corporationHandler(message *nsq.Message) error {
 		return err
 	}
 
-	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 7)
+	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 31)
 
 	err = s.doSQL(`INSERT INTO evedata.corporations
 		(corporationID,name,ticker,ceoID,allianceID,factionID,memberCount,updated,cacheUntil)
@@ -69,7 +69,7 @@ func (s *Nail) allianceHandler(message *nsq.Message) error {
 		return err
 	}
 
-	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 7)
+	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 31)
 
 	err = s.doSQL(`
 		INSERT INTO evedata.alliances 
@@ -105,7 +105,7 @@ func (s *Nail) characterHandler(message *nsq.Message) error {
 		return err
 	}
 
-	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 7)
+	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 31)
 
 	err = s.doSQL(`
 		INSERT INTO evedata.characters (characterID,name,bloodlineID,ancestryID,corporationID,allianceID,race,gender,securityStatus,updated,cacheUntil)

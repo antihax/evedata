@@ -49,26 +49,3 @@ func TestGetKnownAlliesByID(t *testing.T) {
 		return
 	}
 }
-
-func TestGetFactionWarEntitiesForID(t *testing.T) {
-	_, err := GetFactionWarEntitiesForID(FactionsByName["Caldari"])
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	_, err = GetFactionWarEntitiesForID(FactionsByName["Minmatar"])
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	_, err = GetFactionWarEntitiesForID(FactionsByName["Amarr"])
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	_, err = GetFactionWarEntitiesForID(FactionsByName["Gallente"])
-	if err != nil {
-		t.Error(err)
-		return
-	}
-}

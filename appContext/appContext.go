@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/antihax/evedata/config"
+	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/evedata/internal/tokenstore"
 	"github.com/antihax/evedata/models"
 	"github.com/antihax/goesi"
@@ -31,6 +32,7 @@ type AppContext struct {
 	ESI            *goesi.APIClient
 	ESIPublicToken oauth2.TokenSource
 	TokenStore     *tokenstore.TokenStore
+	OutQueue       *redisqueue.RedisQueue
 
 	// Since we need to combine data from multiple characters, we use
 	// one authenticator for the site to act as the main authentication.
@@ -68,6 +70,11 @@ func NewTestAppContext() AppContext {
 			return c, err
 		},
 	}
+
+	ctx.OutQueue = redisqueue.NewRedisQueue(
+		ctx.Cache,
+		"evedata-test-hammer",
+	)
 
 	// Nuke anything in redis incase we have a flood of trash
 	r := ctx.Cache.Get()

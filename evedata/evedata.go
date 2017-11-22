@@ -11,8 +11,8 @@ import (
 	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/config"
 	"github.com/antihax/evedata/discord"
-	"github.com/antihax/evedata/eveConsumer"
 	"github.com/antihax/evedata/internal/apicache"
+	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/evedata/internal/tokenstore"
 
 	"github.com/antihax/evedata/models"
@@ -41,6 +41,11 @@ func GoServer() {
 
 	// Build the redis pool
 	ctx.Cache = setupRedis(GetContext())
+
+	ctx.OutQueue = redisqueue.NewRedisQueue(
+		ctx.Cache,
+		"evedata-hammer",
+	)
 
 	// Build a HTTP Client pool this client will be shared with APIs for:
 	//   - ESI
@@ -125,13 +130,6 @@ func GoServer() {
 	// Run the discord bot
 	if ctx.Conf.Discord.Enabled {
 		go discord.GoDiscordBot(&ctx)
-	}
-
-	// Run the EVE consumers
-	if ctx.Conf.EVEConsumer.Enabled {
-		eC := eveConsumer.NewEVEConsumer(&ctx)
-		eC.RunConsumer()
-		defer eC.StopConsumer()
 	}
 
 	// Handle command line arguments

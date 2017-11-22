@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/antihax/evedata/eveConsumer"
 	"github.com/antihax/evedata/evedata"
+	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/goesi"
 
 	"github.com/antihax/evedata/models"
@@ -64,15 +64,19 @@ func localIntel(w http.ResponseWriter, r *http.Request) {
 	}
 	err = json.NewDecoder(r.Body).Decode(&locl)
 	if err != nil || len(locl.Local) == 0 {
-		httpErrCode(w,err, http.StatusNotFound)
+		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 
 	names := strings.Split(locl.Local, "\n")
-	newNames := removeDuplicatesAndValidate(names)
 
-	// Get any one we don't know
-	eveConsumer.CharSearchAddToQueue(newNames, &red)
+	work := []redisqueue.Work{}
+	// Add any characters we do not know to the list
+	newNames := removeDuplicatesAndValidate(names)
+	for _, name := range newNames {
+		work = append(work, redisqueue.Work{Operation: "charSearch", Parameter: name})
+	}
+	c.OutQueue.QueueWork(work)
 
 	v, err := models.GetLocalIntel(newNames)
 	if err != nil {
