@@ -117,9 +117,11 @@ func (s *Hammer) QueueWork(work []redisqueue.Work) error {
 
 // Run the hammer service
 func (s *Hammer) Run() {
+	s.hammerWG.Add(1)
 	for {
 		select {
 		case <-s.stop:
+			s.hammerWG.Done()
 			return
 		default:
 			err := s.runConsumers()
