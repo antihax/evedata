@@ -13,7 +13,6 @@ import (
 func init() {
 	registerTrigger("wars", warsTrigger, time.NewTicker(time.Second*3600))
 	registerTrigger("warsFromDB", warsUpdate, time.NewTicker(time.Second*120))
-
 }
 
 func warsTrigger(s *Artifice) error {
@@ -62,7 +61,7 @@ func warsTrigger(s *Artifice) error {
 
 var warChan chan int32
 
-// zkillboardPost posts killmails to zkillboard from zkillChan
+// warKillmails obtains killmails from wars
 func (s *Artifice) warKillmails() {
 	// Create the channel for feeding kills
 	warChan = make(chan int32, 1000000)

@@ -60,10 +60,10 @@ func (s *Nail) Run() {
 // Close stop the nail service
 func (s *Nail) Close() {
 	close(s.stop)
-	s.wg.Wait()
 	for _, h := range s.inQueue {
 		h.Stop()
 	}
+	s.wg.Wait()
 }
 
 // Wrap handlers in a wait group we can properly account during shutdown.

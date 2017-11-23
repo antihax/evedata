@@ -80,5 +80,4 @@ func TestHammerService(t *testing.T) {
 	// Wait for the consumers to finish
 
 	hammer.Close()
-
 }
