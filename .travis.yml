@@ -1,6 +1,6 @@
 sudo: required
 language: go
-go: 1.9
+go: master
 
 addons:
   hosts:
@@ -15,9 +15,7 @@ services:
   - mysql
 
 before_install:
-  - docker pull antihax/mock-esi
   - ./mock.sh
-  - docker ps -a
   - mysql -e "CREATE DATABASE eve"
   - unzip ./sql/eve.zip -d ./sql/
   - mysql -Deve < ./sql/eve.sql
@@ -25,10 +23,11 @@ before_install:
 
 after_success:
   - ./test.sh
+  - bash <(curl -s https://codecov.io/bash)
   - if [ "$TRAVIS_BRANCH" == "master" ]
   - then
   - ./build.sh
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
   - ./dockerpush.sh
   - fi
-  - bash <(curl -s https://codecov.io/bash)
+  
