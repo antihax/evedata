@@ -73,13 +73,13 @@ func TestHammerService(t *testing.T) {
 	// Run Hammer
 	go hammer.Run()
 
-	err = hammer.AddAlliance(99002200)
+	err = hammer.AddAlliance(99002201)
 	assert.Nil(t, err)
 
-	err = hammer.AddCorporation(99002200)
+	err = hammer.AddCorporation(99002202)
 	assert.Nil(t, err)
 
-	err = hammer.AddCharacter(99002200)
+	err = hammer.AddCharacter(99002203)
 	assert.Nil(t, err)
 
 	// Load the work into the queue
