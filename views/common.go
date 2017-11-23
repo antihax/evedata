@@ -49,7 +49,7 @@ func getCursorCharacterAuth(ctx *appContext.AppContext, s *sessions.Session) (co
 		return nil, err
 	}
 
-	auth := context.WithValue(context.TODO(), goesi.ContextOAuth2, token)
+	auth := context.WithValue(context.Background(), goesi.ContextOAuth2, token)
 	return auth, err
 }
 

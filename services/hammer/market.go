@@ -20,7 +20,7 @@ func init() {
 }
 
 func marketHistoryTrigger(s *Hammer, parameter interface{}) {
-	regions, _, err := s.esi.ESI.UniverseApi.GetUniverseRegions(context.TODO(), nil)
+	regions, _, err := s.esi.ESI.UniverseApi.GetUniverseRegions(context.Background(), nil)
 	if err != nil {
 		log.Println(err)
 		return
@@ -29,14 +29,14 @@ func marketHistoryTrigger(s *Hammer, parameter interface{}) {
 	var page int32 = 1
 
 	for {
-		items, r, err := s.esi.ESI.UniverseApi.GetUniverseTypes(context.TODO(), map[string]interface{}{"page": page})
+		items, r, err := s.esi.ESI.UniverseApi.GetUniverseTypes(context.Background(), map[string]interface{}{"page": page})
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
 		for _, itemID := range items {
-			item, _, err := s.esi.ESI.UniverseApi.GetUniverseTypesTypeId(context.TODO(), itemID, nil)
+			item, _, err := s.esi.ESI.UniverseApi.GetUniverseTypesTypeId(context.Background(), itemID, nil)
 			if err != nil {
 				continue
 			}
@@ -85,7 +85,7 @@ func marketOrdersConsumer(s *Hammer, parameter interface{}) {
 	var page int32 = 1
 
 	for {
-		orders, r, err := s.esi.ESI.MarketApi.GetMarketsRegionIdOrders(context.TODO(), "all", regionID, map[string]interface{}{"page": page})
+		orders, r, err := s.esi.ESI.MarketApi.GetMarketsRegionIdOrders(context.Background(), "all", regionID, map[string]interface{}{"page": page})
 		if err != nil {
 			log.Println(err)
 			return

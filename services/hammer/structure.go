@@ -25,7 +25,7 @@ func structureConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	ctx := context.WithValue(context.TODO(), goesi.ContextOAuth2, s.token)
+	ctx := context.WithValue(context.Background(), goesi.ContextOAuth2, s.token)
 	struc, _, err := s.esi.ESI.UniverseApi.GetUniverseStructuresStructureId(ctx, structureID, nil)
 	if err != nil {
 		s.inQueue.SetWorkExpire("evedata_structure_failure", structureID, 86400)
@@ -49,7 +49,7 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	ctx := context.WithValue(context.TODO(), goesi.ContextOAuth2, s.token)
+	ctx := context.WithValue(context.Background(), goesi.ContextOAuth2, s.token)
 
 	for {
 		o, _, err := s.esi.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, structureID, map[string]interface{}{"page": page})

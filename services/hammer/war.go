@@ -18,7 +18,7 @@ func init() {
 func warConsumer(s *Hammer, parameter interface{}) {
 	id := parameter.(int32)
 
-	war, _, err := s.esi.ESI.WarsApi.GetWarsWarId(context.TODO(), id, nil)
+	war, _, err := s.esi.ESI.WarsApi.GetWarsWarId(context.Background(), id, nil)
 	if err != nil {
 		log.Println(err)
 		return

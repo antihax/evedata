@@ -14,7 +14,7 @@ func init() {
 }
 
 func marketTrigger(s *Artifice) error {
-	regions, _, err := s.esi.ESI.UniverseApi.GetUniverseRegions(context.TODO(), nil)
+	regions, _, err := s.esi.ESI.UniverseApi.GetUniverseRegions(context.Background(), nil)
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func historyTrigger(s *Artifice) error {
 
 func structuresTrigger(s *Artifice) error {
 	// Get a list of structures to rake over for market data also
-	structures, _, err := s.esi.ESI.UniverseApi.GetUniverseStructures(context.TODO(), nil)
+	structures, _, err := s.esi.ESI.UniverseApi.GetUniverseStructures(context.Background(), nil)
 	if err != nil {
 		return err
 	}

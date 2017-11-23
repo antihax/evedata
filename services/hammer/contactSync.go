@@ -88,7 +88,7 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 	// Loop through all the destinations
 	for _, token := range tokens {
 		// authentication token context for destination char
-		auth := context.WithValue(context.TODO(), goesi.ContextOAuth2, *token.token)
+		auth := context.WithValue(context.Background(), goesi.ContextOAuth2, *token.token)
 
 		contacts, _, err := s.esi.ESI.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid), nil)
 		if err != nil {

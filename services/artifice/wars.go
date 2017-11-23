@@ -19,7 +19,7 @@ func warsTrigger(s *Artifice) error {
 	maxWarID := int32(math.MaxInt32)
 	cycle := 0
 	for {
-		wars, _, err := s.esi.ESI.WarsApi.GetWars(context.TODO(), map[string]interface{}{"maxWarId": maxWarID})
+		wars, _, err := s.esi.ESI.WarsApi.GetWars(context.Background(), map[string]interface{}{"maxWarId": maxWarID})
 		if err != nil {
 			return err
 		}
@@ -79,7 +79,7 @@ func (s *Artifice) warKillmails() {
 func getWarKills(s *Artifice, id int32) error {
 	page := int32(1)
 	for {
-		kills, r, err := s.esi.ESI.WarsApi.GetWarsWarIdKillmails(context.TODO(), id, map[string]interface{}{"page": int32(page)})
+		kills, r, err := s.esi.ESI.WarsApi.GetWarsWarIdKillmails(context.Background(), id, map[string]interface{}{"page": int32(page)})
 		if err != nil {
 			log.Println(err)
 			return err
