@@ -47,6 +47,7 @@ var (
 		{Operation: "characterAssets", Parameter: []int32{int32(1), int32(1)}},
 		{Operation: "characterNotifications", Parameter: []int32{int32(1), int32(1)}},
 		{Operation: "loyaltyStore", Parameter: int32(1000001)},
+		{Operation: "wheeeeeeeeee", Parameter: int32(1000001)},
 	}
 )
 
@@ -72,6 +73,15 @@ func TestHammerService(t *testing.T) {
 	// Run Hammer
 	go hammer.Run()
 
+	err = hammer.AddAlliance(99002200)
+	assert.Nil(t, err)
+
+	err = hammer.AddCorporation(99002200)
+	assert.Nil(t, err)
+
+	err = hammer.AddCharacter(99002200)
+	assert.Nil(t, err)
+
 	// Load the work into the queue
 	err = hammer.QueueWork(testWork)
 	assert.Nil(t, err)
@@ -80,4 +90,5 @@ func TestHammerService(t *testing.T) {
 	// Wait for the consumers to finish
 
 	hammer.Close()
+	time.Sleep(time.Second)
 }

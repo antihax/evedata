@@ -75,6 +75,8 @@ func TestMain(m *testing.M) {
 	redis.Close()
 	sql.Close()
 
+	time.Sleep(time.Second)
+
 	os.Exit(retCode)
 }
 

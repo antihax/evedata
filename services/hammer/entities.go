@@ -62,13 +62,13 @@ func (s *Hammer) AddCharacter(characterID int32) error {
 func allianceConsumer(s *Hammer, parameter interface{}) {
 	allianceID := parameter.(int32)
 
-	alliance, _, err := s.esi.ESI.AllianceApi.GetAlliancesAllianceId(context.TODO(), allianceID, nil)
+	alliance, _, err := s.esi.ESI.AllianceApi.GetAlliancesAllianceId(context.Background(), allianceID, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	allianceCorporations, _, err := s.esi.ESI.AllianceApi.GetAlliancesAllianceIdCorporations(context.TODO(), allianceID, nil)
+	allianceCorporations, _, err := s.esi.ESI.AllianceApi.GetAlliancesAllianceIdCorporations(context.Background(), allianceID, nil)
 	if err != nil {
 		log.Println(err)
 		return
@@ -125,7 +125,7 @@ func loyaltyStoreConsumer(s *Hammer, parameter interface{}) {
 
 func corporationConsumer(s *Hammer, parameter interface{}) {
 	corporationID := parameter.(int32)
-	corporation, _, err := s.esi.ESI.CorporationApi.GetCorporationsCorporationId(context.TODO(), corporationID, nil)
+	corporation, _, err := s.esi.ESI.CorporationApi.GetCorporationsCorporationId(context.Background(), corporationID, nil)
 	if err != nil {
 		log.Println(err)
 		return
@@ -162,13 +162,13 @@ func corporationConsumer(s *Hammer, parameter interface{}) {
 func characterConsumer(s *Hammer, parameter interface{}) {
 	characterID := parameter.(int32)
 
-	character, _, err := s.esi.ESI.CharacterApi.GetCharactersCharacterId(context.TODO(), characterID, nil)
+	character, _, err := s.esi.ESI.CharacterApi.GetCharactersCharacterId(context.Background(), characterID, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	corporationHistory, _, err := s.esi.ESI.CharacterApi.GetCharactersCharacterIdCorporationhistory(context.TODO(), characterID, nil)
+	corporationHistory, _, err := s.esi.ESI.CharacterApi.GetCharactersCharacterIdCorporationhistory(context.Background(), characterID, nil)
 	if err != nil {
 		log.Println(err)
 		return
