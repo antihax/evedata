@@ -8,8 +8,8 @@ import (
 	"strconv"
 
 	"github.com/antihax/evedata/evedata"
+	"github.com/antihax/evedata/internal/strip"
 	"github.com/antihax/evedata/models"
-	"github.com/antihax/evedata/strip"
 	"github.com/antihax/evedata/templates"
 )
 
