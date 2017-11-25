@@ -10,7 +10,7 @@ import (
 func init() {
 	registerTrigger("marketOrders", marketTrigger, time.NewTicker(time.Second*300))
 	registerTrigger("structures", structuresTrigger, time.NewTicker(time.Second*300))
-	registerDailyTrigger("marketHistory", historyTrigger, 1)
+	registerTrigger("marketHistory", historyTrigger, time.NewTicker(time.Second*1900))
 }
 
 func marketTrigger(s *Artifice) error {
@@ -21,18 +21,20 @@ func marketTrigger(s *Artifice) error {
 
 	work := []redisqueue.Work{}
 	for _, region := range regions {
-		if region < 11000000 {
+		if region < 11000000 || region == 11000031 {
 			work = append(work, redisqueue.Work{Operation: "marketOrders", Parameter: region})
 		}
 	}
-	s.QueueWork(work)
-	return nil
+	return s.QueueWork(work)
 }
 
 func historyTrigger(s *Artifice) error {
-	work := []redisqueue.Work{}
-	work = append(work, redisqueue.Work{Operation: "marketHistoryTrigger", Parameter: true})
-	s.QueueWork(work)
+	hour := time.Now().UTC().Hour()
+	if hour == 1 {
+		work := []redisqueue.Work{}
+		work = append(work, redisqueue.Work{Operation: "marketHistoryTrigger", Parameter: true})
+		return s.QueueWork(work)
+	}
 	return nil
 }
 
@@ -55,6 +57,6 @@ func structuresTrigger(s *Artifice) error {
 			work = append(work, redisqueue.Work{Operation: "structureOrders", Parameter: structures[i]})
 		}
 	}
-	s.QueueWork(work)
-	return nil
+
+	return s.QueueWork(work)
 }

@@ -38,14 +38,13 @@ func marketHistoryTrigger(s *Hammer, parameter interface{}) {
 		for _, itemID := range items {
 			item, _, err := s.esi.ESI.UniverseApi.GetUniverseTypesTypeId(context.Background(), itemID, nil)
 			if err != nil {
+				log.Println(err)
 				continue
 			}
 			if item.Published && item.MarketGroupId > 0 {
 				work := []redisqueue.Work{}
 				for _, regionID := range regions {
-					if regionID < 11000000 {
-						work = append(work, redisqueue.Work{Operation: "marketHistory", Parameter: []int32{regionID, itemID}})
-					}
+					work = append(work, redisqueue.Work{Operation: "marketHistory", Parameter: []int32{regionID, itemID}})
 				}
 				s.QueueWork(work)
 			}

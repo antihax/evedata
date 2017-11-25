@@ -97,10 +97,16 @@ func (s *Artifice) QueueWork(work []redisqueue.Work) error {
 	return s.inQueue.QueueWork(work)
 }
 
+// QueueSize returns the size of the queue
+func (s *Artifice) QueueSize() (int, error) {
+	return s.inQueue.Size()
+}
+
 // Run the hammer service
 func (s *Artifice) Run() {
 	go s.zkillboardPost()
 	go s.warKillmails()
+	go s.runMetrics()
 	s.runTriggers()
 }
 

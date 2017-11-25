@@ -2,6 +2,7 @@ package hammer
 
 import (
 	"context"
+	"database/sql"
 	"log"
 
 	"encoding/gob"
@@ -11,6 +12,7 @@ import (
 )
 
 func init() {
+	registerConsumer("charSearch", charSearchConsumer)
 	registerConsumer("alliance", allianceConsumer)
 	registerConsumer("corporation", corporationConsumer)
 	registerConsumer("character", characterConsumer)
@@ -57,6 +59,45 @@ func (s *Hammer) AddCharacter(characterID int32) error {
 		}
 	}
 	return nil
+}
+
+func charSearchConsumer(s *Hammer, parameter interface{}) {
+	char := parameter.(string)
+
+	// Check if we know this character already
+	id, err := s.GetCharacterIDByName(char)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	if id == 0 {
+		search, _, err := s.esi.ESI.SearchApi.GetSearch(nil, []string{"character"}, char, map[string]interface{}{"strict": true})
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		if len(search.Character) > 0 {
+			for _, newid := range search.Character {
+				s.AddCharacter(newid)
+			}
+		}
+	} else { // add the character to the queue so we get latest data.
+		s.AddCharacter(id)
+	}
+	return
+}
+
+// GetCharacterIDByName checks if a character exists in the database
+func (s *Hammer) GetCharacterIDByName(character string) (int32, error) {
+	var id int32
+	if err := s.db.Get(&id, `
+		SELECT characterID 
+		FROM evedata.characters C
+		WHERE C.name = ? LIMIT 1;`, character); err != nil && err != sql.ErrNoRows {
+		return id, err
+	}
+	return id, nil
 }
 
 func allianceConsumer(s *Hammer, parameter interface{}) {

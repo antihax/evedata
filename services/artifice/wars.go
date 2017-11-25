@@ -142,8 +142,8 @@ func warsUpdate(s *Artifice) error {
 		work = append(work, redisqueue.Work{Operation: "war", Parameter: id})
 
 	}
-	s.QueueWork(work)
+
 	wars.Close()
 
-	return nil
+	return s.QueueWork(work)
 }

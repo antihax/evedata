@@ -93,7 +93,5 @@ func (s *ZKillboard) apiConsumer() error {
 		if err != nil {
 			log.Println(err)
 		}
-
-		s.tickMetrics()
 	}
 }

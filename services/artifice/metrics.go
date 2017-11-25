@@ -1,7 +1,8 @@
-package zkillboard
+package artifice
 
 import (
 	"log"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -19,11 +20,19 @@ func init() {
 	prometheus.MustRegister(hammerQueueSize)
 }
 
-func (s *ZKillboard) tickMetrics() {
-	size, err := s.outQueue.Size()
+func (s *Artifice) tickMetrics() {
+	size, err := s.QueueSize()
 	if err != nil {
 		log.Println(err)
 		return
 	}
 	hammerQueueSize.Set(float64(size))
+}
+
+func (s *Artifice) runMetrics() {
+	throttle := time.Tick(time.Second * 5)
+	for {
+		s.tickMetrics()
+		<-throttle
+	}
 }

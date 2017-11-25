@@ -35,10 +35,10 @@ func characterTransactions(s *Artifice) error {
 		work = append(work, redisqueue.Work{Operation: "characterWalletTransactions", Parameter: []int32{cid, tcid}})
 		work = append(work, redisqueue.Work{Operation: "characterWalletJournal", Parameter: []int32{cid, tcid}})
 	}
-	s.QueueWork(work)
+
 	entities.Close()
 
-	return nil
+	return s.QueueWork(work)
 }
 
 func characterAssets(s *Artifice) error {
@@ -63,10 +63,10 @@ func characterAssets(s *Artifice) error {
 		work = append(work, redisqueue.Work{Operation: "characterAssets", Parameter: []int32{cid, tcid}})
 
 	}
-	s.QueueWork(work)
+
 	entities.Close()
 
-	return nil
+	return s.QueueWork(work)
 }
 
 func characterNotifications(s *Artifice) error {
@@ -91,10 +91,10 @@ func characterNotifications(s *Artifice) error {
 		work = append(work, redisqueue.Work{Operation: "characterNotifications", Parameter: []int32{cid, tcid}})
 
 	}
-	s.QueueWork(work)
+
 	entities.Close()
 
-	return nil
+	return s.QueueWork(work)
 }
 
 func characterContactSync(s *Artifice) error {
@@ -129,8 +129,8 @@ func characterContactSync(s *Artifice) error {
 			destinations,
 		}})
 	}
-	s.QueueWork(work)
+
 	entities.Close()
 
-	return nil
+	return s.QueueWork(work)
 }
