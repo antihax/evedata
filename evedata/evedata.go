@@ -143,14 +143,6 @@ func GoServer() {
 				log.Fatalln(err)
 			}
 
-		} else if os.Args[1] == "bootstrap" {
-			// Run database bootstrap to prepare it for a new
-			log.Printf("Running bootstrap interface\n")
-			err := bootstrap(&ctx)
-			if err != nil {
-				log.Fatalln(err)
-			}
-
 		} else if os.Args[1] == "flushredis" {
 			// Erase everything in redis for modified deployments
 			log.Printf("Flushing Redis\n")
