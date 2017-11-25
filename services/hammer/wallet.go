@@ -55,19 +55,19 @@ func characterWalletJournalConsumer(s *Hammer, parameter interface{}) {
 	characterID := parameters[0]
 	tokenCharacterID := parameters[1]
 
-	tokenSource, err := s.tokenStore.GetTokenSource(characterID, tokenCharacterID)
+	ctx, err := s.GetTokenSourceContext(context.Background(), characterID, tokenCharacterID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	journal, err := s.esi.EVEAPI.CharacterWalletJournalXML(tokenSource, int64(tokenCharacterID), 0)
+	journal, _, err := s.esi.ESI.WalletApi.GetCharactersCharacterIdWalletJournal(ctx, tokenCharacterID, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	if len(journal.Entries) == 0 {
+	if len(journal) == 0 {
 		return
 	}
 
@@ -75,7 +75,7 @@ func characterWalletJournalConsumer(s *Hammer, parameter interface{}) {
 	err = s.QueueResult(&datapackages.CharacterJournal{
 		CharacterID:      characterID,
 		TokenCharacterID: tokenCharacterID,
-		Journal:          *journal,
+		Journal:          journal,
 	}, "characterWalletJournal")
 	if err != nil {
 		log.Println(err)

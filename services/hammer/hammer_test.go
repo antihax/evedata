@@ -43,7 +43,7 @@ var (
 		{Operation: "structure", Parameter: int64(1)},
 		{Operation: "marketHistory", Parameter: []int32{1, 1}},
 		{Operation: "characterWalletTransactions", Parameter: []int32{int32(1), int32(1)}},
-		//{Operation: "characterWalletJournal", Parameter: []int32{int32(1), int32(1)}},
+		{Operation: "characterWalletJournal", Parameter: []int32{int32(1), int32(1)}},
 		{Operation: "characterAssets", Parameter: []int32{int32(1), int32(1)}},
 		{Operation: "characterNotifications", Parameter: []int32{int32(1), int32(1)}},
 		{Operation: "loyaltyStore", Parameter: int32(1000001)},

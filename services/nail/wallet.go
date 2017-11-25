@@ -5,6 +5,8 @@ import (
 	"log"
 	"strings"
 
+	"github.com/antihax/goesi"
+
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/evedata/models"
@@ -73,17 +75,59 @@ func (s *Nail) characterWalletJournalConsumer(message *nsq.Message) error {
 		return err
 	}
 
-	if len(journal.Journal.Entries) == 0 {
+	if len(journal.Journal) == 0 {
 		return nil
 	}
 
 	var values []string
 
-	for _, wallet := range journal.Journal.Entries {
+	for _, wallet := range journal.Journal {
+		var (
+			argID   int64
+			argName string
+		)
+
+		e := wallet.ExtraInfo
+
+		if e.AllianceId != 0 {
+			argID = int64(e.AllianceId)
+			argName = "alliance"
+		} else if e.CharacterId != 0 {
+			argID = int64(e.CharacterId)
+			argName = "character"
+		} else if e.CorporationId != 0 {
+			argID = int64(e.CorporationId)
+			argName = "corporation"
+		} else if e.ContractId != 0 {
+			argID = int64(e.ContractId)
+			argName = "contract"
+		} else if e.DestroyedShipTypeId != 0 {
+			argID = int64(e.DestroyedShipTypeId)
+			argName = "destroyedship"
+		} else if e.JobId != 0 {
+			argID = int64(e.JobId)
+			argName = "job"
+		} else if e.LocationId != 0 {
+			argID = int64(e.LocationId)
+			argName = "location"
+		} else if e.NpcId != 0 {
+			argID = int64(e.NpcId)
+			argName = e.NpcName
+		} else if e.PlanetId != 0 {
+			argID = int64(e.PlanetId)
+			argName = "planet"
+		} else if e.SystemId != 0 {
+			argID = int64(e.SystemId)
+			argName = "system"
+		} else if e.TransactionId != 0 {
+			argID = int64(e.TransactionId)
+			argName = "transaction"
+		}
+
 		values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%q,%f,%f,%q,%d,%f,%q)",
-			journal.TokenCharacterID, wallet.RefID, wallet.RefTypeID, wallet.OwnerID1, wallet.OwnerID2,
-			wallet.ArgID1, wallet.ArgName1, wallet.Amount, wallet.Balance,
-			wallet.Reason, wallet.TaxReceiverID.Int64, wallet.TaxAmount.Float64, wallet.Date.UTC().Format(models.SQLTimeFormat)))
+			journal.TokenCharacterID, wallet.RefId, goesi.GetJournalRefID(wallet.RefType), wallet.FirstPartyId, wallet.SecondPartyId,
+			argID, argName, wallet.Amount, wallet.Balance,
+			wallet.Reason, wallet.TaxRecieverId, wallet.Tax, wallet.Date.UTC().Format(models.SQLTimeFormat)))
 	}
 
 	stmt := fmt.Sprintf(`INSERT INTO evedata.walletJournal
