@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 for dir in cmd/*/; do
     dir=${dir%/}
