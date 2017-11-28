@@ -13,9 +13,8 @@ import (
 func setupRedis(ctx *appContext.AppContext) *redis.Pool {
 	if ctx.Conf.Redis.Sentinel {
 		return newSentinelPool(ctx.Conf.Redis.Addresses, ctx.Conf.Redis.MasterName, ctx.Conf.Redis.Password)
-	} else {
-		return newRedisPool(ctx.Conf.Redis.Address, ctx.Conf.Redis.Password)
 	}
+	return newRedisPool(ctx.Conf.Redis.Address, ctx.Conf.Redis.Password)
 }
 
 func newRedisPool(address string, password string) *redis.Pool {
@@ -80,9 +79,8 @@ func newSentinelPool(addresses []string, masterName string, password string) *re
 		TestOnBorrow: func(c redis.Conn, t time.Time) error {
 			if !sentinel.TestRole(c, "master") {
 				return errors.New("Role check failed")
-			} else {
-				return nil
 			}
+			return nil
 		},
 	}
 }

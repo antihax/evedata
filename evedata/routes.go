@@ -111,7 +111,7 @@ func attachProfiler(router *mux.Router) {
 	router.Handle("/debug/mutex", pprof.Handler("mutex"))
 }
 
-// Serve favicon.ico
+// ServeFavIconHandler deals with favicon.ico
 func ServeFavIconHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "static/favicon/favicon.ico")
 }

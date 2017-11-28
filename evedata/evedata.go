@@ -10,7 +10,6 @@ import (
 
 	"github.com/antihax/evedata/appContext"
 	"github.com/antihax/evedata/config"
-	"github.com/antihax/evedata/discord"
 	"github.com/antihax/evedata/internal/apicache"
 	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/evedata/internal/tokenstore"
@@ -126,11 +125,6 @@ func GoServer() {
 
 	// Set our logging flags.
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-
-	// Run the discord bot
-	if ctx.Conf.Discord.Enabled {
-		go discord.GoDiscordBot(&ctx)
-	}
 
 	// Handle command line arguments
 	if len(os.Args) > 1 {
