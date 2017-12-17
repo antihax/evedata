@@ -38,7 +38,7 @@ func (s *DiscordBot) killmailHandler(message *nsq.Message) error {
 	}
 
 	// Skip killmails more than an hour old
-	if mail.KillmailTime.Before(time.Now().Add(-time.Hour)) {
+	if mail.KillmailTime.Before(time.Now().Add(-time.Hour * 6)) {
 		return nil
 	}
 

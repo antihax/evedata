@@ -36,7 +36,7 @@ func (s *DiscordBot) characterNotificationsHandler(message *nsq.Message) error {
 		for _, n := range notifications.Notifications {
 			// Skip the notification if if is more than three hours old
 
-			if n.Timestamp.Before(time.Now().Add(-time.Hour * 3)) {
+			if n.Timestamp.Before(time.Now().Add(-time.Hour * 6)) {
 				continue
 			}
 
