@@ -5,8 +5,6 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
-	"log"
-	"runtime/debug"
 	"time"
 
 	"github.com/antihax/evedata/internal/gobcoder"
@@ -60,7 +58,7 @@ func (c *TokenStore) GetToken(characterID int32, tokenCharacterID int32) (*oauth
 			RefreshToken: token.RefreshToken,
 			TokenType:    token.TokenType,
 		}
-
+		c.tokenSuccess(characterID, tokenCharacterID)
 		return tok, nil
 	}
 
@@ -98,14 +96,11 @@ func (c *TokenStore) GetTokenSource(characterID int32, tokenCharacterID int32) (
 		if err != nil {
 			c.invalidateTokenCache(characterID, tokenCharacterID)
 			c.tokenError(characterID, tokenCharacterID, 999, err.Error())
-
-			log.Println(err)
-			debug.PrintStack()
-
 			return nil, err
 		}
 		c.setTokenToCache(characterID, tokenCharacterID, token)
 		c.updateTokenToDB(characterID, tokenCharacterID, token)
+		c.tokenSuccess(characterID, tokenCharacterID)
 	}
 
 	return a, err
@@ -224,6 +219,16 @@ func (c *TokenStore) tokenError(characterID int32, tokenCharacterID int32, code 
 		UPDATE evedata.crestTokens SET lastCode = ?, lastStatus = ?
 		WHERE characterID = ? AND tokenCharacterID = ?`,
 		code, status, characterID, tokenCharacterID); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *TokenStore) tokenSuccess(characterID int32, tokenCharacterID int32) error {
+	if _, err := c.db.Exec(`
+		UPDATE evedata.crestTokens SET lastCode = ?, lastStatus = ?
+		WHERE characterID = ? AND tokenCharacterID = ?`,
+		"200", "Ok", characterID, tokenCharacterID); err != nil {
 		return err
 	}
 	return nil
