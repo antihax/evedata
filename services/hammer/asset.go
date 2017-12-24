@@ -2,7 +2,6 @@ package hammer
 
 import (
 	"context"
-	"encoding/gob"
 	"log"
 
 	"github.com/antihax/evedata/internal/datapackages"
@@ -10,14 +9,13 @@ import (
 
 func init() {
 	registerConsumer("characterAssets", characterAssetsConsumer)
-	gob.Register(datapackages.CharacterAssets{})
 }
 
 func characterAssetsConsumer(s *Hammer, parameter interface{}) {
 	// dereference the parameters
-	parameters := parameter.([]int32)
-	characterID := parameters[0]
-	tokenCharacterID := parameters[1]
+	parameters := parameter.([]interface{})
+	characterID := int32(parameters[0].(int))
+	tokenCharacterID := int32(parameters[1].(int))
 
 	ctx, err := s.GetTokenSourceContext(context.Background(), characterID, tokenCharacterID)
 	if err != nil {

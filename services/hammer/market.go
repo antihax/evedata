@@ -7,16 +7,12 @@ import (
 
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/redisqueue"
-
-	"encoding/gob"
 )
 
 func init() {
 	registerConsumer("marketOrders", marketOrdersConsumer)
 	registerConsumer("marketHistoryTrigger", marketHistoryTrigger)
 	registerConsumer("marketHistory", marketHistoryConsumer)
-	gob.Register(datapackages.MarketOrders{})
-	gob.Register(datapackages.MarketHistory{})
 }
 
 func marketHistoryTrigger(s *Hammer, parameter interface{}) {
@@ -60,8 +56,8 @@ func marketHistoryTrigger(s *Hammer, parameter interface{}) {
 }
 
 func marketHistoryConsumer(s *Hammer, parameter interface{}) {
-	regionID := parameter.([]int32)[0]
-	typeID := parameter.([]int32)[1]
+	regionID := int32(parameter.([]interface{})[0].(int))
+	typeID := int32(parameter.([]interface{})[1].(int))
 	h, _, err := s.esi.ESI.MarketApi.GetMarketsRegionIdHistory(nil, regionID, typeID, nil)
 	if err != nil {
 		log.Println(err)
@@ -80,7 +76,7 @@ func marketHistoryConsumer(s *Hammer, parameter interface{}) {
 }
 
 func marketOrdersConsumer(s *Hammer, parameter interface{}) {
-	regionID := parameter.(int32)
+	regionID := int32(parameter.(int))
 	var page int32 = 1
 
 	for {

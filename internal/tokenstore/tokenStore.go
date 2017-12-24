@@ -1,8 +1,6 @@
 package tokenstore
 
 import (
-	"bytes"
-	"encoding/gob"
 	"errors"
 	"fmt"
 	"time"
@@ -165,9 +163,6 @@ func (c *TokenStore) setTokenToCache(characterID int32, tokenCharacterID int32, 
 
 	key := fmt.Sprintf("EVEDATA_TOKENSTORE_%d_%d", characterID, tokenCharacterID)
 
-	var b bytes.Buffer
-	enc := gob.NewEncoder(&b)
-
 	tok := &oauth2.Token{
 		Expiry:       token.Expiry,
 		AccessToken:  token.AccessToken,
@@ -175,11 +170,11 @@ func (c *TokenStore) setTokenToCache(characterID int32, tokenCharacterID int32, 
 		TokenType:    token.TokenType,
 	}
 
-	err := enc.Encode(tok)
+	b, err := gobcoder.GobEncoder(tok)
 	if err != nil {
 		return err
 	}
-	if err := r.Send("SETEX", key, 80000, b.Bytes()); err != nil {
+	if err := r.Send("SETEX", key, 80000, b); err != nil {
 		return err
 	}
 	return nil

@@ -4,21 +4,18 @@ import (
 	"context"
 	"log"
 
-	"encoding/gob"
-
 	"github.com/antihax/evedata/internal/datapackages"
 )
 
 func init() {
 	registerConsumer("characterNotifications", characterNotificationsConsumer)
-	gob.Register(datapackages.CharacterNotifications{})
 }
 
 func characterNotificationsConsumer(s *Hammer, parameter interface{}) {
 	// dereference the parameters
-	parameters := parameter.([]int32)
-	characterID := parameters[0]
-	tokenCharacterID := parameters[1]
+	parameters := parameter.([]interface{})
+	characterID := int32(parameters[0].(int))
+	tokenCharacterID := int32(parameters[1].(int))
 
 	ctx, err := s.GetTokenSourceContext(context.Background(), characterID, tokenCharacterID)
 	if err != nil {

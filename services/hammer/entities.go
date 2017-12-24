@@ -5,8 +5,6 @@ import (
 	"database/sql"
 	"log"
 
-	"encoding/gob"
-
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/redisqueue"
 )
@@ -18,11 +16,6 @@ func init() {
 	registerConsumer("character", characterConsumer)
 
 	registerConsumer("loyaltyStore", loyaltyStoreConsumer)
-
-	gob.Register(datapackages.Corporation{})
-	gob.Register(datapackages.Alliance{})
-	gob.Register(datapackages.Character{})
-	gob.Register(datapackages.Store{})
 }
 
 // AddAlliance adds an alliance to queue
@@ -101,7 +94,7 @@ func (s *Hammer) GetCharacterIDByName(character string) (int32, error) {
 }
 
 func allianceConsumer(s *Hammer, parameter interface{}) {
-	allianceID := parameter.(int32)
+	allianceID := int32(parameter.(int))
 
 	alliance, _, err := s.esi.ESI.AllianceApi.GetAlliancesAllianceId(context.Background(), allianceID, nil)
 	if err != nil {
@@ -145,7 +138,7 @@ func allianceConsumer(s *Hammer, parameter interface{}) {
 }
 
 func loyaltyStoreConsumer(s *Hammer, parameter interface{}) {
-	corporationID := parameter.(int32)
+	corporationID := int32(parameter.(int))
 	store, _, err := s.esi.ESI.LoyaltyApi.GetLoyaltyStoresCorporationIdOffers(context.Background(), corporationID, nil)
 	if err != nil {
 		log.Println(err)
@@ -165,7 +158,7 @@ func loyaltyStoreConsumer(s *Hammer, parameter interface{}) {
 }
 
 func corporationConsumer(s *Hammer, parameter interface{}) {
-	corporationID := parameter.(int32)
+	corporationID := int32(parameter.(int))
 	corporation, _, err := s.esi.ESI.CorporationApi.GetCorporationsCorporationId(context.Background(), corporationID, nil)
 	if err != nil {
 		log.Println(err)
@@ -201,7 +194,7 @@ func corporationConsumer(s *Hammer, parameter interface{}) {
 }
 
 func characterConsumer(s *Hammer, parameter interface{}) {
-	characterID := parameter.(int32)
+	characterID := int32(parameter.(int))
 
 	character, _, err := s.esi.ESI.CharacterApi.GetCharactersCharacterId(context.Background(), characterID, nil)
 	if err != nil {

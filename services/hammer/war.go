@@ -4,19 +4,14 @@ import (
 	"context"
 	"log"
 	"time"
-
-	"encoding/gob"
-
-	"github.com/antihax/goesi/esi"
 )
 
 func init() {
 	registerConsumer("war", warConsumer)
-	gob.Register(esi.GetWarsWarIdOk{})
 }
 
 func warConsumer(s *Hammer, parameter interface{}) {
-	id := parameter.(int32)
+	id := int32(parameter.(int))
 
 	war, _, err := s.esi.ESI.WarsApi.GetWarsWarId(context.Background(), id, nil)
 	if err != nil {

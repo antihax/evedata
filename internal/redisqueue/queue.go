@@ -1,11 +1,11 @@
 package redisqueue
 
 import (
-	"bytes"
-	"encoding/gob"
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/antihax/evedata/internal/gobcoder"
 
 	"github.com/garyburd/redigo/redis"
 )
@@ -25,7 +25,6 @@ type Work struct {
 // NewRedisQueue creates a new work queue with an existing
 // redigo pool and key name.
 func NewRedisQueue(r *redis.Pool, key string) *RedisQueue {
-	gob.Register([]interface{}{})
 	return &RedisQueue{redisPool: r, key: key}
 }
 
@@ -44,19 +43,16 @@ func (hq *RedisQueue) QueueWork(work []Work) error {
 
 	// Pipeline our work to the connection.
 	for i := range work {
-		var b bytes.Buffer
-		enc := gob.NewEncoder(&b)
-
-		err := enc.Encode(work[i])
+		b, err := gobcoder.GobEncoder(work[i])
 		if err != nil {
 			return err
 		}
-		if _, err := conn.Do("SADD", hq.key, b.Bytes()); err != nil {
+		if err := conn.Send("SADD", hq.key, b); err != nil {
 			return err
 		}
 	}
-	//	err := conn.Flush()
-	return nil
+
+	return conn.Flush()
 }
 
 // CheckWorkCompleted takes a key and checks if the ID has been completed to prevent duplicates
@@ -167,9 +163,7 @@ func (hq *RedisQueue) GetWork() (*Work, error) {
 	}
 
 	// Decode the data back into its structure
-	b := bytes.NewBuffer(v.([]byte))
-	dec := gob.NewDecoder(b)
-	if err := dec.Decode(&w); err != nil {
+	if err := gobcoder.GobDecoder(v.([]byte), &w); err != nil {
 		return nil, err
 	}
 

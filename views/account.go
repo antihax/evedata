@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -55,6 +56,7 @@ func accountInfo(w http.ResponseWriter, r *http.Request) {
 	char, ok := s.Values["character"].(goesi.VerifyResponse)
 	if !ok {
 		httpErrCode(w, errors.New("could not find verify response"), http.StatusForbidden)
+		log.Printf("%+v\n", s.Values["character"])
 		return
 	}
 

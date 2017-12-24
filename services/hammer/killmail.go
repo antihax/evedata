@@ -2,21 +2,16 @@ package hammer
 
 import (
 	"log"
-
-	"encoding/gob"
-
-	"github.com/antihax/goesi/esi"
 )
 
 func init() {
 	registerConsumer("killmail", killmailConsumer)
-	gob.Register(esi.GetKillmailsKillmailIdKillmailHashOk{})
 }
 
 func killmailConsumer(s *Hammer, parameter interface{}) {
 	parameters := parameter.([]interface{})
 	hash := parameters[0].(string)
-	id := parameters[1].(int32)
+	id := int32(parameters[1].(int))
 
 	if s.inQueue.CheckWorkCompleted("evedata_known_kills", int64(id)) {
 		return

@@ -9,13 +9,12 @@ feeding the data into NSQ topics for consumption from other services such as Nai
 ```
 func init() {
 	registerConsumer("operation", consumerFunc)
-	gob.Register(structure)
 }
 
 func killmailConsumer(s *Hammer, parameter interface{}) {
 	parameters := parameter.([]interface{})
 
 	hash := parameters[0].(string)
-	id := parameters[1].(int32)
+	id := int32(parameters[1].(int))
     ... do stuff
 ```

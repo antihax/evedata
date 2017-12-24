@@ -7,15 +7,11 @@ import (
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/goesi"
 	"github.com/antihax/goesi/esi"
-
-	"encoding/gob"
 )
 
 func init() {
 	registerConsumer("structure", structureConsumer)
 	registerConsumer("structureOrders", structureOrdersConsumer)
-	gob.Register(datapackages.Structure{})
-	gob.Register(datapackages.StructureOrders{})
 }
 
 func structureConsumer(s *Hammer, parameter interface{}) {

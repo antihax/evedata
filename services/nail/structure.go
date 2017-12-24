@@ -20,7 +20,6 @@ func spawnStructureMarketConsumer(s *Nail, consumer *nsq.Consumer) {
 }
 
 func (s *Nail) structureMarketHandler(message *nsq.Message) error {
-
 	b := datapackages.StructureOrders{}
 	err := gobcoder.GobDecoder(message.Body, &b)
 	if err != nil {
@@ -63,7 +62,6 @@ func (s *Nail) structureHandler(message *nsq.Message) error {
 	b := datapackages.Structure{}
 	err := gobcoder.GobDecoder(message.Body, &b)
 	if err != nil {
-		fmt.Printf("HALP!!! %#v\n", b)
 		return err
 	}
 

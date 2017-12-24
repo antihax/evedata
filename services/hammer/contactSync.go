@@ -18,8 +18,8 @@ func init() {
 func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 	// dereference the parameters
 	parameters := parameter.([]interface{})
-	characterID := parameters[0].(int32)
-	source := parameters[1].(int32)
+	characterID := int32(parameters[0].(int))
+	source := int32(parameters[1].(int))
 	destinations := parameters[2].(string)
 
 	char, _, err := s.esi.ESI.CharacterApi.GetCharactersCharacterId(nil, int32(source), nil)

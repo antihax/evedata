@@ -7,7 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/antihax/evedata/internal/gobcoder"
+	"gopkg.in/mgo.v2/bson"
+
 	"github.com/antihax/evedata/internal/tokenstore"
 	"github.com/jmoiron/sqlx"
 	"golang.org/x/oauth2"
@@ -142,7 +143,7 @@ func (s *Hammer) GetTokenSourceContext(c context.Context, characterID, tokenChar
 
 // QueueResult queues a result to NSQ topic
 func (s *Hammer) QueueResult(v interface{}, topic string) error {
-	b, err := gobcoder.GobEncoder(v)
+	b, err := bson.Marshal(v)
 	if err != nil {
 		return err
 	}

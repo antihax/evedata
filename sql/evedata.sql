@@ -109,13 +109,6 @@ CREATE TABLE `corporations` (
   KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `entities` (
-  `id` int(11) NOT NULL,
-  `type` enum('alliance','corporation','character') CHARACTER SET latin1 NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE `crestTokens` (
   `characterID` int(11) NOT NULL,
   `tokenCharacterID` int(11) NOT NULL,
@@ -156,6 +149,12 @@ CREATE TABLE `discoveredAssets` (
   KEY `alliance` (`allianceID`),
   KEY `lastSeen` (`lastSeen`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `entities` (
+  `id` int(10) unsigned NOT NULL,
+  `type` varchar(60) COLLATE utf8_bin NOT NULL DEFAULT 'unknown',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `entityKillStats` (
   `id` int(10) unsigned NOT NULL,
@@ -300,7 +299,7 @@ CREATE TABLE `lpOffers` (
   KEY `lpOffers_typeid` (`typeID`),
   KEY `lpOffers_corporation` (`corporationID`),
   KEY `lpOffers_corp_type` (`corporationID`,`typeID`)
-) ENGINE=InnoDB AUTO_INCREMENT=16310 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=16338 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `market` (
   `orderID` bigint(11) unsigned NOT NULL DEFAULT '0',

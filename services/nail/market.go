@@ -59,7 +59,6 @@ func (s *Nail) marketOrderHandler(message *nsq.Message) error {
 }
 
 func (s *Nail) marketHistoryHandler(message *nsq.Message) error {
-
 	b := datapackages.MarketHistory{}
 	err := gobcoder.GobDecoder(message.Body, &b)
 	if err != nil {
