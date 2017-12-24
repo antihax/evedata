@@ -127,7 +127,7 @@ func (s *Nail) characterWalletJournalConsumer(message *nsq.Message) error {
 		values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%q,%f,%f,%q,%d,%f,%q)",
 			journal.TokenCharacterID, wallet.RefId, goesi.GetJournalRefID(wallet.RefType), wallet.FirstPartyId, wallet.SecondPartyId,
 			argID, argName, wallet.Amount, wallet.Balance,
-			wallet.Reason, wallet.TaxRecieverId, wallet.Tax, wallet.Date.UTC().Format(models.SQLTimeFormat)))
+			wallet.Reason, wallet.TaxReceiverId, wallet.Tax, wallet.Date.UTC().Format(models.SQLTimeFormat)))
 	}
 
 	stmt := fmt.Sprintf(`INSERT INTO evedata.walletJournal

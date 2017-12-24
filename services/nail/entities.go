@@ -8,7 +8,6 @@ import (
 
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/gobcoder"
-	"github.com/antihax/goesi"
 	nsq "github.com/nsqio/go-nsq"
 )
 
@@ -52,7 +51,7 @@ func (s *Nail) corporationHandler(message *nsq.Message) error {
 		ON DUPLICATE KEY UPDATE ceoID=VALUES(ceoID), name=VALUES(name), ticker=VALUES(ticker), allianceID=VALUES(allianceID), 
 		factionID=VALUES(factionID), memberCount=VALUES(memberCount),  
 		updated=UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil)
-	`, c.CorporationID, c.Corporation.CorporationName, c.Corporation.Ticker, c.Corporation.CeoId, c.Corporation.AllianceId, goesi.FactionNameToID(c.Corporation.Faction), c.Corporation.MemberCount, cacheUntil)
+	`, c.CorporationID, c.Corporation.Name, c.Corporation.Ticker, c.Corporation.CeoId, c.Corporation.AllianceId, c.Corporation.FactionId, c.Corporation.MemberCount, cacheUntil)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -88,7 +87,7 @@ func (s *Nail) allianceHandler(message *nsq.Message) error {
 				corporationsCount = VALUES(corporationsCount), 
 				updated = UTC_TIMESTAMP(), 
 				cacheUntil=VALUES(cacheUntil)
-	`, c.AllianceID, c.Alliance.AllianceName, c.Alliance.Ticker, c.Alliance.ExecutorCorp, c.Alliance.DateFounded.UTC().Format("2006-01-02 15:04:05"), len(c.AllianceCorporations), cacheUntil)
+	`, c.AllianceID, c.Alliance.Name, c.Alliance.Ticker, c.Alliance.ExecutorCorporationId, c.Alliance.DateFounded.UTC().Format("2006-01-02 15:04:05"), len(c.AllianceCorporations), cacheUntil)
 	if err != nil {
 		log.Println(err)
 		return err

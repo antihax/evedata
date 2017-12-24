@@ -77,8 +77,8 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 
 	// Faction Wars
 	var factionWars []FactionWarEntities
-	if corp.Faction != "" {
-		factionWars, err = s.GetFactionWarEntitiesForID(FactionsByName[corp.Faction])
+	if corp.FactionId > 0 {
+		factionWars, err = s.GetFactionWarEntitiesForID(corp.FactionId)
 		if err != nil {
 			log.Println(err)
 			return
@@ -244,6 +244,7 @@ type Entity struct {
 	Type string
 }
 
+// GetActiveWarsByID gets active wars for an entityID
 // [BENCHMARK] 0.000 sec / 0.000 sec
 func (s *Hammer) GetActiveWarsByID(id int64) ([]Entity, error) {
 	w := []Entity{}
@@ -263,6 +264,7 @@ func (s *Hammer) GetActiveWarsByID(id int64) ([]Entity, error) {
 	return w, nil
 }
 
+// GetPendingWarsByID gets pending wars for an entityID
 // [BENCHMARK] 0.000 sec / 0.000 sec
 func (s *Hammer) GetPendingWarsByID(id int64) ([]Entity, error) {
 	w := []Entity{}
@@ -282,10 +284,10 @@ func (s *Hammer) GetPendingWarsByID(id int64) ([]Entity, error) {
 	return w, nil
 }
 
-// Factions resolves faction name to ID
+// FactionsByName resolves faction name to ID
 var FactionsByName = map[string]int32{"Caldari": 500001, "Minmatar": 500002, "Amarr": 500003, "Gallente": 500004}
 
-// Factions resolves faction ID to Name
+// FactionsByID resolves faction ID to Name
 var FactionsByID = map[int32]string{500001: "Caldari", 500002: "Minmatar", 500003: "Amarr", 500004: "Gallente"}
 
 // FactionsAtWar resolves two enemy parties for each factionID

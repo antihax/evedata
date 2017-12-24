@@ -12,6 +12,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+// Locator is a yaml map for locator agent responses
 type Locator struct {
 	AgentLocation struct {
 		Region        int `yaml:"3"`
