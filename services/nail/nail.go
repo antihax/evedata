@@ -2,6 +2,7 @@ package nail
 
 import (
 	"log"
+	"math/rand"
 	"strings"
 	"sync"
 	"time"
@@ -105,7 +106,7 @@ func retryTransaction(tx *sqlx.Tx) error {
 			if !strings.Contains(err.Error(), "1213") {
 				return err
 			}
-			time.Sleep(250 * time.Millisecond)
+			time.Sleep(time.Duration(rand.Intn(250)) * time.Millisecond)
 			continue
 		} else {
 			return err
@@ -119,10 +120,9 @@ func (s *Nail) doSQL(stmt string, args ...interface{}) error {
 		err := s.doSQLTranq(stmt, args...)
 		if err != nil {
 			if !strings.Contains(err.Error(), "1213") {
-
 				return err
 			}
-			time.Sleep(250 * time.Millisecond)
+			time.Sleep(time.Duration(rand.Intn(250)) * time.Millisecond)
 			continue
 		} else {
 			return err

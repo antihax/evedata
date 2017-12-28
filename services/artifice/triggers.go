@@ -31,14 +31,16 @@ func (s *Artifice) runTriggers() {
 		}
 		chosen, _, ok := reflect.Select(cases)
 		if ok {
-			trigger := triggers[chosen]
+			t := triggers[chosen]
 			start := time.Now()
-			log.Printf("Running trigger %s\n", trigger.name)
-			err := trigger.f(s)
-			log.Printf("trigger %s ran for %s\n", trigger.name, time.Since(start).String())
-			if err != nil {
-				log.Println(err)
-			}
+			go func(start time.Time, t trigger, s *Artifice) {
+				log.Printf("Running trigger %s\n", t.name)
+				err := t.f(s)
+				log.Printf("trigger %s ran for %s\n", t.name, time.Since(start).String())
+				if err != nil {
+					log.Println(err)
+				}
+			}(start, t, s)
 		}
 	}
 }
