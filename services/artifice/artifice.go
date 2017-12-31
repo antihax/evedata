@@ -93,8 +93,8 @@ func (s *Artifice) ChangeTokenPath(path string) {
 }
 
 // QueueWork directly
-func (s *Artifice) QueueWork(work []redisqueue.Work) error {
-	return s.inQueue.QueueWork(work)
+func (s *Artifice) QueueWork(work []redisqueue.Work, priority int) error {
+	return s.inQueue.QueueWork(work, priority)
 }
 
 // QueueSize returns the size of the queue

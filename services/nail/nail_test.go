@@ -82,7 +82,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestQueue(t *testing.T) {
-	err := ham.QueueWork(testWork)
+	err := ham.QueueWork(testWork, redisqueue.Priority_Low)
 	if err != nil {
 		t.Fatal(err)
 	}

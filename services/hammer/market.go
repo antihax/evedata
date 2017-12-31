@@ -42,7 +42,7 @@ func marketHistoryTrigger(s *Hammer, parameter interface{}) {
 				for _, regionID := range regions {
 					work = append(work, redisqueue.Work{Operation: "marketHistory", Parameter: []int32{regionID, itemID}})
 				}
-				s.QueueWork(work)
+				s.QueueWork(work, redisqueue.Priority_Low)
 			}
 		}
 

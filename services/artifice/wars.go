@@ -45,7 +45,7 @@ func warsTrigger(s *Artifice) error {
 			}
 		}
 
-		s.QueueWork(work)
+		s.QueueWork(work, redisqueue.Priority_High)
 
 		if maxWarID < 100 {
 			return nil
@@ -106,7 +106,7 @@ func getWarKills(s *Artifice, id int32) error {
 			}
 		}
 
-		s.QueueWork(work)
+		s.QueueWork(work, redisqueue.Priority_High)
 
 		xpagesS := r.Header.Get("X-Pages")
 		xpages, _ := strconv.Atoi(xpagesS)
@@ -145,5 +145,5 @@ func warsUpdate(s *Artifice) error {
 
 	wars.Close()
 
-	return s.QueueWork(work)
+	return s.QueueWork(work, redisqueue.Priority_Normal)
 }

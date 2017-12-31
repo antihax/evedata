@@ -1,6 +1,7 @@
 package redisqueue
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -10,10 +11,18 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
+const (
+	Priority_Low    = iota
+	Priority_Normal = iota
+	Priority_High   = iota
+	Priority_Urgent = iota
+)
+
 // RedisQueue operation queue to CCP APIs
 type RedisQueue struct {
-	redisPool *redis.Pool
-	key       string
+	redisPool   *redis.Pool
+	key         string
+	queueScript *redis.Script
 }
 
 // Work to be performed
@@ -25,18 +34,30 @@ type Work struct {
 // NewRedisQueue creates a new work queue with an existing
 // redigo pool and key name.
 func NewRedisQueue(r *redis.Pool, key string) *RedisQueue {
-	return &RedisQueue{redisPool: r, key: key}
+
+	rq := &RedisQueue{redisPool: r, key: key, queueScript: redis.NewScript(0, priorityQueueScript)}
+	conn := r.Get()
+	defer conn.Close()
+
+	err := rq.queueScript.Load(conn)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	log.Printf("Loaded script %s\n", rq.queueScript.Hash())
+
+	return rq
 }
 
 // Size returns number of elements in the queue
 func (hq *RedisQueue) Size() (int, error) {
 	r := hq.redisPool.Get()
 	defer r.Close()
-	return redis.Int(r.Do("SCARD", hq.key))
+	return redis.Int(hq.queueScript.Do(r, "count", hq.key))
 }
 
 // QueueWork adds work to the queue
-func (hq *RedisQueue) QueueWork(work []Work) error {
+func (hq *RedisQueue) QueueWork(work []Work, priority int) error {
 	// Get a redis connection from the pool
 	conn := hq.redisPool.Get()
 	defer conn.Close()
@@ -47,12 +68,48 @@ func (hq *RedisQueue) QueueWork(work []Work) error {
 		if err != nil {
 			return err
 		}
-		if err := conn.Send("SADD", hq.key, b); err != nil {
+		if _, err := hq.queueScript.Do(conn, "push", hq.key, b, priority); err != nil {
 			return err
 		}
 	}
 
-	return conn.Flush()
+	return nil
+}
+
+// GetWork retreives items from the queue
+func (hq *RedisQueue) GetWork() (*Work, error) {
+	// Get a redis connection from the pool
+	conn := hq.redisPool.Get()
+	defer conn.Close()
+
+	var (
+		w   Work
+		v   interface{}
+		err error
+	)
+
+	// Poll until we get data.
+	for {
+		v, err = hq.queueScript.Do(conn, "pop", hq.key)
+		if err != nil || v == nil {
+			fmt.Printf("%v %s\n", v, err)
+			time.Sleep(time.Millisecond * 100)
+			continue
+		}
+		break
+	}
+
+	b, ok := v.([]byte)
+	if !ok {
+		return nil, errors.New("empty result")
+	}
+
+	// Decode the data back into its structure
+	if err := gobcoder.GobDecoder(b, &w); err != nil {
+		return nil, err
+	}
+
+	return &w, nil
 }
 
 // CheckWorkCompleted takes a key and checks if the ID has been completed to prevent duplicates
@@ -138,34 +195,4 @@ func (hq *RedisQueue) SetWorkExpire(key string, id int64, seconds int) error {
 	defer conn.Close()
 	_, err := conn.Do("SETEX", fmt.Sprintf("%s:%d", key, id), seconds, true)
 	return err
-}
-
-// GetWork retreives up to `n` items from the queue
-func (hq *RedisQueue) GetWork() (*Work, error) {
-	// Get a redis connection from the pool
-	conn := hq.redisPool.Get()
-	defer conn.Close()
-
-	var (
-		w   Work
-		v   interface{}
-		err error
-	)
-
-	// Block until we get data.
-	for {
-		v, err = conn.Do("SPOP", hq.key)
-		if err != nil || v == nil {
-			time.Sleep(time.Millisecond * 100)
-			continue
-		}
-		break
-	}
-
-	// Decode the data back into its structure
-	if err := gobcoder.GobDecoder(v.([]byte), &w); err != nil {
-		return nil, err
-	}
-
-	return &w, nil
 }

@@ -25,7 +25,7 @@ func marketTrigger(s *Artifice) error {
 			work = append(work, redisqueue.Work{Operation: "marketOrders", Parameter: region})
 		}
 	}
-	return s.QueueWork(work)
+	return s.QueueWork(work, redisqueue.Priority_Normal)
 }
 
 func historyTrigger(s *Artifice) error {
@@ -33,7 +33,7 @@ func historyTrigger(s *Artifice) error {
 	if hour == 1 {
 		work := []redisqueue.Work{}
 		work = append(work, redisqueue.Work{Operation: "marketHistoryTrigger", Parameter: true})
-		return s.QueueWork(work)
+		return s.QueueWork(work, redisqueue.Priority_High)
 	}
 	return nil
 }
@@ -58,5 +58,5 @@ func structuresTrigger(s *Artifice) error {
 		}
 	}
 
-	return s.QueueWork(work)
+	return s.QueueWork(work, redisqueue.Priority_Normal)
 }

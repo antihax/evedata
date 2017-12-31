@@ -84,7 +84,7 @@ func TestHammerService(t *testing.T) {
 	assert.Nil(t, err)
 
 	// Load the work into the queue
-	err = hammer.QueueWork(testWork)
+	err = hammer.QueueWork(testWork, redisqueue.Priority_Low)
 	assert.Nil(t, err)
 
 	time.Sleep(time.Second)

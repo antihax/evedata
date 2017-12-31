@@ -76,7 +76,7 @@ func localIntel(w http.ResponseWriter, r *http.Request) {
 	for _, name := range newNames {
 		work = append(work, redisqueue.Work{Operation: "charSearch", Parameter: name})
 	}
-	c.OutQueue.QueueWork(work)
+	c.OutQueue.QueueWork(work, redisqueue.Priority_Urgent)
 
 	v, err := models.GetLocalIntel(newNames)
 	if err != nil {

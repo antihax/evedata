@@ -28,6 +28,7 @@ func TestHQ(t *testing.T) {
 				6,
 			},
 		},
+		1,
 	)
 	assert.Nil(t, err)
 	size, err := hq.Size()
@@ -35,13 +36,11 @@ func TestHQ(t *testing.T) {
 	assert.Equal(t, 5, size)
 
 	var work []*Work
-
 	for i := 0; i < 5; i++ {
 		w, err := hq.GetWork()
 		assert.Nil(t, err)
 		work = append(work, w)
 	}
-
 	check := map[int]bool{2: true, 3: true, 4: true, 5: true, 6: true}
 
 	for i := range work {

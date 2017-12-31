@@ -24,7 +24,7 @@ func (s *Hammer) AddAlliance(allianceID int32) error {
 		if !s.inQueue.CheckWorkExpired("evedata_entity", int64(allianceID)) {
 			return s.inQueue.QueueWork([]redisqueue.Work{
 				{Operation: "alliance", Parameter: allianceID},
-			})
+			}, redisqueue.Priority_Low)
 		}
 	}
 	return nil
@@ -36,7 +36,7 @@ func (s *Hammer) AddCorporation(corporationID int32) error {
 		if !s.inQueue.CheckWorkExpired("evedata_entity", int64(corporationID)) {
 			return s.inQueue.QueueWork([]redisqueue.Work{
 				{Operation: "corporation", Parameter: corporationID},
-			})
+			}, redisqueue.Priority_Low)
 		}
 	}
 	return nil
@@ -48,7 +48,7 @@ func (s *Hammer) AddCharacter(characterID int32) error {
 		if !s.inQueue.CheckWorkExpired("evedata_entity", int64(characterID)) {
 			return s.inQueue.QueueWork([]redisqueue.Work{
 				{Operation: "character", Parameter: characterID},
-			})
+			}, redisqueue.Priority_Low)
 		}
 	}
 	return nil

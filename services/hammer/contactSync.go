@@ -3,6 +3,7 @@ package hammer
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -175,9 +176,10 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 
 		// Erase contacts which have no wars.
 		if len(erase) > 0 {
-			for start := 0; start < len(erase); start = start + 20 {
-				end := min(start+20, len(erase))
-				if _, err := s.esi.ESI.ContactsApi.DeleteCharactersCharacterIdContacts(auth, token.cid, erase[start:end], nil); err != nil {
+			for start := 0; start < len(erase); start = start + 100 {
+				end := min(start+100, len(erase))
+				//if _, err := s.esi.ESI.ContactsApi.DeleteCharactersCharacterIdContacts(auth, token.cid, erase[start:end], nil); err != nil {
+				if err := s.deleteContactsCREST(auth, token.cid, erase[start:end]); err != nil {
 					log.Println(err)
 					return
 				}
@@ -208,8 +210,8 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 
 		// Move contacts to active wars
 		if len(activeMove) > 0 {
-			for start := 0; start < len(activeMove); start = start + 20 {
-				end := min(start+20, len(activeMove))
+			for start := 0; start < len(activeMove); start = start + 100 {
+				end := min(start+100, len(activeMove))
 				if _, err := s.esi.ESI.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), activeMove[start:end], -10, nil); err != nil {
 					log.Println(err)
 					return
@@ -219,8 +221,8 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 
 		// Move contacts to pending wars
 		if len(pendingMove) > 0 {
-			for start := 0; start < len(pendingMove); start = start + 20 {
-				end := min(start+20, len(pendingMove))
+			for start := 0; start < len(pendingMove); start = start + 100 {
+				end := min(start+100, len(pendingMove))
 				if _, err := s.esi.ESI.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), pendingMove[start:end], -5, nil); err != nil {
 					log.Println(err)
 					return
@@ -229,6 +231,25 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 		}
 	}
 
+}
+
+func (s *Hammer) deleteContactsCREST(auth context.Context, characterID int32, contacts []int32) error {
+	names, _, err := s.esi.ESI.UniverseApi.PostUniverseNames(context.Background(), contacts, nil)
+	if err != nil {
+		return err
+	}
+
+	tokenSource, ok := auth.Value(goesi.ContextOAuth2).(oauth2.TokenSource)
+	if ok {
+		for _, erase := range names {
+			ref := fmt.Sprintf("https://crest-tq.eveonline.com/%ss/%d/", erase.Category, erase.Id)
+			err := s.esi.EVEAPI.ContactDeleteV1(tokenSource, int64(characterID), int64(erase.Id), ref)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func min(x, y int) int {

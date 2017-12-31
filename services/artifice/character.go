@@ -38,7 +38,7 @@ func characterTransactions(s *Artifice) error {
 
 	entities.Close()
 
-	return s.QueueWork(work)
+	return s.QueueWork(work, redisqueue.Priority_Normal)
 }
 
 func characterAssets(s *Artifice) error {
@@ -66,7 +66,7 @@ func characterAssets(s *Artifice) error {
 
 	entities.Close()
 
-	return s.QueueWork(work)
+	return s.QueueWork(work, redisqueue.Priority_Normal)
 }
 
 func characterNotifications(s *Artifice) error {
@@ -94,7 +94,7 @@ func characterNotifications(s *Artifice) error {
 
 	entities.Close()
 
-	return s.QueueWork(work)
+	return s.QueueWork(work, redisqueue.Priority_High)
 }
 
 func characterContactSync(s *Artifice) error {
@@ -132,5 +132,5 @@ func characterContactSync(s *Artifice) error {
 
 	entities.Close()
 
-	return s.QueueWork(work)
+	return s.QueueWork(work, redisqueue.Priority_Normal)
 }

@@ -112,8 +112,8 @@ func (s *Hammer) ChangeTokenPath(path string) {
 }
 
 // QueueWork directly
-func (s *Hammer) QueueWork(work []redisqueue.Work) error {
-	return s.inQueue.QueueWork(work)
+func (s *Hammer) QueueWork(work []redisqueue.Work, priority int) error {
+	return s.inQueue.QueueWork(work, priority)
 }
 
 // Run the hammer service

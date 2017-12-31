@@ -31,6 +31,7 @@ func (s *ZKillboard) redisQ() error {
 			err = s.outQueue.QueueWork(
 				[]redisqueue.Work{
 					{Operation: "killmail", Parameter: []interface{}{k.Package.ZKB.Hash, k.Package.KillID}}},
+				redisqueue.Priority_High,
 			)
 			if err != nil {
 				return err
@@ -89,7 +90,7 @@ func (s *ZKillboard) apiConsumer() error {
 			}
 		}
 
-		err = s.outQueue.QueueWork(kills)
+		err = s.outQueue.QueueWork(kills, redisqueue.Priority_Low)
 		if err != nil {
 			log.Println(err)
 		}
