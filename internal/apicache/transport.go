@@ -40,13 +40,20 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 		// We got a response
 		if res != nil {
+
 			// Get the ESI error information
 			resetS := res.Header.Get("x-esi-error-limit-reset")
 			tokensS := res.Header.Get("x-esi-error-limit-remain")
 
+			// Tick up and log any errors
 			if res.StatusCode >= 300 {
 				metricAPIErrors.Inc()
 				log.Printf("St: %d Res: %s Tok: %s - %s\n", res.StatusCode, resetS, tokensS, req.URL)
+			}
+
+			// Early out for "our bad" statuses
+			if res.StatusCode >= 400 && res.StatusCode < 420 {
+				return res, err
 			}
 
 			// If we cannot decode this is likely from another source.
