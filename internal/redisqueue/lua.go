@@ -43,7 +43,7 @@ then
             return item;
         end
     end
-return null;
+return nil;
 elseif action == 'count'
 then
     -- Define vars

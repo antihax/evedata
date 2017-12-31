@@ -2,7 +2,6 @@ package views
 
 import (
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -74,7 +73,6 @@ func apiAddLocatorShare(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := models.AddLocatorShare(characterID, int32(entity)); err != nil {
-		fmt.Println(err)
 		httpErrCode(w, err, http.StatusConflict)
 		return
 	}

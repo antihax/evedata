@@ -63,7 +63,6 @@ func killmailMaint(s *Artifice) error { // Broken into smaller chunks so we have
 		               `); err != nil {
 			return err
 		}
-		fmt.Println(4)
 	*/
 
 	if err := s.doSQL(`

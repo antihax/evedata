@@ -92,7 +92,6 @@ func (hq *RedisQueue) GetWork() (*Work, error) {
 	for {
 		v, err = hq.queueScript.Do(conn, "pop", hq.key)
 		if err != nil || v == nil {
-			fmt.Printf("%v %s\n", v, err)
 			time.Sleep(time.Millisecond * 100)
 			continue
 		}
