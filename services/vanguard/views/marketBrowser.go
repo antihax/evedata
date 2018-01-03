@@ -7,16 +7,16 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/antihax/evedata/evedata"
-	"github.com/antihax/evedata/models"
-	"github.com/antihax/evedata/templates"
+	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/models"
+	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	evedata.AddRoute("marketBrowser", "GET", "/marketBrowser", marketBrowser)
-	evedata.AddRoute("searchMarketItems", "GET", "/J/searchMarketItems", searchMarketItemsAPI)
-	evedata.AddRoute("marketSellRegionItems", "GET", "/J/marketSellRegionItems", MarketSellRegionItems)
-	evedata.AddRoute("marketBuyRegionItems", "GET", "/J/marketBuyRegionItems", MarketBuyRegionItems)
+	vanguard.AddRoute("marketBrowser", "GET", "/marketBrowser", marketBrowser)
+	vanguard.AddRoute("searchMarketItems", "GET", "/J/searchMarketItems", searchMarketItemsAPI)
+	vanguard.AddRoute("marketSellRegionItems", "GET", "/J/marketSellRegionItems", MarketSellRegionItems)
+	vanguard.AddRoute("marketBuyRegionItems", "GET", "/J/marketBuyRegionItems", MarketBuyRegionItems)
 }
 
 // marketBrowser generates.... stuff

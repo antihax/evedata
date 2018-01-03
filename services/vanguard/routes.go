@@ -1,4 +1,4 @@
-package evedata
+package vanguard
 
 import (
 	"context"
@@ -7,11 +7,9 @@ import (
 	"net/http"
 	"net/http/pprof"
 
-	"github.com/antihax/evedata/appContext"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // Context keys
@@ -56,13 +54,13 @@ func AddNotFoundHandler(handlerFunc http.HandlerFunc) {
 }
 
 // Middleware to add global AppContext to a request.Context
-func contextWithGlobals(ctx context.Context, a *appContext.AppContext) context.Context {
+func contextWithGlobals(ctx context.Context, a *Vanguard) context.Context {
 	return context.WithValue(ctx, globalsKey, a)
 }
 
 // GlobalsFromContext returns attached AppContext from a request.Context
-func GlobalsFromContext(ctx context.Context) *appContext.AppContext {
-	return ctx.Value(globalsKey).(*appContext.AppContext)
+func GlobalsFromContext(ctx context.Context) *Vanguard {
+	return ctx.Value(globalsKey).(*Vanguard)
 }
 
 // Middleware to add user session data to a request.Context
@@ -84,7 +82,7 @@ func SessionFromContext(ctx context.Context) *sessions.Session {
 // Handle authenticated requests
 func authedMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		ctx := contextWithGlobals(req.Context(), GetContext())
+		ctx := contextWithGlobals(req.Context(), globalVanguard)
 		ctx = contextWithSession(ctx, req)
 		next.ServeHTTP(rw, req.WithContext(ctx))
 	})
@@ -93,7 +91,7 @@ func authedMiddleware(next http.Handler) http.Handler {
 // Handle normal requests
 func middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		ctx := contextWithGlobals(req.Context(), GetContext())
+		ctx := contextWithGlobals(req.Context(), globalVanguard)
 		next.ServeHTTP(rw, req.WithContext(ctx))
 	})
 }
@@ -117,7 +115,7 @@ func ServeFavIconHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // NewRouter sets up the routes that were added.
-func NewRouter(ctx *appContext.AppContext) *mux.Router {
+func (ctx *Vanguard) NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(false)
 	// Add public routes
 	for _, route := range routes {

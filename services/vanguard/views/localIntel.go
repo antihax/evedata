@@ -8,20 +8,18 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/antihax/evedata/evedata"
 	"github.com/antihax/evedata/internal/redisqueue"
+	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/models"
+	"github.com/antihax/evedata/services/vanguard/templates"
 	"github.com/antihax/goesi"
-
-	"github.com/antihax/evedata/models"
-	"github.com/antihax/evedata/templates"
-
 	"github.com/garyburd/redigo/redis"
 )
 
 func init() {
-	evedata.AddRoute("localIntel", "GET", "/localIntel", localIntelPage)
-	evedata.AddRoute("localIntel", "POST", "/J/localIntel", localIntel)
-	evedata.AddRoute("localIntel", "GET", "/J/localIntel", localIntel)
+	vanguard.AddRoute("localIntel", "GET", "/localIntel", localIntelPage)
+	vanguard.AddRoute("localIntel", "POST", "/J/localIntel", localIntel)
+	vanguard.AddRoute("localIntel", "GET", "/J/localIntel", localIntel)
 }
 
 func localIntelPage(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +40,7 @@ func localIntelPage(w http.ResponseWriter, r *http.Request) {
 
 func localIntel(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*30)
-	c := evedata.GlobalsFromContext(r.Context())
+	c := vanguard.GlobalsFromContext(r.Context())
 
 	hash := r.FormValue("hash")
 	red := c.Cache.Get()

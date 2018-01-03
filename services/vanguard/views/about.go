@@ -4,12 +4,12 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/antihax/evedata/evedata"
-	"github.com/antihax/evedata/templates"
+	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	evedata.AddRoute("account", "GET", "/about", aboutPage)
+	vanguard.AddRoute("account", "GET", "/about", aboutPage)
 }
 
 func aboutPage(w http.ResponseWriter, r *http.Request) {

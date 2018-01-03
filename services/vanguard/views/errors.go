@@ -5,12 +5,12 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/antihax/evedata/evedata"
-	"github.com/antihax/evedata/templates"
+	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	evedata.AddNotFoundHandler(notFoundPage)
+	vanguard.AddNotFoundHandler(notFoundPage)
 }
 
 func httpErrCode(w http.ResponseWriter, err error, code int) {

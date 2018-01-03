@@ -6,16 +6,16 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/antihax/evedata/evedata"
-	"github.com/antihax/evedata/models"
-	"github.com/antihax/evedata/templates"
+	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/models"
+	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	evedata.AddRoute("ContactSync", "GET", "/contactSync", contactSyncPage)
-	evedata.AddAuthRoute("ContactSync", "PUT", "/U/contactSync", apiAddContactSync)
-	evedata.AddAuthRoute("ContactSync", "GET", "/U/contactSync", apiGetContactSyncs)
-	evedata.AddAuthRoute("ContactSync", "DELETE", "/U/contactSync", apiDeleteContactSync)
+	vanguard.AddRoute("ContactSync", "GET", "/contactSync", contactSyncPage)
+	vanguard.AddAuthRoute("ContactSync", "PUT", "/U/contactSync", apiAddContactSync)
+	vanguard.AddAuthRoute("ContactSync", "GET", "/U/contactSync", apiGetContactSyncs)
+	vanguard.AddAuthRoute("ContactSync", "DELETE", "/U/contactSync", apiDeleteContactSync)
 }
 
 func contactSyncPage(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +31,7 @@ func contactSyncPage(w http.ResponseWriter, r *http.Request) {
 
 func apiAddContactSync(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
 
 	type localContactSync struct {
 		Source      int `json:",string"`
@@ -64,7 +64,7 @@ func apiAddContactSync(w http.ResponseWriter, r *http.Request) {
 
 func apiGetContactSyncs(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
 
 	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
@@ -82,7 +82,7 @@ func apiGetContactSyncs(w http.ResponseWriter, r *http.Request) {
 
 func apiDeleteContactSync(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
 
 	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {

@@ -7,26 +7,26 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/antihax/evedata/evedata"
-	"github.com/antihax/evedata/models"
-	"github.com/antihax/evedata/templates"
+	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/models"
+	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 var validEntity map[string]bool
 
 func init() {
-	evedata.AddRoute("entity", "GET", "/alliance", alliancePage)
+	vanguard.AddRoute("entity", "GET", "/alliance", alliancePage)
 
-	evedata.AddRoute("entity", "GET", "/corporation", corporationPage)
-	evedata.AddRoute("entity", "GET", "/character", characterPage)
-	evedata.AddRoute("entity", "GET", "/J/warsForEntity", warsForEntityAPI)
-	evedata.AddRoute("entity", "GET", "/J/activityForEntity", activityForEntityAPI)
-	evedata.AddRoute("entity", "GET", "/J/assetsForEntity", assetsForEntityAPI)
-	evedata.AddRoute("entity", "GET", "/J/alliesForEntity", alliesForEntityAPI)
-	evedata.AddRoute("entity", "GET", "/J/shipsForEntity", shipsForEntityAPI)
-	evedata.AddRoute("entity", "GET", "/J/corporationHistory", corporationHistoryAPI)
-	evedata.AddRoute("entity", "GET", "/J/corporationsForAlliance", corporationsForAllianceAPI)
-	evedata.AddRoute("entity", "GET", "/J/knownAssociatesForEntity", knownAssociatesForEntityAPI)
+	vanguard.AddRoute("entity", "GET", "/corporation", corporationPage)
+	vanguard.AddRoute("entity", "GET", "/character", characterPage)
+	vanguard.AddRoute("entity", "GET", "/J/warsForEntity", warsForEntityAPI)
+	vanguard.AddRoute("entity", "GET", "/J/activityForEntity", activityForEntityAPI)
+	vanguard.AddRoute("entity", "GET", "/J/assetsForEntity", assetsForEntityAPI)
+	vanguard.AddRoute("entity", "GET", "/J/alliesForEntity", alliesForEntityAPI)
+	vanguard.AddRoute("entity", "GET", "/J/shipsForEntity", shipsForEntityAPI)
+	vanguard.AddRoute("entity", "GET", "/J/corporationHistory", corporationHistoryAPI)
+	vanguard.AddRoute("entity", "GET", "/J/corporationsForAlliance", corporationsForAllianceAPI)
+	vanguard.AddRoute("entity", "GET", "/J/knownAssociatesForEntity", knownAssociatesForEntityAPI)
 
 	validEntity = map[string]bool{"alliance": true, "corporation": true, "character": true}
 }

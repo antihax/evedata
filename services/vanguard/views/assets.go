@@ -8,16 +8,16 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/antihax/evedata/evedata"
-	"github.com/antihax/evedata/models"
-	"github.com/antihax/evedata/templates"
+	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/models"
+	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	evedata.AddRoute("assets", "GET", "/assets", assetsPage)
-	evedata.AddAuthRoute("assets", "GET", "/U/assets", assetsAPI)
-	evedata.AddAuthRoute("assets", "GET", "/U/assetLocations", assetLocationsAPI)
-	evedata.AddAuthRoute("assets", "GET", "/U/assetCharacters", assetCharactersAPI)
+	vanguard.AddRoute("assets", "GET", "/assets", assetsPage)
+	vanguard.AddAuthRoute("assets", "GET", "/U/assets", assetsAPI)
+	vanguard.AddAuthRoute("assets", "GET", "/U/assetLocations", assetLocationsAPI)
+	vanguard.AddAuthRoute("assets", "GET", "/U/assetCharacters", assetCharactersAPI)
 }
 
 func assetsPage(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +34,7 @@ func assetsPage(w http.ResponseWriter, r *http.Request) {
 func assetCharactersAPI(w http.ResponseWriter, r *http.Request) {
 	var err error
 	setCache(w, 5*60)
-	s := evedata.SessionFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)
@@ -55,7 +55,7 @@ func assetCharactersAPI(w http.ResponseWriter, r *http.Request) {
 func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
 	var err error
 	setCache(w, 5*60)
-	s := evedata.SessionFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)
@@ -92,7 +92,7 @@ func assetsAPI(w http.ResponseWriter, r *http.Request) {
 	)
 
 	setCache(w, 5*60)
-	s := evedata.SessionFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)

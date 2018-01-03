@@ -7,14 +7,14 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/antihax/evedata/evedata"
-	"github.com/antihax/evedata/models"
-	"github.com/antihax/evedata/templates"
+	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/models"
+	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	evedata.AddRoute("profitandloss", "GET", "/profitAndLoss", profitAndLossPage)
-	evedata.AddAuthRoute("profitandloss", "GET", "/U/walletSummary", walletSummaryAPI)
+	vanguard.AddRoute("profitandloss", "GET", "/profitAndLoss", profitAndLossPage)
+	vanguard.AddAuthRoute("profitandloss", "GET", "/U/walletSummary", walletSummaryAPI)
 }
 
 func profitAndLossPage(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +35,7 @@ func walletSummaryAPI(w http.ResponseWriter, r *http.Request) {
 	)
 
 	setCache(w, 5*60)
-	s := evedata.SessionFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)

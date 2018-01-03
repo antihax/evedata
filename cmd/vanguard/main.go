@@ -1,33 +1,51 @@
-package evedata
+package main
 
 import (
-	"encoding/gob"
-	"os"
-	"strings"
-
 	"log"
 	"net/http"
 
-	"github.com/antihax/evedata/appContext"
-	"github.com/antihax/evedata/config"
-	"github.com/antihax/evedata/internal/apicache"
-	"github.com/antihax/evedata/internal/redisqueue"
-	"github.com/antihax/evedata/internal/tokenstore"
+	"os"
+	"os/signal"
+	"syscall"
 
-	"github.com/antihax/evedata/models"
-	"github.com/antihax/goesi"
-
-	gsr "github.com/antihax/redistore"
+	"github.com/antihax/evedata/internal/redigohelper"
+	"github.com/antihax/evedata/internal/sqlhelper"
+	"github.com/antihax/evedata/services/vanguard"
+	_ "github.com/antihax/evedata/services/vanguard/views"
 	"github.com/gorilla/context"
-	"golang.org/x/oauth2"
 )
 
-var ctx appContext.AppContext
+func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetPrefix("evedata vanguard: ")
 
-// GetContext Returns the global appContext for EVEData Server
-func GetContext() *appContext.AppContext {
-	return &ctx
+	redis := redigohelper.ConnectRedisProdPool()
+	db := sqlhelper.NewDatabase()
+
+	// Make a new service and send it into the background.
+	vanguard := vanguard.NewVanguard(redis, db,
+		os.Getenv("ESI_CLIENTID"),
+		os.Getenv("ESI_SECRET"),
+		os.Getenv("ESI_REFRESHKEY"),
+		os.Getenv("ESI_CLIENTID_TOKENSTORE"),
+		os.Getenv("ESI_SECRET_TOKENSTORE"),
+		os.Getenv("ESI_CLIENTID_SSO"),
+		os.Getenv("ESI_SECRET_SSO"),
+		os.Getenv("COOKIE_SECRET"),
+	)
+
+	rtr := vanguard.NewRouter()
+	defer vanguard.Close()
+
+	go log.Fatalln(http.ListenAndServe(":3000", context.ClearHandler(rtr)))
+
+	// Handle SIGINT and SIGTERM.
+	ch := make(chan os.Signal)
+	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
+	log.Println(<-ch)
 }
+
+/*
 
 // GoServer Runs the EVEData Server
 func GoServer() {
@@ -153,3 +171,4 @@ func GoServer() {
 	http.ListenAndServe(":3000", context.ClearHandler(rtr))
 	log.Printf("EveData Quitting..\n")
 }
+*/

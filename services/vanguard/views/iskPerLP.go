@@ -5,15 +5,15 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/antihax/evedata/evedata"
-	"github.com/antihax/evedata/models"
-	"github.com/antihax/evedata/templates"
+	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/models"
+	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	evedata.AddRoute("iskPerLP", "GET", "/iskPerLP", iskPerLPPage)
-	evedata.AddRoute("iskPerLPCorpss", "GET", "/J/iskPerLPCorps", iskPerLPCorps)
-	evedata.AddRoute("iskPerLP", "GET", "/J/iskPerLP", iskPerLP)
+	vanguard.AddRoute("iskPerLP", "GET", "/iskPerLP", iskPerLPPage)
+	vanguard.AddRoute("iskPerLPCorpss", "GET", "/J/iskPerLPCorps", iskPerLPCorps)
+	vanguard.AddRoute("iskPerLP", "GET", "/J/iskPerLP", iskPerLP)
 }
 
 func iskPerLPPage(w http.ResponseWriter, r *http.Request) {

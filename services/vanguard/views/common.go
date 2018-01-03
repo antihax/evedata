@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/antihax/evedata/appContext"
+	"github.com/antihax/evedata/services/vanguard"
 
 	"github.com/antihax/goesi"
 	"github.com/gorilla/sessions"
@@ -33,7 +33,7 @@ func setCache(w http.ResponseWriter, cacheTime int) {
 }
 
 // getCursorCharacterAuth takes a session and returns the auth context or error
-func getCursorCharacterAuth(ctx *appContext.AppContext, s *sessions.Session) (context.Context, error) {
+func getCursorCharacterAuth(ctx *vanguard.Vanguard, s *sessions.Session) (context.Context, error) {
 	accountInfo, ok := s.Values["accountInfo"].([]byte)
 	if !ok {
 		return nil, errors.New("Cannot access account info")
@@ -54,7 +54,7 @@ func getCursorCharacterAuth(ctx *appContext.AppContext, s *sessions.Session) (co
 }
 
 // getAccountInformation takes a session and returns the account information or error
-func getAccountInformation(ctx *appContext.AppContext, s *sessions.Session) (*accountInformation, error) {
+func getAccountInformation(ctx *vanguard.Vanguard, s *sessions.Session) (*accountInformation, error) {
 	accountInfo, ok := s.Values["accountInfo"].([]byte)
 	if !ok {
 		return nil, errors.New("Cannot access account info")

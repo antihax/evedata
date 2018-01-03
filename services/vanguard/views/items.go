@@ -7,15 +7,16 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/antihax/evedata/evedata"
 	"github.com/antihax/evedata/internal/strip"
-	"github.com/antihax/evedata/models"
-	"github.com/antihax/evedata/templates"
+
+	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/models"
+	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	evedata.AddRoute("items", "GET", "/item", itemPage)
-	evedata.AddRoute("items", "GET", "/J/marketHistory", marketHistory)
+	vanguard.AddRoute("items", "GET", "/item", itemPage)
+	vanguard.AddRoute("items", "GET", "/J/marketHistory", marketHistory)
 }
 
 func itemPage(w http.ResponseWriter, r *http.Request) {

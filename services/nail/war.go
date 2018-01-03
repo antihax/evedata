@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/antihax/evedata/internal/gobcoder"
-	"github.com/antihax/evedata/models"
+	"github.com/antihax/evedata/services/vanguard/models"
 	"github.com/antihax/goesi/esi"
 	nsq "github.com/nsqio/go-nsq"
 )

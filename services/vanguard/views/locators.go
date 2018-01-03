@@ -6,19 +6,19 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/antihax/evedata/evedata"
-	"github.com/antihax/evedata/models"
-	"github.com/antihax/evedata/templates"
+	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/models"
+	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	evedata.AddRoute("locatorShares", "GET", "/locatorShares", locatorSharesPage)
-	evedata.AddAuthRoute("locatorShares", "GET", "/U/locatorShares", apiGetLocatorShares)
-	evedata.AddAuthRoute("locatorShares", "DELETE", "/U/locatorShares", apiDeleteLocatorShare)
-	evedata.AddAuthRoute("locatorShares", "POST", "/U/locatorShares", apiAddLocatorShare)
+	vanguard.AddRoute("locatorShares", "GET", "/locatorShares", locatorSharesPage)
+	vanguard.AddAuthRoute("locatorShares", "GET", "/U/locatorShares", apiGetLocatorShares)
+	vanguard.AddAuthRoute("locatorShares", "DELETE", "/U/locatorShares", apiDeleteLocatorShare)
+	vanguard.AddAuthRoute("locatorShares", "POST", "/U/locatorShares", apiAddLocatorShare)
 
-	evedata.AddRoute("locators", "GET", "/locatorResponses", locatorResponsesPage)
-	evedata.AddAuthRoute("locators", "GET", "/U/locatorResponses", apiGetLocatorResponses)
+	vanguard.AddRoute("locators", "GET", "/locatorResponses", locatorResponsesPage)
+	vanguard.AddAuthRoute("locators", "GET", "/U/locatorResponses", apiGetLocatorResponses)
 }
 
 func locatorSharesPage(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +34,7 @@ func locatorSharesPage(w http.ResponseWriter, r *http.Request) {
 
 func apiDeleteLocatorShare(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)
@@ -57,7 +57,7 @@ func apiDeleteLocatorShare(w http.ResponseWriter, r *http.Request) {
 
 func apiAddLocatorShare(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)
@@ -80,7 +80,7 @@ func apiAddLocatorShare(w http.ResponseWriter, r *http.Request) {
 
 func apiGetLocatorShares(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)
@@ -116,8 +116,8 @@ func locatorResponsesPage(w http.ResponseWriter, r *http.Request) {
 
 func apiGetLocatorResponses(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
-	c := evedata.GlobalsFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
+	c := vanguard.GlobalsFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)

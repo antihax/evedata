@@ -10,24 +10,24 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/antihax/evedata/evedata"
-	"github.com/antihax/evedata/models"
+	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/models"
 	"github.com/gorilla/sessions"
 )
 
 func init() {
-	evedata.AddAuthRoute("logout", "GET", "/X/logout", logout)
+	vanguard.AddAuthRoute("logout", "GET", "/X/logout", logout)
 
-	evedata.AddAuthRoute("eveAuth", "GET", "/X/eveAuth", eveSSO)
-	evedata.AddAuthRoute("eveSSOAnswer", "GET", "/X/eveSSOAnswer", eveSSOAnswer)
+	vanguard.AddAuthRoute("eveAuth", "GET", "/X/eveAuth", eveSSO)
+	vanguard.AddAuthRoute("eveSSOAnswer", "GET", "/X/eveSSOAnswer", eveSSOAnswer)
 
-	evedata.AddAuthRoute("eveTokenAuth", "GET", "/X/eveTokenAuth", eveCRESTToken)
-	evedata.AddAuthRoute("eveTokenAnswer", "GET", "/X/eveTokenAnswer", eveTokenAnswer)
+	vanguard.AddAuthRoute("eveTokenAuth", "GET", "/X/eveTokenAuth", eveCRESTToken)
+	vanguard.AddAuthRoute("eveTokenAnswer", "GET", "/X/eveTokenAnswer", eveTokenAnswer)
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
 	s.Options.MaxAge = -1
 	err := s.Save(r, w)
 	if err != nil {
@@ -41,8 +41,8 @@ func logout(w http.ResponseWriter, r *http.Request) {
 
 func eveSSO(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
-	c := evedata.GlobalsFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
+	c := vanguard.GlobalsFromContext(r.Context())
 
 	b := make([]byte, 16)
 	rand.Read(b)
@@ -63,8 +63,8 @@ func eveSSO(w http.ResponseWriter, r *http.Request) {
 
 func eveSSOAnswer(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
-	c := evedata.GlobalsFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
+	c := vanguard.GlobalsFromContext(r.Context())
 
 	code := r.FormValue("code")
 	state := r.FormValue("state")
@@ -145,8 +145,8 @@ func updateAccountInfo(s *sessions.Session, characterID int32, characterName str
 
 func eveCRESTToken(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
-	c := evedata.GlobalsFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
+	c := vanguard.GlobalsFromContext(r.Context())
 
 	var scopes []string
 
@@ -193,8 +193,8 @@ func eveCRESTToken(w http.ResponseWriter, r *http.Request) {
 
 func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
-	c := evedata.GlobalsFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
+	c := vanguard.GlobalsFromContext(r.Context())
 
 	code := r.FormValue("code")
 	state := r.FormValue("state")

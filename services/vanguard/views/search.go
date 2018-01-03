@@ -6,15 +6,15 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/antihax/evedata/evedata"
-	"github.com/antihax/evedata/models"
+	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/models"
 )
 
 func init() {
 	// Add routes to the http router
-	evedata.AddRoute("searchItems", "GET", "/J/search", searchAPI)
-	evedata.AddRoute("searchItems", "GET", "/J/searchEntities", searchEntitiesAPI)
-	evedata.AddRoute("searchItems", "GET", "/search", searchRouter)
+	vanguard.AddRoute("searchItems", "GET", "/J/search", searchAPI)
+	vanguard.AddRoute("searchItems", "GET", "/J/searchEntities", searchEntitiesAPI)
+	vanguard.AddRoute("searchItems", "GET", "/search", searchRouter)
 }
 
 // searchAPI for characters, alliances, corporations, and items.

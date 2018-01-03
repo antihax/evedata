@@ -7,7 +7,7 @@ import (
 	"github.com/antihax/evedata/internal/apicache"
 	"github.com/antihax/evedata/internal/redigohelper"
 	"github.com/antihax/evedata/internal/sqlhelper"
-	"github.com/antihax/evedata/models"
+	"github.com/antihax/evedata/services/vanguard/models"
 	"github.com/antihax/goesi"
 	"golang.org/x/oauth2"
 )

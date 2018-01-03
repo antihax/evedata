@@ -4,12 +4,12 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/antihax/evedata/evedata"
-	"github.com/antihax/evedata/templates"
+	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	evedata.AddRoute("ecmjam", "GET", "/ecmjam", ecmjamPage)
+	vanguard.AddRoute("ecmjam", "GET", "/ecmjam", ecmjamPage)
 }
 
 func ecmjamPage(w http.ResponseWriter, r *http.Request) {

@@ -11,19 +11,19 @@ import (
 
 	"github.com/antihax/goesi"
 
-	"github.com/antihax/evedata/evedata"
-	"github.com/antihax/evedata/models"
-	"github.com/antihax/evedata/templates"
+	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/models"
+	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	evedata.AddRoute("account", "GET", "/account", accountPage)
+	vanguard.AddRoute("account", "GET", "/account", accountPage)
 
-	evedata.AddAuthRoute("account", "GET", "/X/accountInfo", accountInfo)
-	evedata.AddAuthRoute("account", "POST", "/X/cursorChar", cursorChar)
+	vanguard.AddAuthRoute("account", "GET", "/X/accountInfo", accountInfo)
+	vanguard.AddAuthRoute("account", "POST", "/X/cursorChar", cursorChar)
 
-	evedata.AddAuthRoute("crestTokens", "GET", "/U/crestTokens", apiGetCRESTTokens)
-	evedata.AddAuthRoute("crestTokens", "DELETE", "/U/crestTokens", apiDeleteCRESTToken)
+	vanguard.AddAuthRoute("crestTokens", "GET", "/U/crestTokens", apiGetCRESTTokens)
+	vanguard.AddAuthRoute("crestTokens", "DELETE", "/U/crestTokens", apiDeleteCRESTToken)
 
 }
 
@@ -43,7 +43,7 @@ func accountPage(w http.ResponseWriter, r *http.Request) {
 func accountInfo(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 
-	s := evedata.SessionFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)
@@ -78,7 +78,7 @@ func accountInfo(w http.ResponseWriter, r *http.Request) {
 
 func cursorChar(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)
@@ -121,7 +121,7 @@ func cursorChar(w http.ResponseWriter, r *http.Request) {
 
 func apiGetCRESTTokens(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)
@@ -151,8 +151,8 @@ func apiGetCRESTTokens(w http.ResponseWriter, r *http.Request) {
 
 func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
-	g := evedata.GlobalsFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
+	g := vanguard.GlobalsFromContext(r.Context())
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {

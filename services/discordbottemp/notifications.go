@@ -7,7 +7,7 @@ import (
 
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/gobcoder"
-	"github.com/antihax/evedata/models"
+	"github.com/antihax/evedata/services/vanguard/models"
 	nsq "github.com/nsqio/go-nsq"
 	yaml "gopkg.in/yaml.v2"
 )

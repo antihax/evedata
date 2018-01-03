@@ -1,9 +1,0 @@
-FROM scratch
-
-ADD templates /templates
-ADD static /static
-ADD bin/monolith /
-
-ENTRYPOINT ["/monolith"]
-
-EXPOSE 3000

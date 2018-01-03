@@ -4,19 +4,19 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/antihax/evedata/evedata"
+	"github.com/antihax/evedata/services/vanguard"
 )
 
 func init() {
-	evedata.AddAuthRoute("ui-control", "POST", "/X/setDestination", setDestination)
-	evedata.AddAuthRoute("ui-control", "POST", "/X/addDestination", addDestination)
-	evedata.AddAuthRoute("ui-control", "POST", "/X/openMarketWindow", openMarketWindow)
+	vanguard.AddAuthRoute("ui-control", "POST", "/X/setDestination", setDestination)
+	vanguard.AddAuthRoute("ui-control", "POST", "/X/addDestination", addDestination)
+	vanguard.AddAuthRoute("ui-control", "POST", "/X/openMarketWindow", openMarketWindow)
 }
 
 func openMarketWindow(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
-	c := evedata.GlobalsFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
+	c := vanguard.GlobalsFromContext(r.Context())
 
 	// Get the sessions main characterID
 	_, ok := s.Values["characterID"].(int32)
@@ -54,8 +54,8 @@ func openMarketWindow(w http.ResponseWriter, r *http.Request) {
 
 func setDestination(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
-	c := evedata.GlobalsFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
+	c := vanguard.GlobalsFromContext(r.Context())
 
 	// Get the sessions main characterID
 	_, ok := s.Values["characterID"].(int32)
@@ -93,8 +93,8 @@ func setDestination(w http.ResponseWriter, r *http.Request) {
 
 func addDestination(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := evedata.SessionFromContext(r.Context())
-	c := evedata.GlobalsFromContext(r.Context())
+	s := vanguard.SessionFromContext(r.Context())
+	c := vanguard.GlobalsFromContext(r.Context())
 
 	// Get the sessions main characterID
 	_, ok := s.Values["characterID"].(int32)

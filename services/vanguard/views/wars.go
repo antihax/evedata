@@ -5,18 +5,18 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/antihax/evedata/evedata"
-	"github.com/antihax/evedata/models"
-	"github.com/antihax/evedata/templates"
+	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/models"
+	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	evedata.AddRoute("wars", "GET", "/activeWars", activeWarsPage)
-	evedata.AddRoute("wars", "GET", "/J/activeWars", activeWars)
-	evedata.AddRoute("wars", "GET", "/lostFighters", lostFightersPage)
-	evedata.AddRoute("wars", "GET", "/J/lostFighters", lostFighters)
-	evedata.AddRoute("wars", "GET", "/lossesInHighsec", lossesInHighsecPage)
-	evedata.AddRoute("wars", "GET", "/J/lossesInHighsec", lossesInHighsec)
+	vanguard.AddRoute("wars", "GET", "/activeWars", activeWarsPage)
+	vanguard.AddRoute("wars", "GET", "/J/activeWars", activeWars)
+	vanguard.AddRoute("wars", "GET", "/lostFighters", lostFightersPage)
+	vanguard.AddRoute("wars", "GET", "/J/lostFighters", lostFighters)
+	vanguard.AddRoute("wars", "GET", "/lossesInHighsec", lossesInHighsecPage)
+	vanguard.AddRoute("wars", "GET", "/J/lossesInHighsec", lossesInHighsec)
 }
 
 func activeWarsPage(w http.ResponseWriter, r *http.Request) {
