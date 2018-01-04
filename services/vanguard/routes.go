@@ -111,7 +111,12 @@ func attachProfiler(router *mux.Router) {
 
 // ServeFavIconHandler deals with favicon.ico
 func ServeFavIconHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "static/favicon/favicon.ico")
+	http.ServeFile(w, r, "static/favicon.ico")
+}
+
+// ServeAdsHandler deals with ads.txt
+func ServeAdsHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "static/ads.txt")
 }
 
 // NewRouter sets up the routes that were added.
@@ -137,7 +142,7 @@ func (ctx *Vanguard) NewRouter() *mux.Router {
 
 	// Serve FavIcon
 	router.Methods("GET").Path("/favicon.ico").HandlerFunc(ServeFavIconHandler)
-
+	router.Methods("GET").Path("/ads.txt").HandlerFunc(ServeAdsHandler)
 	// Serve CSS
 	router.PathPrefix("/css/").Handler(http.StripPrefix("/css/",
 		http.FileServer(http.Dir("static/css"))))

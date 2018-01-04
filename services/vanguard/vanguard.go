@@ -79,6 +79,7 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, clientID, secret, refresh, toke
 		log.Fatalln(err)
 	}
 
+	// create Token Store
 	tokenStore := tokenstore.NewTokenStore(redis, db, tauth)
 
 	// Create a redis session store.
@@ -86,6 +87,9 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, clientID, secret, refresh, toke
 	if err != nil {
 		log.Fatalf("Cannot build redis store: %v", err)
 	}
+	// Set options for the store
+	store.SetMaxLength(1024 * 10)
+	store.Options.Domain = "evedata.org"
 
 	// Setup a new Vanguard
 	globalVanguard = &Vanguard{

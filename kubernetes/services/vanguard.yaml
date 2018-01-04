@@ -1,0 +1,90 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: evedata-vanguard
+  namespace: evedata
+spec:
+  replicas: 3
+  template:
+    metadata:
+      name: evedata-vanguard
+      labels:
+        app: vanguard
+      annotations:
+        prometheus.io/scrape: "true"
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - vanguard
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: evedata-vanguard
+        image: antihax/evedata-vanguard
+        imagePullPolicy: Always
+        env:
+        - name: SQLAUTH
+          valueFrom:
+            secretKeyRef:
+              name: sql-password
+              key: sqlauth
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-password
+              key: password
+        - name: ESI_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: secret
+        - name: ESI_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: clientID
+        - name: ESI_REFRESHKEY
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: refreshKey
+        - name: ESI_SECRET_TOKENSTORE
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: secret-tokenstore
+        - name: ESI_CLIENTID_TOKENSTORE
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: clientID-tokenstore
+        - name: ESI_SECRET_SSO
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: secret-sso
+        - name: ESI_CLIENTID_SSO
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: clientID-sso
+        - name: COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: cookie-secret
+              key: cookie-secret
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - mountPath: /etc/ssl/certs
+          name: ca-certs
+      volumes:
+      - name: ca-certs
+        hostPath:
+          path: /etc/ssl/certs
+          type: Directory
