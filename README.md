@@ -23,7 +23,7 @@ You will need:
 | ------------- |:-------------:| 
 | Artifice      | Task scheduler | 
 | DiscordBotTemp    | Temporary hacks to provide feasibility tests for a discord bot | 
-| Hammer | ESI Consimer |  
+| Hammer | ESI Consumer |  
 | Nail | Database store |  
 | Vanguard | Web Front End|  
 | ZKillboard | ZKillboard API and RedisQ Consumer |  
