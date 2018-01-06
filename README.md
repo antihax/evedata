@@ -20,7 +20,7 @@ You will need:
 ### Services
 
 | Service        | Description | 
-| ------------- |:-------------:| 
+| ------------- |-------------| 
 | Artifice      | Task scheduler | 
 | DiscordBotTemp    | Temporary hacks to provide feasibility tests for a discord bot | 
 | Hammer | ESI Consumer |  
