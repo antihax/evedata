@@ -6,4 +6,5 @@ evedata-server
 debug
 profile.out
 coverage.txt
+teamspeakToken.txt
 /bin/*

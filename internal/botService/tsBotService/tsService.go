@@ -1,4 +1,4 @@
-package discordService
+package tsBotService
 
 import (
 	"github.com/Darfk/ts3"
@@ -15,6 +15,7 @@ func NewTSService(address, user, pass string) (*TSService, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	_, err = conn.Exec(ts3.Login(user, pass))
 	if err != nil {
 		return nil, err
