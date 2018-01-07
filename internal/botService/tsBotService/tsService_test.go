@@ -10,4 +10,7 @@ func TestHQ(t *testing.T) {
 	ts, err := NewTSService("localhost:10011", "serveradmin", "nothinguseful")
 	assert.Nil(t, err)
 	assert.NotNil(t, ts)
+	serverList, err := ts.GetServerList()
+	assert.Nil(t, err)
+	assert.NotNil(t, serverList)
 }
