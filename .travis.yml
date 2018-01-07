@@ -17,9 +17,9 @@ services:
 before_install:
   - ./mock.sh
   - mysql -e "CREATE DATABASE eve"
-  - unzip ./sql/eve.zip -d ./sql/
-  - mysql -Deve < ./sql/eve.sql
-  - mysql < ./sql/evedata.sql
+  - unzip ./services/vanguard/sql/eve.zip -d ./services/vanguard/sql/
+  - mysql -Deve < ./services/vanguard/sql/eve.sql
+  - mysql < ./services/vanguard/sql/evedata.sql
 
 after_success:
   - ./test.sh
