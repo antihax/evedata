@@ -11,6 +11,7 @@ import (
 	"github.com/antihax/evedata/internal/redigohelper"
 	"github.com/antihax/evedata/internal/sqlhelper"
 	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/models"
 	_ "github.com/antihax/evedata/services/vanguard/views"
 	"github.com/gorilla/context"
 )
@@ -19,11 +20,11 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetPrefix("evedata vanguard: ")
 
-	redis := redigohelper.ConnectRedisProdPool()
+	r := redigohelper.ConnectRedisProdPool()
 	db := sqlhelper.NewDatabase()
 
 	// Make a new service and send it into the background.
-	vanguard := vanguard.NewVanguard(redis, db,
+	vanguard := vanguard.NewVanguard(r, db,
 		os.Getenv("ESI_CLIENTID"),
 		os.Getenv("ESI_SECRET"),
 		os.Getenv("ESI_REFRESHKEY"),
@@ -33,12 +34,33 @@ func main() {
 		os.Getenv("ESI_SECRET_SSO"),
 		os.Getenv("COOKIE_SECRET"),
 	)
-
+	log.Printf("Setup Router\n")
 	rtr := vanguard.NewRouter()
 	defer vanguard.Close()
 
+	// Handle command line arguments
+	if len(os.Args) > 1 {
+		if os.Args[1] == "dumpdb" {
+			// Dump the database to sql file.
+			log.Printf("Dumping Database to evedata.sql\n")
+			err := models.DumpDatabase("./sql/evedata.sql", "evedata")
+			if err != nil {
+				log.Fatalln(err)
+			}
+
+		} else if os.Args[1] == "flushredis" {
+			// Erase everything in redis for modified deployments
+			log.Printf("Flushing Redis\n")
+			conn := r.Get()
+			conn.Do("FLUSHALL")
+			conn.Close()
+		}
+	}
+
+	log.Printf("Start Listening\n")
 	go log.Fatalln(http.ListenAndServe(":3000", context.ClearHandler(rtr)))
 
+	log.Printf("In production\n")
 	// Handle SIGINT and SIGTERM.
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
