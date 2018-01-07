@@ -3,7 +3,7 @@ package models
 import "testing"
 
 func TestGetEntityName(t *testing.T) {
-	_, err := GetEntityName(1)
+	_, err := GetEntityName(2)
 	if err != nil {
 		t.Error(err)
 		return

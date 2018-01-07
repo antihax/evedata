@@ -11,7 +11,7 @@ func TestAddLocatorShare(t *testing.T) {
 }
 
 func TestGetLocatorShares(t *testing.T) {
-	_, err := GetLocatorShares(1)
+	_, err := GetLocatorShares(2)
 	if err != nil {
 		t.Error(err)
 		return
