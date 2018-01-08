@@ -1,7 +1,9 @@
 package tsBotService
 
 import (
-	"github.com/Darfk/ts3"
+	"strconv"
+
+	ts3 "github.com/multiplay/go-ts3"
 )
 
 // AuthService provides access to a discord session
@@ -16,7 +18,7 @@ func NewTSService(address, user, pass string) (*TSService, error) {
 		return nil, err
 	}
 
-	_, err = conn.Exec(ts3.Login(user, pass))
+	err = conn.Login(user, pass)
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +28,7 @@ func NewTSService(address, user, pass string) (*TSService, error) {
 
 // GetServerList gets the available TS3 virtual servers
 func (c *TSService) UseServer(serverID int) error {
-	_, err := c.session.Exec(ts3.Use(serverID))
+	err := c.session.Use(serverID)
 	if err != nil {
 		return err
 	}
@@ -35,25 +37,63 @@ func (c *TSService) UseServer(serverID int) error {
 }
 
 // GetServerList gets the available TS3 virtual servers
-func (c *TSService) GetServerList() ([]map[string]string, error) {
-	res, err := c.session.Exec(ts3.Command{
-		Command: "serverlist",
-	})
+func (c *TSService) GetServerList() (map[string]string, error) {
+	list, err := c.session.Server.List()
 	if err != nil {
 		return nil, err
 	}
 
-	return res.Params, nil
+	servers := make(map[string]string)
+	for _, server := range list {
+		servers[strconv.Itoa(server.ID)] = server.Name
+	}
+
+	return servers, nil
 }
 
-// SendMessageToChannel sends a message to a discord channel ID
+// GetChannelList gets the available TS3 channels
+func (c *TSService) GetChannelList() (map[string]string, error) {
+	list, err := c.session.Server.ChannelList()
+	if err != nil {
+		return nil, err
+	}
+
+	channels := make(map[string]string)
+	for _, channel := range list {
+		channels[strconv.Itoa(channel.ID)] = channel.ChannelName
+	}
+
+	return channels, nil
+}
+
+// SendMessageToChannel sends a message to a channel ID
 func (c *TSService) SendMessageToChannel(channel, message string) error {
-	return nil
+	_, err := c.session.ExecCmd(ts3.NewCmd("sendtextmessage").WithArgs(
+		ts3.NewArg("targetmode", "2"),
+		ts3.NewArg("target", channel),
+		ts3.NewArg("msg", message),
+	))
+	return err
 }
 
 // SendMessageToUser sends a message to a discord user ID
 func (c *TSService) SendMessageToUser(user, message string) error {
-	return nil
+	_, err := c.session.ExecCmd(ts3.NewCmd("sendtextmessage").WithArgs(
+		ts3.NewArg("targetmode", "1"),
+		ts3.NewArg("target", user),
+		ts3.NewArg("msg", message),
+	))
+	return err
+}
+
+// SendMessageToUser sends a message to a discord user ID
+func (c *TSService) SendMessageToServer(user, message string) error {
+	_, err := c.session.ExecCmd(ts3.NewCmd("sendtextmessage").WithArgs(
+		ts3.NewArg("targetmode", "3"),
+		ts3.NewArg("target", user),
+		ts3.NewArg("msg", message),
+	))
+	return err
 }
 
 // KickUser kicks a discord user ID
