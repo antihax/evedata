@@ -38,7 +38,7 @@ type Vanguard struct {
 
 var globalVanguard *Vanguard
 
-func NewVanguard(redis *redis.Pool, db *sqlx.DB, clientID, secret, refresh, tokenClientID, tokenSecret string, ssoClientID, ssoSecret string, storeKey string) *Vanguard {
+func NewVanguard(redis *redis.Pool, db *sqlx.DB, clientID, secret, refresh, tokenClientID, tokenSecret string, ssoClientID, ssoSecret string, storeKey string, domain string) *Vanguard {
 	// Don't allow more than one to be created
 	if globalVanguard != nil {
 		return globalVanguard
@@ -55,16 +55,16 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, clientID, secret, refresh, toke
 	esi := goesi.NewAPIClient(cache, "EVEData-API-Vanguard")
 
 	// Setup an authenticator for our user tokens
-	tauth := goesi.NewSSOAuthenticator(cache, tokenClientID, tokenSecret, "", []string{})
+	tauth := goesi.NewSSOAuthenticator(cache, tokenClientID, tokenSecret, "https://"+domain+"/X/bootstrapEveSSOAnswer", []string{})
 
 	// Setup an authenticator for our private token
-	pauth := goesi.NewSSOAuthenticator(cache, clientID, secret, "",
+	pauth := goesi.NewSSOAuthenticator(cache, clientID, secret, "https://"+domain+"/X/eveTokenAnswer",
 		[]string{"esi-universe.read_structures.v1",
 			"esi-search.search_structures.v1",
 			"esi-markets.structure_markets.v1"})
 
 	// Setup an authenticator for our SSO token
-	ssoauth := goesi.NewSSOAuthenticator(cache, ssoClientID, ssoSecret, "", []string{})
+	ssoauth := goesi.NewSSOAuthenticator(cache, ssoClientID, ssoSecret, "https://"+domain+"/X/eveSSOAnswer", []string{})
 
 	tok := &oauth2.Token{
 		Expiry:       time.Now(),

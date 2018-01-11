@@ -76,8 +76,13 @@ spec:
         - name: COOKIE_SECRET
           valueFrom:
             secretKeyRef:
-              name: cookie-secret
+              name: esi-secret
               key: cookie-secret
+        - name: DOMAIN
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: domain
         ports:
         - containerPort: 3000
         volumeMounts:

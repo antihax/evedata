@@ -33,6 +33,7 @@ func main() {
 		os.Getenv("ESI_CLIENTID_SSO"),
 		os.Getenv("ESI_SECRET_SSO"),
 		os.Getenv("COOKIE_SECRET"),
+		os.Getenv("DOMAIN"),
 	)
 	log.Printf("Setup Router\n")
 	rtr := vanguard.NewRouter()
