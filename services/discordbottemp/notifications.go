@@ -7,7 +7,6 @@ import (
 
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/gobcoder"
-	"github.com/antihax/evedata/services/vanguard/models"
 	nsq "github.com/nsqio/go-nsq"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -44,7 +43,7 @@ func (s *DiscordBot) characterNotificationsHandler(message *nsq.Message) error {
 				continue
 			}
 
-			err := s.checkNotification(n.Type_, n.Text)
+			err := s.checkNotification(n.Type_, n.Text, n.Timestamp)
 			if err != nil {
 				continue
 			}
@@ -88,7 +87,7 @@ type OrbitalReinforced struct {
 	SolarSystemID       int64 `yaml:"solarSystemID"`
 }
 
-func (s *DiscordBot) checkNotification(notificationType, text string) error {
+func (s *DiscordBot) checkNotification(notificationType, text string, timestamp time.Time) error {
 
 	switch notificationType {
 
@@ -99,11 +98,11 @@ func (s *DiscordBot) checkNotification(notificationType, text string) error {
 			return err
 		}
 
-		defender, _ := models.GetEntityName(l.AgainstID)
-		attacker, _ := models.GetEntityName(l.DeclaredByID)
+		defender, _ := s.getEntityName(l.AgainstID)
+		attacker, _ := s.getEntityName(l.DeclaredByID)
 
-		sendNotificationMessage(fmt.Sprintf("@everyone [%s](https://www.evedata.org/%s?id=%d) just declared war on [%s](https://www.evedata.org/%s?id=%d)\n", attacker.Name,
-			attacker.EntityType, l.DeclaredByID, defender.Name, defender.EntityType, l.AgainstID))
+		sendNotificationMessage(fmt.Sprintf("@everyone [%s] [%s](https://www.evedata.org/%s?id=%d) just declared war on [%s](https://www.evedata.org/%s?id=%d)\n",
+			timestamp.UTC().String(), attacker.Name, attacker.EntityType, l.DeclaredByID, defender.Name, defender.EntityType, l.AgainstID))
 	case "StructureUnderAttack", "OrbitalAttacked", "TowerAlertMsg":
 		l := OrbitalAttacked{}
 		yaml.Unmarshal([]byte(text), &l)
@@ -130,8 +129,8 @@ func (s *DiscordBot) checkNotification(notificationType, text string) error {
 		structureType, _ := s.getTypeName(l.TypeID)
 		attackerName, _ := s.getEntityName(attacker)
 
-		return sendNotificationMessage(fmt.Sprintf("@everyone %s is under attack at %s in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%  A: %.1f%%  H: %.1f%% \n",
-			structureType, locationName, systemName, attackerName.Name, attackerType, attacker, l.ShieldLevel*100, l.ArmorValue*100, l.HullValue*100))
+		return sendNotificationMessage(fmt.Sprintf("@everyone [%s] %s is under attack at %s in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%  A: %.1f%%  H: %.1f%% \n",
+			timestamp.UTC().String(), structureType, locationName, systemName, attackerName.Name, attackerType, attacker, l.ShieldLevel*100, l.ArmorValue*100, l.HullValue*100))
 
 	case "OrbitalReinforced":
 		l := OrbitalReinforced{}
@@ -159,8 +158,8 @@ func (s *DiscordBot) checkNotification(notificationType, text string) error {
 		structureType, _ := s.getTypeName(l.TypeID)
 		attackerName, _ := s.getEntityName(attacker)
 
-		return sendNotificationMessage(fmt.Sprintf("@everyone %s was reinforced at %s in %s by [%s](https://www.evedata.org/%s?id=%d). Timer expires at %s\n",
-			structureType, locationName, systemName, attackerName.Name, attackerType, attacker,
+		return sendNotificationMessage(fmt.Sprintf("@everyone [%s] %s was reinforced at %s in %s by [%s](https://www.evedata.org/%s?id=%d). Timer expires at %s\n",
+			timestamp.UTC().String(), structureType, locationName, systemName, attackerName.Name, attackerType, attacker,
 			time.Unix(datapackages.WintoUnixTimestamp(l.ReinforceExitTime), 0).String()))
 	}
 	return nil
