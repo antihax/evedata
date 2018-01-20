@@ -55,10 +55,10 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, clientID, secret, refresh, toke
 	esi := goesi.NewAPIClient(cache, "EVEData-API-Vanguard")
 
 	// Setup an authenticator for our user tokens
-	tauth := goesi.NewSSOAuthenticator(cache, tokenClientID, tokenSecret, "https://"+domain+"/X/bootstrapEveSSOAnswer", []string{})
+	tauth := goesi.NewSSOAuthenticator(cache, tokenClientID, tokenSecret, "https://"+domain+"/X/eveTokenAnswer", []string{})
 
 	// Setup an authenticator for our private token
-	pauth := goesi.NewSSOAuthenticator(cache, clientID, secret, "https://"+domain+"/X/eveTokenAnswer",
+	pauth := goesi.NewSSOAuthenticator(cache, clientID, secret, "https://"+domain+"/X/bootstrapEveSSOAnswer",
 		[]string{"esi-universe.read_structures.v1",
 			"esi-search.search_structures.v1",
 			"esi-markets.structure_markets.v1"})
