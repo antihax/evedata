@@ -20,6 +20,8 @@ import (
 	nsq "github.com/nsqio/go-nsq"
 )
 
+const NUM_WORKERS = 100
+
 // Hammer completes work handling CCP ESI and other API.
 type Hammer struct {
 	stop       chan bool
@@ -86,7 +88,7 @@ func NewHammer(redis *redis.Pool, db *sqlx.DB, nsq *nsq.Producer, clientID, secr
 		redis:       redis,
 		token:       &token,
 		tokenStore:  tokenStore,
-		sem:         make(chan bool, 100),
+		sem:         make(chan bool, NUM_WORKERS),
 	}
 
 	return s
