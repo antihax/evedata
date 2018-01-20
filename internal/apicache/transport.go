@@ -68,12 +68,12 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 			// Sleep to prevent hammering CCP ESI if there are excessive errors
 			if esiRateLimiter {
-				time.Sleep(time.Second * time.Duration(float64(reset*3)*(1-(float64(tokens)/100))))
+				time.Sleep(time.Second * time.Duration(float64(reset*5)*(1-(float64(tokens)/100))))
 			}
 
 			// Something went wrong
 			if res.StatusCode == 420 {
-				time.Sleep(time.Second * time.Duration(reset+rand.Intn(30)))
+				time.Sleep(time.Second * time.Duration(reset+rand.Intn(60)))
 			}
 
 			// SNAFU
