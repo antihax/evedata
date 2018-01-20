@@ -1,4 +1,7 @@
 #!/bin/bash
+# remove all containers
+docker ps -aq | xargs docker stop | xargs docker rm
+
 # Mock ESI Server
 docker run -d -h mock-esi -p 127.0.0.1:8080:8080 antihax/mock-esi
 
