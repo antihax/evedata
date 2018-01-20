@@ -56,6 +56,31 @@ func (hq *RedisQueue) Size() (int, error) {
 	return redis.Int(hq.queueScript.Do(r, "count", hq.key))
 }
 
+// ScaledSize  returns number of elements in the queue scaled by priority
+func (hq *RedisQueue) ScaledSize() (int, error) {
+	r := hq.redisPool.Get()
+	defer r.Close()
+
+	low, err := redis.Int(hq.queueScript.Do(r, "count", hq.key, Priority_Low, Priority_Low))
+	if err != nil {
+		return 0, err
+	}
+	norm, err := redis.Int(hq.queueScript.Do(r, "count", hq.key, Priority_Normal, Priority_Normal))
+	if err != nil {
+		return 0, err
+	}
+	high, err := redis.Int(hq.queueScript.Do(r, "count", hq.key, Priority_High, Priority_High))
+	if err != nil {
+		return 0, err
+	}
+	urg, err := redis.Int(hq.queueScript.Do(r, "count", hq.key, Priority_Urgent, Priority_Urgent))
+	if err != nil {
+		return 0, err
+	}
+
+	return low + (norm * 64) + (high * 1024) + (urg * 8192), nil
+}
+
 // QueueWork adds work to the queue
 func (hq *RedisQueue) QueueWork(work []Work, priority int) error {
 	// Get a redis connection from the pool

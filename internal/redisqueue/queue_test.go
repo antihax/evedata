@@ -28,12 +28,16 @@ func TestHQ(t *testing.T) {
 				6,
 			},
 		},
-		1,
+		Priority_High,
 	)
 	assert.Nil(t, err)
 	size, err := hq.Size()
 	assert.Nil(t, err)
 	assert.Equal(t, 5, size)
+
+	size, err = hq.ScaledSize()
+	assert.Nil(t, err)
+	assert.Equal(t, 5120, size)
 
 	var work []*Work
 	for i := 0; i < 5; i++ {
