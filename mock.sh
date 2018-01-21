@@ -35,18 +35,8 @@ do
     sleep 1
     echo Percona not ready yet.
 done
-
-docker logs mysql
-
-# Percona will go into shutdown and restart after first run, travis is catching us off guard.
-sleep 10
-until [ `echo select 1+1 | docker exec -i mysql mysql | grep -c 2` -eq 1  ]
-do
-    sleep 1
-    echo Percona not ready yet.
-done
-
 echo Percona Ready
+
 echo "create database eve; create database evedata; set sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO';" | docker exec -i mysql /bin/bash -c mysql
 cat ./services/vanguard/sql/evedata.sql | docker exec -i mysql /bin/bash -c 'mysql -Devedata'
 unzip -p ./services/vanguard/sql/eve.zip | docker exec -i mysql /bin/bash -c 'mysql -Deve'

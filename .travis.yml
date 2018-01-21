@@ -13,6 +13,7 @@ services:
   - docker
 
 before_install:
+  - sudo /etc/init.d/mysql stop
   - ./mock.sh
 
 after_success:
