@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set +e
 # Remove any currently running containers
 docker stop mysql teamspeak mock-esi redis nsqlookup nsqadmin nsqd | xargs docker rm
 
@@ -39,4 +39,4 @@ echo Percona Ready
 echo "create database eve; create database evedata; set sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO';" | docker exec -i mysql /bin/bash -c mysql
 cat ./services/vanguard/sql/evedata.sql | docker exec -i mysql /bin/bash -c 'mysql -Devedata'
 unzip -p ./services/vanguard/sql/eve.zip | docker exec -i mysql /bin/bash -c 'mysql -Deve'
-set +e
+set -e
