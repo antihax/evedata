@@ -36,6 +36,8 @@ do
     echo Percona not ready yet.
 done
 
+docker logs mysql
+
 # Percona will go into shutdown and restart after first run, travis is catching us off guard.
 sleep 10
 until [ `echo select 1+1 | docker exec -i mysql mysql | grep -c 2` -eq 1  ]
