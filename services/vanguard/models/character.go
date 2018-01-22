@@ -34,7 +34,8 @@ type CRESTToken struct {
 	LastStatus       null.String `db:"lastStatus" json:"lastStatus,omitempty"`
 	AccessToken      string      `db:"accessToken" json:"accessToken,omitempty"`
 	RefreshToken     string      `db:"refreshToken" json:"refreshToken,omitempty"`
-	Scopes           string      `db:"scopes" json:"scopes,omitempty"`
+	Scopes           string      `db:"scopes" json:"scopes"`
+	AuthCharacter    int         `db:"authCharacter" json:"authCharacter"`
 }
 
 // [BENCHMARK] TODO
@@ -95,7 +96,7 @@ func SetTokenError(characterID int32, tokenCharacterID int32, code int, status s
 func GetCRESTTokens(characterID int32) ([]CRESTToken, error) {
 	tokens := []CRESTToken{}
 	if err := database.Select(&tokens, `
-		SELECT characterID, tokenCharacterID, characterName, lastCode, lastStatus, scopes
+		SELECT characterID, tokenCharacterID, characterName, lastCode, lastStatus, scopes, authCharacter
 		FROM evedata.crestTokens
 		WHERE characterID = ?;`, characterID); err != nil {
 

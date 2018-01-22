@@ -25,6 +25,33 @@ func init() {
 	vanguard.AddAuthRoute("crestTokens", "GET", "/U/crestTokens", apiGetCRESTTokens)
 	vanguard.AddAuthRoute("crestTokens", "DELETE", "/U/crestTokens", apiDeleteCRESTToken)
 
+	vanguard.AddAuthRoute("account", "POST", "/U/toggleAuth", apiToggleAuth)
+}
+
+func apiToggleAuth(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	s := vanguard.SessionFromContext(r.Context())
+	g := vanguard.GlobalsFromContext(r.Context())
+
+	// Get the sessions main characterID
+	characterID, ok := s.Values["characterID"].(int32)
+	if !ok {
+		httpErrCode(w, errors.New("could not find character ID for toggle auth"), http.StatusUnauthorized)
+		return
+	}
+
+	// Parse the characterID
+	tokenCharacterID, err := strconv.ParseInt(r.FormValue("tokenCharacterID"), 10, 64)
+	if err != nil {
+		httpErrCode(w, err, http.StatusForbidden)
+		return
+	}
+
+	_, err = g.Db.Exec("UPDATE evedata.crestTokens SET authCharacter = ! authCharacter WHERE characterID = ? and tokenCharacterID = ?", characterID, tokenCharacterID)
+	if err != nil {
+		httpErrCode(w, err, http.StatusInternalServerError)
+		return
+	}
 }
 
 func accountPage(w http.ResponseWriter, r *http.Request) {
@@ -50,7 +77,6 @@ func accountInfo(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		httpErrCode(w, errors.New("could not find character ID"), http.StatusUnauthorized)
 		return
-
 	}
 
 	char, ok := s.Values["character"].(goesi.VerifyResponse)

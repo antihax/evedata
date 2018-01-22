@@ -49,12 +49,14 @@
 			data-url="/U/CRESTTokens" id="cresttable">
 			<thead>
 				<tr>
-					<th data-field="characterName" data-formatter="accountNameFormatter">Name</th>
+					<th data-align="center" data-field="authCharacter" data-events="actionEvents" 
+						data-formatter="authFormatter">Auth</th>
+					<th data-field="characterName">Name</th>
 					<th data-field="scopes">Scope Groups</th>
 					<th data-field="lastStatus">Last Status</th>
 					<th data-align="center" data-events="actionEvents"
-					data-field="action" data-formatter="CRESTTokenFormatter">
-					Delete</th>
+						data-field="action" data-formatter="deleteFormatter">
+							Delete</th>
 				</tr>
 			</thead>
 		</table>
@@ -85,15 +87,18 @@
 			return {};
 		}
 
-		function accountNameFormatter(value, row) {
-			var scopes = row.scopes.replace(/\s+/g,  "\n");
-			return '<i class="glyphicon glyphicon-th-list" data-toggle="tooltip" title="'+ scopes +'"><\/i> &nbsp; ' + value;
+		function authFormatter(value, row) {
+			if (value == 0) {
+				value = "&#10008;";
+			} else {
+				value = "&#9989;";
+			}
+			return '<a class="toggleauth" style="text-decoration: none;" href="javascript:void(0)" title="Toggle Authentication">'+value+'<\/a>' ;
 		}
 
-		function CRESTTokenFormatter(value, row) {
-			
+		function deleteFormatter(value, row) {
 			return [
-				'<a class="removecrest" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
+				'<a class="removecrest" style="text-decoration: none;" href="javascript:void(0)" title="Delete '+row.characterName+'">&#10006;<\/a>',
 			].join('');
 		}
 		// update and delete events
@@ -105,10 +110,25 @@
 						type: 'delete',
 						success: function () {
 							$cresttable.bootstrapTable('refresh');
-							showAlert('Delete item successful!', 'success');
+							showAlert('Deleted ' + row.characterName +'!', 'success');
 						},
 						error: function () {
 							showAlert('Delete item error!', 'danger');
+						}
+					})
+				}
+			},
+			'click .toggleauth': function (e, value, row) {
+				if (row.authCharacter == 1 || confirm('You are about to turn on authentication for ' + row.characterName + '.\n\nThis will allow the corporation this character is a member of to identify them on EVEData.org for authentication purposes with services like Discord, TeamSpeak, or Slack.\n\nAre you sure you wish to do this?')) {
+					$.ajax({
+						url: "/U/toggleAuth?tokenCharacterID=" + row.tokenCharacterID,
+						type: 'post',
+						success: function () {
+							$cresttable.bootstrapTable('refresh');
+							showAlert('Authentication changed for ' + row.characterName +'!', 'success');
+						},
+						error: function () {
+							showAlert('Error changing authentication state!', 'danger');
 						}
 					})
 				}
