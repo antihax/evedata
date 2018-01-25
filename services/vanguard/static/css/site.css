@@ -114,6 +114,22 @@ p + p {
     margin: 20px 0 0 0;
 }
 
+
+.entitytypeahead,
+.tt-query,
+.tt-hint {
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    border-radius: 8px;
+    border: 2px solid #ccc;
+    font-size: 14px;
+    height: 30px;
+    line-height: 30px;
+    outline: none;
+    padding: 8px 12px;
+    width: 450px;
+}
+
 .typeahead,
 .tt-query,
 .tt-hint {

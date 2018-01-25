@@ -63,6 +63,10 @@
     function entityFormatter(value, row) {
     	var entityURL = '/'+ row.type + '?id=' + row.id 
         return '<a href="' + entityURL + '"><img src="' + entityImage(row) + '" height=32 width=32> ' + value + '</a>';
+	}
+	
+	function tokenCharacterFormatter(value, row) {
+        return '<img src="' + characterImageByID(row.tokenCharacterID, 32) + '" height=32 width=32> ' + value + '</a>';
     }
 
     function characterFormatter(value, row) {

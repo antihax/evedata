@@ -43,6 +43,17 @@ var groupReasons = map[string]string{
 	"notifications": "Notification tools (locators)",
 }
 
+// shareReasons for data shares between characters and entities
+var shareReasons = map[string]string{
+	"locator":   "Locator Responses",
+	"structure": "Corporation structures under attack",
+	"war":       "War Declared on Corporation",
+}
+
+func GetCharacterShareGroups() map[string]string {
+	return shareReasons
+}
+
 func GetCharacterScopes() []string {
 	var s []string
 	for _, scope := range characterScopes {

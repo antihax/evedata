@@ -223,3 +223,47 @@ func GetCorporationHistory(id int32) ([]CorporationHistory, error) {
 	}
 	return ref, nil
 }
+
+type Shares struct {
+	CharacterID        int32  `db:"characterID" json:"characterID,omitempty"`
+	TokenCharacterID   int32  `db:"tokenCharacterID" json:"tokenCharacterID,omitempty"`
+	TokenCharacterName string `db:"tokenCharacterName" json:"tokenCharacterName,omitempty"`
+	EntityID           int32  `db:"entityID" json:"id,omitempty"`
+	EntityName         string `db:"entityName" json:"entityName,omitempty"`
+	Type               string `db:"type" json:"type,omitempty"`
+	Types              string `db:"types" json:"types,omitempty"`
+}
+
+// [BENCHMARK] 0.000 sec / 0.000 sec
+func GetShares(characterID int32) ([]Shares, error) {
+	shares := []Shares{}
+	if err := database.Select(&shares, `
+		SELECT S.characterID, S.tokenCharacterID, characterName AS tokenCharacterName, entityID, types, IFNULL(A.name, C.name) AS entityName, IF(A.name IS NULL, "corporation", "alliance") AS type
+		FROM evedata.sharing S
+		INNER JOIN evedata.crestTokens T ON T.tokenCharacterID = S.tokenCharacterID AND T.characterID = S.characterID
+		LEFT OUTER JOIN evedata.corporations C ON C.corporationID = S.entityID
+		LEFT OUTER JOIN evedata.alliances A ON A.allianceID = S.entityID
+		WHERE S.characterID = ?;`, characterID); err != nil {
+		return nil, err
+	}
+	return shares, nil
+}
+
+func AddShare(characterID, tokenCharacterID, entityID int32, types string) error {
+	if _, err := database.Exec(`
+		INSERT INTO evedata.sharing	(characterID, tokenCharacterID, entityID, types)
+			VALUES(?,?,?,?)
+			ON DUPLICATE KEY UPDATE entityID = entityID, types = VALUES(types)`,
+		characterID, tokenCharacterID, entityID, types); err != nil {
+		return err
+	}
+	return nil
+}
+
+func DeleteShare(characterID, tokenCharacterID, entityID int32) error {
+	if _, err := database.Exec(`DELETE FROM evedata.sharing WHERE characterID = ? AND tokenCharacterID=? AND entityID = ? LIMIT 1`,
+		characterID, tokenCharacterID, entityID); err != nil {
+		return err
+	}
+	return nil
+}

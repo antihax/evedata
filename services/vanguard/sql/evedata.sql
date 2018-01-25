@@ -377,6 +377,14 @@ CREATE TABLE `notifications` (
   PRIMARY KEY (`notificationID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `sharing` (
+  `characterID` int(11) unsigned NOT NULL,
+  `tokenCharacterID` int(11) unsigned NOT NULL,
+  `entityID` int(11) unsigned NOT NULL,
+  `types` set('locator','structure','war') COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`characterID`,`tokenCharacterID`,`entityID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='For sharing character information with entities.';
+
 CREATE TABLE `states` (
   `state` varchar(45) NOT NULL,
   `value` int(11) NOT NULL,
