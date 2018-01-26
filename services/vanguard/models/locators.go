@@ -30,7 +30,7 @@ func GetLocatorResponses(characterID int32, cursorCharacterID int32) ([]LocatorR
 						Con.constellationID, Con.constellationName, Ca.name AS characterName, Ca.characterID, 
 						Co.name AS corporationName, Ca.corporationID, A.name AS allianceName, Co.allianceID, time 
 		FROM evedata.locatedCharacters L
-		INNER JOIN evedata.locatorShareWith S ON L.characterID = S.characterID 
+		INNER JOIN evedata.sharing S ON L.characterID = S.tokenCharacterID 
 		INNER JOIN evedata.characters Ca ON L.locatedCharacterID = Ca.characterID
 		INNER JOIN evedata.corporations Co ON Ca.corporationID = Co.corporationID
 		LEFT OUTER JOIN evedata.alliances A ON A.allianceID = Co.allianceID
