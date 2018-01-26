@@ -98,8 +98,14 @@ func (s *DiscordBot) checkNotification(notificationType, text string, timestamp 
 			return err
 		}
 
-		defender, _ := s.getEntityName(l.AgainstID)
-		attacker, _ := s.getEntityName(l.DeclaredByID)
+		defender, err := s.getEntityName(l.AgainstID)
+		if err != nil {
+			return err
+		}
+		attacker, err := s.getEntityName(l.DeclaredByID)
+		if err != nil {
+			return err
+		}
 
 		sendNotificationMessage(fmt.Sprintf("@everyone [%s] [%s](https://www.evedata.org/%s?id=%d) just declared war on [%s](https://www.evedata.org/%s?id=%d)\n",
 			timestamp.UTC().String(), attacker.Name, attacker.EntityType, l.DeclaredByID, defender.Name, defender.EntityType, l.AgainstID))
@@ -124,10 +130,22 @@ func (s *DiscordBot) checkNotification(notificationType, text string, timestamp 
 			attackerType = "corporation"
 		}
 
-		locationName, _ := s.getCelestialName(location)
-		systemName, _ := s.getCelestialName(l.SolarSystemID)
-		structureType, _ := s.getTypeName(l.TypeID)
-		attackerName, _ := s.getEntityName(attacker)
+		locationName, err := s.getCelestialName(location)
+		if err != nil {
+			return err
+		}
+		systemName, err := s.getCelestialName(l.SolarSystemID)
+		if err != nil {
+			return err
+		}
+		structureType, err := s.getTypeName(l.TypeID)
+		if err != nil {
+			return err
+		}
+		attackerName, err := s.getEntityName(attacker)
+		if err != nil {
+			return err
+		}
 
 		return sendNotificationMessage(fmt.Sprintf("@everyone [%s] %s is under attack at %s in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%  A: %.1f%%  H: %.1f%% \n",
 			timestamp.UTC().String(), structureType, locationName, systemName, attackerName.Name, attackerType, attacker, l.ShieldLevel*100, l.ArmorValue*100, l.HullValue*100))
@@ -153,10 +171,22 @@ func (s *DiscordBot) checkNotification(notificationType, text string, timestamp 
 			attackerType = "corporation"
 		}
 
-		locationName, _ := s.getCelestialName(location)
-		systemName, _ := s.getCelestialName(l.SolarSystemID)
-		structureType, _ := s.getTypeName(l.TypeID)
-		attackerName, _ := s.getEntityName(attacker)
+		locationName, err := s.getCelestialName(location)
+		if err != nil {
+			return err
+		}
+		systemName, err := s.getCelestialName(l.SolarSystemID)
+		if err != nil {
+			return err
+		}
+		structureType, err := s.getTypeName(l.TypeID)
+		if err != nil {
+			return err
+		}
+		attackerName, err := s.getEntityName(attacker)
+		if err != nil {
+			return err
+		}
 
 		return sendNotificationMessage(fmt.Sprintf("@everyone [%s] %s was reinforced at %s in %s by [%s](https://www.evedata.org/%s?id=%d). Timer expires at %s\n",
 			timestamp.UTC().String(), structureType, locationName, systemName, attackerName.Name, attackerType, attacker,
