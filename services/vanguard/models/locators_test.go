@@ -2,16 +2,16 @@ package models
 
 import "testing"
 
-func TestAddLocatorShare(t *testing.T) {
-	err := AddLocatorShare(1, 1)
+func TestAddShare(t *testing.T) {
+	err := AddShare(1, 1, 1, "war")
 	if err != nil {
 		t.Error(err)
 		return
 	}
 }
 
-func TestGetLocatorShares(t *testing.T) {
-	_, err := GetLocatorShares(2)
+func TestGetShares(t *testing.T) {
+	_, err := GetShares(2)
 	if err != nil {
 		t.Error(err)
 		return
@@ -26,8 +26,8 @@ func TestGetLocatorResponses(t *testing.T) {
 	}
 }
 
-func TestDeleteLocatorShare(t *testing.T) {
-	err := DeleteLocatorShare(1, 1)
+func TestDeleteShare(t *testing.T) {
+	err := DeleteShare(1, 1, 1)
 	if err != nil {
 		t.Error(err)
 		return
