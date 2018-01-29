@@ -180,6 +180,28 @@ func (hq *RedisQueue) SetWorkCompleted(key string, id int64) error {
 	return err
 }
 
+// SetWorkCompleted takes a key and sets if the ID has been completed to prevent duplicates
+func (hq *RedisQueue) SetWorkCompletedInBulk(key string, ids []int64) error {
+	conn := hq.redisPool.Get()
+	defer conn.Close()
+
+	for _, id := range ids {
+		err := conn.Send("SADD", key, id)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+	}
+
+	err := conn.Flush()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}
+
 // CheckWorkExpired takes a key and checks if the ID has expired
 func (hq *RedisQueue) CheckWorkExpired(key string, id int64) bool {
 	conn := hq.redisPool.Get()

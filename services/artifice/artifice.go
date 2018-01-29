@@ -104,6 +104,10 @@ func (s *Artifice) QueueSize() (int, error) {
 
 // Run the hammer service
 func (s *Artifice) Run() {
+	err := s.startup()
+	if err != nil {
+		log.Fatalln(err)
+	}
 	go s.zkillboardPost()
 	go s.warKillmails()
 	go s.runMetrics()
