@@ -17,7 +17,7 @@ type atWarWith struct {
 	Finish time.Time `db:"timeFinished"`
 }
 
-var wars sync.Map
+var warsMap sync.Map
 var highsecSystems map[int32]bool
 
 func init() {
@@ -38,36 +38,39 @@ func (s *DiscordBot) killmailHandler(message *nsq.Message) error {
 	}
 
 	// Skip killmails more than an hour old
-	if mail.KillmailTime.Before(time.Now().Add(-time.Hour * 6)) {
+	if mail.KillmailTime.Before(time.Now().UTC().Add(-time.Hour * 6)) {
 		return nil
 	}
 
 	var entity atWarWith
 	for _, a := range mail.Attackers {
-		if i, ok := wars.Load(a.AllianceId); ok {
+		if i, ok := warsMap.Load(a.AllianceId); ok {
 			v := i.(atWarWith)
-			if v.Start.After(time.Now()) && v.Finish.Before(time.Now()) {
+			if v.Start.After(time.Now().UTC()) && !(!v.Finish.IsZero() && v.Finish.Before(time.Now().UTC())) {
 				entity = v
 			}
-		} else if i, ok := wars.Load(a.CorporationId); ok {
+		} else if i, ok := warsMap.Load(a.CorporationId); ok {
 			v := i.(atWarWith)
-			if v.Start.After(time.Now()) && v.Finish.Before(time.Now()) {
+			if v.Start.After(time.Now().UTC()) && !(!v.Finish.IsZero() && v.Finish.Before(time.Now().UTC())) {
 				entity = v
 			}
 		}
 	}
 
+	// didn't match
+	if entity.ID == 0 {
+		return nil
+	}
+
 	// Don't duplicate notifications
 	if !s.outQueue.CheckWorkCompleted(fmt.Sprintf("evedata-bot-killmail-sent:%d", 99002974), int64(mail.KillmailId)) {
-		if entity.ID > 0 { // matched to a war aggressor.
-			if highsecSystems[mail.SolarSystemId] { // is it in highsec?
-				err = sendKillMessage(fmt.Sprintf("https://zkillboard.com/kill/%d/", mail.KillmailId))
-				if err != nil {
-					return err
-				}
-
-				s.outQueue.SetWorkCompleted(fmt.Sprintf("evedata-bot-killmail-sent:%d", 99002974), int64(mail.KillmailId))
+		if highsecSystems[mail.SolarSystemId] { // is it in highsec?
+			err = sendKillMessage(fmt.Sprintf("https://zkillboard.com/kill/%d/", mail.KillmailId))
+			if err != nil {
+				return err
 			}
+
+			s.outQueue.SetWorkCompleted(fmt.Sprintf("evedata-bot-killmail-sent:%d", 99002974), int64(mail.KillmailId))
 		}
 	}
 	return nil
@@ -86,17 +89,17 @@ func (s *DiscordBot) getSystems() error {
 }
 
 func (s *DiscordBot) updateWars() {
-	throttle := time.Tick(time.Second * 60)
+	throttle := time.Tick(time.Second * 120)
 	for {
 		warlist := []atWarWith{}
 		err := s.db.Select(&warlist, "CALL evedata.atWarWith(99002974);")
 		if err != nil {
 			log.Println(err)
 		}
-		for _, war := range warlist {
-			wars.Store(war.ID, war)
-		}
 
+		for _, war := range warlist {
+			warsMap.Store(war.ID, war)
+		}
 		<-throttle
 	}
 }
