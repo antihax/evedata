@@ -30,6 +30,12 @@ func (s *Nail) characterAssetsConsumer(message *nsq.Message) error {
 	}
 	var values []string
 
+	err = s.doSQL("DELETE FROM evedata.assets WHERE characterID = ? AND tokenCharacterID = ?;", assets.CharacterID, assets.TokenCharacterID)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
 	// Dump all assets into the DB.
 	for _, asset := range assets.Assets {
 		values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%q,%d,%q,%v)",
