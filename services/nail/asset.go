@@ -30,22 +30,36 @@ func (s *Nail) characterAssetsConsumer(message *nsq.Message) error {
 	}
 	var values []string
 
-	err = s.doSQL("DELETE FROM evedata.assets WHERE characterID = ? AND tokenCharacterID = ?;", assets.CharacterID, assets.TokenCharacterID)
+	err = s.doSQL("DELETE FROM evedata.assets WHERE characterID = ?;", assets.TokenCharacterID)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
 	// Dump all assets into the DB.
+	count := 0
 	for _, asset := range assets.Assets {
+		count++
 		values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%q,%d,%q,%v)",
 			asset.LocationId, asset.TypeId, asset.Quantity, assets.TokenCharacterID,
 			asset.LocationFlag, asset.ItemId, asset.LocationType, asset.IsSingleton))
-	}
-	stmt := fmt.Sprintf(`INSERT INTO evedata.assets
-								(locationID, typeID, quantity, characterID, 
-								locationFlag, itemID, locationType, isSingleton)
-			VALUES %s ON DUPLICATE KEY UPDATE locationID = locationID;`, strings.Join(values, ",\n"))
 
-	return s.doSQL(stmt)
+		if count > 100 {
+			err := s.doSQL(doAssets(values))
+			if err != nil {
+				return err
+			}
+			values = values[:0]
+			count = 0
+		}
+	}
+
+	return s.doSQL(doAssets(values))
+}
+
+func doAssets(values []string) string {
+	return fmt.Sprintf(`INSERT INTO evedata.assets
+		(locationID, typeID, quantity, characterID, 
+		locationFlag, itemID, locationType, isSingleton)
+		VALUES %s ON DUPLICATE KEY UPDATE locationID = locationID;`, strings.Join(values, ",\n"))
 }
