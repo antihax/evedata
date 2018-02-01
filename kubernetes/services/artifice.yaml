@@ -33,12 +33,12 @@ spec:
             secretKeyRef:
               name: redis-password
               key: password
-        - name: ESI_SECRET
+        - name: ESI_SECRET_TOKENSTORE
           valueFrom:
             secretKeyRef:
               name: esi-secret
               key: secret
-        - name: ESI_CLIENTID
+        - name: ESI_CLIENTID_TOKENSTORE
           valueFrom:
             secretKeyRef:
               name: esi-secret

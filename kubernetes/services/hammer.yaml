@@ -38,16 +38,6 @@ spec:
             secretKeyRef:
               name: redis-password
               key: password
-        - name: ESI_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: esi-secret
-              key: secret
-        - name: ESI_CLIENTID
-          valueFrom:
-            secretKeyRef:
-              name: esi-secret
-              key: clientID
         - name: ESI_REFRESHKEY
           valueFrom:
             secretKeyRef:

@@ -30,15 +30,14 @@ type Vanguard struct {
 	TokenStore *tokenstore.TokenStore
 
 	// authentication
-	token                *oauth2.TokenSource
-	PrivateAuthenticator *goesi.SSOAuthenticator
-	TokenAuthenticator   *goesi.SSOAuthenticator
-	SSOAuthenticator     *goesi.SSOAuthenticator
+	token              *oauth2.TokenSource
+	TokenAuthenticator *goesi.SSOAuthenticator
+	SSOAuthenticator   *goesi.SSOAuthenticator
 }
 
 var globalVanguard *Vanguard
 
-func NewVanguard(redis *redis.Pool, db *sqlx.DB, clientID, secret, refresh, tokenClientID, tokenSecret string, ssoClientID, ssoSecret string, storeKey string, domain string) *Vanguard {
+func NewVanguard(redis *redis.Pool, db *sqlx.DB, refresh, tokenClientID, tokenSecret, ssoClientID, ssoSecret, storeKey, domain string) *Vanguard {
 	// Don't allow more than one to be created
 	if globalVanguard != nil {
 		return globalVanguard
@@ -57,12 +56,6 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, clientID, secret, refresh, toke
 	// Setup an authenticator for our user tokens
 	tauth := goesi.NewSSOAuthenticator(cache, tokenClientID, tokenSecret, "https://"+domain+"/X/eveTokenAnswer", []string{})
 
-	// Setup an authenticator for our private token
-	pauth := goesi.NewSSOAuthenticator(cache, clientID, secret, "https://"+domain+"/X/bootstrapEveSSOAnswer",
-		[]string{"esi-universe.read_structures.v1",
-			"esi-search.search_structures.v1",
-			"esi-markets.structure_markets.v1"})
-
 	// Setup an authenticator for our SSO token
 	ssoauth := goesi.NewSSOAuthenticator(cache, ssoClientID, ssoSecret, "https://"+domain+"/X/eveSSOAnswer", []string{})
 
@@ -74,7 +67,7 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, clientID, secret, refresh, toke
 	}
 
 	// Build our private token
-	token, err := pauth.TokenSource(tok)
+	token, err := tauth.TokenSource(tok)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -100,16 +93,15 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, clientID, secret, refresh, toke
 			"evedata-hammer",
 		),
 
-		HTTPClient:           cache,
-		PrivateAuthenticator: pauth,
-		SSOAuthenticator:     ssoauth,
-		TokenAuthenticator:   tauth,
-		ESI:                  esi,
-		Store:                store,
-		Db:                   db,
-		Cache:                redis,
-		token:                &token,
-		TokenStore:           tokenStore,
+		HTTPClient:         cache,
+		SSOAuthenticator:   ssoauth,
+		TokenAuthenticator: tauth,
+		ESI:                esi,
+		Store:              store,
+		Db:                 db,
+		Cache:              redis,
+		token:              &token,
+		TokenStore:         tokenStore,
 	}
 
 	return globalVanguard

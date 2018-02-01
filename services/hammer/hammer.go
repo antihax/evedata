@@ -35,13 +35,12 @@ type Hammer struct {
 	tokenStore *tokenstore.TokenStore
 
 	// authentication
-	token       *oauth2.TokenSource
-	privateAuth *goesi.SSOAuthenticator
-	tokenAuth   *goesi.SSOAuthenticator
+	token     *oauth2.TokenSource
+	tokenAuth *goesi.SSOAuthenticator
 }
 
 // NewHammer Service.
-func NewHammer(redis *redis.Pool, db *sqlx.DB, nsq *nsq.Producer, clientID, secret, refresh, tokenClientID, tokenSecret string) *Hammer {
+func NewHammer(redis *redis.Pool, db *sqlx.DB, nsq *nsq.Producer, refresh, tokenClientID, tokenSecret string) *Hammer {
 	// Get a caching http client
 	cache := apicache.CreateHTTPClientCache(redis)
 
@@ -51,12 +50,6 @@ func NewHammer(redis *redis.Pool, db *sqlx.DB, nsq *nsq.Producer, clientID, secr
 	// Setup an authenticator for our user tokens
 	tauth := goesi.NewSSOAuthenticator(cache, tokenClientID, tokenSecret, "", []string{})
 
-	// Setup an authenticator for our private token
-	pauth := goesi.NewSSOAuthenticator(cache, clientID, secret, "",
-		[]string{"esi-universe.read_structures.v1",
-			"esi-search.search_structures.v1",
-			"esi-markets.structure_markets.v1"})
-
 	tok := &oauth2.Token{
 		Expiry:       time.Now(),
 		AccessToken:  "",
@@ -65,7 +58,7 @@ func NewHammer(redis *redis.Pool, db *sqlx.DB, nsq *nsq.Producer, clientID, secr
 	}
 
 	// Build our private token
-	token, err := pauth.TokenSource(tok)
+	token, err := tauth.TokenSource(tok)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -80,15 +73,14 @@ func NewHammer(redis *redis.Pool, db *sqlx.DB, nsq *nsq.Producer, clientID, secr
 			redis,
 			"evedata-hammer",
 		),
-		nsq:         nsq,
-		privateAuth: pauth,
-		tokenAuth:   tauth,
-		esi:         esi,
-		db:          db,
-		redis:       redis,
-		token:       &token,
-		tokenStore:  tokenStore,
-		sem:         make(chan bool, NUM_WORKERS),
+		nsq:        nsq,
+		tokenAuth:  tauth,
+		esi:        esi,
+		db:         db,
+		redis:      redis,
+		token:      &token,
+		tokenStore: tokenStore,
+		sem:        make(chan bool, NUM_WORKERS),
 	}
 
 	return s
@@ -107,8 +99,6 @@ func (s *Hammer) ChangeBasePath(path string) {
 
 // ChangeTokenPath for ESI (sisi/mock/tranquility)
 func (s *Hammer) ChangeTokenPath(path string) {
-	s.privateAuth.ChangeTokenURL(path)
-	s.privateAuth.ChangeAuthURL(path)
 	s.tokenAuth.ChangeTokenURL(path)
 	s.tokenAuth.ChangeAuthURL(path)
 }
