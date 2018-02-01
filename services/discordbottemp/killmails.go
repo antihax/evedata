@@ -46,12 +46,12 @@ func (s *DiscordBot) killmailHandler(message *nsq.Message) error {
 	for _, a := range mail.Attackers {
 		if i, ok := warsMap.Load(a.AllianceId); ok {
 			v := i.(atWarWith)
-			if v.Start.After(time.Now().UTC()) && !(!v.Finish.IsZero() && v.Finish.Before(time.Now().UTC())) {
+			if v.Start.Before(time.Now().UTC()) && (v.Finish.IsZero() || v.Finish.After(time.Now().UTC())) {
 				entity = v
 			}
 		} else if i, ok := warsMap.Load(a.CorporationId); ok {
 			v := i.(atWarWith)
-			if v.Start.After(time.Now().UTC()) && !(!v.Finish.IsZero() && v.Finish.Before(time.Now().UTC())) {
+			if v.Start.Before(time.Now().UTC()) && (v.Finish.IsZero() || v.Finish.After(time.Now().UTC())) {
 				entity = v
 			}
 		}
