@@ -37,6 +37,11 @@ func (s *DiscordBot) killmailHandler(message *nsq.Message) error {
 		return err
 	}
 
+	// Don't report worthless stuff
+	if isWorthlessTypeID(mail.Victim.ShipTypeId) {
+		return nil
+	}
+
 	// Skip killmails more than an hour old
 	if mail.KillmailTime.Before(time.Now().UTC().Add(-time.Hour * 6)) {
 		return nil
@@ -86,6 +91,31 @@ func (s *DiscordBot) getSystems() error {
 		highsecSystems[s] = true
 	}
 	return nil
+}
+
+func isWorthlessTypeID(typeID int32) bool {
+	types := []int32{
+		670,   // capsule
+		33328, // capsule
+		672,   // shuttle
+		11129, // shuttle
+		11132, // shuttle
+		21097, // shuttle
+		11134, // shuttle
+		21628, // shuttle
+		30842, // shuttle
+		588,   // rookie
+		596,   // rookie
+		601,   // rookie
+		606,   // rookie
+	}
+
+	for _, id := range types {
+		if id == typeID {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *DiscordBot) updateWars() {
