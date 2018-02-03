@@ -34,6 +34,18 @@ type Artifice struct {
 // NewArtifice Service.
 func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string, refresh string, refreshCharID string) *Artifice {
 
+	if clientID == "" {
+		log.Fatalln("Missing clientID")
+	}
+	if secret == "" {
+		log.Fatalln("Missing secret")
+	}
+	if refresh == "" {
+		log.Fatalln("Missing refresh token")
+	}
+	if refreshCharID == "" {
+		log.Fatalln("Missing refresh CharID")
+	}
 	// Get a caching http client
 	cache := apicache.CreateHTTPClientCache(redis)
 
