@@ -3,6 +3,7 @@ package hammer
 import (
 	"errors"
 	"log"
+	"sync/atomic"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -24,7 +25,8 @@ func registerConsumer(name string, f consumerFunc) {
 func (s *Hammer) wait(f consumerFunc, p interface{}) {
 	// Limit go routines
 	s.hammerWG.Add(1)
-	defer func() { <-s.sem; s.hammerWG.Done() }()
+	atomic.AddUint64(&s.activeWorkers, 1)
+	defer func() { <-s.sem; s.hammerWG.Done(); atomic.AddUint64(&s.activeWorkers, ^uint64(0)) }()
 	f(s, p)
 }
 
@@ -35,7 +37,6 @@ func (s *Hammer) runConsumers() error {
 	}
 
 	start := time.Now()
-
 	fn := consumerMap[w.Operation]
 	if fn == nil {
 		log.Printf("unknown operation %s %+v\n", w.Operation, w.Parameter)
@@ -44,11 +45,12 @@ func (s *Hammer) runConsumers() error {
 
 	s.sem <- true
 	go s.wait(fn, w.Parameter)
-	//	log.Printf("complete operation %s %+v\n", w.Operation, w.Parameter)
+
 	duration := float64(time.Since(start).Nanoseconds()) / 1000000.0
 	consumerMetrics.With(
 		prometheus.Labels{"operation": w.Operation},
 	).Observe(duration)
+
 	return nil
 }
 

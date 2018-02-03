@@ -5,12 +5,14 @@ import (
 	"context"
 	"log"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/antihax/evedata/internal/tokenstore"
 	"github.com/jmoiron/sqlx"
+	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/oauth2"
 
 	"github.com/antihax/evedata/internal/apicache"
@@ -33,6 +35,9 @@ type Hammer struct {
 	nsq        *nsq.Producer
 	sem        chan bool
 	tokenStore *tokenstore.TokenStore
+
+	// Count of active workers
+	activeWorkers uint64
 
 	// authentication
 	token     *oauth2.TokenSource
@@ -110,6 +115,8 @@ func (s *Hammer) QueueWork(work []redisqueue.Work, priority int) error {
 
 // Run the hammer service
 func (s *Hammer) Run() {
+	go s.tickWorkersToPrometheus()
+
 	for {
 		select {
 		case <-s.stop:
@@ -146,4 +153,30 @@ func (s *Hammer) QueueResult(v interface{}, topic string) error {
 // SetToken Sets a token to the store
 func (s *Hammer) SetToken(cid, tcid int32, token *oauth2.Token) error {
 	return s.tokenStore.SetToken(cid, tcid, token)
+}
+
+// Close the hammer service
+func (s *Hammer) tickWorkersToPrometheus() {
+	for {
+		<-time.After(5 * time.Second)
+		count := atomic.LoadUint64(&s.activeWorkers)
+		activeWorkers.Set(float64(count))
+	}
+}
+
+var (
+	activeWorkers = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Namespace: "evedata",
+			Subsystem: "hammer",
+			Name:      "activeWorkers",
+			Help:      "Currently running workers.",
+		},
+	)
+)
+
+func init() {
+	prometheus.MustRegister(
+		activeWorkers,
+	)
 }
