@@ -57,3 +57,36 @@ subsets:
   - ip: 192.168.10.13
   ports:
   - port: 26379
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: redis-monitor
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      name: redis-monitor
+  template:
+    metadata:
+      labels:
+        name: redis-monitor
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9121"
+    spec:
+      containers:
+      - name: redis-monitor
+        image: oliver006/redis_exporter
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-password
+              key: password
+        - name: REDIS_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: REDIS_ADDR
+          value: "$(REDIS_IP):6379"
