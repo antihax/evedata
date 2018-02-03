@@ -105,6 +105,8 @@ func GetCRESTTokens(characterID int32) ([]CRESTToken, error) {
 	return tokens, nil
 }
 
+// AddCRESTToken adds an SSO token to the database or updates it if one exists.
+// resetting status and if errors were mailed to the user.
 func AddCRESTToken(characterID int32, tokenCharacterID int32, characterName string, tok *oauth2.Token, scopes string) error {
 	if _, err := database.Exec(`
 		INSERT INTO evedata.crestTokens	(characterID, tokenCharacterID, accessToken, refreshToken, expiry, tokenType, characterName, scopes, lastStatus)
@@ -120,7 +122,6 @@ func AddCRESTToken(characterID int32, tokenCharacterID int32, characterName stri
 		characterID, tokenCharacterID, tok.AccessToken, tok.RefreshToken, tok.Expiry, tok.TokenType, characterName, scopes); err != nil {
 		return err
 	}
-
 	return nil
 }
 
