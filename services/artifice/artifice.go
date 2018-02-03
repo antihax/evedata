@@ -3,6 +3,7 @@ package artifice
 
 import (
 	"log"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -25,12 +26,13 @@ type Artifice struct {
 	db       *sqlx.DB
 
 	// authentication
-	token *oauth2.TokenSource
-	auth  *goesi.SSOAuthenticator
+	token       *oauth2.TokenSource
+	tokenCharID int32
+	auth        *goesi.SSOAuthenticator
 }
 
 // NewArtifice Service.
-func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string, refresh string) *Artifice {
+func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string, refresh string, refreshCharID string) *Artifice {
 
 	// Get a caching http client
 	cache := apicache.CreateHTTPClientCache(redis)
@@ -39,10 +41,7 @@ func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string,
 	esi := goesi.NewAPIClient(cache, "EVEData-API-Artifice")
 
 	// Setup an authenticator
-	auth := goesi.NewSSOAuthenticator(cache, clientID, secret, "",
-		[]string{"esi-universe.read_structures.v1",
-			"esi-search.search_structures.v1",
-			"esi-markets.structure_markets.v1"})
+	auth := goesi.NewSSOAuthenticator(cache, clientID, secret, "", []string{})
 
 	tok := &oauth2.Token{
 		Expiry:       time.Now(),
@@ -50,6 +49,8 @@ func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string,
 		RefreshToken: refresh,
 		TokenType:    "Bearer",
 	}
+
+	charID, err := strconv.Atoi(refreshCharID)
 
 	// Build our token
 	token, err := auth.TokenSource(tok)
@@ -65,11 +66,12 @@ func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string,
 			redis,
 			"evedata-hammer",
 		),
-		db:    db,
-		auth:  auth,
-		esi:   esi,
-		redis: redis,
-		token: &token,
+		db:          db,
+		auth:        auth,
+		esi:         esi,
+		redis:       redis,
+		tokenCharID: int32(charID),
+		token:       &token,
 	}
 
 	return s
@@ -104,10 +106,7 @@ func (s *Artifice) QueueSize() (int, error) {
 
 // Run the hammer service
 func (s *Artifice) Run() {
-	err := s.startup()
-	if err != nil {
-		log.Fatalln(err)
-	}
+	go s.startup()
 	go s.zkillboardPost()
 	go s.warKillmails()
 	go s.runMetrics()

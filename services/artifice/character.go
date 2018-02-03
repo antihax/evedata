@@ -61,7 +61,6 @@ func characterAssets(s *Artifice) error {
 		}
 
 		work = append(work, redisqueue.Work{Operation: "characterAssets", Parameter: []int32{cid, tcid}})
-
 	}
 
 	entities.Close()

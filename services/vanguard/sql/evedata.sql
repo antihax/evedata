@@ -23,11 +23,11 @@ CREATE TABLE `alliances` (
 CREATE TABLE `assets` (
   `locationID` bigint(20) unsigned NOT NULL,
   `typeID` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `quantity` bigint(20) NOT NULL DEFAULT '0',
+  `quantity` int(10) NOT NULL DEFAULT '0',
   `characterID` int(10) unsigned NOT NULL DEFAULT '0',
   `locationFlag` varchar(40) NOT NULL,
   `itemID` bigint(20) unsigned NOT NULL,
-  `locationType` varchar(40) NOT NULL,
+  `locationType` varchar(10) NOT NULL,
   `isSingleton` tinyint(1) unsigned NOT NULL,
   PRIMARY KEY (`itemID`),
   KEY `locationID` (`locationID`)
@@ -126,6 +126,7 @@ CREATE TABLE `crestTokens` (
   `notificationCacheUntil` datetime NOT NULL DEFAULT '2015-01-01 00:00:00',
   `scopes` text NOT NULL,
   `authCharacter` tinyint(1) NOT NULL DEFAULT '0',
+  `mailedError` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`characterID`,`tokenCharacterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

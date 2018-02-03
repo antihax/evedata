@@ -37,12 +37,12 @@ spec:
           valueFrom:
             secretKeyRef:
               name: esi-secret
-              key: secret
+              key: secret-tokenstore
         - name: ESI_CLIENTID_TOKENSTORE
           valueFrom:
             secretKeyRef:
               name: esi-secret
-              key: clientID
+              key: clientID-tokenstore
         - name: SQLAUTH
           valueFrom:
             secretKeyRef:
@@ -53,6 +53,11 @@ spec:
             secretKeyRef:
               name: esi-secret
               key: refreshKey
+        - name: ESI_REFRESHCHARID
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: refreshCharID
         ports:
         - containerPort: 3000
         volumeMounts:

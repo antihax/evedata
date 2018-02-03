@@ -22,7 +22,7 @@ func main() {
 	db := sqlhelper.NewDatabase()
 
 	// Make a new service and send it into the background.
-	artifice := artifice.NewArtifice(redis, db, os.Getenv("ESI_CLIENTID_TOKENSTORE"), os.Getenv("ESI_SECRET_TOKENSTORE"), os.Getenv("ESI_REFRESHKEY"))
+	artifice := artifice.NewArtifice(redis, db, os.Getenv("ESI_CLIENTID_TOKENSTORE"), os.Getenv("ESI_SECRET_TOKENSTORE"), os.Getenv("ESI_REFRESHKEY"), os.Getenv("ESI_REFRESHCHARID"))
 	go artifice.Run()
 	defer artifice.Close()
 
