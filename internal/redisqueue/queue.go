@@ -116,7 +116,10 @@ func (hq *RedisQueue) GetWork() (*Work, error) {
 	// Poll until we get data.
 	for {
 		v, err = hq.queueScript.Do(conn, "pop", hq.key)
-		if err != nil || v == nil {
+		if err != nil {
+			return nil, err
+		}
+		if v == nil {
 			time.Sleep(time.Millisecond * 100)
 			continue
 		}
