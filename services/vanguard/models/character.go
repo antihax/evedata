@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"github.com/guregu/null"
@@ -36,6 +37,8 @@ type CRESTToken struct {
 	RefreshToken     string      `db:"refreshToken" json:"refreshToken,omitempty"`
 	Scopes           string      `db:"scopes" json:"scopes"`
 	AuthCharacter    int         `db:"authCharacter" json:"authCharacter"`
+	SharingInt       string      `db:"sharingint" json:"_,omitempty"`
+	Sharing          []Shares    `json:"sharing"`
 }
 
 // [BENCHMARK] TODO
@@ -96,11 +99,35 @@ func SetTokenError(characterID int32, tokenCharacterID int32, code int, status s
 func GetCRESTTokens(characterID int32) ([]CRESTToken, error) {
 	tokens := []CRESTToken{}
 	if err := database.Select(&tokens, `
-		SELECT characterID, tokenCharacterID, characterName, lastCode, lastStatus, scopes, authCharacter
-		FROM evedata.crestTokens
-		WHERE characterID = ?;`, characterID); err != nil {
+		SELECT T.characterID, T.tokenCharacterID, characterName, lastCode, lastStatus, scopes, authCharacter, 
+		IFNULL(
+			CONCAT("[", GROUP_CONCAT(CONCAT(
+				'{"id": ', entityID, 
+				', "types": "', types, '"',
+				', "entityName": "', IFNULL(A.name, C.name), '"',
+				', "type": "', IF(A.name IS NULL, "corporation", "alliance"), '"',
+				'}')), 
+			"]")
+		, "[]") AS sharingint
+		FROM evedata.crestTokens T
+		LEFT OUTER JOIN evedata.sharing S ON T.tokenCharacterID = S.tokenCharacterID AND T.characterID = S.characterID
+		LEFT OUTER JOIN evedata.corporations C ON C.corporationID = S.entityID
+		LEFT OUTER JOIN evedata.alliances A ON A.allianceID = S.entityID
+		WHERE T.characterID = ?
+		GROUP BY characterID, tokenCharacterID;
+		;`, characterID); err != nil {
 
 		return nil, err
+	}
+
+	// Unmarshal our sharing data.
+	for index := range tokens {
+		share := []Shares{}
+		if err := json.Unmarshal([]byte(tokens[index].SharingInt), &share); err != nil {
+			return nil, err
+		}
+		tokens[index].Sharing = share
+		tokens[index].SharingInt = ""
 	}
 	return tokens, nil
 }
