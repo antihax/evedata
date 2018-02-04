@@ -13,6 +13,7 @@ import (
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
 	_ "github.com/antihax/evedata/services/vanguard/views"
+	"github.com/garyburd/redigo/redis"
 	"github.com/gorilla/context"
 )
 
@@ -46,6 +47,20 @@ func main() {
 			if err != nil {
 				log.Fatalln(err)
 			}
+		} else if os.Args[1] == "flushcache" {
+			// Erase http cache in redis
+			log.Printf("Flushing Redis\n")
+			conn := r.Get()
+			keys, err := redis.Strings(conn.Do("KEYS", "*rediscache*"))
+			if err != nil {
+				log.Println(err)
+			} else {
+				for _, key := range keys {
+					conn.Do("DEL", key)
+					log.Printf("Deleting %s\n", key)
+				}
+			}
+			conn.Close()
 
 		} else if os.Args[1] == "flushredis" {
 			// Erase everything in redis for modified deployments
