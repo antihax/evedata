@@ -419,7 +419,7 @@ CREATE TABLE `walletJournal` (
   `taxAmount` decimal(22,2) NOT NULL,
   `date` datetime NOT NULL,
   `characterID` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`refID`,`ownerID1`,`ownerID2`),
+  PRIMARY KEY (`refID`,`ownerID1`,`ownerID2`,`characterID`),
   KEY `charID_date` (`characterID`,`date`),
   KEY `char_ref_date` (`characterID`,`refTypeID`,`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -443,7 +443,7 @@ CREATE TABLE `walletTransactions` (
   `transactionFor` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `journalTransactionID` bigint(20) unsigned NOT NULL,
   `clientTypeID` bigint(20) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`transactionID`)
+  PRIMARY KEY (`transactionID`,`characterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `warAllies` (
