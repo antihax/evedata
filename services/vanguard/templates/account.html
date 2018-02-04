@@ -50,13 +50,14 @@
 			<thead>
 				<tr>
 					<th data-align="center" data-field="authCharacter" data-events="actionEvents" 
-						data-formatter="authFormatter">Auth</th>
+						data-formatter="authFormatter" title="Allow alliance access to my data">Auth</th>
+					<th data-align="center" data-field="sharing" 
+						data-formatter="sharingFormatter" title="Share my data with explicit entities">Sharing</th>
 					<th data-field="characterName">Name</th>
-					<th data-field="scopes">Scope Groups</th>
+					<th data-field="scopes" title="Authorization grants provided by this character">Scope Groups</th>
 					<th data-field="lastStatus">Last Status</th>
 					<th data-align="center" data-events="actionEvents"
-						data-field="action" data-formatter="deleteFormatter">
-							Delete</th>
+						data-field="action" data-formatter="deleteFormatter" title="Delete a character">Delete</th>
 				</tr>
 			</thead>
 		</table>
@@ -85,6 +86,23 @@
 		
 		function queryParams(params) {
 			return {};
+		}
+
+
+		function sharingFormatter(value, row) {
+			
+			var sharingWith;
+			if (value == 0) {
+				sharingWith = "Not Sharing Data";
+				value = "&#10008;";
+			} else {
+				sharingWith = value.map(val => {
+					return val.entityName + ": " + val.types +"\n";
+				});
+
+				value = "&#9989;";
+			}
+			return '<a class="toggleauth" style="text-decoration: none;" href="/shares" title="'+sharingWith+'">'+value+'<\/a>' ;
 		}
 
 		function authFormatter(value, row) {
