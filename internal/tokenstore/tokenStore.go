@@ -36,7 +36,7 @@ func (c *TokenStore) GetToken(characterID int32, tokenCharacterID int32) (*oauth
 		}
 	}
 
-	if t.Expiry.Before(time.Now()) {
+	if t.Expiry.Before(time.Now().Add(time.Minute)) {
 		a, err := c.auth.TokenSource(t)
 		if err != nil {
 			c.tokenError(characterID, tokenCharacterID, 999, err.Error())
