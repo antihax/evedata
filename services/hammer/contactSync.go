@@ -179,7 +179,6 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 			for start := 0; start < len(erase); start = start + 20 {
 				end := min(start+20, len(erase))
 				if _, err := s.esi.ESI.ContactsApi.DeleteCharactersCharacterIdContacts(auth, token.cid, erase[start:end], nil); err != nil {
-					//if err := s.deleteContactsCREST(auth, token.cid, erase[start:end]); err != nil {
 					log.Println(err)
 					return
 				}
@@ -191,7 +190,7 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 			for start := 0; start < len(active); start = start + 100 {
 				end := min(start+100, len(active))
 				if _, _, err := s.esi.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), active[start:end], -10, nil); err != nil {
-					log.Println(err)
+					log.Println(err, active[start:end])
 					return
 				}
 			}
