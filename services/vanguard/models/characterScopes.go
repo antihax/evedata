@@ -3,8 +3,6 @@ package models
 import (
 	"sort"
 	"strings"
-
-	"github.com/antihax/goesi"
 )
 
 type ScopeGroup struct {
@@ -17,12 +15,9 @@ var characterScopes = []ScopeGroup{
 
 	{"esi-characters.read_contacts.v1", "contacts"},
 	{"esi-characters.write_contacts.v1", "contacts"},
-	{goesi.ScopeCharacterContactsRead, "contacts"},
-	{goesi.ScopeCharacterContactsWrite, "contacts"},
 
 	{"esi-characters.read_notifications.v1", "notifications"},
 
-	{goesi.ScopeCharacterMarketOrdersRead, "market"},
 	{"esi-universe.read_structures.v1", "market"},
 	{"esi-search.search_structures.v1", "market"},
 	{"esi-markets.structure_markets.v1", "market"},
@@ -30,8 +25,12 @@ var characterScopes = []ScopeGroup{
 	{"esi-ui.open_window.v1", "ui-control"},
 	{"esi-ui.write_waypoint.v1", "ui-control"},
 
-	{goesi.ScopeCharacterWalletRead, "wallet"},
 	{"esi-wallet.read_character_wallet.v1", "wallet"},
+
+	{"esi-characters.read_corporation_roles.v1", "roles"},
+	{"esi-characters.read_titles.v1", "roles"},
+	{"esi-alliances.read_contacts.v1", "roles"},
+	{"esi-corporations.read_contacts.v1", "roles"},
 }
 
 var groupReasons = map[string]string{
@@ -40,7 +39,8 @@ var groupReasons = map[string]string{
 	"wallet":        "Profit and Loss Tools",
 	"assets":        "Asset Value Tools",
 	"ui-control":    "Control of in-game UI",
-	"notifications": "Notification tools (locators)",
+	"notifications": "Notification tools (locators, structures, wars)",
+	"roles":         "Corporation services based on corp roles",
 }
 
 // shareReasons for data shares between characters and entities
