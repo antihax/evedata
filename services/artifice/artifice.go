@@ -164,6 +164,7 @@ func (s *Artifice) doSQLTranq(stmt string, args ...interface{}) error {
 	if err != nil {
 		return err
 	}
+	defer tx.Rollback()
 
 	_, err = tx.Exec(stmt, args...)
 	if err != nil {

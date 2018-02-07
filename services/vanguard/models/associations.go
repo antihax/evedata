@@ -117,6 +117,8 @@ func buildKillmailRelationships() error {
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
+
 	return findRelationships(rows, 1)
 }
 
@@ -136,6 +138,7 @@ func buildCorpJoinRelationships() error {
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
 	return findRelationships(rows, 2)
 }
 

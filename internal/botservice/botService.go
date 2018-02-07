@@ -1,4 +1,4 @@
-package botService
+package botservice
 
 // AuthService provides access to an authenticated service
 type BotService interface {

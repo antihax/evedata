@@ -31,6 +31,7 @@ func (s *Nail) killmailHandler(message *nsq.Message) error {
 		log.Println(err)
 		return err
 	}
+	defer tx.Rollback()
 
 	_, err = tx.Exec(`
 		INSERT INTO evedata.killmails

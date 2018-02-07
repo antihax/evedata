@@ -231,8 +231,8 @@ func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {
 
 	key := fmt.Sprintf("EVEDATA_TOKENSTORE_%d_%d", characterID, v.CharacterID)
 	red := c.Cache.Get()
+	defer red.Close()
 	red.Do("DEL", key)
-	red.Close()
 
 	http.Redirect(w, r, "/account", 302)
 	httpErrCode(w, nil, http.StatusMovedPermanently)

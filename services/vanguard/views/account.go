@@ -217,8 +217,8 @@ func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 
 	key := fmt.Sprintf("EVEDATA_TOKENSTORE_%d_%d", characterID, cid)
 	red := g.Cache.Get()
+	defer red.Close()
 	red.Do("DEL", key)
-	red.Close()
 
 	if err = s.Save(r, w); err != nil {
 		httpErr(w, err)

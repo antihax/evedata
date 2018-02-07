@@ -127,6 +127,7 @@ func warsUpdate(s *Artifice) error {
 	if err != nil {
 		return err
 	}
+	defer wars.Close()
 
 	work := []redisqueue.Work{}
 
@@ -142,8 +143,6 @@ func warsUpdate(s *Artifice) error {
 		work = append(work, redisqueue.Work{Operation: "war", Parameter: id})
 
 	}
-
-	wars.Close()
 
 	return s.QueueWork(work, redisqueue.Priority_Normal)
 }

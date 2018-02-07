@@ -51,6 +51,7 @@ func main() {
 			// Erase http cache in redis
 			log.Printf("Flushing Redis\n")
 			conn := r.Get()
+			defer conn.Close()
 			keys, err := redis.Strings(conn.Do("KEYS", "*rediscache*"))
 			if err != nil {
 				log.Println(err)
@@ -60,14 +61,13 @@ func main() {
 					log.Printf("Deleting %s\n", key)
 				}
 			}
-			conn.Close()
 
 		} else if os.Args[1] == "flushredis" {
 			// Erase everything in redis for modified deployments
 			log.Printf("Flushing Redis\n")
 			conn := r.Get()
+			defer conn.Close()
 			conn.Do("FLUSHALL")
-			conn.Close()
 		}
 	}
 

@@ -20,6 +20,7 @@ func characterTransactions(s *Artifice) error {
 	if err != nil {
 		return err
 	}
+	defer entities.Close()
 
 	work := []redisqueue.Work{}
 
@@ -36,8 +37,6 @@ func characterTransactions(s *Artifice) error {
 		work = append(work, redisqueue.Work{Operation: "characterWalletJournal", Parameter: []int32{cid, tcid}})
 	}
 
-	entities.Close()
-
 	return s.QueueWork(work, redisqueue.Priority_Normal)
 }
 
@@ -48,6 +47,7 @@ func characterAssets(s *Artifice) error {
 	if err != nil {
 		return err
 	}
+	defer entities.Close()
 
 	work := []redisqueue.Work{}
 
@@ -63,8 +63,6 @@ func characterAssets(s *Artifice) error {
 		work = append(work, redisqueue.Work{Operation: "characterAssets", Parameter: []int32{cid, tcid}})
 	}
 
-	entities.Close()
-
 	return s.QueueWork(work, redisqueue.Priority_Normal)
 }
 
@@ -75,6 +73,7 @@ func characterNotifications(s *Artifice) error {
 	if err != nil {
 		return err
 	}
+	defer entities.Close()
 
 	work := []redisqueue.Work{}
 
@@ -91,8 +90,6 @@ func characterNotifications(s *Artifice) error {
 
 	}
 
-	entities.Close()
-
 	return s.QueueWork(work, redisqueue.Priority_High)
 }
 
@@ -107,6 +104,7 @@ func characterContactSync(s *Artifice) error {
 	if err != nil {
 		return err
 	}
+	defer entities.Close()
 
 	work := []redisqueue.Work{}
 
@@ -128,8 +126,6 @@ func characterContactSync(s *Artifice) error {
 			destinations,
 		}})
 	}
-
-	entities.Close()
 
 	return s.QueueWork(work, redisqueue.Priority_Normal)
 }

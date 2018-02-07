@@ -1,4 +1,4 @@
-package tsBotService
+package tsbotservice
 
 import (
 	"testing"

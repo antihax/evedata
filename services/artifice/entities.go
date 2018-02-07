@@ -52,6 +52,7 @@ func characterUpdate(s *Artifice) error {
 	if err != nil {
 		return err
 	}
+	defer entities.Close()
 
 	work := []redisqueue.Work{}
 
@@ -68,8 +69,6 @@ func characterUpdate(s *Artifice) error {
 
 	}
 
-	entities.Close()
-
 	return s.QueueWork(work, redisqueue.Priority_Low)
 }
 
@@ -81,6 +80,7 @@ func corporationUpdate(s *Artifice) error {
 	if err != nil {
 		return err
 	}
+	defer entities.Close()
 
 	work := []redisqueue.Work{}
 
@@ -96,8 +96,6 @@ func corporationUpdate(s *Artifice) error {
 		work = append(work, redisqueue.Work{Operation: "corporation", Parameter: id})
 
 	}
-
-	entities.Close()
 
 	return s.QueueWork(work, redisqueue.Priority_Low)
 }

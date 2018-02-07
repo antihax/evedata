@@ -27,11 +27,9 @@ func ConnectRedisTestPool() *redis.Pool {
 		false,
 	)
 	c := redis.Get()
+	defer c.Close()
+
 	_, err := c.Do("FLUSHALL")
-	if err != nil {
-		panic(err)
-	}
-	err = c.Close()
 	if err != nil {
 		panic(err)
 	}
