@@ -7,28 +7,11 @@ import (
 
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/gobcoder"
+	"github.com/antihax/evedata/services/conservator"
 	"github.com/antihax/evedata/services/vanguard/models"
 	nsq "github.com/nsqio/go-nsq"
 	yaml "gopkg.in/yaml.v2"
 )
-
-// Locator is a yaml map for locator agent responses
-type Locator struct {
-	AgentLocation struct {
-		Region        int `yaml:"3"`
-		Constellation int `yaml:"4"`
-		SolarSystem   int `yaml:"5"`
-		Station       int `yaml:"15"`
-	} `yaml:"agentLocation"`
-	TargetLocation struct {
-		Region        int `yaml:"3"`
-		Constellation int `yaml:"4"`
-		SolarSystem   int `yaml:"5"`
-		Station       int `yaml:"15"`
-	} `yaml:"targetLocation"`
-	CharacterID  int `yaml:"characterID"`
-	MessageIndex int `yaml:"messageIndex"`
-}
 
 func init() {
 	AddHandler("characterNotifications", spawnCharacterNotificationsConsumer)
@@ -56,7 +39,7 @@ func (s *Nail) characterNotificationsHandler(message *nsq.Message) error {
 	for _, n := range notifications.Notifications {
 		if n.Type_ == "LocateCharMsg" {
 			done = true
-			l := Locator{}
+			l := conservator.Locator{}
 			err = yaml.Unmarshal([]byte(n.Text), &l)
 			if err != nil {
 				return err

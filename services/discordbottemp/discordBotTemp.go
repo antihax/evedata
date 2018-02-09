@@ -37,7 +37,7 @@ func NewDiscordBot(redis *redis.Pool, db *sqlx.DB, addresses []string, discordTo
 		wg:                &sync.WaitGroup{},
 		outQueue: redisqueue.NewRedisQueue(
 			redis,
-			"evedata-test-hammer",
+			"evedata-hammer",
 		),
 	}
 

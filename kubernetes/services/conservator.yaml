@@ -1,0 +1,55 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: evedata-conservator
+  namespace: evedata
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: evedata-conservator
+      labels:
+        app: conservator
+      annotations:
+        prometheus.io/scrape: "true"
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - conservator
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: evedata-conservator
+        image: antihax/evedata-conservator
+        imagePullPolicy: Always
+        env:
+        - name: SQLAUTH
+          valueFrom:
+            secretKeyRef:
+              name: sql-password
+              key: sqlauth
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-password
+              key: password
+        - name: DISCORD_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: discord-secret
+              key: discord-token
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - mountPath: /etc/ssl/certs
+          name: ca-certs
+      volumes:
+      - name: ca-certs
+        hostPath:
+          path: /etc/ssl/certs
+          type: Directory

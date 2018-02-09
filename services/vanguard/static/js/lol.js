@@ -1,0 +1,1 @@
+top.location.href = "https://www.evedata.org/";

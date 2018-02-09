@@ -3,7 +3,7 @@ package conservator
 import (
 	"fmt"
 	"log"
-	"sync"
+	"strings"
 	"time"
 
 	"github.com/antihax/evedata/internal/gobcoder"
@@ -11,35 +11,94 @@ import (
 	nsq "github.com/nsqio/go-nsq"
 )
 
-type atWarWith struct {
-	ID     int32     `db:"id"`
-	Start  time.Time `db:"timeStarted"`
-	Finish time.Time `db:"timeFinished"`
-}
-
-var warsMap sync.Map
-var highsecSystems map[int32]bool
-
 func init() {
 	addHandler("killmail", spawnKillmailConsumer)
-	highsecSystems = make(map[int32]bool)
 }
 
 func spawnKillmailConsumer(s *Conservator, consumer *nsq.Consumer) {
 	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.killmailHandler)))
 }
 
+type atWarWith struct {
+	ID     int32     `db:"id"`
+	Start  time.Time `db:"timeStarted"`
+	Finish time.Time `db:"timeFinished"`
+}
+
+func (s *Conservator) atWarWithKillmail(entityID int32, mail *esi.GetKillmailsKillmailIdKillmailHashOk) bool {
+	var entity atWarWith
+	for _, a := range mail.Attackers {
+		if i, ok := s.warsMap[entityID].Load(a.AllianceId); ok {
+			v := i.(atWarWith)
+			if v.Start.Before(time.Now().UTC()) && (v.Finish.IsZero() || v.Finish.After(time.Now().UTC())) {
+				entity = v
+				break
+			}
+		} else if i, ok := s.warsMap[entityID].Load(a.CorporationId); ok {
+			v := i.(atWarWith)
+			if v.Start.Before(time.Now().UTC()) && (v.Finish.IsZero() || v.Finish.After(time.Now().UTC())) {
+				entity = v
+				break
+			}
+		}
+	}
+	return entity.ID != 0
+}
+
+func (s *Conservator) reportKillmail(mail *esi.GetKillmailsKillmailIdKillmailHashOk) error {
+	s.channels.Range(func(ki, vi interface{}) bool {
+		channel := vi.(Channel)
+
+		if !inSlice("kill", strings.Split(channel.Services, ",")) {
+			return true // Don't have killmails on this channel
+		}
+
+		// Don't duplicate
+		if s.outQueue.CheckWorkCompleted(fmt.Sprintf("evedata-bot-killmail-sent:%s", channel.ChannelID), int64(mail.KillmailId)) {
+			return true
+		}
+
+		// Get the service
+		si, ok := s.services.Load(channel.BotServiceID)
+		if !ok {
+			log.Printf("Missing Bot ID %d\n", channel.BotServiceID)
+			return true
+		}
+		service := si.(Service)
+
+		if channel.Options.Killmail.IgnoreWorthless && isWorthlessTypeID(mail.Victim.ShipTypeId) {
+			return true
+		}
+		if channel.Options.Killmail.IgnoreHighSec && s.solarSystems[mail.SolarSystemId] >= 0.5 {
+			return true
+		}
+		if channel.Options.Killmail.IgnoreLowSec &&
+			s.solarSystems[mail.SolarSystemId] > 0.0 && s.solarSystems[mail.SolarSystemId] < 0.5 {
+			return true
+		}
+		if channel.Options.Killmail.IgnoreNullSec && s.solarSystems[mail.SolarSystemId] <= 0.0 {
+			return true
+		}
+		if channel.Options.Killmail.War && !s.atWarWithKillmail(service.EntityID, mail) {
+			return true
+		}
+
+		if err := service.Server.SendMessageToChannel(channel.ChannelID,
+			fmt.Sprintf("https://zkillboard.com/kill/%d/", mail.KillmailId)); err != nil {
+			log.Println(err)
+		}
+		s.outQueue.SetWorkCompleted(fmt.Sprintf("evedata-bot-killmail-sent:%s", channel.ChannelID), int64(mail.KillmailId))
+		return true
+	})
+
+	return nil
+}
+
 func (s *Conservator) killmailHandler(message *nsq.Message) error {
 	mail := esi.GetKillmailsKillmailIdKillmailHashOk{}
-	err := gobcoder.GobDecoder(message.Body, &mail)
-	if err != nil {
+	if err := gobcoder.GobDecoder(message.Body, &mail); err != nil {
 		log.Println(err)
 		return err
-	}
-
-	// Don't report worthless stuff
-	if isWorthlessTypeID(mail.Victim.ShipTypeId) {
-		return nil
 	}
 
 	// Skip killmails more than an hour old
@@ -47,48 +106,9 @@ func (s *Conservator) killmailHandler(message *nsq.Message) error {
 		return nil
 	}
 
-	var entity atWarWith
-	for _, a := range mail.Attackers {
-		if i, ok := warsMap.Load(a.AllianceId); ok {
-			v := i.(atWarWith)
-			if v.Start.Before(time.Now().UTC()) && (v.Finish.IsZero() || v.Finish.After(time.Now().UTC())) {
-				entity = v
-			}
-		} else if i, ok := warsMap.Load(a.CorporationId); ok {
-			v := i.(atWarWith)
-			if v.Start.Before(time.Now().UTC()) && (v.Finish.IsZero() || v.Finish.After(time.Now().UTC())) {
-				entity = v
-			}
-		}
-	}
-
-	// didn't match
-	if entity.ID == 0 {
-		return nil
-	}
-
-	// Don't duplicate notifications
-	if !s.outQueue.CheckWorkCompleted(fmt.Sprintf("evedata-bot-killmail-sent:%d", 99002974), int64(mail.KillmailId)) {
-		if highsecSystems[mail.SolarSystemId] { // is it in highsec?
-			err = sendKillMessage(fmt.Sprintf("https://zkillboard.com/kill/%d/", mail.KillmailId))
-			if err != nil {
-				return err
-			}
-
-			s.outQueue.SetWorkCompleted(fmt.Sprintf("evedata-bot-killmail-sent:%d", 99002974), int64(mail.KillmailId))
-		}
-	}
-	return nil
-}
-
-func (s *Conservator) getSystems() error {
-	var systems []int32
-	err := s.db.Select(&systems, "SELECT solarSystemID FROM mapSolarSystems WHERE round(security, 1) > 0.4")
-	if err != nil {
+	if err := s.reportKillmail(&mail); err != nil {
+		log.Println(err)
 		return err
-	}
-	for _, s := range systems {
-		highsecSystems[s] = true
 	}
 	return nil
 }
@@ -116,20 +136,4 @@ func isWorthlessTypeID(typeID int32) bool {
 		}
 	}
 	return false
-}
-
-func (s *Conservator) updateWars() {
-	throttle := time.Tick(time.Second * 120)
-	for {
-		warlist := []atWarWith{}
-		err := s.db.Select(&warlist, "CALL evedata.atWarWith(99002974);")
-		if err != nil {
-			log.Println(err)
-		}
-
-		for _, war := range warlist {
-			warsMap.Store(war.ID, war)
-		}
-		<-throttle
-	}
 }

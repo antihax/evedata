@@ -7,6 +7,7 @@ import (
 
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/gobcoder"
+	"github.com/bradfitz/slice"
 	nsq "github.com/nsqio/go-nsq"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -26,29 +27,31 @@ func (s *Conservator) characterNotificationsHandler(message *nsq.Message) error 
 		log.Println(err)
 		return err
 	}
+
 	if len(notifications.Notifications) == 0 {
 		return nil
 	}
 
-	// Only process contracts.
-	if notifications.TokenCharacterID == 1962167517 || notifications.TokenCharacterID == 94135910 {
-		for _, n := range notifications.Notifications {
-			// Skip the notification if if is more than three hours old
+	// sort by time
+	slice.Sort(notifications.Notifications[:], func(i, j int) bool {
+		return notifications.Notifications[i].Timestamp.Unix() < notifications.Notifications[j].Timestamp.Unix()
+	})
 
-			if n.Timestamp.Before(time.Now().Add(-time.Hour * 6)) {
-				continue
-			}
+	if len(notifications.Notifications) == 0 {
+		log.Println("we broke the notifications")
+		return nil
+	}
 
-			if s.outQueue.CheckWorkCompleted(fmt.Sprintf("evedata-bot-notification-sent:%d", 99002974), n.NotificationId) {
-				continue
-			}
+	for _, n := range notifications.Notifications {
+		// Skip the notification if if is old
+		if n.Timestamp.Before(time.Now().UTC().Add(-time.Hour * 12)) {
+			continue
+		}
 
-			err := s.checkNotification(n.Type_, n.Text, n.Timestamp)
-			if err != nil {
-				continue
-			}
-
-			s.outQueue.SetWorkCompleted(fmt.Sprintf("evedata-bot-notification-sent:%d", 99002974), n.NotificationId)
+		err := s.checkNotification(notifications.TokenCharacterID, n.NotificationId, n.Type_, n.Text, n.Timestamp)
+		if err != nil {
+			log.Println(err)
+			continue
 		}
 	}
 	return nil
@@ -87,14 +90,53 @@ type OrbitalReinforced struct {
 	SolarSystemID       int64 `yaml:"solarSystemID"`
 }
 
-func (s *Conservator) checkNotification(notificationType, text string, timestamp time.Time) error {
+// Locator message
+type Locator struct {
+	AgentLocation struct {
+		Region        int64 `yaml:"3"`
+		Constellation int64 `yaml:"4"`
+		SolarSystem   int64 `yaml:"5"`
+		Station       int64 `yaml:"15,omitempty"`
+	} `yaml:"agentLocation"`
+	TargetLocation struct {
+		Region        int64 `yaml:"3"`
+		Constellation int64 `yaml:"4"`
+		SolarSystem   int64 `yaml:"5"`
+		Station       int64 `yaml:"15,omitempty"`
+	} `yaml:"targetLocation"`
+	CharacterID  int64 `yaml:"characterID"`
+	MessageIndex int64 `yaml:"messageIndex"`
+}
 
+func (s *Conservator) checkNotification(characterID int32, notificationID int64, notificationType, text string, timestamp time.Time) error {
 	switch notificationType {
+
+	case "LocateCharMsg":
+		l := Locator{}
+		if err := yaml.Unmarshal([]byte(text), &l); err != nil {
+			return err
+		}
+		systemName, err := s.getCelestialName(l.TargetLocation.SolarSystem)
+		if err != nil {
+			return err
+		}
+		regionName, _ := s.getCelestialName(l.TargetLocation.Region)
+
+		character, _ := s.getEntityName(l.CharacterID)
+
+		stationName, _ := s.getStationName(l.TargetLocation.Station)
+
+		message := fmt.Sprintf(" %s (https://www.evedata.org/character?id=%d) has been located in %s of %s",
+			character.Name, l.CharacterID, systemName, regionName)
+
+		if stationName != "" {
+			message = fmt.Sprintf("%s docked at %s", message, stationName)
+		}
+		return s.sendNotificationMessage("locator", characterID, notificationID, message)
 
 	case "AllWarDeclaredMsg", "CorpWarDeclaredMsg":
 		l := AllWarDeclaredMsg{}
-		err := yaml.Unmarshal([]byte(text), &l)
-		if err != nil {
+		if err := yaml.Unmarshal([]byte(text), &l); err != nil {
 			return err
 		}
 
@@ -107,8 +149,9 @@ func (s *Conservator) checkNotification(notificationType, text string, timestamp
 			return err
 		}
 
-		sendNotificationMessage(fmt.Sprintf("@everyone [%s] [%s](https://www.evedata.org/%s?id=%d) just declared war on [%s](https://www.evedata.org/%s?id=%d)\n",
-			timestamp.UTC().String(), attacker.Name, attacker.EntityType, l.DeclaredByID, defender.Name, defender.EntityType, l.AgainstID))
+		return s.sendNotificationMessage("war", characterID, notificationID, fmt.Sprintf("@everyone  [%s](https://www.evedata.org/%s?id=%d) just declared war on [%s](https://www.evedata.org/%s?id=%d)\n",
+			attacker.Name, attacker.EntityType, l.DeclaredByID, defender.Name, defender.EntityType, l.AgainstID))
+
 	case "StructureUnderAttack", "OrbitalAttacked", "TowerAlertMsg":
 		l := OrbitalAttacked{}
 		yaml.Unmarshal([]byte(text), &l)
@@ -147,8 +190,8 @@ func (s *Conservator) checkNotification(notificationType, text string, timestamp
 			return err
 		}
 
-		return sendNotificationMessage(fmt.Sprintf("@everyone [%s] %s is under attack at %s in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%  A: %.1f%%  H: %.1f%% \n",
-			timestamp.UTC().String(), structureType, locationName, systemName, attackerName.Name, attackerType, attacker, l.ShieldLevel*100, l.ArmorValue*100, l.HullValue*100))
+		return s.sendNotificationMessage("structure", characterID, notificationID, fmt.Sprintf("@everyone  %s is under attack at %s in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%  A: %.1f%%  H: %.1f%% \n",
+			structureType, locationName, systemName, attackerName.Name, attackerType, attacker, l.ShieldLevel*100, l.ArmorValue*100, l.HullValue*100))
 
 	case "OrbitalReinforced":
 		l := OrbitalReinforced{}
@@ -188,9 +231,49 @@ func (s *Conservator) checkNotification(notificationType, text string, timestamp
 			return err
 		}
 
-		return sendNotificationMessage(fmt.Sprintf("@everyone [%s] %s was reinforced at %s in %s by [%s](https://www.evedata.org/%s?id=%d). Timer expires at %s\n",
-			timestamp.UTC().String(), structureType, locationName, systemName, attackerName.Name, attackerType, attacker,
-			time.Unix(datapackages.WintoUnixTimestamp(l.ReinforceExitTime), 0).String()))
+		return s.sendNotificationMessage("structure", characterID, notificationID, fmt.Sprintf("@everyone %s was reinforced at %s in %s by [%s](https://www.evedata.org/%s?id=%d).\n\n Timer expires at %s\n",
+			structureType, locationName, systemName, attackerName.Name, attackerType, attacker,
+			time.Unix(datapackages.WintoUnixTimestamp(l.ReinforceExitTime), 0).UTC().String()))
+	}
+
+	return nil
+}
+
+func (s *Conservator) sendNotificationMessage(messageType string, characterID int32, notificationID int64, message string) error {
+	shares, ok := s.notifications[messageType][characterID]
+	if !ok {
+		return nil
+	}
+	for _, share := range shares {
+		channelData := unpackChannelData(share.Packed)
+		for _, channel := range channelData {
+			if inSlice(messageType, channel.Services) {
+				if s.outQueue.CheckWorkCompleted(fmt.Sprintf("evedata-bot-notification-sent:%s", channel.ChannelID), notificationID) {
+					continue
+				}
+
+				// Get the channel
+				ci, ok := s.channels.Load(channel.ChannelID)
+				if !ok {
+					log.Printf("Missing Channel ID %s\n", channel.ChannelID)
+					continue
+				}
+				c := ci.(Channel)
+
+				// Get the service
+				si, ok := s.services.Load(c.BotServiceID)
+				if !ok {
+					log.Printf("Missing Bot ID %d\n", c.BotServiceID)
+					continue
+				}
+				service := si.(Service)
+
+				if err := service.Server.SendMessageToChannel(channel.ChannelID, message); err != nil {
+					log.Println(err)
+				}
+				s.outQueue.SetWorkCompleted(fmt.Sprintf("evedata-bot-notification-sent:%s", channel.ChannelID), notificationID)
+			}
+		}
 	}
 	return nil
 }
@@ -208,7 +291,9 @@ func (s *Conservator) getEntityName(id int64) (*EntityName, error) {
 		SELECT name, 'corporation' AS type FROM evedata.corporations WHERE corporationID = ?
 		UNION
 		SELECT name, 'alliance' AS type FROM evedata.alliances WHERE allianceID = ?
-		LIMIT 1`, id, id).StructScan(&ref); err != nil {
+		UNION
+		SELECT name, 'character' AS type FROM evedata.characters WHERE characterID = ?
+		LIMIT 1`, id, id, id).StructScan(&ref); err != nil {
 		return nil, err
 	}
 	return &ref, nil
@@ -244,6 +329,18 @@ func (s *Conservator) getCelestialName(id int64) (string, error) {
 	ref := ""
 	if err := s.db.QueryRowx(`
 		SELECT itemName FROM mapDenormalize WHERE itemID = ?
+		LIMIT 1`, id).Scan(&ref); err != nil {
+		return "", err
+	}
+	return ref, nil
+}
+
+// Obtain Station name.
+// [BENCHMARK] 0.000 sec / 0.000 sec
+func (s *Conservator) getStationName(id int64) (string, error) {
+	ref := ""
+	if err := s.db.QueryRowx(`
+		SELECT stationName FROM staStations WHERE stationID = ?
 		LIMIT 1`, id).Scan(&ref); err != nil {
 		return "", err
 	}
