@@ -33,6 +33,34 @@ CREATE TABLE `assets` (
   KEY `locationID` (`locationID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `botChannels` (
+  `botServiceID` int(10) unsigned NOT NULL,
+  `channelID` varchar(255) COLLATE utf8_bin NOT NULL,
+  `services` set('locator','kill','structure','war') COLLATE utf8_bin NOT NULL,
+  `options` text COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`channelID`),
+  UNIQUE KEY `channelID_UNIQUE` (`channelID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `botDelegate` (
+  `botServiceID` int(11) NOT NULL,
+  `characterID` int(11) NOT NULL,
+  `permissions` enum('administrator') COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`botServiceID`,`characterID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `botServices` (
+  `botServiceID` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `entityID` int(11) NOT NULL,
+  `address` varchar(255) COLLATE utf8_bin NOT NULL,
+  `authentication` varchar(255) COLLATE utf8_bin NOT NULL,
+  `type` enum('discord','ts3','slack') COLLATE utf8_bin NOT NULL,
+  `services` set('auth','auth5','auth10') COLLATE utf8_bin NOT NULL,
+  `options` text COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`botServiceID`),
+  UNIQUE KEY `UNIQUE` (`entityID`,`address`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `characterAssociations` (
   `characterID` int(10) unsigned NOT NULL,
   `associateID` int(10) unsigned NOT NULL,
@@ -382,7 +410,7 @@ CREATE TABLE `sharing` (
   `characterID` int(11) unsigned NOT NULL,
   `tokenCharacterID` int(11) unsigned NOT NULL,
   `entityID` int(11) unsigned NOT NULL,
-  `types` set('locator','structure','war') COLLATE utf8_bin NOT NULL,
+  `types` set('locator','kill','structure','war') COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`characterID`,`tokenCharacterID`,`entityID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='For sharing character information with entities.';
 
@@ -470,6 +498,25 @@ CREATE TABLE `wars` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+		DELIMITER $$
+		CREATE PROCEDURE atWarWith(IN entity INT)
+		BEGIN
+			SELECT DISTINCT IF (aggressorID = entity, defenderID, aggressorID) AS id, timeStarted, timeFinished
+				FROM evedata.wars W
+				LEFT OUTER JOIN evedata.warAllies A ON A.id = W.id
+				WHERE (aggressorID = entity OR defenderID = entity OR allyID = entity) AND
+					(timeFinished > UTC_TIMESTAMP() OR
+					timeFinished = "0001-01-01 00:00:00")
+			UNION
+				SELECT DISTINCT allyID AS id, timeStarted, timeFinished
+				FROM evedata.wars W
+				INNER JOIN evedata.warAllies A ON A.id = W.id
+				WHERE (aggressorID = entity) AND
+					(timeFinished > UTC_TIMESTAMP() OR
+					timeFinished = "0001-01-01 00:00:00");
+			END$$
+			DELIMITER ;
+		
 		DELIMITER $$
 		CREATE FUNCTION constellationIDBySolarSystem(system INT UNSIGNED) RETURNS int(10) unsigned
 			DETERMINISTIC

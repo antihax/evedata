@@ -75,6 +75,27 @@ func DumpDatabase(file string, db string) (err error) {
 
 	f.WriteString(`
 		DELIMITER $$
+		CREATE PROCEDURE atWarWith(IN entity INT)
+		BEGIN
+			SELECT DISTINCT IF (aggressorID = entity, defenderID, aggressorID) AS id, timeStarted, timeFinished
+				FROM evedata.wars W
+				LEFT OUTER JOIN evedata.warAllies A ON A.id = W.id
+				WHERE (aggressorID = entity OR defenderID = entity OR allyID = entity) AND
+					(timeFinished > UTC_TIMESTAMP() OR
+					timeFinished = "0001-01-01 00:00:00")
+			UNION
+				SELECT DISTINCT allyID AS id, timeStarted, timeFinished
+				FROM evedata.wars W
+				INNER JOIN evedata.warAllies A ON A.id = W.id
+				WHERE (aggressorID = entity) AND
+					(timeFinished > UTC_TIMESTAMP() OR
+					timeFinished = "0001-01-01 00:00:00");
+			END$$
+			DELIMITER ;
+		`)
+
+	f.WriteString(`
+		DELIMITER $$
 		CREATE FUNCTION constellationIDBySolarSystem(system INT UNSIGNED) RETURNS int(10) unsigned
 			DETERMINISTIC
 		BEGIN

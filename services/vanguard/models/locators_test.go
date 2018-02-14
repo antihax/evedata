@@ -3,7 +3,7 @@ package models
 import "testing"
 
 func TestAddShare(t *testing.T) {
-	err := AddShare(1, 1, 1, "war")
+	err := AddShare(1, 1, 1, "kill")
 	if err != nil {
 		t.Error(err)
 		return

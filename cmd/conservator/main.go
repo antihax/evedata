@@ -21,7 +21,7 @@ func main() {
 	db := sqlhelper.NewDatabase()
 	redis := redigohelper.ConnectRedisProdPool()
 	// Make a new service and send it into the background.
-	c := conservator.NewConservator(redis, db, nsqhelper.Prod)
+	c := conservator.NewConservator(redis, db, nsqhelper.Prod, os.Getenv("DISCORD_TOKEN"))
 	go c.Run()
 
 	// Run metrics
