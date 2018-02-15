@@ -6,12 +6,11 @@ import (
 )
 
 func init() {
-	registerTrigger("marketMaint", marketMaint, time.NewTicker(time.Second*3600))
-	registerTrigger("discoveredAssetsMaint", discoveredAssetsMaint, time.NewTicker(time.Second*3600))
-	registerTrigger("entityMaint", entityMaint, time.NewTicker(time.Second*3600*3))
-	registerTrigger("killmailMaint", killmailMaint, time.NewTicker(time.Second*3600))
-	registerTrigger("contactSyncMaint", contactSyncMaint, time.NewTicker(time.Second*3600*6))
-
+	registerTrigger("marketMaint", marketMaint, time.NewTicker(time.Second*3610))
+	registerTrigger("discoveredAssetsMaint", discoveredAssetsMaint, time.NewTicker(time.Second*3620))
+	registerTrigger("entityMaint", entityMaint, time.NewTicker(time.Second*3630*3))
+	registerTrigger("killmailMaint", killmailMaint, time.NewTicker(time.Second*3640))
+	registerTrigger("contactSyncMaint", contactSyncMaint, time.NewTicker(time.Second*3615*6))
 }
 
 func contactSyncMaint(s *Artifice) error {
