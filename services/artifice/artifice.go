@@ -177,3 +177,31 @@ func (s *Artifice) doSQLTranq(stmt string, args ...interface{}) error {
 	}
 	return nil
 }
+
+// Retry the exec until we get no error (deadlocks) and no results are returned
+func (s *Artifice) RetryExecTillNoRows(sql string, args ...interface{}) error {
+	for {
+		rows, err := s.RetryExec(sql, args...)
+		if err != nil {
+			return err
+		}
+		if rows == 0 {
+			break
+		}
+	}
+	return nil
+}
+
+// Retry the exec until we get no error (deadlocks)
+func (s *Artifice) RetryExec(sql string, args ...interface{}) (int64, error) {
+	var rows int64
+	for {
+		res, err := s.db.Exec(sql, args...)
+		if err == nil {
+			rows, err = res.RowsAffected()
+			return rows, err
+		} else if strings.Contains(err.Error(), "1213") == false {
+			return rows, err
+		}
+	}
+}

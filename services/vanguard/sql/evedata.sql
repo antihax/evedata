@@ -59,7 +59,7 @@ CREATE TABLE `botServices` (
   `options` text COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`botServiceID`),
   UNIQUE KEY `UNIQUE` (`entityID`,`address`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `characterAssociations` (
   `characterID` int(10) unsigned NOT NULL,
@@ -411,6 +411,7 @@ CREATE TABLE `sharing` (
   `tokenCharacterID` int(11) unsigned NOT NULL,
   `entityID` int(11) unsigned NOT NULL,
   `types` set('locator','kill','structure','war') COLLATE utf8_bin NOT NULL,
+  `ignore` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`characterID`,`tokenCharacterID`,`entityID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='For sharing character information with entities.';
 

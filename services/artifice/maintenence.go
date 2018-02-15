@@ -33,21 +33,21 @@ func contactSyncMaint(s *Artifice) error {
 
 func killmailMaint(s *Artifice) error { // Broken into smaller chunks so we have a chance of it getting completed.
 	// Delete stuff older than 90 days, we do not care...
-	if err := s.doSQL(`
+	if err := s.RetryExecTillNoRows(`
 				DELETE A.* FROM evedata.killmailAttackers A
 		            JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 5000) K ON A.id = K.id;
 		            `); err != nil {
 		return err
 	}
 
-	if err := s.doSQL(`
+	if err := s.RetryExecTillNoRows(`
 				DELETE A.* FROM evedata.killmailItems A
 		        JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 5000) K ON A.id = K.id;
 		            `); err != nil {
 		return err
 	}
 
-	if err := s.doSQL(`
+	if err := s.RetryExecTillNoRows(`
 				DELETE FROM evedata.killmails
 		        WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 5000;
 		            `); err != nil {
@@ -55,21 +55,20 @@ func killmailMaint(s *Artifice) error { // Broken into smaller chunks so we have
 	}
 
 	// Remove any invalid items
-	/*if err := s.doSQL(`
+	if err := s.RetryExecTillNoRows(`
 		        DELETE D.* FROM evedata.killmailAttackers D
 	            JOIN (SELECT A.id FROM evedata.killmailAttackers A
 					 LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
-		             WHERE K.id IS NULL LIMIT 10) S ON D.id = S.id;
+		             WHERE K.id IS NULL LIMIT 1000) S ON D.id = S.id;
 		               `); err != nil {
-			return err
-		}
-	*/
+		return err
+	}
 
-	if err := s.doSQL(`
+	if err := s.RetryExecTillNoRows(`
 			DELETE D.* FROM evedata.killmailItems D 
             JOIN (SELECT A.id FROM evedata.killmailItems A
 				 LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
-	             WHERE K.id IS NULL LIMIT 10) S ON D.id = S.id;
+	             WHERE K.id IS NULL LIMIT 1000) S ON D.id = S.id;
 	               `); err != nil {
 		return err
 	}
@@ -243,24 +242,28 @@ func marketMaint(s *Artifice) error {
 	regions, err := getMarketRegions(s)
 	if err != nil {
 		log.Println(err)
-		return err
 	}
 
-	if err := s.doSQL(`
+	if err := s.RetryExecTillNoRows(`
         DELETE LOW_PRIORITY FROM evedata.market 
             WHERE date_add(issued, INTERVAL duration DAY) < UTC_TIMESTAMP() OR 
             reported < DATE_SUB(utc_timestamp(), INTERVAL 3 HOUR)
             ORDER BY regionID, typeID ASC LIMIT 50000;
             `); err != nil {
 		log.Println(err)
-		return err
+	}
+
+	if err := s.RetryExecTillNoRows(`
+        DELETE LOW_PRIORITY FROM evedata.market_history
+            WHERE date < date_sub(UTC_TIMESTAMP(), INTERVAL 365 DAY) LIMIT 5000;
+            `); err != nil {
+		log.Println(err)
 	}
 
 	if err := s.doSQL(`
         DELETE LOW_PRIORITY FROM evedata.marketStations ORDER BY stationName;
              `); err != nil {
 		log.Println(err)
-		return err
 	}
 
 	if err := s.doSQL(`
@@ -273,14 +276,12 @@ func marketMaint(s *Artifice) error {
         ORDER BY stationName;
             `); err != nil {
 		log.Println(err)
-		return err
 	}
 
 	if err := s.doSQL(`
        UPDATE evedata.market_vol SET quantity = 0;
              `); err != nil {
 		log.Println(err)
-		return err
 	}
 
 	for _, region := range regions {
