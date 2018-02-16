@@ -61,6 +61,20 @@ func main() {
 					log.Printf("Deleting %s\n", key)
 				}
 			}
+		} else if os.Args[1] == "flushstructures" {
+			// Erase http cache in redis
+			log.Printf("Flushing structures\n")
+			conn := r.Get()
+			defer conn.Close()
+			keys, err := redis.Strings(conn.Do("KEYS", "*structure_failure*"))
+			if err != nil {
+				log.Println(err)
+			} else {
+				for _, key := range keys {
+					conn.Do("DEL", key)
+					log.Printf("Deleting %s\n", key)
+				}
+			}
 
 		} else if os.Args[1] == "flushredis" {
 			// Erase everything in redis for modified deployments
