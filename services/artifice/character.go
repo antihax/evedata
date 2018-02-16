@@ -11,6 +11,7 @@ func init() {
 	registerTrigger("characterAssets", characterAssets, time.NewTicker(time.Second*3600))
 	registerTrigger("characterNotifications", characterNotifications, time.NewTicker(time.Second*600))
 	registerTrigger("characterContactSync", characterContactSync, time.NewTicker(time.Second*300))
+	registerTrigger("characterAuthOwners", characterAuthOwners, time.NewTicker(time.Second*3600))
 }
 
 func characterTransactions(s *Artifice) error {
@@ -128,4 +129,31 @@ func characterContactSync(s *Artifice) error {
 	}
 
 	return s.QueueWork(work, redisqueue.Priority_Normal)
+}
+
+func characterAuthOwners(s *Artifice) error {
+	entities, err := s.db.Query(
+		`SELECT characterID, tokenCharacterID FROM evedata.crestTokens T
+		WHERE scopes LIKE "%characters.read_corporation_roles%"`)
+	if err != nil {
+		return err
+	}
+	defer entities.Close()
+
+	work := []redisqueue.Work{}
+
+	// Loop the entities
+	for entities.Next() {
+		var cid, tcid int32
+
+		err = entities.Scan(&cid, &tcid)
+		if err != nil {
+			return err
+		}
+
+		work = append(work, redisqueue.Work{Operation: "characterAuthOwner", Parameter: []int32{cid, tcid}})
+
+	}
+
+	return s.QueueWork(work, redisqueue.Priority_Urgent)
 }

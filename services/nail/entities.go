@@ -16,7 +16,7 @@ func init() {
 	AddHandler("alliance", spawnAllianceConsumer)
 	AddHandler("corporation", spawnCorporationConsumer)
 	AddHandler("loyaltyStore", spawnLoyaltyStoreConsumer)
-
+	AddHandler("characterAuthOwner", spawnCharacterAuthOwnerConsumer)
 }
 
 func spawnCharacterConsumer(s *Nail, consumer *nsq.Consumer) {
@@ -33,6 +33,10 @@ func spawnCorporationConsumer(s *Nail, consumer *nsq.Consumer) {
 
 func spawnLoyaltyStoreConsumer(s *Nail, consumer *nsq.Consumer) {
 	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.loyaltyStoreHandler)))
+}
+
+func spawnCharacterAuthOwnerConsumer(s *Nail, consumer *nsq.Consumer) {
+	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterAuthOwnerHandler)))
 }
 
 func (s *Nail) corporationHandler(message *nsq.Message) error {
@@ -172,4 +176,24 @@ func (s *Nail) loyaltyStoreHandler(message *nsq.Message) error {
 
 func (s *Nail) addEntity(id int32, entityType string) error {
 	return s.doSQL("INSERT INTO evedata.entities (id, type) VALUES (?,?) ON DUPLICATE KEY UPDATE id = id;", id, entityType)
+}
+
+func (s *Nail) characterAuthOwnerHandler(message *nsq.Message) error {
+	c := datapackages.CharacterRoles{}
+	err := gobcoder.GobDecoder(message.Body, &c)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	err = s.doSQL(`
+		UPDATE evedata.crestTokens SET roles = ?
+		WHERE characterID = ? AND tokenCharacterID = ?
+	`, strings.Join(c.Roles.Roles, ","), c.CharacterID, c.TokenCharacterID)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
 }
