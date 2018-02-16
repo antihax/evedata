@@ -1,6 +1,8 @@
 package artifice
 
 import (
+	"context"
+	"log"
 	"time"
 
 	"github.com/antihax/evedata/internal/redisqueue"
@@ -142,6 +144,9 @@ func characterAuthOwners(s *Artifice) error {
 
 	work := []redisqueue.Work{}
 
+	// Update character corps/alliances
+	crestCharacters(s)
+
 	// Loop the entities
 	for entities.Next() {
 		var cid, tcid int32
@@ -156,4 +161,43 @@ func characterAuthOwners(s *Artifice) error {
 	}
 
 	return s.QueueWork(work, redisqueue.Priority_Urgent)
+}
+
+// This is sensitive so we will do it here to prevent mixing it with public data.
+// figure out character alliance and corp for our members
+func crestCharacters(s *Artifice) error {
+	var chars []int32
+	err := s.db.Select(&chars,
+		`SELECT DISTINCT tokenCharacterID FROM evedata.crestTokens`)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	for start := 0; start < len(chars); start = start + 1000 {
+		end := min(start+1000, len(chars))
+		if affiliation, _, err := s.esi.ESI.CharacterApi.PostCharactersAffiliation(context.Background(), chars[start:end], nil); err != nil {
+			log.Println(err)
+			continue
+		} else {
+			for _, c := range affiliation {
+				if err := s.doSQL(`UPDATE evedata.crestTokens
+					SET corporationID = ?, allianceID = ?, factionID = ?
+					WHERE tokenCharacterID = ?;
+					`, c.CorporationId, c.AllianceId, c.FactionId, c.CharacterId); err != nil {
+					log.Println(err)
+					continue
+				}
+			}
+		}
+
+	}
+	return nil
+}
+
+func min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
 }
