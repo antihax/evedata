@@ -21,7 +21,7 @@ func structureConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	ctx := context.WithValue(context.Background(), goesi.ContextOAuth2, s.token)
+	ctx := context.WithValue(context.Background(), goesi.ContextOAuth2, *s.token)
 	struc, _, err := s.esi.ESI.UniverseApi.GetUniverseStructuresStructureId(ctx, structureID, nil)
 	if err != nil {
 		log.Printf("Bad structure: %s %d\n", err, structureID)
@@ -31,7 +31,7 @@ func structureConsumer(s *Hammer, parameter interface{}) {
 		}
 		return
 	}
-
+	log.Printf("Good structure: %s %d\n", err, structureID)
 	// Send out the result
 	err = s.QueueResult(&datapackages.Structure{Structure: struc, StructureID: structureID}, "structure")
 	if err != nil {
@@ -49,12 +49,12 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	ctx := context.WithValue(context.Background(), goesi.ContextOAuth2, s.token)
+	ctx := context.WithValue(context.Background(), goesi.ContextOAuth2, *s.token)
 
 	for {
 		o, _, err := s.esi.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, structureID, map[string]interface{}{"page": page})
 		if err != nil {
-			log.Printf("Bad structure: %s %d\n", err, structureID)
+			log.Printf("Bad structure market: %s %d\n", err, structureID)
 			err := s.inQueue.SetWorkExpire("evedata_structure_failure", structureID, 86400)
 			if err != nil {
 				log.Printf("failed setting failure: %s %d\n", err, structureID)
@@ -63,11 +63,12 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 		} else if len(o) == 0 { // end of the pages
 			break
 		}
+
 		orders = append(orders, o...)
 
 		page++
 	}
-
+	log.Printf("Good structure market: %d\n", structureID)
 	// early out if there are no orders
 	if len(orders) == 0 {
 		return
