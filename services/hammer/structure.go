@@ -31,7 +31,6 @@ func structureConsumer(s *Hammer, parameter interface{}) {
 		}
 		return
 	}
-	log.Printf("Good structure: %s %d\n", err, structureID)
 	// Send out the result
 	err = s.QueueResult(&datapackages.Structure{Structure: struc, StructureID: structureID}, "structure")
 	if err != nil {
@@ -68,7 +67,6 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 
 		page++
 	}
-	log.Printf("Good structure market: %d\n", structureID)
 	// early out if there are no orders
 	if len(orders) == 0 {
 		return
