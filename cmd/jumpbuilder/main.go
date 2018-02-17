@@ -74,17 +74,13 @@ func processor(systems []system, in chan pair, out chan path) {
 		from := pair.from
 		s := path{to: to.SystemID, from: from.SystemID, jumps: 9999, secureJumps: 9999}
 		jumps, err := graph.Shortest(to.SystemID, from.SystemID)
-		if err != nil {
-			s.jumps = 9999
-		} else {
+		if err == nil {
 			s.jumps = jumps.Distance
 		}
 
 		if Round(to.Security, 0.1) >= 0.5 && Round(from.Security, 0.1) >= 0.5 {
-			jumps, err := graph.Shortest(to.SystemID, from.SystemID)
-			if err != nil {
-				s.secureJumps = 9999
-			} else {
+			jumps, err := secureGraph.Shortest(to.SystemID, from.SystemID)
+			if err == nil {
 				s.secureJumps = jumps.Distance
 			}
 		}
