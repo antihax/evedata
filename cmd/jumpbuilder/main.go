@@ -108,7 +108,7 @@ func main() {
 	pairs := make(chan pair)
 	go dbUpdater(c)
 
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 10; i++ {
 		go processor(systems, pairs, c)
 	}
 
