@@ -1,7 +1,6 @@
 // Package conservator herds service bots for external services.
 package conservator
 
-// https://discordapp.com/api/oauth2/authorize?client_id=229339294144135169&permissions=1543765239&scope=bot
 import (
 	"log"
 	"sync"

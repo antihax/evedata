@@ -18,6 +18,8 @@ func init() {
 	vanguard.AddAuthRoute("botServices", "GET", "/U/botServices", apiGetBotServices)
 	vanguard.AddAuthRoute("botServices", "DELETE", "/U/botServices", apiDeleteBotService)
 	vanguard.AddAuthRoute("botServices", "POST", "/U/botServices", apiAddBotService)
+
+	vanguard.AddAuthRoute("botServices", "GET", "/U/entitiesWithRoles", apiGetEntitiesWithRoles)
 }
 
 func botServicesPage(w http.ResponseWriter, r *http.Request) {
@@ -73,6 +75,31 @@ func apiGetBotServices(w http.ResponseWriter, r *http.Request) {
 	}
 
 	v, err := models.GetBotServices(characterID)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	json.NewEncoder(w).Encode(v)
+
+	if err = s.Save(r, w); err != nil {
+		httpErr(w, err)
+		return
+	}
+}
+
+func apiGetEntitiesWithRoles(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	s := vanguard.SessionFromContext(r.Context())
+
+	// Get the sessions main characterID
+	characterID, ok := s.Values["characterID"].(int32)
+	if !ok {
+		httpErrCode(w, nil, http.StatusUnauthorized)
+		return
+	}
+
+	v, err := models.GetEntitiesWithRole(characterID, r.FormValue("role"))
 	if err != nil {
 		httpErr(w, err)
 		return

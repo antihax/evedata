@@ -62,13 +62,9 @@
 			selectedID;
 	
 		$('.addshare').click(function () {
-			showAddShare("Share Data");
-		});
-
-		function showAddShare(title) {
-			$addshare.find('.modal-title').text(title);
+			$addshare.find('.modal-title').text("Share Data");
 			$addshare.modal('show');
-		}
+		});
 
 		$(function () {
 			$.ajax({

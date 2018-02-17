@@ -261,7 +261,7 @@ type Entity struct {
 
 // Obtain Character information by ID.
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetEntitiesWithRole(role string) ([]Entity, error) {
+func GetEntitiesWithRole(characterID int32, role string) ([]Entity, error) {
 	ref := []Entity{}
 	if err := database.Select(&ref, `
 		SELECT DISTINCT IFNULL(A.allianceID, C.corporationID) AS entityID, IFNULL(A.name, C.name) AS entityName, IF(A.name IS NULL, "corporation", "alliance") AS entityType
@@ -269,7 +269,7 @@ func GetEntitiesWithRole(role string) ([]Entity, error) {
 		LEFT OUTER JOIN evedata.corporations C ON C.corporationID = T.corporationID
 		LEFT OUTER JOIN evedata.alliances A ON A.allianceID = T.allianceID
 		WHERE FIND_IN_SET(?, T.roles) AND T.characterID = ?
-		`, role); err != nil {
+		`, role, characterID); err != nil {
 		return nil, err
 	}
 	return ref, nil
