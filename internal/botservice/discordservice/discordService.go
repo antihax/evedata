@@ -31,3 +31,12 @@ func (c DiscordService) KickUser(user, message string) error {
 	_, err := c.session.ChannelMessageSend(user, message)
 	return err
 }
+
+// Get the server name
+func (c DiscordService) GetName() (string, error) {
+	g, err := c.session.Guild(c.serverID)
+	if err != nil {
+		return "", err
+	}
+	return g.Name, nil
+}

@@ -28,11 +28,14 @@ type ChannelOptions struct {
 type Service struct {
 	Server         botservice.BotService
 	BotServiceID   int32  `db:"botServiceID"`
+	Name           string `db:"name"`
+	CharacterID    string `db:"characterID"`
 	EntityID       int32  `db:"entityID"`
 	Address        string `db:"address"`
 	Authentication string `db:"authentication"`
 	Type           string `db:"type"`
 	Services       string `db:"services"`
+	OptionsJSON    string `db:"options"`
 }
 
 type Channel struct {
@@ -90,6 +93,12 @@ func (s *Conservator) loadServices() error {
 	s.services.Range(func(ki, vi interface{}) bool {
 		k := ki.(int32)
 		v := vi.(Service)
+		serverName, err := v.Server.GetName()
+		if err != nil {
+			log.Println(err)
+		} else if serverName != v.Name {
+			s.updateServerName(v.BotServiceID, serverName)
+		}
 
 		if !touched[v.BotServiceID] {
 			s.services.Delete(k)
@@ -213,11 +222,19 @@ func (s *Conservator) loadShares() error {
 
 func (s *Conservator) getServices() ([]Service, error) {
 	services := []Service{}
-	err := s.db.Select(&services, "SELECT botServiceID, entityID, address, authentication, type, services FROM evedata.botServices")
+	err := s.db.Select(&services, "SELECT botServiceID, name, characterID, entityID, address, authentication, type, services FROM evedata.botServices")
 	if err != nil {
 		return nil, err
 	}
 	return services, nil
+}
+
+func (s *Conservator) updateServerName(b int32, name string) error {
+	_, err := s.db.Exec("UPDATE evedata.botServices SET name = ? WHERE botServiceID = ?", name, b)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *Conservator) getChannels() ([]Channel, error) {

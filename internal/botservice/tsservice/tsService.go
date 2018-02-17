@@ -100,3 +100,10 @@ func (c *TSService) SendMessageToServer(user, message string) error {
 func (c *TSService) KickUser(user, message string) error {
 	return nil
 }
+
+// Get the server name
+func (c *TSService) GetName() (string, error) {
+	server := ts3.Server{}
+	_, err := c.session.ExecCmd(ts3.NewCmd("serverinfo").WithResponse(&server))
+	return server.Name, err
+}

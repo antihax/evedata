@@ -296,3 +296,26 @@ func DeleteShare(characterID, tokenCharacterID, entityID int32) error {
 	}
 	return nil
 }
+
+type Service struct {
+	BotServiceID int32  `db:"botServiceID" json:"botServiceID"`
+	Name         string `db:"name" json:"name"`
+	CharacterID  string `db:"characterID" json:"characterID"`
+	EntityID     int32  `db:"entityID" json:"entityID"`
+	Address      string `db:"address" json:"address" `
+	Type         string `db:"type" json:"type"`
+	Services     string `db:"services" json:"services"`
+	Options      string `db:"options" json:"options"`
+}
+
+// [BENCHMARK] 0.000 sec / 0.000 sec
+func GetBotServices(characterID int32) ([]Service, error) {
+	services := []Service{}
+	if err := database.Select(&services, `
+		SELECT botServiceID, name, entityID, address, characterID, type, services, options 
+			FROM evedata.botServices
+			WHERE characterID = ?;`, characterID); err != nil {
+		return nil, err
+	}
+	return services, nil
+}

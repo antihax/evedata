@@ -51,6 +51,8 @@ CREATE TABLE `botDelegate` (
 
 CREATE TABLE `botServices` (
   `botServiceID` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `characterID` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
   `entityID` int(11) NOT NULL,
   `address` varchar(255) COLLATE utf8_bin NOT NULL,
   `authentication` varchar(255) COLLATE utf8_bin NOT NULL,
@@ -153,6 +155,9 @@ CREATE TABLE `crestTokens` (
   `authCharacter` tinyint(1) NOT NULL DEFAULT '0',
   `mailedError` tinyint(1) NOT NULL DEFAULT '0',
   `roles` text,
+  `corporationID` int(11) NOT NULL DEFAULT '0',
+  `allianceID` int(11) NOT NULL DEFAULT '0',
+  `factionID` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`characterID`,`tokenCharacterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
