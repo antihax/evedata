@@ -259,15 +259,15 @@ func min(x, y int) int {
 }
 
 // Entity denormalizes corporations, alliance, and characters
-type Entity struct {
+type ContactEntity struct {
 	ID   int64
 	Type string
 }
 
 // GetActiveWarsByID gets active wars for an entityID
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func (s *Hammer) GetActiveWarsByID(id int64) ([]Entity, error) {
-	w := []Entity{}
+func (s *Hammer) GetActiveWarsByID(id int64) ([]ContactEntity, error) {
+	w := []ContactEntity{}
 	if err := s.db.Select(&w, `
 			SELECT K.id, type FROM
 			(SELECT defenderID AS id FROM evedata.wars WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND aggressorID = ?
@@ -286,8 +286,8 @@ func (s *Hammer) GetActiveWarsByID(id int64) ([]Entity, error) {
 
 // GetPendingWarsByID gets pending wars for an entityID
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func (s *Hammer) GetPendingWarsByID(id int64) ([]Entity, error) {
-	w := []Entity{}
+func (s *Hammer) GetPendingWarsByID(id int64) ([]ContactEntity, error) {
+	w := []ContactEntity{}
 	if err := s.db.Select(&w, `
 			SELECT K.id, type FROM
 			(SELECT defenderID AS id FROM evedata.wars WHERE timeStarted > timeDeclared AND timeStarted > UTC_TIMESTAMP() AND aggressorID = ?

@@ -18,6 +18,14 @@
 		}
 	}
 
+	function entityTypeImage(row) {
+		if (row.type == "character") {
+			return '//imageserver.eveonline.com/'+ capitalizeFirstLetter(row.entityType) + '/' + row.entityID + '_32.jpg';
+		} else {
+	    	return '//imageserver.eveonline.com/'+ capitalizeFirstLetter(row.entityType) + '/' + row.entityID + '_32.png';
+		}
+	}
+
 	function typeImage(row) {
 	    return '//imageserver.eveonline.com/Type/' + row.typeID + '_32.png';
 	}
@@ -63,6 +71,11 @@
     function entityFormatter(value, row) {
     	var entityURL = '/'+ row.type + '?id=' + row.id 
         return '<a href="' + entityURL + '"><img src="' + entityImage(row) + '" height=32 width=32> ' + value + '</a>';
+	}
+
+	function entityTypeFormatter(value, row) {
+    	var entityURL = '/'+ row.type + '?id=' + row.entityID 
+        return '<a href="' + entityURL + '"><img src="' + entityTypeImage(row) + '" height=32 width=32> ' + value + '</a>';
 	}
 	
 	function tokenCharacterFormatter(value, row) {

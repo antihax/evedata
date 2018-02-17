@@ -61,5 +61,5 @@ func doAssets(values []string) string {
 	return fmt.Sprintf(`INSERT INTO evedata.assets
 		(locationID, typeID, quantity, characterID, 
 		locationFlag, itemID, locationType, isSingleton)
-		VALUES %s ON DUPLICATE KEY UPDATE itemID = itemID;`, strings.Join(values, ",\n"))
+		VALUES %s ON DUPLICATE KEY UPDATE typeID = typeID;`, strings.Join(values, ",\n"))
 }

@@ -7,14 +7,14 @@ import (
 )
 
 // Entity denormalizes corporations, alliance, and characters
-type Entity struct {
+type WarEntity struct {
 	ID   int64
 	Type string
 }
 
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetActiveWarsByID(id int64) ([]Entity, error) {
-	w := []Entity{}
+func GetActiveWarsByID(id int64) ([]WarEntity, error) {
+	w := []WarEntity{}
 	if err := database.Select(&w, `
 			SELECT K.id, type FROM
 			(SELECT defenderID AS id FROM evedata.wars WHERE (timeFinished = "0001-01-01 00:00:00" OR timeFinished IS NULL OR timeFinished >= UTC_TIMESTAMP()) AND timeStarted <= UTC_TIMESTAMP() AND aggressorID = ?
@@ -32,8 +32,8 @@ func GetActiveWarsByID(id int64) ([]Entity, error) {
 }
 
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetPendingWarsByID(id int64) ([]Entity, error) {
-	w := []Entity{}
+func GetPendingWarsByID(id int64) ([]WarEntity, error) {
+	w := []WarEntity{}
 	if err := database.Select(&w, `
 			SELECT K.id, type FROM
 			(SELECT defenderID AS id FROM evedata.wars WHERE timeStarted > timeDeclared AND timeStarted > UTC_TIMESTAMP() AND aggressorID = ?
@@ -51,8 +51,8 @@ func GetPendingWarsByID(id int64) ([]Entity, error) {
 }
 
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetFinishedWarsByID(id int64) ([]Entity, error) {
-	w := []Entity{}
+func GetFinishedWarsByID(id int64) ([]WarEntity, error) {
+	w := []WarEntity{}
 	if err := database.Select(&w, `
 			SELECT K.id, type FROM
 			(SELECT defenderID AS id FROM evedata.wars WHERE timeFinished < UTC_TIMESTAMP() AND aggressorID = ?
