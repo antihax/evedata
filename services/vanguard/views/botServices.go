@@ -2,6 +2,7 @@ package views
 
 import (
 	"encoding/json"
+	"errors"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -17,7 +18,7 @@ func init() {
 
 	vanguard.AddAuthRoute("botServices", "GET", "/U/botServices", apiGetBotServices)
 	vanguard.AddAuthRoute("botServices", "DELETE", "/U/botServices", apiDeleteBotService)
-	vanguard.AddAuthRoute("botServices", "POST", "/U/botServices", apiAddBotService)
+	vanguard.AddAuthRoute("botServices", "POST", "/U/botServicesDiscord", apiAddDiscordBotService)
 
 	vanguard.AddAuthRoute("botServices", "GET", "/U/entitiesWithRoles", apiGetEntitiesWithRoles)
 }
@@ -58,7 +59,44 @@ func apiDeleteBotService(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func apiAddBotService(w http.ResponseWriter, r *http.Request) {
+func apiAddDiscordBotService(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	s := vanguard.SessionFromContext(r.Context())
+	g := vanguard.GlobalsFromContext(r.Context())
+
+	// Get the sessions main characterID
+	characterID, ok := s.Values["characterID"].(int32)
+	if !ok {
+		httpErrCode(w, nil, http.StatusUnauthorized)
+		return
+	}
+
+	// decode int to validate
+	_, err := strconv.Atoi(r.FormValue("serverID"))
+	if err != nil {
+		httpErrCode(w, err, http.StatusBadRequest)
+		return
+	}
+
+	entityID, err := strconv.ParseInt(r.FormValue("entityID"), 10, 64)
+	if err != nil {
+		httpErrCode(w, err, http.StatusBadRequest)
+		return
+	}
+
+	if err = g.Conservator.Call("Conservator.VerifyDiscord", r.FormValue("serverID"), &ok); err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	if !ok {
+		httpErr(w, errors.New("serverID is invalid or the bot has no access."))
+	}
+
+	if err = models.AddDiscordService(characterID, int32(entityID), r.FormValue("serverID")); err != nil {
+		httpErr(w, err)
+		return
+	}
 
 	return
 }

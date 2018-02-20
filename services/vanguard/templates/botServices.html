@@ -101,7 +101,7 @@
 					console.log(row);
 					$.ajax({
 						
-						url: "/U/botServices?botServerID=" + row.botServerID,
+						url: "/U/botServices?botServerID=" + row.botServiceID,
 						type: 'delete',
 						success: function () {
 							$servicesTable.bootstrapTable('refresh');
@@ -114,5 +114,23 @@
 				}
 			}
 		};
+		$adddiscord.find('.submit').click(function () {
+			$.ajax({
+				type: "POST",
+				url: "/U/botServicesDiscord",
+				data: {
+					entityID: $('#entity').children(":selected").attr("id"),
+					serverID: $('#serverID').val(),
+				}
+			})
+			.done(function() {
+				$servicesTable.bootstrapTable('refresh');
+				$adddiscord.modal('hide');
+				})
+			.fail(function(error) {
+				$adddiscord.modal('hide');
+				showAlert( 'Add Discord Failed: ' + error.responseText, 'danger');
+			});
+		});
 	</script>
 {{end}}

@@ -29,7 +29,6 @@ type Service struct {
 	Server         botservice.BotService
 	BotServiceID   int32  `db:"botServiceID"`
 	Name           string `db:"name"`
-	CharacterID    string `db:"characterID"`
 	EntityID       int32  `db:"entityID"`
 	Address        string `db:"address"`
 	Authentication string `db:"authentication"`
@@ -222,7 +221,7 @@ func (s *Conservator) loadShares() error {
 
 func (s *Conservator) getServices() ([]Service, error) {
 	services := []Service{}
-	err := s.db.Select(&services, "SELECT botServiceID, name, characterID, entityID, address, authentication, type, services FROM evedata.botServices")
+	err := s.db.Select(&services, "SELECT botServiceID, name, entityID, address, authentication, type, services FROM evedata.botServices")
 	if err != nil {
 		return nil, err
 	}

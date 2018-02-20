@@ -1,5 +1,9 @@
 package models
 
+import (
+	"errors"
+)
+
 type Shares struct {
 	CharacterID        int32  `db:"characterID" json:"characterID,omitempty"`
 	TokenCharacterID   int32  `db:"tokenCharacterID" json:"tokenCharacterID,omitempty"`
@@ -76,27 +80,49 @@ func GetBotServices(characterID int32) ([]Service, error) {
 	return services, nil
 }
 
-func AddService(characterID, tokenCharacterID, entityID int32, types string) error {
-	if _, err := database.Exec(`
-		INSERT INTO evedata.sharing	(characterID, tokenCharacterID, entityID, types)
-			VALUES(?,?,?,?)
-			ON DUPLICATE KEY UPDATE entityID = entityID, types = VALUES(types)`,
-		characterID, tokenCharacterID, entityID, types); err != nil {
+func AddDiscordService(characterID, entityID int32, serverID string) error {
+
+	// verify this user is able to create a discord service for this entity
+	entities, err := GetEntitiesWithRole(characterID, "Director")
+	if err != nil {
 		return err
 	}
+
+	if !entityInSlice(entityID, entities) {
+		return errors.New("character is unauthorized to create this discord entry")
+	}
+
+	if _, err := database.Exec(`
+		INSERT INTO evedata.botServices	(entityID, address, type, options)
+			VALUES(?,?,'discord','')
+			ON DUPLICATE KEY UPDATE entityID = entityID`,
+		entityID, serverID); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func DeleteService(characterID, botServiceID int32) error {
 	if _, err := database.Exec(`
-		DELETE FROM evedata.botServices S
+		DELETE S FROM evedata.botServices S
+		LEFT OUTER JOIN evedata.alliances A ON A.allianceID = S.entityID
 		LEFT OUTER JOIN evedata.crestTokens T ON FIND_IN_SET("Director", T.roles) AND 
 		T.characterID = ? AND (A.executorCorpID = T.corporationID OR 
 		(T.allianceID = 0 AND T.corporationID = S.entityID))
 		WHERE botServiceID = ? AND T.characterID = ?
-		LIMIT 1`,
+		`,
 		characterID, botServiceID, characterID); err != nil {
 		return err
 	}
 	return nil
+}
+
+func entityInSlice(a int32, list []Entity) bool {
+	for _, b := range list {
+		if b.EntityID == a {
+			return true
+		}
+	}
+	return false
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"log"
 	"net/http"
+	"net/rpc"
 	"sync"
 	"time"
 
@@ -19,15 +20,16 @@ import (
 )
 
 type Vanguard struct {
-	stop       chan bool
-	wg         *sync.WaitGroup
-	OutQueue   *redisqueue.RedisQueue
-	ESI        *goesi.APIClient
-	Db         *sqlx.DB
-	Cache      *redis.Pool
-	HTTPClient *http.Client
-	Store      *gsr.RediStore
-	TokenStore *tokenstore.TokenStore
+	stop        chan bool
+	wg          *sync.WaitGroup
+	OutQueue    *redisqueue.RedisQueue
+	ESI         *goesi.APIClient
+	Db          *sqlx.DB
+	Cache       *redis.Pool
+	HTTPClient  *http.Client
+	Store       *gsr.RediStore
+	TokenStore  *tokenstore.TokenStore
+	Conservator *rpc.Client
 
 	// authentication
 	token              *oauth2.TokenSource
@@ -46,6 +48,11 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, refresh, tokenClientID, tokenSe
 	// Register structs for storage
 	gob.Register(oauth2.Token{})
 	gob.Register(goesi.VerifyResponse{})
+
+	conservatorClient, err := rpc.DialHTTP("tcp", "conservator.evedata:3001")
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	// Get a caching http client
 	cache := apicache.CreateHTTPClientCache(redis)
@@ -100,6 +107,7 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, refresh, tokenClientID, tokenSe
 		Store:              store,
 		Db:                 db,
 		Cache:              redis,
+		Conservator:        conservatorClient,
 		token:              &token,
 		TokenStore:         tokenStore,
 	}

@@ -88,11 +88,11 @@ func (s *Conservator) Run() {
 		log.Fatal(err)
 	}
 
-	/*	// Run the API
-		err = s.runRPC()
-		if err != nil {
-			log.Fatal(err)
-		}*/
+	// Run the API
+	err = s.runRPC()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if err = s.loadServices(); err != nil {
 		log.Fatal(err)

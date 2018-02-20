@@ -1,3 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: conservator
+  namespace: evedata
+spec:
+  selector:
+    app: conservator
+  ports:
+  - name: conservator
+    protocol: TCP
+    port: 3001
+    targetPort: 3001
+    nodePort: 32003
+  type: NodePort
+---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -45,6 +61,7 @@ spec:
               key: discord-token
         ports:
         - containerPort: 3000
+        - containerPort: 3001
         volumeMounts:
         - mountPath: /etc/ssl/certs
           name: ca-certs

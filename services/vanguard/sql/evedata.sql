@@ -51,17 +51,16 @@ CREATE TABLE `botDelegate` (
 
 CREATE TABLE `botServices` (
   `botServiceID` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `characterID` int(11) NOT NULL DEFAULT '0',
   `name` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
-  `entityID` int(11) NOT NULL,
+  `entityID` int(11) NOT NULL DEFAULT '0',
   `address` varchar(255) COLLATE utf8_bin NOT NULL,
-  `authentication` varchar(255) COLLATE utf8_bin NOT NULL,
+  `authentication` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
   `type` enum('discord','ts3','slack') COLLATE utf8_bin NOT NULL,
-  `services` set('auth','auth5','auth10') COLLATE utf8_bin NOT NULL,
+  `services` set('auth','auth5','auth10') COLLATE utf8_bin NOT NULL DEFAULT '',
   `options` text COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`botServiceID`),
-  UNIQUE KEY `UNIQUE` (`entityID`,`address`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  UNIQUE KEY `UNIQUE` (`address`,`authentication`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `characterAssociations` (
   `characterID` int(10) unsigned NOT NULL,
@@ -332,7 +331,7 @@ CREATE TABLE `lpOffers` (
   KEY `lpOffers_typeid` (`typeID`),
   KEY `lpOffers_corporation` (`corporationID`),
   KEY `lpOffers_corp_type` (`corporationID`,`typeID`)
-) ENGINE=InnoDB AUTO_INCREMENT=16338 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=16341 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `market` (
   `orderID` bigint(11) unsigned NOT NULL DEFAULT '0',

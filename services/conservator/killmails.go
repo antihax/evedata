@@ -28,17 +28,20 @@ type atWarWith struct {
 func (s *Conservator) atWarWithKillmail(entityID int32, mail *esi.GetKillmailsKillmailIdKillmailHashOk) bool {
 	var entity atWarWith
 	for _, a := range mail.Attackers {
-		if i, ok := s.warsMap[entityID].Load(a.AllianceId); ok {
-			v := i.(atWarWith)
-			if v.Start.Before(time.Now().UTC()) && (v.Finish.IsZero() || v.Finish.After(time.Now().UTC())) {
-				entity = v
-				break
-			}
-		} else if i, ok := s.warsMap[entityID].Load(a.CorporationId); ok {
-			v := i.(atWarWith)
-			if v.Start.Before(time.Now().UTC()) && (v.Finish.IsZero() || v.Finish.After(time.Now().UTC())) {
-				entity = v
-				break
+		_, ok := s.warsMap[entityID]
+		if ok {
+			if i, ok := s.warsMap[entityID].Load(a.AllianceId); ok {
+				v := i.(atWarWith)
+				if v.Start.Before(time.Now().UTC()) && (v.Finish.IsZero() || v.Finish.After(time.Now().UTC())) {
+					entity = v
+					break
+				}
+			} else if i, ok := s.warsMap[entityID].Load(a.CorporationId); ok {
+				v := i.(atWarWith)
+				if v.Start.Before(time.Now().UTC()) && (v.Finish.IsZero() || v.Finish.After(time.Now().UTC())) {
+					entity = v
+					break
+				}
 			}
 		}
 	}
