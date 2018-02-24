@@ -4,7 +4,7 @@ set +e
 docker stop mysql teamspeak mock-esi redis nsqlookup nsqadmin nsqd | xargs docker rm
 
 # MySQL Server
-docker run --net=host --name=mysql --health-cmd='mysqladmin ping --silent' -d -p 127.0.0.1:3306:3306 -h evedata.sql -e MYSQL_ALLOW_EMPTY_PASSWORD=true percona
+docker run --net=host --name=mysql --health-cmd='mysqladmin ping --silent' -d -p 127.0.0.1:3306:3306 -h sql.evedata -e MYSQL_ALLOW_EMPTY_PASSWORD=true percona
 
 # Teamspeak Server
 docker run --net=host --name=teamspeak -d -p 127.0.0.1:9987:9987/udp -p 127.0.0.1:30033:30033 -p 127.0.0.1:10011:10011 -p 127.0.0.1:41144:41144 mbentley/teamspeak clear_database=1 serveradmin_password=nothinguseful

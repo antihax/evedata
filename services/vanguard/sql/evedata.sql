@@ -58,9 +58,10 @@ CREATE TABLE `botServices` (
   `type` enum('discord','ts3','slack') COLLATE utf8_bin NOT NULL,
   `services` set('auth','auth5','auth10') COLLATE utf8_bin NOT NULL DEFAULT '',
   `options` text COLLATE utf8_bin NOT NULL,
+  `characterID` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`botServiceID`),
   UNIQUE KEY `UNIQUE` (`address`,`authentication`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `characterAssociations` (
   `characterID` int(10) unsigned NOT NULL,
@@ -331,7 +332,7 @@ CREATE TABLE `lpOffers` (
   KEY `lpOffers_typeid` (`typeID`),
   KEY `lpOffers_corporation` (`corporationID`),
   KEY `lpOffers_corp_type` (`corporationID`,`typeID`)
-) ENGINE=InnoDB AUTO_INCREMENT=16341 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=16339 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `market` (
   `orderID` bigint(11) unsigned NOT NULL DEFAULT '0',
