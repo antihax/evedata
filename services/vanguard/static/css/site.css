@@ -4,6 +4,11 @@
     display: block;
 }
 
+#mainSearchContainer {
+    display: flex;
+    align-items: center;
+}
+
 #aboutNav {
     width: 200px;
     position: absolute;
