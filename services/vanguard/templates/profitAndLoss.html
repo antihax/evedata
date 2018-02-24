@@ -41,7 +41,6 @@ var 	$walletSummary = $('#walletSummary').bootstrapTable({
             url: '/U/walletSummary?range='+$('#duration').val(), 
             detailView: true,
             onExpandRow: function(index, row, $detail) {
-                console.log(row)
                 $detail.html('<table></table>').find('table').bootstrapTable({
                 columns: [
                 {

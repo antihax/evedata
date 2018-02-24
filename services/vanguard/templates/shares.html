@@ -164,7 +164,6 @@
 		window.actionEvents = {
 			'click .removeShares': function (e, value, row) {
 				if (confirm('Are you sure you want to stop sharing with this entity?')) {
-					console.log(row);
 					$.ajax({
 						
 						url: "/U/shares?entityID=" + row.id + "&tokenCharacterID=" + row.tokenCharacterID,

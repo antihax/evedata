@@ -25,7 +25,6 @@ var 	$assets = $('#assets').bootstrapTable({
             url: "/U/assets", 
             detailView: true,
             onExpandRow: function(index, row, $detail) {
-                console.log(row)
                 $detail.html('<table></table>').find('table').bootstrapTable({
                 columns: [{
                     field: 'typeName',

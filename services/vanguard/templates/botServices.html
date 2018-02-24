@@ -60,7 +60,7 @@
 					<th data-field="name">Server Name</th>
 					<th data-field="entityName" data-formatter="entityTypeFormatter">Owning Entity</th>
 					<th data-align="center" data-events="actionEvents"
-					data-field="action" data-formatter="ServerActionsFormatter">Delete</th>
+					data-field="action" data-formatter="ServerActionsFormatter">Actions</th>
 				</tr>
 			</thead>
 		</table>
@@ -91,14 +91,13 @@
 		});
 		function ServerActionsFormatter(value, row) {
 			return [
-				'<a class="removeServices" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
+				'<a class="editServices" href="javascript:" title="Edit Service"><i class="glyphicon glyphicon-pencil"><\/i><\/a> &nbsp;&nbsp;&nbsp; <a class="removeServices" href="javascript:" title="Delete Service"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
 			].join('');
 		}
 		// update and delete events
 		window.actionEvents = {
 			'click .removeServices': function (e, value, row) {
 				if (confirm('Are you sure you want to delete this server?')) {
-					console.log(row);
 					$.ajax({
 						
 						url: "/U/botServices?botServerID=" + row.botServiceID,
@@ -112,6 +111,9 @@
 						}
 					})
 				}
+			},
+			'click .editServices': function (e, value, row) {
+				
 			}
 		};
 		$adddiscord.find('.submit').click(function () {
