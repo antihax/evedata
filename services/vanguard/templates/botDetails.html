@@ -1,0 +1,132 @@
+{{define "body"}}
+<h3 id="serverName">ServerName</h3>
+<p>Discord integration for your corporation or alliance!</p>
+<p>All executor corp directors will have access to alter the configuration. You may also add delegates.</p>
+{{template "checkAuthentication" .}}
+	<div class="modal fade" id="adddiscord">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button aria-label="Close" class="close" data-dismiss=
+					"modal" type="button"><span aria-hidden=
+					"true">&times;</span></button>
+					<h4 class="modal-title"></h4>
+				</div>
+				<div class="modal-body">
+					<p>Add a discord server! You must have director roles in the corporation to perform this action.</p>
+					<ol>
+						<li><a href="https://discordapp.com/api/oauth2/authorize?client_id=229339294144135169&permissions=1543765239&scope=bot" target="_new">Click to have our bot join your Discord</a>.</li>
+						<li>Right click your discord server from the discord UI and select <i>Copy ID</i></li>
+						<li>Paste the ID in the Discord Server ID field.</li>
+						<li>Select a corporation below which you have director access with</li>
+					</ol>
+					<div class="form-group">
+						<label>Owning Entity</label> <select class="form-control" name="entity" id="entity"></select>
+						<label>Discord Server ID</label> <input class="form-control" name="serverID" id="serverID"></select>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default" data-dismiss="modal" type=
+					"button">Close</button> <button class=
+					"btn btn-primary submit" type="button">Submit</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="table-responsive">
+		<div class="toolbar servicesToolbar" id="servicesToolbar">
+			<div class="dropdown">
+					<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChar" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Add New Service
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" id="addCharMenu" aria-labelledby="addChar">
+						<li>
+							<a class="adddiscord btn btn-default" href="javascript:">Add Discord</a>
+						</li> 
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".servicesToolbar"
+			data-url="/U/botServices" id="servicesTable">
+			<thead>
+				<tr>
+					<th data-field="type">Server Type</th>
+					<th data-field="name">Server Name</th>
+					<th data-field="entityName" data-formatter="entityTypeFormatter">Owning Entity</th>
+					<th data-align="center" data-events="actionEvents"
+					data-field="action" data-formatter="ServerActionsFormatter">Delete</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+
+	<script>		
+		var	$adddiscord = $('#adddiscord').modal({show: false}),
+			$servicesTable = $('#servicesTable').bootstrapTable({url: "/U/botServices"}, "changeLocale", "en_US");
+	
+		$('.adddiscord').click(function () {
+			$adddiscord.find('.modal-title').text("Add Discord");
+			$adddiscord.modal('show');
+		});
+
+		$(function () {
+			$.ajax({
+				url: '/U/entitiesWithRoles?role=Director',
+				dataType:'JSON',
+				success:function(data){
+					$.each(data, function(key, val){
+						$('#entity').append('<option id=' + val.entityID + '>' + val.entityName + '</option>');
+					})
+				},
+				error:function(){
+					$select.html('<option id="-1">You have no director characters.</option>');
+				}
+			});
+		});
+		function ServerActionsFormatter(value, row) {
+			return [
+				'<a class="removeServices" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
+			].join('');
+		}
+		// update and delete events
+		window.actionEvents = {
+			'click .removeServices': function (e, value, row) {
+				if (confirm('Are you sure you want to delete this server?')) {
+					$.ajax({
+						url: "/U/botServices?botServerID=" + row.botServiceID,
+						type: 'delete',
+						success: function () {
+							$servicesTable.bootstrapTable('refresh');
+							showAlert('Delete item successful!', 'success');
+						},
+						error: function () {
+							showAlert('Delete item error!', 'danger');
+						}
+					})
+				}
+			}
+		};
+		$adddiscord.find('.submit').click(function () {
+			$.ajax({
+				type: "POST",
+				url: "/U/botServicesDiscord",
+				data: {
+					entityID: $('#entity').children(":selected").attr("id"),
+					serverID: $('#serverID').val(),
+				}
+			})
+			.done(function() {
+				$servicesTable.bootstrapTable('refresh');
+				$adddiscord.modal('hide');
+				})
+			.fail(function(error) {
+				$adddiscord.modal('hide');
+				showAlert( 'Add Discord Failed: ' + error.responseText, 'danger');
+			});
+		});
+	</script>
+{{end}}

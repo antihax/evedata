@@ -2,21 +2,13 @@ package models
 
 import (
 	"errors"
+
+	"github.com/antihax/evedata/services/conservator"
 )
 
-type Shares struct {
-	CharacterID        int32  `db:"characterID" json:"characterID,omitempty"`
-	TokenCharacterID   int32  `db:"tokenCharacterID" json:"tokenCharacterID,omitempty"`
-	TokenCharacterName string `db:"tokenCharacterName" json:"tokenCharacterName,omitempty"`
-	EntityID           int32  `db:"entityID" json:"id,omitempty"`
-	EntityName         string `db:"entityName" json:"entityName,omitempty"`
-	Type               string `db:"type" json:"type,omitempty"`
-	Types              string `db:"types" json:"types,omitempty"`
-}
-
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetShares(characterID int32) ([]Shares, error) {
-	shares := []Shares{}
+func GetShares(characterID int32) ([]conservator.Share, error) {
+	shares := []conservator.Share{}
 	if err := database.Select(&shares, `
 		SELECT S.characterID, S.tokenCharacterID, characterName AS tokenCharacterName, entityID, types, IFNULL(A.name, C.name) AS entityName, IF(A.name IS NULL, "corporation", "alliance") AS type
 		FROM evedata.sharing S
@@ -48,21 +40,9 @@ func DeleteShare(characterID, tokenCharacterID, entityID int32) error {
 	return nil
 }
 
-type Service struct {
-	BotServiceID int32  `db:"botServiceID" json:"botServiceID"`
-	Name         string `db:"name" json:"name"`
-	EntityID     int32  `db:"entityID" json:"entityID"`
-	EntityName   string `db:"entityName" json:"entityName"`
-	EntityType   string `db:"entityType" json:"entityType"`
-	Address      string `db:"address" json:"address" `
-	Type         string `db:"type" json:"type"`
-	Services     string `db:"services" json:"services"`
-	OptionsJSON  string `db:"options" json:"options"`
-}
-
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetBotServices(characterID int32) ([]Service, error) {
-	services := []Service{}
+func GetBotServices(characterID int32) ([]conservator.Service, error) {
+	services := []conservator.Service{}
 	if err := database.Select(&services, `
 		SELECT  S.botServiceID, S.name, entityID, address,  type, services, options,
 		IFNULL(A.name, C.name) AS entityName, IF(A.name IS NULL, "corporation", "alliance") AS entityType
@@ -80,8 +60,36 @@ func GetBotServices(characterID int32) ([]Service, error) {
 	return services, nil
 }
 
-func AddDiscordService(characterID, entityID int32, serverID string) error {
+// [BENCHMARK] 0.000 sec / 0.000 sec
+func GetBotServiceDetails(characterID, serverID int32) (conservator.Service, error) {
+	service := conservator.Service{}
+	row, err := database.Queryx(`
+		SELECT  S.botServiceID, S.name, entityID, address,  type, services, options,
+		IFNULL(A.name, C.name) AS entityName, IF(A.name IS NULL, "corporation", "alliance") AS entityType
+				FROM evedata.botServices S
+				LEFT OUTER JOIN evedata.corporations C ON C.corporationID = S.entityID
+				LEFT OUTER JOIN evedata.alliances A ON A.allianceID = S.entityID
+				LEFT OUTER JOIN evedata.botDelegate D ON D.botServiceID = S.botServiceID
+				LEFT OUTER JOIN evedata.crestTokens T ON FIND_IN_SET("Director", T.roles) AND 
+					T.characterID = ? AND (A.executorCorpID = T.corporationID OR 
+					(T.allianceID = 0 AND T.corporationID = S.entityID))
+				WHERE (D.characterID = ? OR T.characterID = ?) AND S.botServiceID = ?
+				GROUP BY botServiceID LIMIT 1;`, characterID, characterID, characterID, serverID)
+	if err != nil {
+		return service, err
+	}
+	defer row.Close()
 
+	row.Next()
+	err = row.StructScan(&service)
+	if err != nil {
+		return service, err
+	}
+
+	return service, nil
+}
+
+func AddDiscordService(characterID, entityID int32, serverID string) error {
 	// verify this user is able to create a discord service for this entity
 	entities, err := GetEntitiesWithRole(characterID, "Director")
 	if err != nil {

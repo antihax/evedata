@@ -22,35 +22,43 @@ type ChannelOptions struct {
 		IgnoreNullSec   bool `json:"ignoreNullsec,omitempty"`
 		IgnoreWorthless bool `json:"ignoreWorthless,omitempty"`
 		War             bool `json:"war,omitempty"`
+		FactionWar      bool `json:"factionWar,omitempty"`
+		SendAll         bool `json:"sendAll,omitempty"`
 	} `json:"killmail,omitempty"`
 }
 
 type Service struct {
-	Server         botservice.BotService
-	BotServiceID   int32  `db:"botServiceID"`
-	Name           string `db:"name"`
-	EntityID       int32  `db:"entityID"`
-	Address        string `db:"address"`
-	Authentication string `db:"authentication"`
-	Type           string `db:"type"`
-	Services       string `db:"services"`
-	OptionsJSON    string `db:"options"`
+	Server         botservice.BotService `json:"-,omitempty"`
+	BotServiceID   int32                 `db:"botServiceID" json:"botServiceID,omitempty"`
+	Name           string                `db:"name" json:"name,omitempty"`
+	EntityID       int32                 `db:"entityID" json:"entityID,omitempty"`
+	EntityName     string                `db:"entityName" json:"entityName,omitempty"`
+	EntityType     string                `db:"entityType" json:"entityType,omitempty"`
+	Address        string                `db:"address" json:"address,omitempty" `
+	Authentication string                `db:"authentication,omitempty"`
+	Type           string                `db:"type" json:"type,omitempty"`
+	Services       string                `db:"services" json:"services,omitempty"`
+	OptionsJSON    string                `db:"options" json:"-"`
 }
 
 type Channel struct {
-	BotServiceID int32          `db:"botServiceID"`
-	ChannelID    string         `db:"channelID"`
-	Services     string         `db:"services"`
-	OptionsJSON  string         `db:"options"`
-	Options      ChannelOptions `db:"-"`
+	BotServiceID int32          `db:"botServiceID" json:"botServiceID,omitempty"`
+	ChannelID    string         `db:"channelID"  json:"channelID,omitempty"`
+	Services     string         `db:"services" json:"services,omitempty"`
+	OptionsJSON  string         `db:"options" json:"-"`
+	Options      ChannelOptions `db:"-" json:"options,omitempty"`
 }
 
 type Share struct {
-	BotServiceID     int32  `db:"botServiceID"`
-	TokenCharacterID int32  `db:"tokenCharacterID"`
-	EntityID         int32  `db:"entityID"`
-	Types            string `db:"types"`
-	Packed           string `db:"packed"`
+	BotServiceID       int32  `db:"botServiceID"`
+	CharacterID        int32  `db:"characterID" json:"characterID,omitempty"`
+	TokenCharacterID   int32  `db:"tokenCharacterID" json:"tokenCharacterID,omitempty"`
+	TokenCharacterName string `db:"tokenCharacterName" json:"tokenCharacterName,omitempty"`
+	EntityID           int32  `db:"entityID" json:"id,omitempty"`
+	EntityName         string `db:"entityName" json:"entityName,omitempty"`
+	Type               string `db:"type" json:"type,omitempty"`
+	Types              string `db:"types" json:"types,omitempty"`
+	Packed             string `db:"packed" json:"packed,omitempty"`
 }
 
 // Load our bot services

@@ -69,6 +69,7 @@ func (s *Conservator) reportKillmail(mail *esi.GetKillmailsKillmailIdKillmailHas
 		}
 		service := si.(Service)
 
+		// filters
 		if channel.Options.Killmail.IgnoreWorthless && isWorthlessTypeID(mail.Victim.ShipTypeId) {
 			return true
 		}
@@ -82,14 +83,24 @@ func (s *Conservator) reportKillmail(mail *esi.GetKillmailsKillmailIdKillmailHas
 		if channel.Options.Killmail.IgnoreNullSec && s.solarSystems[mail.SolarSystemId] <= 0.0 {
 			return true
 		}
-		if channel.Options.Killmail.War && !s.atWarWithKillmail(service.EntityID, mail) {
-			return true
+
+		// Determine if we send the mail
+		sendMail := false
+		if channel.Options.Killmail.War && s.atWarWithKillmail(service.EntityID, mail) {
+			sendMail = true
+		} else if channel.Options.Killmail.FactionWar && mail.Victim.FactionId > 0 {
+			sendMail = true
+		} else if channel.Options.Killmail.SendAll {
+			sendMail = true
 		}
 
-		if err := service.Server.SendMessageToChannel(channel.ChannelID,
-			fmt.Sprintf("https://zkillboard.com/kill/%d/", mail.KillmailId)); err != nil {
-			log.Println(err)
+		if sendMail {
+			if err := service.Server.SendMessageToChannel(channel.ChannelID,
+				fmt.Sprintf("https://zkillboard.com/kill/%d/", mail.KillmailId)); err != nil {
+				log.Println(err)
+			}
 		}
+
 		s.outQueue.SetWorkCompleted(fmt.Sprintf("evedata-bot-killmail-sent:%s", channel.ChannelID), int64(mail.KillmailId))
 		return true
 	})

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/antihax/evedata/services/conservator"
 	"github.com/guregu/null"
 	"golang.org/x/oauth2"
 )
@@ -26,19 +27,19 @@ func GetCRESTToken(characterID int32, tokenCharacterID int32) (*CRESTToken, erro
 }
 
 type CRESTToken struct {
-	Expiry           time.Time   `db:"expiry" json:"expiry,omitempty"`
-	CharacterID      int32       `db:"characterID" json:"characterID,omitempty"`
-	TokenType        string      `db:"tokenType" json:"tokenType,omitempty"`
-	TokenCharacterID int32       `db:"tokenCharacterID" json:"tokenCharacterID,omitempty"`
-	CharacterName    string      `db:"characterName" json:"characterName,omitempty"`
-	LastCode         int64       `db:"lastCode" json:"lastCode,omitempty"`
-	LastStatus       null.String `db:"lastStatus" json:"lastStatus,omitempty"`
-	AccessToken      string      `db:"accessToken" json:"accessToken,omitempty"`
-	RefreshToken     string      `db:"refreshToken" json:"refreshToken,omitempty"`
-	Scopes           string      `db:"scopes" json:"scopes"`
-	AuthCharacter    int         `db:"authCharacter" json:"authCharacter"`
-	SharingInt       string      `db:"sharingint" json:"_,omitempty"`
-	Sharing          []Shares    `json:"sharing"`
+	Expiry           time.Time           `db:"expiry" json:"expiry,omitempty"`
+	CharacterID      int32               `db:"characterID" json:"characterID,omitempty"`
+	TokenType        string              `db:"tokenType" json:"tokenType,omitempty"`
+	TokenCharacterID int32               `db:"tokenCharacterID" json:"tokenCharacterID,omitempty"`
+	CharacterName    string              `db:"characterName" json:"characterName,omitempty"`
+	LastCode         int64               `db:"lastCode" json:"lastCode,omitempty"`
+	LastStatus       null.String         `db:"lastStatus" json:"lastStatus,omitempty"`
+	AccessToken      string              `db:"accessToken" json:"accessToken,omitempty"`
+	RefreshToken     string              `db:"refreshToken" json:"refreshToken,omitempty"`
+	Scopes           string              `db:"scopes" json:"scopes"`
+	AuthCharacter    int                 `db:"authCharacter" json:"authCharacter"`
+	SharingInt       string              `db:"sharingint" json:"_,omitempty"`
+	Sharing          []conservator.Share `json:"sharing"`
 }
 
 // [BENCHMARK] TODO
@@ -122,7 +123,7 @@ func GetCRESTTokens(characterID int32) ([]CRESTToken, error) {
 
 	// Unmarshal our sharing data.
 	for index := range tokens {
-		share := []Shares{}
+		share := []conservator.Share{}
 		if err := json.Unmarshal([]byte(tokens[index].SharingInt), &share); err != nil {
 			return nil, err
 		}

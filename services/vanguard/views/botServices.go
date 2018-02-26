@@ -15,20 +15,20 @@ import (
 func init() {
 
 	vanguard.AddRoute("botServices", "GET", "/botServices", botServicesPage)
-
 	vanguard.AddAuthRoute("botServices", "GET", "/U/botServices", apiGetBotServices)
 	vanguard.AddAuthRoute("botServices", "DELETE", "/U/botServices", apiDeleteBotService)
 	vanguard.AddAuthRoute("botServices", "POST", "/U/botServicesDiscord", apiAddDiscordBotService)
+
+	vanguard.AddRoute("botServices", "GET", "/botDetails", botDetailsPage)
+	vanguard.AddAuthRoute("botServices", "GET", "/U/botDetails", apiGetBotDetails)
 
 	vanguard.AddAuthRoute("botServices", "GET", "/U/entitiesWithRoles", apiGetEntitiesWithRoles)
 }
 
 func botServicesPage(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	p := newPage(r, "Account Information")
+	p := newPage(r, "Integrations")
 	templates.Templates = template.Must(template.ParseFiles("templates/botServices.html", templates.LayoutPath))
-
-	p["ShareGroups"] = models.GetCharacterShareGroups()
 
 	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
 		httpErr(w, err)
@@ -113,6 +113,47 @@ func apiGetBotServices(w http.ResponseWriter, r *http.Request) {
 	}
 
 	v, err := models.GetBotServices(characterID)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	json.NewEncoder(w).Encode(v)
+
+	if err = s.Save(r, w); err != nil {
+		httpErr(w, err)
+		return
+	}
+}
+
+func botDetailsPage(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	p := newPage(r, "Integration Services")
+	templates.Templates = template.Must(template.ParseFiles("templates/botDetails.html", templates.LayoutPath))
+
+	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
+		httpErr(w, err)
+		return
+	}
+}
+func apiGetBotDetails(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	s := vanguard.SessionFromContext(r.Context())
+
+	// Get the sessions main characterID
+	characterID, ok := s.Values["characterID"].(int32)
+	if !ok {
+		httpErrCode(w, nil, http.StatusUnauthorized)
+		return
+	}
+
+	serverID, err := strconv.Atoi(r.FormValue("serviceID"))
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	v, err := models.GetBotServiceDetails(characterID, int32(serverID))
 	if err != nil {
 		httpErr(w, err)
 		return
