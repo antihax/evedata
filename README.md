@@ -18,7 +18,7 @@ You will need Docker for the mock services
 | Service        | Description | 
 | ------------- |-------------| 
 | Artifice      | Task scheduler | 
-| DiscordBotTemp    | Temporary hacks to provide feasibility tests for a discord bot | 
+| Conservator    | Integration (discord, slack, ts3, mumble) | 
 | Hammer | ESI Consumer |  
 | Nail | Database store |  
 | Vanguard | Web Front End|  
