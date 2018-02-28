@@ -48,7 +48,7 @@ func characterUpdate(s *Artifice) error {
 		`SELECT characterID AS id FROM evedata.characters A
 			WHERE cacheUntil < UTC_TIMESTAMP() AND dead = 0
 			AND characterID > 90000000
-            ORDER BY cacheUntil ASC LIMIT 100`)
+            ORDER BY cacheUntil ASC LIMIT 1000`)
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func corporationUpdate(s *Artifice) error {
 	entities, err := s.db.Query(
 		`SELECT corporationID AS id FROM evedata.corporations A
 		 WHERE cacheUntil < UTC_TIMESTAMP() AND memberCount > 0 AND corporationId> 90000000
-		 ORDER BY cacheUntil ASC LIMIT 100`)
+		 ORDER BY cacheUntil ASC LIMIT 1000`)
 	if err != nil {
 		return err
 	}

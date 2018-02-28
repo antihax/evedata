@@ -93,6 +93,7 @@ CREATE TABLE `characters` (
   `name` varchar(50) NOT NULL DEFAULT '0',
   `gender` varchar(50) NOT NULL DEFAULT '0',
   `dead` tinyint(4) NOT NULL DEFAULT '0',
+  `birthDate` datetime DEFAULT NULL,
   PRIMARY KEY (`characterID`),
   KEY `cacheUntil` (`cacheUntil`),
   KEY `name` (`name`),
