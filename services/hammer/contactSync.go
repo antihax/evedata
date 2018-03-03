@@ -124,7 +124,7 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 		}
 
 		// Add faction wars to the active list
-		maxFactionWarLength := min(980-trim-untouchableContacts, len(factionWars))
+		maxFactionWarLength := min(950-trim-untouchableContacts, len(factionWars))
 		for _, war := range factionWars[:maxFactionWarLength] {
 			activeCheck[(int32)(war.ID)] = true
 		}
@@ -176,8 +176,8 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 
 		// Erase contacts which have no wars.
 		if len(erase) > 0 {
-			for start := 0; start < len(erase); start = start + 20 {
-				end := min(start+20, len(erase))
+			for start := 0; start < len(erase); start = start + 100 {
+				end := min(start+100, len(erase))
 				if _, err := s.esi.ESI.ContactsApi.DeleteCharactersCharacterIdContacts(auth, token.cid, erase[start:end], nil); err != nil {
 					log.Println(err)
 					return
@@ -189,7 +189,7 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 		if len(active) > 0 {
 			for start := 0; start < len(active); start = start + 100 {
 				end := min(start+100, len(active))
-				if _, _, err := s.esi.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), active[start:end], -10, nil); err != nil {
+				if _, r, err := s.esi.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), active[start:end], -10, nil); err != nil {
 					log.Println(err, active[start:end])
 					return
 				}

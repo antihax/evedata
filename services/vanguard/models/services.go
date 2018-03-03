@@ -60,9 +60,17 @@ func GetBotServices(characterID int32) ([]conservator.Service, error) {
 	return services, nil
 }
 
+type BotServiceDetails struct {
+	conservator.Service
+	Channels []conservator.Channel
+	Shares   []conservator.Share
+}
+
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetBotServiceDetails(characterID, serverID int32) (conservator.Service, error) {
-	service := conservator.Service{}
+func GetBotServiceDetails(characterID, serverID int32) (BotServiceDetails, error) {
+
+	// let this perform our authorization checks
+	service := BotServiceDetails{}
 	row, err := database.Queryx(`
 		SELECT  S.botServiceID, S.name, entityID, address,  type, services, options,
 		IFNULL(A.name, C.name) AS entityName, IF(A.name IS NULL, "corporation", "alliance") AS entityType
@@ -82,6 +90,30 @@ func GetBotServiceDetails(characterID, serverID int32) (conservator.Service, err
 
 	row.Next()
 	err = row.StructScan(&service)
+	if err != nil {
+		return service, err
+	}
+
+	// not authorized
+	if service.BotServiceID == 0 {
+		return service, errors.New("character is not authorized")
+	}
+
+	err = database.Select(&service.Channels, `
+		SELECT botServiceID, channelID, channelName, services, options
+		FROM evedata.botChannels 
+		WHERE botServiceID = ?;`, service.BotServiceID)
+	if err != nil {
+		return service, err
+	}
+
+	err = database.Select(&service.Shares, `
+		SELECT E.corporationID AS entityID, E.name AS entityName, B.botServiceID, types, ignored
+		FROM evedata.sharing S
+		INNER JOIN evedata.botServices B ON B.entityID = S.entityID
+        INNER JOIN evedata.crestTokens C ON C.tokenCharacterID = S.tokenCharacterID
+        INNER JOIN evedata.corporations E ON C.corporationID = E.corporationID
+		WHERE B.botServiceID = ?;`, service.BotServiceID)
 	if err != nil {
 		return service, err
 	}

@@ -36,10 +36,10 @@ func (s *Nail) killmailHandler(message *nsq.Message) error {
 	_, err = tx.Exec(`
 		INSERT INTO evedata.killmails
 		(id,solarSystemID,killTime,victimCharacterID,victimCorporationID,victimAllianceID,
-		attackerCount,damageTaken,x,y,z,shipType,warID) 
-		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id=id;
+		attackerCount,factionID,damageTaken,x,y,z,shipType,warID) 
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id=id;
 		`, mail.KillmailId, mail.SolarSystemId, mail.KillmailTime, mail.Victim.CharacterId, mail.Victim.CorporationId, mail.Victim.AllianceId,
-		len(mail.Attackers), mail.Victim.DamageTaken, mail.Victim.Position.X, mail.Victim.Position.Y, mail.Victim.Position.Z, mail.Victim.ShipTypeId,
+		len(mail.Attackers), mail.Victim.FactionId, mail.Victim.DamageTaken, mail.Victim.Position.X, mail.Victim.Position.Y, mail.Victim.Position.Z, mail.Victim.ShipTypeId,
 		mail.WarId)
 	if err != nil {
 		log.Println(err)
@@ -55,21 +55,6 @@ func (s *Nail) killmailHandler(message *nsq.Message) error {
 			(id,characterID,corporationID,allianceID,shipType,finalBlow,damageDone,weaponType,securityStatus)
 			VALUES %s ON DUPLICATE KEY UPDATE id=id;
 			`, joinParameters(9, len(mail.Attackers))), attackers...)
-		if err != nil {
-			log.Println(err)
-			return err
-		}
-	}
-
-	var items []interface{}
-	for _, i := range mail.Victim.Items {
-		items = append(items, mail.KillmailId, i.ItemTypeId, i.Flag, i.QuantityDestroyed, i.QuantityDropped, i.Singleton)
-	}
-	if len(items) > 0 {
-		_, err = tx.Exec(fmt.Sprintf(`INSERT INTO evedata.killmailItems
-			(id,itemType,flag,quantityDestroyed,quantityDropped,singleton)
-			VALUES %s ON DUPLICATE KEY UPDATE id=id;;
-			`, joinParameters(6, len(mail.Victim.Items))), items...)
 		if err != nil {
 			log.Println(err)
 			return err

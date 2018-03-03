@@ -38,6 +38,7 @@ CREATE TABLE `botChannels` (
   `channelID` varchar(255) COLLATE utf8_bin NOT NULL,
   `services` set('locator','kill','structure','war') COLLATE utf8_bin NOT NULL,
   `options` text COLLATE utf8_bin NOT NULL,
+  `channelName` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT 'unknown',
   PRIMARY KEY (`channelID`),
   UNIQUE KEY `channelID_UNIQUE` (`channelID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -278,7 +279,6 @@ CREATE TABLE `killmails` (
   `victimCharacterID` int(10) unsigned NOT NULL DEFAULT '0',
   `victimCorporationID` int(10) unsigned NOT NULL DEFAULT '0',
   `victimAllianceID` int(10) unsigned NOT NULL DEFAULT '0',
-  `hash` char(40) CHARACTER SET latin1 NOT NULL DEFAULT '""',
   `attackerCount` smallint(3) unsigned NOT NULL DEFAULT '0',
   `damageTaken` int(9) unsigned NOT NULL DEFAULT '0',
   `x` float NOT NULL,
@@ -286,6 +286,7 @@ CREATE TABLE `killmails` (
   `z` float NOT NULL,
   `shipType` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `warID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `factionID` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `victimAllianceID` (`victimAllianceID`),
   KEY `victimCorporationID` (`victimCorporationID`),
@@ -415,7 +416,7 @@ CREATE TABLE `sharing` (
   `tokenCharacterID` int(11) unsigned NOT NULL,
   `entityID` int(11) unsigned NOT NULL,
   `types` set('locator','kill','structure','war') COLLATE utf8_bin NOT NULL,
-  `ignore` tinyint(4) NOT NULL DEFAULT '0',
+  `ignored` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`characterID`,`tokenCharacterID`,`entityID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='For sharing character information with entities.';
 

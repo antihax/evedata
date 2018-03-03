@@ -44,6 +44,7 @@ type Service struct {
 type Channel struct {
 	BotServiceID int32          `db:"botServiceID" json:"botServiceID,omitempty"`
 	ChannelID    string         `db:"channelID"  json:"channelID,omitempty"`
+	ChannelName  string         `db:"channelName"  json:"channelName,omitempty"`
 	Services     string         `db:"services" json:"services,omitempty"`
 	OptionsJSON  string         `db:"options" json:"-"`
 	Options      ChannelOptions `db:"-" json:"options,omitempty"`
@@ -59,6 +60,7 @@ type Share struct {
 	Type               string `db:"type" json:"type,omitempty"`
 	Types              string `db:"types" json:"types,omitempty"`
 	Packed             string `db:"packed" json:"packed,omitempty"`
+	Ignored            int32  `db:"ignored" json:"ignored,omitempty"`
 }
 
 // Load our bot services
@@ -238,6 +240,14 @@ func (s *Conservator) getServices() ([]Service, error) {
 
 func (s *Conservator) updateServerName(b int32, name string) error {
 	_, err := s.db.Exec("UPDATE evedata.botServices SET name = ? WHERE botServiceID = ?", name, b)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Conservator) updateChannelName(b int32, c, name string) error {
+	_, err := s.db.Exec("UPDATE evedata.botChannel SET channelName = ? WHERE botServiceID = ? AND channelID = ?", name, b, c)
 	if err != nil {
 		return err
 	}

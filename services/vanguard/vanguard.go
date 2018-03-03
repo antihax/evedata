@@ -49,11 +49,6 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, refresh, tokenClientID, tokenSe
 	gob.Register(oauth2.Token{})
 	gob.Register(goesi.VerifyResponse{})
 
-	conservatorClient, err := rpc.DialHTTP("tcp", "conservator.evedata:3001")
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	// Get a caching http client
 	cache := apicache.CreateHTTPClientCache(redis)
 
@@ -90,6 +85,11 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, refresh, tokenClientID, tokenSe
 	// Set options for the store
 	store.SetMaxLength(1024 * 10)
 	store.Options.Domain = "evedata.org"
+
+	conservatorClient, err := rpc.DialHTTP("tcp", "conservator.evedata:3001")
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	// Setup a new Vanguard
 	globalVanguard = &Vanguard{

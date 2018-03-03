@@ -40,13 +40,6 @@ func killmailMaint(s *Artifice) error { // Broken into smaller chunks so we have
 	}
 
 	if err := s.RetryExecTillNoRows(`
-				DELETE A.* FROM evedata.killmailItems A
-		        JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 5000) K ON A.id = K.id;
-		            `); err != nil {
-		return err
-	}
-
-	if err := s.RetryExecTillNoRows(`
 				DELETE FROM evedata.killmails
 		        WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 5000;
 		            `); err != nil {
@@ -60,15 +53,6 @@ func killmailMaint(s *Artifice) error { // Broken into smaller chunks so we have
 					 LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
 		             WHERE K.id IS NULL LIMIT 1000) S ON D.id = S.id;
 		               `); err != nil {
-		return err
-	}
-
-	if err := s.RetryExecTillNoRows(`
-			DELETE D.* FROM evedata.killmailItems D 
-            JOIN (SELECT A.id FROM evedata.killmailItems A
-				 LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
-	             WHERE K.id IS NULL LIMIT 1000) S ON D.id = S.id;
-	               `); err != nil {
 		return err
 	}
 
