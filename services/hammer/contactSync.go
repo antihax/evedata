@@ -124,7 +124,7 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 		}
 
 		// Add faction wars to the active list
-		maxFactionWarLength := min(950-trim-untouchableContacts, len(factionWars))
+		maxFactionWarLength := min(800-trim-untouchableContacts, len(factionWars))
 		for _, war := range factionWars[:maxFactionWarLength] {
 			activeCheck[(int32)(war.ID)] = true
 		}
