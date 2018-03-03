@@ -167,6 +167,7 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 		// Build a list of active wars to add
 		for con := range activeCheck {
 			active = append(active, con)
+
 		}
 
 		// Build a list of pending wars to add
@@ -189,7 +190,7 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 		if len(active) > 0 {
 			for start := 0; start < len(active); start = start + 100 {
 				end := min(start+100, len(active))
-				if _, r, err := s.esi.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), active[start:end], -10, nil); err != nil {
+				if _, _, err := s.esi.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), active[start:end], -10, nil); err != nil {
 					log.Println(err, active[start:end])
 					return
 				}
