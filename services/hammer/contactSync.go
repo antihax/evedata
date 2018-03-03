@@ -177,8 +177,8 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 
 		// Erase contacts which have no wars.
 		if len(erase) > 0 {
-			for start := 0; start < len(erase); start = start + 100 {
-				end := min(start+100, len(erase))
+			for start := 0; start < len(erase); start = start + 20 {
+				end := min(start+20, len(erase))
 				if _, err := s.esi.ESI.ContactsApi.DeleteCharactersCharacterIdContacts(auth, token.cid, erase[start:end], nil); err != nil {
 					log.Println(err)
 					return
