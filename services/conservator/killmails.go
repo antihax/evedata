@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/antihax/evedata/internal/datapackages"
+
 	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/goesi/esi"
 	nsq "github.com/nsqio/go-nsq"
@@ -109,12 +111,13 @@ func (s *Conservator) reportKillmail(mail *esi.GetKillmailsKillmailIdKillmailHas
 }
 
 func (s *Conservator) killmailHandler(message *nsq.Message) error {
-	mail := esi.GetKillmailsKillmailIdKillmailHashOk{}
-	if err := gobcoder.GobDecoder(message.Body, &mail); err != nil {
+	killmail := datapackages.Killmail{}
+	if err := gobcoder.GobDecoder(message.Body, &killmail); err != nil {
 		log.Println(err)
 		return err
 	}
 
+	mail := killmail.Kill
 	// Skip killmails more than an hour old
 	if mail.KillmailTime.Before(time.Now().UTC().Add(-time.Hour * 6)) {
 		return nil

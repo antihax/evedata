@@ -5,8 +5,9 @@ import (
 	"log"
 	"strings"
 
+	"github.com/antihax/evedata/internal/datapackages"
+
 	"github.com/antihax/evedata/internal/gobcoder"
-	"github.com/antihax/goesi/esi"
 	nsq "github.com/nsqio/go-nsq"
 )
 
@@ -19,13 +20,14 @@ func spawnKillmailConsumer(s *Nail, consumer *nsq.Consumer) {
 }
 
 func (s *Nail) killmailHandler(message *nsq.Message) error {
-	mail := esi.GetKillmailsKillmailIdKillmailHashOk{}
-	err := gobcoder.GobDecoder(message.Body, &mail)
+	killmail := datapackages.Killmail{}
+	err := gobcoder.GobDecoder(message.Body, &killmail)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
+	mail := killmail.Kill
 	tx, err := s.db.Begin()
 	if err != nil {
 		log.Println(err)
@@ -36,11 +38,11 @@ func (s *Nail) killmailHandler(message *nsq.Message) error {
 	_, err = tx.Exec(`
 		INSERT INTO evedata.killmails
 		(id,solarSystemID,killTime,victimCharacterID,victimCorporationID,victimAllianceID,
-		attackerCount,factionID,damageTaken,x,y,z,shipType,warID) 
-		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id=id;
+		attackerCount,factionID,damageTaken,x,y,z,shipType,warID,hash) 
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE hash=VALUES(hash);
 		`, mail.KillmailId, mail.SolarSystemId, mail.KillmailTime, mail.Victim.CharacterId, mail.Victim.CorporationId, mail.Victim.AllianceId,
 		len(mail.Attackers), mail.Victim.FactionId, mail.Victim.DamageTaken, mail.Victim.Position.X, mail.Victim.Position.Y, mail.Victim.Position.Z, mail.Victim.ShipTypeId,
-		mail.WarId)
+		mail.WarId, killmail.Hash)
 	if err != nil {
 		log.Println(err)
 		return err

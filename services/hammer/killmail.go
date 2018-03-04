@@ -2,6 +2,8 @@ package hammer
 
 import (
 	"log"
+
+	"github.com/antihax/evedata/internal/datapackages"
 )
 
 func init() {
@@ -25,7 +27,7 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 	}
 
 	// Send out the result
-	err = s.QueueResult(kill, "killmail")
+	err = s.QueueResult(&datapackages.Killmail{Hash: hash, Kill: kill}, "killmail")
 	if err != nil {
 		log.Println(err)
 		return
