@@ -154,7 +154,8 @@ func discoveredAssetsMaint(s *Artifice) error {
             INNER JOIN evedata.corporations C ON C.corporationID = A.corporationID
             INNER JOIN evedata.killmails K ON K.id = A.id
             INNER JOIN mapSolarSystems S ON S.solarSystemID = K.solarSystemID
-            WHERE characterID = 0 AND groupID IN (365, 549, 1023, 1537, 1652, 1653, 1657, 2233)
+			WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 120 DAY) AND 
+				characterID = 0 AND groupID IN (365, 549, 1023, 1404, 1406, 1537, 1652, 1653, 1657, 2233)
             GROUP BY A.corporationID, solarSystemID, typeID
         ON DUPLICATE KEY UPDATE lastSeen = lastSeen;
             `); err != nil {
@@ -173,11 +174,12 @@ func discoveredAssetsMaint(s *Artifice) error {
                 K.z, 
                 evedata.closestCelestial(K.solarSystemID, K.x, K.y, K.z) AS locationID, 
                 MAX(killTime) as lastSeen 
-            FROM evedata.killmails K
+            FROM evedata.killmails K 
             INNER JOIN invTypes T ON K.shipType = typeID
             INNER JOIN evedata.corporations C ON C.corporationID = K.victimCorporationID
             INNER JOIN mapSolarSystems S ON S.solarSystemID = K.solarSystemID
-            WHERE victimCharacterID = 0 AND groupID IN (365, 549, 1023, 1537, 1652, 1653, 1657, 2233)
+			WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 120 DAY) AND 
+				victimCharacterID = 0 AND groupID IN (365, 549, 1023, 1404, 1406, 1537, 1652, 1653, 1657, 2233)
             GROUP BY K.victimCorporationID, solarSystemID, typeID
         ON DUPLICATE KEY UPDATE lastSeen = lastSeen;
             `); err != nil {
