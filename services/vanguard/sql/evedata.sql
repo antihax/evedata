@@ -250,6 +250,7 @@ CREATE TABLE `killmailAttackers` (
   `corporationID` int(10) unsigned NOT NULL DEFAULT '0',
   `allianceID` int(10) unsigned NOT NULL DEFAULT '0',
   `securityStatus` decimal(4,2) NOT NULL DEFAULT '0.00',
+  `shipType` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`,`characterID`),
   KEY `allianceID` (`allianceID`),
   KEY `corporationID` (`corporationID`),

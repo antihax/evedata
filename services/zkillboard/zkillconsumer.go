@@ -45,7 +45,7 @@ func (s *ZKillboard) redisQ() error {
 // Loops collecting one year of kill mails.
 func (s *ZKillboard) apiConsumer() error {
 	// Start from where we left off.
-	nextCheck, _ := time.Parse("20060102", "20071205")
+	nextCheck, _ := time.Parse("20060102", "20071201")
 
 	rate := time.Second / 2
 	throttle := time.Tick(rate)

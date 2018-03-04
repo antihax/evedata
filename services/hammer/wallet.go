@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/antihax/evedata/internal/datapackages"
+	"github.com/antihax/goesi/esi"
 )
 
 func init() {
@@ -62,9 +63,29 @@ func characterWalletJournalConsumer(s *Hammer, parameter interface{}) {
 		log.Println(err)
 		return
 	}
-
+	log.Printf("journal got %d \n", len(journal))
 	if len(journal) == 0 {
 		return
+	}
+
+	last := lowestRefID(journal)
+	for {
+		top, _, err := s.esi.ESI.WalletApi.GetCharactersCharacterIdWalletJournal(ctx, tokenCharacterID,
+			map[string]interface{}{"fromId": last})
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		if len(top) == 0 {
+			break
+		}
+		log.Printf("journal got %d additional %d\n", len(top), last)
+		journal = append(journal, top...)
+		newlast := lowestRefID(top)
+		if newlast == last {
+			break
+		}
+		last = newlast
 	}
 
 	// Send out the result
@@ -77,4 +98,14 @@ func characterWalletJournalConsumer(s *Hammer, parameter interface{}) {
 		log.Println(err)
 		return
 	}
+}
+
+func lowestRefID(j []esi.GetCharactersCharacterIdWalletJournal200Ok) int64 {
+	lowest := j[0].RefId
+	for _, i := range j {
+		if i.RefId < lowest {
+			lowest = i.RefId
+		}
+	}
+	return lowest
 }
