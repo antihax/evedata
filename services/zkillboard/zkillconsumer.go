@@ -79,12 +79,13 @@ func (s *ZKillboard) apiConsumer() error {
 				log.Println(err)
 				continue
 			}
-
-			// Add to the killmail queue
-			kills = append(kills, redisqueue.Work{Operation: "killmail", Parameter: []interface{}{hash.(string), (int32)(id)}})
-			if err != nil {
-				log.Println(err)
-				continue
+			if !s.outQueue.CheckWorkCompleted("evedata_known_kills", id) {
+				// Add to the killmail queue
+				kills = append(kills, redisqueue.Work{Operation: "killmail", Parameter: []interface{}{hash.(string), (int32)(id)}})
+				if err != nil {
+					log.Println(err)
+					continue
+				}
 			}
 		}
 

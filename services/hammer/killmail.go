@@ -15,6 +15,10 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 	hash := parameters[0].(string)
 	id := int32(parameters[1].(int))
 
+	if s.inQueue.CheckWorkCompleted("evedata_known_kills", int64(id)) {
+		return
+	}
+
 	kill, _, err := s.esi.ESI.KillmailsApi.GetKillmailsKillmailIdKillmailHash(nil, hash, id, nil)
 	if err != nil {
 		log.Println(err)
@@ -26,17 +30,19 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 		log.Println(err)
 	}
 
-	// Send out the result
-	err = s.QueueResult(&datapackages.Killmail{Hash: hash, Kill: kill}, "killmail")
-	if err != nil {
-		log.Println(err)
-		return
-	}
+	// Send out the result, but ignore DUST stuff.
+	if kill.Victim.ShipTypeId < 65535 {
+		err = s.QueueResult(&datapackages.Killmail{Hash: hash, Kill: kill}, "killmail")
+		if err != nil {
+			log.Println(err)
+			return
+		}
 
-	err = s.AddCharacter(kill.Victim.CharacterId)
-	if err != nil {
-		log.Println(err)
-		return
+		err = s.AddCharacter(kill.Victim.CharacterId)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 	}
 
 	for _, a := range kill.Attackers {
