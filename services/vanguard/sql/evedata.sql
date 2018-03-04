@@ -249,27 +249,11 @@ CREATE TABLE `killmailAttackers` (
   `characterID` int(10) unsigned NOT NULL DEFAULT '0',
   `corporationID` int(10) unsigned NOT NULL DEFAULT '0',
   `allianceID` int(10) unsigned NOT NULL DEFAULT '0',
-  `shipType` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `finalBlow` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `damageDone` int(8) unsigned NOT NULL DEFAULT '0',
-  `weaponType` smallint(5) unsigned NOT NULL DEFAULT '0',
   `securityStatus` decimal(4,2) NOT NULL DEFAULT '0.00',
   PRIMARY KEY (`id`,`characterID`),
   KEY `allianceID` (`allianceID`),
   KEY `corporationID` (`corporationID`),
-  KEY `characterID` (`characterID`),
-  KEY `charcorp` (`characterID`,`corporationID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `killmailItems` (
-  `id` int(10) unsigned NOT NULL,
-  `itemType` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `flag` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `quantityDestroyed` int(8) unsigned NOT NULL DEFAULT '0',
-  `quantityDropped` int(8) unsigned NOT NULL DEFAULT '0',
-  `singleton` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`,`itemType`),
-  KEY `id` (`id`)
+  KEY `characterID` (`characterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `killmails` (
@@ -284,16 +268,15 @@ CREATE TABLE `killmails` (
   `x` float NOT NULL,
   `y` float NOT NULL,
   `z` float NOT NULL,
-  `shipType` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `shipType` smallint(5) unsigned NOT NULL DEFAULT '0',
   `warID` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `factionID` int(11) NOT NULL DEFAULT '0',
+  `factionID` mediumint(8) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `victimAllianceID` (`victimAllianceID`),
   KEY `victimCorporationID` (`victimCorporationID`),
   KEY `killTime` (`killTime`),
   KEY `war` (`warID`),
-  KEY `victimCharacterID` (`victimCharacterID`),
-  KEY `time_victim` (`killTime`,`victimAllianceID`,`victimCorporationID`,`warID`)
+  KEY `victimCharacterID` (`victimCharacterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `locatedCharacters` (

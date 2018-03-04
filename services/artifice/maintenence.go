@@ -32,29 +32,29 @@ func contactSyncMaint(s *Artifice) error {
 
 func killmailMaint(s *Artifice) error { // Broken into smaller chunks so we have a chance of it getting completed.
 	// Delete stuff older than 90 days, we do not care...
-	if err := s.RetryExecTillNoRows(`
-				DELETE A.* FROM evedata.killmailAttackers A
-		            JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 5000) K ON A.id = K.id;
-		            `); err != nil {
-		return err
-	}
+	/*	if err := s.RetryExecTillNoRows(`
+					DELETE A.* FROM evedata.killmailAttackers A
+			            JOIN (SELECT id FROM evedata.killmails WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 5000) K ON A.id = K.id;
+			            `); err != nil {
+			return err
+		}
 
-	if err := s.RetryExecTillNoRows(`
-				DELETE FROM evedata.killmails
-		        WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 5000;
-		            `); err != nil {
-		return err
-	}
+		if err := s.RetryExecTillNoRows(`
+					DELETE FROM evedata.killmails
+			        WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 5000;
+			            `); err != nil {
+			return err
+		}
 
-	// Remove any invalid items
-	if err := s.RetryExecTillNoRows(`
-		        DELETE D.* FROM evedata.killmailAttackers D
-	            JOIN (SELECT A.id FROM evedata.killmailAttackers A
-					 LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
-		             WHERE K.id IS NULL LIMIT 1000) S ON D.id = S.id;
-		               `); err != nil {
-		return err
-	}
+		// Remove any invalid items
+		if err := s.RetryExecTillNoRows(`
+			        DELETE D.* FROM evedata.killmailAttackers D
+		            JOIN (SELECT A.id FROM evedata.killmailAttackers A
+						 LEFT OUTER JOIN evedata.killmails K ON A.id = K.id
+			             WHERE K.id IS NULL LIMIT 1000) S ON D.id = S.id;
+			               `); err != nil {
+			return err
+		}*/
 
 	// Prefill stats for known entities that may have no kills
 	if err := s.doSQL(`

@@ -45,9 +45,9 @@ func (s *ZKillboard) redisQ() error {
 // Loops collecting one year of kill mails.
 func (s *ZKillboard) apiConsumer() error {
 	// Start from where we left off.
-	nextCheck := time.Now().UTC().Add(time.Hour * 24 * -365)
+	nextCheck, _ := time.Parse("20060102", "20071205")
 
-	rate := time.Second * 120
+	rate := time.Second / 2
 	throttle := time.Tick(rate)
 
 	for {
@@ -80,13 +80,11 @@ func (s *ZKillboard) apiConsumer() error {
 				continue
 			}
 
-			if !s.outQueue.CheckWorkCompleted("evedata_known_kills", id) {
-				// Add to the killmail queue
-				kills = append(kills, redisqueue.Work{Operation: "killmail", Parameter: []interface{}{hash.(string), (int32)(id)}})
-				if err != nil {
-					log.Println(err)
-					continue
-				}
+			// Add to the killmail queue
+			kills = append(kills, redisqueue.Work{Operation: "killmail", Parameter: []interface{}{hash.(string), (int32)(id)}})
+			if err != nil {
+				log.Println(err)
+				continue
 			}
 		}
 

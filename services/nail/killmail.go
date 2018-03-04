@@ -48,13 +48,13 @@ func (s *Nail) killmailHandler(message *nsq.Message) error {
 
 	var attackers []interface{}
 	for _, a := range mail.Attackers {
-		attackers = append(attackers, mail.KillmailId, a.CharacterId, a.CorporationId, a.AllianceId, a.ShipTypeId, a.FinalBlow, a.DamageDone, a.WeaponTypeId, a.SecurityStatus)
+		attackers = append(attackers, mail.KillmailId, a.CharacterId, a.CorporationId, a.AllianceId, a.SecurityStatus)
 	}
 	if len(attackers) > 0 {
 		_, err = tx.Exec(fmt.Sprintf(`INSERT INTO evedata.killmailAttackers
-			(id,characterID,corporationID,allianceID,shipType,finalBlow,damageDone,weaponType,securityStatus)
+			(id,characterID,corporationID,allianceID,securityStatus)
 			VALUES %s ON DUPLICATE KEY UPDATE id=id;
-			`, joinParameters(9, len(mail.Attackers))), attackers...)
+			`, joinParameters(5, len(mail.Attackers))), attackers...)
 		if err != nil {
 			log.Println(err)
 			return err
