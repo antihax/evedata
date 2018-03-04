@@ -1,7 +1,7 @@
 {{define "body"}}
-<h3 id="serverName">ServerName</h3>
-<p>Discord integration for your corporation or alliance!</p>
-<p>All executor corp directors will have access to alter the configuration. You may also add delegates.</p>
+<h3 id="serviceName">serviceName</h3>
+<h4 id="integrationType">Integration Type</h4>
+
 {{template "checkAuthentication" .}}
 	<div class="modal fade" id="adddiscord">
 		<div class="modal-dialog">
@@ -35,10 +35,10 @@
 	</div>
 
 	<div class="table-responsive">
-		<div class="toolbar servicesToolbar" id="servicesToolbar">
+		<div class="toolbar channelsToolbar" id="channelsToolbar">
 			<div class="dropdown">
-					<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChar" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						Add New Service
+					<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChannel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Add Channel
 						<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" id="addCharMenu" aria-labelledby="addChar">
@@ -50,15 +50,15 @@
 			</div>
 		</div>
 
-		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".servicesToolbar"
-			data-url="/U/botServices" id="servicesTable">
+		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".channelsToolbar" id="channelsTable">
 			<thead>
 				<tr>
-					<th data-field="type">Server Type</th>
-					<th data-field="name">Server Name</th>
-					<th data-field="entityName" data-formatter="entityTypeFormatter">Owning Entity</th>
+					<th data-field="channelName">Channel Name</th>
+					<th data-field="channelID">ChannelID</th>
+					<th data-field="services">Services</th>
+					<th data-field="options">Options</th>
 					<th data-align="center" data-events="actionEvents"
-					data-field="action" data-formatter="ServerActionsFormatter">Delete</th>
+					data-field="action" data-formatter="ChannelsActionsFormatter">Delete</th>
 				</tr>
 			</thead>
 		</table>
@@ -66,7 +66,7 @@
 
 	<script>		
 		var	$adddiscord = $('#adddiscord').modal({show: false}),
-			$servicesTable = $('#servicesTable').bootstrapTable({url: "/U/botServices"}, "changeLocale", "en_US");
+			$channelsTable = $('#channelsTable').bootstrapTable({},"changeLocale", "en_US");
 	
 		$('.adddiscord').click(function () {
 			$adddiscord.find('.modal-title').text("Add Discord");
@@ -74,20 +74,9 @@
 		});
 
 		$(function () {
-			$.ajax({
-				url: '/U/entitiesWithRoles?role=Director',
-				dataType:'JSON',
-				success:function(data){
-					$.each(data, function(key, val){
-						$('#entity').append('<option id=' + val.entityID + '>' + val.entityName + '</option>');
-					})
-				},
-				error:function(){
-					$select.html('<option id="-1">You have no director characters.</option>');
-				}
-			});
+			updateService();
 		});
-		function ServerActionsFormatter(value, row) {
+		function ChannelsActionsFormatter(value, row) {
 			return [
 				'<a class="removeServices" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
 			].join('');
@@ -100,7 +89,7 @@
 						url: "/U/botServices?botServerID=" + row.botServiceID,
 						type: 'delete',
 						success: function () {
-							$servicesTable.bootstrapTable('refresh');
+							$channelsTable.bootstrapTable('refresh');
 							showAlert('Delete item successful!', 'success');
 						},
 						error: function () {
@@ -120,7 +109,7 @@
 				}
 			})
 			.done(function() {
-				$servicesTable.bootstrapTable('refresh');
+				$channelsTable.bootstrapTable('refresh');
 				$adddiscord.modal('hide');
 				})
 			.fail(function(error) {
@@ -128,5 +117,23 @@
 				showAlert( 'Add Discord Failed: ' + error.responseText, 'danger');
 			});
 		});
+
+	function updateService() {
+		$.ajax({
+				url: '/U/botDetails?serviceID=' + getUrlVars()["serviceID"],
+				dataType:'JSON',
+				success:updateServiceData,
+				error:function(err){
+					alert("Could not find information on this service: " + err.responseText)
+				}
+			});
+	}
+	function updateServiceData(d) {
+		console.log(d);
+		$("#serviceName").html(d.name);
+		$("#integrationType").html(d.type).css('textTransform', 'capitalize');
+		console.log(d.Channels);
+		$channelsTable.bootstrapTable('load', d.Channels);
+	}
 	</script>
 {{end}}
