@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/antihax/evedata/internal/datapackages"
+	"github.com/antihax/evedata/services/vanguard/models"
 
 	"github.com/antihax/evedata/internal/gobcoder"
 	nsq "github.com/nsqio/go-nsq"
@@ -40,7 +41,7 @@ func (s *Nail) killmailHandler(message *nsq.Message) error {
 		(id,solarSystemID,killTime,victimCharacterID,victimCorporationID,victimAllianceID,
 		attackerCount,factionID,damageTaken,x,y,z,shipType,warID,hash) 
 		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE hash=VALUES(hash);
-		`, mail.KillmailId, mail.SolarSystemId, mail.KillmailTime, mail.Victim.CharacterId, mail.Victim.CorporationId, mail.Victim.AllianceId,
+		`, mail.KillmailId, mail.SolarSystemId, mail.KillmailTime.Format(models.SQLTimeFormat), mail.Victim.CharacterId, mail.Victim.CorporationId, mail.Victim.AllianceId,
 		len(mail.Attackers), mail.Victim.FactionId, mail.Victim.DamageTaken, mail.Victim.Position.X, mail.Victim.Position.Y, mail.Victim.Position.Z, mail.Victim.ShipTypeId,
 		mail.WarId, killmail.Hash)
 	if err != nil {
@@ -50,13 +51,13 @@ func (s *Nail) killmailHandler(message *nsq.Message) error {
 
 	var attackers []interface{}
 	for _, a := range mail.Attackers {
-		attackers = append(attackers, mail.KillmailId, a.CharacterId, a.CorporationId, a.AllianceId, a.SecurityStatus)
+		attackers = append(attackers, mail.KillmailId, a.CharacterId, a.CorporationId, a.AllianceId, a.ShipTypeId, a.SecurityStatus)
 	}
 	if len(attackers) > 0 {
 		_, err = tx.Exec(fmt.Sprintf(`INSERT INTO evedata.killmailAttackers
-			(id,characterID,corporationID,allianceID,securityStatus)
+			(id,characterID,corporationID,allianceID,shipType,securityStatus)
 			VALUES %s ON DUPLICATE KEY UPDATE id=id;
-			`, joinParameters(5, len(mail.Attackers))), attackers...)
+			`, joinParameters(6, len(mail.Attackers))), attackers...)
 		if err != nil {
 			log.Println(err)
 			return err
