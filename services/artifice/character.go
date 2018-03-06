@@ -13,7 +13,7 @@ func init() {
 	registerTrigger("characterAssets", characterAssets, time.NewTicker(time.Second*3600))
 	registerTrigger("characterNotifications", characterNotifications, time.NewTicker(time.Second*600))
 	registerTrigger("characterContactSync", characterContactSync, time.NewTicker(time.Second*360))
-	registerTrigger("characterAuthOwners", characterAuthOwners, time.NewTicker(time.Second*30))
+	registerTrigger("characterAuthOwners", characterAuthOwners, time.NewTicker(time.Second*3600))
 }
 
 func characterTransactions(s *Artifice) error {
