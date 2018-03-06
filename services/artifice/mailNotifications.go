@@ -83,7 +83,7 @@ func (s *Artifice) mailCorporationChangeWithShares(characterID int32) {
 		Body: `Hi, we noticed you just changed corporations and wanted to inform that this character is sharing data to other entities.
 
 Please log into our site with your main character and verify that you wish to continue sharing data with these entities.
-View shares here: <a href="https://www.evedata.org/sharing">https://www.evedata.org/sharing</a>.
+View shares here: <a href="https://www.evedata.org/shares">https://www.evedata.org/shares</a>.
 
 For security purposes, we do not divulge details in evemail.
 
