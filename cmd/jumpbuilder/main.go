@@ -41,7 +41,12 @@ func dbUpdater(p chan path) {
 		INSERT INTO evedata.jumps (toSolarSystemID, fromSolarSystemID, jumps, securejumps)
 		VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE jumps=VALUES(jumps), securejumps=VALUES(securejumps)`,
 			e.to, e.from, e.jumps, e.secureJumps)
-		fmt.Printf("%v %s\n", e, err)
+		fmt.Printf("fwd %v %s\n", e, err)
+		_, err = db.Exec(`
+		INSERT INTO evedata.jumps (toSolarSystemID, fromSolarSystemID, jumps, securejumps)
+		VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE jumps=VALUES(jumps), securejumps=VALUES(securejumps)`,
+			e.from, e.to, e.jumps, e.secureJumps)
+		fmt.Printf("rev %v %s\n", e, err)
 	}
 }
 
@@ -72,7 +77,7 @@ func processor(systems []system, in chan pair, out chan path) {
 		pair := <-in
 		to := pair.to
 		from := pair.from
-		s := path{to: to.SystemID, from: from.SystemID, jumps: 9999, secureJumps: 9999}
+		s := path{to: to.SystemID, from: from.SystemID, jumps: 254, secureJumps: 254}
 		jumps, err := graph.Shortest(to.SystemID, from.SystemID)
 		if err == nil {
 			s.jumps = jumps.Distance
@@ -84,7 +89,9 @@ func processor(systems []system, in chan pair, out chan path) {
 				s.secureJumps = jumps.Distance
 			}
 		}
-		out <- s
+		if s.jumps < 254 && s.secureJumps < 254 {
+			out <- s
+		}
 	}
 }
 

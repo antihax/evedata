@@ -72,6 +72,11 @@
     padding-bottom: 0px;
 }
 
+pre {
+    font: normal normal normal 12px/1.2 "Helvetica Neue", Roboto, "Segoe UI", Calibri, sans-serif;
+    padding: 5px;
+}
+
 html {
     color: #292f33;
     font: normal normal normal 12px/1.2 "Helvetica Neue", Roboto, "Segoe UI", Calibri, sans-serif;

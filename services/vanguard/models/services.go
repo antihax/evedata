@@ -10,7 +10,7 @@ import (
 func GetShares(characterID int32) ([]conservator.Share, error) {
 	shares := []conservator.Share{}
 	if err := database.Select(&shares, `
-		SELECT S.characterID, S.tokenCharacterID, characterName AS tokenCharacterName, entityID, types, IFNULL(A.name, C.name) AS entityName, IF(A.name IS NULL, "corporation", "alliance") AS type
+		SELECT S.characterID, S.tokenCharacterID, characterName AS tokenCharacterName, entityID, types, IFNULL(A.name, C.name) AS entityName, IF(A.name IS NULL, "corporation", "alliance") AS entityType
 		FROM evedata.sharing S
 		INNER JOIN evedata.crestTokens T ON T.tokenCharacterID = S.tokenCharacterID AND T.characterID = S.characterID
 		LEFT OUTER JOIN evedata.corporations C ON C.corporationID = S.entityID
@@ -108,7 +108,7 @@ func GetBotServiceDetails(characterID, serverID int32) (BotServiceDetails, error
 	}
 
 	err = database.Select(&service.Shares, `
-		SELECT E.corporationID AS entityID, E.name AS entityName, B.botServiceID, types, ignored
+		SELECT characterName AS tokenCharacterName, C.tokenCharacterID, E.corporationID AS entityID, E.name AS entityName, "corporation" AS entityType, B.botServiceID, types, ignored
 		FROM evedata.sharing S
 		INNER JOIN evedata.botServices B ON B.entityID = S.entityID
         INNER JOIN evedata.crestTokens C ON C.tokenCharacterID = S.tokenCharacterID

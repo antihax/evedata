@@ -63,7 +63,7 @@ func characterWalletJournalConsumer(s *Hammer, parameter interface{}) {
 		log.Println(err)
 		return
 	}
-	log.Printf("journal got %d \n", len(journal))
+
 	if len(journal) == 0 {
 		return
 	}
@@ -79,7 +79,7 @@ func characterWalletJournalConsumer(s *Hammer, parameter interface{}) {
 		if len(top) == 0 {
 			break
 		}
-		log.Printf("journal got %d additional %d\n", len(top), last)
+
 		journal = append(journal, top...)
 		newlast := lowestRefID(top)
 		if newlast == last {

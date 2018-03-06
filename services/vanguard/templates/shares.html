@@ -48,7 +48,7 @@
 				<tr>
 					<th data-field="tokenCharacterName" data-formatter="tokenCharacterFormatter">Character</th>
 					<th data-field="types">Sharing</th>
-					<th data-field="entityName" data-formatter="entityFormatter">Shared With</th>
+					<th data-field="entityName" data-formatter="entityTypeFormatter">Shared With</th>
 					<th data-align="center" data-events="actionEvents"
 					data-field="action" data-formatter="ShareActionsFormatter">Delete</th>
 				</tr>
@@ -167,7 +167,7 @@
 				if (confirm('Are you sure you want to stop sharing with this entity?')) {
 					$.ajax({
 						
-						url: "/U/shares?entityID=" + row.id + "&tokenCharacterID=" + row.tokenCharacterID,
+						url: "/U/shares?entityID=" + row.entityID + "&tokenCharacterID=" + row.tokenCharacterID,
 						type: 'delete',
 						success: function () {
 							$sharesTable.bootstrapTable('refresh');

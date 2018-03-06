@@ -100,16 +100,16 @@
 					return val.entityName + ": " + val.types +"\n";
 				});
 
-				value = "&#9989;";
+				value = "&#10003;";
 			}
-			return '<a class="toggleauth" style="text-decoration: none;" href="/shares" title="'+sharingWith+'">'+value+'<\/a>' ;
+			return '<a style="text-decoration: none;" href="/shares" title="'+sharingWith+'">'+value+'<\/a>' ;
 		}
 
 		function authFormatter(value, row) {
 			if (value == 0) {
 				value = "&#10008;";
 			} else {
-				value = "&#9989;";
+				value = "&#10003;";
 			}
 			return '<a class="toggleauth" style="text-decoration: none;" href="javascript:void(0)" title="Toggle Authentication">'+value+'<\/a>' ;
 		}

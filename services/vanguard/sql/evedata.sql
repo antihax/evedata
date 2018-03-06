@@ -238,8 +238,8 @@ CREATE TABLE `jitaPrice` (
 CREATE TABLE `jumps` (
   `toSolarSystemID` int(10) unsigned NOT NULL DEFAULT '0',
   `fromSolarSystemID` int(10) unsigned NOT NULL DEFAULT '0',
-  `jumps` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `secureJumps` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `jumps` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `secureJumps` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`toSolarSystemID`,`fromSolarSystemID`),
   KEY `fromSolarSystemID` (`fromSolarSystemID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -269,7 +269,7 @@ CREATE TABLE `killmails` (
   `x` float NOT NULL,
   `y` float NOT NULL,
   `z` float NOT NULL,
-  `shipType` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `shipType` smallint(5) unsigned NOT NULL DEFAULT '0',
   `warID` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `factionID` mediumint(8) NOT NULL DEFAULT '0',
   `hash` varchar(100) NOT NULL DEFAULT '',

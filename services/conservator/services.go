@@ -38,7 +38,7 @@ type Service struct {
 	Authentication string                `db:"authentication,omitempty"`
 	Type           string                `db:"type" json:"type,omitempty"`
 	Services       string                `db:"services" json:"services,omitempty"`
-	OptionsJSON    string                `db:"options" json:"-"`
+	OptionsJSON    string                `db:"options" json:"-,omitempty"`
 }
 
 type Channel struct {
@@ -51,12 +51,13 @@ type Channel struct {
 }
 
 type Share struct {
-	BotServiceID       int32  `db:"botServiceID"`
+	BotServiceID       int32  `db:"botServiceID" json:"botServiceID,omitempty"`
 	CharacterID        int32  `db:"characterID" json:"characterID,omitempty"`
 	TokenCharacterID   int32  `db:"tokenCharacterID" json:"tokenCharacterID,omitempty"`
 	TokenCharacterName string `db:"tokenCharacterName" json:"tokenCharacterName,omitempty"`
-	EntityID           int32  `db:"entityID" json:"id,omitempty"`
+	EntityID           int32  `db:"entityID" json:"entityID,omitempty"`
 	EntityName         string `db:"entityName" json:"entityName,omitempty"`
+	EntityType         string `db:"entityType" json:"entityType,omitempty"`
 	Type               string `db:"type" json:"type,omitempty"`
 	Types              string `db:"types" json:"types,omitempty"`
 	Packed             string `db:"packed" json:"packed,omitempty"`

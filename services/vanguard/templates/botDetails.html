@@ -1,4 +1,5 @@
 {{define "body"}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.10.0/js-yaml.min.js"></script>
 <h3 id="serviceName">serviceName</h3>
 <h4 id="integrationType">Integration Type</h4>
 
@@ -36,27 +37,27 @@
 
 	<div class="table-responsive">
 		<div class="toolbar channelsToolbar" id="channelsToolbar">
+			<h4>Integrated Channels</h4>
 			<div class="dropdown">
-					<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChannel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						Add Channel
-						<span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu" id="addCharMenu" aria-labelledby="addChar">
-						<li>
-							<a class="adddiscord btn btn-default" href="javascript:">Add Discord</a>
-						</li> 
-					</ul>
-				</div>
+				<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChannel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					Add Channel
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" id="addChanelMenu" aria-labelledby="addChannel">
+					<li>
+						<a class="adddiscord btn btn-default" href="javascript:">Add Discord</a>
+					</li> 
+				</ul>
 			</div>
 		</div>
 
-		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".channelsToolbar" id="channelsTable">
+		<table class="table" data-cache="false" data-toolbar=".channelsToolbar" id="channelsTable">
 			<thead>
 				<tr>
 					<th data-field="channelName">Channel Name</th>
 					<th data-field="channelID">ChannelID</th>
 					<th data-field="services">Services</th>
-					<th data-field="options">Options</th>
+					<th data-field="options" data-formatter="yamlFormatter">Options</th>
 					<th data-align="center" data-events="actionEvents"
 					data-field="action" data-formatter="ChannelsActionsFormatter">Delete</th>
 				</tr>
@@ -64,9 +65,26 @@
 		</table>
 	</div>
 
+	<div class="table-responsive">
+		<div class="toolbar sharesToolbar" id="sharesToolbar">
+			<h4>Characters Sharing Data</h4>
+		</div>
+		<table class="table" data-cache="false" data-toolbar=".sharesToolbar" id="sharesTable">
+			<thead>
+				<tr>
+					<th data-field="tokenCharacterName" data-formatter="tokenCharacterFormatter">Character</th>
+					<th data-field="entityName" data-formatter="entityTypeFormatter">Entity</th>
+					<th data-field="types">Types</th>
+					<th data-field="ignored" data-align="center" data-events="actionEvents" data-formatter="ShareActionsFormatter">Ignore</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+
 	<script>		
 		var	$adddiscord = $('#adddiscord').modal({show: false}),
-			$channelsTable = $('#channelsTable').bootstrapTable({},"changeLocale", "en_US");
+			$channelsTable = $('#channelsTable').bootstrapTable({},"changeLocale", "en_US"),
+			$sharesTable = $('#sharesTable').bootstrapTable({},"changeLocale", "en_US");
 	
 		$('.adddiscord').click(function () {
 			$adddiscord.find('.modal-title').text("Add Discord");
@@ -78,15 +96,30 @@
 		});
 		function ChannelsActionsFormatter(value, row) {
 			return [
-				'<a class="removeServices" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
+				'<a class="removeChannel" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
 			].join('');
 		}
+
+		function ShareActionsFormatter(value, row) {
+			console.log(value);
+			if (value == 1) {
+				value = "&#10003;";
+			} else {
+				value = "&#10008";
+			}
+			return '<a class="toggleignore" style="text-decoration: none;" href="javascript:void(0)" title="Toggle Ignore">'+value+'<\/a>' ;
+		}
+
+		function yamlFormatter(value, row) {
+			return '<pre>' + jsyaml.safeDump(value) + '</pre>';
+		}
+
 		// update and delete events
 		window.actionEvents = {
-			'click .removeServices': function (e, value, row) {
+			'click .removeChannel': function (e, value, row) {
 				if (confirm('Are you sure you want to delete this server?')) {
 					$.ajax({
-						url: "/U/botServices?botServerID=" + row.botServiceID,
+						url: "/U/botChannels?botServerID=" + row.botServiceID,
 						type: 'delete',
 						success: function () {
 							$channelsTable.bootstrapTable('refresh');
@@ -97,6 +130,20 @@
 						}
 					})
 				}
+			},
+			'click .toggleignore': function (e, value, row) {
+				console.log(row);
+				$.ajax({
+					url: "/U/botShareToggleIgnore?tokenCharacterID=" + row.tokenCharacterID + "&botServiceID="+ row.botServiceID,
+					type: 'post',
+					success: function () {
+						updateService();
+						showAlert('Ignore state changed for ' + row.tokenCharacterName +'!', 'success');
+					},
+					error: function () {
+						showAlert('Error changing authentication state!', 'danger');
+					}
+				})
 			}
 		};
 		$adddiscord.find('.submit').click(function () {
@@ -129,11 +176,10 @@
 			});
 	}
 	function updateServiceData(d) {
-		console.log(d);
 		$("#serviceName").html(d.name);
 		$("#integrationType").html(d.type).css('textTransform', 'capitalize');
-		console.log(d.Channels);
 		$channelsTable.bootstrapTable('load', d.Channels);
+		$sharesTable.bootstrapTable('load', d.Shares);
 	}
 	</script>
 {{end}}
