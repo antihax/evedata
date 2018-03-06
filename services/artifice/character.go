@@ -13,7 +13,7 @@ func init() {
 	registerTrigger("characterAssets", characterAssets, time.NewTicker(time.Second*3600))
 	registerTrigger("characterNotifications", characterNotifications, time.NewTicker(time.Second*600))
 	registerTrigger("characterContactSync", characterContactSync, time.NewTicker(time.Second*360))
-	registerTrigger("characterAuthOwners", characterAuthOwners, time.NewTicker(time.Second*3600))
+	registerTrigger("characterAuthOwners", characterAuthOwners, time.NewTicker(time.Second*30))
 }
 
 func characterTransactions(s *Artifice) error {
@@ -167,11 +167,32 @@ func characterAuthOwners(s *Artifice) error {
 // figure out character alliance and corp for our members
 func crestCharacters(s *Artifice) error {
 	var chars []int32
+
 	err := s.db.Select(&chars,
 		`SELECT DISTINCT tokenCharacterID FROM evedata.crestTokens`)
 	if err != nil {
 		log.Println(err)
 		return err
+	}
+
+	// Get a list of characters sharing data to check for changes
+	sharing := make(map[int32]int32)
+	rows, err := s.db.Query(`
+		SELECT DISTINCT T.tokenCharacterID, T.corporationID FROM evedata.crestTokens T
+			INNER JOIN evedata.sharing S ON S.tokenCharacterID = T.tokenCharacterID`)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var char, corp int32
+		err := rows.Scan(&char, &corp)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		sharing[char] = corp
 	}
 
 	for start := 0; start < len(chars); start = start + 1000 {
@@ -181,6 +202,13 @@ func crestCharacters(s *Artifice) error {
 			continue
 		} else {
 			for _, c := range affiliation {
+				// See if they changed corporation, if they have shares, warn them they are still sharing.
+				if check, ok := sharing[c.CharacterId]; ok {
+					if check != c.CorporationId {
+						s.mailCorporationChangeWithShares(c.CharacterId)
+					}
+				}
+
 				if err := s.doSQL(`UPDATE evedata.crestTokens
 					SET corporationID = ?, allianceID = ?, factionID = ?
 					WHERE tokenCharacterID = ?;

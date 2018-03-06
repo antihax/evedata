@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	registerTrigger("mailNotifications", mailNotifications, time.NewTicker(time.Second*12))
+	registerTrigger("mailNotifications", mailNotifications, time.NewTicker(time.Second*100))
 }
 
 func mailNotifications(s *Artifice) error {
@@ -67,8 +67,41 @@ Thanks,
 EveDataRules`,
 	}
 
-	auth := context.WithValue(context.Background(), goesi.ContextOAuth2, *s.token)
-	mailID, _, err := s.esi.ESI.MailApi.PostCharactersCharacterIdMail(auth, s.tokenCharID, mail, nil)
-	log.Printf("Mailed %d about %s failure. Mail %d\n", recipient.CharacterID, recipient.CharacterName, mailID)
+	s.mail <- mail
 	return nil
+}
+
+func (s *Artifice) mailCorporationChangeWithShares(characterID int32) {
+	mail := esi.PostCharactersCharacterIdMailMail{
+		Recipients: []esi.PostCharactersCharacterIdMailRecipient{
+			esi.PostCharactersCharacterIdMailRecipient{
+				RecipientId:   characterID,
+				RecipientType: "character",
+			},
+		},
+		Subject: "EVEData.org: Corporation Change Detected!",
+		Body: `Hi, we noticed you just changed corporations and wanted to inform that this character is sharing data to other entities.
+
+Please log into our site with your main character and verify that you wish to continue sharing data with these entities.
+View shares here: <a href="https://www.evedata.org/sharing">https://www.evedata.org/sharing</a>.
+
+For security purposes, we do not divulge details in evemail.
+
+Thanks,
+
+EveDataRules`,
+	}
+	s.mail <- mail
+}
+
+func (s *Artifice) mailRunner() {
+	throttle := time.Tick(time.Second * 12)
+	auth := context.WithValue(context.Background(), goesi.ContextOAuth2, *s.token)
+	for {
+		m := <-s.mail
+
+		mailID, _, err := s.esi.ESI.MailApi.PostCharactersCharacterIdMail(auth, s.tokenCharID, m, nil)
+		log.Printf("Mailed %v about %s. Mail %d %s\n", m.Recipients, m.Subject, mailID, err)
+		<-throttle
+	}
 }

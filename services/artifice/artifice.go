@@ -11,6 +11,7 @@ import (
 	"github.com/antihax/evedata/internal/apicache"
 	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/goesi"
+	"github.com/antihax/goesi/esi"
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 	"golang.org/x/oauth2"
@@ -24,6 +25,7 @@ type Artifice struct {
 	esi      *goesi.APIClient
 	redis    *redis.Pool
 	db       *sqlx.DB
+	mail     chan esi.PostCharactersCharacterIdMailMail
 
 	// authentication
 	token       *oauth2.TokenSource
@@ -50,7 +52,7 @@ func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string,
 	cache := apicache.CreateHTTPClientCache(redis)
 
 	// Create our ESI API Client
-	esi := goesi.NewAPIClient(cache, "EVEData-API-Artifice")
+	esiClient := goesi.NewAPIClient(cache, "EVEData-API-Artifice")
 
 	// Setup an authenticator
 	auth := goesi.NewSSOAuthenticator(cache, clientID, secret, "", []string{})
@@ -78,10 +80,12 @@ func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string,
 			redis,
 			"evedata-hammer",
 		),
-		db:          db,
-		auth:        auth,
-		esi:         esi,
-		redis:       redis,
+		db:    db,
+		auth:  auth,
+		mail:  make(chan esi.PostCharactersCharacterIdMailMail),
+		esi:   esiClient,
+		redis: redis,
+
 		tokenCharID: int32(charID),
 		token:       &token,
 	}
@@ -122,6 +126,7 @@ func (s *Artifice) Run() {
 	go s.zkillboardPost()
 	go s.warKillmails()
 	go s.runMetrics()
+	go s.mailRunner()
 	s.runTriggers()
 }
 
