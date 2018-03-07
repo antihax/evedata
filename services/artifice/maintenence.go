@@ -9,7 +9,7 @@ func init() {
 	registerTrigger("marketMaint", marketMaint, time.NewTicker(time.Second*3610))
 	registerTrigger("discoveredAssetsMaint", discoveredAssetsMaint, time.NewTicker(time.Second*3620))
 	registerTrigger("entityMaint", entityMaint, time.NewTicker(time.Second*3630*3))
-	registerTrigger("killmailMaint", killmailMaint, time.NewTicker(time.Second*3640))
+	registerTrigger("killmailMaint", killmailMaint, time.NewTicker(time.Second*60*60*12))
 	registerTrigger("contactSyncMaint", contactSyncMaint, time.NewTicker(time.Second*3615*6))
 }
 
@@ -31,6 +31,25 @@ func contactSyncMaint(s *Artifice) error {
 }
 
 func killmailMaint(s *Artifice) error { // Broken into smaller chunks so we have a chance of it getting completed.
+
+	// Delete old killmails
+	if err := s.RetryExecTillNoRows(`
+		DELETE FROM evedata.killmails
+		WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 8000;
+			`); err != nil {
+		return err
+	}
+
+	// Remove any orphan attackers
+	if err := s.RetryExecTillNoRows(`
+		DELETE D.* FROM evedata.killmailAttackers D
+		JOIN (select A.id FROM evedata.killmailAttackers A
+			NATURAL LEFT JOIN evedata.killmails K 
+			WHERE K.id IS NULL LIMIT 6000) S ON D.id = S.id;
+				   `); err != nil {
+		return err
+	}
+
 	// Prefill stats for known entities that may have no kills
 	if err := s.doSQL(`
         INSERT IGNORE INTO evedata.entityKillStats (id)

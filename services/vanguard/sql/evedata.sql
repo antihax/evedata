@@ -30,7 +30,8 @@ CREATE TABLE `assets` (
   `locationType` varchar(10) NOT NULL,
   `isSingleton` tinyint(1) unsigned NOT NULL,
   PRIMARY KEY (`itemID`),
-  KEY `locationID` (`locationID`)
+  KEY `locationID` (`locationID`),
+  KEY `characterID` (`characterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `botChannels` (
@@ -252,10 +253,11 @@ CREATE TABLE `killmailAttackers` (
   `securityStatus` decimal(4,2) NOT NULL DEFAULT '0.00',
   `shipType` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`,`characterID`),
-  KEY `allianceID` (`allianceID`),
-  KEY `corporationID` (`corporationID`),
-  KEY `characterID` (`characterID`),
-  KEY `shipType` (`shipType`)
+  KEY `ix_allianceID` (`allianceID`),
+  KEY `ix_corporationID` (`corporationID`),
+  KEY `ix_characterID` (`characterID`),
+  KEY `ix_shipType` (`shipType`),
+  KEY `ix_id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `killmails` (
@@ -275,11 +277,11 @@ CREATE TABLE `killmails` (
   `factionID` mediumint(8) NOT NULL DEFAULT '0',
   `hash` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  KEY `victimAllianceID` (`victimAllianceID`),
-  KEY `victimCorporationID` (`victimCorporationID`),
-  KEY `killTime` (`killTime`),
-  KEY `war` (`warID`),
-  KEY `victimCharacterID` (`victimCharacterID`)
+  KEY `ix_victimAllianceID` (`victimAllianceID`),
+  KEY `ix_victimCorporationID` (`victimCorporationID`),
+  KEY `ix_killTime` (`killTime`),
+  KEY `ix_war` (`warID`),
+  KEY `ix_victimCharacterID` (`victimCharacterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `locatedCharacters` (
