@@ -3,6 +3,7 @@ package views
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"strconv"
 
 	"html/template"
@@ -26,6 +27,7 @@ func assetsPage(w http.ResponseWriter, r *http.Request) {
 	templates.Templates = template.Must(template.ParseFiles("templates/assets.html", templates.LayoutPath))
 
 	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
+		log.Println(err)
 		httpErr(w, err)
 		return
 	}
@@ -39,12 +41,14 @@ func assetCharactersAPI(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
+		log.Println(err)
 		httpErrCode(w, errors.New("could not find character ID for assets"), http.StatusUnauthorized)
 		return
 	}
 
 	v, err := models.GetAssetCharacters(characterID)
 	if err != nil {
+		log.Println(err)
 		httpErr(w, err)
 		return
 	}
@@ -54,7 +58,7 @@ func assetCharactersAPI(w http.ResponseWriter, r *http.Request) {
 
 func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
 	var err error
-	setCache(w, 5*60)
+
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -70,6 +74,7 @@ func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
 	if filter != "" {
 		filterCharacterID, err = strconv.Atoi(filter)
 		if err != nil {
+			log.Println(err)
 			httpErrCode(w, err, http.StatusNotFound)
 			return
 		}
@@ -77,10 +82,11 @@ func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
 
 	v, err := models.GetAssetLocations(characterID, (int32)(filterCharacterID))
 	if err != nil {
+		log.Println(err)
 		httpErr(w, err)
 		return
 	}
-
+	setCache(w, 5*60)
 	json.NewEncoder(w).Encode(v)
 }
 
@@ -106,6 +112,7 @@ func assetsAPI(w http.ResponseWriter, r *http.Request) {
 	if filter != "" {
 		filterCharacterID64, err := strconv.ParseInt(filter, 10, 64)
 		if err != nil {
+			log.Println(err)
 			httpErrCode(w, err, http.StatusNotFound)
 			return
 		}
@@ -116,6 +123,7 @@ func assetsAPI(w http.ResponseWriter, r *http.Request) {
 	if location != "" {
 		locationID, err = strconv.ParseInt(location, 10, 64)
 		if err != nil {
+			log.Println(err)
 			httpErrCode(w, err, http.StatusNotFound)
 			return
 		}
@@ -123,6 +131,7 @@ func assetsAPI(w http.ResponseWriter, r *http.Request) {
 
 	v, err := models.GetAssets(characterID, filterCharacterID, locationID)
 	if err != nil {
+		log.Println(err)
 		httpErr(w, err)
 		return
 	}
