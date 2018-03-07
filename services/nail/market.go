@@ -65,7 +65,7 @@ func (s *Nail) marketHistoryHandler(message *nsq.Message) error {
 		return err
 	}
 	var values []string
-	ignoreBefore := time.Now().UTC().Add(time.Hour * 24 * -5)
+	ignoreBefore := time.Now().UTC().Add(-time.Hour * 24 * 60)
 
 	for _, e := range b.History {
 		orderDate, err := time.Parse("2006-01-02", e.Date)
