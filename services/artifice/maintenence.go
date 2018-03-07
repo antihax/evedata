@@ -224,35 +224,35 @@ func marketMaint(s *Artifice) error {
 	}
 
 	if err := s.RetryExecTillNoRows(`
-        DELETE LOW_PRIORITY FROM evedata.market 
+        DELETE FROM evedata.market 
             WHERE date_add(issued, INTERVAL duration DAY) < UTC_TIMESTAMP() OR 
-            reported < DATE_SUB(utc_timestamp(), INTERVAL 3 HOUR)
+            reported < DATE_SUB(utc_timestamp(), INTERVAL 6 HOUR)
             ORDER BY regionID, typeID ASC LIMIT 50000;
             `); err != nil {
 		log.Println(err)
 	}
 
 	if err := s.RetryExecTillNoRows(`
-        DELETE LOW_PRIORITY FROM evedata.market_history
+        DELETE FROM evedata.market_history
             WHERE date < date_sub(UTC_TIMESTAMP(), INTERVAL 365 DAY) LIMIT 5000;
             `); err != nil {
 		log.Println(err)
 	}
 
 	if err := s.doSQL(`
-        DELETE LOW_PRIORITY FROM evedata.marketStations ORDER BY stationName;
+        DELETE FROM evedata.marketStations ORDER BY stationID;
              `); err != nil {
 		log.Println(err)
 	}
 
 	if err := s.doSQL(`
-        INSERT IGNORE INTO evedata.marketStations SELECT  stationName, M.stationID, Count(*) as Count
+        INSERT INTO evedata.marketStations SELECT stationName, M.stationID, Count(*) as Count
         FROM    evedata.market M
                 INNER JOIN staStations S ON M.stationID = S.stationID
-        WHERE   reported >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 5 DAY)
-        GROUP BY M.stationID 
-        HAVING count(*) > 2000
-        ORDER BY stationName;
+        WHERE   reported >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 7 DAY)
+		GROUP BY M.stationID 
+		ORDER BY stationID
+        ON DUPLICATE KEY UPDATE stationID=stationID;
             `); err != nil {
 		log.Println(err)
 	}
