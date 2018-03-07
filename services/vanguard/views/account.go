@@ -76,7 +76,7 @@ func accountInfo(w http.ResponseWriter, r *http.Request) {
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)
 	if !ok {
-		httpErrCode(w, errors.New("could not find character ID"), http.StatusUnauthorized)
+		// Silently fail.
 		return
 	}
 
