@@ -30,7 +30,7 @@ func marketTrigger(s *Artifice) error {
 
 func historyTrigger(s *Artifice) error {
 	hour := time.Now().UTC().Hour()
-	if hour == 1 {
+	if hour == 1 || hour == 13 {
 		work := []redisqueue.Work{}
 		work = append(work, redisqueue.Work{Operation: "marketHistoryTrigger", Parameter: true})
 		return s.QueueWork(work, redisqueue.Priority_High)

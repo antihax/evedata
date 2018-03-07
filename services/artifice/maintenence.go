@@ -289,7 +289,7 @@ func marketMaint(s *Artifice) error {
 		 SELECT S.typeID as itemID, buy, sell, high, low, mean, quantity FROM
 			 (SELECT typeID, min(price) AS sell FROM evedata.market WHERE regionID = 10000002 AND bid = 0 GROUP BY typeID) S
 			 INNER JOIN (SELECT typeID, max(price) AS buy FROM evedata.market WHERE regionID = 10000002 AND bid = 1 GROUP BY typeID) B ON S.typeID = B.typeID
-			 LEFT OUTER JOIN (SELECT itemID, max(high) AS high, avg(mean) AS mean, min(low) AS low, sum(quantity) AS quantity FROM evedata.market_history WHERE regionID = 10000002 AND date > DATE_SUB(UTC_DATE(), INTERVAL 4 DAY) GROUP BY itemID) H on H.itemID = S.typeID
+			 LEFT OUTER JOIN (SELECT itemID, max(high) AS high, avg(mean) AS mean, min(low) AS low, sum(quantity) AS quantity FROM evedata.market_history WHERE regionID = 10000002 AND date > DATE_SUB(UTC_DATE(), INTERVAL 7 DAY) GROUP BY itemID) H on H.itemID = S.typeID
 		 HAVING mean IS NOT NULL
 		 ) ORDER BY itemID;
 			 `); err != nil {
