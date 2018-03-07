@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/antihax/goesi"
+
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
 	"github.com/gorilla/sessions"
@@ -98,6 +100,7 @@ func eveSSOAnswer(w http.ResponseWriter, r *http.Request) {
 	s.Values["character"] = v
 	s.Values["characterID"] = v.CharacterID
 	s.Values["token"] = tok
+	s.Values["state"] = ""
 
 	if err = updateAccountInfo(s, v.CharacterID, v.CharacterName); err != nil {
 		log.Println(err)
@@ -200,7 +203,7 @@ func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {
 	state := r.FormValue("state")
 
 	if s.Values["TOKENstate"] != state {
-		httpErr(w, errors.New("State does not match. We likely could not read the sessin cookie. Please make sure cookies are enabled."))
+		httpErr(w, errors.New("State does not match."))
 		return
 	}
 
@@ -222,17 +225,35 @@ func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	characterID := s.Values["characterID"].(int32)
-	err = models.AddCRESTToken(characterID, v.CharacterID, v.CharacterName, tok, v.Scopes)
+	char, ok := s.Values["character"].(goesi.VerifyResponse)
+	if !ok {
+		httpErr(w, errors.New("cannot find character in store"))
+		return
+	}
+
+	err = models.AddCRESTToken(char.CharacterID, v.CharacterID, v.CharacterName, tok, v.Scopes)
 	if err != nil {
 		httpErr(w, err)
 		return
 	}
 
-	key := fmt.Sprintf("EVEDATA_TOKENSTORE_%d_%d", characterID, v.CharacterID)
+	// Invalidate cache
+	key := fmt.Sprintf("EVEDATA_TOKENSTORE_%d_%d", char.CharacterID, v.CharacterID)
 	red := c.Cache.Get()
 	defer red.Close()
 	red.Do("DEL", key)
+
+	if err = updateAccountInfo(s, char.CharacterID, char.CharacterName); err != nil {
+		log.Println(err)
+		httpErr(w, err)
+		return
+	}
+
+	s.Values["TOKENstate"] = ""
+	if err := s.Save(r, w); err != nil {
+		httpErr(w, err)
+		return
+	}
 
 	http.Redirect(w, r, "/account", 302)
 	httpErrCode(w, nil, http.StatusMovedPermanently)
