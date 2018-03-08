@@ -29,7 +29,6 @@ func locatorResponsesPage(w http.ResponseWriter, r *http.Request) {
 func apiGetLocatorResponses(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
-	c := vanguard.GlobalsFromContext(r.Context())
 
 	// Get the sessions main characterID
 	characterID, ok := s.Values["characterID"].(int32)
@@ -38,13 +37,7 @@ func apiGetLocatorResponses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	info, err := getAccountInformation(c, s)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
-
-	v, err := models.GetLocatorResponses(characterID, info.Cursor.CursorCharacterID)
+	v, err := models.GetLocatorResponses(characterID)
 	if err != nil {
 		httpErr(w, err)
 		return

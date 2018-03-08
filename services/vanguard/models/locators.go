@@ -23,7 +23,7 @@ type LocatorResults struct {
 }
 
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetLocatorResponses(characterID int32, cursorCharacterID int32) ([]LocatorResults, error) {
+func GetLocatorResponses(characterID int32) ([]LocatorResults, error) {
 	locatorResults := []LocatorResults{}
 	if err := database.Select(&locatorResults, `
 		SELECT DISTINCT Sy.solarSystemID AS systemID, Sy.solarSystemName AS systemName, R.regionID, R.regionName, 
@@ -38,9 +38,9 @@ func GetLocatorResponses(characterID int32, cursorCharacterID int32) ([]LocatorR
 		INNER JOIN eve.mapConstellations Con ON Con.constellationID = L.constellationID
 		INNER JOIN eve.mapRegions R ON R.regionID = L.regionID
 		WHERE L.characterID = ? OR S.entityID IN 
-		(SELECT corporationID  FROM evedata.characters WHERE characterID = ?
+		(SELECT corporationID FROM evedata.crestTokens WHERE characterID = ?
 		UNION
-		SELECT allianceID FROM evedata.characters WHERE characterID = ?);`, characterID, cursorCharacterID, cursorCharacterID); err != nil {
+		SELECT allianceID FROM evedata.crestTokens WHERE characterID = ?);`, characterID, characterID, characterID); err != nil {
 		return nil, err
 	}
 	return locatorResults, nil
