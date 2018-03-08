@@ -15,7 +15,6 @@ CREATE TABLE `alliances` (
   `dead` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`allianceID`),
   KEY `name` (`name`),
-  KEY `shortName` (`shortName`),
   KEY `executorCorpID` (`executorCorpID`),
   KEY `cacheUntil` (`cacheUntil`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -99,7 +98,8 @@ CREATE TABLE `characters` (
   PRIMARY KEY (`characterID`),
   KEY `cacheUntil` (`cacheUntil`),
   KEY `name` (`name`),
-  KEY `corporationIDCharacterID` (`corporationID`,`characterID`)
+  KEY `corporationIDCharacterID` (`corporationID`,`characterID`),
+  KEY `ix_notdeadcharexpired` (`cacheUntil`,`characterID`,`dead`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `contactSyncs` (
