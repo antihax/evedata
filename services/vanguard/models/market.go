@@ -41,7 +41,7 @@ func GetArbitrageCalculatorStations() ([]ArbitrageCalculatorStations, error) {
 	if err := database.Select(&s, `
 		SELECT stationID, stationName
 			FROM    evedata.marketStations
-			WHERE 	Count > 4000
+			WHERE 	Count > 5000
 			ORDER BY stationName
 	`); err != nil {
 		return nil, err
