@@ -103,15 +103,38 @@ func (s *Conservator) loadServices() error {
 	s.services.Range(func(ki, vi interface{}) bool {
 		k := ki.(int32)
 		v := vi.(Service)
-		serverName, err := v.Server.GetName()
-		if err != nil {
-			log.Println(err)
-		} else if serverName != v.Name {
-			s.updateServerName(v.BotServiceID, serverName)
-		}
 
+		// Remove anything we didn't find
 		if !touched[v.BotServiceID] {
 			s.services.Delete(k)
+		} else {
+			// Update the server name while we are here
+			serverName, err := v.Server.GetName()
+			if err != nil {
+				log.Println(err)
+			} else if serverName != v.Name {
+				err = s.updateServerName(v.BotServiceID, serverName)
+				log.Println(err)
+			}
+
+			channels, err := v.Server.GetChannelNames()
+			if err != nil {
+				log.Println(err)
+			} else {
+				for _, ch := range channels {
+
+					// Get the channel
+					ci, ok := s.channels.Load(ch.ID)
+					if ok {
+						c := ci.(Channel)
+						err = s.updateChannelName(v.BotServiceID, c.ChannelID, ch.Name)
+						if err != nil {
+							log.Println(err)
+						}
+					}
+				}
+			}
+
 		}
 		return true
 	})
@@ -146,7 +169,7 @@ func (s *Conservator) loadChannels() error {
 		v := vi.(Channel)
 
 		if !touched[v.ChannelID] {
-			s.services.Delete(k)
+			s.channels.Delete(k)
 		}
 		return true
 	})
@@ -248,7 +271,7 @@ func (s *Conservator) updateServerName(b int32, name string) error {
 }
 
 func (s *Conservator) updateChannelName(b int32, c, name string) error {
-	_, err := s.db.Exec("UPDATE evedata.botChannel SET channelName = ? WHERE botServiceID = ? AND channelID = ?", name, b, c)
+	_, err := s.db.Exec("UPDATE evedata.botChannels SET channelName = ? WHERE botServiceID = ? AND channelID = ?", name, b, c)
 	if err != nil {
 		return err
 	}

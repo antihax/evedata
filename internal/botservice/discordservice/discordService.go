@@ -1,6 +1,9 @@
 package discordservice
 
-import "github.com/bwmarrin/discordgo"
+import (
+	"github.com/antihax/evedata/internal/botservice"
+	"github.com/bwmarrin/discordgo"
+)
 
 // BotService provides access to a discord session
 // Discordgo handles rate throttling
@@ -39,4 +42,19 @@ func (c DiscordService) GetName() (string, error) {
 		return "", err
 	}
 	return g.Name, nil
+}
+
+// Get Channels
+func (c DiscordService) GetChannelNames() ([]botservice.ChannelName, error) {
+	g, err := c.session.GuildChannels(c.serverID)
+	if err != nil {
+		return nil, err
+	}
+
+	channels := []botservice.ChannelName{}
+	for _, ch := range g {
+		channels = append(channels, botservice.ChannelName{ID: ch.ID, Name: ch.Name})
+	}
+
+	return channels, nil
 }

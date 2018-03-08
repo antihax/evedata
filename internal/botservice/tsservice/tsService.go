@@ -3,6 +3,8 @@ package tsservice
 import (
 	"strconv"
 
+	"github.com/antihax/evedata/internal/botservice"
+
 	ts3 "github.com/multiplay/go-ts3"
 )
 
@@ -106,4 +108,10 @@ func (c *TSService) GetName() (string, error) {
 	server := ts3.Server{}
 	_, err := c.session.ExecCmd(ts3.NewCmd("serverinfo").WithResponse(&server))
 	return server.Name, err
+}
+
+// IMPLIMENT
+func (c *TSService) GetChannelNames() ([]botservice.ChannelName, error) {
+
+	return nil, nil
 }
