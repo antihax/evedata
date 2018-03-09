@@ -59,7 +59,7 @@ func (c DiscordService) GetChannels() ([]botservice.Name, error) {
 	return channels, nil
 }
 
-// IMPLIMENT
+// GetRoles gets all the available roles to be assigned
 func (c DiscordService) GetRoles() ([]botservice.Name, error) {
 	g, err := c.session.GuildRoles(c.serverID)
 	if err != nil {
@@ -68,7 +68,9 @@ func (c DiscordService) GetRoles() ([]botservice.Name, error) {
 
 	roles := []botservice.Name{}
 	for _, role := range g {
-		roles = append(roles, botservice.Name{ID: role.ID, Name: role.Name})
+		if !role.Managed && role.Name != "@everyone" {
+			roles = append(roles, botservice.Name{ID: role.ID, Name: role.Name})
+		}
 	}
 
 	return roles, nil

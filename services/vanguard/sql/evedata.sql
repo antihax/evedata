@@ -43,6 +43,13 @@ CREATE TABLE `botChannels` (
   UNIQUE KEY `channelID_UNIQUE` (`channelID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `botCharacters` (
+  `botServiceID` int(11) NOT NULL,
+  `tokenCharacterID` int(11) NOT NULL,
+  `botUserID` varchar(255) COLLATE utf8_bin DEFAULT '',
+  PRIMARY KEY (`botServiceID`,`tokenCharacterID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `botDelegate` (
   `botServiceID` int(11) NOT NULL,
   `characterID` int(11) NOT NULL,
