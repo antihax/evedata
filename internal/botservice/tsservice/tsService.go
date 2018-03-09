@@ -111,7 +111,13 @@ func (c *TSService) GetName() (string, error) {
 }
 
 // IMPLIMENT
-func (c *TSService) GetChannelNames() ([]botservice.ChannelName, error) {
+func (c *TSService) GetChannels() ([]botservice.Name, error) {
+
+	return nil, nil
+}
+
+// IMPLIMENT
+func (c *TSService) GetRoles() ([]botservice.Name, error) {
 
 	return nil, nil
 }

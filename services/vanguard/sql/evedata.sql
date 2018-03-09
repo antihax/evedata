@@ -50,6 +50,13 @@ CREATE TABLE `botDelegate` (
   PRIMARY KEY (`botServiceID`,`characterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `botRoles` (
+  `botServiceID` int(10) unsigned NOT NULL DEFAULT '0',
+  `roleID` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `roleName` varchar(45) COLLATE utf8_bin NOT NULL DEFAULT 'unknown',
+  PRIMARY KEY (`botServiceID`,`roleID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `botServices` (
   `botServiceID` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',

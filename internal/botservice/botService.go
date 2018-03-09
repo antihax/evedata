@@ -1,6 +1,6 @@
 package botservice
 
-type ChannelName struct {
+type Name struct {
 	ID   string
 	Name string
 }
@@ -11,5 +11,6 @@ type BotService interface {
 	SendMessageToUser(user, message string) error
 	KickUser(user, message string) error
 	GetName() (string, error)
-	GetChannelNames() ([]ChannelName, error)
+	GetChannels() ([]Name, error)
+	GetRoles() ([]Name, error)
 }

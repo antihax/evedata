@@ -45,16 +45,31 @@ func (c DiscordService) GetName() (string, error) {
 }
 
 // Get Channels
-func (c DiscordService) GetChannelNames() ([]botservice.ChannelName, error) {
+func (c DiscordService) GetChannels() ([]botservice.Name, error) {
 	g, err := c.session.GuildChannels(c.serverID)
 	if err != nil {
 		return nil, err
 	}
 
-	channels := []botservice.ChannelName{}
+	channels := []botservice.Name{}
 	for _, ch := range g {
-		channels = append(channels, botservice.ChannelName{ID: ch.ID, Name: ch.Name})
+		channels = append(channels, botservice.Name{ID: ch.ID, Name: ch.Name})
 	}
 
 	return channels, nil
+}
+
+// IMPLIMENT
+func (c DiscordService) GetRoles() ([]botservice.Name, error) {
+	g, err := c.session.GuildRoles(c.serverID)
+	if err != nil {
+		return nil, err
+	}
+
+	roles := []botservice.Name{}
+	for _, role := range g {
+		roles = append(roles, botservice.Name{ID: role.ID, Name: role.Name})
+	}
+
+	return roles, nil
 }

@@ -117,7 +117,7 @@ func (s *Conservator) loadServices() error {
 				log.Println(err)
 			}
 
-			channels, err := v.Server.GetChannelNames()
+			channels, err := v.Server.GetChannels()
 			if err != nil {
 				log.Println(err)
 			} else {
@@ -133,6 +133,18 @@ func (s *Conservator) loadServices() error {
 						}
 					}
 				}
+			}
+
+			roles, err := v.Server.GetRoles()
+			if err != nil {
+				log.Println(err)
+			} else {
+
+				err = s.updateRoles(v.BotServiceID, roles)
+				if err != nil {
+					log.Println(err)
+				}
+
 			}
 
 		}
@@ -285,6 +297,19 @@ func (s *Conservator) getChannels() ([]Channel, error) {
 		return nil, err
 	}
 	return channels, nil
+}
+
+func (s *Conservator) updateRoles(b int32, roles []botservice.Name) error {
+	for _, r := range roles {
+		_, err := s.db.Exec(`
+		INSERT INTO evedata.botRoles 
+			(botServiceID, roleID, roleName) VALUES(?,?,?) 
+			ON DUPLICATE KEY UPDATE roleName = VALUES(roleName)`, b, r.ID, r.Name)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *Conservator) updateData() {
