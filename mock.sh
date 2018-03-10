@@ -17,8 +17,8 @@ docker run --net=host --name=redis -d -p 127.0.0.1:6379:6379 -h evedata.sql redi
 
 # NSQ Service
 docker run --net=host --name=nsqlookup -d -p 127.0.0.1:4160:4160 -p 4161:4161 -h nsqlookupd1.nsq nsqio/nsq /nsqlookupd
-docker run --net=host --name=nsqadmin -d -p 127.0.0.1:4171:4171 -h nsqadmin.nsq nsqio/nsq /nsqadmin --lookupd-http-address=127.0.0.1:4161 -max-msg-size=4194304
-docker run --net=host --name=nsqd -d -p 127.0.0.1:4151:4151 -p 4150:4150 -h localhost nsqio/nsq /nsqd --lookupd-tcp-address=127.0.0.1:4160
+docker run --net=host --name=nsqadmin -d -p 127.0.0.1:4171:4171 -h nsqadmin.nsq nsqio/nsq /nsqadmin --lookupd-http-address=127.0.0.1:4161
+docker run --net=host --name=nsqd -d -p 127.0.0.1:4151:4151 -p 4150:4150 -h localhost nsqio/nsq /nsqd --lookupd-tcp-address=127.0.0.1:4160 -max-msg-size=8388608
 
 # Get the admin token for the TS server
 until [ `docker inspect -f "{{.State.Status}}" teamspeak | grep -c running` -eq 1 ]
