@@ -3,6 +3,7 @@ package tokenstore
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/antihax/evedata/internal/gobcoder"
@@ -39,12 +40,12 @@ func (c *TokenStore) GetToken(characterID int32, tokenCharacterID int32) (*oauth
 	if t.Expiry.Before(time.Now().Add(time.Minute)) {
 		a, err := c.auth.TokenSource(t)
 		if err != nil {
-			c.tokenError(characterID, tokenCharacterID, 999, err.Error())
+			c.TokenError(characterID, tokenCharacterID, 999, err.Error())
 			return nil, err
 		}
 		token, err := a.Token()
 		if err != nil {
-			c.tokenError(characterID, tokenCharacterID, 999, err.Error())
+			c.TokenError(characterID, tokenCharacterID, 999, err.Error())
 			return nil, err
 		}
 		c.setTokenToCache(characterID, tokenCharacterID, token)
@@ -56,7 +57,7 @@ func (c *TokenStore) GetToken(characterID int32, tokenCharacterID int32) (*oauth
 			RefreshToken: token.RefreshToken,
 			TokenType:    token.TokenType,
 		}
-		c.tokenSuccess(characterID, tokenCharacterID)
+		c.TokenSuccess(characterID, tokenCharacterID)
 		return tok, nil
 	}
 
@@ -85,20 +86,20 @@ func (c *TokenStore) GetTokenSource(characterID int32, tokenCharacterID int32) (
 
 	a, err := c.auth.TokenSource(t)
 	if err != nil {
-		c.tokenError(characterID, tokenCharacterID, 999, err.Error())
+		c.TokenError(characterID, tokenCharacterID, 999, err.Error())
 		return nil, err
 	}
 
-	if t.Expiry.Before(time.Now()) {
+	if t.Expiry.Before(time.Now().Add(-time.Minute)) {
 		token, err := a.Token()
 		if err != nil {
 			c.invalidateTokenCache(characterID, tokenCharacterID)
-			c.tokenError(characterID, tokenCharacterID, 999, err.Error())
+			c.TokenError(characterID, tokenCharacterID, 999, err.Error())
 			return nil, err
 		}
 		c.setTokenToCache(characterID, tokenCharacterID, token)
 		c.updateTokenToDB(characterID, tokenCharacterID, token)
-		c.tokenSuccess(characterID, tokenCharacterID)
+		c.TokenSuccess(characterID, tokenCharacterID)
 	}
 
 	return a, err
@@ -209,7 +210,7 @@ func (c *TokenStore) updateTokenToDB(characterID int32, tokenCharacterID int32, 
 	return err
 }
 
-func (c *TokenStore) tokenError(characterID int32, tokenCharacterID int32, code int, status string) error {
+func (c *TokenStore) TokenError(characterID int32, tokenCharacterID int32, code int, status string) error {
 	if _, err := c.db.Exec(`
 		UPDATE evedata.crestTokens SET lastCode = ?, lastStatus = ?
 		WHERE characterID = ? AND tokenCharacterID = ?`,
@@ -219,7 +220,7 @@ func (c *TokenStore) tokenError(characterID int32, tokenCharacterID int32, code 
 	return nil
 }
 
-func (c *TokenStore) tokenSuccess(characterID int32, tokenCharacterID int32) error {
+func (c *TokenStore) TokenSuccess(characterID int32, tokenCharacterID int32) error {
 	if _, err := c.db.Exec(`
 		UPDATE evedata.crestTokens SET lastCode = ?, lastStatus = ?
 		WHERE characterID = ? AND tokenCharacterID = ?`,
@@ -227,4 +228,12 @@ func (c *TokenStore) tokenSuccess(characterID int32, tokenCharacterID int32) err
 		return err
 	}
 	return nil
+}
+
+func (c *TokenStore) CheckSSOError(characterID int32, tokenCharacterID int32, e error) bool {
+	if strings.Contains(e.Error(), `{"error":`) {
+		c.TokenError(characterID, tokenCharacterID, 999, e.Error())
+		return true
+	}
+	return false
 }

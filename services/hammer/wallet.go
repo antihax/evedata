@@ -27,6 +27,7 @@ func characterWalletTransactionConsumer(s *Hammer, parameter interface{}) {
 
 	transactions, _, err := s.esi.ESI.WalletApi.GetCharactersCharacterIdWalletTransactions(ctx, tokenCharacterID, nil)
 	if err != nil {
+		s.tokenStore.CheckSSOError(characterID, tokenCharacterID, err)
 		log.Println(err)
 		return
 	}
@@ -60,6 +61,7 @@ func characterWalletJournalConsumer(s *Hammer, parameter interface{}) {
 
 	journal, _, err := s.esi.ESI.WalletApi.GetCharactersCharacterIdWalletJournal(ctx, tokenCharacterID, nil)
 	if err != nil {
+		s.tokenStore.CheckSSOError(characterID, tokenCharacterID, err)
 		log.Println(err)
 		return
 	}
@@ -73,6 +75,7 @@ func characterWalletJournalConsumer(s *Hammer, parameter interface{}) {
 		top, _, err := s.esi.ESI.WalletApi.GetCharactersCharacterIdWalletJournal(ctx, tokenCharacterID,
 			map[string]interface{}{"fromId": last})
 		if err != nil {
+			s.tokenStore.CheckSSOError(characterID, tokenCharacterID, err)
 			log.Println(err)
 			return
 		}

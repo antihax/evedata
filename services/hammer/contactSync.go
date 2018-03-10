@@ -90,9 +90,9 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 	for _, token := range tokens {
 		// authentication token context for destination char
 		auth := context.WithValue(context.Background(), goesi.ContextOAuth2, *token.token)
-
 		contacts, _, err := s.esi.ESI.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid), nil)
 		if err != nil {
+			s.tokenStore.CheckSSOError(characterID, token.cid, err)
 			log.Println(err)
 			return
 		}
@@ -180,6 +180,7 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 			for start := 0; start < len(erase); start = start + 20 {
 				end := min(start+20, len(erase))
 				if _, err := s.esi.ESI.ContactsApi.DeleteCharactersCharacterIdContacts(auth, token.cid, erase[start:end], nil); err != nil {
+					s.tokenStore.CheckSSOError(characterID, token.cid, err)
 					log.Println(err)
 					return
 				}
@@ -191,6 +192,7 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 			for start := 0; start < len(active); start = start + 100 {
 				end := min(start+100, len(active))
 				if _, _, err := s.esi.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), active[start:end], -10, nil); err != nil {
+					s.tokenStore.CheckSSOError(characterID, token.cid, err)
 					log.Println(err, active[start:end])
 					return
 				}
@@ -202,6 +204,7 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 			for start := 0; start < len(pending); start = start + 100 {
 				end := min(start+100, len(pending))
 				if _, _, err := s.esi.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), pending[start:end], -5, nil); err != nil {
+					s.tokenStore.CheckSSOError(characterID, token.cid, err)
 					log.Println(err)
 					return
 				}
@@ -213,6 +216,7 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 			for start := 0; start < len(activeMove); start = start + 100 {
 				end := min(start+100, len(activeMove))
 				if _, err := s.esi.ESI.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), activeMove[start:end], -10, nil); err != nil {
+					s.tokenStore.CheckSSOError(characterID, token.cid, err)
 					log.Println(err)
 					return
 				}
@@ -224,13 +228,13 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 			for start := 0; start < len(pendingMove); start = start + 100 {
 				end := min(start+100, len(pendingMove))
 				if _, err := s.esi.ESI.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), pendingMove[start:end], -5, nil); err != nil {
+					s.tokenStore.CheckSSOError(characterID, token.cid, err)
 					log.Println(err)
 					return
 				}
 			}
 		}
 	}
-
 }
 
 func (s *Hammer) deleteContactsCREST(auth context.Context, characterID int32, contacts []int32) error {

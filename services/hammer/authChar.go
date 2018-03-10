@@ -26,6 +26,7 @@ func characterAuthOwner(s *Hammer, parameter interface{}) {
 
 	roles, _, err := s.esi.ESI.CharacterApi.GetCharactersCharacterIdRoles(ctx, tokenCharacterID, nil)
 	if err != nil {
+		s.tokenStore.CheckSSOError(characterID, tokenCharacterID, err)
 		log.Println(err)
 		return
 	}

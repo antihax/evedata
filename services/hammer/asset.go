@@ -25,6 +25,7 @@ func characterAssetsConsumer(s *Hammer, parameter interface{}) {
 
 	assets, _, err := s.esi.ESI.AssetsApi.GetCharactersCharacterIdAssets(ctx, tokenCharacterID, nil)
 	if err != nil {
+		s.tokenStore.CheckSSOError(characterID, tokenCharacterID, err)
 		log.Println(err)
 		return
 	}

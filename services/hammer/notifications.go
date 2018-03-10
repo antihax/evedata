@@ -25,6 +25,7 @@ func characterNotificationsConsumer(s *Hammer, parameter interface{}) {
 
 	notifications, _, err := s.esi.ESI.CharacterApi.GetCharactersCharacterIdNotifications(ctx, tokenCharacterID, nil)
 	if err != nil {
+		s.tokenStore.CheckSSOError(characterID, tokenCharacterID, err)
 		log.Println(err)
 		return
 	}
