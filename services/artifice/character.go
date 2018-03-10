@@ -17,80 +17,40 @@ func init() {
 }
 
 func characterTransactions(s *Artifice) error {
-	entities, err := s.db.Query(
-		`SELECT characterID, tokenCharacterID FROM evedata.crestTokens T
-		WHERE scopes LIKE "%read_character_wallet%"`)
-	if err != nil {
-		return err
-	}
-	defer entities.Close()
-
 	work := []redisqueue.Work{}
-
-	// Loop the entities
-	for entities.Next() {
-		var cid, tcid int32
-
-		err = entities.Scan(&cid, &tcid)
-		if err != nil {
-			return err
+	if pairs, err := s.GetCharactersForScope("read_character_wallet"); err != nil {
+		return err
+	} else {
+		for _, p := range pairs {
+			work = append(work, redisqueue.Work{Operation: "characterWalletTransactions", Parameter: []int32{p.CharacterID, p.TokenCharacterID}})
+			work = append(work, redisqueue.Work{Operation: "characterWalletJournal", Parameter: []int32{p.CharacterID, p.TokenCharacterID}})
 		}
-
-		work = append(work, redisqueue.Work{Operation: "characterWalletTransactions", Parameter: []int32{cid, tcid}})
-		work = append(work, redisqueue.Work{Operation: "characterWalletJournal", Parameter: []int32{cid, tcid}})
 	}
 
 	return s.QueueWork(work, redisqueue.Priority_Normal)
 }
 
 func characterAssets(s *Artifice) error {
-	entities, err := s.db.Query(
-		`SELECT characterID, tokenCharacterID FROM evedata.crestTokens T
-		WHERE scopes LIKE "%assets.read_assets%"`)
-	if err != nil {
-		return err
-	}
-	defer entities.Close()
-
 	work := []redisqueue.Work{}
-
-	// Loop the entities
-	for entities.Next() {
-		var cid, tcid int32
-
-		err = entities.Scan(&cid, &tcid)
-		if err != nil {
-			return err
+	if pairs, err := s.GetCharactersForScope("read_assets"); err != nil {
+		return err
+	} else {
+		for _, p := range pairs {
+			work = append(work, redisqueue.Work{Operation: "characterAssets", Parameter: []int32{p.CharacterID, p.TokenCharacterID}})
 		}
-
-		work = append(work, redisqueue.Work{Operation: "characterAssets", Parameter: []int32{cid, tcid}})
 	}
 
 	return s.QueueWork(work, redisqueue.Priority_Normal)
 }
 
 func characterNotifications(s *Artifice) error {
-	entities, err := s.db.Query(
-		`SELECT characterID, tokenCharacterID FROM evedata.crestTokens T
-		WHERE scopes LIKE "%esi-characters.read_notifications%"`)
-	if err != nil {
-		return err
-	}
-	defer entities.Close()
-
 	work := []redisqueue.Work{}
-
-	// Loop the entities
-	for entities.Next() {
-		var cid, tcid int32
-
-		err = entities.Scan(&cid, &tcid)
-		if err != nil {
-			return err
+	if pairs, err := s.GetCharactersForScope("read_notifications"); err != nil {
+		return err
+	} else {
+		for _, p := range pairs {
+			work = append(work, redisqueue.Work{Operation: "characterNotifications", Parameter: []int32{p.CharacterID, p.TokenCharacterID}})
 		}
-
-		work = append(work, redisqueue.Work{Operation: "characterNotifications", Parameter: []int32{cid, tcid}})
-
 	}
 
 	return s.QueueWork(work, redisqueue.Priority_High)
@@ -134,33 +94,16 @@ func characterContactSync(s *Artifice) error {
 }
 
 func characterAuthOwners(s *Artifice) error {
-	entities, err := s.db.Query(
-		`SELECT characterID, tokenCharacterID FROM evedata.crestTokens T
-		WHERE scopes LIKE "%characters.read_corporation_roles%"`)
-	if err != nil {
-		return err
-	}
-	defer entities.Close()
-
 	work := []redisqueue.Work{}
-
-	// Update character corps/alliances
-	crestCharacters(s)
-
-	// Loop the entities
-	for entities.Next() {
-		var cid, tcid int32
-
-		err = entities.Scan(&cid, &tcid)
-		if err != nil {
-			return err
+	if pairs, err := s.GetCharactersForScope("read_corporation_roles"); err != nil {
+		return err
+	} else {
+		for _, p := range pairs {
+			work = append(work, redisqueue.Work{Operation: "characterAuthOwner", Parameter: []int32{p.CharacterID, p.TokenCharacterID}})
 		}
-
-		work = append(work, redisqueue.Work{Operation: "characterAuthOwner", Parameter: []int32{cid, tcid}})
-
 	}
 
-	return s.QueueWork(work, redisqueue.Priority_Urgent)
+	return s.QueueWork(work, redisqueue.Priority_High)
 }
 
 // This is sensitive so we will do it here to prevent mixing it with public data.

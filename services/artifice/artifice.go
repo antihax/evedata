@@ -210,3 +210,16 @@ func (s *Artifice) RetryExec(sql string, args ...interface{}) (int64, error) {
 		}
 	}
 }
+
+type CharacterPairs struct {
+	CharacterID      int32 `db:"characterID"`
+	TokenCharacterID int32 `db:"tokenCharacterID"`
+}
+
+func (s *Artifice) GetCharactersForScope(scope string) ([]CharacterPairs, error) {
+	pairs := []CharacterPairs{}
+	err := s.db.Select(&pairs,
+		`SELECT characterID, tokenCharacterID FROM evedata.crestTokens T
+			WHERE lastStatus NOT LIKE "%400 Bad Request%" AND scopes LIKE ?`, "%"+scope+"%")
+	return pairs, err
+}
