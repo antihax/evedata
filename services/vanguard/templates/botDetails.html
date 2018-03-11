@@ -1,29 +1,111 @@
 {{define "body"}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.10.0/js-yaml.min.js"></script>
+<script src="/js/formSerializer.js"></script>
 <h3 id="serviceName">serviceName</h3>
 <h4 id="integrationType">Integration Type</h4>
 
 {{template "checkAuthentication" .}}
-	<div class="modal fade" id="addchannel">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button aria-label="Close" class="close" data-dismiss=
-					"modal" type="button"><span aria-hidden=
-					"true">&times;</span></button>
-					<h4 class="modal-title"></h4>
+<div class="modal fade" id="addchannel">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button aria-label="Close" class="close" data-dismiss="modal" type="button">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title"></h4>
+			</div>
+			<div class="modal-body">
+				<p>Select a channel to add to the integration.</p>
+				<div class="form-group">
+					<label>Add Channel</label>
+					<select class="form-control" name="channels" id="channels"></select>
 				</div>
-				<div class="modal-body">
-					<p>Select a channel to add to the integration.</p>
-					<div class="form-group">
-						<label>Add Channel</label> <select class="form-control" name="channels" id="channels"></select>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button class="btn btn-default" data-dismiss="modal" type=
-					"button">Close</button> <button class=
-					"btn btn-primary submit" id="submitchannel" type="button">Submit</button>
-				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+				<button class="btn btn-primary submit" id="submitchannel" type="button">Submit</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div class="modal fade" id="channeloptions">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button aria-label="Close" class="close" data-dismiss="modal" type="button">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h3 class="modal-title"></h3>
+				<label name="channelID" id="channelID"></label><label>
+			</div>
+			<div class="modal-body">
+				<h5 style="margin-top: 0px">Send the following to the channel:</h5>
+				<p>Note: shared notifications require at least one character to be sharing data with your entity to function, they are not
+					alliance wide, each corp will need one character sharing to see everything correctly. With structures, this character
+					must be a director.</p>
+				<form id="services" class="form-vertical">
+					<fieldset>
+						<div class="form-check" id="channelServices">
+							<input class="form-check-input" type="checkbox" name="kill" data-toggle="collapse" data-target="#killmailOpts">
+							<label class="form-check-label" for="kill">Killmails</label>
+							<br>
+							<input class="form-check-input" type="checkbox" name="structure">
+							<label class="form-check-label" for="structure">Shared Structure Notifications</label>
+							<br>
+							<input class="form-check-input" type="checkbox" name="war">
+							<label class="form-check-label" for="war">Shared War Notifications</label>
+							<br>
+							<input class="form-check-input" type="checkbox" id="locators">
+							<label class="form-check-label" for="locators">Shared Locator Agent Notifications</label>
+							<br>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+			<hr style="margin: 0px">
+			<form id="channelOpts" class="form-vertical">
+				<fieldset>
+					<div class="modal-body collapse" id="killmailOpts">
+						<h5 style="margin-top: 0px">Killmail Options</h5>
+						<div class="form-group">
+							<div class="container col-md-12">
+								<div class="row">
+									<div class="col-md-6">
+										<p>Filters:</p>
+										<input class="form-check-input" type="checkbox" value="true" name="killmail[ignoreHighsec]">
+										<label class="form-check-label" for="killmail[ignoreHighsec]">Ignore Highsec Kills</label>
+										<br>
+										<input class="form-check-input" type="checkbox" value="true" name="killmail[ignoreLowsec]">
+										<label class="form-check-label" for="killmail[ignoreLowsec]">Ignore Lowsec Kills</label>
+										<br>
+										<input class="form-check-input" type="checkbox" value="true" name="killmail[ignoreNullsec]">
+										<label class="form-check-label" for="killmail[ignoreNullsec]">Ignore Nullsec Kills</label>
+										<br>
+										<input class="form-check-input" type="checkbox" value="true" name="killmail[ignoreWorthless]">
+										<label class="form-check-label" for="killmail[ignoreWorthless]">Ignore Worthless</label>
+									</div>
+									<div class="col-md-6">
+										<p>Types:</p>
+										<input class="form-check-input" type="checkbox" value="true" name="killmail[war]">
+										<label class="form-check-label" for="killmail[war]">War Target Kills</label>
+										<br>
+										<input class="form-check-input" type="checkbox" value="true" name="killmail[factionWar]">
+										<label class="form-check-label" for="killmail[factionWar]">Faction War Kills</label>
+										<br>
+										<input class="form-check-input" type="checkbox" value="true" name="killmail[sendAll]">
+										<label class="form-check-label" for="killmail[sendAll]"></label>Send All Kills</label>
+									</div>
+								</div>
+							</div>
+						</div>
+				</fieldset>
+			</form>
+			<div class="modal-footer">
+				<button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+				<button class="btn btn-primary submit" id="channeloptions" type="button">Submit</button>
+			</div>
 			</div>
 		</div>
 	</div>
@@ -38,11 +120,9 @@
 			<thead>
 				<tr>
 					<th data-field="channelName">Channel Name</th>
-					<th data-field="channelID">ChannelID</th>
 					<th data-field="services">Services</th>
 					<th data-field="options" data-formatter="yamlFormatter">Options</th>
-					<th data-align="center" data-events="actionEvents"
-					data-field="action" data-formatter="ChannelsActionsFormatter">Delete</th>
+					<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="ChannelsActionsFormatter">Delete</th>
 				</tr>
 			</thead>
 		</table>
@@ -65,10 +145,11 @@
 	</div>
 
 	<script>		
-		var	$addchannel = $('#addchannel').modal({show: false}),
-			$channelsTable = $('#channelsTable').bootstrapTable({},"changeLocale", "en_US"),
-			$sharesTable = $('#sharesTable').bootstrapTable({},"changeLocale", "en_US");
-	
+		var $addchannel = $('#addchannel').modal({ show: false }),
+			$channeloptions = $('#channeloptions').modal({ show: false }),
+			$channelsTable = $('#channelsTable').bootstrapTable({}, "changeLocale", "en_US"),
+			$sharesTable = $('#sharesTable').bootstrapTable({}, "changeLocale", "en_US");
+
 		$('.addchannel').click(function () {
 			$addchannel.find('.modal-title').text("Add Channel to Integration");
 			$addchannel.modal('show');
@@ -79,7 +160,7 @@
 		});
 		function ChannelsActionsFormatter(value, row) {
 			return [
-				'<a class="removeChannel" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
+				'<a class="editChannel" href="javascript:" title="Edit Channel"><i class="glyphicon glyphicon-pencil"><\/i><\/a> &nbsp;&nbsp;&nbsp; <a class="removeChannel" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
 			].join('');
 		}
 
@@ -90,7 +171,7 @@
 			} else {
 				value = "&#10008";
 			}
-			return '<a class="toggleignore" style="text-decoration: none;" href="javascript:void(0)" title="Toggle Ignore">'+value+'<\/a>' ;
+			return '<a class="toggleignore" style="text-decoration: none;" href="javascript:void(0)" title="Toggle Ignore">' + value + '<\/a>';
 		}
 
 		function yamlFormatter(value, row) {
@@ -115,18 +196,10 @@
 					})
 				}
 			},
-			'click .toggleignore': function (e, value, row) {
-				$.ajax({
-					url: "/U/botShareToggleIgnore?tokenCharacterID=" + row.tokenCharacterID + "&botServiceID="+ row.botServiceID,
-					type: 'post',
-					success: function () {
-						updateService();
-						showAlert('Ignore state changed for ' + row.tokenCharacterName +'!', 'success');
-					},
-					error: function () {
-						showAlert('Error changing authentication state!', 'danger');
-					}
-				})
+			'click .editChannel': function (e, value, row) {
+				$channeloptions.find('.modal-title').text("Edit Channel: " + row.channelName);
+				$channeloptions.find('#channelID').text(row.channelID);
+				$channeloptions.modal('show');
 			}
 		};
 		$addchannel.find('#submitchannel').click(function () {
@@ -138,62 +211,82 @@
 					botServiceID: getUrlVars()["botServiceID"],
 				}
 			})
-			.done(function() {
-				updateService();
-				$addchannel.modal('hide');
+				.done(function () {
+					updateService();
+					$addchannel.modal('hide');
 				})
-			.fail(function(error) {
-				$addchannel.modal('hide');
-				showAlert( 'Add Discord Failed: ' + error.responseText, 'danger');
-			});
+				.fail(function (error) {
+					$addchannel.modal('hide');
+					showAlert('Add Discord Failed: ' + error.responseText, 'danger');
+				});
 		});
 
-	function updateService() {
-		$.ajax({
+		$channeloptions.find('#channeloptions').click(function () {
+			$.ajax({
+				type: "PUT",
+				url: "/U/botServiceChannelOptions",
+				data: {
+					channelID: $('#channelID').text(),
+					botServiceID: getUrlVars()["botServiceID"],
+					options: JSON.stringify($('#channelOpts').serializeObject()),
+					services: JSON.stringify($('#services').serializeObject())
+				}
+			})
+				.done(function () {
+					updateService();
+					$channeloptions.modal('hide');
+				})
+				.fail(function (error) {
+					$channeloptions.modal('hide');
+					showAlert('Add Discord Failed: ' + error.responseText, 'danger');
+				});
+		});
+
+		function updateService() {
+			$.ajax({
 				url: '/U/botDetails?botServiceID=' + getUrlVars()["botServiceID"],
-				dataType:'JSON',
-				success:updateServiceData,
-				error:function(err){
+				dataType: 'JSON',
+				success: updateServiceData,
+				error: function (err) {
 					alert("Could not find information on this service: " + err.responseText)
 				}
 			});
-	}
-
-	function updateServiceData(d) {
-		$("#serviceName").html(d.name);
-		$("#integrationType").html(d.type).css('textTransform', 'capitalize');
-		if (d.Channels) {
-			$channelsTable.bootstrapTable('load', d.Channels);
-		} else {
-			$channelsTable.bootstrapTable('removeAll');
-		}
-		if (d.Shares) {
-			$sharesTable.bootstrapTable('load', d.Shares);
-		}else {
-			$sharesTable.bootstrapTable('removeAll');
 		}
 
-		$.ajax({
-			url: '/U/botServiceChannels?botServiceID=' + getUrlVars()["botServiceID"],
-			dataType:'JSON',
-			success:function(data){
-				$.each(data, function(key, val){
-					var found = false;
-					$.each(d.Channels, function(key, channel) {
-						if (channel.channelID == val.channelID) {
-							found = true;
+		function updateServiceData(d) {
+			$("#serviceName").html(d.name);
+			$("#integrationType").html(d.type).css('textTransform', 'capitalize');
+			if (d.Channels) {
+				$channelsTable.bootstrapTable('load', d.Channels);
+			} else {
+				$channelsTable.bootstrapTable('removeAll');
+			}
+			if (d.Shares) {
+				$sharesTable.bootstrapTable('load', d.Shares);
+			} else {
+				$sharesTable.bootstrapTable('removeAll');
+			}
+
+			$.ajax({
+				url: '/U/botServiceChannels?botServiceID=' + getUrlVars()["botServiceID"],
+				dataType: 'JSON',
+				success: function (data) {
+					$.each(data, function (key, val) {
+						var found = false;
+						$.each(d.Channels, function (key, channel) {
+							if (channel.channelID == val.channelID) {
+								found = true;
+							}
+						})
+						if (!found) {
+							$('#channels').append('<option id=' + val.channelID + '>' + val.channelName + '</option>');
 						}
 					})
-					if (!found) {
-						$('#channels').append('<option id=' + val.channelID + '>' + val.channelName + '</option>');
-					}
-				})
-			},
-			error:function(){
-				alert("Error receiving channels.")
-			}
-		});
+				},
+				error: function () {
+					alert("Error receiving channels.")
+				}
+			});
 
-	}
-	</script>
-{{end}}
+		}
+	</script> {{end}}
