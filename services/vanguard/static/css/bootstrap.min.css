@@ -7046,7 +7046,7 @@ button.close {
     left: 0;
     z-index: 1050;
     -webkit-overflow-scrolling: touch;
-    outline: 0
+    outline: 0;
 }
 
 .modal.fade .modal-dialog {
@@ -7074,7 +7074,7 @@ button.close {
 .modal-dialog {
     position: relative;
     width: auto;
-    margin: 10px
+    margin: 15px
 }
 
 .modal-content {
@@ -7082,7 +7082,7 @@ button.close {
     background-color: #303030;
     border: 1px solid #999999;
     border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 6px;
+    border-radius: 5px;
     -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
     box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
     -webkit-background-clip: padding-box;
@@ -7111,6 +7111,7 @@ button.close {
 }
 
 .modal-header {
+    background-color: #355691;
     padding: 15px;
     border-bottom: 1px solid #355691
 }
@@ -7132,7 +7133,8 @@ button.close {
 .modal-footer {
     padding: 20px;
     text-align: right;
-    border-top: 1px solid #355691
+    border-top: 1px solid #355691;
+    background-color: #355691;
 }
 
 .modal-footer .btn+.btn {
