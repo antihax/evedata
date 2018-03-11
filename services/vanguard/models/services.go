@@ -137,7 +137,7 @@ func AddBotServiceChannel(botServiceID int32, channelID, channelName string) err
 
 func DeleteBotServiceChannel(botServiceID int32, channelID string) error {
 	if _, err := database.Exec(`
-		DELETE  FROM evedata.botChannels
+		DELETE FROM evedata.botChannels
 		WHERE botServiceID = ? AND channelID = ?`, botServiceID, channelID); err != nil {
 		return err
 	}
