@@ -88,7 +88,9 @@ func GetBotServiceDetails(characterID, serverID int32) (BotServiceDetails, error
 	}
 	defer row.Close()
 
-	row.Next()
+	if !row.Next() {
+		return service, errors.New("Bot service unavailable")
+	}
 	err = row.StructScan(&service)
 	if err != nil {
 		return service, err
@@ -119,6 +121,27 @@ func GetBotServiceDetails(characterID, serverID int32) (BotServiceDetails, error
 	}
 
 	return service, nil
+}
+
+func AddBotServiceChannel(botServiceID int32, channelID, channelName string) error {
+	if _, err := database.Exec(`
+		INSERT INTO evedata.botChannels	(botServiceID, channelID, channelName, services, options)
+			VALUES(?,?,?,'','')
+			ON DUPLICATE KEY UPDATE channelID = channelID`,
+		botServiceID, channelID, channelName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteBotServiceChannel(botServiceID int32, channelID string) error {
+	if _, err := database.Exec(`
+		DELETE  FROM evedata.botChannels
+		WHERE botServiceID = ? AND channelID = ?`, botServiceID, channelID); err != nil {
+		return err
+	}
+	return nil
 }
 
 func AddDiscordService(characterID, entityID int32, serverID string) error {

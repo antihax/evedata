@@ -86,11 +86,6 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, refresh, tokenClientID, tokenSe
 	store.SetMaxLength(1024 * 10)
 	store.Options.Domain = "evedata.org"
 
-	conservatorClient, err := rpc.DialHTTP("tcp", "conservator.evedata:3001")
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	// Setup a new Vanguard
 	globalVanguard = &Vanguard{
 		stop: make(chan bool),
@@ -107,9 +102,13 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, refresh, tokenClientID, tokenSe
 		Store:              store,
 		Db:                 db,
 		Cache:              redis,
-		Conservator:        conservatorClient,
-		token:              &token,
-		TokenStore:         tokenStore,
+
+		token:      &token,
+		TokenStore: tokenStore,
+	}
+
+	if err := globalVanguard.RPCConnect(); err != nil {
+		log.Fatalln(err)
 	}
 
 	return globalVanguard
@@ -119,4 +118,27 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, refresh, tokenClientID, tokenSe
 func (s *Vanguard) Close() {
 	close(s.stop)
 	s.wg.Wait()
+}
+
+// Close the hammer service
+func (s *Vanguard) RPCall(method string, in interface{}, out interface{}) error {
+	for {
+		err := s.Conservator.Call(method, in, out)
+		if err == rpc.ErrShutdown {
+			err := s.RPCConnect()
+			if err != nil {
+				log.Printf("lost rpc connection: %s", err)
+				time.Sleep(time.Millisecond * 50)
+			}
+			continue
+		}
+		return err
+	}
+}
+
+// Close the hammer service
+func (s *Vanguard) RPCConnect() error {
+	var err error
+	s.Conservator, err = rpc.DialHTTP("tcp", "conservator.evedata:3001")
+	return err
 }

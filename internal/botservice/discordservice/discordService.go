@@ -53,7 +53,9 @@ func (c DiscordService) GetChannels() ([]botservice.Name, error) {
 
 	channels := []botservice.Name{}
 	for _, ch := range g {
-		channels = append(channels, botservice.Name{ID: ch.ID, Name: ch.Name})
+		if ch.Type == discordgo.ChannelTypeGuildText {
+			channels = append(channels, botservice.Name{ID: ch.ID, Name: ch.Name})
+		}
 	}
 
 	return channels, nil

@@ -96,7 +96,7 @@
 		}
 		function serverFormatter(value, row) {
 			console.log(row);
-        	return '<a href="/botDetails?serviceID=' + row.botServiceID + '">' + value + '</a>';
+        	return '<a href="/botDetails?botServiceID=' + row.botServiceID + '">' + value + '</a>';
 		}
 		// update and delete events
 		window.actionEvents = {
@@ -116,7 +116,7 @@
 				}
 			},
 			'click .editServices': function (e, value, row) {
-				window.location.href = "/botDetails?serviceID=" + row.botServiceID;
+				window.location.href = "/botDetails?botServiceID=" + row.botServiceID;
 			}
 		};
 		$adddiscord.find('.submit').click(function () {

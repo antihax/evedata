@@ -4,7 +4,7 @@
 <h4 id="integrationType">Integration Type</h4>
 
 {{template "checkAuthentication" .}}
-	<div class="modal fade" id="adddiscord">
+	<div class="modal fade" id="addchannel">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -14,22 +14,15 @@
 					<h4 class="modal-title"></h4>
 				</div>
 				<div class="modal-body">
-					<p>Add a discord server! You must have director roles in the corporation to perform this action.</p>
-					<ol>
-						<li><a href="https://discordapp.com/api/oauth2/authorize?client_id=229339294144135169&permissions=1543765239&scope=bot" target="_new">Click to have our bot join your Discord</a>.</li>
-						<li>Right click your discord server from the discord UI and select <i>Copy ID</i></li>
-						<li>Paste the ID in the Discord Server ID field.</li>
-						<li>Select a corporation below which you have director access with</li>
-					</ol>
+					<p>Select a channel to add to the integration.</p>
 					<div class="form-group">
-						<label>Owning Entity</label> <select class="form-control" name="entity" id="entity"></select>
-						<label>Discord Server ID</label> <input class="form-control" name="serverID" id="serverID"></select>
+						<label>Add Channel</label> <select class="form-control" name="channels" id="channels"></select>
 					</div>
 				</div>
 				<div class="modal-footer">
 					<button class="btn btn-default" data-dismiss="modal" type=
 					"button">Close</button> <button class=
-					"btn btn-primary submit" type="button">Submit</button>
+					"btn btn-primary submit" id="submitchannel" type="button">Submit</button>
 				</div>
 			</div>
 		</div>
@@ -38,17 +31,7 @@
 	<div class="table-responsive">
 		<div class="toolbar channelsToolbar" id="channelsToolbar">
 			<h4>Integrated Channels</h4>
-			<div class="dropdown">
-				<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChannel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					Add Channel
-					<span class="caret"></span>
-				</button>
-				<ul class="dropdown-menu" id="addChanelMenu" aria-labelledby="addChannel">
-					<li>
-						<a class="adddiscord btn btn-default" href="javascript:">Add Discord</a>
-					</li> 
-				</ul>
-			</div>
+			<a class="addchannel btn btn-default" href="javascript:">Add Channel</a>
 		</div>
 
 		<table class="table" data-cache="false" data-toolbar=".channelsToolbar" id="channelsTable">
@@ -82,13 +65,13 @@
 	</div>
 
 	<script>		
-		var	$adddiscord = $('#adddiscord').modal({show: false}),
+		var	$addchannel = $('#addchannel').modal({show: false}),
 			$channelsTable = $('#channelsTable').bootstrapTable({},"changeLocale", "en_US"),
 			$sharesTable = $('#sharesTable').bootstrapTable({},"changeLocale", "en_US");
 	
-		$('.adddiscord').click(function () {
-			$adddiscord.find('.modal-title').text("Add Discord");
-			$adddiscord.modal('show');
+		$('.addchannel').click(function () {
+			$addchannel.find('.modal-title').text("Add Channel to Integration");
+			$addchannel.modal('show');
 		});
 
 		$(function () {
@@ -117,22 +100,22 @@
 		// update and delete events
 		window.actionEvents = {
 			'click .removeChannel': function (e, value, row) {
-				if (confirm('Are you sure you want to delete this server?')) {
+				if (confirm('Are you sure you want to delete this channel?')) {
+					console.log(row);
 					$.ajax({
-						url: "/U/botChannels?botServerID=" + row.botServiceID,
+						url: "/U/botServiceChannels?botServiceID=" + row.botServiceID + "&channelID=" + row.channelID,
 						type: 'delete',
 						success: function () {
-							$channelsTable.bootstrapTable('refresh');
-							showAlert('Delete item successful!', 'success');
+							showAlert('Delete channel successful!', 'success');
+							updateService();
 						},
 						error: function () {
-							showAlert('Delete item error!', 'danger');
+							showAlert('Delete channel error!', 'danger');
 						}
 					})
 				}
 			},
 			'click .toggleignore': function (e, value, row) {
-				console.log(row);
 				$.ajax({
 					url: "/U/botShareToggleIgnore?tokenCharacterID=" + row.tokenCharacterID + "&botServiceID="+ row.botServiceID,
 					type: 'post',
@@ -146,28 +129,28 @@
 				})
 			}
 		};
-		$adddiscord.find('.submit').click(function () {
+		$addchannel.find('#submitchannel').click(function () {
 			$.ajax({
 				type: "POST",
-				url: "/U/botServicesDiscord",
+				url: "/U/botServiceChannels",
 				data: {
-					entityID: $('#entity').children(":selected").attr("id"),
-					serverID: $('#serverID').val(),
+					channelID: $('#channels').children(":selected").attr("id"),
+					botServiceID: getUrlVars()["botServiceID"],
 				}
 			})
 			.done(function() {
-				$channelsTable.bootstrapTable('refresh');
-				$adddiscord.modal('hide');
+				updateService();
+				$addchannel.modal('hide');
 				})
 			.fail(function(error) {
-				$adddiscord.modal('hide');
+				$addchannel.modal('hide');
 				showAlert( 'Add Discord Failed: ' + error.responseText, 'danger');
 			});
 		});
 
 	function updateService() {
 		$.ajax({
-				url: '/U/botDetails?serviceID=' + getUrlVars()["serviceID"],
+				url: '/U/botDetails?botServiceID=' + getUrlVars()["botServiceID"],
 				dataType:'JSON',
 				success:updateServiceData,
 				error:function(err){
@@ -175,11 +158,42 @@
 				}
 			});
 	}
+
 	function updateServiceData(d) {
 		$("#serviceName").html(d.name);
 		$("#integrationType").html(d.type).css('textTransform', 'capitalize');
-		$channelsTable.bootstrapTable('load', d.Channels);
-		$sharesTable.bootstrapTable('load', d.Shares);
+		if (d.Channels) {
+			$channelsTable.bootstrapTable('load', d.Channels);
+		} else {
+			$channelsTable.bootstrapTable('removeAll');
+		}
+		if (d.Shares) {
+			$sharesTable.bootstrapTable('load', d.Shares);
+		}else {
+			$sharesTable.bootstrapTable('removeAll');
+		}
+
+		$.ajax({
+			url: '/U/botServiceChannels?botServiceID=' + getUrlVars()["botServiceID"],
+			dataType:'JSON',
+			success:function(data){
+				$.each(data, function(key, val){
+					var found = false;
+					$.each(d.Channels, function(key, channel) {
+						if (channel.channelID == val.channelID) {
+							found = true;
+						}
+					})
+					if (!found) {
+						$('#channels').append('<option id=' + val.channelID + '>' + val.channelName + '</option>');
+					}
+				})
+			},
+			error:function(){
+				alert("Error receiving channels.")
+			}
+		});
+
 	}
 	</script>
 {{end}}
