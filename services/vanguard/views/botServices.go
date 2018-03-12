@@ -106,14 +106,20 @@ func apiAddDiscordBotService(w http.ResponseWriter, r *http.Request) {
 
 func apiGetBotServices(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
+	s := vanguard.SessionFromContext(r.Context())
 
-	// Verify the user has access to this service
-	v, err := getBotService(r)
+	// Get the sessions main characterID
+	characterID, ok := s.Values["characterID"].(int32)
+	if !ok {
+		httpErrCode(w, nil, http.StatusUnauthorized)
+		return
+	}
+
+	v, err := models.GetBotServices(characterID)
 	if err != nil {
 		httpErr(w, err)
 		return
 	}
-
 	json.NewEncoder(w).Encode(v)
 }
 
