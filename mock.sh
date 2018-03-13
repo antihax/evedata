@@ -24,6 +24,7 @@ docker run --net=host --name=nsqd -d -p 127.0.0.1:4151:4151 -p 4150:4150 -h loca
 until [ `docker inspect -f "{{.State.Status}}" teamspeak | grep -c running` -eq 1 ]
 do
     sleep 1
+    docker logs teamspeak
     echo TeamSpeak not ready yet.
 done
 echo TeamSpeak Ready
