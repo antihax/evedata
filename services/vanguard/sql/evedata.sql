@@ -175,7 +175,8 @@ CREATE TABLE `crestTokens` (
   `corporationID` int(11) NOT NULL DEFAULT '0',
   `allianceID` int(11) NOT NULL DEFAULT '0',
   `factionID` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`characterID`,`tokenCharacterID`)
+  PRIMARY KEY (`characterID`,`tokenCharacterID`),
+  KEY `tokenCharacterID` (`tokenCharacterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `cursorCharacter` (

@@ -181,6 +181,15 @@ func DeleteService(characterID, botServiceID int32) error {
 	return nil
 }
 
+func UpdateChannel(botServiceID int32, channelID, options, services string) error {
+	if _, err := database.Exec(`
+		UPDATE evedata.botChannels SET options = ?, services = ? WHERE botServiceID = ? AND channelID = ?`,
+		options, services, botServiceID, channelID); err != nil {
+		return err
+	}
+	return nil
+}
+
 func entityInSlice(a int32, list []Entity) bool {
 	for _, b := range list {
 		if b.EntityID == a {

@@ -14,6 +14,7 @@ func init() {
 	registerTrigger("characterNotifications", characterNotifications, time.NewTicker(time.Second*600))
 	registerTrigger("characterContactSync", characterContactSync, time.NewTicker(time.Second*360))
 	registerTrigger("characterAuthOwners", characterAuthOwners, time.NewTicker(time.Second*3600))
+	registerTrigger("crestCharacters", crestCharacters, time.NewTicker(time.Second*3600))
 }
 
 func characterTransactions(s *Artifice) error {
@@ -110,7 +111,6 @@ func characterAuthOwners(s *Artifice) error {
 // figure out character alliance and corp for our members
 func crestCharacters(s *Artifice) error {
 	var chars []int32
-
 	err := s.db.Select(&chars,
 		`SELECT DISTINCT tokenCharacterID FROM evedata.crestTokens`)
 	if err != nil {
@@ -138,12 +138,16 @@ func crestCharacters(s *Artifice) error {
 		sharing[char] = corp
 	}
 
-	for start := 0; start < len(chars); start = start + 1000 {
-		end := min(start+1000, len(chars))
+	for start := 0; start < len(chars); start = start + 50 {
+		end := min(start+50, len(chars))
 		if affiliation, _, err := s.esi.ESI.CharacterApi.PostCharactersAffiliation(context.Background(), chars[start:end], nil); err != nil {
 			log.Println(err)
 			continue
 		} else {
+			tx, err := s.db.Beginx()
+			if err != nil {
+				return err
+			}
 			for _, c := range affiliation {
 				// See if they changed corporation, if they have shares, warn them they are still sharing.
 				if check, ok := sharing[c.CharacterId]; ok {
@@ -152,7 +156,7 @@ func crestCharacters(s *Artifice) error {
 					}
 				}
 
-				if err := s.doSQL(`UPDATE evedata.crestTokens
+				if _, err := tx.Exec(`UPDATE evedata.crestTokens
 					SET corporationID = ?, allianceID = ?, factionID = ?
 					WHERE tokenCharacterID = ?;
 					`, c.CorporationId, c.AllianceId, c.FactionId, c.CharacterId); err != nil {
@@ -160,8 +164,12 @@ func crestCharacters(s *Artifice) error {
 					continue
 				}
 			}
+			err = retryTransaction(tx)
+			if err != nil {
+				return err
+			}
+			tx.Rollback()
 		}
-
 	}
 	return nil
 }

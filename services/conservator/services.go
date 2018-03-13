@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 	"sync"
 	"time"
@@ -25,6 +26,28 @@ type ChannelOptions struct {
 		FactionWar      bool `json:"factionWar,omitempty"`
 		SendAll         bool `json:"sendAll,omitempty"`
 	} `json:"killmail,omitempty"`
+}
+
+type ChannelTypes struct {
+	War       bool `json:"war,omitempty"`
+	Locator   bool `json:"locator,omitempty"`
+	Kill      bool `json:"kill,omitempty"`
+	Structure bool `json:"structure,omitempty"`
+}
+
+func (c *ChannelTypes) GetServices() string {
+	v := reflect.ValueOf(c).Elem()
+	typeOf := v.Type()
+
+	values := []string{}
+
+	for i := 0; i < v.NumField(); i++ {
+		b := v.Field(i).Interface().(bool)
+		if b {
+			values = append(values, strings.ToLower(typeOf.Field(i).Name))
+		}
+	}
+	return strings.Join(values, ",")
 }
 
 type Service struct {

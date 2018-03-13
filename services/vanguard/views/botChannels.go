@@ -5,6 +5,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/antihax/evedata/services/conservator"
+
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
 )
@@ -13,6 +15,8 @@ func init() {
 	vanguard.AddAuthRoute("botServices", "GET", "/U/botServiceChannels", apiGetBotServiceChannels)
 	vanguard.AddAuthRoute("botServices", "POST", "/U/botServiceChannels", apiAddBotServiceChannel)
 	vanguard.AddAuthRoute("botServices", "DELETE", "/U/botServiceChannels", apiDeleteBotServiceChannel)
+
+	vanguard.AddAuthRoute("botServices", "PUT", "/U/botServiceChannelOptions", apiSetBotServiceChannelOptions)
 }
 
 func apiGetBotServiceChannels(w http.ResponseWriter, r *http.Request) {
@@ -108,6 +112,45 @@ func apiDeleteBotServiceChannel(w http.ResponseWriter, r *http.Request) {
 
 	if err := models.DeleteBotServiceChannel(service.BotServiceID, channelID); err != nil {
 		httpErrCode(w, err, http.StatusConflict)
+		return
+	}
+}
+
+func apiSetBotServiceChannelOptions(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	// Verify the user has access to this service
+	service, err := getBotService(r)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+	channelID := r.FormValue("channelID")
+	if channelID == "" {
+		httpErrCode(w, nil, http.StatusTeapot)
+	}
+
+	// unmarshal to verify this is accurate.
+	chanOpts := conservator.ChannelOptions{}
+	if err := json.Unmarshal([]byte(r.FormValue("options")), &chanOpts); err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	//Unmarshal and format to our set string
+	chanServices := conservator.ChannelTypes{}
+	if err := json.Unmarshal([]byte(r.FormValue("services")), &chanServices); err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	options, err := json.Marshal(chanOpts)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	if err := models.UpdateChannel(service.BotServiceID, channelID, string(options), chanServices.GetServices()); err != nil {
+		httpErr(w, err)
 		return
 	}
 }

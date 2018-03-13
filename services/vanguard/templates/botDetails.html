@@ -38,7 +38,8 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 				<h3 class="modal-title"></h3>
-				<label name="channelID" id="channelID"></label><label>
+				<label name="channelID" id="channelID"></label>
+				<label>
 			</div>
 			<div class="modal-body">
 				<h5 style="margin-top: 0px">Send the following to the channel:</h5>
@@ -57,8 +58,8 @@
 							<input class="form-check-input" type="checkbox" name="war">
 							<label class="form-check-label" for="war">Shared War Notifications</label>
 							<br>
-							<input class="form-check-input" type="checkbox" id="locators">
-							<label class="form-check-label" for="locators">Shared Locator Agent Notifications</label>
+							<input class="form-check-input" type="checkbox" name="locator">
+							<label class="form-check-label" for="locator">Shared Locator Agent Notifications</label>
 							<br>
 						</div>
 					</fieldset>
@@ -74,27 +75,27 @@
 								<div class="row">
 									<div class="col-md-6">
 										<p>Filters:</p>
-										<input class="form-check-input" type="checkbox" value="true" name="killmail[ignoreHighsec]">
+										<input class="form-check-input" type="checkbox" name="killmail[ignoreHighsec]">
 										<label class="form-check-label" for="killmail[ignoreHighsec]">Ignore Highsec Kills</label>
 										<br>
-										<input class="form-check-input" type="checkbox" value="true" name="killmail[ignoreLowsec]">
+										<input class="form-check-input" type="checkbox" name="killmail[ignoreLowsec]">
 										<label class="form-check-label" for="killmail[ignoreLowsec]">Ignore Lowsec Kills</label>
 										<br>
-										<input class="form-check-input" type="checkbox" value="true" name="killmail[ignoreNullsec]">
+										<input class="form-check-input" type="checkbox" name="killmail[ignoreNullsec]">
 										<label class="form-check-label" for="killmail[ignoreNullsec]">Ignore Nullsec Kills</label>
 										<br>
-										<input class="form-check-input" type="checkbox" value="true" name="killmail[ignoreWorthless]">
+										<input class="form-check-input" type="checkbox" name="killmail[ignoreWorthless]">
 										<label class="form-check-label" for="killmail[ignoreWorthless]">Ignore Worthless</label>
 									</div>
 									<div class="col-md-6">
 										<p>Types:</p>
-										<input class="form-check-input" type="checkbox" value="true" name="killmail[war]">
+										<input class="form-check-input" type="checkbox" name="killmail[war]">
 										<label class="form-check-label" for="killmail[war]">War Target Kills</label>
 										<br>
-										<input class="form-check-input" type="checkbox" value="true" name="killmail[factionWar]">
+										<input class="form-check-input" type="checkbox" name="killmail[factionWar]">
 										<label class="form-check-label" for="killmail[factionWar]">Faction War Kills</label>
 										<br>
-										<input class="form-check-input" type="checkbox" value="true" name="killmail[sendAll]">
+										<input class="form-check-input" type="checkbox" name="killmail[sendAll]">
 										<label class="form-check-label" for="killmail[sendAll]"></label>Send All Kills</label>
 									</div>
 								</div>
@@ -199,7 +200,38 @@
 			'click .editChannel': function (e, value, row) {
 				$channeloptions.find('.modal-title').text("Edit Channel: " + row.channelName);
 				$channeloptions.find('#channelID').text(row.channelID);
+				$('#channelOpts')[0].reset();
+				$('#services')[0].reset();
+				if (row.services) {
+					$.each(row.services.split(","), function (i, val) {
+						$('#services').find("input[name=" + val + "]").prop('checked', true);
+					});
+				}
+				if ($("input[name=kill]").prop('checked')) {
+					$('#killmailOpts').collapse('show');
+				} else {
+					$('#killmailOpts').collapse('hide');
+				}
+				$.each(row.options, function (category, data) {
+					$.each(data, function (field, val) {
+						$('#channelOpts').find("input[name=" + category + "\\[" + field + "\\]]").prop('checked', true);
+					});
+				});
 				$channeloptions.modal('show');
+			},
+			'click .toggleignore': function (e, value, row) {
+				console.log(row);
+				$.ajax({
+					url: "/U/botShareToggleIgnore?tokenCharacterID=" + row.tokenCharacterID + "&botServiceID="+ row.botServiceID,
+					type: 'post',
+					success: function () {
+						updateService();
+						showAlert('Ignore state changed for ' + row.tokenCharacterName +'!', 'success');
+					},
+					error: function () {
+						showAlert('Error changing authentication state!', 'danger');
+					}
+				})
 			}
 		};
 		$addchannel.find('#submitchannel').click(function () {

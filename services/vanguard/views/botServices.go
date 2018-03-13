@@ -222,11 +222,6 @@ func apiGetEntitiesWithRoles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(v)
-
-	if err = s.Save(r, w); err != nil {
-		httpErr(w, err)
-		return
-	}
 }
 
 func getBotService(r *http.Request) (*models.BotServiceDetails, error) {

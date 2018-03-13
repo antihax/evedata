@@ -77,7 +77,7 @@
 	}
 
 	function entityTypeFormatter(value, row) {
-    	var entityURL = '/'+ row.type + '?id=' + row.entityID 
+    	var entityURL = '/'+ row.entityType + '?id=' + row.entityID 
         return '<a href="' + entityURL + '"><img src="' + entityTypeImage(row) + '" height=32 width=32> ' + value + '</a>';
 	}
 	
