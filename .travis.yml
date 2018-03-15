@@ -5,6 +5,7 @@ go: master
 addons:
   hosts:
     - esi.tech.ccp.is
+    - esi.evetech.net
     - nsqd.nsq
     - nsqadmind.nsq
     - nsqlookupd.nsq
