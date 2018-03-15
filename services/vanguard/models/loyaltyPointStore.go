@@ -22,15 +22,31 @@ func AddLPOfferRequirements(offerID int64, typeID int64, quantity int64) error {
 }
 
 type IskPerLP struct {
-	ItemName     string      `db:"itemName" json:"itemName"`
-	TypeID       int64       `db:"typeID" json:"typeID"`
-	TypeName     string      `db:"typeName" json:"typeName"`
-	JitaPrice    float64     `db:"JitaPrice" json:"jitaPrice"`
-	ItemCost     float64     `db:"itemCost" json:"itemCost"`
-	IskPerLP     int64       `db:"iskPerLP" json:"iskPerLP"`
-	JitaVolume   int64       `db:"JitaVolume" json:"jitaVolume"`
-	IskVolume    float64     `db:"iskVolume" json:"iskVolume"`
-	Requirements null.String `db:"requirements" json:"requirements"`
+	ItemName      string      `db:"itemName" json:"itemName"`
+	TypeID        int64       `db:"typeID" json:"typeID"`
+	TypeName      string      `db:"typeName" json:"typeName"`
+	JitaPrice     float64     `db:"JitaPrice" json:"jitaPrice"`
+	ItemCost      float64     `db:"itemCost" json:"itemCost"`
+	IskPerLP      int64       `db:"iskPerLP" json:"iskPerLP"`
+	JitaVolume    int64       `db:"JitaVolume" json:"jitaVolume"`
+	IskVolume     float64     `db:"iskVolume" json:"iskVolume"`
+	Requirements  null.String `db:"requirements" json:"requirements"`
+	AvailableFrom string      `db:"availableFrom" json:"availableFrom"`
+}
+
+func GetISKPerLPByConversion() ([]IskPerLP, error) {
+	s := []IskPerLP{}
+	if err := database.Select(&s, `
+		SELECT DISTINCT typeID, typeName, JitaPrice, itemCost, iskPerLP, JitaVolume, JitaVolume*JitaPrice AS iskVolume, GROUP_CONCAT(itemName ORDER BY itemName ASC SEPARATOR ', ') AS availableFrom
+			FROM evedata.iskPerLp Lp
+			GROUP BY typeID, lpCost
+			ORDER BY ISKperLP DESC
+			LIMIT 500
+	;`); err != nil {
+
+		return nil, err
+	}
+	return s, nil
 }
 
 // [BENCHMARK] 0.016 sec / 0.000 sec

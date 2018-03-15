@@ -17,6 +17,7 @@ import (
 func newPage(r *http.Request, title string) map[string]interface{} {
 	p := make(map[string]interface{})
 	p["Title"] = title
+	p["Header"] = ""
 	return p
 }
 
