@@ -12,7 +12,7 @@ import (
 	nsq "github.com/nsqio/go-nsq"
 )
 
-var NOTIFICATION_TYPES = []string{"kill", "war", "locator", "structure"}
+var NOTIFICATION_TYPES = []string{"kill", "war", "locator", "application", "structure"}
 
 // Conservator Handles our little bot.
 type Conservator struct {

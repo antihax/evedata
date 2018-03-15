@@ -108,6 +108,13 @@ type Locator struct {
 	MessageIndex int64 `yaml:"messageIndex"`
 }
 
+// CorpAppNewMsg corporation application
+type CorpAppNewMsg struct {
+	ApplicationText string `yaml:"applicationText"`
+	CharacterID     int64  `yaml:"charID"`
+	CorporationID   int64  `yaml:"corpID"`
+}
+
 func (s *Conservator) checkNotification(characterID int32, notificationID int64, notificationType, text string, timestamp time.Time) error {
 	switch notificationType {
 
@@ -149,8 +156,23 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 			return err
 		}
 
-		return s.sendNotificationMessage("war", characterID, notificationID, fmt.Sprintf("@everyone  [%s](https://www.evedata.org/%s?id=%d) just declared war on [%s](https://www.evedata.org/%s?id=%d)\n",
-			attacker.Name, attacker.EntityType, l.DeclaredByID, defender.Name, defender.EntityType, l.AgainstID))
+		return s.sendNotificationMessage("war", characterID, notificationID,
+			fmt.Sprintf("@everyone  [%s](https://www.evedata.org/%s?id=%d) just declared war on [%s](https://www.evedata.org/%s?id=%d)\n",
+				attacker.Name, attacker.EntityType, l.DeclaredByID, defender.Name, defender.EntityType, l.AgainstID))
+
+	case "CorpAppNewMsg":
+		{
+			l := CorpAppNewMsg{}
+			yaml.Unmarshal([]byte(text), &l)
+			character, err := s.getEntityName(l.CharacterID)
+			if err != nil {
+				character.Name = "!! No fricking clue !!"
+			}
+			corporation, _ := s.getEntityName(l.CorporationID)
+			return s.sendNotificationMessage("application", characterID, notificationID,
+				fmt.Sprintf("New corporation application from [%s](https://www.evedata.org/character?id=%d) to %s. Application Comment: %s\n",
+					character.Name, l.CharacterID, corporation.Name, l.ApplicationText))
+		}
 
 	case "StructureUnderAttack", "OrbitalAttacked", "TowerAlertMsg":
 		l := OrbitalAttacked{}
@@ -294,7 +316,7 @@ func (s *Conservator) getEntityName(id int64) (*EntityName, error) {
 		UNION
 		SELECT name, 'character' AS type FROM evedata.characters WHERE characterID = ?
 		LIMIT 1`, id, id, id).StructScan(&ref); err != nil {
-		return nil, err
+		return &ref, err
 	}
 	return &ref, nil
 }

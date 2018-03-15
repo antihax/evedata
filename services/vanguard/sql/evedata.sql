@@ -36,7 +36,7 @@ CREATE TABLE `assets` (
 CREATE TABLE `botChannels` (
   `botServiceID` int(10) unsigned NOT NULL,
   `channelID` varchar(255) COLLATE utf8_bin NOT NULL,
-  `services` set('locator','kill','structure','war') COLLATE utf8_bin NOT NULL,
+  `services` set('locator','kill','structure','application','war') COLLATE utf8_bin NOT NULL,
   `options` text COLLATE utf8_bin NOT NULL,
   `channelName` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT 'unknown',
   PRIMARY KEY (`channelID`),
@@ -418,7 +418,7 @@ CREATE TABLE `sharing` (
   `characterID` int(11) unsigned NOT NULL,
   `tokenCharacterID` int(11) unsigned NOT NULL,
   `entityID` int(11) unsigned NOT NULL,
-  `types` set('locator','kill','structure','war') COLLATE utf8_bin NOT NULL,
+  `types` set('locator','kill','structure','application','war') COLLATE utf8_bin NOT NULL,
   `ignored` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`characterID`,`tokenCharacterID`,`entityID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='For sharing character information with entities.';

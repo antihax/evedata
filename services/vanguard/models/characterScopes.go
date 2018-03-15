@@ -45,9 +45,10 @@ var groupReasons = map[string]string{
 
 // shareReasons for data shares between characters and entities
 var shareReasons = map[string]string{
-	"locator":   "Locator Responses",
-	"structure": "Corporation structures under attack",
-	"war":       "War Declared on Corporation",
+	"application": "Corporation Applications",
+	"locator":     "Locator Responses",
+	"structure":   "Corporation structures under attack",
+	"war":         "War Declared on Corporation",
 }
 
 func GetCharacterShareGroups() map[string]string {

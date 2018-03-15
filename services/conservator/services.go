@@ -29,10 +29,11 @@ type ChannelOptions struct {
 }
 
 type ChannelTypes struct {
-	War       bool `json:"war,omitempty"`
-	Locator   bool `json:"locator,omitempty"`
-	Kill      bool `json:"kill,omitempty"`
-	Structure bool `json:"structure,omitempty"`
+	War         bool `json:"war,omitempty"`         // war notifications
+	Locator     bool `json:"locator,omitempty"`     // locator agent responses
+	Kill        bool `json:"kill,omitempty"`        // killmails
+	Structure   bool `json:"structure,omitempty"`   // structure notifications
+	Application bool `json:"application,omitempty"` // applications to corp
 }
 
 func (c *ChannelTypes) GetServices() string {
