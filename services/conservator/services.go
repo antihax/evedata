@@ -19,11 +19,30 @@ import (
 type ServiceOptions struct {
 	Auth struct {
 		Members       string `json:"members,omitempty"`
-		PlusFive      bool   `json:"plusFive,omitempty"`
-		PlusTen       bool   `json:"plusTen,omitempty"`
-		Militia       bool   `json:"militia,omitempty"`
-		AlliedMilitia bool   `json:"alliedMilita,omitempty"`
+		PlusFive      string `json:"plusFive,omitempty"`
+		PlusTen       string `json:"plusTen,omitempty"`
+		Militia       string `json:"militia,omitempty"`
+		AlliedMilitia string `json:"alliedMilitia,omitempty"`
 	} `json:"auth,omitempty"`
+}
+
+type ServiceTypes struct {
+	Auth bool `json:"auth,omitempty"` // Authentication
+}
+
+func (c *ServiceTypes) GetServices() string {
+	v := reflect.ValueOf(c).Elem()
+	typeOf := v.Type()
+
+	values := []string{}
+
+	for i := 0; i < v.NumField(); i++ {
+		b := v.Field(i).Interface().(bool)
+		if b {
+			values = append(values, strings.ToLower(typeOf.Field(i).Name))
+		}
+	}
+	return strings.Join(values, ",")
 }
 
 type ChannelOptions struct {
@@ -72,7 +91,7 @@ type Service struct {
 	Authentication string                `db:"authentication,omitempty"`
 	Type           string                `db:"type" json:"type,omitempty"`
 	Services       string                `db:"services" json:"services,omitempty"`
-	OptionsJSON    string                `db:"options" json:"-,omitempty"`
+	OptionsJSON    string                `db:"options" json:"-"`
 	Options        ServiceOptions        `db:"-" json:"options,omitempty"`
 }
 

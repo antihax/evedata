@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/antihax/evedata/services/conservator"
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
 	"github.com/antihax/evedata/services/vanguard/templates"
@@ -19,10 +20,9 @@ func init() {
 	vanguard.AddAuthRoute("botServices", "POST", "/U/botServicesDiscord", apiAddDiscordBotService)
 	vanguard.AddAuthRoute("botServices", "POST", "/U/botShareToggleIgnore", apiBotServiceToggleIgnore)
 
-	vanguard.AddAuthRoute("botServices", "GET", "/U/botServiceRoles", apiGetBotServiceRoles)
-
 	vanguard.AddRoute("botServices", "GET", "/botDetails", botDetailsPage)
 	vanguard.AddAuthRoute("botServices", "GET", "/U/botDetails", apiGetBotDetails)
+	vanguard.AddAuthRoute("botServices", "PUT", "/U/botDetails", apiBotServiceOptions)
 
 	vanguard.AddAuthRoute("botServices", "GET", "/U/entitiesWithRoles", apiGetEntitiesWithRoles)
 }
@@ -144,39 +144,11 @@ func apiGetBotDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	json.Unmarshal([]byte(v.OptionsJSON), &v.Options)
 	for i := range v.Channels {
 		json.Unmarshal([]byte(v.Channels[i].OptionsJSON), &v.Channels[i].Options)
 	}
 	json.NewEncoder(w).Encode(v)
-}
-
-func apiGetBotServiceRoles(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
-	g := vanguard.GlobalsFromContext(r.Context())
-
-	// Verify the user has access to this service
-	service, err := getBotService(r)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
-
-	channels := [][]string{}
-	if err := g.RPCall("Conservator.GetChannels", service.BotServiceID, &channels); err != nil {
-		httpErr(w, err)
-		return
-	}
-
-	type channel struct {
-		ChannelID   string `json:"channelID"`
-		ChannelName string `json:"channelName"`
-	}
-	convChannels := []channel{}
-
-	for _, ch := range channels {
-		convChannels = append(convChannels, channel{ChannelID: ch[0], ChannelName: ch[1]})
-	}
-	json.NewEncoder(w).Encode(convChannels)
 }
 
 func apiBotServiceToggleIgnore(w http.ResponseWriter, r *http.Request) {
@@ -222,6 +194,41 @@ func apiGetEntitiesWithRoles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(v)
+}
+
+func apiBotServiceOptions(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	// Verify the user has access to this service
+	service, err := getBotService(r)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	// unmarshal to verify this is accurate.
+	servOpts := conservator.ServiceOptions{}
+	if err := json.Unmarshal([]byte(r.FormValue("options")), &servOpts); err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	//Unmarshal and format to our set string
+	servServices := conservator.ServiceTypes{}
+	if err := json.Unmarshal([]byte(r.FormValue("services")), &servServices); err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	options, err := json.Marshal(servOpts)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	if err := models.UpdateService(service.BotServiceID, string(options), servServices.GetServices()); err != nil {
+		httpErr(w, err)
+		return
+	}
 }
 
 func getBotService(r *http.Request) (*models.BotServiceDetails, error) {

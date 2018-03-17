@@ -17,6 +17,8 @@ func init() {
 	vanguard.AddAuthRoute("botServices", "DELETE", "/U/botServiceChannels", apiDeleteBotServiceChannel)
 
 	vanguard.AddAuthRoute("botServices", "PUT", "/U/botServiceChannelOptions", apiSetBotServiceChannelOptions)
+
+	vanguard.AddAuthRoute("botServices", "GET", "/U/botServiceRoles", apiGetBotServiceRoles)
 }
 
 func apiGetBotServiceChannels(w http.ResponseWriter, r *http.Request) {
@@ -46,6 +48,35 @@ func apiGetBotServiceChannels(w http.ResponseWriter, r *http.Request) {
 		convChannels = append(convChannels, channel{ChannelID: ch[0], ChannelName: ch[1]})
 	}
 	json.NewEncoder(w).Encode(convChannels)
+}
+
+func apiGetBotServiceRoles(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	g := vanguard.GlobalsFromContext(r.Context())
+
+	// Verify the user has access to this service
+	service, err := getBotService(r)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	roles := [][]string{}
+	if err := g.RPCall("Conservator.GetRoles", service.BotServiceID, &roles); err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	type role struct {
+		RoleID   string `json:"roleID"`
+		RoleName string `json:"roleName"`
+	}
+	convRoles := []role{}
+
+	for _, ch := range roles {
+		convRoles = append(convRoles, role{RoleID: ch[0], RoleName: ch[1]})
+	}
+	json.NewEncoder(w).Encode(convRoles)
 }
 
 func apiAddBotServiceChannel(w http.ResponseWriter, r *http.Request) {

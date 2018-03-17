@@ -1,10 +1,30 @@
 {{define "body"}}
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.10.0/js-yaml.min.js"></script>
 <script src="/js/formSerializer.js"></script>
-<h3 id="serviceName">serviceName</h3>
-<h4 id="integrationType">Integration Type</h4>
-
+<div class="container">
+	<div class="row">
+		<div class="col-sm-6">
+			<h3 id="serviceName">serviceName</h3>
+			<h4 id="integrationType">Integration Type</h4>
+		</div>
+		<div class="col-sm-6 text-center">
+			<button class="btn btn-primary" id="editService" type="button">Edit Integration</button>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-6">
+			<h6>Services:</h6>
+			<pre id="integrationServiceServices"></pre>
+		</div>
+		<div class="col-sm-6">
+			<h6>Options:</h6>
+			<pre id="intergrationServiceOptions"></pre>
+		</div>
+	</div>
+</div>
 {{template "checkAuthentication" .}}
+
 <div class="modal fade" id="addchannel">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -114,214 +134,361 @@
 		</div>
 	</div>
 
-	<div class="table-responsive">
-		<div class="toolbar channelsToolbar" id="channelsToolbar">
-			<h4>Integrated Channels</h4>
-			<a class="addchannel btn btn-default" href="javascript:">Add Channel</a>
+
+	<div class="modal fade" id="serviceoptions">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button aria-label="Close" class="close" data-dismiss="modal" type="button">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h3 class="modal-title"></h3>
+					<label name="botServiceID" id="botServiceID"></label>
+					<label>
+				</div>
+				<div class="modal-body">
+					<h5 style="margin-top: 0px">Integration Options:</h5>
+					<form id="services" class="form-vertical">
+						<fieldset>
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" name="auth" data-toggle="collapse" data-target="#authOpts">
+								<label class="form-check-label" for="auth">Member Authentication</label>
+							</div>
+						</fieldset>
+					</form>
+				</div>
+				<hr style="margin: 0px">
+				<form id="serviceOpts" class="form-vertical">
+					<fieldset>
+						<div class="modal-body collapse" id="authOpts">
+							<h5 style="margin-top: 0px">Authentication Options</h5>
+							<p>Select roles to assign to the following groups:</p>
+							<div class="row">
+								<div class="form-group col-sm-3">
+									<h6>Members</h6>
+								</div>
+								<div class="col-sm-9">
+									<select class="form-control roles" type="checkbox" name="auth[members]"></select>
+								</div>
+							</div>
+							<div class="row">
+								<div class="form-group col-sm-3">
+									<h6>+5 Contacts</h6>
+								</div>
+								<div class="col-sm-9">
+									<select class="form-control roles" type="checkbox" name="auth[plusFive]"></select>
+								</div>
+							</div>
+							<div class="row">
+								<div class="form-group col-sm-3">
+									<h6>+10 Contacts</h6>
+								</div>
+								<div class="col-sm-9">
+									<select class="form-control roles" type="checkbox" name="auth[plusTen]"></select>
+								</div>
+							</div>
+							<div class="row">
+								<div class="form-group col-sm-3">
+									<h6>Militia</h6>
+								</div>
+								<div class="col-sm-9">
+									<select class="form-control roles" type="checkbox" name="auth[militia]"></select>
+								</div>
+							</div>
+							<div class="row">
+								<div class="form-group col-sm-3">
+									<h6>Allied Militia</h6>
+								</div>
+								<div class="col-sm-9">
+									<select class="form-control roles" type="checkbox" name="auth[alliedMilitia]"></select>
+								</div>
+							</div>
+						</div>
+					</fieldset>
+				</form>
+				<div class="modal-footer">
+					<button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+					<button class="btn btn-primary submit" id="serviceoptions" type="button">Submit</button>
+				</div>
+			</div>
 		</div>
-
-		<table class="table" data-cache="false" data-toolbar=".channelsToolbar" id="channelsTable">
-			<thead>
-				<tr>
-					<th data-field="channelName">Channel Name</th>
-					<th data-field="services">Services</th>
-					<th data-field="options" data-formatter="yamlFormatter">Options</th>
-					<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="ChannelsActionsFormatter">Delete</th>
-				</tr>
-			</thead>
-		</table>
 	</div>
-
-	<div class="table-responsive">
-		<div class="toolbar sharesToolbar" id="sharesToolbar">
-			<h4>Characters Sharing Data</h4>
-		</div>
-		<table class="table" data-cache="false" data-toolbar=".sharesToolbar" id="sharesTable">
-			<thead>
-				<tr>
-					<th data-field="tokenCharacterName" data-formatter="tokenCharacterFormatter">Character</th>
-					<th data-field="entityName" data-formatter="entityTypeFormatter">Entity</th>
-					<th data-field="types">Types</th>
-					<th data-field="ignored" data-align="center" data-events="actionEvents" data-formatter="ShareActionsFormatter">Ignore</th>
-				</tr>
-			</thead>
-		</table>
+</div>
+<div class="well">
+	<div class="table-responsive channelsToolbar">
+		<h4>
+			<span>Integrated Channels</span>
+			<button type="button" class="addchannel btn btn-default">Add Channel</a>
+		</h4>
 	</div>
+	<table class="table" data-cache="false" data-toolbar=".channelsToolbar" id="channelsTable">
+		<thead>
+			<tr>
+				<th data-field="channelName">Channel Name</th>
+				<th data-field="services">Services</th>
+				<th data-field="options" data-formatter="yamlFormatter">Options</th>
+				<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="ChannelsActionsFormatter">Delete</th>
+			</tr>
+		</thead>
+	</table>
+</div>
+</div>
+<div class="table-responsive well">
+	<div class="toolbar sharesToolbar" id="sharesToolbar">
+		<h4>Characters Sharing Data</h4>
+	</div>
+	<table class="table" data-cache="false" data-toolbar=".sharesToolbar" id="sharesTable">
+		<thead>
+			<tr>
+				<th data-field="tokenCharacterName" data-formatter="tokenCharacterFormatter">Character</th>
+				<th data-field="entityName" data-formatter="entityTypeFormatter">Entity</th>
+				<th data-field="types">Types</th>
+				<th data-field="ignored" data-align="center" data-events="actionEvents" data-formatter="ShareActionsFormatter">Ignore</th>
+			</tr>
+		</thead>
+	</table>
+</div>
 
-	<script>		
-		var $addchannel = $('#addchannel').modal({ show: false }),
-			$channeloptions = $('#channeloptions').modal({ show: false }),
-			$channelsTable = $('#channelsTable').bootstrapTable({}, "changeLocale", "en_US"),
-			$sharesTable = $('#sharesTable').bootstrapTable({}, "changeLocale", "en_US");
+<script>		
+	var $service,
+		$addchannel = $('#addchannel').modal({ show: false }),
+		$channeloptions = $('#channeloptions').modal({ show: false }),
+		$serviceoptions = $('#serviceoptions').modal({ show: false }),
+		$channelsTable = $('#channelsTable').bootstrapTable({}, "changeLocale", "en_US"),
+		$sharesTable = $('#sharesTable').bootstrapTable({}, "changeLocale", "en_US");
 
-		$('.addchannel').click(function () {
-			$addchannel.find('.modal-title').text("Add Channel to Integration");
-			$addchannel.modal('show');
-		});
+	$(function () {
+		updateService();
+	});
 
-		$(function () {
-			updateService();
-		});
-		function ChannelsActionsFormatter(value, row) {
-			return [
-				'<a class="editChannel" href="javascript:" title="Edit Channel"><i class="glyphicon glyphicon-pencil"><\/i><\/a> &nbsp;&nbsp;&nbsp; <a class="removeChannel" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
-			].join('');
+	$('.addchannel').click(function () {
+		$addchannel.find('.modal-title').text("Add Channel to Integration");
+		$addchannel.modal('show');
+	});
+
+	function ChannelsActionsFormatter(value, row) {
+		return [
+			'<a class="editChannel" href="javascript:" title="Edit Channel"><i class="glyphicon glyphicon-pencil"><\/i><\/a> &nbsp;&nbsp;&nbsp; <a class="removeChannel" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
+		].join('');
+	}
+
+	function ShareActionsFormatter(value, row) {
+		if (value == 1) {
+			value = "&#10003;";
+		} else {
+			value = "&#10008";
 		}
+		return '<a class="toggleignore" style="text-decoration: none;" href="javascript:void(0)" title="Toggle Ignore">' + value + '<\/a>';
+	}
 
-		function ShareActionsFormatter(value, row) {
-			console.log(value);
-			if (value == 1) {
-				value = "&#10003;";
-			} else {
-				value = "&#10008";
-			}
-			return '<a class="toggleignore" style="text-decoration: none;" href="javascript:void(0)" title="Toggle Ignore">' + value + '<\/a>';
-		}
+	function yamlFormatter(value, row) {
+		return '<pre>' + jsyaml.safeDump(value) + '</pre>';
+	}
 
-		function yamlFormatter(value, row) {
-			return '<pre>' + jsyaml.safeDump(value) + '</pre>';
-		}
-
-		// update and delete events
-		window.actionEvents = {
-			'click .removeChannel': function (e, value, row) {
-				if (confirm('Are you sure you want to delete this channel?')) {
-					console.log(row);
-					$.ajax({
-						url: "/U/botServiceChannels?botServiceID=" + row.botServiceID + "&channelID=" + row.channelID,
-						type: 'delete',
-						success: function () {
-							showAlert('Delete channel successful!', 'success');
-							updateService();
-						},
-						error: function () {
-							showAlert('Delete channel error!', 'danger');
-						}
-					})
-				}
-			},
-			'click .editChannel': function (e, value, row) {
-				$channeloptions.find('.modal-title').text("Edit Channel: " + row.channelName);
-				$channeloptions.find('#channelID').text(row.channelID);
-				$('#channelOpts')[0].reset();
-				$('#services')[0].reset();
-				if (row.services) {
-					$.each(row.services.split(","), function (i, val) {
-						$('#services').find("input[name=" + val + "]").prop('checked', true);
-					});
-				}
-				if ($("input[name=kill]").prop('checked')) {
-					$('#killmailOpts').collapse('show');
-				} else {
-					$('#killmailOpts').collapse('hide');
-				}
-				$.each(row.options, function (category, data) {
-					$.each(data, function (field, val) {
-						$('#channelOpts').find("input[name=" + category + "\\[" + field + "\\]]").prop('checked', true);
-					});
-				});
-				$channeloptions.modal('show');
-			},
-			'click .toggleignore': function (e, value, row) {
-				console.log(row);
+	// update and delete events
+	window.actionEvents = {
+		'click .removeChannel': function (e, value, row) {
+			if (confirm('Are you sure you want to delete this channel?')) {
 				$.ajax({
-					url: "/U/botShareToggleIgnore?tokenCharacterID=" + row.tokenCharacterID + "&botServiceID="+ row.botServiceID,
-					type: 'post',
+					url: "/U/botServiceChannels?botServiceID=" + row.botServiceID + "&channelID=" + row.channelID,
+					type: 'delete',
 					success: function () {
+						showAlert('Delete channel successful!', 'success');
 						updateService();
-						showAlert('Ignore state changed for ' + row.tokenCharacterName +'!', 'success');
 					},
 					error: function () {
-						showAlert('Error changing authentication state!', 'danger');
+						showAlert('Delete channel error!', 'danger');
 					}
 				})
 			}
-		};
-		$addchannel.find('#submitchannel').click(function () {
-			$.ajax({
-				type: "POST",
-				url: "/U/botServiceChannels",
-				data: {
-					channelID: $('#channels').children(":selected").attr("id"),
-					botServiceID: getUrlVars()["botServiceID"],
-				}
-			})
-				.done(function () {
-					updateService();
-					$addchannel.modal('hide');
-				})
-				.fail(function (error) {
-					$addchannel.modal('hide');
-					showAlert('Add Discord Failed: ' + error.responseText, 'danger');
+		},
+		'click .editChannel': function (e, value, row) {
+			$channeloptions.find('.modal-title').text("Edit Channel: " + row.channelName);
+			$channeloptions.find('#channelID').text(row.channelID);
+			$('#channelOpts')[0].reset();
+			$channeloptions.find('#services')[0].reset();
+			if (row.services) {
+				$.each(row.services.split(","), function (i, val) {
+					$channeloptions.find('#services').find("input[name=" + val + "]").prop('checked', true);
 				});
-		});
-
-		$channeloptions.find('#channeloptions').click(function () {
-			$.ajax({
-				type: "PUT",
-				url: "/U/botServiceChannelOptions",
-				data: {
-					channelID: $('#channelID').text(),
-					botServiceID: getUrlVars()["botServiceID"],
-					options: JSON.stringify($('#channelOpts').serializeObject()),
-					services: JSON.stringify($('#services').serializeObject())
-				}
-			})
-				.done(function () {
-					updateService();
-					$channeloptions.modal('hide');
-				})
-				.fail(function (error) {
-					$channeloptions.modal('hide');
-					showAlert('Add Discord Failed: ' + error.responseText, 'danger');
+			}
+			if ($("input[name=kill]").prop('checked')) {
+				$('#killmailOpts').collapse('show');
+			} else {
+				$('#killmailOpts').collapse('hide');
+			}
+			$.each(row.options, function (category, data) {
+				$.each(data, function (field, val) {
+					$channeloptions.find('#channelOpts').find("input[name=" + category + "\\[" + field + "\\]]").prop('checked', true);
 				});
-		});
-
-		function updateService() {
-			$.ajax({
-				url: '/U/botDetails?botServiceID=' + getUrlVars()["botServiceID"],
-				dataType: 'JSON',
-				success: updateServiceData,
-				error: function (err) {
-					alert("Could not find information on this service: " + err.responseText)
-				}
 			});
-		}
-
-		function updateServiceData(d) {
-			$("#serviceName").html(d.name);
-			$("#integrationType").html(d.type).css('textTransform', 'capitalize');
-			if (d.Channels) {
-				$channelsTable.bootstrapTable('load', d.Channels);
-			} else {
-				$channelsTable.bootstrapTable('removeAll');
-			}
-			if (d.Shares) {
-				$sharesTable.bootstrapTable('load', d.Shares);
-			} else {
-				$sharesTable.bootstrapTable('removeAll');
-			}
-
+			$channeloptions.modal('show');
+		},
+		'click .toggleignore': function (e, value, row) {
 			$.ajax({
-				url: '/U/botServiceChannels?botServiceID=' + getUrlVars()["botServiceID"],
-				dataType: 'JSON',
-				success: function (data) {
-					$.each(data, function (key, val) {
-						var found = false;
-						$.each(d.Channels, function (key, channel) {
-							if (channel.channelID == val.channelID) {
-								found = true;
-							}
-						})
-						if (!found) {
-							$('#channels').append('<option id=' + val.channelID + '>' + val.channelName + '</option>');
-						}
-					})
+				url: "/U/botShareToggleIgnore?tokenCharacterID=" + row.tokenCharacterID + "&botServiceID=" + row.botServiceID,
+				type: 'post',
+				success: function () {
+					updateService();
+					showAlert('Ignore state changed for ' + row.tokenCharacterName + '!', 'success');
 				},
 				error: function () {
-					alert("Error receiving channels.")
+					showAlert('Error changing authentication state!', 'danger');
 				}
-			});
-
+			})
 		}
-	</script> {{end}}
+	};
+
+	$("#editService").click(function () {
+		$serviceoptions.find('.modal-title').text("Edit Service: " + $service.name);
+		$serviceoptions.find('#botServiceID').text($service.botServiceID);
+		$('#serviceOpts')[0].reset();
+		$serviceoptions.find('#services')[0].reset();
+		if ($service.services) {
+			$.each($service.services.split(","), function (i, val) {
+				$serviceoptions.find('#services').find("input[name=" + val + "]").prop('checked', true);
+			});
+		}
+		if ($("input[name=auth]").prop('checked')) {
+			$('#authOpts').collapse('show');
+		} else {
+			$('#authOpts').collapse('hide');
+		}
+		$.each($service.options, function (category, data) {
+			$.each(data, function (field, val) {
+				$('#serviceOpts').find("select[name=" + category + "\\[" + field + "\\]]").val(val);
+			});
+		});
+		$serviceoptions.modal('show');
+	});
+
+
+
+	$addchannel.find('#submitchannel').click(function () {
+		$.ajax({
+			type: "POST",
+			url: "/U/botServiceChannels",
+			data: {
+				channelID: $('#channels').children(":selected").attr("id"),
+				botServiceID: getUrlVars()["botServiceID"],
+			}
+		})
+			.done(function () {
+				updateService();
+				$addchannel.modal('hide');
+			})
+			.fail(function (error) {
+				$addchannel.modal('hide');
+				showAlert('Add Discord Failed: ' + error.responseText, 'danger');
+			});
+	});
+
+	$channeloptions.find('#channeloptions').click(function () {
+		$.ajax({
+			type: "PUT",
+			url: "/U/botServiceChannelOptions",
+			data: {
+				channelID: $('#channelID').text(),
+				botServiceID: getUrlVars()["botServiceID"],
+				options: JSON.stringify($('#channelOpts').serializeObject()),
+				services: JSON.stringify($('#services').serializeObject())
+			}
+		})
+			.done(function () {
+				updateService();
+				$channeloptions.modal('hide');
+			})
+			.fail(function (error) {
+				$channeloptions.modal('hide');
+				showAlert('Add Discord Failed: ' + error.responseText, 'danger');
+			});
+	});
+
+	$serviceoptions.find('#serviceoptions').click(function () {
+		$o = $channeloptions.find('#serviceoptions');
+		$.ajax({
+			type: "PUT",
+			url: "/U/botDetails",
+			data: {
+				botServiceID: getUrlVars()["botServiceID"],
+				options: JSON.stringify($serviceoptions.find('#serviceOpts').serializeObject()),
+				services: JSON.stringify($serviceoptions.find('#services').serializeObject())
+			}
+		})
+			.done(function () {
+				updateService();
+				$serviceoptions.modal('hide');
+			})
+			.fail(function (error) {
+				$serviceoptions.modal('hide');
+				showAlert('Add Discord Failed: ' + error.responseText, 'danger');
+			});
+	});
+
+	function updateService() {
+		$.ajax({
+			url: '/U/botDetails?botServiceID=' + getUrlVars()["botServiceID"],
+			dataType: 'JSON',
+			success: updateServiceData,
+			error: function (err) {
+				alert("Could not find information on this service: " + err.responseText)
+			}
+		});
+	}
+
+	function updateServiceData(d) {
+		$service = d;
+		$("#serviceName").html(d.name);
+		$("#integrationServiceServices").html(d.services);
+		$("#integrationType").html(d.type).css('textTransform', 'capitalize');
+		$("#intergrationServiceOptions").html(jsyaml.safeDump(d.options));
+		if (d.Channels) {
+			$channelsTable.bootstrapTable('load', d.Channels);
+		} else {
+			$channelsTable.bootstrapTable('removeAll');
+		}
+		if (d.Shares) {
+			$sharesTable.bootstrapTable('load', d.Shares);
+		} else {
+			$sharesTable.bootstrapTable('removeAll');
+		}
+
+		$.ajax({
+			url: '/U/botServiceChannels?botServiceID=' + getUrlVars()["botServiceID"],
+			dataType: 'JSON',
+			success: function (data) {
+				$('#channels').html('');
+				$.each(data, function (key, val) {
+					var found = false;
+					$.each(d.Channels, function (key, channel) {
+						if (channel.channelID == val.channelID) {
+							found = true;
+						}
+					})
+					if (!found) {
+						$('#channels').append('<option id=' + val.channelID + '>' + val.channelName + '</option>');
+					}
+				})
+			},
+			error: function () {
+				alert("Error receiving channels.")
+			}
+		});
+
+		$.ajax({
+			url: '/U/botServiceRoles?botServiceID=' + getUrlVars()["botServiceID"],
+			dataType: 'JSON',
+			success: function (data) {
+				$('.roles').html('');
+				$('.roles').append('<option value=""></option>');
+				$.each(data, function (key, val) {
+					$('.roles').append('<option value=' + val.roleID + '>' + val.roleName + '</option>');
+				})
+			},
+			error: function () {
+				alert("Error receiving roles.")
+			}
+		});
+
+	}
+</script> {{end}}

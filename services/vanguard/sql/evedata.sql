@@ -71,7 +71,7 @@ CREATE TABLE `botServices` (
   `address` varchar(255) COLLATE utf8_bin NOT NULL,
   `authentication` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
   `type` enum('discord','ts3','slack') COLLATE utf8_bin NOT NULL,
-  `services` set('auth','auth5','auth10') COLLATE utf8_bin NOT NULL DEFAULT '',
+  `services` set('auth') COLLATE utf8_bin NOT NULL DEFAULT '',
   `options` text COLLATE utf8_bin NOT NULL,
   `characterID` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`botServiceID`),

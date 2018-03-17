@@ -68,7 +68,6 @@ type BotServiceDetails struct {
 
 // [BENCHMARK] 0.000 sec / 0.000 sec
 func GetBotServiceDetails(characterID, serverID int32) (BotServiceDetails, error) {
-
 	// let this perform our authorization checks
 	service := BotServiceDetails{}
 	row, err := database.Queryx(`
@@ -183,8 +182,17 @@ func DeleteService(characterID, botServiceID int32) error {
 
 func UpdateChannel(botServiceID int32, channelID, options, services string) error {
 	if _, err := database.Exec(`
-		UPDATE evedata.botChannels SET options = ?, services = ? WHERE botServiceID = ? AND channelID = ?`,
+		UPDATE evedata.botChannels SET options = ?, services = ? WHERE botServiceID = ? AND channelID = ? LIMIT 1`,
 		options, services, botServiceID, channelID); err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateService(botServiceID int32, options, services string) error {
+	if _, err := database.Exec(`
+		UPDATE evedata.botServices SET options = ?, services = ? WHERE botServiceID = ? LIMIT 1`,
+		options, services, botServiceID); err != nil {
 		return err
 	}
 	return nil
