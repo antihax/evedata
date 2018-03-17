@@ -16,6 +16,16 @@ import (
 	"github.com/antihax/evedata/internal/botservice/tsservice"
 )
 
+type ServiceOptions struct {
+	Auth struct {
+		Members       string `json:"members,omitempty"`
+		PlusFive      bool   `json:"plusFive,omitempty"`
+		PlusTen       bool   `json:"plusTen,omitempty"`
+		Militia       bool   `json:"militia,omitempty"`
+		AlliedMilitia bool   `json:"alliedMilita,omitempty"`
+	} `json:"auth,omitempty"`
+}
+
 type ChannelOptions struct {
 	Killmail struct {
 		IgnoreHighSec   bool `json:"ignoreHighsec,omitempty"`
@@ -63,6 +73,7 @@ type Service struct {
 	Type           string                `db:"type" json:"type,omitempty"`
 	Services       string                `db:"services" json:"services,omitempty"`
 	OptionsJSON    string                `db:"options" json:"-,omitempty"`
+	Options        ServiceOptions        `db:"-" json:"options,omitempty"`
 }
 
 type Channel struct {
@@ -117,6 +128,9 @@ func (s *Conservator) loadServices() error {
 		default:
 			return errors.New("unknown service type")
 		}
+
+		// Explode our options into the struct
+		json.Unmarshal([]byte(service.OptionsJSON), &service.Options)
 
 		// Store the server with the service information and put into our map
 		service.Server = n
