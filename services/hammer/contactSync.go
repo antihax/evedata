@@ -175,14 +175,16 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 			pending = append(pending, con)
 		}
 
-		// Erase contacts which have no wars.
-		if len(erase) > 0 {
-			for start := 0; start < len(erase); start = start + 20 {
-				end := min(start+20, len(erase))
-				if _, err := s.esi.ESI.ContactsApi.DeleteCharactersCharacterIdContacts(auth, token.cid, erase[start:end], nil); err != nil {
-					s.tokenStore.CheckSSOError(characterID, token.cid, err)
-					log.Println(err)
-					return
+		for i := 0; i < 2; i++ {
+			// Erase contacts which have no wars.
+			if len(erase) > 0 {
+				for start := 0; start < len(erase); start = start + 20 {
+					end := min(start+20, len(erase))
+					if _, err := s.esi.ESI.ContactsApi.DeleteCharactersCharacterIdContacts(auth, token.cid, erase[start:end], nil); err != nil {
+						s.tokenStore.CheckSSOError(characterID, token.cid, err)
+						log.Println(err)
+						s.deleteContactsCREST(auth, token.cid, erase[start:end])
+					}
 				}
 			}
 		}
@@ -194,7 +196,6 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 				if _, _, err := s.esi.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), active[start:end], -10, nil); err != nil {
 					s.tokenStore.CheckSSOError(characterID, token.cid, err)
 					log.Println(err, active[start:end])
-					return
 				}
 			}
 		}
@@ -206,7 +207,6 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 				if _, _, err := s.esi.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), pending[start:end], -5, nil); err != nil {
 					s.tokenStore.CheckSSOError(characterID, token.cid, err)
 					log.Println(err)
-					return
 				}
 			}
 		}
@@ -218,7 +218,6 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 				if _, err := s.esi.ESI.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), activeMove[start:end], -10, nil); err != nil {
 					s.tokenStore.CheckSSOError(characterID, token.cid, err)
 					log.Println(err)
-					return
 				}
 			}
 		}
@@ -230,7 +229,6 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 				if _, err := s.esi.ESI.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), pendingMove[start:end], -5, nil); err != nil {
 					s.tokenStore.CheckSSOError(characterID, token.cid, err)
 					log.Println(err)
-					return
 				}
 			}
 		}
