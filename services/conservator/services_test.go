@@ -25,7 +25,7 @@ func TestMain(m *testing.M) {
 		`INSERT INTO evedata.botServices
 			(botServiceID, entityID, address, authentication, type, services, options) 
 			VALUES
-			(1, 234, "127.0.0.1:10011", "serveradmin:nothinguseful", "ts3", "auth,auth5,auth10", ""),
+			(1, 234, "127.0.0.1:10011", "serveradmin:nothinguseful", "ts3", "auth", ""),
 			(2, 567, "127.0.0.2:10011", "serveradmin:nothinguseful", "ts3", "", "")
 			ON DUPLICATE KEY UPDATE botServiceID=botServiceID`,
 		`INSERT INTO evedata.botChannels
