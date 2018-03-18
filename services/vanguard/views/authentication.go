@@ -1,6 +1,7 @@
 package views
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -231,7 +232,14 @@ func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = models.AddCRESTToken(char.CharacterID, v.CharacterID, v.CharacterName, tok, v.Scopes)
+	charDetails, _, err := c.ESI.ESI.CharacterApi.GetCharactersCharacterId(context.Background(), v.CharacterID, nil)
+	if !ok {
+		httpErr(w, errors.New("cannot find character in store"))
+		return
+	}
+
+	err = models.AddCRESTToken(char.CharacterID, v.CharacterID, v.CharacterName, tok, v.Scopes, v.CharacterOwnerHash,
+		charDetails.CorporationId, charDetails.AllianceId, charDetails.FactionId)
 	if err != nil {
 		httpErr(w, err)
 		return

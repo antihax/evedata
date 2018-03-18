@@ -135,19 +135,24 @@ func GetCRESTTokens(characterID int32) ([]CRESTToken, error) {
 
 // AddCRESTToken adds an SSO token to the database or updates it if one exists.
 // resetting status and if errors were mailed to the user.
-func AddCRESTToken(characterID int32, tokenCharacterID int32, characterName string, tok *oauth2.Token, scopes string) error {
+func AddCRESTToken(characterID int32, tokenCharacterID int32, characterName string, tok *oauth2.Token, scopes, ownerHash string, corporationID, allianceID, factionID int32) error {
 	if _, err := database.Exec(`
-		INSERT INTO evedata.crestTokens	(characterID, tokenCharacterID, accessToken, refreshToken, expiry, tokenType, characterName, scopes, lastStatus)
-			VALUES		(?,?,?,?,?,?,?,?,"Unused")
+		INSERT INTO evedata.crestTokens	(characterID, tokenCharacterID, accessToken, refreshToken, expiry, 
+				tokenType, characterName, scopes, lastStatus, characterOwnerHash, corporationID, allianceID, factionID)
+			VALUES		(?,?,?,?,?,?,?,?,"Unused",?,?,?,?)
 			ON DUPLICATE KEY UPDATE 
-				accessToken 	= VALUES(accessToken),
-				refreshToken 	= VALUES(refreshToken),
-				expiry 			= VALUES(expiry),
-				tokenType 		= VALUES(tokenType),
-				scopes 			= VALUES(scopes),
-				lastStatus		= "Unused",
-				mailedError 	= 0`,
-		characterID, tokenCharacterID, tok.AccessToken, tok.RefreshToken, tok.Expiry, tok.TokenType, characterName, scopes); err != nil {
+				accessToken 		= VALUES(accessToken),
+				refreshToken 		= VALUES(refreshToken),
+				expiry 				= VALUES(expiry),
+				tokenType 			= VALUES(tokenType),
+				characterOwnerHash	= VALUES(characterOwnerHash),
+				scopes 				= VALUES(scopes),
+				corporationID 		= VALUES(corporationID),
+				allianceID	 		= VALUES(allianceID),
+				factionID	 		= VALUES(factionID),
+				lastStatus			= "Unused",
+				mailedError 		= 0`,
+		characterID, tokenCharacterID, tok.AccessToken, tok.RefreshToken, tok.Expiry, tok.TokenType, characterName, scopes, ownerHash, corporationID, allianceID, factionID); err != nil {
 		return err
 	}
 	return nil

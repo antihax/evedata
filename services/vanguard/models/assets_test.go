@@ -30,7 +30,7 @@ func TestAssetSetup(t *testing.T) {
 		Expiry:       time.Now().UTC().Add(time.Hour * 100000),
 		TokenType:    "Bearer"}
 
-	err = AddCRESTToken(1001, 1001, "Dude", &tok, "")
+	err = AddCRESTToken(1001, 1001, "Dude", &tok, "", "ownerhash", 0, 0, 0)
 	if err != nil {
 		t.Error(err)
 		return

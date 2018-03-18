@@ -70,7 +70,7 @@ func TestAddCRESTToken(t *testing.T) {
 		Expiry:       time.Now().UTC().Add(time.Hour * 100000),
 		TokenType:    "Bearer"}
 
-	err := AddCRESTToken(1, 1, "Dude", &tok, "")
+	err := AddCRESTToken(1, 1, "Dude", &tok, "", "ownerhash", 0, 0, 0)
 	if err != nil {
 		t.Error(err)
 		return

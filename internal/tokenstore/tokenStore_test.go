@@ -20,7 +20,7 @@ func TestTokenStore(t *testing.T) {
 		RefreshToken: "So Fake",
 		Expiry:       time.Now().Add(time.Hour * 100000),
 		TokenType:    "Bearer"},
-		"")
+		"", "ownerhash", 0, 0, 0)
 	if err != nil {
 		t.Fatal(err)
 		return
