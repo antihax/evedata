@@ -63,6 +63,16 @@ spec:
             secretKeyRef:
               name: esi-secret
               key: clientID-sso
+        - name: DISCORD_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: secret-discord
+        - name: DISCORD_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: clientID-discord              
         - name: COOKIE_SECRET
           valueFrom:
             secretKeyRef:

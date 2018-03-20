@@ -5,10 +5,12 @@ import (
 	"log"
 	"net/http"
 	"net/rpc"
+	"os"
 	"sync"
 	"time"
 
 	"github.com/antihax/evedata/internal/apicache"
+	"github.com/antihax/evedata/internal/discordauth"
 	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/evedata/internal/tokenstore"
 	"github.com/antihax/evedata/services/vanguard/models"
@@ -32,14 +34,15 @@ type Vanguard struct {
 	Conservator *rpc.Client
 
 	// authentication
-	token              *oauth2.TokenSource
-	TokenAuthenticator *goesi.SSOAuthenticator
-	SSOAuthenticator   *goesi.SSOAuthenticator
+	token                *oauth2.TokenSource
+	TokenAuthenticator   *goesi.SSOAuthenticator
+	SSOAuthenticator     *goesi.SSOAuthenticator
+	DiscordAuthenticator *discordauth.Authenticator
 }
 
 var globalVanguard *Vanguard
 
-func NewVanguard(redis *redis.Pool, db *sqlx.DB, refresh, tokenClientID, tokenSecret, ssoClientID, ssoSecret, storeKey, domain string) *Vanguard {
+func NewVanguard(redis *redis.Pool, db *sqlx.DB) *Vanguard {
 	// Don't allow more than one to be created
 	if globalVanguard != nil {
 		return globalVanguard
@@ -56,19 +59,21 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, refresh, tokenClientID, tokenSe
 	esi := goesi.NewAPIClient(cache, "EVEData-API-Vanguard")
 
 	// Setup an authenticator for our user tokens
-	tauth := goesi.NewSSOAuthenticator(cache, tokenClientID, tokenSecret, "https://"+domain+"/X/eveTokenAnswer", []string{})
+	tauth := goesi.NewSSOAuthenticator(cache, os.Getenv("ESI_CLIENTID_TOKENSTORE"), os.Getenv("ESI_SECRET_TOKENSTORE"), "https://"+os.Getenv("DOMAIN")+"/X/eveTokenAnswer", []string{})
 
 	// Setup an authenticator for our SSO token
-	ssoauth := goesi.NewSSOAuthenticator(cache, ssoClientID, ssoSecret, "https://"+domain+"/X/eveSSOAnswer", []string{})
+	ssoauth := goesi.NewSSOAuthenticator(cache, os.Getenv("ESI_CLIENTID_SSO"), os.Getenv("ESI_SECRET_SSO"), "https://"+os.Getenv("DOMAIN")+"/X/eveSSOAnswer", []string{})
 
+	// Setup an authenticator for Discord
+	dauth := discordauth.NewAuthenticator(cache, os.Getenv("DISCORD_CLIENTID"), os.Getenv("DISCORD_SECRET"), "https://"+os.Getenv("DOMAIN")+"/X/discordAnswer", []string{"identity"})
+
+	// Build our private token
 	tok := &oauth2.Token{
 		Expiry:       time.Now(),
 		AccessToken:  "",
-		RefreshToken: refresh,
+		RefreshToken: os.Getenv("ESI_REFRESHKEY"),
 		TokenType:    "Bearer",
 	}
-
-	// Build our private token
 	token, err := tauth.TokenSource(tok)
 	if err != nil {
 		log.Fatalln(err)
@@ -78,7 +83,7 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, refresh, tokenClientID, tokenSe
 	tokenStore := tokenstore.NewTokenStore(redis, db, tauth)
 
 	// Create a redis session store.
-	store, err := gsr.NewRediStoreWithPool(redis, []byte(storeKey))
+	store, err := gsr.NewRediStoreWithPool(redis, []byte(os.Getenv("COOKIE_SECRET")))
 	if err != nil {
 		log.Fatalf("Cannot build redis store: %v", err)
 	}
@@ -95,13 +100,14 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB, refresh, tokenClientID, tokenSe
 			"evedata-hammer",
 		),
 
-		HTTPClient:         cache,
-		SSOAuthenticator:   ssoauth,
-		TokenAuthenticator: tauth,
-		ESI:                esi,
-		Store:              store,
-		Db:                 db,
-		Cache:              redis,
+		HTTPClient:           cache,
+		SSOAuthenticator:     ssoauth,
+		TokenAuthenticator:   tauth,
+		DiscordAuthenticator: dauth,
+		ESI:                  esi,
+		Store:                store,
+		Db:                   db,
+		Cache:                redis,
 
 		token:      &token,
 		TokenStore: tokenStore,

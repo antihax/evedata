@@ -25,15 +25,7 @@ func main() {
 	db := sqlhelper.NewDatabase()
 
 	// Make a new service and send it into the background.
-	vanguard := vanguard.NewVanguard(r, db,
-		os.Getenv("ESI_REFRESHKEY"),
-		os.Getenv("ESI_CLIENTID_TOKENSTORE"),
-		os.Getenv("ESI_SECRET_TOKENSTORE"),
-		os.Getenv("ESI_CLIENTID_SSO"),
-		os.Getenv("ESI_SECRET_SSO"),
-		os.Getenv("COOKIE_SECRET"),
-		os.Getenv("DOMAIN"),
-	)
+	vanguard := vanguard.NewVanguard(r, db)
 	log.Printf("Setup Router\n")
 	rtr := vanguard.NewRouter()
 	defer vanguard.Close()

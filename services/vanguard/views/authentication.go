@@ -18,6 +18,8 @@ import (
 	"github.com/gorilla/sessions"
 )
 
+//https://discordapp.com/api/oauth2/authorize?response_type=token&client_id=229339294144135169&state=15773059ghq9183habn&scope=identify
+
 func init() {
 	vanguard.AddAuthRoute("logout", "GET", "/X/logout", logout)
 
@@ -26,6 +28,9 @@ func init() {
 
 	vanguard.AddAuthRoute("eveTokenAuth", "GET", "/X/eveTokenAuth", eveCRESTToken)
 	vanguard.AddAuthRoute("eveTokenAnswer", "GET", "/X/eveTokenAnswer", eveTokenAnswer)
+
+	//	vanguard.AddAuthRoute("discordAuth", "GET", "/X/discordAuth", discordAuth)
+	//	vanguard.AddAuthRoute("discordAnswer", "GET", "/X/discordAnswer", discordAnswer)
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {

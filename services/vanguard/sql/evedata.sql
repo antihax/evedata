@@ -45,9 +45,9 @@ CREATE TABLE `botChannels` (
 
 CREATE TABLE `botCharacters` (
   `botServiceID` int(11) NOT NULL,
-  `tokenCharacterID` int(11) NOT NULL,
+  `characterID` int(11) NOT NULL,
   `botUserID` varchar(255) COLLATE utf8_bin DEFAULT '',
-  PRIMARY KEY (`botServiceID`,`tokenCharacterID`)
+  PRIMARY KEY (`botServiceID`,`characterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `botDelegate` (
@@ -74,6 +74,7 @@ CREATE TABLE `botServices` (
   `services` set('auth') COLLATE utf8_bin NOT NULL DEFAULT '',
   `options` text COLLATE utf8_bin NOT NULL,
   `characterID` int(11) NOT NULL DEFAULT '0',
+  `factionID` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`botServiceID`),
   UNIQUE KEY `UNIQUE` (`address`,`authentication`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -186,6 +187,19 @@ CREATE TABLE `cursorCharacter` (
   PRIMARY KEY (`characterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `discordTokens` (
+  `characterID` int(11) NOT NULL,
+  `accessToken` text CHARACTER SET latin1 NOT NULL,
+  `refreshToken` text CHARACTER SET latin1 NOT NULL,
+  `expiry` datetime NOT NULL,
+  `tokenType` varchar(100) CHARACTER SET latin1 NOT NULL,
+  `lastCode` int(11) NOT NULL DEFAULT '0',
+  `lastStatus` text CHARACTER SET latin1 NOT NULL,
+  `scopes` text NOT NULL,
+  `mailedError` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`characterID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `discoveredAssets` (
   `corporationID` int(10) unsigned NOT NULL,
   `allianceID` int(11) unsigned NOT NULL,
@@ -206,6 +220,13 @@ CREATE TABLE `entities` (
   `id` int(10) unsigned NOT NULL,
   `type` varchar(60) COLLATE utf8_bin NOT NULL DEFAULT 'unknown',
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `entityContacts` (
+  `entityID` int(11) NOT NULL,
+  `contactID` int(11) NOT NULL,
+  `standing` decimal(4,2) DEFAULT NULL,
+  PRIMARY KEY (`entityID`,`contactID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `entityKillStats` (
