@@ -64,12 +64,10 @@ func (s *Conservator) reportKillmail(mail *esi.GetKillmailsKillmailIdKillmailHas
 		}
 
 		// Get the service
-		si, ok := s.services.Load(channel.BotServiceID)
-		if !ok {
-			log.Printf("Missing Bot ID %d\n", channel.BotServiceID)
+		service, err := s.getService(channel.BotServiceID)
+		if err != nil {
 			return true
 		}
-		service := si.(Service)
 
 		// filters
 		if channel.Options.Killmail.IgnoreWorthless && isWorthlessTypeID(mail.Victim.ShipTypeId) {

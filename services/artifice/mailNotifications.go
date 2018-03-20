@@ -43,7 +43,7 @@ func mailNotifications(s *Artifice) error {
 
 	mail := esi.PostCharactersCharacterIdMailMail{
 		Recipients: []esi.PostCharactersCharacterIdMailRecipient{
-			esi.PostCharactersCharacterIdMailRecipient{
+			{
 				RecipientId:   recipient.CharacterID,
 				RecipientType: "character",
 			},
@@ -74,7 +74,7 @@ EveDataRules`,
 func (s *Artifice) mailCorporationChangeWithShares(characterID int32) {
 	mail := esi.PostCharactersCharacterIdMailMail{
 		Recipients: []esi.PostCharactersCharacterIdMailRecipient{
-			esi.PostCharactersCharacterIdMailRecipient{
+			{
 				RecipientId:   characterID,
 				RecipientType: "character",
 			},

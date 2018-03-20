@@ -1,7 +1,6 @@
 package conservator
 
 import (
-	"errors"
 	"log"
 	"net"
 	"net/http"
@@ -54,11 +53,10 @@ func (s *Conservator) VerifyDiscordChannel(args []string, reply *bool) error {
 
 func (s *Conservator) GetChannels(botServiceID *int32, reply *[][]string) error {
 	// Get the service
-	si, ok := s.services.Load(*botServiceID)
-	if !ok {
-		return errors.New("missing botServiceID")
+	service, err := s.getService(*botServiceID)
+	if err != nil {
+		return err
 	}
-	service := si.(Service)
 
 	channels, err := service.Server.GetChannels()
 	if err != nil {
@@ -74,11 +72,10 @@ func (s *Conservator) GetChannels(botServiceID *int32, reply *[][]string) error 
 
 func (s *Conservator) GetRoles(botServiceID *int32, reply *[][]string) error {
 	// Get the service
-	si, ok := s.services.Load(*botServiceID)
-	if !ok {
-		return errors.New("missing botServiceID")
+	service, err := s.getService(*botServiceID)
+	if err != nil {
+		return err
 	}
-	service := si.(Service)
 
 	roles, err := service.Server.GetRoles()
 	if err != nil {

@@ -121,3 +121,21 @@ func (c *TSService) GetRoles() ([]botservice.Name, error) {
 
 	return nil, nil
 }
+
+// IMPLIMENT
+func (c *TSService) GetMembers() ([]botservice.Name, error) {
+
+	return nil, nil
+}
+
+// IMPLIMENT
+func (c *TSService) RemoveRole(user, role string) error {
+
+	return nil
+}
+
+// IMPLIMENT
+func (c *TSService) AddRole(user, role string) error {
+
+	return nil
+}

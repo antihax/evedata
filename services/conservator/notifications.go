@@ -274,21 +274,16 @@ func (s *Conservator) sendNotificationMessage(messageType string, characterID in
 					continue
 				}
 
-				// Get the channel
-				ci, ok := s.channels.Load(channel.ChannelID)
-				if !ok {
-					log.Printf("Missing Channel ID %s\n", channel.ChannelID)
+				c, err := s.getChannel(channel.ChannelID)
+				if err != nil {
 					continue
 				}
-				c := ci.(Channel)
 
 				// Get the service
-				si, ok := s.services.Load(c.BotServiceID)
-				if !ok {
-					log.Printf("Missing Bot ID %d\n", c.BotServiceID)
-					continue
+				service, err := s.getService(c.BotServiceID)
+				if err != nil {
+					return err
 				}
-				service := si.(Service)
 
 				if err := service.Server.SendMessageToChannel(channel.ChannelID, message); err != nil {
 					log.Println(err)

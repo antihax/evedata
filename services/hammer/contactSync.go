@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/antihax/goesi/esi"
+
 	"github.com/antihax/goesi"
 	"golang.org/x/oauth2"
 )
@@ -89,12 +91,21 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 	// Loop through all the destinations
 	for _, token := range tokens {
 		// authentication token context for destination char
+		contacts := []esi.GetCharactersCharacterIdContacts200Ok{}
 		auth := context.WithValue(context.Background(), goesi.ContextOAuth2, *token.token)
-		contacts, _, err := s.esi.ESI.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid), nil)
-		if err != nil {
-			s.tokenStore.CheckSSOError(characterID, token.cid, err)
-			log.Println(err)
-			return
+		page := int32(1)
+		for {
+			c, _, err := s.esi.ESI.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid), map[string]interface{}{"page": int32(page)})
+			if err != nil {
+				s.tokenStore.CheckSSOError(characterID, token.cid, err)
+				log.Println(err)
+				return
+			}
+			if len(c) == 0 {
+				break
+			}
+			contacts = append(contacts, c...)
+			page++
 		}
 
 		var erase []int32
@@ -125,8 +136,10 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 
 		// Add faction wars to the active list
 		maxFactionWarLength := min(1023-trim-untouchableContacts, len(factionWars))
-		for _, war := range factionWars[:maxFactionWarLength] {
-			activeCheck[(int32)(war.ID)] = true
+		if maxFactionWarLength > 0 {
+			for _, war := range factionWars[:maxFactionWarLength] {
+				activeCheck[(int32)(war.ID)] = true
+			}
 		}
 
 		// Build a map of pending wars
@@ -180,10 +193,12 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 			if len(erase) > 0 {
 				for start := 0; start < len(erase); start = start + 20 {
 					end := min(start+20, len(erase))
+					if len(erase[start:end]) == 0 {
+						break
+					}
 					if _, err := s.esi.ESI.ContactsApi.DeleteCharactersCharacterIdContacts(auth, token.cid, erase[start:end], nil); err != nil {
 						s.tokenStore.CheckSSOError(characterID, token.cid, err)
 						log.Println(err)
-						s.deleteContactsCREST(auth, token.cid, erase[start:end])
 					}
 				}
 			}
@@ -193,6 +208,9 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 		if len(active) > 0 {
 			for start := 0; start < len(active); start = start + 100 {
 				end := min(start+100, len(active))
+				if len(active[start:end]) == 0 {
+					break
+				}
 				if _, _, err := s.esi.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), active[start:end], -10, nil); err != nil {
 					s.tokenStore.CheckSSOError(characterID, token.cid, err)
 					log.Println(err, active[start:end])
@@ -204,6 +222,9 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 		if len(pending) > 0 {
 			for start := 0; start < len(pending); start = start + 100 {
 				end := min(start+100, len(pending))
+				if len(pending[start:end]) == 0 {
+					break
+				}
 				if _, _, err := s.esi.ESI.ContactsApi.PostCharactersCharacterIdContacts(auth, (int32)(token.cid), pending[start:end], -5, nil); err != nil {
 					s.tokenStore.CheckSSOError(characterID, token.cid, err)
 					log.Println(err)
@@ -215,6 +236,9 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 		if len(activeMove) > 0 {
 			for start := 0; start < len(activeMove); start = start + 100 {
 				end := min(start+100, len(activeMove))
+				if len(activeMove[start:end]) == 0 {
+					break
+				}
 				if _, err := s.esi.ESI.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), activeMove[start:end], -10, nil); err != nil {
 					s.tokenStore.CheckSSOError(characterID, token.cid, err)
 					log.Println(err)
@@ -226,6 +250,9 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 		if len(pendingMove) > 0 {
 			for start := 0; start < len(pendingMove); start = start + 100 {
 				end := min(start+100, len(pendingMove))
+				if len(pendingMove[start:end]) == 0 {
+					break
+				}
 				if _, err := s.esi.ESI.ContactsApi.PutCharactersCharacterIdContacts(auth, (int32)(token.cid), pendingMove[start:end], -5, nil); err != nil {
 					s.tokenStore.CheckSSOError(characterID, token.cid, err)
 					log.Println(err)

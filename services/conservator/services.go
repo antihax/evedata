@@ -83,6 +83,7 @@ func (c *ChannelTypes) GetServices() string {
 type Service struct {
 	Server         botservice.BotService `json:"-,omitempty"`
 	BotServiceID   int32                 `db:"botServiceID" json:"botServiceID,omitempty"`
+	FactionID      int32                 `db:"factionID" json:"factionID,omitempty"`
 	Name           string                `db:"name" json:"name,omitempty"`
 	EntityID       int32                 `db:"entityID" json:"entityID,omitempty"`
 	EntityName     string                `db:"entityName" json:"entityName,omitempty"`
@@ -93,6 +94,20 @@ type Service struct {
 	Services       string                `db:"services" json:"services,omitempty"`
 	OptionsJSON    string                `db:"options" json:"-"`
 	Options        ServiceOptions        `db:"-" json:"options,omitempty"`
+}
+
+func (s *Service) checkRemoveRoles(memberID, roleToRemove string, memberRoles []string) error {
+	if inSlice(roleToRemove, memberRoles) {
+		return s.Server.RemoveRole(memberID, roleToRemove)
+	}
+	return nil
+}
+
+func (s *Service) checkAddRoles(memberID, roleToAdd string, memberRoles []string) error {
+	if inSlice(roleToAdd, memberRoles) {
+		return s.Server.AddRole(memberID, roleToAdd)
+	}
+	return nil
 }
 
 type Channel struct {
@@ -179,15 +194,14 @@ func (s *Conservator) loadServices() error {
 				log.Println(err)
 			} else {
 				for _, ch := range channels {
-
-					// Get the channel
-					ci, ok := s.channels.Load(ch.ID)
-					if ok {
-						c := ci.(Channel)
-						err = s.updateChannelName(v.BotServiceID, c.ChannelID, ch.Name)
-						if err != nil {
-							log.Println(err)
-						}
+					c, err := s.getChannel(ch.ID)
+					if err != nil {
+						continue
+					}
+					err = s.updateChannelName(v.BotServiceID, c.ChannelID, ch.Name)
+					if err != nil {
+						log.Println(err)
+						continue
 					}
 				}
 			}
@@ -324,7 +338,7 @@ func (s *Conservator) loadShares() error {
 
 func (s *Conservator) getServices() ([]Service, error) {
 	services := []Service{}
-	err := s.db.Select(&services, "SELECT botServiceID, name, entityID, address, authentication, type, services FROM evedata.botServices")
+	err := s.db.Select(&services, "SELECT botServiceID, name, entityID, address, authentication, type, services, options, factionID FROM evedata.botServices")
 	if err != nil {
 		return nil, err
 	}
@@ -370,7 +384,7 @@ func (s *Conservator) updateRoles(b int32, roles []botservice.Name) error {
 }
 
 func (s *Conservator) updateData() {
-	throttle := time.Tick(time.Second * 30)
+	throttle := time.Tick(time.Second * 60)
 	for {
 		s.updateWars()
 		if err := s.loadServices(); err != nil {
@@ -382,7 +396,9 @@ func (s *Conservator) updateData() {
 		if err := s.loadShares(); err != nil {
 			log.Println(err)
 		}
+		//s.checkAllUsers()
 		<-throttle
+
 	}
 }
 

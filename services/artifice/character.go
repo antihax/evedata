@@ -15,6 +15,9 @@ func init() {
 	registerTrigger("characterContactSync", characterContactSync, time.NewTicker(time.Second*360))
 	registerTrigger("characterAuthOwners", characterAuthOwners, time.NewTicker(time.Second*3600))
 	registerTrigger("crestCharacters", crestCharacters, time.NewTicker(time.Second*3600))
+
+	registerTrigger("allianceContacts", allianceContacts, time.NewTicker(time.Second*360))
+	registerTrigger("corporationContacts", corporationContacts, time.NewTicker(time.Second*360))
 }
 
 func characterTransactions(s *Artifice) error {
@@ -57,14 +60,40 @@ func characterNotifications(s *Artifice) error {
 	return s.QueueWork(work, redisqueue.Priority_High)
 }
 
+func allianceContacts(s *Artifice) error {
+	work := []redisqueue.Work{}
+	if pairs, err := s.GetAllianceForScope("alliances.read_contacts"); err != nil {
+		return err
+	} else {
+		for _, p := range pairs {
+			work = append(work, redisqueue.Work{Operation: "allianceContacts", Parameter: []int32{p.CharacterID, p.TokenCharacterID, p.AllianceID}})
+		}
+	}
+
+	return s.QueueWork(work, redisqueue.Priority_High)
+}
+
+func corporationContacts(s *Artifice) error {
+	work := []redisqueue.Work{}
+	if pairs, err := s.GetCorporationForScope("corporations.read_contacts"); err != nil {
+		return err
+	} else {
+		for _, p := range pairs {
+			work = append(work, redisqueue.Work{Operation: "corporationContacts", Parameter: []int32{p.CharacterID, p.TokenCharacterID, p.CorporationID}})
+		}
+	}
+
+	return s.QueueWork(work, redisqueue.Priority_High)
+}
+
 func characterContactSync(s *Artifice) error {
 	entities, err := s.db.Query(
 		`SELECT S.characterID, source, group_concat(destination) AS destinations
 		FROM evedata.contactSyncs S
 		INNER JOIN evedata.crestTokens T ON T.tokenCharacterID = destination
-		WHERE lastStatus NOT LIKE "%400 Bad Request%"
+		WHERE lastStatus NOT LIKE "%400 Bad Request%" AND scopes LIKE ?
 		GROUP BY source
-		HAVING max(nextSync) < UTC_TIMESTAMP();`)
+		HAVING max(nextSync) < UTC_TIMESTAMP();`, "%characters.read_contacts%")
 	if err != nil {
 		return err
 	}

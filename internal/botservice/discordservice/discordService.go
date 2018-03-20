@@ -25,8 +25,15 @@ func (c DiscordService) SendMessageToChannel(channel, message string) error {
 
 // SendMessageToUser sends a message to a discord user ID
 func (c DiscordService) SendMessageToUser(user, message string) error {
-	_, err := c.session.ChannelMessageSend(user, message)
-	return err
+	ch, err := c.session.UserChannelCreate(user)
+	if err != nil {
+		return err
+	}
+	err = c.SendMessageToChannel(ch.ID, message)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // KickUser kicks a discord user ID
@@ -76,4 +83,46 @@ func (c DiscordService) GetRoles() ([]botservice.Name, error) {
 	}
 
 	return roles, nil
+}
+
+// GetMembers gets all members on the server
+func (c DiscordService) GetMembers() ([]botservice.Name, error) {
+	members := []botservice.Name{}
+
+	after := ""
+	for {
+		count := 0
+		g, err := c.session.GuildMembers(c.serverID, after, 1000)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, m := range g {
+			count++
+			after = m.User.ID
+			name := m.Nick
+			if name == "" {
+				name = m.User.Username
+			}
+
+			members = append(members, botservice.Name{ID: m.User.ID, Name: name, Roles: m.Roles})
+		}
+
+		// breakout on last call
+		if count < 1000 {
+			break
+		}
+	}
+
+	return members, nil
+}
+
+// RemoveRole
+func (c DiscordService) RemoveRole(user, role string) error {
+	return c.session.GuildMemberRoleRemove(c.serverID, user, role)
+}
+
+// AddRole
+func (c DiscordService) AddRole(user, role string) error {
+	return c.session.GuildMemberRoleAdd(c.serverID, user, role)
 }

@@ -214,6 +214,8 @@ func (s *Artifice) RetryExec(sql string, args ...interface{}) (int64, error) {
 type CharacterPairs struct {
 	CharacterID      int32 `db:"characterID"`
 	TokenCharacterID int32 `db:"tokenCharacterID"`
+	AllianceID       int32 `db:"allianceID"`
+	CorporationID    int32 `db:"corporationID"`
 }
 
 func (s *Artifice) GetCharactersForScope(scope string) ([]CharacterPairs, error) {
@@ -221,5 +223,25 @@ func (s *Artifice) GetCharactersForScope(scope string) ([]CharacterPairs, error)
 	err := s.db.Select(&pairs,
 		`SELECT characterID, tokenCharacterID FROM evedata.crestTokens T
 			WHERE lastStatus NOT LIKE "%400 Bad Request%" AND scopes LIKE ?`, "%"+scope+"%")
+	return pairs, err
+}
+
+func (s *Artifice) GetAllianceForScope(scope string) ([]CharacterPairs, error) {
+	pairs := []CharacterPairs{}
+	err := s.db.Select(&pairs,
+		`SELECT characterID, tokenCharacterID, allianceID, corporationID FROM evedata.crestTokens T
+			WHERE lastStatus NOT LIKE "%400 Bad Request%" AND scopes LIKE ? AND allianceID > 0
+			GROUP BY allianceID
+			`, "%"+scope+"%")
+	return pairs, err
+}
+
+func (s *Artifice) GetCorporationForScope(scope string) ([]CharacterPairs, error) {
+	pairs := []CharacterPairs{}
+	err := s.db.Select(&pairs,
+		`SELECT characterID, tokenCharacterID, allianceID, corporationID FROM evedata.crestTokens T
+			WHERE lastStatus NOT LIKE "%400 Bad Request%" AND scopes LIKE ? 
+			GROUP BY corporationID
+			`, "%"+scope+"%")
 	return pairs, err
 }

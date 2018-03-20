@@ -80,7 +80,10 @@ func (s *Conservator) Close() {
 func (s *Conservator) Run() {
 	var err error
 
-	s.discord, err = discordgo.New("Bot " + s.discordToken)
+	s.discord, err = s.setupDiscord()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Load solarSystems
 	s.solarSystems, err = s.getSolarSystems()

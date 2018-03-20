@@ -5,3 +5,44 @@ import (
 )
 
 var dg *discordgo.Session
+
+func (s *Conservator) setupDiscord() (*discordgo.Session, error) {
+	d, err := discordgo.New("Bot " + s.discordToken)
+	if err != nil {
+		return nil, err
+	}
+	d.AddHandler(s.discordMessageCreate)
+	d.AddHandler(s.discordGuildCreate)
+	return d, nil
+}
+
+func (c *Conservator) discordNewMember(s *discordgo.Session, e *discordgo.GuildMemberAdd) {
+	// Ignore all messages created by the bot itself
+	// This isn't required in this specific example but it's a good practice.
+	if e.Member.User.ID == s.State.User.ID {
+		return
+	}
+	c.handleNewMember(e.Member.User.ID, e.Member.Nick, e.GuildID)
+}
+
+func (c *Conservator) discordMessageCreate(s *discordgo.Session, e *discordgo.MessageCreate) {
+	// Ignore all messages created by the bot itself
+	// This isn't required in this specific example but it's a good practice.
+	if e.Author.ID == s.State.User.ID {
+		return
+	}
+
+}
+
+func (c *Conservator) discordGuildCreate(s *discordgo.Session, e *discordgo.GuildCreate) {
+	if e.Guild.Unavailable {
+		return
+	}
+
+	for _, channel := range e.Guild.Channels {
+		if channel.ID == e.Guild.ID {
+			_, _ = s.ChannelMessageSend(channel.ID, "Discord Integration Complete - https://www.evedata.org")
+			return
+		}
+	}
+}

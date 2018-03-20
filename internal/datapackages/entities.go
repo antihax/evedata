@@ -40,3 +40,15 @@ type Killmail struct {
 	Hash string
 	Kill esi.GetKillmailsKillmailIdKillmailHashOk
 }
+
+// AllianceContacts contains AllianceContacts data
+type AllianceContacts struct {
+	AllianceID int32
+	Contacts   []esi.GetAlliancesAllianceIdContacts200Ok
+}
+
+// CorporationContacts contains CorporationContacts data
+type CorporationContacts struct {
+	CorporationID int32
+	Contacts      []esi.GetCorporationsCorporationIdContacts200Ok
+}
