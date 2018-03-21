@@ -4,11 +4,20 @@ import (
 	"context"
 	"log"
 
+	"github.com/antihax/goesi/esi"
+
 	"github.com/antihax/evedata/internal/datapackages"
+	"github.com/ghodss/yaml"
 )
 
 func init() {
 	registerConsumer("characterNotifications", characterNotificationsConsumer)
+}
+
+func addID(e *[]int32, n int32) {
+	if n > 0 {
+		*e = append(*e, n)
+	}
 }
 
 func characterNotificationsConsumer(s *Hammer, parameter interface{}) {
@@ -32,6 +41,8 @@ func characterNotificationsConsumer(s *Hammer, parameter interface{}) {
 	if len(notifications) == 0 {
 		return
 	}
+	// see what we can learn about these notifications so our alerts do not fail
+	s.learnFromNotifications(notifications)
 
 	// Send out the result
 	err = s.QueueResult(&datapackages.CharacterNotifications{
@@ -42,5 +53,39 @@ func characterNotificationsConsumer(s *Hammer, parameter interface{}) {
 	if err != nil {
 		log.Println(err)
 		return
+	}
+}
+
+func (s *Hammer) learnFromNotifications(notifications []esi.GetCharactersCharacterIdNotifications200Ok) {
+
+	type stripEntities struct {
+		CharacterID         int32 `yaml:"characterID,omitempty"`
+		AggressorCorpID     int32 `yaml:"aggressorCorpID,omitempty"`
+		AggressorAllianceID int32 `yaml:"aggressorAllianceID,omitempty"`
+		DeclaredByID        int32 `yaml:"declaredByID,omitempty"`
+		AgainstID           int32 `yaml:"againstID,omitempty"`
+		CharID              int32 `yaml:"charID,omitempty"`
+		CorpID              int32 `yaml:"corpID,omitempty"`
+	}
+
+	lookup := []int32{}
+	for _, n := range notifications {
+		l := stripEntities{}
+		if err := yaml.Unmarshal([]byte(n.Text), &l); err != nil {
+			log.Println(err)
+		}
+		addID(&lookup, l.AgainstID)
+		addID(&lookup, l.AggressorAllianceID)
+		addID(&lookup, l.AggressorCorpID)
+		addID(&lookup, l.AgainstID)
+		addID(&lookup, l.CharacterID)
+		addID(&lookup, l.DeclaredByID)
+		addID(&lookup, l.CharID)
+		addID(&lookup, l.CorpID)
+	}
+
+	// Lookup every thing we learned
+	if err := s.BulkLookup(lookup); err != nil {
+		log.Println(err)
 	}
 }

@@ -70,6 +70,8 @@ type AllWarDeclaredMsg struct {
 type OrbitalAttacked struct {
 	AggressorAllianceID int64   `yaml:"aggressorAllianceID"`
 	AggressorCorpID     int64   `yaml:"aggressorCorpID"`
+	AllianceID          int64   `yaml:"allianceID"`
+	CorporationID       int64   `yaml:"corporationID"`
 	PlanetID            int64   `yaml:"planetID"`
 	MoonID              int64   `yaml:"moonID"`
 	ShieldLevel         float64 `yaml:"shieldLevel"`
@@ -77,6 +79,19 @@ type OrbitalAttacked struct {
 	HullValue           float64 `yaml:"hullValue"`
 	TypeID              int64   `yaml:"typeID"`
 	SolarSystemID       int64   `yaml:"solarSystemID"`
+}
+
+// StructureUnderAttack message
+type StructureUnderAttack struct {
+	AllianceID      int64   `yaml:"allianceID"`
+	CorporationID   int64   `yaml:"corporationID"`
+	AllianceName    string  `yaml:"allianceName"`
+	CorporationName string  `yaml:"corporationName"`
+	ShieldValue     float64 `yaml:"shieldPercentage"`
+	ArmorValue      float64 `yaml:"armorPercentage"`
+	HullValue       float64 `yaml:"hullPercentage"`
+	StructureID     string  `yaml:"structureID"`
+	SolarSystemID   int64   `yaml:"solarSystemID"`
 }
 
 // OrbitalReinforced message
@@ -174,7 +189,32 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 					character.Name, l.CharacterID, corporation.Name, l.ApplicationText))
 		}
 
-	case "StructureUnderAttack", "OrbitalAttacked", "TowerAlertMsg":
+	case "StructureUnderAttack":
+		l := StructureUnderAttack{}
+		yaml.Unmarshal([]byte(text), &l)
+
+		attacker := int64(0)
+		attackerType := ""
+		attackerName := ""
+		if l.AllianceID > 0 {
+			attacker = l.AllianceID
+			attackerType = "alliance"
+			attackerName = l.AllianceName
+		} else if l.CorporationID > 0 {
+			attacker = l.CorporationID
+			attackerType = "corporation"
+			attackerName = l.CorporationName
+		}
+
+		systemName, err := s.getCelestialName(l.SolarSystemID)
+		if err != nil {
+			return err
+		}
+
+		return s.sendNotificationMessage("structure", characterID, notificationID, fmt.Sprintf("@everyone a structure is under attack in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%  A: %.1f%%  H: %.1f%% \n",
+			systemName, attackerName, attackerType, attacker, l.ShieldValue*100, l.ArmorValue*100, l.HullValue*100))
+
+	case "OrbitalAttacked", "TowerAlertMsg":
 		l := OrbitalAttacked{}
 		yaml.Unmarshal([]byte(text), &l)
 

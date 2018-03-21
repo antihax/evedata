@@ -54,6 +54,33 @@ func (s *Hammer) AddCharacter(characterID int32) error {
 	return nil
 }
 
+// BulkLookup looks up ID to entities in bulk and adds them to the queue
+func (s *Hammer) BulkLookup(ids []int32) error {
+	if len(ids) > 0 {
+		for start := 0; start < len(ids); start = start + 1000 {
+			end := min(start+1000, len(ids))
+			if len(ids[start:end]) == 0 {
+				break
+			}
+			resolved, _, err := s.esi.ESI.UniverseApi.PostUniverseNames(nil, ids[start:end], nil)
+			if err != nil {
+				return err
+			}
+			for _, r := range resolved {
+				switch r.Category {
+				case "alliance":
+					s.AddAlliance(r.Id)
+				case "corporation":
+					s.AddCorporation(r.Id)
+				case "character":
+					s.AddCharacter(r.Id)
+				}
+			}
+		}
+	}
+	return nil
+}
+
 func charSearchConsumer(s *Hammer, parameter interface{}) {
 	char := parameter.(string)
 
