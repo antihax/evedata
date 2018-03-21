@@ -37,7 +37,7 @@ func discordAuth(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		httpErr(w, err)
 	} else {
-		url := c.DiscordAuthenticator.AuthorizeURL(state, true, []string{"identify"})
+		url := c.DiscordAuthenticator.AuthorizeURL(state, true, []string{"identify", "guilds", "guilds.join"})
 		http.Redirect(w, r, url, 302)
 		httpErrCode(w, nil, http.StatusMovedPermanently)
 	}
@@ -95,7 +95,7 @@ func discordAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := models.AddDiscordToken(char.CharacterID, v.ID, v.UserName+"#"+v.Discriminator, tok, "identify"); err != nil {
+	if err := models.AddDiscordToken(char.CharacterID, v.ID, v.UserName+"#"+v.Discriminator, tok, "identify guilds guilds.join"); err != nil {
 		log.Println(err)
 		httpErr(w, err)
 		return
@@ -259,7 +259,7 @@ func eveCRESTToken(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		httpErr(w, err)
 	} else {
-		url := c.TokenAuthenticator.AuthorizeURL(state, true, nil)
+		url := c.TokenAuthenticator.AuthorizeURL(state, true, scopes)
 		http.Redirect(w, r, url, 302)
 		httpErrCode(w, nil, http.StatusMovedPermanently)
 	}
