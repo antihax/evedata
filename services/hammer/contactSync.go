@@ -3,7 +3,6 @@ package hammer
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -260,25 +259,6 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 			}
 		}
 	}
-}
-
-func (s *Hammer) deleteContactsCREST(auth context.Context, characterID int32, contacts []int32) error {
-	names, _, err := s.esi.ESI.UniverseApi.PostUniverseNames(context.Background(), contacts, nil)
-	if err != nil {
-		return err
-	}
-
-	tokenSource, ok := auth.Value(goesi.ContextOAuth2).(oauth2.TokenSource)
-	if ok {
-		for _, erase := range names {
-			ref := fmt.Sprintf("https://crest-tq.eveonline.com/%ss/%d/", erase.Category, erase.Id)
-			err := s.esi.EVEAPI.ContactDeleteV1(tokenSource, int64(characterID), int64(erase.Id), ref)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
 }
 
 func min(x, y int) int {
