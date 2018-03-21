@@ -68,12 +68,26 @@ func TestAddCRESTToken(t *testing.T) {
 		AccessToken:  "FAKE",
 		RefreshToken: "So Fake",
 		Expiry:       time.Now().UTC().Add(time.Hour * 100000),
-		TokenType:    "Bearer"}
+		TokenType:    "Bearer",
+	}
 
 	err := AddCRESTToken(1, 1, "Dude", &tok, "", "ownerhash", 0, 0, 0)
 	if err != nil {
 		t.Error(err)
 		return
+	}
+}
+
+func TestAddDiscordToken(t *testing.T) {
+	tok := oauth2.Token{
+		AccessToken:  "FAKE",
+		RefreshToken: "So Fake",
+		Expiry:       time.Now().UTC().Add(time.Hour * 100000),
+		TokenType:    "Bearer",
+	}
+
+	if err := AddDiscordToken(1, "1232142345345", "duuuuuuuude", &tok, "identify"); err != nil {
+		t.Error(err)
 	}
 }
 

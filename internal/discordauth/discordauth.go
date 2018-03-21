@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"sync"
 
 	"golang.org/x/oauth2"
 )
@@ -18,7 +17,6 @@ type Authenticator struct {
 	httpClient *http.Client
 	// Hide this...
 	oauthConfig *oauth2.Config
-	scopeLock   sync.Mutex
 }
 
 // NewAuthenticator create a new EVE SSO Authenticator.

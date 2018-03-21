@@ -18,8 +18,6 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-//https://discordapp.com/api/oauth2/authorize?response_type=token&client_id=229339294144135169&state=15773059ghq9183habn&scope=identify
-
 func init() {
 	vanguard.AddAuthRoute("logout", "GET", "/X/logout", logout)
 
@@ -29,8 +27,82 @@ func init() {
 	vanguard.AddAuthRoute("eveTokenAuth", "GET", "/X/eveTokenAuth", eveCRESTToken)
 	vanguard.AddAuthRoute("eveTokenAnswer", "GET", "/X/eveTokenAnswer", eveTokenAnswer)
 
-	//	vanguard.AddAuthRoute("discordAuth", "GET", "/X/discordAuth", discordAuth)
-	//	vanguard.AddAuthRoute("discordAnswer", "GET", "/X/discordAnswer", discordAnswer)
+	vanguard.AddAuthRoute("discordAuth", "GET", "/X/discordAuth", discordAuth)
+	vanguard.AddAuthRoute("discordAnswer", "GET", "/X/discordAnswer", discordAnswer)
+}
+
+func discordAuth(w http.ResponseWriter, r *http.Request) {
+	c := vanguard.GlobalsFromContext(r.Context())
+	if state, err := generateState("stateDISCORD", w, r); err != nil {
+		log.Println(err)
+		httpErr(w, err)
+	} else {
+		url := c.DiscordAuthenticator.AuthorizeURL(state, true, []string{"identify"})
+		http.Redirect(w, r, url, 302)
+		httpErrCode(w, nil, http.StatusMovedPermanently)
+	}
+}
+
+func discordAnswer(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	s := vanguard.SessionFromContext(r.Context())
+	c := vanguard.GlobalsFromContext(r.Context())
+
+	code := r.FormValue("code")
+	state := r.FormValue("state")
+
+	if s.Values["stateDISCORD"] != state {
+		httpErr(w, errors.New("state does not match. We likely could not read the session cookie. Please make sure cookies are enabled."))
+		return
+	}
+
+	s.Values["stateDISCORD"] = ""
+	if err := s.Save(r, w); err != nil {
+		log.Println(err)
+		httpErr(w, err)
+		return
+	}
+
+	tok, err := c.DiscordAuthenticator.TokenExchange(code)
+	if err != nil {
+		log.Println(err)
+		httpErr(w, err)
+		return
+	}
+
+	tokSrc, err := c.DiscordAuthenticator.TokenSource(tok)
+	if err != nil {
+		log.Println(err)
+		httpErr(w, err)
+		return
+	}
+
+	v, err := c.DiscordAuthenticator.Verify(tokSrc)
+	if err != nil {
+		log.Println(err)
+		httpErr(w, err)
+		return
+	}
+
+	if v.ID == "" {
+		httpErr(w, errors.New("user not found"))
+		return
+	}
+
+	char, ok := s.Values["character"].(goesi.VerifyResponse)
+	if !ok {
+		httpErr(w, errors.New("cannot find character in store"))
+		return
+	}
+
+	if err := models.AddDiscordToken(char.CharacterID, v.ID, v.UserName+"#"+v.Discriminator, tok, "identify"); err != nil {
+		log.Println(err)
+		httpErr(w, err)
+		return
+	}
+
+	http.Redirect(w, r, "/account", 302)
+	httpErrCode(w, nil, http.StatusMovedPermanently)
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {
@@ -47,26 +119,29 @@ func logout(w http.ResponseWriter, r *http.Request) {
 	httpErrCode(w, nil, http.StatusMovedPermanently)
 }
 
-func eveSSO(w http.ResponseWriter, r *http.Request) {
+func generateState(stateType string, w http.ResponseWriter, r *http.Request) (string, error) {
 	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
-	c := vanguard.GlobalsFromContext(r.Context())
 
 	b := make([]byte, 16)
 	rand.Read(b)
 	state := base64.URLEncoding.EncodeToString(b)
 
-	s.Values["state"] = state
-
+	s.Values[stateType] = state
 	err := s.Save(r, w)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
+	return state, err
+}
 
-	url := c.SSOAuthenticator.AuthorizeURL(state, true, nil)
-	http.Redirect(w, r, url, 302)
-	httpErrCode(w, nil, http.StatusMovedPermanently)
+func eveSSO(w http.ResponseWriter, r *http.Request) {
+	c := vanguard.GlobalsFromContext(r.Context())
+	if state, err := generateState("state", w, r); err != nil {
+		log.Println(err)
+		httpErr(w, err)
+	} else {
+		url := c.SSOAuthenticator.AuthorizeURL(state, true, nil)
+		http.Redirect(w, r, url, 302)
+		httpErrCode(w, nil, http.StatusMovedPermanently)
+	}
 }
 
 func eveSSOAnswer(w http.ResponseWriter, r *http.Request) {
@@ -154,7 +229,6 @@ func updateAccountInfo(s *sessions.Session, characterID int32, characterName str
 
 func eveCRESTToken(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
-	s := vanguard.SessionFromContext(r.Context())
 	c := vanguard.GlobalsFromContext(r.Context())
 
 	var scopes []string
@@ -181,23 +255,14 @@ func eveCRESTToken(w http.ResponseWriter, r *http.Request) {
 	// Hack to allow no scopes
 	scopes = append(scopes, "publicData")
 
-	// Make a code to validate on the return
-	b := make([]byte, 16)
-	rand.Read(b)
-	state := base64.URLEncoding.EncodeToString(b)
-
-	// Save the code to our session store to compare later
-	s.Values["TOKENstate"] = state
-	err := s.Save(r, w)
-	if err != nil {
+	if state, err := generateState("TOKENstate", w, r); err != nil {
+		log.Println(err)
 		httpErr(w, err)
-		return
+	} else {
+		url := c.TokenAuthenticator.AuthorizeURL(state, true, nil)
+		http.Redirect(w, r, url, 302)
+		httpErrCode(w, nil, http.StatusMovedPermanently)
 	}
-
-	url := c.TokenAuthenticator.AuthorizeURL(state, true, scopes)
-
-	http.Redirect(w, r, url, 302)
-	httpErrCode(w, nil, http.StatusMovedPermanently)
 }
 
 func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {

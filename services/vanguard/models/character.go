@@ -158,6 +158,27 @@ func AddCRESTToken(characterID int32, tokenCharacterID int32, characterName stri
 	return nil
 }
 
+// AddDiscordToken adds a Discord token to the database or updates it if one exists.
+// resetting status and if errors were mailed to the user.
+func AddDiscordToken(characterID int32, userID string, userName string, tok *oauth2.Token, scopes string) error {
+	if _, err := database.Exec(`
+		INSERT INTO evedata.discordTokens	(characterID, discordUserID, discordUserName, accessToken, refreshToken, expiry, 
+				tokenType, scopes, lastStatus)
+			VALUES		(?,?,?,?,?,?,?,?,"Unused")
+			ON DUPLICATE KEY UPDATE 
+				accessToken 		= VALUES(accessToken),
+				refreshToken 		= VALUES(refreshToken),
+				expiry 				= VALUES(expiry),
+				tokenType 			= VALUES(tokenType),
+				scopes 				= VALUES(scopes),
+				lastStatus			= "Unused",
+				mailedError 		= 0`,
+		characterID, userID, userName, tok.AccessToken, tok.RefreshToken, tok.Expiry, tok.TokenType, scopes); err != nil {
+		return err
+	}
+	return nil
+}
+
 func DeleteCRESTToken(characterID int32, tokenCharacterID int32) error {
 	if _, err := database.Exec(`DELETE FROM evedata.crestTokens WHERE characterID = ? AND tokenCharacterID = ? LIMIT 1`,
 		characterID, tokenCharacterID); err != nil {

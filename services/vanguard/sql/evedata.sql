@@ -189,6 +189,8 @@ CREATE TABLE `cursorCharacter` (
 
 CREATE TABLE `discordTokens` (
   `characterID` int(11) NOT NULL,
+  `discordUserID` varchar(255) NOT NULL DEFAULT '',
+  `discordUserName` varchar(255) NOT NULL DEFAULT '',
   `accessToken` text CHARACTER SET latin1 NOT NULL,
   `refreshToken` text CHARACTER SET latin1 NOT NULL,
   `expiry` datetime NOT NULL,
@@ -197,7 +199,7 @@ CREATE TABLE `discordTokens` (
   `lastStatus` text CHARACTER SET latin1 NOT NULL,
   `scopes` text NOT NULL,
   `mailedError` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`characterID`)
+  PRIMARY KEY (`characterID`,`discordUserID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `discoveredAssets` (
