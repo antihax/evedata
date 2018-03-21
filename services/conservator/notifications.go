@@ -51,7 +51,7 @@ func (s *Conservator) characterNotificationsHandler(message *nsq.Message) error 
 		err := s.checkNotification(notifications.TokenCharacterID, n.NotificationId, n.Type_, n.Text, n.Timestamp)
 		if err != nil {
 			log.Println(err)
-			continue
+			return err
 		}
 	}
 	return nil
