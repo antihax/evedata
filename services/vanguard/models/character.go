@@ -42,6 +42,20 @@ type CRESTToken struct {
 	Sharing          []conservator.Share `json:"sharing"`
 }
 
+type IntegrationToken struct {
+	Type                string      `db:"type" json:"type,omitempty"`
+	Expiry              time.Time   `db:"expiry" json:"expiry,omitempty"`
+	CharacterID         int32       `db:"characterID" json:"characterID,omitempty"`
+	IntegrationUserID   string      `db:"integrationUserID" json:"integrationUserID,omitempty"`
+	IntegrationUserName string      `db:"integrationUserName" json:"integrationUserName,omitempty"`
+	TokenType           string      `db:"tokenType" json:"tokenType,omitempty"`
+	LastCode            int64       `db:"lastCode" json:"lastCode,omitempty"`
+	LastStatus          null.String `db:"lastStatus" json:"lastStatus,omitempty"`
+	AccessToken         string      `db:"accessToken" json:"accessToken,omitempty"`
+	RefreshToken        string      `db:"refreshToken" json:"refreshToken,omitempty"`
+	Scopes              string      `db:"scopes" json:"scopes"`
+}
+
 // [BENCHMARK] TODO
 func GetCharacterIDByName(character string) (int32, error) {
 	var id int32
@@ -158,13 +172,22 @@ func AddCRESTToken(characterID int32, tokenCharacterID int32, characterName stri
 	return nil
 }
 
-// AddDiscordToken adds a Discord token to the database or updates it if one exists.
+func DeleteCRESTToken(characterID int32, tokenCharacterID int32) error {
+	if _, err := database.Exec(`DELETE FROM evedata.crestTokens WHERE characterID = ? AND tokenCharacterID = ? LIMIT 1`,
+		characterID, tokenCharacterID); err != nil {
+
+		return err
+	}
+	return nil
+}
+
+// AddIntegrationToken adds a oauth2 token to the database for integrations or updates it if one exists.
 // resetting status and if errors were mailed to the user.
-func AddDiscordToken(characterID int32, userID string, userName string, tok *oauth2.Token, scopes string) error {
+func AddIntegrationToken(tokenType string, characterID int32, userID string, userName string, tok *oauth2.Token, scopes string) error {
 	if _, err := database.Exec(`
-		INSERT INTO evedata.discordTokens	(characterID, discordUserID, discordUserName, accessToken, refreshToken, expiry, 
+		INSERT INTO evedata.integrationTokens	(type, characterID, integrationUserID, integrationUserName, accessToken, refreshToken, expiry, 
 				tokenType, scopes, lastStatus)
-			VALUES		(?,?,?,?,?,?,?,?,"Unused")
+			VALUES		(?,?,?,?,?,?,?,?,?,"Unused")
 			ON DUPLICATE KEY UPDATE 
 				accessToken 		= VALUES(accessToken),
 				refreshToken 		= VALUES(refreshToken),
@@ -173,16 +196,38 @@ func AddDiscordToken(characterID int32, userID string, userName string, tok *oau
 				scopes 				= VALUES(scopes),
 				lastStatus			= "Unused",
 				mailedError 		= 0`,
-		characterID, userID, userName, tok.AccessToken, tok.RefreshToken, tok.Expiry, tok.TokenType, scopes); err != nil {
+		tokenType, characterID, userID, userName, tok.AccessToken, tok.RefreshToken, tok.Expiry, tok.TokenType, scopes); err != nil {
 		return err
 	}
 	return nil
 }
 
-func DeleteCRESTToken(characterID int32, tokenCharacterID int32) error {
-	if _, err := database.Exec(`DELETE FROM evedata.crestTokens WHERE characterID = ? AND tokenCharacterID = ? LIMIT 1`,
-		characterID, tokenCharacterID); err != nil {
+// [BENCHMARK] 0.000 sec / 0.000 sec
+func GetIntegrationTokens(characterID int32) ([]IntegrationToken, error) {
+	tokens := []IntegrationToken{}
+	if err := database.Select(&tokens, `
+		SELECT characterID,
+			integrationUserID,
+			type,
+			integrationUserName,
+			expiry,
+			tokenType,
+			lastCode,
+			lastStatus,
+			scopes
+			FROM evedata.integrationTokens
+			WHERE characterID = ?;
+		`, characterID); err != nil {
 
+		return nil, err
+	}
+
+	return tokens, nil
+}
+
+func DeleteIntegrationToken(tokenType string, characterID int32, integrationUserID string) error {
+	if _, err := database.Exec(`DELETE FROM evedata.integrationTokens WHERE characterID = ? AND integrationUserID = ? AND type = ? LIMIT 1`,
+		characterID, integrationUserID, tokenType); err != nil {
 		return err
 	}
 	return nil

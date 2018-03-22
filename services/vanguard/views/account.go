@@ -25,6 +25,9 @@ func init() {
 	vanguard.AddAuthRoute("crestTokens", "GET", "/U/crestTokens", apiGetCRESTTokens)
 	vanguard.AddAuthRoute("crestTokens", "DELETE", "/U/crestTokens", apiDeleteCRESTToken)
 
+	vanguard.AddAuthRoute("crestTokens", "GET", "/U/integrationTokens", apiGetIntegrationTokens)
+	vanguard.AddAuthRoute("crestTokens", "DELETE", "/U/integrationTokens", apiDeleteIntegrationToken)
+
 	vanguard.AddAuthRoute("account", "POST", "/U/toggleAuth", apiToggleAuth)
 
 }
@@ -216,6 +219,48 @@ func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 
 	if err = s.Save(r, w); err != nil {
 		httpErr(w, err)
+		return
+	}
+}
+
+func apiGetIntegrationTokens(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	s := vanguard.SessionFromContext(r.Context())
+
+	// Get the sessions main characterID
+	characterID, ok := s.Values["characterID"].(int32)
+	if !ok {
+		httpErrCode(w, errors.New("could not find character ID for integration token"), http.StatusUnauthorized)
+		return
+	}
+
+	v, err := models.GetIntegrationTokens(characterID)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	json.NewEncoder(w).Encode(v)
+
+	if err = s.Save(r, w); err != nil {
+		httpErr(w, err)
+		return
+	}
+}
+
+func apiDeleteIntegrationToken(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	s := vanguard.SessionFromContext(r.Context())
+
+	// Get the sessions main characterID
+	characterID, ok := s.Values["characterID"].(int32)
+	if !ok {
+		httpErrCode(w, errors.New("could not find character ID for integration token to delete"), http.StatusUnauthorized)
+		return
+	}
+
+	if err := models.DeleteIntegrationToken(r.FormValue("type"), characterID, r.FormValue("userID")); err != nil {
+		httpErrCode(w, err, http.StatusConflict)
 		return
 	}
 }

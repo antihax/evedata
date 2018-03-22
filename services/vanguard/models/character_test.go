@@ -78,7 +78,7 @@ func TestAddCRESTToken(t *testing.T) {
 	}
 }
 
-func TestAddDiscordToken(t *testing.T) {
+func TestAddIntegrationToken(t *testing.T) {
 	tok := oauth2.Token{
 		AccessToken:  "FAKE",
 		RefreshToken: "So Fake",
@@ -86,8 +86,27 @@ func TestAddDiscordToken(t *testing.T) {
 		TokenType:    "Bearer",
 	}
 
-	if err := AddDiscordToken(1, "1232142345345", "duuuuuuuude", &tok, "identify"); err != nil {
+	if err := AddIntegrationToken("mock", 1, "1232142345345", "duuuuuuuude", &tok, "identify"); err != nil {
 		t.Error(err)
+	}
+}
+
+func TestGetIntegrationTokens(t *testing.T) {
+	dude, err := GetIntegrationTokens(1)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if dude[0].IntegrationUserID != "1232142345345" {
+		t.Error("IntegrationUserID is not as stored")
+		return
+	}
+}
+func TestDeleteIntegrationToken(t *testing.T) {
+	err := DeleteIntegrationToken("mock", 1, "1232142345345")
+	if err != nil {
+		t.Error(err)
+		return
 	}
 }
 

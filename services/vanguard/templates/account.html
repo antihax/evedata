@@ -1,26 +1,39 @@
-{{define "body"}}
-<h3>Characters</h3>
-{{template "checkAuthentication" .}}
-<p>Adding characters to your account opens up more features of our website.<br>If you are not comfortable sharing some information, such as wallet journals, etc. You can disable groups of scopes by unchecking the option before adding the character.<br>Should you ever wish to change scopes, add the same character a second time and it will overwrite the available scopes.</p>
+{{define "body"}} {{template "checkAuthentication" .}}
+<h3>Single Sign On Account:
+	<span class="SSOCharacterName">SomeRandomDude</span>
+</h3>
+<p>You are currently logged in as
+	<b class="SSOCharacterName">SomeRandomDude</b>. This is your "account" for this website; as long as you log into this character, your data will be available
+	to you.</p>
+</div>
+<div class="well">
+	<h3>Characters</h3>
+	<ul>
+		<li>
+			<b>Add Characters:</b> Add all of your characters below. Press CANCEL on the character selection screen to swap accounts.</li>
+		<li>
+			<b>Auth:</b> Any character with Auth checked will be have access to their respective corporation or alliance services on
+			this site should they use it. Uncheck this if you do not want this to be the case, or if you have conflicts between characters</li>
+	</ul>
 	<script>
 		var options = [];
-		$('body').on('click', function(event) {
+		$('body').on('click', function (event) {
 			var $target = $(event.target);
 			if ($target.hasClass('characterScopes')) {
-				
-				var val = $target.attr( 'data-value' ),
-					$inp = $target.find( 'input' ),
+
+				var val = $target.attr('data-value'),
+					$inp = $target.find('input'),
 					idx;
 
-				if ((idx = options.indexOf(val)) > -1 ) {
+				if ((idx = options.indexOf(val)) > -1) {
 					options.splice(idx, 1);
-					setTimeout(function() { $inp.prop('checked', true ) }, 0);
+					setTimeout(function () { $inp.prop('checked', true) }, 0);
 				} else {
-					options.push( val );
-					setTimeout(function() { $inp.prop('checked', false) }, 0);
+					options.push(val);
+					setTimeout(function () { $inp.prop('checked', false) }, 0);
 				}
 
-				$( event.target ).blur();
+				$(event.target).blur();
 				return false;
 			}
 		});	
@@ -29,50 +42,83 @@
 	<div class="table-responsive">
 		<div class="toolbar cresttokenToolbar" id="cresttokenToolbar">
 			<div class="dropdown">
-				<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChar" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChar" data-toggle="dropdown" aria-haspopup="true"
+				 aria-expanded="false">
 					Add Character
 					<span class="caret"></span>
 				</button>
 				<ul class="dropdown-menu" id="addCharMenu" aria-labelledby="addChar">
 					{{ range $scope, $reason := .ScopeGroups }}
-						<li><a href="#" id="{{ $scope }}" class="small characterScopes" data-value="{{ $scope }}" tabIndex="-1"><input type="checkbox" CHECKED>&nbsp;{{ $reason }}</a></li>
-					{{ end }}   
-					<br> 
+					<li>
+						<a href="#" id="{{ $scope }}" class="small characterScopes" data-value="{{ $scope }}" tabIndex="-1">
+							<input type="checkbox" CHECKED>&nbsp;{{ $reason }}</a>
+					</li>
+					{{ end }}
+					<br>
 					<li>
 						<a class="addcrest btn btn-default" href="javascript:">Add Character</a>
-					</li> 
+					</li>
 				</ul>
 			</div>
 		</div>
 
-		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".cresttokenToolbar"
-			data-url="/U/CRESTTokens" id="cresttable">
+		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".cresttokenToolbar" data-url="/U/CRESTTokens"
+		 id="cresttable">
 			<thead>
 				<tr>
-					<th data-align="center" data-field="authCharacter" data-events="actionEvents" 
-						data-formatter="authFormatter" title="Allow alliance access to my data">Auth</th>
-					<th data-align="center" data-field="sharing" 
-						data-formatter="sharingFormatter" title="Share my data with explicit entities">Sharing</th>
+					<th data-align="center" data-field="authCharacter" data-events="actionEvents" data-formatter="authFormatter" title="Allow alliance access to my data">Auth</th>
+					<th data-align="center" data-field="sharing" data-formatter="sharingFormatter" title="Share my data with explicit entities">Sharing</th>
 					<th data-field="characterName">Name</th>
 					<th data-field="scopes" title="Authorization grants provided by this character">Scope Groups</th>
 					<th data-field="lastStatus">Last Status</th>
-					<th data-align="center" data-events="actionEvents"
-						data-field="action" data-formatter="deleteFormatter" title="Delete a character">Delete</th>
+					<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="deleteFormatter" title="Delete a character">Delete</th>
 				</tr>
 			</thead>
 		</table>
-	<p style="font-size: 12px">Note: You will need to press CANCEL on the EVE Logon to relog on and add characters from alternate accounts.</p>
-	<br><br><br><br><br><br><br><br><br><br>
+	</div>
+</div>
+<div class="well">
+	<h3>Integration Tokens</h3>
+	<p>Integration tokens allow us to determine which alliance/corporation services you can use and authenticate you automaticlly on these services. Your alliance/corporation can only see characters that you have with them and not out of corp alts unless you are explicitly sharing data with them in the characters table above.</p>
+	<div class="table-responsive">
+		<div class="toolbar integrationTokenToolbar" id="integrationTokenToolbar">
+			<div class="dropdown">
+				<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addDiscord" data-toggle="dropdown" aria-haspopup="true"
+				 aria-expanded="false">
+					Add Integration Token
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" id="addintegration" aria-labelledby="addDiscord">
+					<li>
+						<a class="adddiscord btn btn-default" href="javascript:">Add Discord</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+
+		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".integrationTokenToolbar" data-url="/U/integrationTokens"
+		 id="integrationtable">
+			<thead>
+				<tr>
+						<th data-field="type">Type</th>
+					<th data-field="integrationUserName">Name</th>
+					<th data-field="scopes" title="Authorization grants provided by this token">Scopes</th>
+					<th data-field="lastStatus">Last Status</th>
+					<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="deleteIntegrationFormatter" title="Delete Token">Delete</th>
+				</tr>
+			</thead>
+		</table>
 	</div>
 
 	<script>
-		var 	$cresttable = $('#cresttable').bootstrapTable({url: "/U/crestTokens"}, "changeLocale", "en_US");
-				
+		var $cresttable = $('#cresttable').bootstrapTable({ url: "/U/crestTokens" }, "changeLocale", "en_US"),
+			$integrationtable = $('#integrationtable').bootstrapTable({ url: "/U/integrationTokens" }, "changeLocale", "en_US");
+
 		$(function () {
 			// crest token click event
 			$('.addcrest').click(function () {
 				var scopeGroups = [];
-				$('.characterScopes input:checkbox:checked').each(function(idx, val){
+				$('.characterScopes input:checkbox:checked').each(function (idx, val) {
 					scopeGroups.push(val.parentElement.id);
 				});
 
@@ -82,27 +128,28 @@
 					window.location.replace("/X/eveTokenAuth");
 				}
 			});
+			$('.adddiscord').click(function () {
+				window.location.replace("/X/discordAuth");
+			});
 		});
-		
+
 		function queryParams(params) {
 			return {};
 		}
 
-
 		function sharingFormatter(value, row) {
-			
 			var sharingWith;
 			if (value == 0) {
 				sharingWith = "Not Sharing Data";
 				value = "&#10008;";
 			} else {
 				sharingWith = value.map(val => {
-					return val.entityName + ": " + val.types +"\n";
+					return val.entityName + ": " + val.types + "\n";
 				});
 
 				value = "&#10003;";
 			}
-			return '<a style="text-decoration: none;" href="/shares" title="'+sharingWith+'">'+value+'<\/a>' ;
+			return '<a style="text-decoration: none;" href="/shares" title="' + sharingWith + '">' + value + '<\/a>';
 		}
 
 		function authFormatter(value, row) {
@@ -111,14 +158,23 @@
 			} else {
 				value = "&#10003;";
 			}
-			return '<a class="toggleauth" style="text-decoration: none;" href="javascript:void(0)" title="Toggle Authentication">'+value+'<\/a>' ;
+			return '<a class="toggleauth" style="text-decoration: none;" href="javascript:void(0)" title="Toggle Authentication">' + value + '<\/a>';
 		}
 
 		function deleteFormatter(value, row) {
 			return [
-				'<a class="removecrest" style="text-decoration: none;" href="javascript:void(0)" title="Delete '+row.characterName+'">&#10006;<\/a>',
+				'<a class="removecrest" style="text-decoration: none;" href="javascript:void(0)" title="Delete ' + row.characterName + '">&#10006;<\/a>',
 			].join('');
 		}
+
+		function deleteIntegrationFormatter(value, row) {
+			return [
+				'<a class="removetoken" style="text-decoration: none;" href="javascript:void(0)" title="Delete ' + row.integrationUserName + '">&#10006;<\/a>',
+			].join('');
+		}
+
+
+		
 		// update and delete events
 		window.actionEvents = {
 			'click .removecrest': function (e, value, row) {
@@ -128,7 +184,7 @@
 						type: 'delete',
 						success: function () {
 							$cresttable.bootstrapTable('refresh');
-							showAlert('Deleted ' + row.characterName +'!', 'success');
+							showAlert('Deleted ' + row.characterName + '!', 'success');
 						},
 						error: function () {
 							showAlert('Delete item error!', 'danger');
@@ -136,6 +192,21 @@
 					})
 				}
 			},
+			'click .removetoken': function (e, value, row) {
+				if (confirm('Are you sure you want to delete this token?')) {
+					$.ajax({
+						url: "/U/integrationTokens?userID=" + row.integrationUserID + "&type=" +row.type,
+						type: 'delete',
+						success: function () {
+							$cresttable.bootstrapTable('refresh');
+							showAlert('Deleted ' + row.integrationUserID + '!', 'success');
+						},
+						error: function () {
+							showAlert('Delete item error!', 'danger');
+						}
+					})
+				}
+			},			
 			'click .toggleauth': function (e, value, row) {
 				if (row.authCharacter == 1 || confirm('You are about to turn on authentication for ' + row.characterName + '.\n\nThis will allow the corporation this character is a member of to identify them on EVEData.org for authentication purposes with services like Discord, TeamSpeak, or Slack.\n\nAre you sure you wish to do this?')) {
 					$.ajax({
@@ -143,7 +214,7 @@
 						type: 'post',
 						success: function () {
 							$cresttable.bootstrapTable('refresh');
-							showAlert('Authentication changed for ' + row.characterName +'!', 'success');
+							showAlert('Authentication changed for ' + row.characterName + '!', 'success');
 						},
 						error: function () {
 							showAlert('Error changing authentication state!', 'danger');
@@ -152,5 +223,4 @@
 				}
 			}
 		};
-	</script>
-{{end}}
+	</script> {{end}}

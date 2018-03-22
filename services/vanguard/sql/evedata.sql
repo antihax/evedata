@@ -77,7 +77,7 @@ CREATE TABLE `botServices` (
   `factionID` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`botServiceID`),
   UNIQUE KEY `UNIQUE` (`address`,`authentication`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `characterAssociations` (
   `characterID` int(10) unsigned NOT NULL,
@@ -187,21 +187,6 @@ CREATE TABLE `cursorCharacter` (
   PRIMARY KEY (`characterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `discordTokens` (
-  `characterID` int(11) NOT NULL,
-  `discordUserID` varchar(255) NOT NULL DEFAULT '',
-  `discordUserName` varchar(255) NOT NULL DEFAULT '',
-  `accessToken` text CHARACTER SET latin1 NOT NULL,
-  `refreshToken` text CHARACTER SET latin1 NOT NULL,
-  `expiry` datetime NOT NULL,
-  `tokenType` varchar(100) CHARACTER SET latin1 NOT NULL,
-  `lastCode` int(11) NOT NULL DEFAULT '0',
-  `lastStatus` text CHARACTER SET latin1 NOT NULL,
-  `scopes` text NOT NULL,
-  `mailedError` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`characterID`,`discordUserID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE `discoveredAssets` (
   `corporationID` int(10) unsigned NOT NULL,
   `allianceID` int(11) unsigned NOT NULL,
@@ -247,6 +232,22 @@ CREATE TABLE `httpErrors` (
   `response` text,
   `time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `integrationTokens` (
+  `characterID` int(11) NOT NULL,
+  `integrationUserID` varchar(255) NOT NULL DEFAULT '',
+  `type` varchar(255) NOT NULL DEFAULT '',
+  `integrationUserName` varchar(255) NOT NULL DEFAULT '',
+  `accessToken` text CHARACTER SET latin1 NOT NULL,
+  `refreshToken` text CHARACTER SET latin1 NOT NULL,
+  `expiry` datetime NOT NULL,
+  `tokenType` varchar(100) CHARACTER SET latin1 NOT NULL,
+  `lastCode` int(11) NOT NULL DEFAULT '0',
+  `lastStatus` text CHARACTER SET latin1 NOT NULL,
+  `scopes` text NOT NULL,
+  `mailedError` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`characterID`,`integrationUserID`,`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `iskPerLp` (

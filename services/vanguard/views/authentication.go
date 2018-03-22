@@ -95,7 +95,7 @@ func discordAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := models.AddDiscordToken(char.CharacterID, v.ID, v.UserName+"#"+v.Discriminator, tok, "identify guilds guilds.join"); err != nil {
+	if err := models.AddIntegrationToken("discord", char.CharacterID, v.ID, v.UserName+"#"+v.Discriminator, tok, "identify guilds guilds.join"); err != nil {
 		log.Println(err)
 		httpErr(w, err)
 		return

@@ -31,12 +31,11 @@
 		
 		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-growl/1.0.6/bootstrap-growl.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/locale/bootstrap-table-en-US.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/locale/bootstrap-table-en-US.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
 		
-	
 		<link rel="stylesheet" href="/css/bootstrap.min.css">
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.css">
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
@@ -117,7 +116,7 @@
 													</p>
 												</div>
 												<div class="col-lg-8">
-													<p class="text-left"><strong>Logged in with:</strong> <span id="accountName"></p>						
+													<p class="text-left"><strong>Single Sign On:</strong> <span id="accountName"></p>						
 												</div>
 											</div>
 										</div>
@@ -211,7 +210,8 @@
 			updateCursorDisplay();
 
 			$("#accountImage").attr("src",characterImageByID(accountInfo.characterID, 64));  
-			$("#accountName").text(accountInfo.characterName)
+			$("#accountName").text(accountInfo.characterName);
+			$(".SSOCharacterName").text(accountInfo.characterName);
 
 			$.each(accountInfo.characters, function(key, val) {	
 				if (~val.scopes.indexOf("open_window")) {
