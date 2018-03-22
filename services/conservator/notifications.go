@@ -385,9 +385,7 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 			time.Unix(datapackages.WintoUnixTimestamp(l.TimeStamp), 0).UTC().String())
 
 		return s.sendNotificationMessage("structure", characterID, notificationID, message)
-
 	}
-
 	return nil
 }
 
