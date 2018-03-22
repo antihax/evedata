@@ -198,7 +198,7 @@
 						url: "/U/integrationTokens?userID=" + row.integrationUserID + "&type=" +row.type,
 						type: 'delete',
 						success: function () {
-							$cresttable.bootstrapTable('refresh');
+							$integrationtable.bootstrapTable('refresh');
 							showAlert('Deleted ' + row.integrationUserID + '!', 'success');
 						},
 						error: function () {
