@@ -57,7 +57,6 @@ func characterNotificationsConsumer(s *Hammer, parameter interface{}) {
 }
 
 func (s *Hammer) learnFromNotifications(notifications []esi.GetCharactersCharacterIdNotifications200Ok) {
-
 	type stripEntities struct {
 		CharacterID         int32 `yaml:"characterID,omitempty"`
 		AggressorCorpID     int32 `yaml:"aggressorCorpID,omitempty"`
@@ -66,6 +65,7 @@ func (s *Hammer) learnFromNotifications(notifications []esi.GetCharactersCharact
 		AgainstID           int32 `yaml:"againstID,omitempty"`
 		CharID              int32 `yaml:"charID,omitempty"`
 		CorpID              int32 `yaml:"corpID,omitempty"`
+		AggressorID         int32 `yaml:"aggressorID,omitempty"`
 	}
 
 	lookup := []int32{}
@@ -82,6 +82,7 @@ func (s *Hammer) learnFromNotifications(notifications []esi.GetCharactersCharact
 		addID(&lookup, l.DeclaredByID)
 		addID(&lookup, l.CharID)
 		addID(&lookup, l.CorpID)
+		addID(&lookup, l.AggressorID)
 	}
 
 	// Lookup every thing we learned
