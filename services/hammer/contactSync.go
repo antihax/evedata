@@ -314,20 +314,6 @@ func (s *Hammer) GetPendingWarsByID(id int64) ([]ContactEntity, error) {
 	return w, nil
 }
 
-// FactionsByName resolves faction name to ID
-var FactionsByName = map[string]int32{"Caldari": 500001, "Minmatar": 500002, "Amarr": 500003, "Gallente": 500004}
-
-// FactionsByID resolves faction ID to Name
-var FactionsByID = map[int32]string{500001: "Caldari", 500002: "Minmatar", 500003: "Amarr", 500004: "Gallente"}
-
-// FactionsAtWar resolves two enemy parties for each factionID
-var FactionsAtWar = map[int32][]int32{
-	500001: {500002, 500004}, // Caldari  : Minmatar, Gallente
-	500003: {500002, 500004}, // Amarr    : Minmatar, Gallente
-	500002: {500001, 500003}, // Minmatar : Caldari, Amarr
-	500004: {500001, 500003}, // Gallente : Caldari, Amarr
-}
-
 type FactionWarEntities struct {
 	ID   int64  `db:"id" json:"id"`
 	Name string `db:"name" json:"name"`
@@ -336,13 +322,13 @@ type FactionWarEntities struct {
 
 // [BENCHMARK] 0.031 sec / 0.000 sec
 func (s *Hammer) GetFactionWarEntitiesForID(factionID int32) ([]FactionWarEntities, error) {
-	if FactionsByID[factionID] == "" {
+	if goesi.FactionsByID[factionID] == "" {
 		return nil, errors.New("Unknown FactionID")
 	}
 
 	// Due to CCP limitation, make sure count is under 1024, cut stuff off until it is.
 
-	wars := FactionsAtWar[factionID]
+	wars := goesi.FactionsAtWar[factionID]
 	w := []FactionWarEntities{}
 	if err := s.db.Select(&w, `
 		SELECT 

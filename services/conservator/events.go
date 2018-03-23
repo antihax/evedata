@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"log"
 	"strings"
+
+	"github.com/antihax/goesi"
 )
 
 func (s *Conservator) checkAllUsers() {
@@ -81,7 +83,7 @@ func (c *Conservator) checkUser(memberID, memberName string, botServiceID int32,
 		}
 
 		if server.Options.Auth.AlliedMilitia != "" && server.FactionID > 0 {
-			if characterName, err := c.getMilitiaStatus(memberID, FactionAllies[server.FactionID]); err != nil {
+			if characterName, err := c.getMilitiaStatus(memberID, goesi.FactionAllies[server.FactionID]); err != nil {
 				return err
 			} else if characterName != "" { // Found them
 				server.checkAddRoles(memberID, server.Options.Auth.AlliedMilitia, roles)
@@ -142,12 +144,4 @@ func (s *Conservator) getMilitiaStatus(memberID string, militia int32) (string, 
 		return "", err
 	}
 	return ref, nil
-}
-
-// FactionAllies
-var FactionAllies = map[int32]int32{
-	500001: 500003,
-	500003: 500001,
-	500002: 500004,
-	500004: 500002,
 }
