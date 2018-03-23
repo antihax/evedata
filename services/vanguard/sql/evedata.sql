@@ -362,7 +362,7 @@ CREATE TABLE `lpOffers` (
   KEY `lpOffers_typeid` (`typeID`),
   KEY `lpOffers_corporation` (`corporationID`),
   KEY `lpOffers_corp_type` (`corporationID`,`typeID`)
-) ENGINE=InnoDB AUTO_INCREMENT=16339 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=16342 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `market` (
   `orderID` bigint(11) unsigned NOT NULL DEFAULT '0',
@@ -551,6 +551,23 @@ CREATE TABLE `wars` (
 			END$$
 			DELIMITER ;
 		
+			DELIMITER $$
+			CREATE FUNCTION alliedMilita(factionID INT UNSIGNED) RETURNS int(11)
+			DETERMINISTIC
+			BEGIN
+			IF factionID = 500001 THEN
+				RETURN 500003;
+			ELSEIF factionID = 500003 THEN
+				RETURN 500001;
+			ELSEIF factionID = 500002 THEN  
+				RETURN 500004;
+			ELSEIF factionID = 500004 THEN 
+				RETURN 500002;
+			END IF;
+			RETURN 0;
+			END$$
+			DELIMITER ;
+			
 		DELIMITER $$
 		CREATE FUNCTION constellationIDBySolarSystem(system INT UNSIGNED) RETURNS int(10) unsigned
 			DETERMINISTIC

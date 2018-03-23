@@ -206,3 +206,65 @@ func entityInSlice(a int32, list []Entity) bool {
 	}
 	return false
 }
+
+type AvailableIntegrations struct {
+	Address           string `db:"address" json:"address"`
+	Reason            string `db:"reason" json:"reason"`
+	Name              string `db:"name" json:"name"`
+	CharacterName     string `db:"characterName" json:"characterName" `
+	CharacterID       int32  `db:"characterID" json:"characterID"`
+	TokenCharacterID  int32  `db:"tokenCharacterID" json:"tokenCharacterID"`
+	IntegrationUserID string `db:"integrationUserID" json:"integrationUserID"`
+	Type              string `db:"type" json:"type"`
+}
+
+// [BENCHMARK] 0.000 sec / 0.000 sec
+func GetAvailableIntegrations(characterID int32) ([]AvailableIntegrations, error) {
+	integrations := []AvailableIntegrations{}
+	if err := database.Select(&integrations, `
+		SELECT address, reason, name, characterName, T.characterID, tokenCharacterID, integrationUserID, type FROM
+		(
+		SELECT address, name, characterName, C.characterID, tokenCharacterID, "member" AS reason
+		FROM evedata.botServices B
+		INNER JOIN evedata.crestTokens C ON C.authCharacter = 1 AND
+			(C.corporationID = B.entityID 					   
+			OR C.allianceID = B.entityID)
+		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%member%"
+		UNION
+		SELECT address, name, characterName, C.characterID, tokenCharacterID, "militia" AS reason
+		FROM evedata.botServices B
+		INNER JOIN evedata.crestTokens C ON C.authCharacter = 1 AND
+			B.factionID > 0 AND B.factionID = C.factionID
+		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%militia%"
+		UNION
+		SELECT address, name, characterName, C.characterID, tokenCharacterID, "alliedMilitia" AS reason
+		FROM evedata.botServices B
+		INNER JOIN evedata.crestTokens C ON C.authCharacter = 1 AND
+			B.factionID > 0 AND B.factionID = evedata.alliedMilita(C.factionID)
+		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%alliedMilitia%"
+		UNION
+		SELECT address, name, characterName, C.characterID, tokenCharacterID, "+5" AS reason
+		FROM evedata.botServices B
+		INNER JOIN evedata.entityContacts E ON E.entityID = B.entityID AND E.standing = 5.0
+		INNER JOIN evedata.crestTokens C ON  C.authCharacter = 1 AND
+			(E.contactID = C.tokenCharacterID 
+			OR E.contactID = C.corporationID
+			OR E.contactID = C.allianceID)
+		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%plusFive%"
+		UNION
+		SELECT address, name, characterName, C.characterID, tokenCharacterID, "+10" AS reason
+		FROM evedata.botServices B
+		INNER JOIN evedata.entityContacts E ON E.entityID = B.entityID AND E.standing = 10.0
+		INNER JOIN evedata.crestTokens C ON C.authCharacter = 1 AND
+			(E.contactID = C.tokenCharacterID 
+			OR E.contactID = C.corporationID
+			OR E.contactID = C.allianceID)
+		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%plusTen%"
+		) S 
+		INNER JOIN evedata.integrationTokens T ON S.characterID = T.characterID
+		WHERE characterID = ?
+		GROUP BY address `, characterID); err != nil {
+		return nil, err
+	}
+	return integrations, nil
+}

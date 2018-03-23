@@ -95,6 +95,25 @@ func DumpDatabase(file string, db string) (err error) {
 		`)
 
 	f.WriteString(`
+			DELIMITER $$
+			CREATE FUNCTION alliedMilita(factionID INT UNSIGNED) RETURNS int(11)
+			DETERMINISTIC
+			BEGIN
+			IF factionID = 500001 THEN
+				RETURN 500003;
+			ELSEIF factionID = 500003 THEN
+				RETURN 500001;
+			ELSEIF factionID = 500002 THEN  
+				RETURN 500004;
+			ELSEIF factionID = 500004 THEN 
+				RETURN 500002;
+			END IF;
+			RETURN 0;
+			END$$
+			DELIMITER ;
+			`)
+
+	f.WriteString(`
 		DELIMITER $$
 		CREATE FUNCTION constellationIDBySolarSystem(system INT UNSIGNED) RETURNS int(10) unsigned
 			DETERMINISTIC
