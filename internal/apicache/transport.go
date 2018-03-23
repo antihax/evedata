@@ -66,22 +66,15 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 				esiRateLimiter = false
 			}
 
-			// Sleep to prevent hammering CCP ESI if there are excessive errors
-			if esiRateLimiter {
-				time.Sleep(time.Second * time.Duration(float64(reset*5)*(1-(float64(tokens)/100))))
+			if res.StatusCode == 420 { // Something went wrong
+				time.Sleep(time.Second * time.Duration(reset+rand.Intn(15)))
+			} else if res.StatusCode == 429 { // SNAFU
+				time.Sleep(time.Second * time.Duration(60+rand.Intn(30)))
+			} else if esiRateLimiter { // Sleep based on error rate.
+				time.Sleep(time.Second * time.Duration(float64(reset)*1.5*(1-(float64(tokens)/100))))
 			}
 
-			// Something went wrong
-			if res.StatusCode == 420 {
-				time.Sleep(time.Second * time.Duration(reset+rand.Intn(60)))
-			}
-
-			// SNAFU
-			if res.StatusCode == 429 {
-				time.Sleep(time.Second * time.Duration(rand.Intn(500)))
-			}
-
-			if res.StatusCode == 420 || res.StatusCode >= 500 || res.StatusCode == 0 {
+			if res.StatusCode == 420 || res.StatusCode == 429 || res.StatusCode >= 500 || res.StatusCode == 0 {
 				// break out after 10 tries
 				if tries > 10 {
 					return res, err
