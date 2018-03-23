@@ -62,8 +62,9 @@ func (s *Hammer) BulkLookup(ids []int32) error {
 			if len(ids[start:end]) == 0 {
 				break
 			}
-			resolved, _, err := s.esi.ESI.UniverseApi.PostUniverseNames(nil, ids[start:end], nil)
+			resolved, _, err := s.esi.ESI.UniverseApi.PostUniverseNames(context.Background(), ids[start:end], nil)
 			if err != nil {
+				log.Printf("%s %+v\n", err, ids[start:end])
 				return err
 			}
 			for _, r := range resolved {
@@ -79,6 +80,19 @@ func (s *Hammer) BulkLookup(ids []int32) error {
 		}
 	}
 	return nil
+}
+
+func SliceUniq(s []int32) []int32 {
+	for i := 0; i < len(s); i++ {
+		for i2 := i + 1; i2 < len(s); i2++ {
+			if s[i] == s[i2] {
+				// delete
+				s = append(s[:i2], s[i2+1:]...)
+				i2--
+			}
+		}
+	}
+	return s
 }
 
 func charSearchConsumer(s *Hammer, parameter interface{}) {

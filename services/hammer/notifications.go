@@ -86,7 +86,7 @@ func (s *Hammer) learnFromNotifications(notifications []esi.GetCharactersCharact
 	}
 
 	// Lookup every thing we learned
-	if err := s.BulkLookup(lookup); err != nil {
+	if err := s.BulkLookup(SliceUniq(lookup)); err != nil {
 		log.Println(err)
 	}
 }
