@@ -160,6 +160,7 @@ CREATE TABLE `corporations` (
 CREATE TABLE `crestTokens` (
   `characterID` int(11) NOT NULL,
   `tokenCharacterID` int(11) NOT NULL,
+  `characterOwnerHash` varchar(255) NOT NULL DEFAULT '',
   `accessToken` text CHARACTER SET latin1 NOT NULL,
   `refreshToken` text CHARACTER SET latin1 NOT NULL,
   `expiry` datetime NOT NULL,
@@ -176,7 +177,6 @@ CREATE TABLE `crestTokens` (
   `corporationID` int(11) NOT NULL DEFAULT '0',
   `allianceID` int(11) NOT NULL DEFAULT '0',
   `factionID` int(11) NOT NULL DEFAULT '0',
-  `characterOwnerHash` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`characterID`,`tokenCharacterID`),
   KEY `tokenCharacterID` (`tokenCharacterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
