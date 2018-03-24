@@ -308,7 +308,7 @@ func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = models.AddCRESTToken(char.CharacterID, v.CharacterID, v.CharacterName, tok, v.Scopes, v.CharacterOwnerHash,
+	err = models.AddCRESTToken(char.CharacterID, v.CharacterID, v.CharacterName, tok, v.Scopes, char.CharacterOwnerHash,
 		charDetails.CorporationId, charDetails.AllianceId, charDetails.FactionId)
 	if err != nil {
 		httpErr(w, err)
