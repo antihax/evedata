@@ -174,6 +174,7 @@ func crestCharacters(s *Artifice) error {
 			continue
 		} else {
 			tx, err := s.db.Beginx()
+			defer tx.Rollback()
 			if err != nil {
 				return err
 			}
@@ -193,12 +194,21 @@ func crestCharacters(s *Artifice) error {
 					continue
 				}
 			}
-			err = retryTransaction(tx)
-			if err != nil {
+			if err = retryTransaction(tx); err != nil {
 				return err
 			}
-			tx.Rollback()
+
 		}
+
+		// Update bot services with factionID.
+		if err = s.doSQL(`
+			UPDATE evedata.botServices S
+			INNER JOIN evedata.crestTokens C ON C.allianceID = S.entityID OR C.corporationID = S.entityID 
+				AND expiry > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 20 MINUTE)
+			SET S.factionID = C.factionID`); err != nil {
+			return err
+		}
+
 	}
 	return nil
 }
