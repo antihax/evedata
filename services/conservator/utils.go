@@ -5,15 +5,15 @@ import (
 	"fmt"
 )
 
-func (s *Conservator) getService(botServiceID int32) (*Service, error) {
+func (s *Conservator) getService(integrationID int32) (*Service, error) {
 	// Get the service
-	si, ok := s.services.Load(botServiceID)
+	si, ok := s.services.Load(integrationID)
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("missing botServiceID %d", botServiceID))
+		return nil, errors.New(fmt.Sprintf("missing integrationID %d", integrationID))
 	}
 	service, ok := si.(Service)
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("missing botServiceID %d", botServiceID))
+		return nil, errors.New(fmt.Sprintf("missing integrationID %d", integrationID))
 	}
 	return &service, nil
 }

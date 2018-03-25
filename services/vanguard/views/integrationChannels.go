@@ -12,28 +12,28 @@ import (
 )
 
 func init() {
-	vanguard.AddAuthRoute("botServices", "GET", "/U/botServiceChannels", apiGetBotServiceChannels)
-	vanguard.AddAuthRoute("botServices", "POST", "/U/botServiceChannels", apiAddBotServiceChannel)
-	vanguard.AddAuthRoute("botServices", "DELETE", "/U/botServiceChannels", apiDeleteBotServiceChannel)
+	vanguard.AddAuthRoute("integrations", "GET", "/U/integrationChannels", apiGetIntegrationChannels)
+	vanguard.AddAuthRoute("integrations", "POST", "/U/integrationChannels", apiAddIntegrationChannel)
+	vanguard.AddAuthRoute("integrations", "DELETE", "/U/integrationChannels", apiDeleteIntegrationChannel)
 
-	vanguard.AddAuthRoute("botServices", "PUT", "/U/botServiceChannelOptions", apiSetBotServiceChannelOptions)
+	vanguard.AddAuthRoute("integrations", "PUT", "/U/integrationChannelOptions", apiSetIntegrationChannelOptions)
 
-	vanguard.AddAuthRoute("botServices", "GET", "/U/botServiceRoles", apiGetBotServiceRoles)
+	vanguard.AddAuthRoute("integrations", "GET", "/U/integrationRoles", apiGetIntegrationRoles)
 }
 
-func apiGetBotServiceChannels(w http.ResponseWriter, r *http.Request) {
+func apiGetIntegrationChannels(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	g := vanguard.GlobalsFromContext(r.Context())
 
 	// Verify the user has access to this service
-	service, err := getBotService(r)
+	service, err := getIntegration(r)
 	if err != nil {
 		httpErr(w, err)
 		return
 	}
 
 	channels := [][]string{}
-	if err := g.RPCall("Conservator.GetChannels", service.BotServiceID, &channels); err != nil {
+	if err := g.RPCall("Conservator.GetChannels", service.IntegrationID, &channels); err != nil {
 		httpErr(w, err)
 		return
 	}
@@ -50,19 +50,19 @@ func apiGetBotServiceChannels(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(convChannels)
 }
 
-func apiGetBotServiceRoles(w http.ResponseWriter, r *http.Request) {
+func apiGetIntegrationRoles(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	g := vanguard.GlobalsFromContext(r.Context())
 
 	// Verify the user has access to this service
-	service, err := getBotService(r)
+	service, err := getIntegration(r)
 	if err != nil {
 		httpErr(w, err)
 		return
 	}
 
 	roles := [][]string{}
-	if err := g.RPCall("Conservator.GetRoles", service.BotServiceID, &roles); err != nil {
+	if err := g.RPCall("Conservator.GetRoles", service.IntegrationID, &roles); err != nil {
 		httpErr(w, err)
 		return
 	}
@@ -79,13 +79,13 @@ func apiGetBotServiceRoles(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(convRoles)
 }
 
-func apiAddBotServiceChannel(w http.ResponseWriter, r *http.Request) {
+func apiAddIntegrationChannel(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 
 	g := vanguard.GlobalsFromContext(r.Context())
 
 	// Verify the user has access to this service
-	service, err := getBotService(r)
+	service, err := getIntegration(r)
 	if err != nil {
 		httpErr(w, err)
 		return
@@ -102,7 +102,7 @@ func apiAddBotServiceChannel(w http.ResponseWriter, r *http.Request) {
 		}
 		if ok {
 			channels := [][]string{}
-			if err := g.RPCall("Conservator.GetChannels", service.BotServiceID, &channels); err != nil {
+			if err := g.RPCall("Conservator.GetChannels", service.IntegrationID, &channels); err != nil {
 				httpErr(w, err)
 				return
 			}
@@ -119,7 +119,7 @@ func apiAddBotServiceChannel(w http.ResponseWriter, r *http.Request) {
 		httpErr(w, errors.New("serverID is invalid or the bot has no access."))
 	}
 
-	if err = models.AddBotServiceChannel(service.BotServiceID, channelID, channelName); err != nil {
+	if err = models.AddIntegrationChannel(service.IntegrationID, channelID, channelName); err != nil {
 		httpErr(w, err)
 		return
 	}
@@ -127,10 +127,10 @@ func apiAddBotServiceChannel(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func apiDeleteBotServiceChannel(w http.ResponseWriter, r *http.Request) {
+func apiDeleteIntegrationChannel(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	// Verify the user has access to this service
-	service, err := getBotService(r)
+	service, err := getIntegration(r)
 	if err != nil {
 		httpErr(w, err)
 		return
@@ -141,16 +141,16 @@ func apiDeleteBotServiceChannel(w http.ResponseWriter, r *http.Request) {
 		httpErrCode(w, nil, http.StatusTeapot)
 	}
 
-	if err := models.DeleteBotServiceChannel(service.BotServiceID, channelID); err != nil {
+	if err := models.DeleteIntegrationChannel(service.IntegrationID, channelID); err != nil {
 		httpErrCode(w, err, http.StatusConflict)
 		return
 	}
 }
 
-func apiSetBotServiceChannelOptions(w http.ResponseWriter, r *http.Request) {
+func apiSetIntegrationChannelOptions(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	// Verify the user has access to this service
-	service, err := getBotService(r)
+	service, err := getIntegration(r)
 	if err != nil {
 		httpErr(w, err)
 		return
@@ -180,7 +180,7 @@ func apiSetBotServiceChannelOptions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := models.UpdateChannel(service.BotServiceID, channelID, string(options), chanServices.GetServices()); err != nil {
+	if err := models.UpdateChannel(service.IntegrationID, channelID, string(options), chanServices.GetServices()); err != nil {
 		httpErr(w, err)
 		return
 	}

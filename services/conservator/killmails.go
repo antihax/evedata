@@ -64,7 +64,7 @@ func (s *Conservator) reportKillmail(mail *esi.GetKillmailsKillmailIdKillmailHas
 		}
 
 		// Get the service
-		service, err := s.getService(channel.BotServiceID)
+		service, err := s.getService(channel.IntegrationID)
 		if err != nil {
 			return true
 		}

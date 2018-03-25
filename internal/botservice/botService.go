@@ -7,7 +7,7 @@ type Name struct {
 }
 
 // AuthService provides access to an authenticated service
-type BotService interface {
+type Integration interface {
 	SendMessageToChannel(channel, message string) error
 	SendMessageToUser(user, message string) error
 	KickUser(user, message string) error

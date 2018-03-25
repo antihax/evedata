@@ -408,7 +408,7 @@ func (s *Conservator) sendNotificationMessage(messageType string, characterID in
 				}
 
 				// Get the service
-				service, err := s.getService(c.BotServiceID)
+				service, err := s.getService(c.IntegrationID)
 				if err != nil {
 					log.Println(err)
 					return err

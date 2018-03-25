@@ -10,7 +10,7 @@ import (
 func GetShares(characterID int32) ([]conservator.Share, error) {
 	shares := []conservator.Share{}
 	if err := database.Select(&shares, `
-		SELECT S.characterID, S.tokenCharacterID, characterName AS tokenCharacterName, entityID, types, IFNULL(A.name, C.name) AS entityName, IF(A.name IS NULL, "corporation", "alliance") AS entityType
+		SELECT DISTINCT S.characterID, S.tokenCharacterID, characterName AS tokenCharacterName, entityID, types, IFNULL(A.name, C.name) AS entityName, IF(A.name IS NULL, "corporation", "alliance") AS entityType
 		FROM evedata.sharing S
 		INNER JOIN evedata.crestTokens T ON T.tokenCharacterID = S.tokenCharacterID AND T.characterID = S.characterID
 		LEFT OUTER JOIN evedata.corporations C ON C.corporationID = S.entityID
@@ -41,54 +41,54 @@ func DeleteShare(characterID, tokenCharacterID, entityID int32) error {
 }
 
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetBotServices(characterID int32) ([]conservator.Service, error) {
+func GetIntegrations(characterID int32) ([]conservator.Service, error) {
 	services := []conservator.Service{}
 	if err := database.Select(&services, `
-		SELECT  S.botServiceID, S.name, entityID, address,  type, services, options,
+		SELECT  S.integrationID, S.name, entityID, address,  type, services, options,
 		IFNULL(A.name, C.name) AS entityName, IF(A.name IS NULL, "corporation", "alliance") AS entityType
-				FROM evedata.botServices S
+				FROM evedata.integrations S
 				LEFT OUTER JOIN evedata.corporations C ON C.corporationID = S.entityID
 				LEFT OUTER JOIN evedata.alliances A ON A.allianceID = S.entityID
-				LEFT OUTER JOIN evedata.botDelegate D ON D.botServiceID = S.botServiceID
+				LEFT OUTER JOIN evedata.integrationDelegate D ON D.integrationID = S.integrationID
 				LEFT OUTER JOIN evedata.crestTokens T ON FIND_IN_SET("Director", T.roles) AND 
 					T.characterID = ? AND (A.executorCorpID = T.corporationID OR 
 					(T.allianceID = 0 AND T.corporationID = S.entityID))
 				WHERE D.characterID = ? OR T.characterID = ?
-				GROUP BY botServiceID;`, characterID, characterID, characterID); err != nil {
+				GROUP BY integrationID;`, characterID, characterID, characterID); err != nil {
 		return nil, err
 	}
 	return services, nil
 }
 
-type BotServiceDetails struct {
+type IntegrationDetails struct {
 	conservator.Service
 	Channels []conservator.Channel
 	Shares   []conservator.Share
 }
 
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetBotServiceDetails(characterID, serverID int32) (BotServiceDetails, error) {
+func GetIntegrationDetails(characterID, serverID int32) (IntegrationDetails, error) {
 	// let this perform our authorization checks
-	service := BotServiceDetails{}
+	service := IntegrationDetails{}
 	row, err := database.Queryx(`
-		SELECT  S.botServiceID, S.name, entityID, address,  type, services, options,
+		SELECT  S.integrationID, S.name, entityID, address,  type, services, options,
 		IFNULL(A.name, C.name) AS entityName, IF(A.name IS NULL, "corporation", "alliance") AS entityType
-				FROM evedata.botServices S
+				FROM evedata.integrations S
 				LEFT OUTER JOIN evedata.corporations C ON C.corporationID = S.entityID
 				LEFT OUTER JOIN evedata.alliances A ON A.allianceID = S.entityID
-				LEFT OUTER JOIN evedata.botDelegate D ON D.botServiceID = S.botServiceID
+				LEFT OUTER JOIN evedata.integrationDelegate D ON D.integrationID = S.integrationID
 				LEFT OUTER JOIN evedata.crestTokens T ON FIND_IN_SET("Director", T.roles) AND 
 					T.characterID = ? AND (A.executorCorpID = T.corporationID OR 
 					(T.allianceID = 0 AND T.corporationID = S.entityID))
-				WHERE (D.characterID = ? OR T.characterID = ?) AND S.botServiceID = ?
-				GROUP BY botServiceID LIMIT 1;`, characterID, characterID, characterID, serverID)
+				WHERE (D.characterID = ? OR T.characterID = ?) AND S.integrationID = ?
+				GROUP BY integrationID LIMIT 1;`, characterID, characterID, characterID, serverID)
 	if err != nil {
 		return service, err
 	}
 	defer row.Close()
 
 	if !row.Next() {
-		return service, errors.New("Bot service unavailable")
+		return service, errors.New("Integration service unavailable")
 	}
 	err = row.StructScan(&service)
 	if err != nil {
@@ -96,25 +96,25 @@ func GetBotServiceDetails(characterID, serverID int32) (BotServiceDetails, error
 	}
 
 	// not authorized
-	if service.BotServiceID == 0 {
+	if service.IntegrationID == 0 {
 		return service, errors.New("character is not authorized")
 	}
 
 	err = database.Select(&service.Channels, `
-		SELECT botServiceID, channelID, channelName, services, options
-		FROM evedata.botChannels 
-		WHERE botServiceID = ?;`, service.BotServiceID)
+		SELECT integrationID, channelID, channelName, services, options
+		FROM evedata.integrationChannels 
+		WHERE integrationID = ?;`, service.IntegrationID)
 	if err != nil {
 		return service, err
 	}
 
 	err = database.Select(&service.Shares, `
-		SELECT characterName AS tokenCharacterName, C.tokenCharacterID, E.corporationID AS entityID, E.name AS entityName, "corporation" AS entityType, B.botServiceID, types, ignored
+		SELECT DISTINCT characterName AS tokenCharacterName, C.tokenCharacterID, E.corporationID AS entityID, E.name AS entityName, "corporation" AS entityType, B.integrationID, types, ignored
 		FROM evedata.sharing S
-		INNER JOIN evedata.botServices B ON B.entityID = S.entityID
+		INNER JOIN evedata.integrations B ON B.entityID = S.entityID
         INNER JOIN evedata.crestTokens C ON C.tokenCharacterID = S.tokenCharacterID
         INNER JOIN evedata.corporations E ON C.corporationID = E.corporationID
-		WHERE B.botServiceID = ?;`, service.BotServiceID)
+		WHERE B.integrationID = ?;`, service.IntegrationID)
 	if err != nil {
 		return service, err
 	}
@@ -122,22 +122,22 @@ func GetBotServiceDetails(characterID, serverID int32) (BotServiceDetails, error
 	return service, nil
 }
 
-func AddBotServiceChannel(botServiceID int32, channelID, channelName string) error {
+func AddIntegrationChannel(integrationID int32, channelID, channelName string) error {
 	if _, err := database.Exec(`
-		INSERT INTO evedata.botChannels	(botServiceID, channelID, channelName, services, options)
+		INSERT INTO evedata.integrationChannels	(integrationID, channelID, channelName, services, options)
 			VALUES(?,?,?,'','')
 			ON DUPLICATE KEY UPDATE channelID = channelID`,
-		botServiceID, channelID, channelName); err != nil {
+		integrationID, channelID, channelName); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func DeleteBotServiceChannel(botServiceID int32, channelID string) error {
+func DeleteIntegrationChannel(integrationID int32, channelID string) error {
 	if _, err := database.Exec(`
-		DELETE FROM evedata.botChannels
-		WHERE botServiceID = ? AND channelID = ?`, botServiceID, channelID); err != nil {
+		DELETE FROM evedata.integrationChannels
+		WHERE integrationID = ? AND channelID = ?`, integrationID, channelID); err != nil {
 		return err
 	}
 	return nil
@@ -155,7 +155,7 @@ func AddDiscordService(characterID, entityID int32, serverID string) error {
 	}
 
 	if _, err := database.Exec(`
-		INSERT INTO evedata.botServices	(entityID, address, type, options)
+		INSERT INTO evedata.integrations	(entityID, address, type, options)
 			VALUES(?,?,'discord','')
 			ON DUPLICATE KEY UPDATE entityID = entityID`,
 		entityID, serverID); err != nil {
@@ -165,34 +165,34 @@ func AddDiscordService(characterID, entityID int32, serverID string) error {
 	return nil
 }
 
-func DeleteService(characterID, botServiceID int32) error {
+func DeleteService(characterID, integrationID int32) error {
 	if _, err := database.Exec(`
-		DELETE S FROM evedata.botServices S
+		DELETE S FROM evedata.integrations S
 		LEFT OUTER JOIN evedata.alliances A ON A.allianceID = S.entityID
 		LEFT OUTER JOIN evedata.crestTokens T ON FIND_IN_SET("Director", T.roles) AND 
 		T.characterID = ? AND (A.executorCorpID = T.corporationID OR 
 		(T.allianceID = 0 AND T.corporationID = S.entityID))
-		WHERE botServiceID = ? AND T.characterID = ?
+		WHERE integrationID = ? AND T.characterID = ?
 		`,
-		characterID, botServiceID, characterID); err != nil {
+		characterID, integrationID, characterID); err != nil {
 		return err
 	}
 	return nil
 }
 
-func UpdateChannel(botServiceID int32, channelID, options, services string) error {
+func UpdateChannel(integrationID int32, channelID, options, services string) error {
 	if _, err := database.Exec(`
-		UPDATE evedata.botChannels SET options = ?, services = ? WHERE botServiceID = ? AND channelID = ? LIMIT 1`,
-		options, services, botServiceID, channelID); err != nil {
+		UPDATE evedata.integrationChannels SET options = ?, services = ? WHERE integrationID = ? AND channelID = ? LIMIT 1`,
+		options, services, integrationID, channelID); err != nil {
 		return err
 	}
 	return nil
 }
 
-func UpdateService(botServiceID int32, options, services string) error {
+func UpdateService(integrationID int32, options, services string) error {
 	if _, err := database.Exec(`
-		UPDATE evedata.botServices SET options = ?, services = ? WHERE botServiceID = ? LIMIT 1`,
-		options, services, botServiceID); err != nil {
+		UPDATE evedata.integrations SET options = ?, services = ? WHERE integrationID = ? LIMIT 1`,
+		options, services, integrationID); err != nil {
 		return err
 	}
 	return nil
@@ -208,6 +208,7 @@ func entityInSlice(a int32, list []Entity) bool {
 }
 
 type AvailableIntegrations struct {
+	IntegrationID     int32  `db:"integrationID" json:"integrationID"`
 	Address           string `db:"address" json:"address"`
 	Reason            string `db:"reason" json:"reason"`
 	Name              string `db:"name" json:"name"`
@@ -222,29 +223,29 @@ type AvailableIntegrations struct {
 func GetAvailableIntegrations(characterID int32) ([]AvailableIntegrations, error) {
 	integrations := []AvailableIntegrations{}
 	if err := database.Select(&integrations, `
-		SELECT address, reason, name, characterName, T.characterID, tokenCharacterID, integrationUserID, type FROM
+		SELECT integrationID, address, reason, name, characterName, T.characterID, tokenCharacterID, integrationUserID, type FROM
 		(
-		SELECT address, name, characterName, C.characterID, tokenCharacterID, "member" AS reason
-		FROM evedata.botServices B
+		SELECT integrationID, address, name, characterName, C.characterID, tokenCharacterID, "member" AS reason
+		FROM evedata.integrations B
 		INNER JOIN evedata.crestTokens C ON C.authCharacter = 1 AND
 			(C.corporationID = B.entityID 					   
 			OR C.allianceID = B.entityID)
 		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%member%"
 		UNION
-		SELECT address, name, characterName, C.characterID, tokenCharacterID, "militia" AS reason
-		FROM evedata.botServices B
+		SELECT integrationID, address, name, characterName, C.characterID, tokenCharacterID, "militia" AS reason
+		FROM evedata.integrations B
 		INNER JOIN evedata.crestTokens C ON C.authCharacter = 1 AND
 			B.factionID > 0 AND B.factionID = C.factionID
 		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%militia%"
 		UNION
-		SELECT address, name, characterName, C.characterID, tokenCharacterID, "alliedMilitia" AS reason
-		FROM evedata.botServices B
+		SELECT integrationID, address, name, characterName, C.characterID, tokenCharacterID, "alliedMilitia" AS reason
+		FROM evedata.integrations B
 		INNER JOIN evedata.crestTokens C ON C.authCharacter = 1 AND
 			B.factionID > 0 AND B.factionID = evedata.alliedMilita(C.factionID)
 		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%alliedMilitia%"
 		UNION
-		SELECT address, name, characterName, C.characterID, tokenCharacterID, "+5" AS reason
-		FROM evedata.botServices B
+		SELECT integrationID, address, name, characterName, C.characterID, tokenCharacterID, "+5" AS reason
+		FROM evedata.integrations B
 		INNER JOIN evedata.entityContacts E ON E.entityID = B.entityID AND E.standing = 5.0
 		INNER JOIN evedata.crestTokens C ON  C.authCharacter = 1 AND
 			(E.contactID = C.tokenCharacterID 
@@ -252,8 +253,8 @@ func GetAvailableIntegrations(characterID int32) ([]AvailableIntegrations, error
 			OR E.contactID = C.allianceID)
 		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%plusFive%"
 		UNION
-		SELECT address, name, characterName, C.characterID, tokenCharacterID, "+10" AS reason
-		FROM evedata.botServices B
+		SELECT integrationID, address, name, characterName, C.characterID, tokenCharacterID, "+10" AS reason
+		FROM evedata.integrations B
 		INNER JOIN evedata.entityContacts E ON E.entityID = B.entityID AND E.standing = 10.0
 		INNER JOIN evedata.crestTokens C ON C.authCharacter = 1 AND
 			(E.contactID = C.tokenCharacterID 
@@ -262,7 +263,7 @@ func GetAvailableIntegrations(characterID int32) ([]AvailableIntegrations, error
 		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%plusTen%"
 		) S 
 		INNER JOIN evedata.integrationTokens T ON S.characterID = T.characterID
-		WHERE characterID = ?
+		WHERE T.characterID = ?
 		GROUP BY address `, characterID); err != nil {
 		return nil, err
 	}

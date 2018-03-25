@@ -200,9 +200,9 @@ func crestCharacters(s *Artifice) error {
 
 		}
 
-		// Update bot services with factionID.
+		// Update integrations services with factionID.
 		if err = s.doSQL(`
-			UPDATE evedata.botServices S
+			UPDATE evedata.integrations S
 			INNER JOIN evedata.crestTokens C ON C.allianceID = S.entityID OR C.corporationID = S.entityID 
 				AND expiry > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 20 MINUTE)
 			SET S.factionID = C.factionID`); err != nil {

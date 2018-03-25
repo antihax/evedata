@@ -33,52 +33,6 @@ CREATE TABLE `assets` (
   KEY `characterID` (`characterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `botChannels` (
-  `botServiceID` int(10) unsigned NOT NULL,
-  `channelID` varchar(255) COLLATE utf8_bin NOT NULL,
-  `services` set('locator','kill','structure','application','war') COLLATE utf8_bin NOT NULL,
-  `options` text COLLATE utf8_bin NOT NULL,
-  `channelName` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT 'unknown',
-  PRIMARY KEY (`channelID`),
-  UNIQUE KEY `channelID_UNIQUE` (`channelID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-CREATE TABLE `botCharacters` (
-  `botServiceID` int(11) NOT NULL,
-  `characterID` int(11) NOT NULL,
-  `botUserID` varchar(255) COLLATE utf8_bin DEFAULT '',
-  PRIMARY KEY (`botServiceID`,`characterID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-CREATE TABLE `botDelegate` (
-  `botServiceID` int(11) NOT NULL,
-  `characterID` int(11) NOT NULL,
-  `permissions` enum('administrator') COLLATE utf8_bin NOT NULL,
-  PRIMARY KEY (`botServiceID`,`characterID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-CREATE TABLE `botRoles` (
-  `botServiceID` int(10) unsigned NOT NULL DEFAULT '0',
-  `roleID` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
-  `roleName` varchar(45) COLLATE utf8_bin NOT NULL DEFAULT 'unknown',
-  PRIMARY KEY (`botServiceID`,`roleID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-CREATE TABLE `botServices` (
-  `botServiceID` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
-  `entityID` int(11) NOT NULL DEFAULT '0',
-  `address` varchar(255) COLLATE utf8_bin NOT NULL,
-  `authentication` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
-  `type` enum('discord','ts3','slack') COLLATE utf8_bin NOT NULL,
-  `services` set('auth') COLLATE utf8_bin NOT NULL DEFAULT '',
-  `options` text COLLATE utf8_bin NOT NULL,
-  `characterID` int(11) NOT NULL DEFAULT '0',
-  `factionID` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`botServiceID`),
-  UNIQUE KEY `UNIQUE` (`address`,`authentication`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
 CREATE TABLE `characterAssociations` (
   `characterID` int(10) unsigned NOT NULL,
   `associateID` int(10) unsigned NOT NULL,
@@ -234,6 +188,36 @@ CREATE TABLE `httpErrors` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `integrationChannels` (
+  `integrationID` int(10) unsigned NOT NULL,
+  `channelID` varchar(255) COLLATE utf8_bin NOT NULL,
+  `services` set('locator','kill','structure','application','war') COLLATE utf8_bin NOT NULL,
+  `options` text COLLATE utf8_bin NOT NULL,
+  `channelName` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT 'unknown',
+  PRIMARY KEY (`channelID`,`integrationID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `integrationCharacters` (
+  `integrationID` int(11) NOT NULL,
+  `characterID` int(11) NOT NULL,
+  `integrationUserID` varchar(255) COLLATE utf8_bin DEFAULT '',
+  PRIMARY KEY (`integrationID`,`characterID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `integrationDelegate` (
+  `integrationID` int(11) NOT NULL,
+  `characterID` int(11) NOT NULL,
+  `permissions` enum('administrator') COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`integrationID`,`characterID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `integrationRoles` (
+  `integrationID` int(10) unsigned NOT NULL DEFAULT '0',
+  `roleID` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `roleName` varchar(45) COLLATE utf8_bin NOT NULL DEFAULT 'unknown',
+  PRIMARY KEY (`integrationID`,`roleID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `integrationTokens` (
   `characterID` int(11) NOT NULL,
   `integrationUserID` varchar(255) NOT NULL DEFAULT '',
@@ -249,6 +233,21 @@ CREATE TABLE `integrationTokens` (
   `mailedError` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`characterID`,`integrationUserID`,`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `integrations` (
+  `integrationID` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `entityID` int(11) NOT NULL DEFAULT '0',
+  `address` varchar(255) COLLATE utf8_bin NOT NULL,
+  `authentication` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `type` enum('discord','ts3','slack') COLLATE utf8_bin NOT NULL,
+  `services` set('auth') COLLATE utf8_bin NOT NULL DEFAULT '',
+  `options` text COLLATE utf8_bin NOT NULL,
+  `characterID` int(11) NOT NULL DEFAULT '0',
+  `factionID` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`integrationID`),
+  UNIQUE KEY `UNIQUE` (`address`,`authentication`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `iskPerLp` (
   `itemName` varchar(100) NOT NULL,

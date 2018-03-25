@@ -143,7 +143,7 @@
 						<span aria-hidden="true">&times;</span>
 					</button>
 					<h3 class="modal-title"></h3>
-					<label name="botServiceID" id="botServiceID"></label>
+					<label name="integrationID" id="integrationID"></label>
 					<label>
 				</div>
 				<div class="modal-body">
@@ -290,7 +290,7 @@
 		'click .removeChannel': function (e, value, row) {
 			if (confirm('Are you sure you want to delete this channel?')) {
 				$.ajax({
-					url: "/U/botServiceChannels?botServiceID=" + row.botServiceID + "&channelID=" + row.channelID,
+					url: "/U/integrationChannels?integrationID=" + row.integrationID + "&channelID=" + row.channelID,
 					type: 'delete',
 					success: function () {
 						showAlert('Delete channel successful!', 'success');
@@ -326,7 +326,7 @@
 		},
 		'click .toggleignore': function (e, value, row) {
 			$.ajax({
-				url: "/U/botShareToggleIgnore?tokenCharacterID=" + row.tokenCharacterID + "&botServiceID=" + row.botServiceID,
+				url: "/U/integrationShareToggleIgnore?tokenCharacterID=" + row.tokenCharacterID + "&integrationID=" + row.integrationID,
 				type: 'post',
 				success: function () {
 					updateService();
@@ -341,7 +341,7 @@
 
 	$("#editService").click(function () {
 		$serviceoptions.find('.modal-title').text("Edit Service: " + $service.name);
-		$serviceoptions.find('#botServiceID').text($service.botServiceID);
+		$serviceoptions.find('#integrationID').text($service.integrationID);
 		$('#serviceOpts')[0].reset();
 		$serviceoptions.find('#services')[0].reset();
 		if ($service.services) {
@@ -362,15 +362,13 @@
 		$serviceoptions.modal('show');
 	});
 
-
-
 	$addchannel.find('#submitchannel').click(function () {
 		$.ajax({
 			type: "POST",
-			url: "/U/botServiceChannels",
+			url: "/U/integrationChannels",
 			data: {
 				channelID: $('#channels').children(":selected").attr("id"),
-				botServiceID: getUrlVars()["botServiceID"],
+				integrationID: getUrlVars()["integrationID"],
 			}
 		})
 			.done(function () {
@@ -386,10 +384,10 @@
 	$channeloptions.find('#channeloptions').click(function () {
 		$.ajax({
 			type: "PUT",
-			url: "/U/botServiceChannelOptions",
+			url: "/U/integrationChannelOptions",
 			data: {
 				channelID: $('#channelID').text(),
-				botServiceID: getUrlVars()["botServiceID"],
+				integrationID: getUrlVars()["integrationID"],
 				options: JSON.stringify($('#channelOpts').serializeObject()),
 				services: JSON.stringify($('#services').serializeObject())
 			}
@@ -408,9 +406,9 @@
 		$o = $channeloptions.find('#serviceoptions');
 		$.ajax({
 			type: "PUT",
-			url: "/U/botDetails",
+			url: "/U/integrationDetails",
 			data: {
-				botServiceID: getUrlVars()["botServiceID"],
+				integrationID: getUrlVars()["integrationID"],
 				options: JSON.stringify($serviceoptions.find('#serviceOpts').serializeObject()),
 				services: JSON.stringify($serviceoptions.find('#services').serializeObject())
 			}
@@ -427,7 +425,7 @@
 
 	function updateService() {
 		$.ajax({
-			url: '/U/botDetails?botServiceID=' + getUrlVars()["botServiceID"],
+			url: '/U/integrationDetails?integrationID=' + getUrlVars()["integrationID"],
 			dataType: 'JSON',
 			success: updateServiceData,
 			error: function (err) {
@@ -454,7 +452,7 @@
 		}
 
 		$.ajax({
-			url: '/U/botServiceChannels?botServiceID=' + getUrlVars()["botServiceID"],
+			url: '/U/integrationChannels?integrationID=' + getUrlVars()["integrationID"],
 			dataType: 'JSON',
 			success: function (data) {
 				$('#channels').html('');
@@ -476,7 +474,7 @@
 		});
 
 		$.ajax({
-			url: '/U/botServiceRoles?botServiceID=' + getUrlVars()["botServiceID"],
+			url: '/U/integrationRoles?integrationID=' + getUrlVars()["integrationID"],
 			dataType: 'JSON',
 			success: function (data) {
 				$('.roles').html('');

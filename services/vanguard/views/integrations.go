@@ -14,23 +14,23 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("botServices", "GET", "/botServices", botServicesPage)
-	vanguard.AddAuthRoute("botServices", "GET", "/U/botServices", apiGetBotServices)
-	vanguard.AddAuthRoute("botServices", "DELETE", "/U/botServices", apiDeleteBotService)
-	vanguard.AddAuthRoute("botServices", "POST", "/U/botServicesDiscord", apiAddDiscordBotService)
-	vanguard.AddAuthRoute("botServices", "POST", "/U/botShareToggleIgnore", apiBotServiceToggleIgnore)
+	vanguard.AddRoute("integrations", "GET", "/integrations", integrationsPage)
+	vanguard.AddAuthRoute("integrations", "GET", "/U/integrations", apiGetIntegrations)
+	vanguard.AddAuthRoute("integrations", "DELETE", "/U/integrations", apiDeleteIntegration)
+	vanguard.AddAuthRoute("integrations", "POST", "/U/integrationsDiscord", apiAddDiscordIntegration)
+	vanguard.AddAuthRoute("integrations", "POST", "/U/integrationShareToggleIgnore", apiIntegrationToggleIgnore)
 
-	vanguard.AddRoute("botServices", "GET", "/botDetails", botDetailsPage)
-	vanguard.AddAuthRoute("botServices", "GET", "/U/botDetails", apiGetBotDetails)
-	vanguard.AddAuthRoute("botServices", "PUT", "/U/botDetails", apiBotServiceOptions)
+	vanguard.AddRoute("integrations", "GET", "/integrationDetails", integrationDetailsPage)
+	vanguard.AddAuthRoute("integrations", "GET", "/U/integrationDetails", apiGetIntegrationDetails)
+	vanguard.AddAuthRoute("integrations", "PUT", "/U/integrationDetails", apiIntegrationOptions)
 
-	vanguard.AddAuthRoute("botServices", "GET", "/U/entitiesWithRoles", apiGetEntitiesWithRoles)
+	vanguard.AddAuthRoute("integrations", "GET", "/U/entitiesWithRoles", apiGetEntitiesWithRoles)
 }
 
-func botServicesPage(w http.ResponseWriter, r *http.Request) {
+func integrationsPage(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	p := newPage(r, "Integrations")
-	templates.Templates = template.Must(template.ParseFiles("templates/botServices.html", templates.LayoutPath))
+	templates.Templates = template.Must(template.ParseFiles("templates/integrations.html", templates.LayoutPath))
 
 	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
 		httpErr(w, err)
@@ -38,7 +38,7 @@ func botServicesPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func apiDeleteBotService(w http.ResponseWriter, r *http.Request) {
+func apiDeleteIntegration(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
@@ -49,19 +49,19 @@ func apiDeleteBotService(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	botServerID, err := strconv.ParseInt(r.FormValue("botServerID"), 10, 64)
+	integrationID, err := strconv.ParseInt(r.FormValue("integrationID"), 10, 64)
 	if err != nil {
 		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 
-	if err := models.DeleteService(characterID, int32(botServerID)); err != nil {
+	if err := models.DeleteService(characterID, int32(integrationID)); err != nil {
 		httpErrCode(w, err, http.StatusConflict)
 		return
 	}
 }
 
-func apiAddDiscordBotService(w http.ResponseWriter, r *http.Request) {
+func apiAddDiscordIntegration(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 	g := vanguard.GlobalsFromContext(r.Context())
@@ -104,7 +104,7 @@ func apiAddDiscordBotService(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func apiGetBotServices(w http.ResponseWriter, r *http.Request) {
+func apiGetIntegrations(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
@@ -115,7 +115,7 @@ func apiGetBotServices(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	v, err := models.GetBotServices(characterID)
+	v, err := models.GetIntegrations(characterID)
 	if err != nil {
 		httpErr(w, err)
 		return
@@ -123,10 +123,10 @@ func apiGetBotServices(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(v)
 }
 
-func botDetailsPage(w http.ResponseWriter, r *http.Request) {
+func integrationDetailsPage(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	p := newPage(r, "Integration Services")
-	templates.Templates = template.Must(template.ParseFiles("templates/botDetails.html", templates.LayoutPath))
+	templates.Templates = template.Must(template.ParseFiles("templates/integrationDetails.html", templates.LayoutPath))
 
 	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
 		httpErr(w, err)
@@ -134,11 +134,11 @@ func botDetailsPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func apiGetBotDetails(w http.ResponseWriter, r *http.Request) {
+func apiGetIntegrationDetails(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 
 	// Verify the user has access to this service
-	v, err := getBotService(r)
+	v, err := getIntegration(r)
 	if err != nil {
 		httpErr(w, err)
 		return
@@ -151,7 +151,7 @@ func apiGetBotDetails(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(v)
 }
 
-func apiBotServiceToggleIgnore(w http.ResponseWriter, r *http.Request) {
+func apiIntegrationToggleIgnore(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	g := vanguard.GlobalsFromContext(r.Context())
 
@@ -163,7 +163,7 @@ func apiBotServiceToggleIgnore(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify the user has access to this service
-	service, err := getBotService(r)
+	service, err := getIntegration(r)
 	if err != nil {
 		httpErr(w, err)
 		return
@@ -196,10 +196,10 @@ func apiGetEntitiesWithRoles(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(v)
 }
 
-func apiBotServiceOptions(w http.ResponseWriter, r *http.Request) {
+func apiIntegrationOptions(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	// Verify the user has access to this service
-	service, err := getBotService(r)
+	service, err := getIntegration(r)
 	if err != nil {
 		httpErr(w, err)
 		return
@@ -225,13 +225,13 @@ func apiBotServiceOptions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := models.UpdateService(service.BotServiceID, string(options), servServices.GetServices()); err != nil {
+	if err := models.UpdateService(service.IntegrationID, string(options), servServices.GetServices()); err != nil {
 		httpErr(w, err)
 		return
 	}
 }
 
-func getBotService(r *http.Request) (*models.BotServiceDetails, error) {
+func getIntegration(r *http.Request) (*models.IntegrationDetails, error) {
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -240,19 +240,19 @@ func getBotService(r *http.Request) (*models.BotServiceDetails, error) {
 		return nil, errors.New("Not authorized")
 	}
 
-	// Check botServiceID is valid
-	botServiceID, err := strconv.Atoi(r.FormValue("botServiceID"))
+	// Check integrationID is valid
+	integrationID, err := strconv.Atoi(r.FormValue("integrationID"))
 	if err != nil {
 		return nil, err
 	}
 
 	// verify this character can access this service
-	v, err := models.GetBotServiceDetails(characterID, int32(botServiceID))
+	v, err := models.GetIntegrationDetails(characterID, int32(integrationID))
 	if err != nil {
 		return nil, err
 	}
 
-	if v.BotServiceID == 0 {
+	if v.IntegrationID == 0 {
 		return nil, errors.New("Not authorized")
 	}
 	return &v, nil

@@ -5,7 +5,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// BotService provides access to a discord session
+// Integration provides access to a discord session
 // Discordgo handles rate throttling
 type DiscordService struct {
 	session  *discordgo.Session

@@ -30,6 +30,7 @@ func init() {
 
 	vanguard.AddAuthRoute("account", "POST", "/U/toggleAuth", apiToggleAuth)
 
+	vanguard.AddAuthRoute("crestTokens", "GET", "/U/accessableIntegrations", apiAccessableIntegrations)
 }
 
 func apiToggleAuth(w http.ResponseWriter, r *http.Request) {
@@ -222,7 +223,30 @@ func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+func apiAccessableIntegrations(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	s := vanguard.SessionFromContext(r.Context())
 
+	// Get the sessions main characterID
+	characterID, ok := s.Values["characterID"].(int32)
+	if !ok {
+		httpErrCode(w, errors.New("could not find character ID for integration token"), http.StatusUnauthorized)
+		return
+	}
+
+	v, err := models.GetAvailableIntegrations(characterID)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	json.NewEncoder(w).Encode(v)
+
+	if err = s.Save(r, w); err != nil {
+		httpErr(w, err)
+		return
+	}
+}
 func apiGetIntegrationTokens(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())

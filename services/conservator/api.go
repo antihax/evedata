@@ -51,9 +51,9 @@ func (s *Conservator) VerifyDiscordChannel(args []string, reply *bool) error {
 	return nil
 }
 
-func (s *Conservator) GetChannels(botServiceID *int32, reply *[][]string) error {
+func (s *Conservator) GetChannels(integrationID *int32, reply *[][]string) error {
 	// Get the service
-	service, err := s.getService(*botServiceID)
+	service, err := s.getService(*integrationID)
 	if err != nil {
 		return err
 	}
@@ -70,9 +70,9 @@ func (s *Conservator) GetChannels(botServiceID *int32, reply *[][]string) error 
 	return nil
 }
 
-func (s *Conservator) GetRoles(botServiceID *int32, reply *[][]string) error {
+func (s *Conservator) GetRoles(integrationID *int32, reply *[][]string) error {
 	// Get the service
-	service, err := s.getService(*botServiceID)
+	service, err := s.getService(*integrationID)
 	if err != nil {
 		return err
 	}

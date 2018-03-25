@@ -22,19 +22,19 @@ func TestMain(m *testing.M) {
 	conserv = NewConservator(redis, sql, nsqhelper.Test, "TEST")
 
 	inserts := []string{
-		`INSERT INTO evedata.botServices
-			(botServiceID, entityID, address, authentication, type, services, options) 
+		`INSERT INTO evedata.integrations
+			(integrationID, entityID, address, authentication, type, services, options) 
 			VALUES
 			(1, 234, "127.0.0.1:10011", "serveradmin:nothinguseful", "ts3", "auth", ""),
 			(2, 567, "127.0.0.2:10011", "serveradmin:nothinguseful", "ts3", "", "")
-			ON DUPLICATE KEY UPDATE botServiceID=botServiceID`,
-		`INSERT INTO evedata.botChannels
-			(botServiceID, channelID, services, options) 
+			ON DUPLICATE KEY UPDATE integrationID=integrationID`,
+		`INSERT INTO evedata.integrationChannels
+			(integrationID, channelID, services, options) 
 			VALUES
 			(1, 12345, "kill", ""),
 			(1, 12346, "locator", ""),
 			(2, 12347, "kill,locator,structure", "")
-			ON DUPLICATE KEY UPDATE botServiceID=botServiceID`,
+			ON DUPLICATE KEY UPDATE integrationID=integrationID`,
 		`INSERT INTO evedata.sharing
 			(characterID, tokenCharacterID, entityID, types) 
 			VALUES

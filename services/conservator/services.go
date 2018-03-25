@@ -81,19 +81,19 @@ func (c *ChannelTypes) GetServices() string {
 }
 
 type Service struct {
-	Server         botservice.BotService `json:"-,omitempty"`
-	BotServiceID   int32                 `db:"botServiceID" json:"botServiceID,omitempty"`
-	FactionID      int32                 `db:"factionID" json:"factionID,omitempty"`
-	Name           string                `db:"name" json:"name,omitempty"`
-	EntityID       int32                 `db:"entityID" json:"entityID,omitempty"`
-	EntityName     string                `db:"entityName" json:"entityName,omitempty"`
-	EntityType     string                `db:"entityType" json:"entityType,omitempty"`
-	Address        string                `db:"address" json:"address,omitempty" `
-	Authentication string                `db:"authentication,omitempty"`
-	Type           string                `db:"type" json:"type,omitempty"`
-	Services       string                `db:"services" json:"services,omitempty"`
-	OptionsJSON    string                `db:"options" json:"-"`
-	Options        ServiceOptions        `db:"-" json:"options,omitempty"`
+	Server         botservice.Integration `json:"-,omitempty"`
+	IntegrationID  int32                  `db:"integrationID" json:"integrationID,omitempty"`
+	FactionID      int32                  `db:"factionID" json:"factionID,omitempty"`
+	Name           string                 `db:"name" json:"name,omitempty"`
+	EntityID       int32                  `db:"entityID" json:"entityID,omitempty"`
+	EntityName     string                 `db:"entityName" json:"entityName,omitempty"`
+	EntityType     string                 `db:"entityType" json:"entityType,omitempty"`
+	Address        string                 `db:"address" json:"address,omitempty" `
+	Authentication string                 `db:"authentication,omitempty"`
+	Type           string                 `db:"type" json:"type,omitempty"`
+	Services       string                 `db:"services" json:"services,omitempty"`
+	OptionsJSON    string                 `db:"options" json:"-"`
+	Options        ServiceOptions         `db:"-" json:"options,omitempty"`
 }
 
 func (s *Service) checkRemoveRoles(memberID, roleToRemove string, memberRoles []string) error {
@@ -111,16 +111,16 @@ func (s *Service) checkAddRoles(memberID, roleToAdd string, memberRoles []string
 }
 
 type Channel struct {
-	BotServiceID int32          `db:"botServiceID" json:"botServiceID,omitempty"`
-	ChannelID    string         `db:"channelID"  json:"channelID,omitempty"`
-	ChannelName  string         `db:"channelName"  json:"channelName,omitempty"`
-	Services     string         `db:"services" json:"services,omitempty"`
-	OptionsJSON  string         `db:"options" json:"-"`
-	Options      ChannelOptions `db:"-" json:"options,omitempty"`
+	IntegrationID int32          `db:"integrationID" json:"integrationID,omitempty"`
+	ChannelID     string         `db:"channelID"  json:"channelID,omitempty"`
+	ChannelName   string         `db:"channelName"  json:"channelName,omitempty"`
+	Services      string         `db:"services" json:"services,omitempty"`
+	OptionsJSON   string         `db:"options" json:"-"`
+	Options       ChannelOptions `db:"-" json:"options,omitempty"`
 }
 
 type Share struct {
-	BotServiceID       int32  `db:"botServiceID" json:"botServiceID,omitempty"`
+	IntegrationID      int32  `db:"integrationID" json:"integrationID,omitempty"`
 	CharacterID        int32  `db:"characterID" json:"characterID,omitempty"`
 	TokenCharacterID   int32  `db:"tokenCharacterID" json:"tokenCharacterID,omitempty"`
 	TokenCharacterName string `db:"tokenCharacterName" json:"tokenCharacterName,omitempty"`
@@ -145,10 +145,10 @@ func (s *Conservator) loadServices() error {
 
 	// [TODO] Slack, murmur
 	for _, service := range services {
-		var n botservice.BotService
+		var n botservice.Integration
 
 		// Mark what we touch
-		touched[service.BotServiceID] = true
+		touched[service.IntegrationID] = true
 
 		switch service.Type {
 		case "discord":
@@ -168,7 +168,7 @@ func (s *Conservator) loadServices() error {
 
 		// Store the server with the service information and put into our map
 		service.Server = n
-		s.services.Store(service.BotServiceID, service)
+		s.services.Store(service.IntegrationID, service)
 	}
 
 	// Delete any items that were removed
@@ -177,7 +177,7 @@ func (s *Conservator) loadServices() error {
 		v := vi.(Service)
 
 		// Remove anything we didn't find
-		if !touched[v.BotServiceID] {
+		if !touched[v.IntegrationID] {
 			s.services.Delete(k)
 		} else {
 			// Update the server name while we are here
@@ -185,7 +185,7 @@ func (s *Conservator) loadServices() error {
 			if err != nil {
 				log.Println(err)
 			} else if serverName != v.Name {
-				err = s.updateServerName(v.BotServiceID, serverName)
+				err = s.updateServerName(v.IntegrationID, serverName)
 				log.Println(err)
 			}
 
@@ -198,7 +198,7 @@ func (s *Conservator) loadServices() error {
 					if err != nil {
 						continue
 					}
-					err = s.updateChannelName(v.BotServiceID, c.ChannelID, ch.Name)
+					err = s.updateChannelName(v.IntegrationID, c.ChannelID, ch.Name)
 					if err != nil {
 						log.Println(err)
 						continue
@@ -211,7 +211,7 @@ func (s *Conservator) loadServices() error {
 				log.Println(err)
 			} else {
 
-				err = s.updateRoles(v.BotServiceID, roles)
+				err = s.updateRoles(v.IntegrationID, roles)
 				if err != nil {
 					log.Println(err)
 				}
@@ -303,7 +303,7 @@ func (s *Conservator) loadShares() error {
 			// Don't duplicate
 			found = false
 			for i := range a {
-				if a[i].TokenCharacterID == share.TokenCharacterID && a[i].BotServiceID == share.BotServiceID {
+				if a[i].TokenCharacterID == share.TokenCharacterID && a[i].IntegrationID == share.IntegrationID {
 					found = true
 					break
 				}
@@ -338,7 +338,7 @@ func (s *Conservator) loadShares() error {
 
 func (s *Conservator) getServices() ([]Service, error) {
 	services := []Service{}
-	err := s.db.Select(&services, "SELECT botServiceID, name, entityID, address, authentication, type, services, options, factionID FROM evedata.botServices")
+	err := s.db.Select(&services, "SELECT integrationID, name, entityID, address, authentication, type, services, options, factionID FROM evedata.integrations")
 	if err != nil {
 		return nil, err
 	}
@@ -346,7 +346,7 @@ func (s *Conservator) getServices() ([]Service, error) {
 }
 
 func (s *Conservator) updateServerName(b int32, name string) error {
-	_, err := s.db.Exec("UPDATE evedata.botServices SET name = ? WHERE botServiceID = ?", name, b)
+	_, err := s.db.Exec("UPDATE evedata.integrations SET name = ? WHERE integrationID = ?", name, b)
 	if err != nil {
 		return err
 	}
@@ -354,7 +354,7 @@ func (s *Conservator) updateServerName(b int32, name string) error {
 }
 
 func (s *Conservator) updateChannelName(b int32, c, name string) error {
-	_, err := s.db.Exec("UPDATE evedata.botChannels SET channelName = ? WHERE botServiceID = ? AND channelID = ?", name, b, c)
+	_, err := s.db.Exec("UPDATE evedata.integrationChannels SET channelName = ? WHERE integrationID = ? AND channelID = ?", name, b, c)
 	if err != nil {
 		return err
 	}
@@ -363,7 +363,7 @@ func (s *Conservator) updateChannelName(b int32, c, name string) error {
 
 func (s *Conservator) getChannels() ([]Channel, error) {
 	channels := []Channel{}
-	err := s.db.Select(&channels, "SELECT botServiceID, channelID, services, options FROM evedata.botChannels")
+	err := s.db.Select(&channels, "SELECT integrationID, channelID, services, options FROM evedata.integrationChannels")
 	if err != nil {
 		return nil, err
 	}
@@ -373,8 +373,8 @@ func (s *Conservator) getChannels() ([]Channel, error) {
 func (s *Conservator) updateRoles(b int32, roles []botservice.Name) error {
 	for _, r := range roles {
 		_, err := s.db.Exec(`
-		INSERT INTO evedata.botRoles 
-			(botServiceID, roleID, roleName) VALUES(?,?,?) 
+		INSERT INTO evedata.integrationRoles 
+			(integrationID, roleID, roleName) VALUES(?,?,?) 
 			ON DUPLICATE KEY UPDATE roleName = VALUES(roleName)`, b, r.ID, r.Name)
 		if err != nil {
 			return err
@@ -446,11 +446,11 @@ func unpackChannelData(packed string) []ChannelData {
 func (s *Conservator) getShares() ([]Share, error) {
 	shares := []Share{}
 	err := s.db.Select(&shares, `
-		SELECT B.botServiceID, tokenCharacterID, S.entityID, types, group_concat(concat(channelID, "|", C.services) SEPARATOR ":") as packed
+		SELECT DISTINCT B.integrationID, tokenCharacterID, S.entityID, types, group_concat(concat(channelID, "|", C.services) SEPARATOR ":") as packed
 		FROM evedata.sharing S
-		INNER JOIN evedata.botServices B ON B.entityID = S.entityID
-        INNER JOIN evedata.botChannels C ON C.botServiceID = B.botServiceID 
-        GROUP BY botServiceID, tokenCharacterID, entityID`)
+		INNER JOIN evedata.integrations B ON B.entityID = S.entityID
+        INNER JOIN evedata.integrationChannels C ON C.integrationID = B.integrationID 
+        GROUP BY integrationID, tokenCharacterID, entityID`)
 	if err != nil {
 		return nil, err
 	}
