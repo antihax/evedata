@@ -126,3 +126,8 @@ func (c DiscordService) RemoveRole(user, role string) error {
 func (c DiscordService) AddRole(user, role string) error {
 	return c.session.GuildMemberRoleAdd(c.serverID, user, role)
 }
+
+// AddUser
+func (c DiscordService) AddUser(auth, user, name string) error {
+	return c.session.GuildMemberAdd(auth, c.serverID, user, name, []string{}, false, false)
+}

@@ -88,3 +88,28 @@ func (s *Conservator) GetRoles(integrationID *int32, reply *[][]string) error {
 
 	return nil
 }
+
+type JoinUser struct {
+	AccessToken   string
+	IntegrationID int32
+	UserID        string
+	CharacterName string
+}
+
+func (s *Conservator) JoinUser(j *JoinUser, reply *bool) error {
+	*reply = false
+
+	// Get the service
+	service, err := s.getService(j.IntegrationID)
+	if err != nil {
+		return err
+	}
+
+	err = service.Server.AddUser(j.AccessToken, j.UserID, j.CharacterName)
+	if err != nil {
+		return err
+	}
+
+	*reply = true
+	return nil
+}

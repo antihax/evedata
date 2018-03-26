@@ -17,4 +17,5 @@ type Integration interface {
 	GetMembers() ([]Name, error)
 	RemoveRole(user, role string) error
 	AddRole(user, role string) error
+	AddUser(auth, user, name string) error
 }

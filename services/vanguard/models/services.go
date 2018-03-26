@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"time"
 
 	"github.com/antihax/evedata/services/conservator"
 )
@@ -208,43 +209,51 @@ func entityInSlice(a int32, list []Entity) bool {
 }
 
 type AvailableIntegrations struct {
-	IntegrationID     int32  `db:"integrationID" json:"integrationID"`
-	Address           string `db:"address" json:"address"`
-	Reason            string `db:"reason" json:"reason"`
-	Name              string `db:"name" json:"name"`
-	CharacterName     string `db:"characterName" json:"characterName" `
-	CharacterID       int32  `db:"characterID" json:"characterID"`
-	TokenCharacterID  int32  `db:"tokenCharacterID" json:"tokenCharacterID"`
-	IntegrationUserID string `db:"integrationUserID" json:"integrationUserID"`
-	Type              string `db:"type" json:"type"`
+	IntegrationID     int32     `db:"integrationID" json:"integrationID"`
+	Address           string    `db:"address" json:"address"`
+	Reason            string    `db:"reason" json:"reason"`
+	Name              string    `db:"name" json:"name"`
+	CharacterName     string    `db:"characterName" json:"characterName" `
+	CharacterID       int32     `db:"characterID" json:"characterID"`
+	TokenCharacterID  int32     `db:"tokenCharacterID" json:"tokenCharacterID"`
+	IntegrationUserID string    `db:"integrationUserID" json:"integrationUserID"`
+	Type              string    `db:"type" json:"type"`
+	EntityID          int32     `db:"entityID" json:"entityID"`
+	EntityName        string    `db:"entityName" json:"entityName"`
+	EntityType        string    `db:"entityType" json:"entityType"`
+	Expiry            time.Time `db:"expiry" json:"expiry,omitempty"`
+	AccessToken       string    `db:"accessToken" json:"accessToken,omitempty"`
+	RefreshToken      string    `db:"refreshToken" json:"refreshToken,omitempty"`
 }
 
 // [BENCHMARK] 0.000 sec / 0.000 sec
 func GetAvailableIntegrations(characterID int32) ([]AvailableIntegrations, error) {
 	integrations := []AvailableIntegrations{}
 	if err := database.Select(&integrations, `
-		SELECT integrationID, address, reason, name, characterName, T.characterID, tokenCharacterID, integrationUserID, type FROM
+		SELECT integrationID, address, reason, S.name, characterName, T.characterID, tokenCharacterID, 
+			integrationUserID, type, entityID, IFNULL(A.name, C.name) AS entityName, IF(A.name IS NULL, "corporation", "alliance") AS entityType
+		FROM
 		(
-		SELECT integrationID, address, name, characterName, C.characterID, tokenCharacterID, "member" AS reason
+		SELECT integrationID, address, B.entityID, name, characterName, C.characterID, tokenCharacterID, "member" AS reason
 		FROM evedata.integrations B
 		INNER JOIN evedata.crestTokens C ON C.authCharacter = 1 AND
 			(C.corporationID = B.entityID 					   
 			OR C.allianceID = B.entityID)
 		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%member%"
 		UNION
-		SELECT integrationID, address, name, characterName, C.characterID, tokenCharacterID, "militia" AS reason
+		SELECT integrationID, address, B.entityID, name, characterName, C.characterID, tokenCharacterID, "militia" AS reason
 		FROM evedata.integrations B
 		INNER JOIN evedata.crestTokens C ON C.authCharacter = 1 AND
 			B.factionID > 0 AND B.factionID = C.factionID
 		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%militia%"
 		UNION
-		SELECT integrationID, address, name, characterName, C.characterID, tokenCharacterID, "alliedMilitia" AS reason
+		SELECT integrationID, address, B.entityID, name, characterName, C.characterID, tokenCharacterID, "alliedMilitia" AS reason
 		FROM evedata.integrations B
 		INNER JOIN evedata.crestTokens C ON C.authCharacter = 1 AND
 			B.factionID > 0 AND B.factionID = evedata.alliedMilita(C.factionID)
 		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%alliedMilitia%"
 		UNION
-		SELECT integrationID, address, name, characterName, C.characterID, tokenCharacterID, "+5" AS reason
+		SELECT integrationID, address, B.entityID, name, characterName, C.characterID, tokenCharacterID, "+5" AS reason
 		FROM evedata.integrations B
 		INNER JOIN evedata.entityContacts E ON E.entityID = B.entityID AND E.standing = 5.0
 		INNER JOIN evedata.crestTokens C ON  C.authCharacter = 1 AND
@@ -253,7 +262,7 @@ func GetAvailableIntegrations(characterID int32) ([]AvailableIntegrations, error
 			OR E.contactID = C.allianceID)
 		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%plusFive%"
 		UNION
-		SELECT integrationID, address, name, characterName, C.characterID, tokenCharacterID, "+10" AS reason
+		SELECT integrationID, address, B.entityID, name, characterName, C.characterID, tokenCharacterID, "+10" AS reason
 		FROM evedata.integrations B
 		INNER JOIN evedata.entityContacts E ON E.entityID = B.entityID AND E.standing = 10.0
 		INNER JOIN evedata.crestTokens C ON C.authCharacter = 1 AND
@@ -263,9 +272,66 @@ func GetAvailableIntegrations(characterID int32) ([]AvailableIntegrations, error
 		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%plusTen%"
 		) S 
 		INNER JOIN evedata.integrationTokens T ON S.characterID = T.characterID
+		LEFT OUTER JOIN evedata.corporations C ON C.corporationID = S.entityID
+		LEFT OUTER JOIN evedata.alliances A ON A.allianceID = S.entityID
 		WHERE T.characterID = ?
 		GROUP BY address `, characterID); err != nil {
 		return nil, err
 	}
 	return integrations, nil
+}
+
+// [BENCHMARK] 0.000 sec / 0.000 sec
+func GetIntegrationsForCharacter(characterID, integrationID int32) (*AvailableIntegrations, error) {
+	integration := []AvailableIntegrations{}
+	if err := database.Select(&integration, `	
+		SELECT integrationID, address, accessToken, refreshToken, expiry, S.name, characterName, T.characterID, tokenCharacterID, 
+		integrationUserID, type, entityID, IFNULL(A.name, C.name) AS entityName, IF(A.name IS NULL, "corporation", "alliance") AS entityType
+		FROM
+		(
+		SELECT integrationID, address, B.entityID, name, characterName, C.characterID, tokenCharacterID, "member" AS reason
+		FROM evedata.integrations B
+		INNER JOIN evedata.crestTokens C ON C.authCharacter = 1 AND
+		(C.corporationID = B.entityID 					   
+		OR C.allianceID = B.entityID)
+		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%member%"
+		UNION
+		SELECT integrationID, address, B.entityID, name, characterName, C.characterID, tokenCharacterID, "militia" AS reason
+		FROM evedata.integrations B
+		INNER JOIN evedata.crestTokens C ON C.authCharacter = 1 AND
+		B.factionID > 0 AND B.factionID = C.factionID
+		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%militia%"
+		UNION
+		SELECT integrationID, address, B.entityID, name, characterName, C.characterID, tokenCharacterID, "alliedMilitia" AS reason
+		FROM evedata.integrations B
+		INNER JOIN evedata.crestTokens C ON C.authCharacter = 1 AND
+		B.factionID > 0 AND B.factionID = evedata.alliedMilita(C.factionID)
+		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%alliedMilitia%"
+		UNION
+		SELECT integrationID, address, B.entityID, name, characterName, C.characterID, tokenCharacterID, "+5" AS reason
+		FROM evedata.integrations B
+		INNER JOIN evedata.entityContacts E ON E.entityID = B.entityID AND E.standing = 5.0
+		INNER JOIN evedata.crestTokens C ON  C.authCharacter = 1 AND
+		(E.contactID = C.tokenCharacterID 
+		OR E.contactID = C.corporationID
+		OR E.contactID = C.allianceID)
+		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%plusFive%"
+		UNION
+		SELECT integrationID, address, B.entityID, name, characterName, C.characterID, tokenCharacterID, "+10" AS reason
+		FROM evedata.integrations B
+		INNER JOIN evedata.entityContacts E ON E.entityID = B.entityID AND E.standing = 10.0
+		INNER JOIN evedata.crestTokens C ON C.authCharacter = 1 AND
+		(E.contactID = C.tokenCharacterID 
+		OR E.contactID = C.corporationID
+		OR E.contactID = C.allianceID)
+		WHERE FIND_IN_SET(B.services, "auth") AND options LIKE "%plusTen%"
+		) S 
+		INNER JOIN evedata.integrationTokens T ON S.characterID = T.characterID
+		LEFT OUTER JOIN evedata.corporations C ON C.corporationID = S.entityID
+		LEFT OUTER JOIN evedata.alliances A ON A.allianceID = S.entityID
+		WHERE T.characterID = ? AND integrationID = ?
+		GROUP BY address `, characterID, integrationID); err != nil {
+		return nil, err
+	}
+	return &integration[0], nil
 }

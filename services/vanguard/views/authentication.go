@@ -37,7 +37,7 @@ func discordAuth(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		httpErr(w, err)
 	} else {
-		url := c.DiscordAuthenticator.AuthorizeURL(state, true, []string{"identify", "guilds", "guilds.join"})
+		url := c.DiscordAuthenticator.AuthorizeURL(state, true, []string{"identify", "guilds.join"})
 		http.Redirect(w, r, url, 302)
 		httpErrCode(w, nil, http.StatusMovedPermanently)
 	}
@@ -95,7 +95,7 @@ func discordAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := models.AddIntegrationToken("discord", char.CharacterID, v.ID, v.UserName+"#"+v.Discriminator, tok, "identify guilds guilds.join"); err != nil {
+	if err := models.AddIntegrationToken("discord", char.CharacterID, v.ID, v.UserName+"#"+v.Discriminator, tok, "identify guilds.join"); err != nil {
 		log.Println(err)
 		httpErr(w, err)
 		return

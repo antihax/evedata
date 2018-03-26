@@ -139,3 +139,8 @@ func (c *TSService) AddRole(user, role string) error {
 
 	return nil
 }
+
+// AddUser
+func (c *TSService) AddUser(auth, user, name string) error {
+	return nil
+}

@@ -8,9 +8,12 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/antihax/goesi"
+	"golang.org/x/oauth2"
 
+	"github.com/antihax/evedata/services/conservator"
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
 	"github.com/antihax/evedata/services/vanguard/templates"
@@ -31,6 +34,8 @@ func init() {
 	vanguard.AddAuthRoute("account", "POST", "/U/toggleAuth", apiToggleAuth)
 
 	vanguard.AddAuthRoute("crestTokens", "GET", "/U/accessableIntegrations", apiAccessableIntegrations)
+	vanguard.AddAuthRoute("crestTokens", "POST", "/U/joinIntegration", apiJoinIntegration)
+
 }
 
 func apiToggleAuth(w http.ResponseWriter, r *http.Request) {
@@ -223,6 +228,7 @@ func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
 func apiAccessableIntegrations(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
@@ -247,6 +253,64 @@ func apiAccessableIntegrations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func apiJoinIntegration(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	s := vanguard.SessionFromContext(r.Context())
+	g := vanguard.GlobalsFromContext(r.Context())
+
+	// Get the sessions main characterID
+	characterID, ok := s.Values["characterID"].(int32)
+	if !ok {
+		httpErrCode(w, errors.New("could not find character ID for integration token"), http.StatusUnauthorized)
+		return
+	}
+
+	integrationID, err := strconv.ParseInt(r.FormValue("integrationID"), 10, 64)
+	if err != nil {
+		httpErrCode(w, err, http.StatusNotFound)
+		return
+	}
+
+	i, err := models.GetIntegrationsForCharacter(characterID, int32(integrationID))
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	token := &oauth2.Token{
+		Expiry:       i.Expiry,
+		AccessToken:  i.AccessToken,
+		RefreshToken: i.RefreshToken,
+		TokenType:    "Bearer",
+	}
+
+	// refresh the token if it expired
+	if token.Expiry.After(time.Now()) {
+		src, err := g.DiscordAuthenticator.TokenSource(token)
+		if err != nil {
+			httpErr(w, err)
+			return
+		}
+		token, err = src.Token()
+		if err != nil {
+			httpErr(w, err)
+			return
+		}
+	}
+
+	if err := g.RPCall("Conservator.JoinUser", conservator.JoinUser{
+		IntegrationID: i.IntegrationID,
+		AccessToken:   token.AccessToken,
+		UserID:        i.IntegrationUserID,
+		CharacterName: i.CharacterName,
+	}, &ok); err != nil || !ok {
+		httpErr(w, err)
+		return
+	}
+
+}
+
 func apiGetIntegrationTokens(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
