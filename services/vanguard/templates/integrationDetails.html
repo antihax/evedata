@@ -436,7 +436,7 @@
 
 	function updateServiceData(d) {
 		$service = d;
-		$("#serviceName").html(d.name);
+		$("#serviceName").html(escapeHtml(d.name));
 		$("#integrationServiceServices").html(d.services);
 		$("#integrationType").html(d.type).css('textTransform', 'capitalize');
 		$("#intergrationServiceOptions").html(jsyaml.safeDump(d.options));
