@@ -126,7 +126,7 @@
 			<thead>
 				<tr>
 					<th data-field="type">Type</th>
-					<th data-field="integrationUserName">Name</th>
+					<th data-escape=true data-field="integrationUserName">Name</th>
 					<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="deleteIntegrationFormatter" title="Delete Token">Delete</th>
 				</tr>
 			</thead>
@@ -216,7 +216,7 @@
 
 		function joinIntegrationFormatter(value, row) {
 			return [
-				'<a class="joinIntegration" style="text-decoration: none;" href="javascript:void(0)" title="Join ' + row.name +
+				'<a class="joinIntegration" style="text-decoration: none;" href="javascript:void(0)" title="Join ' + escapeHtml(row.name) +
 				' with ' + row.characterName +
 				'">&#10010;<\/a>',
 			].join('');
