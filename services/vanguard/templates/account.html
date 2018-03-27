@@ -268,7 +268,7 @@
 					url: "/U/joinIntegration?integrationID=" + row.integrationID,
 					type: 'POST',
 					success: function () {
-						showAlert('Joined ' + row.name + '!', 'success');
+						showAlert('Joined ' + escapeHtml(row.name) + '!', 'success');
 					},
 					error: function () {
 						showAlert('Failed joining!', 'danger');

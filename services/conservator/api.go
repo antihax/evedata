@@ -94,6 +94,7 @@ type JoinUser struct {
 	IntegrationID int32
 	UserID        string
 	CharacterName string
+	CharacterID   int32
 }
 
 func (s *Conservator) JoinUser(j *JoinUser, reply *bool) error {
@@ -105,8 +106,15 @@ func (s *Conservator) JoinUser(j *JoinUser, reply *bool) error {
 		return err
 	}
 
-	err = service.Server.AddUser(j.AccessToken, j.UserID, j.CharacterName)
-	if err != nil {
+	if err = service.Server.AddUser(j.AccessToken, j.UserID, j.CharacterName); err != nil {
+		return err
+	}
+
+	if err = s.setMemberStatus(j.UserID, j.CharacterID, j.IntegrationID); err != nil {
+		return err
+	}
+
+	if err = s.checkUser(j.UserID, j.CharacterName, j.IntegrationID, []string{}); err != nil {
 		return err
 	}
 

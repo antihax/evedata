@@ -304,6 +304,7 @@ func apiJoinIntegration(w http.ResponseWriter, r *http.Request) {
 		AccessToken:   token.AccessToken,
 		UserID:        i.IntegrationUserID,
 		CharacterName: i.CharacterName,
+		CharacterID:   i.TokenCharacterID,
 	}, &ok); err != nil || !ok {
 		httpErr(w, err)
 		return

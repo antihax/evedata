@@ -104,7 +104,7 @@ func (s *Service) checkRemoveRoles(memberID, roleToRemove string, memberRoles []
 }
 
 func (s *Service) checkAddRoles(memberID, roleToAdd string, memberRoles []string) error {
-	if inSlice(roleToAdd, memberRoles) {
+	if !inSlice(roleToAdd, memberRoles) {
 		return s.Server.AddRole(memberID, roleToAdd)
 	}
 	return nil

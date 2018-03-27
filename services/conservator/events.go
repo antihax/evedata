@@ -43,7 +43,6 @@ func (c *Conservator) checkUser(memberID, memberName string, integrationID int32
 				return err
 			} else if characterName != "" { // Found them
 				server.checkAddRoles(memberID, server.Options.Auth.Members, roles)
-				return nil
 			} else {
 				server.checkRemoveRoles(memberID, server.Options.Auth.Members, roles)
 			}
@@ -54,7 +53,6 @@ func (c *Conservator) checkUser(memberID, memberName string, integrationID int32
 				return err
 			} else if characterName != "" { // Found them
 				server.checkAddRoles(memberID, server.Options.Auth.PlusTen, roles)
-				return nil
 			} else {
 				server.checkRemoveRoles(memberID, server.Options.Auth.PlusTen, roles)
 			}
@@ -65,7 +63,6 @@ func (c *Conservator) checkUser(memberID, memberName string, integrationID int32
 				return err
 			} else if characterName != "" { // Found them
 				server.checkAddRoles(memberID, server.Options.Auth.PlusFive, roles)
-				return nil
 			} else {
 				server.checkRemoveRoles(memberID, server.Options.Auth.PlusFive, roles)
 			}
@@ -76,7 +73,6 @@ func (c *Conservator) checkUser(memberID, memberName string, integrationID int32
 				return err
 			} else if characterName != "" { // Found them
 				server.checkAddRoles(memberID, server.Options.Auth.Militia, roles)
-				return nil
 			} else {
 				server.checkRemoveRoles(memberID, server.Options.Auth.Militia, roles)
 			}
@@ -87,11 +83,20 @@ func (c *Conservator) checkUser(memberID, memberName string, integrationID int32
 				return err
 			} else if characterName != "" { // Found them
 				server.checkAddRoles(memberID, server.Options.Auth.AlliedMilitia, roles)
-				return nil
 			} else {
 				server.checkRemoveRoles(memberID, server.Options.Auth.AlliedMilitia, roles)
 			}
 		}
+	}
+	return nil
+}
+
+func (s *Conservator) setMemberStatus(memberID string, characterID int32, integrationID int32) error {
+	if _, err := s.db.Exec(`
+		INSERT INTO evedata.integrationCharacters (integrationID,characterID,integrationUserID)
+		VALUES (?,?,?) ON DUPLICATE KEY UPDATE integrationID=integrationID;
+		`, integrationID, characterID, memberID); err != nil {
+		return err
 	}
 	return nil
 }
