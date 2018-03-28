@@ -118,7 +118,7 @@ type OrbitalReinforced struct {
 // StructureReinforced message for StructureLostArmor and StructureLostShields
 type StructureReinforced struct {
 	TimeLeft        int64 `yaml:"timeLeft"`
-	TimeStamp       int64 `yaml:"timeStamp"`
+	Timestamp       int64 `yaml:"timestamp"`
 	StructureTypeID int64 `yaml:"structureTypeID"`
 	SolarSystemID   int64 `yaml:"solarsystemID"`
 }
@@ -382,7 +382,7 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 
 		message := fmt.Sprintf("@everyone %s entered %s in %s: Timer expires at %s\n",
 			structureType, notificationType, systemName,
-			time.Unix(datapackages.WintoUnixTimestamp(l.TimeStamp), 0).UTC().String())
+			time.Unix(datapackages.WintoUnixTimestamp(l.Timestamp), 0).UTC().String())
 
 		return s.sendNotificationMessage("structure", characterID, notificationID, message)
 	}
