@@ -160,6 +160,10 @@
 				window.location.replace("/X/discordAuth");
 			});
 
+			refreshData();
+		});
+
+		function refreshData() {
 			$.ajax({
 				url: "/U/accessableIntegrations",
 				type: 'get',
@@ -167,16 +171,17 @@
 					data = JSON.parse(data);
 					if (data.length > 0) {
 						$('#availableServicesPanel').show();
-						console.log(data)
 						$availableServices.bootstrapTable('removeAll');
 						$availableServices.bootstrapTable('load', data);
+					} else {
+						$('#availableServicesPanel').hide();
 					}
 				},
 				error: function () {
 					$('#availableServicesPanel').hide();
 				}
 			})
-		});
+		}
 
 		function queryParams(params) {
 			return {};
@@ -241,6 +246,7 @@
 						success: function () {
 							$cresttable.bootstrapTable('refresh');
 							showAlert('Deleted ' + row.characterName + '!', 'success');
+							refreshData();
 						},
 						error: function () {
 							showAlert('Delete item error!', 'danger');
@@ -256,6 +262,7 @@
 						success: function () {
 							$integrationtable.bootstrapTable('refresh');
 							showAlert('Deleted ' + row.integrationUserID + '!', 'success');
+							refreshData();
 						},
 						error: function () {
 							showAlert('Delete item error!', 'danger');
@@ -285,6 +292,7 @@
 						success: function () {
 							$cresttable.bootstrapTable('refresh');
 							showAlert('Authentication changed for ' + row.characterName + '!', 'success');
+							refreshData();
 						},
 						error: function () {
 							showAlert('Error changing authentication state!', 'danger');
