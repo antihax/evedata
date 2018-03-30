@@ -54,7 +54,15 @@ func (s *Nail) characterAssetsConsumer(message *nsq.Message) error {
 		}
 	}
 
-	return s.doSQL(doAssets(values))
+	stmt := doAssets(values)
+
+	err = s.doSQL(stmt)
+	if err != nil {
+		log.Printf("%s %s\n", err, stmt)
+		return err
+	}
+
+	return nil
 }
 
 func doAssets(values []string) string {
