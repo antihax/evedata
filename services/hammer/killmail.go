@@ -16,6 +16,7 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 	hash := parameters[0].(string)
 	id := int32(parameters[1].(int))
 
+	// don't duplicate calls
 	if s.inQueue.CheckWorkCompleted("evedata_known_kills", int64(id)) {
 		return
 	}
@@ -24,11 +25,6 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 	if err != nil {
 		log.Println(err)
 		return
-	}
-
-	err = s.inQueue.SetWorkCompleted("evedata_known_kills", int64(id))
-	if err != nil {
-		log.Println(err)
 	}
 
 	// Send out the result, but ignore DUST stuff.

@@ -57,6 +57,12 @@ func (s *Nail) killmailHandler(message *nsq.Message) error {
 		}
 	}
 
+	// Mark the killmail complete to prevent duplicates
+	err = s.outQueue.SetWorkCompleted("evedata_known_kills", int64(mail.KillmailId))
+	if err != nil {
+		log.Println(err)
+	}
+
 	return nil
 }
 
