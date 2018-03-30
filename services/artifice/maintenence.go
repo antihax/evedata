@@ -31,7 +31,6 @@ func contactSyncMaint(s *Artifice) error {
 }
 
 func killmailMaint(s *Artifice) error { // Broken into smaller chunks so we have a chance of it getting completed.
-
 	// Delete old killmails
 	if err := s.RetryExecTillNoRows(`
 		DELETE FROM evedata.killmails
@@ -44,9 +43,19 @@ func killmailMaint(s *Artifice) error { // Broken into smaller chunks so we have
 	if err := s.RetryExecTillNoRows(`
 		DELETE D.* FROM evedata.killmailAttackers D
 		JOIN (select A.id FROM evedata.killmailAttackers A
-			NATURAL LEFT JOIN evedata.killmails K 
-			WHERE K.id IS NULL LIMIT 6000) S ON D.id = S.id;
+			LEFT JOIN evedata.killmails K ON K.id = A.id
+			WHERE K.id IS NULL LIMIT 1000) S ON D.id = S.id;
 				   `); err != nil {
+		return err
+	}
+
+	// Remove any orphan killmails
+	if err := s.RetryExecTillNoRows(`
+			DELETE D.* FROM evedata.killmails D
+			JOIN (select K.id FROM evedata.killmails K
+				LEFT JOIN evedata.killmailAttackers A ON A.id = K.id
+				WHERE A.id IS NULL LIMIT 1000) S ON D.id = S.id;
+					   `); err != nil {
 		return err
 	}
 
