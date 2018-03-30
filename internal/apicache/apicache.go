@@ -16,18 +16,21 @@ func CreateHTTPClientCache(cache *redis.Pool) *http.Client {
 	transportCache := httpcache.NewTransport(httpredis.NewWithClient(cache))
 
 	// Attach a basic transport with our chained custom transport.
-	transportCache.Transport = &transport{&http.Transport{
-		MaxIdleConns: 200,
-		DialContext: (&net.Dialer{
-			Timeout:   60 * time.Second,
-			KeepAlive: 60 * time.Second,
-		}).DialContext,
-		IdleConnTimeout:       60 * time.Second,
-		TLSHandshakeTimeout:   20 * time.Second,
-		ResponseHeaderTimeout: 30 * time.Second,
-		ExpectContinueTimeout: 0,
-		MaxIdleConnsPerHost:   20,
-	}}
+	transportCache.Transport = &transport{
+		&http.Transport{
+			MaxIdleConns: 200,
+			DialContext: (&net.Dialer{
+				Timeout:   10 * time.Second,
+				KeepAlive: 5 * 60 * time.Second,
+				DualStack: true,
+			}).DialContext,
+			IdleConnTimeout:       5 * 60 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ResponseHeaderTimeout: 15 * time.Second,
+			ExpectContinueTimeout: 0,
+			MaxIdleConnsPerHost:   20,
+		},
+	}
 
 	client := &http.Client{Transport: transportCache}
 	if client == nil {
