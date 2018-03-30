@@ -12,19 +12,10 @@ import (
 )
 
 func init() {
-	registerTrigger("buildRelationships", buildRelationships, time.NewTicker(time.Second*1))
+	registerTrigger("buildRelationships", buildRelationships, time.NewTicker(time.Second*14400))
 }
 
-var running bool
-
-func stoprun() { running = false }
-
 func buildRelationships(s *Artifice) error {
-	if running {
-		return nil
-	}
-	running = true
-	defer stoprun()
 	if err := s.buildKillmailRelationships(); err != nil {
 		log.Println(err)
 		return err

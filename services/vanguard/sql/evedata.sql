@@ -313,7 +313,7 @@ CREATE TABLE `killmails` (
   `z` float NOT NULL,
   `shipType` smallint(5) unsigned NOT NULL DEFAULT '0',
   `warID` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `factionID` mediumint(8) NOT NULL DEFAULT '0',
+  `factionID` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `hash` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `ix_victimAllianceID` (`victimAllianceID`),
