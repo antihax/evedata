@@ -66,7 +66,7 @@ func TestMain(m *testing.M) {
 		Expiry:       time.Now().Add(time.Hour),
 	})
 
-	nailInstance = NewNail(sql, nsqhelper.Test)
+	nailInstance = NewNail(redis, sql, nsqhelper.Test)
 
 	go ham.Run()
 	go nailInstance.Run()

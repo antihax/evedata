@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/antihax/evedata/internal/nsqhelper"
+	"github.com/antihax/evedata/internal/redigohelper"
 	"github.com/antihax/evedata/internal/sqlhelper"
 	"github.com/antihax/evedata/services/nail"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -17,10 +18,11 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetPrefix("evedata nail: ")
+	redis := redigohelper.ConnectRedisProdPool()
 	db := sqlhelper.NewDatabase()
 
 	// Make a new service and send it into the background.
-	nail := nail.NewNail(db, nsqhelper.Prod)
+	nail := nail.NewNail(redis, db, nsqhelper.Prod)
 	go nail.Run()
 
 	// Run metrics

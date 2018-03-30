@@ -7,25 +7,33 @@ import (
 	"sync"
 	"time"
 
+	"github.com/antihax/evedata/internal/redisqueue"
+	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 	nsq "github.com/nsqio/go-nsq"
 )
 
 // Nail handles storage of data to SQL
 type Nail struct {
-	stop    chan bool
-	wg      *sync.WaitGroup
-	db      *sqlx.DB
-	inQueue map[string]*nsq.Consumer
+	stop     chan bool
+	wg       *sync.WaitGroup
+	db       *sqlx.DB
+	inQueue  map[string]*nsq.Consumer
+	redis    *redis.Pool
+	outQueue *redisqueue.RedisQueue
 }
 
 // NewNail creates a new storage engine
-func NewNail(db *sqlx.DB, addresses []string) *Nail {
+func NewNail(redis *redis.Pool, db *sqlx.DB, addresses []string) *Nail {
 	n := &Nail{
 		db:      db,
 		wg:      &sync.WaitGroup{},
 		stop:    make(chan bool),
 		inQueue: make(map[string]*nsq.Consumer),
+		outQueue: redisqueue.NewRedisQueue(
+			redis,
+			"evedata-hammer",
+		),
 	}
 
 	nsqcfg := nsq.NewConfig()
