@@ -27,6 +27,12 @@ spec:
       - name: evedata-vanguard
         image: antihax/evedata-vanguard
         imagePullPolicy: Always
+        livenessProbe:
+          initialDelaySeconds: 1
+          periodSeconds: 1
+          httpGet:
+            path: /healthz
+            port: 3000
         env:
         - name: SQLAUTH
           valueFrom:
