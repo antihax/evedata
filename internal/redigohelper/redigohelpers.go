@@ -46,9 +46,9 @@ func newRedisPool(address string, password string) *redis.Pool {
 	// Build the redis pool
 	return &redis.Pool{
 		MaxIdle:     200,
-		MaxActive:   0,
+		MaxActive:   600,
 		Wait:        false,
-		IdleTimeout: 60 * time.Second,
+		IdleTimeout: 240 * time.Second,
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.Dial("tcp", address)
 			if err != nil {
@@ -82,9 +82,9 @@ func newSentinelPool(addresses []string, masterName string, password string) *re
 
 	return &redis.Pool{
 		MaxIdle:     200,
-		MaxActive:   0,
+		MaxActive:   600,
 		Wait:        false,
-		IdleTimeout: 60 * time.Second,
+		IdleTimeout: 240 * time.Second,
 		Dial: func() (redis.Conn, error) {
 			masterAddr, err := sntnl.MasterAddr()
 			if err != nil {
@@ -109,7 +109,8 @@ func newSentinelPool(addresses []string, masterName string, password string) *re
 			if !sentinel.TestRole(c, "master") {
 				return errors.New("Role check failed")
 			} else {
-				return nil
+				_, err := c.Do("PING")
+				return err
 			}
 		},
 	}
