@@ -67,7 +67,13 @@ func main() {
 					log.Printf("Deleting %s\n", key)
 				}
 			}
-
+		} else if os.Args[1] == "flushkills" {
+			// Erase http cache in redis
+			log.Printf("Flushing killmails\n")
+			conn := r.Get()
+			defer conn.Close()
+			i, err := redis.Int64(conn.Do("DEL", "evedata_known_kills"))
+			log.Printf("%d %s\n", i, err)
 		} else if os.Args[1] == "flushredis" {
 			// Erase everything in redis for modified deployments
 			log.Printf("Flushing Redis\n")
