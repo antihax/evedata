@@ -1,9 +1,11 @@
 {{define "page"}}
 <h1>About EVEData.org</h1>
-<p> EVEData.org has been operating since 2008, originally starting as a market and trade tool for the EVE Online ingame browser using basic HTML. 
-    Over time and with changes driven by CCP and other third party devs, the site has been refactored a number of times,
-    but remains as a collection of tools that I use in-game for trade or PvP.</p>
-<p> The site was originally written in utilizing Linix, Apache (mod_perl), MySQL, and Perl (LAMP). As the second Moondoggie was introduced to the EVE client,
-    the website evolved to include more css formatted HTML and better tools with Javascript triggers to control the UI.</p>
-<p> The latest version has been rewritten from the ground up as a monolith in Go, utilizing Percona Cluster, and Redis. Prometheus used to track backend metrics.</p>
+<p> EVEData.org has been operating since 2008, originally starting as a market and trade tool for the EVE Online ingame browser
+    using basic HTML. Over time and with changes driven by CCP and other third party devs, the site has been refactored a
+    number of times, but remains as a collection of tools that I use in-game for trade or PvP.</p>
+<p> The site was originally written in utilizing Linux, Apache (mod_perl), MySQL, and Perl (LAMP). As the second Moondoggie was
+    introduced to the EVE client, the website evolved to include more css formatted HTML and better tools with Javascript
+    triggers to control the UI.</p>
+<p> The latest version has been rewritten from the ground up using a microservice infrastructure in Go, utilizing Percona Cluster,
+    and Redis. Prometheus used to track backend metrics.</p>
 {{end}}

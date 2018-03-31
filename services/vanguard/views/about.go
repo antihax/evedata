@@ -1,6 +1,7 @@
 package views
 
 import (
+	"errors"
 	"html/template"
 	"net/http"
 
@@ -12,30 +13,33 @@ func init() {
 	vanguard.AddRoute("account", "GET", "/about", aboutPage)
 }
 
-func aboutPage(w http.ResponseWriter, r *http.Request) {
-	var err error
+type page struct {
+	Title    string
+	Template string
+}
 
+var aboutPages = map[string]page{
+	"":        page{Title: "About EVEData.org", Template: "evedata.html"},
+	"evedata": page{Title: "About EVEData.org", Template: "evedata.html"},
+	"privacy": page{Title: "EVEData.org Privacy Policy", Template: "privacy.html"},
+	"terms":   page{Title: "EVEData.org Terms", Template: "terms.html"},
+}
+
+func aboutPage(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60*24)
 
-	page := r.FormValue("page")
-
-	if page == "evedata" || page == "" {
-		p := newPage(r, "About EVEData.org")
-		templates.Templates = template.Must(template.ParseFiles("templates/about/evedata.html", "templates/about.html", templates.LayoutPath))
-		err = templates.Templates.ExecuteTemplate(w, "base", p)
-	} else if page == "privacy" {
-		p := newPage(r, "EVEData.org Privacy Policy")
-		templates.Templates = template.Must(template.ParseFiles("templates/about/privacy.html", "templates/about.html", templates.LayoutPath))
-		err = templates.Templates.ExecuteTemplate(w, "base", p)
-	} else if page == "terms" {
-		p := newPage(r, "EVEData.org Terms")
-		templates.Templates = template.Must(template.ParseFiles("templates/about/terms.html", "templates/about.html", templates.LayoutPath))
-		err = templates.Templates.ExecuteTemplate(w, "base", p)
+	page, ok := aboutPages[r.FormValue("page")]
+	if ok {
+		p := newPage(r, page.Title)
+		templates.Templates = template.Must(
+			template.ParseFiles("templates/about/"+page.Template, "templates/about.html", templates.LayoutPath),
+		)
+		if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
+			httpErrCode(w, err, http.StatusInternalServerError)
+			return
+		}
+	} else {
+		httpErrCode(w, errors.New("not found"), http.StatusNotFound)
 	}
-
-	if err != nil {
-		return
-	}
-
 	return
 }
