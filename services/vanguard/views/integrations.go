@@ -94,6 +94,7 @@ func apiAddDiscordIntegration(w http.ResponseWriter, r *http.Request) {
 
 	if !ok {
 		httpErr(w, errors.New("serverID is invalid or the bot has no access."))
+		return
 	}
 
 	if err = models.AddDiscordService(characterID, int32(entityID), r.FormValue("serverID")); err != nil {
