@@ -13,6 +13,9 @@ func init() {
 	registerConsumer("charSearch", charSearchConsumer)
 	registerConsumer("alliance", allianceConsumer)
 	registerConsumer("corporation", corporationConsumer)
+	registerConsumer("corporationHistory", corporationHistoryConsumer)
+	registerConsumer("allianceHistory", allianceHistoryConsumer)
+
 	registerConsumer("character", characterConsumer)
 
 	registerConsumer("loyaltyStore", loyaltyStoreConsumer)
@@ -36,6 +39,7 @@ func (s *Hammer) AddCorporation(corporationID int32) error {
 		if !s.inQueue.CheckWorkExpired("evedata_entity", int64(corporationID)) {
 			return s.inQueue.QueueWork([]redisqueue.Work{
 				{Operation: "corporation", Parameter: corporationID},
+				{Operation: "allianceHistory", Parameter: corporationID},
 			}, redisqueue.Priority_Normal)
 		}
 	}
@@ -48,6 +52,7 @@ func (s *Hammer) AddCharacter(characterID int32) error {
 		if !s.inQueue.CheckWorkExpired("evedata_entity", int64(characterID)) {
 			return s.inQueue.QueueWork([]redisqueue.Work{
 				{Operation: "character", Parameter: characterID},
+				{Operation: "corporationHistory", Parameter: characterID},
 			}, redisqueue.Priority_Normal)
 		}
 	}
@@ -234,6 +239,53 @@ func corporationConsumer(s *Hammer, parameter interface{}) {
 	}
 }
 
+func corporationHistoryConsumer(s *Hammer, parameter interface{}) {
+	characterID := int32(parameter.(int))
+
+	corporationHistory, _, err := s.esi.ESI.CharacterApi.GetCharactersCharacterIdCorporationhistory(context.Background(), characterID, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	// Send out the result
+	err = s.QueueResult(&datapackages.CorporationHistory{
+		CharacterID:        characterID,
+		CorporationHistory: corporationHistory},
+		"corporationHistory")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// Add all known corporations
+	for _, corp := range corporationHistory {
+		err = s.AddCorporation(corp.CorporationId)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
+}
+
+func allianceHistoryConsumer(s *Hammer, parameter interface{}) {
+	corporationID := int32(parameter.(int))
+
+	allianceHistory, _, err := s.esi.ESI.CorporationApi.GetCorporationsCorporationIdAlliancehistory(context.Background(), corporationID, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	// Send out the result
+	err = s.QueueResult(&datapackages.AllianceHistory{
+		CorporationID:   corporationID,
+		AllianceHistory: allianceHistory},
+		"allianceHistory")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
+
 func characterConsumer(s *Hammer, parameter interface{}) {
 	characterID := int32(parameter.(int))
 
@@ -243,17 +295,10 @@ func characterConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	corporationHistory, _, err := s.esi.ESI.CharacterApi.GetCharactersCharacterIdCorporationhistory(context.Background(), characterID, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
 	// Send out the result
 	err = s.QueueResult(&datapackages.Character{
-		CharacterID:        characterID,
-		Character:          character,
-		CorporationHistory: corporationHistory},
+		CharacterID: characterID,
+		Character:   character},
 		"character")
 	if err != nil {
 		log.Println(err)
@@ -269,12 +314,4 @@ func characterConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	// Add all known corporations
-	for _, corp := range corporationHistory {
-		err = s.AddCorporation(corp.CorporationId)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-	}
 }

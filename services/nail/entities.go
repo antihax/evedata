@@ -15,6 +15,8 @@ func init() {
 	AddHandler("character", spawnCharacterConsumer)
 	AddHandler("alliance", spawnAllianceConsumer)
 	AddHandler("corporation", spawnCorporationConsumer)
+	AddHandler("corporationHistory", spawnCorporationHistoryConsumer)
+	AddHandler("allianceHistory", spawnAllianceHistoryConsumer)
 	AddHandler("loyaltyStore", spawnLoyaltyStoreConsumer)
 	AddHandler("characterAuthOwner", spawnCharacterAuthOwnerConsumer)
 }
@@ -31,6 +33,13 @@ func spawnCorporationConsumer(s *Nail, consumer *nsq.Consumer) {
 	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.corporationHandler)))
 }
 
+func spawnCorporationHistoryConsumer(s *Nail, consumer *nsq.Consumer) {
+	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.corporationHistoryHandler)))
+}
+
+func spawnAllianceHistoryConsumer(s *Nail, consumer *nsq.Consumer) {
+	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.allianceHistoryHandler)))
+}
 func spawnLoyaltyStoreConsumer(s *Nail, consumer *nsq.Consumer) {
 	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.loyaltyStoreHandler)))
 }
@@ -100,6 +109,61 @@ func (s *Nail) allianceHandler(message *nsq.Message) error {
 	return s.addEntity(c.AllianceID, "alliance")
 }
 
+func (s *Nail) corporationHistoryHandler(message *nsq.Message) error {
+	c := datapackages.CorporationHistory{}
+	err := gobcoder.GobDecoder(message.Body, &c)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	var values []string
+	for _, e := range c.CorporationHistory {
+		values = append(values, fmt.Sprintf("(%d,%q,%d,%d)",
+			c.CharacterID, e.StartDate.UTC().Format("2006-01-02 15:04:05"), e.RecordId, e.CorporationId))
+	}
+
+	if len(values) > 0 {
+		stmt := fmt.Sprintf("INSERT INTO evedata.corporationHistory (characterID,startDate,recordID,corporationID) VALUES %s ON DUPLICATE KEY UPDATE characterID=VALUES(characterID);", strings.Join(values, ",\n"))
+		err = s.doSQL(stmt)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *Nail) allianceHistoryHandler(message *nsq.Message) error {
+	c := datapackages.AllianceHistory{}
+	err := gobcoder.GobDecoder(message.Body, &c)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	var values []string
+	for _, e := range c.AllianceHistory {
+		deleted := 0
+		if e.IsDeleted {
+			deleted = 1
+		}
+
+		values = append(values, fmt.Sprintf("(%d,%q,%d,%d,%d)",
+			c.CorporationID, e.StartDate.UTC().Format("2006-01-02 15:04:05"), e.RecordId, e.AllianceId, deleted))
+	}
+
+	if len(values) > 0 {
+		stmt := fmt.Sprintf("INSERT INTO evedata.allianceHistory (corporationID,startDate,recordID,allianceID,deleted) VALUES %s ON DUPLICATE KEY UPDATE corporationID=VALUES(corporationID);", strings.Join(values, ",\n"))
+		err = s.doSQL(stmt)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+	}
+	return nil
+}
+
 func (s *Nail) characterHandler(message *nsq.Message) error {
 	c := datapackages.Character{}
 	err := gobcoder.GobDecoder(message.Body, &c)
@@ -118,21 +182,6 @@ func (s *Nail) characterHandler(message *nsq.Message) error {
 	if err != nil {
 		log.Println(err)
 		return err
-	}
-
-	var values []string
-	for _, e := range c.CorporationHistory {
-		values = append(values, fmt.Sprintf("(%d,%q,%d,%d)",
-			c.CharacterID, e.StartDate.UTC().Format("2006-01-02 15:04:05"), e.RecordId, e.CorporationId))
-	}
-
-	if len(values) > 0 {
-		stmt := fmt.Sprintf("INSERT INTO evedata.corporationHistory (characterID,startDate,recordID,corporationID) VALUES %s ON DUPLICATE KEY UPDATE startDate=VALUES(startDate);", strings.Join(values, ",\n"))
-		err = s.doSQL(stmt)
-		if err != nil {
-			log.Println(err)
-			return err
-		}
 	}
 
 	return s.addEntity(c.CharacterID, "character")
