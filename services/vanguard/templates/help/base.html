@@ -1,0 +1,30 @@
+{{define "body"}}
+
+<div class="row">
+	<nav id="aboutNav" class="nopadding">
+		<div class="panel panel-default nopadding">
+			<div class="panel-heading center">
+				<h4 class="panel-title">Sharing</h4>
+			</div>
+			<div class="panel-body nopadding center">
+				<ul class="nav navbar-nav">
+				<li><a href="/help?page=shares">Sharing Data</a></li>
+				</ul>
+			</div>
+			<div class="panel-heading center">
+				<h4 class="panel-title">Integrations</h4>
+			</div>
+			<div class="panel-body nopadding center">
+				<ul class="nav navbar-nav">
+				<li><a href="/help?page=integrations">Integrations</a></li>
+				</ul>
+			</div>
+		</div>
+		{{template "ads-smallsquare" .}}
+	</nav>
+	<div id="aboutContent">
+		{{template "page" .}}
+	</div>
+</div>
+
+{{end}}

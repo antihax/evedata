@@ -54,7 +54,7 @@ func renderStatic(w http.ResponseWriter, r *http.Request, area string, page page
 	p := newPage(r, page.Title)
 	setCache(w, 60*60*24)
 	templates.Templates = template.Must(
-		template.ParseFiles("templates/"+area+"/"+page.Template, "templates/"+area+".html", templates.LayoutPath),
+		template.ParseFiles("templates/"+area+"/"+page.Template, "templates/"+area+"/base.html", templates.LayoutPath),
 	)
 	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
 		httpErrCode(w, err, http.StatusInternalServerError)
