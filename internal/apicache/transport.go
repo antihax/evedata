@@ -71,7 +71,7 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 			} else if res.StatusCode == 429 { // SNAFU
 				time.Sleep(time.Second * time.Duration(60+rand.Intn(30)))
 			} else if esiRateLimiter { // Sleep based on error rate.
-				time.Sleep(time.Second * time.Duration(float64(reset)*1.5*(1-(float64(tokens)/100))))
+				time.Sleep(time.Second * time.Duration(float64(reset)*1.1*(1-(float64(tokens)/100))))
 			}
 
 			if res.StatusCode == 420 || res.StatusCode == 429 || res.StatusCode >= 500 || res.StatusCode == 0 {
