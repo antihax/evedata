@@ -331,17 +331,21 @@ type Entity struct {
 	EntityType string `db:"entityType" json:"entityType"`
 }
 
-// Obtain Character information by ID.
+// GetEntitiesWithRole determine which corporation/alliance roles are available
 // [BENCHMARK] 0.000 sec / 0.000 sec
 func GetEntitiesWithRole(characterID int32, role string) ([]Entity, error) {
 	ref := []Entity{}
 	if err := database.Select(&ref, `
-		SELECT DISTINCT IFNULL(A.allianceID, C.corporationID) AS entityID, IFNULL(A.name, C.name) AS entityName, IF(A.name IS NULL, "corporation", "alliance") AS entityType
+		SELECT DISTINCT C.corporationID AS entityID, name AS entityName, "corporation" AS entityType
 		FROM evedata.crestTokens T
-		LEFT OUTER JOIN evedata.corporations C ON C.corporationID = T.corporationID
-		LEFT OUTER JOIN evedata.alliances A ON A.allianceID = T.allianceID
+		INNER JOIN evedata.corporations C ON C.corporationID = T.corporationID
 		WHERE FIND_IN_SET(?, T.roles) AND T.characterID = ?
-		`, role, characterID); err != nil {
+        UNION
+   		SELECT DISTINCT A.allianceID AS entityID, name AS entityName, "alliance" AS entityType
+		FROM evedata.crestTokens T
+		INNER JOIN evedata.alliances A ON A.allianceID = T.allianceID AND T.corporationID = A.executorCorpID
+		WHERE FIND_IN_SET(?, T.roles) AND T.characterID = ?
+		`, role, characterID, role, characterID); err != nil {
 		return nil, err
 	}
 	return ref, nil
