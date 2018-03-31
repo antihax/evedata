@@ -1,7 +1,7 @@
 {{define "body"}}
 <h3>Integration Services</h3>
-<p>Discord integration for your corporation or alliance!</p>
-<p>All executor corp directors will have access to alter the configuration. You may also add delegates.</p>
+<p>Discord integration for your corporation or alliance.</p>
+<p>All executor corp directors will have access to alter the configuration.</p>
 {{template "checkAuthentication" .}}
 
 <div class="modal fade" id="adddiscord">
@@ -14,11 +14,10 @@
 				<h4 class="modal-title"></h4>
 			</div>
 			<div class="modal-body">
-				<p>Add a discord server! You must have director roles in the corporation to perform this action.</p>
+				<p>You must have director roles in the corporation or alliance to perform this action.</p>
 				<ol>
 					<li>
-						<a href="https://discordapp.com/api/oauth2/authorize?client_id=229339294144135169&permissions=1543765239&scope=bot"
-						 target="_new">Click to have our service join your Discord</a>.</li>
+						<a href="https://discordapp.com/api/oauth2/authorize?client_id=229339294144135169&permissions=1543765239&scope=bot" target="_new">Click to have our service join your Discord</a>.</li>
 					<li>Right click your discord server from the discord UI and select
 						<i>Copy ID</i>
 					</li>
@@ -46,7 +45,7 @@
 	<div class="toolbar servicesToolbar" id="servicesToolbar">
 		<div class="dropdown">
 			<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChar" data-toggle="dropdown" aria-haspopup="true"
-			 aria-expanded="false">
+			    aria-expanded="false">
 				Add New Service
 				<span class="caret"></span>
 			</button>
@@ -60,7 +59,7 @@
 </div>
 
 <table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".servicesToolbar" data-url="/U/integrations"
- id="servicesTable">
+    id="servicesTable">
 	<thead>
 		<tr>
 			<th data-field="type">Service Type</th>
@@ -72,9 +71,13 @@
 </table>
 </div>
 
-<script>		
-	var $adddiscord = $('#adddiscord').modal({ show: false }),
-		$servicesTable = $('#servicesTable').bootstrapTable({ url: "/U/integrations" }, "changeLocale", "en_US");
+<script>
+	var $adddiscord = $('#adddiscord').modal({
+			show: false
+		}),
+		$servicesTable = $('#servicesTable').bootstrapTable({
+			url: "/U/integrations"
+		}, "changeLocale", "en_US");
 
 	$('.adddiscord').click(function () {
 		$adddiscord.find('.modal-title').text("Add Discord");
@@ -87,7 +90,8 @@
 			dataType: 'JSON',
 			success: function (data) {
 				$.each(data, function (key, val) {
-					$('#entity').append('<option id=' + val.entityID + '>' + val.entityName + '</option>');
+					$('#entity').append('<option id=' + val.entityID + '>' + val.entityName + ' (' + val.entityType + ')' +
+						'</option>');
 				})
 			},
 			error: function () {
@@ -95,11 +99,13 @@
 			}
 		});
 	});
+
 	function ServerActionsFormatter(value, row) {
 		return [
 			'<a class="editServices" href="javascript:" title="Edit Service"><i class="glyphicon glyphicon-pencil"><\/i><\/a> &nbsp;&nbsp;&nbsp; <a class="removeServices" href="javascript:" title="Delete Service"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
 		].join('');
 	}
+
 	function serverFormatter(value, row) {
 		return '<a href="/integrationDetails?integrationID=' + row.integrationID + '">' + value + '</a>';
 	}
@@ -126,13 +132,13 @@
 	};
 	$adddiscord.find('.submit').click(function () {
 		$.ajax({
-			type: "POST",
-			url: "/U/integrationsDiscord",
-			data: {
-				entityID: $('#entity').children(":selected").attr("id"),
-				serverID: $('#serverID').val(),
-			}
-		})
+				type: "POST",
+				url: "/U/integrationsDiscord",
+				data: {
+					entityID: $('#entity').children(":selected").attr("id"),
+					serverID: $('#serverID').val(),
+				}
+			})
 			.done(function () {
 				$servicesTable.bootstrapTable('refresh');
 				$adddiscord.modal('hide');
