@@ -2,6 +2,18 @@ CREATE DATABASE IF NOT EXISTS evedata;
 
 USE evedata;
 
+CREATE TABLE `allianceHistory` (
+  `recordID` int(11) NOT NULL,
+  `startDate` datetime NOT NULL,
+  `allianceID` int(11) NOT NULL,
+  `corporationID` int(11) NOT NULL,
+  `deleted` tinyint(4) NOT NULL,
+  PRIMARY KEY (`recordID`),
+  KEY `allianceID` (`allianceID`),
+  KEY `corporationID` (`corporationID`),
+  KEY `startDate` (`startDate`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `alliances` (
   `allianceID` int(10) unsigned NOT NULL DEFAULT '0',
   `name` varchar(255) NOT NULL DEFAULT '',
