@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	Priority_Lowest = iota
 	Priority_Low    = iota
 	Priority_Normal = iota
 	Priority_High   = iota

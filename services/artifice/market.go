@@ -58,5 +58,5 @@ func structuresTrigger(s *Artifice) error {
 		}
 	}
 
-	return s.QueueWork(work, redisqueue.Priority_Low)
+	return s.QueueWork(work, redisqueue.Priority_Lowest)
 }

@@ -26,7 +26,7 @@ func npcCorporationsTrigger(s *Artifice) error {
 		work = append(work, redisqueue.Work{Operation: "loyaltyStore", Parameter: corporation})
 	}
 
-	return s.QueueWork(work, redisqueue.Priority_Low)
+	return s.QueueWork(work, redisqueue.Priority_Lowest)
 }
 
 func allianceTrigger(s *Artifice) error {
@@ -40,7 +40,7 @@ func allianceTrigger(s *Artifice) error {
 		work = append(work, redisqueue.Work{Operation: "alliance", Parameter: alliance})
 	}
 
-	return s.QueueWork(work, redisqueue.Priority_Low)
+	return s.QueueWork(work, redisqueue.Priority_Lowest)
 }
 
 func characterUpdate(s *Artifice) error {
@@ -69,7 +69,7 @@ func characterUpdate(s *Artifice) error {
 
 	}
 
-	return s.QueueWork(work, redisqueue.Priority_Low)
+	return s.QueueWork(work, redisqueue.Priority_Lowest)
 }
 
 func corporationUpdate(s *Artifice) error {
@@ -97,5 +97,5 @@ func corporationUpdate(s *Artifice) error {
 
 	}
 
-	return s.QueueWork(work, redisqueue.Priority_Low)
+	return s.QueueWork(work, redisqueue.Priority_Lowest)
 }
