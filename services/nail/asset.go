@@ -43,15 +43,6 @@ func (s *Nail) characterAssetsConsumer(message *nsq.Message) error {
 		values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%q,%d,%q,%v)",
 			asset.LocationId, asset.TypeId, asset.Quantity, assets.TokenCharacterID,
 			asset.LocationFlag, asset.ItemId, asset.LocationType, asset.IsSingleton))
-
-		if count > 100 {
-			err := s.doSQL(doAssets(values))
-			if err != nil {
-				return err
-			}
-			values = values[:0]
-			count = 0
-		}
 	}
 
 	stmt := doAssets(values)
