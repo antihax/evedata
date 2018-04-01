@@ -1,13 +1,13 @@
 package conservator
 
 import (
+	"log"
 	"os"
 	"testing"
 
 	"github.com/antihax/evedata/internal/nsqhelper"
 	"github.com/antihax/evedata/internal/redigohelper"
 	"github.com/antihax/evedata/internal/sqlhelper"
-	"github.com/prometheus/common/log"
 	"github.com/stretchr/testify/assert"
 )
 
