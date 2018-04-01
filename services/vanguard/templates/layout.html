@@ -1,321 +1,378 @@
 {{define "base"}}
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="icon" href="/i/favicon.ico">
-		<title>{{.Title}}</title>
-		{{.Header}}
-		<script>
-		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-		})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/i/favicon.ico">
+	<title>{{.Title}}</title>
+	{{.Header}}
+	<script>
+		(function (i, s, o, g, r, a, m) {
+			i['GoogleAnalyticsObject'] = r;
+			i[r] = i[r] || function () {
+				(i[r].q = i[r].q || []).push(arguments)
+			}, i[r].l = 1 * new Date();
+			a = s.createElement(o),
+				m = s.getElementsByTagName(o)[0];
+			a.async = 1;
+			a.src = g;
+			m.parentNode.insertBefore(a, m)
+		})(window, document, 'script',
+			'https://www.google-analytics.com/analytics.js', 'ga');
 
 		ga('create', 'UA-2043836-4', 'auto');
 		ga('send', 'pageview');
-
-		</script>
-		<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-		<script>
+	</script>
+	<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+	<script>
 		(adsbygoogle = window.adsbygoogle || []).push({
 			google_ad_client: "ca-pub-7592797392299801",
 			enable_page_level_ads: true
 		});
-		</script>
-		<script src="/js/site.js"></script>
-		<script src="/js/murmur3.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-		
-		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-growl/1.0.6/bootstrap-growl.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/locale/bootstrap-table-en-US.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
-		
-		<link rel="stylesheet" href="/css/bootstrap.min.css">
-		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.css">
-		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
-		<link rel="stylesheet" href="/css/site.css">
-	</head>
-	<body>
-		<nav class="navbar navbar-default navbar-static-top">
-			<div class="container-fluid">
-				<div class="navbar-header">
-					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+	</script>
+	<script src="/js/site.js"></script>
+	<script src="/js/murmur3.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-growl/1.0.6/bootstrap-growl.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/locale/bootstrap-table-en-US.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+
+	<link rel="stylesheet" href="/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.css">
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
+	<link rel="stylesheet" href="/css/site.css">
+</head>
+
+<body>
+	<nav class="navbar navbar-default navbar-static-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+				    aria-expanded="false" aria-controls="navbar">
 					<span class="sr-only">Toggle navigation</span>
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
-					</button>
-					<a class="navbar-brand" href="/" style="padding: 15px"><img src="/images/icon.png" alt="EVEData"></a>
-				</div>
-				
-				<div id="navbar" class="navbar-collapse collapse">
-					<ul class="nav navbar-nav">
-						<li class="active">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Tools <span class="caret"></span></a>
-							<ul class="dropdown-menu" role="menu">
-								<li><a href="/ecmjam">ECM Jam Chance</a></li>
-								<li><a href="/localIntel">Local Intel Summary</a></li>
-								<li><a href="/marketBrowser">Market Browser</a></li>
-							</ul>
-						</li>
-						<li class="active">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Services <span class="caret"></span></a>
-							<ul class="dropdown-menu" role="menu">
-								<li><a href="/account">Characters and Auth</a></li>
-								<li><a href="/shares">Share Data with Entities</a></li>
-								<li><a href="/integrations">Integrations</a></li>
-								<li role="separator" class="divider"></li>
-								<li><a href="/locatorResponses">Locator Responses</a></li>
-								<li role="separator" class="divider"></li>
-								<li><a href="/contactSync">War Contact Synchronization</a></li>
-							</ul>
-						</li>
-						<li class="active">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Reports <span class="caret"></span></a>
-							<ul class="dropdown-menu" role="menu">
-								<li><a href="/activeWars">Active Wars</a></li>
-								<li><a href="/lostFighters">Fighters Lost in Highsec</a></li>
-								<li><a href="/lossesInHighsec">Losses in Highsec</a></li>
-								<li role="separator" class="divider"></li>
-								<li><a href="/arbitrageCalculator">Arbitrage Calculator</a></li>
-								<li><a href="/iskPerLP">ISK Per Loyalty Points</a></li>
-								<li><a href="/iskPerLPByConversion">ISK Per LP Consolidated</a></li>
-								<li role="separator" class="divider"></li>
-								<li><a href="/assets">Assets</a></li>
-								<li><a href="/profitAndLoss">Profit & Loss Statement</a></li>
-							</ul>
-						</li>
-					</ul>						
-					<ul class="nav navbar navbar-nav fixNav" id="mainSearchContainer">
-						<input type="text" class="typeahead fixNav" placeholder="Search for anything" name="q">
-					</ul>		
-					<div class="nav navbar-nav navbar-right pull-right" style="padding: 9px">
-						<div id="noAuth">
-							<a href="/X/eveAuth" style="padding: 2px"><img src="/images/EVE_SSO_Login_Buttons_Small_Black.png" style="padding: 0px"></a>
-						</div>
-						<div id="authed" style="display: none;">
-							<li class="dropdown">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-									<img src="" id="cursorImage"> 
-									<strong id="cursorName">No UI Control Character</strong>
-									<span class="glyphicon glyphicon-chevron-down"></span>
-								</a>
-								<ul class="dropdown-menu">
-									<li>
-										<div class="navbar-login">
-											<div class="row">
-												<div class="col-lg-4">
-													<p class="text-center">
-														<img src="" id="accountImage"> 
-													</p>
-												</div>
-												<div class="col-lg-8">
-													<p class="text-left"><strong>Single Sign On:</strong> <span id="accountName"></p>						
-												</div>
+				</button>
+				<a class="navbar-brand" href="/" style="padding: 15px">
+					<img src="/images/icon.png" alt="EVEData">
+				</a>
+			</div>
+
+			<div id="navbar" class="navbar-collapse collapse">
+				<ul class="nav navbar-nav">
+					<li class="active">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Tools
+							<span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu" role="menu">
+							<li>
+								<a href="/ecmjam">ECM Jam Chance</a>
+							</li>
+							<li>
+								<a href="/localIntel">Local Intel Summary</a>
+							</li>
+							<li>
+								<a href="/marketBrowser">Market Browser</a>
+							</li>
+						</ul>
+					</li>
+					<li class="active">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Services
+							<span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu" role="menu">
+							<li>
+								<a href="/account">Characters and Auth</a>
+							</li>
+							<li>
+								<a href="/shares">Share Data with Entities</a>
+							</li>
+							<li>
+								<a href="/integrations">Integrations</a>
+							</li>
+							<li role="separator" class="divider"></li>
+							<li>
+								<a href="/locatorResponses">Locator Responses</a>
+							</li>
+							<li role="separator" class="divider"></li>
+							<li>
+								<a href="/contactSync">War Contact Synchronization</a>
+							</li>
+						</ul>
+					</li>
+					<li class="active">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Reports
+							<span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu" role="menu">
+							<li>
+								<a href="/activeWars">Active Wars</a>
+							</li>
+							<li>
+								<a href="/lostFighters">Fighters Lost in Highsec</a>
+							</li>
+							<li>
+								<a href="/lossesInHighsec">Losses in Highsec</a>
+							</li>
+							<li role="separator" class="divider"></li>
+							<li>
+								<a href="/arbitrageCalculator">Arbitrage Calculator</a>
+							</li>
+							<li>
+								<a href="/iskPerLP">ISK Per Loyalty Points</a>
+							</li>
+							<li>
+								<a href="/iskPerLPByConversion">ISK Per LP Consolidated</a>
+							</li>
+							<li role="separator" class="divider"></li>
+							<li>
+								<a href="/assets">Assets</a>
+							</li>
+							<li>
+								<a href="/profitAndLoss">Profit & Loss Statement</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="nav navbar navbar-nav fixNav" id="mainSearchContainer">
+					<input type="text" class="typeahead fixNav" placeholder="Search for anything" name="q">
+				</ul>
+				<div class="nav navbar-nav navbar-right pull-right" style="padding: 9px">
+					<div id="noAuth">
+						<a href="/X/eveAuth" style="padding: 2px">
+							<img src="/images/EVE_SSO_Login_Buttons_Small_Black.png" style="padding: 0px">
+						</a>
+					</div>
+					<div id="authed" style="display: none;">
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+								<img src="" id="cursorImage">
+								<strong id="cursorName">No UI Control Character</strong>
+								<span class="glyphicon glyphicon-chevron-down"></span>
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<div class="navbar-login">
+										<div class="row">
+											<div class="col-lg-4">
+												<p class="text-center">
+													<img src="" id="accountImage">
+												</p>
+											</div>
+											<div class="col-lg-8">
+												<p class="text-left">
+													<strong>Single Sign On:</strong>
+													<span id="accountName">
+												</p>
 											</div>
 										</div>
-									</li>
-									<li class="divider"></li>
-									<li>
-										<div class="navbar-login navbar-login-session">
-											<div class="row">
-												<div class="col-lg-12 text-center">
-													<p><strong>UI Control Character</strong></p>
-													<select class="selectpicker" data-width="auto" id="cursorCharacter"></select>
-												</div>
+									</div>
+								</li>
+								<li class="divider"></li>
+								<li>
+									<div class="navbar-login navbar-login-session">
+										<div class="row">
+											<div class="col-lg-12 text-center">
+												<p>
+													<strong>UI Control Character</strong>
+												</p>
+												<select class="selectpicker" data-width="auto" id="cursorCharacter"></select>
 											</div>
 										</div>
-									</li>										
-									<li class="divider"></li>
-									<li>
-										<div class="navbar-login navbar-login-session">
-											<div class="row">
-												<div class="col-lg-12">													
-													<p class="text-left">
-														<a href="/account" class="btn btn-primary btn-block btn-sm">Account & Characters</a>
-														<a href="/X/logout" class="btn btn-danger btn-block">Logout</a>
-													</p>													
-												</div>
+									</div>
+								</li>
+								<li class="divider"></li>
+								<li>
+									<div class="navbar-login navbar-login-session">
+										<div class="row">
+											<div class="col-lg-12">
+												<p class="text-left">
+													<a href="/account" class="btn btn-primary btn-block btn-sm">Account & Characters</a>
+													<a href="/X/logout" class="btn btn-danger btn-block">Logout</a>
+												</p>
 											</div>
 										</div>
-									</li>
-								</ul>
-							</li>	
-						</div>				
+									</div>
+								</li>
+							</ul>
+						</li>
 					</div>
 				</div>
 			</div>
-		</nav>
-		{{template "ads-adaptive" .}}
-		<div class="container-fluid nopadding">
-			<div class="well" id="mainWell">
-				{{template "body" .}}
+		</div>
+	</nav>
+	{{template "ads-adaptive" .}}
+	<div class="container-fluid nopadding">
+		<div class="well" id="mainWell">
+			{{template "body" .}}
 			</center>
 		</div>
-		<footer class="container-fluid pull-right">	
-			<a href="/about?page=terms">Terms</a> | 
-			<a href="/about?page=privacy">Privacy</a> | 
+		<footer class="container-fluid pull-right">
+			<a href="/about?page=terms">Terms</a> |
+			<a href="/about?page=privacy">Privacy</a> |
 			<a href="https://github.com/antihax/evedata/issues">Bug Report / Suggestions</a> |
 			<a href="https://github.com/antihax/evedata">GitHub</a>
 		</footer>
-	</body>
+</body>
 
-	<script>
-		var accountInfo;
-		function updateCursor(id, name) {
-			$.ajax({
-				url: "/X/cursorChar?cursorCharacterID=" + id,
-				type: 'post',
-				success: function () {
-					accountInfo.cursor.cursorCharacterID = id;
-					accountInfo.cursor.cursorCharacterName = name;
-					updateCursorDisplay();
-				},
-			});
-		}
+<script>
+	var accountInfo;
 
-		function updateCursorDisplay() {
-			if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
-				$("#cursorName").text(accountInfo.cursor.cursorCharacterName)
-				$("#cursorImage").attr("src",characterImageByID(accountInfo.cursor.cursorCharacterID, 32));  
-			}
-		}
-
-		$('body').on('click', function(event) {
-			var target = $(event.target);
-			if (target.parents('.bootstrap-select').length) {
-				target.parents('.bootstrap-select').toggleClass('open');
-				return false;
-			}
-		});	
-	
-		$.getJSON("/X/accountInfo", function(json){
-			accountInfo = json;
-			$("#noAuth").hide()
-			$("#authed").show()
-			if (!accountInfo.cursor || accountInfo.cursor.cursorCharacterID == 0) {
-				if (accountInfo.characters && accountInfo.characters[0].tokenCharacterID) {
-					updateCursor(accountInfo.characters[0].tokenCharacterID, accountInfo.characters[0].characterName)
-				} else {
-					showAlert('No characters available with UI Control. Please add characters on the account page with at least one with UI control.', 'danger');
-				}
-			}
-			
-			updateCursorDisplay();
-
-			$("#accountImage").attr("src",characterImageByID(accountInfo.characterID, 64));  
-			$("#accountName").text(accountInfo.characterName);
-			$(".SSOCharacterName").text(accountInfo.characterName);
-
-			$.each(accountInfo.characters, function(key, val) {	
-				if (~val.scopes.indexOf("open_window")) {
-					if (val.tokenCharacterID == accountInfo.cursor.cursorCharacterID) {		
-						$('#cursorCharacter').append('<option value=' + val.tokenCharacterID + ' SELECTED><img src="' + characterImageByID(val.tokenCharacterID, 32) + '" width=32 height=32>' + val.characterName + '</option>');
-					} else {
-						$('#cursorCharacter').append('<option value=' + val.tokenCharacterID + '><img src="' + characterImageByID(val.tokenCharacterID, 32) + '" width=32 height=32>' + val.characterName + '</option>');									
-					}
-				}
-			});
-
-			$('#cursorCharacter').selectpicker('refresh');
-		}).fail(function() {
-			$("#notloggedin").show();
-		});
-
-		$("body").on("change", "#cursorCharacter", function() {
-			updateCursor($('#cursorCharacter').val(), $('#cursorCharacter option:selected').text());
-		});
-
-		var mainSearch = new Bloodhound({
-			sufficient: 100,
-			limit: 100,
-			datumTokenizer: function (datum) {
-				return Bloodhound.tokenizers.whitespace(datum.value);
+	function updateCursor(id, name) {
+		$.ajax({
+			url: "/X/cursorChar?cursorCharacterID=" + id,
+			type: 'post',
+			success: function () {
+				accountInfo.cursor.cursorCharacterID = id;
+				accountInfo.cursor.cursorCharacterName = name;
+				updateCursorDisplay();
 			},
-			queryTokenizer: Bloodhound.tokenizers.whitespace,
-			remote: {
-				url: '/J/search?q=%QUERY',
-				filter: function (mainSearch) {
-					return $.map(mainSearch, function (s) {
-						return {
-							value: 	s.name,
-							id:		s.id,
-							type:	s.type
-						};
-					});
-				}
-			}
 		});
-		// Initialize the Bloodhound suggestion engine
-		mainSearch.initialize();
-		var datum;
-		
-		$('#mainSearchContainer .typeahead').typeahead(null, {
-			name: 'mainSearch',
-			limit: 100,
-			display: 'value',
-			source: mainSearch.ttAdapter(),
-			templates: {
-				empty: [
-				'<div class="empty-message">',
-					'Nothing Found',
-				'</div>'
-				].join('\n'),
-				suggestion: function(data) {
-					return '<div><strong>'+data.value+'</strong> – '+data.type+'</div>';
-				}
-			}
-		}).on('typeahead:selected', function(obj, d, name) {
-			doSearch(d);
-		});
+	}
 
-		$('#mainSearchContainer').on('keyup', function(e) {
-			if(e.which == 13) {
-				$(".tt-suggestion:first-child", this).trigger('click');
-			}
-		});
-
-		function doSearch(obj) {
-			window.location.href = "search?id="+obj.id+"&type="+obj.type
+	function updateCursorDisplay() {
+		if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
+			$("#cursorName").text(accountInfo.cursor.cursorCharacterName)
+			$("#cursorImage").attr("src", characterImageByID(accountInfo.cursor.cursorCharacterID,
+				32));
 		}
-	</script>
-</html>
-{{end}}
+	}
 
-{{define "ads-adaptive"}}
+	$('body').on('click', function (event) {
+		var target = $(event.target);
+		if (target.parents('.bootstrap-select').length) {
+			target.parents('.bootstrap-select').toggleClass('open');
+			return false;
+		}
+	});
+
+	$.getJSON("/X/accountInfo", function (json) {
+		accountInfo = json;
+		$("#noAuth").hide()
+		$("#authed").show()
+		if (!accountInfo.cursor || accountInfo.cursor.cursorCharacterID == 0) {
+			if (accountInfo.characters && accountInfo.characters[0].tokenCharacterID) {
+				updateCursor(accountInfo.characters[0].tokenCharacterID, accountInfo.characters[
+					0].characterName)
+			} else {
+				showAlert(
+					'No characters available with UI Control. Please add characters on the account page with at least one with UI control.',
+					'danger');
+			}
+		}
+
+		updateCursorDisplay();
+
+		$("#accountImage").attr("src", characterImageByID(accountInfo.characterID,
+			64));
+		$("#accountName").text(accountInfo.characterName);
+		$(".SSOCharacterName").text(accountInfo.characterName);
+
+		$.each(accountInfo.characters, function (key, val) {
+			if (~val.scopes.indexOf("open_window")) {
+				if (val.tokenCharacterID == accountInfo.cursor.cursorCharacterID) {
+					$('#cursorCharacter').append('<option value=' + val.tokenCharacterID +
+						' SELECTED><img src="' + characterImageByID(val.tokenCharacterID, 32) +
+						'" width=32 height=32>' + val.characterName + '</option>');
+				} else {
+					$('#cursorCharacter').append('<option value=' + val.tokenCharacterID +
+						'><img src="' + characterImageByID(val.tokenCharacterID, 32) +
+						'" width=32 height=32>' + val.characterName + '</option>');
+				}
+			}
+		});
+
+		$('#cursorCharacter').selectpicker('refresh');
+	}).fail(function () {
+		$("#notloggedin").show();
+	});
+
+	$("body").on("change", "#cursorCharacter", function () {
+		updateCursor($('#cursorCharacter').val(), $(
+			'#cursorCharacter option:selected').text());
+	});
+
+	var mainSearch = new Bloodhound({
+		sufficient: 100,
+		limit: 100,
+		datumTokenizer: function (datum) {
+			return Bloodhound.tokenizers.whitespace(datum.value);
+		},
+		queryTokenizer: Bloodhound.tokenizers.whitespace,
+		remote: {
+			url: '/J/search?q=%QUERY',
+			filter: function (mainSearch) {
+				return $.map(mainSearch, function (s) {
+					return {
+						value: s.name,
+						id: s.id,
+						type: s.type
+					};
+				});
+			}
+		}
+	});
+	// Initialize the Bloodhound suggestion engine
+	mainSearch.initialize();
+	var datum;
+
+	$('#mainSearchContainer .typeahead').typeahead(null, {
+		name: 'mainSearch',
+		limit: 100,
+		display: 'value',
+		source: mainSearch.ttAdapter(),
+		templates: {
+			empty: [
+				'<div class="empty-message">',
+				'Nothing Found',
+				'</div>'
+			].join('\n'),
+			suggestion: function (data) {
+				return '<div><strong>' + data.value + '</strong> – ' + data.type +
+					'</div>';
+			}
+		}
+	}).on('typeahead:selected', function (obj, d, name) {
+		doSearch(d);
+	});
+
+	$('#mainSearchContainer').on('keyup', function (e) {
+		if (e.which == 13) {
+			$(".tt-suggestion:first-child", this).trigger('click');
+		}
+	});
+
+	function doSearch(obj) {
+		window.location.href = "search?id=" + obj.id + "&type=" + obj.type
+	}
+</script>
+
+</html>
+{{end}} {{define "ads-adaptive"}}
 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <!-- EVEData Responsive -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-7592797392299801"
-     data-ad-slot="5613186081"
-     data-ad-format="auto"></ins>
+<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7592797392299801"
+    data-ad-slot="5613186081" data-ad-format="auto"></ins>
 <script>
-(adsbygoogle = window.adsbygoogle || []).push({});
+	(adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-{{end}}
-
-
-{{define "ads-smallsquare"}}
+{{end}} {{define "ads-smallsquare"}}
 <!-- Sidebar -->
-<ins class="adsbygoogle"
-     style="display:inline-block;width:200px;height:200px"
-     data-ad-client="ca-pub-7592797392299801"
-     data-ad-slot="5613186081"
-	 data-ad-format="auto">></ins>
+<ins class="adsbygoogle" style="display:inline-block;width:200px;height:200px" data-ad-client="ca-pub-7592797392299801"
+    data-ad-slot="5613186081" data-ad-format="auto">></ins>
 <script>
-(adsbygoogle = window.adsbygoogle || []).push({});
+	(adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+{{end}} {{define "checkAuthentication"}}
+<p class="ed_alert" id="notloggedin" style="display: none;">This page requires you to be authenticated with active characters in your account.
+	<br> Please
+	<a href="/X/eveAuth">log in with EVE Online</a> and add some characters to your account.</p>
 {{end}}
-
-{{define "checkAuthentication"}}
-<p class="ed_alert" id="notloggedin" style="display: none;">This page requires you to be authenticated with active charaters in your account.<br>
-		Please <a href="/X/eveAuth">log in with EVE Online</a> and add some characters to your account.</p>
-{{end}}
-

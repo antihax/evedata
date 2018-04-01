@@ -1,5 +1,4 @@
 {{define "body"}}
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.10.0/js-yaml.min.js"></script>
 <script src="/js/formSerializer.js"></script>
 <div class="container">
@@ -24,7 +23,6 @@
 	</div>
 </div>
 {{template "checkAuthentication" .}}
-
 <div class="modal fade" id="addchannel">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -49,7 +47,6 @@
 	</div>
 </div>
 
-
 <div class="modal fade" id="channeloptions">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -63,8 +60,9 @@
 			</div>
 			<div class="modal-body">
 				<h5 style="margin-top: 0px">Send the following to the channel:</h5>
-				<p>Note: shared notifications require at least one character to be sharing data with your entity to function, they are not
-					alliance wide, each corp will need one character sharing to see everything correctly. With structures, this character
+				<p>Note: shared notifications require at least one character to be sharing data
+					with your entity to function, they are not alliance wide, each corp will need
+					one character sharing to see everything correctly. With structures, this character
 					must be a director.</p>
 				<form id="services" class="form-vertical">
 					<fieldset>
@@ -72,7 +70,8 @@
 							<input class="form-check-input" type="checkbox" name="application">
 							<label class="form-check-label" for="application">Applications to Corporations</label>
 							<br>
-							<input class="form-check-input" type="checkbox" name="kill" data-toggle="collapse" data-target="#killmailOpts">
+							<input class="form-check-input" type="checkbox" name="kill" data-toggle="collapse"
+							    data-target="#killmailOpts">
 							<label class="form-check-label" for="kill">Killmails</label>
 							<br>
 							<input class="form-check-input" type="checkbox" name="structure">
@@ -134,7 +133,6 @@
 		</div>
 	</div>
 
-
 	<div class="modal fade" id="serviceoptions">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -151,7 +149,8 @@
 					<form id="services" class="form-vertical">
 						<fieldset>
 							<div class="form-check">
-								<input class="form-check-input" type="checkbox" name="auth" data-toggle="collapse" data-target="#authOpts">
+								<input class="form-check-input" type="checkbox" name="auth" data-toggle="collapse"
+								    data-target="#authOpts">
 								<label class="form-check-label" for="auth">Member Authentication</label>
 							</div>
 						</fieldset>
@@ -249,12 +248,19 @@
 	</table>
 </div>
 
-<script>		
+<script>
 	var $service,
-		$addchannel = $('#addchannel').modal({ show: false }),
-		$channeloptions = $('#channeloptions').modal({ show: false }),
-		$serviceoptions = $('#serviceoptions').modal({ show: false }),
-		$channelsTable = $('#channelsTable').bootstrapTable({}, "changeLocale", "en_US"),
+		$addchannel = $('#addchannel').modal({
+			show: false
+		}),
+		$channeloptions = $('#channeloptions').modal({
+			show: false
+		}),
+		$serviceoptions = $('#serviceoptions').modal({
+			show: false
+		}),
+		$channelsTable = $('#channelsTable').bootstrapTable({}, "changeLocale",
+			"en_US"),
 		$sharesTable = $('#sharesTable').bootstrapTable({}, "changeLocale", "en_US");
 
 	$(function () {
@@ -278,7 +284,8 @@
 		} else {
 			value = "&#10008";
 		}
-		return '<a class="toggleignore" style="text-decoration: none;" href="javascript:void(0)" title="Toggle Ignore">' + value + '<\/a>';
+		return '<a class="toggleignore" style="text-decoration: none;" href="javascript:void(0)" title="Toggle Ignore">' +
+			value + '<\/a>';
 	}
 
 	function yamlFormatter(value, row) {
@@ -290,7 +297,8 @@
 		'click .removeChannel': function (e, value, row) {
 			if (confirm('Are you sure you want to delete this channel?')) {
 				$.ajax({
-					url: "/U/integrationChannels?integrationID=" + row.integrationID + "&channelID=" + row.channelID,
+					url: "/U/integrationChannels?integrationID=" + row.integrationID +
+						"&channelID=" + row.channelID,
 					type: 'delete',
 					success: function () {
 						showAlert('Delete channel successful!', 'success');
@@ -309,7 +317,8 @@
 			$channeloptions.find('#services')[0].reset();
 			if (row.services) {
 				$.each(row.services.split(","), function (i, val) {
-					$channeloptions.find('#services').find("input[name=" + val + "]").prop('checked', true);
+					$channeloptions.find('#services').find("input[name=" + val + "]").prop(
+						'checked', true);
 				});
 			}
 			if ($("input[name=kill]").prop('checked')) {
@@ -319,18 +328,21 @@
 			}
 			$.each(row.options, function (category, data) {
 				$.each(data, function (field, val) {
-					$channeloptions.find('#channelOpts').find("input[name=" + category + "\\[" + field + "\\]]").prop('checked', true);
+					$channeloptions.find('#channelOpts').find("input[name=" + category +
+						"\\[" + field + "\\]]").prop('checked', true);
 				});
 			});
 			$channeloptions.modal('show');
 		},
 		'click .toggleignore': function (e, value, row) {
 			$.ajax({
-				url: "/U/integrationShareToggleIgnore?tokenCharacterID=" + row.tokenCharacterID + "&integrationID=" + row.integrationID,
+				url: "/U/integrationShareToggleIgnore?tokenCharacterID=" + row.tokenCharacterID +
+					"&integrationID=" + row.integrationID,
 				type: 'post',
 				success: function () {
 					updateService();
-					showAlert('Ignore state changed for ' + row.tokenCharacterName + '!', 'success');
+					showAlert('Ignore state changed for ' + row.tokenCharacterName + '!',
+						'success');
 				},
 				error: function () {
 					showAlert('Error changing authentication state!', 'danger');
@@ -346,7 +358,8 @@
 		$serviceoptions.find('#services')[0].reset();
 		if ($service.services) {
 			$.each($service.services.split(","), function (i, val) {
-				$serviceoptions.find('#services').find("input[name=" + val + "]").prop('checked', true);
+				$serviceoptions.find('#services').find("input[name=" + val + "]").prop(
+					'checked', true);
 			});
 		}
 		if ($("input[name=auth]").prop('checked')) {
@@ -356,7 +369,8 @@
 		}
 		$.each($service.options, function (category, data) {
 			$.each(data, function (field, val) {
-				$('#serviceOpts').find("select[name=" + category + "\\[" + field + "\\]]").val(val);
+				$('#serviceOpts').find("select[name=" + category + "\\[" + field +
+					"\\]]").val(val);
 			});
 		});
 		$serviceoptions.modal('show');
@@ -364,13 +378,13 @@
 
 	$addchannel.find('#submitchannel').click(function () {
 		$.ajax({
-			type: "POST",
-			url: "/U/integrationChannels",
-			data: {
-				channelID: $('#channels').children(":selected").attr("id"),
-				integrationID: getUrlVars()["integrationID"],
-			}
-		})
+				type: "POST",
+				url: "/U/integrationChannels",
+				data: {
+					channelID: $('#channels').children(":selected").attr("id"),
+					integrationID: getUrlVars()["integrationID"],
+				}
+			})
 			.done(function () {
 				updateService();
 				$addchannel.modal('hide');
@@ -383,15 +397,15 @@
 
 	$channeloptions.find('#channeloptions').click(function () {
 		$.ajax({
-			type: "PUT",
-			url: "/U/integrationChannelOptions",
-			data: {
-				channelID: $('#channelID').text(),
-				integrationID: getUrlVars()["integrationID"],
-				options: JSON.stringify($('#channelOpts').serializeObject()),
-				services: JSON.stringify($('#services').serializeObject())
-			}
-		})
+				type: "PUT",
+				url: "/U/integrationChannelOptions",
+				data: {
+					channelID: $('#channelID').text(),
+					integrationID: getUrlVars()["integrationID"],
+					options: JSON.stringify($('#channelOpts').serializeObject()),
+					services: JSON.stringify($('#services').serializeObject())
+				}
+			})
 			.done(function () {
 				updateService();
 				$channeloptions.modal('hide');
@@ -405,14 +419,14 @@
 	$serviceoptions.find('#serviceoptions').click(function () {
 		$o = $channeloptions.find('#serviceoptions');
 		$.ajax({
-			type: "PUT",
-			url: "/U/integrationDetails",
-			data: {
-				integrationID: getUrlVars()["integrationID"],
-				options: JSON.stringify($serviceoptions.find('#serviceOpts').serializeObject()),
-				services: JSON.stringify($serviceoptions.find('#services').serializeObject())
-			}
-		})
+				type: "PUT",
+				url: "/U/integrationDetails",
+				data: {
+					integrationID: getUrlVars()["integrationID"],
+					options: JSON.stringify($serviceoptions.find('#serviceOpts').serializeObject()),
+					services: JSON.stringify($serviceoptions.find('#services').serializeObject())
+				}
+			})
 			.done(function () {
 				updateService();
 				$serviceoptions.modal('hide');
@@ -452,7 +466,8 @@
 		}
 
 		$.ajax({
-			url: '/U/integrationChannels?integrationID=' + getUrlVars()["integrationID"],
+			url: '/U/integrationChannels?integrationID=' + getUrlVars()[
+				"integrationID"],
 			dataType: 'JSON',
 			success: function (data) {
 				$('#channels').html('');
@@ -464,7 +479,8 @@
 						}
 					})
 					if (!found) {
-						$('#channels').append('<option id=' + val.channelID + '>' + val.channelName + '</option>');
+						$('#channels').append('<option id=' + val.channelID + '>' + val.channelName +
+							'</option>');
 					}
 				})
 			},
@@ -480,7 +496,8 @@
 				$('.roles').html('');
 				$('.roles').append('<option value=""></option>');
 				$.each(data, function (key, val) {
-					$('.roles').append('<option value=' + val.roleID + '>' + val.roleName + '</option>');
+					$('.roles').append('<option value=' + val.roleID + '>' + val.roleName +
+						'</option>');
 				})
 			},
 			error: function () {

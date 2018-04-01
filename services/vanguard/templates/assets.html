@@ -1,31 +1,31 @@
-{{define "body"}} 
+{{define "body"}}
 <h3>Assets</h3>
 {{template "checkAuthentication" .}}
 
 <div class="toolbar assetToolbar" id="LocationContainer">
-	<select class="selectpicker" data-width="auto" name="locationList" id="locationList"></select>
-	<select class="selectpicker" data-width="auto" name="characterList" id="characterList"></select>
+    <select class="selectpicker" data-width="auto" name="locationList" id="locationList"></select>
+    <select class="selectpicker" data-width="auto" name="characterList" id="characterList"></select>
 </div>
 
 <table class="table" data-cache="true" data-toolbar=".assetToolbar" id="assets">
-	<thead>
-		<tr>
-			<th data-field="characterID" data-formatter="characterFormatter">Character</th>
-			<th data-field="typeName" data-formatter="typeFormatter">Type</th>
-			<th data-field="quantity" data-formatter="numberFormatter" data-align="right">Quantity</th>
+    <thead>
+        <tr>
+            <th data-field="characterID" data-formatter="characterFormatter">Character</th>
+            <th data-field="typeName" data-formatter="typeFormatter">Type</th>
+            <th data-field="quantity" data-formatter="numberFormatter" data-align="right">Quantity</th>
             <th data-field="subCount" data-formatter="numberFormatter" data-align="right">Items Inside</th>
             <th data-field="buy" data-formatter="numberFormatter" data-align="right">Buy Price</th>
             <th data-field="sell" data-formatter="numberFormatter" data-align="right">Sell Price</th>
-		</tr>
-	</thead>
+        </tr>
+    </thead>
 </table>
 
 <script>
-var 	$assets = $('#assets').bootstrapTable({ 
-            url: "/U/assets", 
-            detailView: true,
-            onExpandRow: function(index, row, $detail) {
-                $detail.html('<table></table>').find('table').bootstrapTable({
+    var $assets = $('#assets').bootstrapTable({
+        url: "/U/assets",
+        detailView: true,
+        onExpandRow: function (index, row, $detail) {
+            $detail.html('<table></table>').find('table').bootstrapTable({
                 columns: [{
                     field: 'typeName',
                     title: 'Type',
@@ -52,64 +52,80 @@ var 	$assets = $('#assets').bootstrapTable({
                     formatter: "numberFormatter"
                 }],
                 data: row.subItems,
-                detailView: row.subItems[0]['subItems'] !== undefined,
-                onExpandRow: function(indexb, rowb, $detailb) {
-                    $detailb.html('<table></table>').find('table').bootstrapTable({
-                    columns: [{
-                        field: 'col6',
-                        title: 'Col6'
-                    }, {
-                        field: 'col7',
-                        title: 'Col7'
-                    }],
-                    data: rowb.other
+                detailView: row.subItems[0]['subItems'] !==
+                    undefined,
+                onExpandRow: function (indexb, rowb,
+                    $detailb) {
+                    $detailb.html('<table></table>').find(
+                        'table').bootstrapTable({
+                        columns: [{
+                            field: 'col6',
+                            title: 'Col6'
+                        }, {
+                            field: 'col7',
+                            title: 'Col7'
+                        }],
+                        data: rowb.other
                     });
                 }
-            });         
+            });
         }
     });
 
 
     function updateStationList(characterID) {
         $.ajax({
-            url: '/U/assetLocations?filterCharacterID='+characterID,
+            url: '/U/assetLocations?filterCharacterID=' + characterID,
             dataType: 'JSON',
-            success: function(data) {
+            success: function (data) {
                 $('#locationList').empty();
-                $.each(data, function(key, val) {
-                   $('#locationList').append('<option value=' + val.locationID + ' data-subtext="' + numberCommafy(val.sell) +' ISK">' + val.locationName + '</option>');
+                $.each(data, function (key, val) {
+                    $('#locationList').append(
+                        '<option value=' + val.locationID +
+                        ' data-subtext="' +
+                        numberCommafy(val.sell) +
+                        ' ISK">' + val.locationName +
+                        '</option>');
                 })
                 $('#locationList').selectpicker('refresh')
                 $('#assets').bootstrapTable('refreshOptions', {
-                        url: '/U/assets?locationID='+$('#locationList').val()+'&filterCharacterID='+$('#characterList').val()
-                    });	
-                },
-                error: function() { }
+                    url: '/U/assets?locationID=' + $(
+                            '#locationList').val() +
+                        '&filterCharacterID=' + $(
+                            '#characterList').val()
+                });
+            },
+            error: function () {}
         });
     }
-    
-	$('#locationList').change(function(){
+
+    $('#locationList').change(function () {
         $('#assets').bootstrapTable('refreshOptions', {
-            url: '/U/assets?locationID='+$('#locationList').val()+'&filterCharacterID='+$('#characterList').val()
-        });	
-	});	
+            url: '/U/assets?locationID=' + $('#locationList').val() +
+                '&filterCharacterID=' + $('#characterList').val()
+        });
+    });
 
     $.ajax({
         url: '/U/assetCharacters',
         dataType: 'JSON',
-        success: function(data) {
-            $('#characterList').append('<option value=0>All Characters</option>');
-            $.each(data, function(key, val) {
-				$('#characterList').append('<option value=' + val.characterID + ' data-subtext="' + numberCommafy(val.sell) +' ISK">' + val.characterName + '</option>');
+        success: function (data) {
+            $('#characterList').append(
+                '<option value=0>All Characters</option>');
+            $.each(data, function (key, val) {
+                $('#characterList').append('<option value=' +
+                    val.characterID + ' data-subtext="' +
+                    numberCommafy(val.sell) + ' ISK">' +
+                    val.characterName + '</option>');
             })
             updateStationList(0)
         },
-        error: function() { }
-        
+        error: function () {}
+
     });
-        
-	$('#characterList').change(function(){
+
+    $('#characterList').change(function () {
         updateStationList($('#characterList').val());
-	});	    
+    });
 </script>
 {{end}}

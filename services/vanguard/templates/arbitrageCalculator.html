@@ -2,47 +2,48 @@
 
 <h3>Arbitrage Calculator</h3>
 <p>Discover potential margins between buy and sell prices with the arbitrage calculator.</p>
-<p>Enter your tax rate and broker fee, select the station of choice, and see a sorted list of possible deals!</p>
+<p>Enter your tax rate and broker fee, select the station of choice, and see a sorted
+	list of possible deals!</p>
 
 <div id="MarginSearchContainer" class="form-group">
 	<label>Station:</label>
 	<select class="form-control" name="stationID" id="stationID"></select>
 	<div class="row">
-  		<div class="col-xs-3">
-    		<label>Brokers Fee:</label>
-    		<input id="brokersFee" type="number" step="0.01" min=0 class="form-control" value="3.00">
-  		</div>
-  		<div class="col-xs-3">
-    		<label>Tax:</label>
-    		<input id="tax" type="number" step="0.01" min=0 class="form-control" value="1.00">
-  		</div>
+		<div class="col-xs-3">
+			<label>Brokers Fee:</label>
+			<input id="brokersFee" type="number" step="0.01" min=0 class="form-control" value="3.00">
+		</div>
+		<div class="col-xs-3">
+			<label>Tax:</label>
+			<input id="tax" type="number" step="0.01" min=0 class="form-control" value="1.00">
+		</div>
 	</div>
 	<div class="row">
-  		<div class="col-xs-3">
-    		<label>Minimum Volume:</label>
-    		<input id="minVolume" type="number" step="1" min=1 class="form-control" value="25">
-  		</div>
-  		<div class="col-xs-5">
-    		<label>Max Item Price:</label>
-    		<input id="maxPrice" type="number" step="1" min=50000 class="form-control" value="500000000">
-  		</div>
-  		<div class="col-xs-5">
-			Method:<br>
-				<div class="btn-group" id="method" data-toggle="buttons">
-					<label class="radio-inline"><input type="radio" name="method" value="delta" CHECKED>ISK Delta</label>
-					<label class="radio-inline"><input type="radio" name="method" value="percentage">Percentage</label>&nbsp;&nbsp;&nbsp;
-				</div>
+		<div class="col-xs-3">
+			<label>Minimum Volume:</label>
+			<input id="minVolume" type="number" step="1" min=1 class="form-control" value="25">
+		</div>
+		<div class="col-xs-5">
+			<label>Max Item Price:</label>
+			<input id="maxPrice" type="number" step="1" min=50000 class="form-control" value="500000000">
+		</div>
+		<div class="col-xs-5">
+			Method:
+			<br>
+			<div class="btn-group" id="method" data-toggle="buttons">
+				<label class="radio-inline">
+					<input type="radio" name="method" value="delta" CHECKED>ISK Delta</label>
+				<label class="radio-inline">
+					<input type="radio" name="method" value="percentage">Percentage</label>&nbsp;&nbsp;&nbsp;
+			</div>
 			<button type="submit button-inline" id="submit" class="btn btn-primary">Apply</button>
-  		</div>
-  		
+		</div>
+
 	</div>
 </div>
 <div class="insideContainer">
-	<table id="margins" class="table" 
-		data-sort-name="margin"
-        data-sort-order="desc"
-        data-cache="true" 
-		data-toggle="table" cellspacing="0" width="100%">
+	<table id="margins" class="table" data-sort-name="margin" data-sort-order="desc"
+	    data-cache="true" data-toggle="table" cellspacing="0" width="100%">
 		<thead>
 			<tr>
 				<th data-field="typeName" data-formatter="typeFormatter">Item Name</th>
@@ -58,48 +59,50 @@
 </div>
 
 <script type="text/javascript">
-  function priceFormatter(nStr) {
-        nStr += '';
-        var x = nStr.split('.');
-        var x1 = x[0];
-        var x2 = x.length > 1 ? '.' + x[1] : '';
-        var rgx = /(\d+)(\d{3})/;
-        while (rgx.test(x1)) {
-            x1 = x1.replace(rgx, '$1' + ',' + '$2');
-        }
-        
-        return x1 + x2;
-    }
+	function priceFormatter(nStr) {
+		nStr += '';
+		var x = nStr.split('.');
+		var x1 = x[0];
+		var x2 = x.length > 1 ? '.' + x[1] : '';
+		var rgx = /(\d+)(\d{3})/;
+		while (rgx.test(x1)) {
+			x1 = x1.replace(rgx, '$1' + ',' + '$2');
+		}
 
-    $.ajax({
-        url: '/J/arbitrageCalculatorStations',
-        dataType: 'JSON',
-        success: function(data) {
-            $.each(data, function(key, val) {
-            	if (val.stationName.startsWith("Jita")) {
-                	$('#stationID').append('<option id=' + val.stationID + ' SELECTED>' + val.stationName + '</option>');
-                } else {
-                	$('#stationID').append('<option id=' + val.stationID + '>' + val.stationName + '</option>');
-                }
-            })
+		return x1 + x2;
+	}
+
+	$.ajax({
+		url: '/J/arbitrageCalculatorStations',
+		dataType: 'JSON',
+		success: function (data) {
+			$.each(data, function (key, val) {
+				if (val.stationName.startsWith("Jita")) {
+					$('#stationID').append('<option id=' + val.stationID + ' SELECTED>' +
+						val.stationName + '</option>');
+				} else {
+					$('#stationID').append('<option id=' + val.stationID + '>' + val.stationName +
+						'</option>');
+				}
+			})
 			updateTable();
-        },
-        error: function() { }
-    });
+		},
+		error: function () {}
+	});
 
 	function updateTable() {
 		$('#margins').bootstrapTable('refreshOptions', {
 			url: '/J/arbitrageCalculator' +
-				'?stationID='+$('#stationID option:selected').attr("id") +
+				'?stationID=' + $('#stationID option:selected').attr("id") +
 				'&brokersFee=' + $('#brokersFee').val() +
 				'&tax=' + $('#tax').val() +
 				'&minVolume=' + $('#minVolume').val() +
-				'&maxPrice=' + $('#maxPrice').val()+
+				'&maxPrice=' + $('#maxPrice').val() +
 				'&method=' + $('#method input:radio:checked').val()
-		});	
+		});
 	}
-	$('#submit').click(function(){
+	$('#submit').click(function () {
 		updateTable();
 	});
-	</script>
+</script>
 {{end}}

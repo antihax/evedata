@@ -1,16 +1,23 @@
 {{define "body"}}
 <h3>Local Intel Summary</h3>
 
-<p>Copy and paste the contents of a local window and paste below and we will generate a summary of entities.<br> Use the <i>Filter NPC Corps</i> toggle to show or hide NPC entities.</p>
+<p>Copy and paste the contents of a local window and paste below and we will generate
+    a summary of entities.
+    <br> Use the
+    <i>Filter NPC Corps</i> toggle to show or hide NPC entities.</p>
 
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-6">
-            <textarea class="form-control input-sm" rows="6" name="local" id="local" placeholder="Paste character names" required></textarea>
+            <textarea class="form-control input-sm" rows="6" name="local" id="local" placeholder="Paste character names"
+                required></textarea>
         </div>
         <div class="col-xs-5">
-            <button type="submit" id="submit" class="btn btn-primary">Submit</button><br><br>
-            <button id="hideNPC" type="button" class="btn btn-primary btn-sm" data-toggle="button">Filter NPC Corps</button><br>
+            <button type="submit" id="submit" class="btn btn-primary">Submit</button>
+            <br>
+            <br>
+            <button id="hideNPC" type="button" class="btn btn-primary btn-sm" data-toggle="button">Filter NPC Corps</button>
+            <br>
             <button id="hideNonFW" type="button" class="btn btn-primary btn-sm" data-toggle="button">Filter Non-FW Corps</button>
         </div>
     </div>
@@ -21,7 +28,9 @@
     </div>
 </div>
 <div class="insideContainer">
-    <table id="localIntel" class="table" data-sort-name="number" data-sort-order="desc" data-cache="true" data-unique-id="id" data-url="{{.HashURL}}" data-toggle="table" cellspacing="0" width="100%">
+    <table id="localIntel" class="table" data-sort-name="number" data-sort-order="desc"
+        data-cache="true" data-unique-id="id" data-url="{{.HashURL}}" data-toggle="table"
+        cellspacing="0" width="100%">
         <thead>
             <tr>
                 <th data-field="number">#</th>
@@ -39,20 +48,20 @@
 </div>
 
 <script type="text/javascript">
-    $('#hideNPC').click(function() {
-        setTimeout(function() {
+    $('#hideNPC').click(function () {
+        setTimeout(function () {
             applyFilters();
         }, 50);
     });
 
-    $('#hideNonFW').click(function() {
-        setTimeout(function() {
+    $('#hideNonFW').click(function () {
+        setTimeout(function () {
             applyFilters();
         }, 50);
     });
 
     $('#localIntel').bootstrapTable({
-        onLoadSuccess: function(data) {
+        onLoadSuccess: function (data) {
             applyFilters();
         }
     });
@@ -85,21 +94,22 @@
         }
     }
 
-    $('#submit').click(function() {
+    $('#submit').click(function () {
         s = $('#local').val();
         var hash = murmurhash3_32_gc(s, 0);
 
         $('#localIntel').bootstrapTable('refreshOptions', {
             url: '/J/localIntel?hash=' + hash,
             method: 'post',
-            queryParams: function(p) {
+            queryParams: function (p) {
                 return {
                     local: s
                 }
             }
         });
 
-        $('#url').val(location.protocol + "//" + location.host + '/localIntel?hash=' + hash)
+        $('#url').val(location.protocol + "//" + location.host +
+            '/localIntel?hash=' + hash)
     });
 </script>
 {{end}}

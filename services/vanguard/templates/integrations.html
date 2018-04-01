@@ -17,7 +17,8 @@
 				<p>You must have director roles in the corporation or alliance to perform this action.</p>
 				<ol>
 					<li>
-						<a href="https://discordapp.com/api/oauth2/authorize?client_id=229339294144135169&permissions=1543765239&scope=bot" target="_new">Click to have our service join your Discord</a>.</li>
+						<a href="https://discordapp.com/api/oauth2/authorize?client_id=229339294144135169&permissions=1543765239&scope=bot"
+						    target="_new">Click to have our service join your Discord</a>.</li>
 					<li>Right click your discord server from the discord UI and select
 						<i>Copy ID</i>
 					</li>
@@ -44,8 +45,8 @@
 <div class="table-responsive">
 	<div class="toolbar servicesToolbar" id="servicesToolbar">
 		<div class="dropdown">
-			<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChar" data-toggle="dropdown" aria-haspopup="true"
-			    aria-expanded="false">
+			<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChar"
+			    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 				Add New Service
 				<span class="caret"></span>
 			</button>
@@ -58,8 +59,8 @@
 	</div>
 </div>
 
-<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".servicesToolbar" data-url="/U/integrations"
-    id="servicesTable">
+<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".servicesToolbar"
+    data-url="/U/integrations" id="servicesTable">
 	<thead>
 		<tr>
 			<th data-field="type">Service Type</th>
@@ -90,12 +91,14 @@
 			dataType: 'JSON',
 			success: function (data) {
 				$.each(data, function (key, val) {
-					$('#entity').append('<option id=' + val.entityID + '>' + val.entityName + ' (' + val.entityType + ')' +
+					$('#entity').append('<option id=' + val.entityID + '>' + val.entityName +
+						' (' + val.entityType + ')' +
 						'</option>');
 				})
 			},
 			error: function () {
-				$select.html('<option id="-1">You have no director characters.</option>');
+				$select.html(
+					'<option id="-1">You have no director characters.</option>');
 			}
 		});
 	});
@@ -107,7 +110,8 @@
 	}
 
 	function serverFormatter(value, row) {
-		return '<a href="/integrationDetails?integrationID=' + row.integrationID + '">' + value + '</a>';
+		return '<a href="/integrationDetails?integrationID=' + row.integrationID +
+			'">' + value + '</a>';
 	}
 	// update and delete events
 	window.actionEvents = {

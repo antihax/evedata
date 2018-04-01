@@ -1,31 +1,69 @@
 {{define "body"}}
 <h3>ECM Jam Chance Calculator</h3>
-<p>Enter data below to determine ECM jam chance based on number of modules and strength of module and target ship. To obtain "PermaJam" the strength of the module must exceed the targets sensor strength, stacking lower strength modules will never "PermaJam".</p>
+<p>Enter data below to determine ECM jam chance based on number of modules and strength
+	of module and target ship. To obtain "PermaJam" the strength of the module must
+	exceed the targets sensor strength, stacking lower strength modules will never "PermaJam".</p>
 
 <script>
-$(document).ready(function () 
-{
-	$("#jam").keyup(function(){ go(); });
-	$("#ship").keyup(function(){ go(); });
-	$("#modules").keyup(function(){ go(); });
-	go();
-});
+	$(document).ready(function () {
+		$("#jam").keyup(function () {
+			go();
+		});
+		$("#ship").keyup(function () {
+			go();
+		});
+		$("#modules").keyup(function () {
+			go();
+		});
+		go();
+	});
 
-function go() 
-{
-	var cycle = Math.round( ( 1 - ( Math.pow ( ( 1 - $("#jam").val() / $("#ship").val()), $("#modules").val() ) ) ) * 10000) / 100;
-	var minute = Math.round( ( 1 - ( Math.pow ( ( 1 - $("#jam").val() / $("#ship").val()), $("#modules").val() *3 ) ) ) * 10000) / 100;
-	$("#cycle").val(cycle < 100 ? cycle + "%" : "PermaJam!" );
-	$("#minute").val(cycle < 100 ? minute + "%" : "PermaJam!" );
-}
+	function go() {
+		var cycle = Math.round((1 - (Math.pow((1 - $("#jam").val() / $("#ship").val()),
+			$("#modules").val()))) * 10000) / 100;
+		var minute = Math.round((1 - (Math.pow((1 - $("#jam").val() / $("#ship").val()),
+			$("#modules").val() * 3))) * 10000) / 100;
+		$("#cycle").val(cycle < 100 ? cycle + "%" : "PermaJam!");
+		$("#minute").val(cycle < 100 ? minute + "%" : "PermaJam!");
+	}
 </script>
-	<center>
-    <table width="260" border="0" cellpadding="0" cellspacing="2">
-    <tr><td>Jam Strength</td>				<td><input id="jam" size="2" value="1"></td></tr>
-	<tr><td>Ship Sensor Strength</td>		<td><input id="ship" size="5" value="22"></td></tr>
-	<tr><td>Number of Modules/Drones</td>	<td><input id="modules" size="3" value="5"></td></tr>
-	<tr><td colspan=2><hr></td></tr>
-	<tr><td>Jam chance per Cycle</td>		<td><input id="cycle" size="7" disabled></td></tr>
-	<tr><td>Jam chance per Minute</td>		<td><input id="minute" size="7" disabled></td></tr>
-    </table></center>
+<center>
+	<table width="260" border="0" cellpadding="0" cellspacing="2">
+		<tr>
+			<td>Jam Strength</td>
+			<td>
+				<input id="jam" size="2" value="1">
+			</td>
+		</tr>
+		<tr>
+			<td>Ship Sensor Strength</td>
+			<td>
+				<input id="ship" size="5" value="22">
+			</td>
+		</tr>
+		<tr>
+			<td>Number of Modules/Drones</td>
+			<td>
+				<input id="modules" size="3" value="5">
+			</td>
+		</tr>
+		<tr>
+			<td colspan=2>
+				<hr>
+			</td>
+		</tr>
+		<tr>
+			<td>Jam chance per Cycle</td>
+			<td>
+				<input id="cycle" size="7" disabled>
+			</td>
+		</tr>
+		<tr>
+			<td>Jam chance per Minute</td>
+			<td>
+				<input id="minute" size="7" disabled>
+			</td>
+		</tr>
+	</table>
+</center>
 {{end}}

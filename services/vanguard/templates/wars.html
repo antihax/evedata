@@ -1,21 +1,11 @@
 {{define "body"}}
 <h3>Active Wars</h3>
 <div class="insideContainer">
-	<table id="activeWarTable" class="table" 
-		data-sort-name="warKills"
-        data-sort-order="desc"
-        data-url="/J/activeWars"
-		data-toggle="table"
-		data-cache="true" 
-        data-search="true"
-        data-show-refresh="true"
-        data-show-columns="true"
-        data-minimum-count-columns="2"
-        data-pagination="true"
-        data-page-list="[10, 25, 50, 100, ALL]"
-        data-show-footer="false"
-        data-side-pagination="client"
-		cellspacing="0" width="100%">
+	<table id="activeWarTable" class="table" data-sort-name="warKills" data-sort-order="desc"
+	    data-url="/J/activeWars" data-toggle="table" data-cache="true" data-search="true"
+	    data-show-refresh="true" data-show-columns="true" data-minimum-count-columns="2"
+	    data-pagination="true" data-page-list="[10, 25, 50, 100, ALL]" data-show-footer="false"
+	    data-side-pagination="client" cellspacing="0" width="100%">
 		<thead>
 			<tr>
 				<th data-field="timeStarted" data-sortable="true" data-visible="false">Time Started</th>

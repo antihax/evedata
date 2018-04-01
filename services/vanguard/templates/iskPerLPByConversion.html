@@ -1,33 +1,31 @@
 {{define "body"}}
 <h3>ISK Per Loyalty Points By Conversion</h3>
-Quickly identify the current trends in what agents to grind LP with.<br>
-Formula assumes buying requirements from lowest sell order and selling converted item to highest buy order in Jita.
+Quickly identify the current trends in what agents to grind LP with.
+<br> Formula assumes buying requirements from lowest sell order and selling converted
+item to highest buy order in Jita.
 
 <div class="insideContainer">
-	<table id="iskPerLPTable" class="table" 
-		data-sort-name="iskPerLP"
-        data-sort-order="desc"
-        data-cache="true"
-        data-url="/J/iskPerLPByConversion"
-		data-toggle="table" cellspacing="0" width="100%">
-		<thead>
-			<tr>
-				<th data-field="typeName" data-formatter="typeFormatter">Item Name</th>
-				<th data-field="itemCost" data-sortable="true" data-formatter="priceFormatter">ISK Cost</th>
-				<th data-field="iskPerLP" data-sortable="true" data-formatter="priceFormatter">ISK Per LP</th>
+    <table id="iskPerLPTable" class="table" data-sort-name="iskPerLP" data-sort-order="desc"
+        data-cache="true" data-url="/J/iskPerLPByConversion" data-toggle="table" cellspacing="0"
+        width="100%">
+        <thead>
+            <tr>
+                <th data-field="typeName" data-formatter="typeFormatter">Item Name</th>
+                <th data-field="itemCost" data-sortable="true" data-formatter="priceFormatter">ISK Cost</th>
+                <th data-field="iskPerLP" data-sortable="true" data-formatter="priceFormatter">ISK Per LP</th>
                 <th data-field="iskVolume" data-sortable="true" data-formatter="priceFormatter">ISK Volume</th>
-				<th data-field="availableFrom">Available From</th>
-			</tr>
-		</thead>
-		<tbody>
-		</tbody>
-	</table>
+                <th data-field="availableFrom">Available From</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
 </div>
 </div>
 
 
 <script type="text/javascript">
-  function priceFormatter(nStr) {
+    function priceFormatter(nStr) {
         nStr += '';
         var x = nStr.split('.');
         var x1 = x[0];
@@ -37,6 +35,6 @@ Formula assumes buying requirements from lowest sell order and selling converted
             x1 = x1.replace(rgx, '$1' + ',' + '$2');
         }
         return x1 + x2;
-    }	
-	</script>
+    }
+</script>
 {{end}}

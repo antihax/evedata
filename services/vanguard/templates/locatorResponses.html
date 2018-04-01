@@ -1,28 +1,19 @@
-{{define "body"}}
-{{template "checkAuthentication" .}}
+{{define "body"}} {{template "checkAuthentication" .}}
 <h3>Locator Responses</h3>
-All locator responses from your characters or any shared to corporations or alliances they are a part of will be listed below.
+All locator responses from your characters or any shared to corporations or alliances
+they are a part of will be listed below.
 <h4>To list responses:</h4>
 <a href="/account">Add characters</a> to your account with notification permissions.
 <h4>Share responses with others:</h4>
-<p><a href="/shares">Add entities you wish to share with</a> and they can view your results instantly.</p>
+<p>
+	<a href="/shares">Add entities you wish to share with</a> and they can view your results instantly.</p>
 
 <div class="insideContainer">
-	<table id="locatorsTable" class="table" 
-		data-sort-name="time"
-        data-sort-order="desc"
-        data-url="/U/locatorResponses"
-		data-toggle="table"
-		data-cache="false"
-        data-search="true"
-        data-show-refresh="true"
-        data-show-columns="true"
-        data-minimum-count-columns="2"
-        data-pagination="true"
-        data-page-list="[10, 25, 50, 100, ALL]"
-        data-show-footer="false"
-        data-side-pagination="client"
-		cellspacing="0" width="100%">
+	<table id="locatorsTable" class="table" data-sort-name="time" data-sort-order="desc"
+	    data-url="/U/locatorResponses" data-toggle="table" data-cache="false" data-search="true"
+	    data-show-refresh="true" data-show-columns="true" data-minimum-count-columns="2"
+	    data-pagination="true" data-page-list="[10, 25, 50, 100, ALL]" data-show-footer="false"
+	    data-side-pagination="client" cellspacing="0" width="100%">
 		<thead>
 			<tr>
 				<th data-field="characterName" data-sortable="true" data-formatter="characterFormatterName">Character</th>

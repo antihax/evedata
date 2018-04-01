@@ -1,190 +1,209 @@
 {{define "body"}}
 <h3>Share Data with other Entities</h3>
 {{template "checkAuthentication" .}}
-<p>Add entities that you wish to share data with.<br>
-   Warning! Any character you add here will be visible to entity you share it with and will share the scoped data you select.</p>
+<p>Add entities that you wish to share data with.
+	<br> Warning! Any character you add here will be visible to entity you share it with
+	and will share the scoped data you select.</p>
 
-	<div class="modal fade" id="addshare">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button aria-label="Close" class="close" data-dismiss=
-					"modal" type="button"><span aria-hidden=
-					"true">&times;</span></button>
-					<h4 class="modal-title"></h4>
+<div class="modal fade" id="addshare">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button aria-label="Close" class="close" data-dismiss="modal" type="button">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title"></h4>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label>Share From</label>
+					<select class="form-control" name="tokenCharacterID" id="tokenCharacterID"></select>
 				</div>
-				<div class="modal-body">
-					<div class="form-group">
-						<label>Share From</label> <select class="form-control" name="tokenCharacterID" id="tokenCharacterID"></select>
-					</div>
-					<div class="form-group" id="entitySearchContainer">
-						<label>Share To</label> <br><input type="text" class="entitytypeahead fixNav" placeholder="Search" name="entity">
-					</div>
-					<div class="form-group">
-						<ul class="form-group" id="addSharesMenu">
-							{{ range $type, $reason := .ShareGroups }}
-								<li><a href="#" id="{{ $type }}" class="small shareGroups" data-value="{{ $type }}" tabIndex="-1"><input type="checkbox" CHECKED>&nbsp;{{ $reason }}</a></li>
-							{{ end }}   
-						</ul>
-					</div>
+				<div class="form-group" id="entitySearchContainer">
+					<label>Share To</label>
+					<br>
+					<input type="text" class="entitytypeahead fixNav" placeholder="Search" name="entity">
 				</div>
-				<div class="modal-footer">
-						<div class="container col-md-12">
-								<div class="row">
-									<div class="col-md-6 text-left">
-					<p>By clicking submit you authorize us to share the selected items with this entity in real time.</p>
-					</div><div class="col-md-6"></div>
-					<button class="btn btn-default" data-dismiss="modal" type=
-					"button">Close</button> <button class=
-					"btn btn-primary submit" type="button">Submit</button>
-					</div></div>
+				<div class="form-group">
+					<ul class="form-group" id="addSharesMenu">
+						{{ range $type, $reason := .ShareGroups }}
+						<li>
+							<a href="#" id="{{ $type }}" class="small shareGroups" data-value="{{ $type }}"
+							    tabIndex="-1">
+								<input type="checkbox" CHECKED>&nbsp;{{ $reason }}</a>
+						</li>
+						{{ end }}
+					</ul>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<div class="container col-md-12">
+					<div class="row">
+						<div class="col-md-6 text-left">
+							<p>By clicking submit you authorize us to share the selected items with this
+								entity in real time.</p>
+						</div>
+						<div class="col-md-6"></div>
+						<button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+						<button class="btn btn-primary submit" type="button">Submit</button>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+</div>
 
-	<div class="table-responsive">
-		<div class="toolbar sharesToolbar" id="sharesToolbar">
-				<a class="addshare btn btn-default" href="javascript:">Share Data</a>
-		</div>
-
-		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".sharesToolbar"
-			data-url="/U/shares" id="sharesTable">
-			<thead>
-				<tr>
-					<th data-field="tokenCharacterName" data-formatter="tokenCharacterFormatter">Character</th>
-					<th data-field="types">Sharing</th>
-					<th data-field="entityName" data-formatter="entityTypeFormatter">Shared With</th>
-					<th data-align="center" data-events="actionEvents"
-					data-field="action" data-formatter="ShareActionsFormatter">Delete</th>
-				</tr>
-			</thead>
-		</table>
+<div class="table-responsive">
+	<div class="toolbar sharesToolbar" id="sharesToolbar">
+		<a class="addshare btn btn-default" href="javascript:">Share Data</a>
 	</div>
 
-	<script>		
-		var	$addshare = $('#addshare').modal({show: false}),
-			$sharesTable = $('#sharesTable').bootstrapTable({url: "/U/shares"}, "changeLocale", "en_US"),
-			datum,
-			selectedID;
-	
-		$('.addshare').click(function () {
-			$addshare.find('.modal-title').text("Share Data");
-			$addshare.modal('show');
+	<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".sharesToolbar"
+	    data-url="/U/shares" id="sharesTable">
+		<thead>
+			<tr>
+				<th data-field="tokenCharacterName" data-formatter="tokenCharacterFormatter">Character</th>
+				<th data-field="types">Sharing</th>
+				<th data-field="entityName" data-formatter="entityTypeFormatter">Shared With</th>
+				<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="ShareActionsFormatter">Delete</th>
+			</tr>
+		</thead>
+	</table>
+</div>
+
+<script>
+	var $addshare = $('#addshare').modal({
+			show: false
+		}),
+		$sharesTable = $('#sharesTable').bootstrapTable({
+			url: "/U/shares"
+		}, "changeLocale", "en_US"),
+		datum,
+		selectedID;
+
+	$('.addshare').click(function () {
+		$addshare.find('.modal-title').text("Share Data");
+		$addshare.modal('show');
+	});
+
+	$(function () {
+		$.ajax({
+			url: '/U/crestTokens',
+			dataType: 'JSON',
+			success: function (data) {
+				$.each(data, function (key, val) {
+					$('#tokenCharacterID').append('<option id=' + val.tokenCharacterID +
+						'>' + val.characterName + '</option>');
+				})
+			},
+			error: function () {
+				$select.html('<option id="-1">You must add characters first.</option>');
+			}
 		});
+		$addshare.find('.submit').click(function () {
 
-		$(function () {
-			$.ajax({
-				url: '/U/crestTokens',
-				dataType:'JSON',
-				success:function(data){
-					$.each(data, function(key, val){
-						$('#tokenCharacterID').append('<option id=' + val.tokenCharacterID + '>' + val.characterName + '</option>');
-					})
-				},
-				error:function(){
-					$select.html('<option id="-1">You must add characters first.</option>');
-				}
+			var shareGroups = [];
+			$('.shareGroups input:checkbox:checked').each(function (idx, val) {
+				shareGroups.push(val.parentElement.id);
 			});
-			$addshare.find('.submit').click(function () {
 
-				var shareGroups = [];
-				$('.shareGroups input:checkbox:checked').each(function(idx, val){
-					shareGroups.push(val.parentElement.id);
-				});
-
-				$.ajax({
+			$.ajax({
 					type: "POST",
 					url: "/U/shares",
 					data: {
 						types: shareGroups.join(','),
 						entityID: selectedID,
-						tokenCharacterID: $('#tokenCharacterID').children(":selected").attr("id")
+						tokenCharacterID: $('#tokenCharacterID').children(":selected").attr(
+							"id")
 					}
 				})
-				.done(function() {
+				.done(function () {
 					$sharesTable.bootstrapTable('refresh');
 					$addshare.modal('hide');
-					})
-				.fail(function(error) {
+				})
+				.fail(function (error) {
 					$addshare.modal('hide');
-					showAlert( 'Add Share Failed: ' + error.responseText, 'danger');
+					showAlert('Add Share Failed: ' + error.responseText, 'danger');
 				});
-			});
 		});
+	});
 
 
-		var entitySearch = new Bloodhound({
-			sufficient: 100,
-			limit: 100,
-			datumTokenizer: function (datum) {
-				return Bloodhound.tokenizers.whitespace(datum.value);
-			},
-			queryTokenizer: Bloodhound.tokenizers.whitespace,
-			remote: {
-				url: '/J/searchEntities?q=%QUERY',
-				filter: function (entitySearch) {
-					return $.map(entitySearch, function (s) {
-						return {
-							value: 	s.name,
-							id:		s.id,
-							type:	s.type
-						};
-					});
-				}
+	var entitySearch = new Bloodhound({
+		sufficient: 100,
+		limit: 100,
+		datumTokenizer: function (datum) {
+			return Bloodhound.tokenizers.whitespace(datum.value);
+		},
+		queryTokenizer: Bloodhound.tokenizers.whitespace,
+		remote: {
+			url: '/J/searchEntities?q=%QUERY',
+			filter: function (entitySearch) {
+				return $.map(entitySearch, function (s) {
+					return {
+						value: s.name,
+						id: s.id,
+						type: s.type
+					};
+				});
 			}
-		});
-		// Initialize the Bloodhound suggestion engine
-		entitySearch.initialize();
-		
-		$('#entitySearchContainer .entitytypeahead').typeahead(null, {
-			name: 'entitySearch',
-			limit: 100,
-			display: 'value',
-			source: entitySearch.ttAdapter(),
-			templates: {
-				empty: [
+		}
+	});
+	// Initialize the Bloodhound suggestion engine
+	entitySearch.initialize();
+
+	$('#entitySearchContainer .entitytypeahead').typeahead(null, {
+		name: 'entitySearch',
+		limit: 100,
+		display: 'value',
+		source: entitySearch.ttAdapter(),
+		templates: {
+			empty: [
 				'<div class="empty-message">',
-					'Nothing Found',
+				'Nothing Found',
 				'</div>'
-				].join('\n'),
-				suggestion: function(data) {
-					return '<div><img src="' + entityImage(data) + '" height=32 width=32> <strong>'+data.value+'</strong> – '+data.type+'</div>';
-				}
+			].join('\n'),
+			suggestion: function (data) {
+				return '<div><img src="' + entityImage(data) +
+					'" height=32 width=32> <strong>' + data.value + '</strong> – ' + data.type +
+					'</div>';
 			}
-		}).on('typeahead:selected', function(obj, d, name) {
-			selectedID = d.id;
-		});
-		
-				
-		function accountNameFormatter(value, row) {
-			var scopes = row.scopes.replace(/\s+/g,  "\n");
-			return '<i class="glyphicon glyphicon-th-list" data-toggle="tooltip" title="'+ scopes +'"><\/i> &nbsp; ' + value;
 		}
+	}).on('typeahead:selected', function (obj, d, name) {
+		selectedID = d.id;
+	});
 
-		function ShareActionsFormatter(value, row) {
-			return [
-				'<a class="removeShares" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
-			].join('');
-		}
-		// update and delete events
-		window.actionEvents = {
-			'click .removeShares': function (e, value, row) {
-				if (confirm('Are you sure you want to stop sharing with this entity?')) {
-					$.ajax({
-						
-						url: "/U/shares?entityID=" + row.entityID + "&tokenCharacterID=" + row.tokenCharacterID,
-						type: 'delete',
-						success: function () {
-							$sharesTable.bootstrapTable('refresh');
-							showAlert('Delete item successful!', 'success');
-						},
-						error: function () {
-							showAlert('Delete item error!', 'danger');
-						}
-					})
-				}
+
+	function accountNameFormatter(value, row) {
+		var scopes = row.scopes.replace(/\s+/g, "\n");
+		return '<i class="glyphicon glyphicon-th-list" data-toggle="tooltip" title="' +
+			scopes + '"><\/i> &nbsp; ' + value;
+	}
+
+	function ShareActionsFormatter(value, row) {
+		return [
+			'<a class="removeShares" href="javascript:" title="Delete Item"><i class="glyphicon glyphicon-remove-circle"><\/i><\/a>',
+		].join('');
+	}
+	// update and delete events
+	window.actionEvents = {
+		'click .removeShares': function (e, value, row) {
+			if (confirm('Are you sure you want to stop sharing with this entity?')) {
+				$.ajax({
+
+					url: "/U/shares?entityID=" + row.entityID + "&tokenCharacterID=" + row
+						.tokenCharacterID,
+					type: 'delete',
+					success: function () {
+						$sharesTable.bootstrapTable('refresh');
+						showAlert('Delete item successful!', 'success');
+					},
+					error: function () {
+						showAlert('Delete item error!', 'danger');
+					}
+				})
 			}
-		};
-	</script>
+		}
+	};
+</script>
 {{end}}
