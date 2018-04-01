@@ -35,6 +35,27 @@ func characterWalletTransactionConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
+	last := lowestTransactionID(transactions)
+	for {
+		top, _, err := s.esi.ESI.WalletApi.GetCharactersCharacterIdWalletTransactions(ctx, tokenCharacterID,
+			map[string]interface{}{"fromId": last})
+		if err != nil {
+			s.tokenStore.CheckSSOError(characterID, tokenCharacterID, err)
+			log.Println(err)
+			return
+		}
+		if len(top) == 0 {
+			break
+		}
+
+		transactions = append(transactions, top...)
+		newlast := lowestTransactionID(top)
+		if newlast == last {
+			break
+		}
+		last = newlast
+	}
+
 	// Send out the result
 	err = s.QueueResult(&datapackages.CharacterWalletTransactions{
 		CharacterID:      characterID,
@@ -108,6 +129,16 @@ func lowestRefID(j []esi.GetCharactersCharacterIdWalletJournal200Ok) int64 {
 	for _, i := range j {
 		if i.RefId < lowest {
 			lowest = i.RefId
+		}
+	}
+	return lowest
+}
+
+func lowestTransactionID(j []esi.GetCharactersCharacterIdWalletTransactions200Ok) int64 {
+	lowest := j[0].TransactionId
+	for _, i := range j {
+		if i.TransactionId < lowest {
+			lowest = i.TransactionId
 		}
 	}
 	return lowest
