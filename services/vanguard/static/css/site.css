@@ -53,6 +53,11 @@
    margin: 0 !important;
 }
 
+.flex-row {
+    display: flex;
+    flex-wrap: wrap;
+ }
+
 .center {
     text-align: center;
 }

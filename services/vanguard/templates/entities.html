@@ -1,230 +1,290 @@
-{{define "body"}} {{if .Alliance }} {{ template "alliance" . }} {{else if .Corporation
-}} {{ template "corporation" . }} {{else if .Character }} {{ template "character"
-. }} {{end}} {{end}} {{define "corporation"}}
+{{define "body"}}
+	{{if .Alliance }} 
+		{{ template "alliance" . }}
+	{{else if .Corporation }} 
+		{{ template "corporation" . }}
+	{{else if .Character }} 
+		{{ template "character" . }}
+	{{end}}
+{{end}}
+
+
+{{define "corporation"}}
 <div class="container-fluid">
 	<header class="row">
 		<div class="col-md-2">
-			<img alt="{{.Corporation.CorporationName}}" src="//imageserver.eveonline.com/corporation/{{.Corporation.CorporationID}}_128.png"
-			/>
+			<img alt="{{.Corporation.CorporationName}}" src="//imageserver.eveonline.com/corporation/{{.Corporation.CorporationID}}_128.png" />
 		</div>
 		<div class="col-md-10">
 			<dl>
 				<dt>
 					<h2>{{.Corporation.CorporationName}}</h2>
-					CEO:
-					<a href="/character?id={{.Corporation.CEOID}}">{{.Corporation.CEOName}}</a>
-					<br> {{if .Corporation.AllianceID }} Alliance:
-					<a href="/alliance?id={{.Corporation.AllianceID}}">{{.Corporation.AllianceName.String}}</a>
-					<br> {{end}}
+					CEO: <a href="/character?id={{.Corporation.CEOID}}">{{.Corporation.CEOName}}</a><br>
+					{{if .Corporation.AllianceID }} 
+						Alliance: <a href="/alliance?id={{.Corporation.AllianceID}}">{{.Corporation.AllianceName.String}}</a><br>
+					{{end}}
 				</dt>
 			</dl>
 	</header>
 
-	{{ template "wars" . }} {{ template "knownallies" . }} {{ template "activity" . }}
-	{{ template "assets" . }} {{ template "knownships" . }} {{ template "knownAssociates"
-	. }}
-	</div>
-	{{end}} {{define "character"}}
-	<div class="container-fluid">
-		<header class="row">
-			<div class="col-md-2">
-				<img alt="{{.Character.CharacterName}}" src="//imageserver.eveonline.com/character/{{.Character.CharacterID}}_128.jpg"
-				/>
-			</div>
-			<div class="col-md-10">
-				<dl>
-					<dt>
-						<h2>{{.Character.CharacterName}}</h2>
-						Security: {{.Character.SecurityStatus}}</a>
-						<br> Corporation:
-						<a href="/corporation?id={{.Character.CorporationID}}">{{.Character.CorporationName}}</a>
-						<br> {{if .Character.AllianceID }} Alliance:
-						<a href="/alliance?id={{.Character.AllianceID}}">{{.Character.AllianceName.String}}</a>
-						<br> {{end}}
-					</dt>
+	{{ template "wars" . }}
+	{{ template "knownallies" . }}
+	{{ template "activity" . }}
+	{{ template "assets" . }}
+	{{ template "knownships" . }}
+	{{ template "knownAssociates" . }}
+</div>
+{{end}}
 
-				</dl>
-			</div>
-		</header>
-		{{ template "activity" . }} {{ template "knownships" . }} {{ template "corporationHistory"
-		. }} {{ template "knownAssociates" . }}
+{{define "character"}}
+<div class="container-fluid">
+	<header class="row">
+		<div class="col-md-2">
+			<img alt="{{.Character.CharacterName}}" src="//imageserver.eveonline.com/character/{{.Character.CharacterID}}_128.jpg" />
+		</div>
+		<div class="col-md-10">
+			<dl>
+				<dt>
+					<h2>{{.Character.CharacterName}}</h2>
+					Security: {{.Character.SecurityStatus}}</a><br>
+					Corporation: <a href="/corporation?id={{.Character.CorporationID}}">{{.Character.CorporationName}}</a><br>
+					{{if .Character.AllianceID }} 
+						Alliance: <a href="/alliance?id={{.Character.AllianceID}}">{{.Character.AllianceName.String}}</a><br>
+					{{end}}
+				</dt>
 
-	</div>
-	{{end}} {{define "alliance"}}
-	<div class="container-fluid">
-		<header class="row">
-			<div class="col-md-2">
-				<img alt="{{.Alliance.AllianceName}}" src="//imageserver.eveonline.com/Alliance/{{.Alliance.AllianceID}}_128.png"
-				/>
-			</div>
-			<div class="col-md-10">
-				<dl>
-					<dt>
-						<h2>{{.Alliance.AllianceName}}</h2>
-						Executor:
-						<a href="/corporation?id={{.Alliance.ExecutorCorporationID}}">{{.Alliance.ExecutorCorporationName}}</a>
-					</dt>
-				</dl>
-			</div>
-		</header>
+			</dl>
+		</div>
+	</header>
+	{{ template "activity" . }}
+	{{ template "knownships" . }}
+	{{ template "corporationHistory" . }}
+	{{ template "knownAssociates" . }}
+	
+</div>
+{{end}}
 
-		{{ template "wars" . }} {{ template "knownallies" . }} {{ template "activity" . }}
-		{{ template "assets" . }} {{ template "knownships" . }} {{ template "corporations"
-		. }} {{ template "knownAssociates" . }}
+{{define "alliance"}}
+<div class="container-fluid">
+	<header class="row">
+		<div class="col-md-2">
+			<img alt="{{.Alliance.AllianceName}}" src="//imageserver.eveonline.com/Alliance/{{.Alliance.AllianceID}}_128.png" />
+		</div>
+		<div class="col-md-10">
+			<dl>
+				<dt>
+					<h2>{{.Alliance.AllianceName}}</h2>
+					Executor: <a href="/corporation?id={{.Alliance.ExecutorCorporationID}}">{{.Alliance.ExecutorCorporationName}}</a>
+				</dt>
+			</dl>
+		</div>
+	</header>
+<div class="row flex-row">
+		{{ template "wars" . }}
+		{{ template "knownallies" . }}
+		{{ template "activity" . }}
+		{{ template "assets" . }}
+		{{ template "knownships" . }}
+		{{ template "corporations" . }}
+		{{ template "knownAssociates" . }}
+	</div>
+</div>
+{{end}}
 
-	</div>
-	{{end}} {{define "corporations"}}
-	<div class="col-md-6 well">
-		<h2>
-			Corporations
-		</h2>
-		<table id="corporations" data-sort-name="name" data-url="/J/corporationsForAlliance?id={{ .entityID }}"
-		    data-pagination="true" data-search="true" data-sort-order="asc">
-			<thead>
-				<tr>
-					<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
-					<th data-field="memberCount" data-sortable="true">Members</th>
-				</tr>
-			</thead>
-		</table>
-		<script>
-			$(function () {
-				$('#corporations').bootstrapTable();
-			});
-		</script>
-	</div>
-	{{end}} {{define "corporationHistory"}}
-	<div class="col-md-6 well">
-		<h2>
-			Corporation History
-		</h2>
-		<table id="corporations" data-sort-name="startDate" data-url="/J/corporationHistory?id={{ .entityID }}"
-		    data-pagination="true" data-search="true" data-sort-order="desc">
-			<thead>
-				<tr>
-					<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
-					<th data-field="startDate" data-sortable="true">Start Date</th>
-				</tr>
-			</thead>
-		</table>
-		<script>
-			$(function () {
-				$('#corporations').bootstrapTable();
-			});
-		</script>
-	</div>
-	{{end}} {{define "knownAssociates"}}
-	<div class="col-md-6 well">
-		<h2>
-			Known Associates
-		</h2>
-		<table id="alts" data-sort-name="frequency" data-url="/J/knownAssociatesForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
-		    data-pagination="true" data-search="true" data-sort-order="desc">
-			<thead>
-				<tr>
-					<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
-					<th data-field="frequency" data-sortable="true">Frequency</th>
-				</tr>
-			</thead>
-		</table>
-		<script>
-			$(function () {
-				$('#alts').bootstrapTable();
-			});
-		</script>
-	</div>
-	{{end}} {{define "wars"}}
+{{define "corporations"}}
+<div class="col-md-6 well">
+			<h2>
+				Corporations
+			</h2>	
+			<table id="corporations"
+               data-sort-name="name"
+			   data-url="/J/corporationsForAlliance?id={{ .entityID }}"
+               data-pagination="true"
+               data-search="true"
+               data-sort-order="asc">
+            <thead>
+            <tr>
+                <th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
+                <th data-field="memberCount" data-sortable="true">Members</th>
+            </tr>
+            </thead>
+        </table>
+			<script>
+			    $(function () {
+       				$('#corporations').bootstrapTable();
+       			});
+       		</script>
+		</div>
+{{end}}
+
+{{define "corporationHistory"}}
+<div class="col-md-6 well">
+			<h2>
+				Corporation History
+			</h2>	
+			<table id="corporations"
+               data-sort-name="startDate"
+			   data-url="/J/corporationHistory?id={{ .entityID }}"
+               data-pagination="true"
+               data-search="true"
+               data-sort-order="desc">
+            <thead>
+            <tr>
+                <th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
+                <th data-field="startDate" data-sortable="true">Start Date</th>
+            </tr>
+            </thead>
+        </table>
+			<script>
+			    $(function () {
+       				$('#corporations').bootstrapTable();
+       			});
+       		</script>
+		</div>
+{{end}}
+
+{{define "knownAssociates"}}
+<div class="col-md-6 well">
+			<h2>
+				Known Associates
+			</h2>	
+			<table id="alts"
+               data-sort-name="frequency"
+			   data-url="/J/knownAssociatesForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+			   data-pagination="true"
+               data-search="true"
+               data-sort-order="desc">
+            <thead>
+            <tr>
+                <th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
+                <th data-field="frequency" data-sortable="true">Frequency</th>
+            </tr>
+            </thead>
+        </table>
+			<script>
+			    $(function () {
+       				$('#alts').bootstrapTable();
+       			});
+       		</script>
+		</div>
+{{end}}
+
+{{define "wars"}}
 	<div class="col-md-6 well">
 		<h2>
 			Active Wars
-		</h2>
-		<table id="wars" data-sort-name="aggressorName" data-pagination="true" data-search="true"
-		    data-url="/J/warsForEntity?id={{ .entityID }}" data-sort-order="asc">
-			<thead>
-				<tr>
-					<th data-field="aggressorName" data-formatter="aggressorFormatter">Aggressor</th>
-					<th data-field="defenderName" data-formatter="defenderFormatter">Defender</th>
-					<th data-field="kills" data-sortable="true">Kills</th>
-					<th data-field="losses" data-sortable="true">Losses</th>
-				</tr>
-			</thead>
-		</table>
+		</h2>	
+		<table id="wars"
+			data-sort-name="aggressorName"
+			data-pagination="true"
+			data-search="true"
+			data-url="/J/warsForEntity?id={{ .entityID }}"
+			data-sort-order="asc">
+		<thead>
+		<tr>
+			<th data-field="aggressorName" data-formatter="aggressorFormatter">Aggressor</th>
+			<th data-field="defenderName" data-formatter="defenderFormatter">Defender</th>
+			<th data-field="kills" data-sortable="true">Kills</th>
+			<th data-field="losses" data-sortable="true">Losses</th>
+		</tr>
+		</thead>
+	</table>
 		<script>
 			$(function () {
 				$('#wars').bootstrapTable();
 			});
 		</script>
 	</div>
-	{{end}} {{define "activity"}}
+{{end}}
+
+{{define "activity"}}
 	<div class="col-md-6 well">
 		<h2>
 			Active Constellations
-		</h2>
-		<table id="activity" data-sort-name="number" data-pagination="true" data-url="/J/activityForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
-		    data-search="true" data-sort-order="desc">
-			<thead>
-				<tr>
-					<th data-field="number">#</th>
-					<th data-field="regionName" data-sortable="true">Region</th>
-					<th data-field="constellationName" data-sortable="true">Constellation</th>
-					<th data-field="solarSystemNames" data-sortable="true">Solar Systems</th>
-				</tr>
-			</thead>
-		</table>
+		</h2>	
+		<table id="activity"
+			data-sort-name="number"
+			data-pagination="true"
+			data-url="/J/activityForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+			data-search="true"
+			data-sort-order="desc">
+		<thead>
+		<tr>
+			<th data-field="number">#</th>
+			<th data-field="regionName" data-sortable="true">Region</th>
+			<th data-field="constellationName" data-sortable="true">Constellation</th>
+			<th data-field="solarSystemNames" data-sortable="true">Solar Systems</th>
+		</tr>
+		</thead>
+	</table>
 		<script>
-			$(function () {
+			$(function () {				
 				$('#activity').bootstrapTable();
 			});
 		</script>
 	</div>
-	{{end}} {{define "knownships"}}
+{{end}}
+
+{{define "knownships"}}
 	<div class="col-md-6 well">
 		<h2>
 			Known Ships
-		</h2>
-		<table id="knownships" data-sort-name="number" data-pagination="true" data-search="true"
-		    data-url="/J/shipsForEntity?id={{ .entityID }}&entityType={{ .entityType }}" data-sort-order="desc">
-			<thead>
-				<tr>
-					<th data-field="number">#</th>
-					<th data-field="shipName" data-sortable="true">Ship Name</th>
-				</tr>
-			</thead>
-		</table>
+		</h2>	
+		<table id="knownships"
+			data-sort-name="number"
+			data-pagination="true"
+			data-search="true"
+			data-url="/J/shipsForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+			data-sort-order="desc">
+		<thead>
+		<tr>
+			<th data-field="number">#</th>
+			<th data-field="shipName" data-sortable="true">Ship Name</th>
+		</tr>
+		</thead>
+	</table>
 		<script>
 			$(function () {
 				$('#knownships').bootstrapTable();
 			});
 		</script>
 	</div>
-	{{end}} {{define "knownallies"}}
+{{end}}
+
+{{define "knownallies"}}
 	<div class="col-md-6 well">
 		<h2>
 			Known Allies
-		</h2>
-		<table id="knownallies" data-sort-name="number" data-pagination="true" data-url="/J/alliesForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
-		    data-search="true" data-sort-order="desc">
-			<thead>
-				<tr>
-					<th data-field="number">#</th>
-					<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Ally Name</th>
-				</tr>
-			</thead>
-		</table>
+		</h2>	
+		<table id="knownallies"
+			data-sort-name="number"
+			data-pagination="true"
+			data-url="/J/alliesForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+			data-search="true"
+			data-sort-order="desc">
+		<thead>
+		<tr>
+			<th data-field="number">#</th>
+			<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Ally Name</th>
+		</tr>
+		</thead>
+	</table>
 		<script>
 			$(function () {
 				$('#knownallies').bootstrapTable();
 			});
 		</script>
 	</div>
-	{{end}} {{define "assets"}}
+{{end}}
+
+{{define "assets"}}
 	<div class="col-md-6 well">
 		<h2>
 			Possible Assets In Space
 		</h2>
 		Note: Citadels may show as fighter drones.
 		<table id="assets" data-sort-name="lastSeen" data-pagination="true" data-url="/J/assetsForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
-		    data-search="true" data-sort-order="desc">
+		 data-search="true" data-sort-order="desc">
 			<thead>
 				<tr>
 					<th data-field="itemName">Near</th>
@@ -236,10 +296,8 @@
 		</table>
 		<script>
 			$(function () {
-				$('#assets').bootstrapTable({
-					data: assets
-				});
+				$('#assets').bootstrapTable({ data: assets });
 			});
 		</script>
 	</div>
-	{{end}}
+{{end}}
