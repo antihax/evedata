@@ -1,13 +1,13 @@
 package artifice
 
 import (
-	"fmt"
 	"log"
 	"time"
 )
 
 func init() {
-	registerTrigger("historyMaint", historyMaint, time.NewTicker(time.Second*360))
+	registerTrigger("alliancehistoryMaint", alliancehistoryMaint, time.NewTicker(time.Second*320))
+	registerTrigger("corphistoryMaint", corphistoryMaint, time.NewTicker(time.Second*240))
 	registerTrigger("marketMaint", marketMaint, time.NewTicker(time.Second*3610))
 	registerTrigger("discoveredAssetsMaint", discoveredAssetsMaint, time.NewTicker(time.Second*3620))
 	registerTrigger("entityMaint", entityMaint, time.NewTicker(time.Second*3630*3))
@@ -22,19 +22,62 @@ type allianceHistoryMaint struct {
 	StartDate     time.Time `db:"startDate"`
 }
 
-var historyMaintRunning bool
+type corpHistoryMaint struct {
+	CharacterID   int32     `db:"characterID"`
+	CorporationID int32     `db:"corporationID"`
+	RecordID      int32     `db:"recordID"`
+	StartDate     time.Time `db:"startDate"`
+}
 
-func historyMaint(s *Artifice) error {
-	if !historyMaintRunning {
-		historyMaintRunning = true
+var alliancehistoryMaintRunning bool
+var corphistoryMaintRunning bool
+
+func corphistoryMaint(s *Artifice) error {
+	if !corphistoryMaintRunning {
+		corphistoryMaintRunning = true
 		defer func() {
-			historyMaintRunning = false
+			corphistoryMaintRunning = false
+		}()
+		v := []corpHistoryMaint{}
+		err := s.db.Select(&v, `
+		SELECT 	recordID, characterID, corporationID, startDate
+		FROM 	evedata.corporationHistory 
+		WHERE   endDate IS NULL LIMIT 500000;`)
+		if err != nil {
+			return err
+		}
+
+		for _, c := range v {
+			var t time.Time
+			err := s.db.QueryRowx(`
+			SELECT startDate FROM evedata.corporationHistory
+			WHERE characterID = ? AND startDate > ? LIMIT 1`, c.CharacterID, c.StartDate).Scan(&t)
+			if err != nil {
+				continue
+			}
+
+			if !t.IsZero() {
+				if err := s.doSQL(`
+				UPDATE evedata.corporationHistory SET endDate = ? WHERE recordID = ?;`, t, c.RecordID); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func alliancehistoryMaint(s *Artifice) error {
+	if !alliancehistoryMaintRunning {
+		alliancehistoryMaintRunning = true
+		defer func() {
+			alliancehistoryMaintRunning = false
 		}()
 		v := []allianceHistoryMaint{}
 		err := s.db.Select(&v, `
 		SELECT 	recordID, allianceID, corporationID, startDate
 		FROM 	evedata.allianceHistory 
-		WHERE endDate IS NULL;`)
+		WHERE   endDate IS NULL LIMIT 500000;`)
 		if err != nil {
 			return err
 		}
@@ -47,7 +90,6 @@ func historyMaint(s *Artifice) error {
 			if err != nil {
 				continue
 			}
-			fmt.Println(t.String())
 			if !t.IsZero() {
 				if err := s.doSQL(`
 				UPDATE evedata.allianceHistory SET endDate = ? WHERE recordID = ?;`, t, c.RecordID); err != nil {
