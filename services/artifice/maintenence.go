@@ -29,38 +29,29 @@ type corpHistoryMaint struct {
 	StartDate     time.Time `db:"startDate"`
 }
 
-var alliancehistoryMaintRunning bool
-var corphistoryMaintRunning bool
-
 func corphistoryMaint(s *Artifice) error {
-	if !corphistoryMaintRunning {
-		corphistoryMaintRunning = true
-		defer func() {
-			corphistoryMaintRunning = false
-		}()
-		v := []corpHistoryMaint{}
-		err := s.db.Select(&v, `
+	v := []corpHistoryMaint{}
+	err := s.db.Select(&v, `
 		SELECT 	recordID, characterID, corporationID, startDate
 		FROM 	evedata.corporationHistory 
-		WHERE   endDate IS NULL LIMIT 500000;`)
-		if err != nil {
-			return err
-		}
+		WHERE   endDate IS NULL`)
+	if err != nil {
+		return err
+	}
 
-		for _, c := range v {
-			var t time.Time
-			err := s.db.QueryRowx(`
+	for _, c := range v {
+		var t time.Time
+		err := s.db.QueryRowx(`
 			SELECT startDate FROM evedata.corporationHistory
 			WHERE characterID = ? AND startDate > ? LIMIT 1`, c.CharacterID, c.StartDate).Scan(&t)
-			if err != nil {
-				continue
-			}
+		if err != nil {
+			continue
+		}
 
-			if !t.IsZero() {
-				if err := s.doSQL(`
+		if !t.IsZero() {
+			if err := s.doSQL(`
 				UPDATE evedata.corporationHistory SET endDate = ? WHERE recordID = ?;`, t, c.RecordID); err != nil {
-					return err
-				}
+				return err
 			}
 		}
 	}
@@ -68,33 +59,27 @@ func corphistoryMaint(s *Artifice) error {
 }
 
 func alliancehistoryMaint(s *Artifice) error {
-	if !alliancehistoryMaintRunning {
-		alliancehistoryMaintRunning = true
-		defer func() {
-			alliancehistoryMaintRunning = false
-		}()
-		v := []allianceHistoryMaint{}
-		err := s.db.Select(&v, `
+	v := []allianceHistoryMaint{}
+	err := s.db.Select(&v, `
 		SELECT 	recordID, allianceID, corporationID, startDate
 		FROM 	evedata.allianceHistory 
-		WHERE   endDate IS NULL LIMIT 500000;`)
-		if err != nil {
-			return err
-		}
+		WHERE   endDate IS NULL;`)
+	if err != nil {
+		return err
+	}
 
-		for _, c := range v {
-			var t time.Time
-			err := s.db.QueryRowx(`
+	for _, c := range v {
+		var t time.Time
+		err := s.db.QueryRowx(`
 			SELECT startDate FROM evedata.allianceHistory
 			WHERE corporationID = ? AND startDate > ? LIMIT 1`, c.CorporationID, c.StartDate).Scan(&t)
-			if err != nil {
-				continue
-			}
-			if !t.IsZero() {
-				if err := s.doSQL(`
+		if err != nil {
+			continue
+		}
+		if !t.IsZero() {
+			if err := s.doSQL(`
 				UPDATE evedata.allianceHistory SET endDate = ? WHERE recordID = ?;`, t, c.RecordID); err != nil {
-					return err
-				}
+				return err
 			}
 		}
 	}
@@ -246,7 +231,18 @@ func discoveredAssetsMaint(s *Artifice) error {
             INNER JOIN evedata.killmails K ON K.id = A.id
             INNER JOIN mapSolarSystems S ON S.solarSystemID = K.solarSystemID
 			WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 120 DAY) AND 
-				characterID = 0 AND groupID IN (365, 549, 1023, 1404, 1406, 1537, 1652, 1653, 1657, 2233)
+				characterID = 0 AND groupID IN (
+					365, 549, 1023, 1404, 1406, 1537, 1652, 1653, 1657, 2233,
+					1321,1322,1327,1328,1329,1330,1331,1332,1333,1415,1429,1430,
+					1441,1442,1535,1537,1546,1547,1548,1549,1551,1562,1613,1614,
+					1615,1616,1617,1618,1619,1620,1621,1622,1629,1630,1631,1632,
+					1633,1634,1635,1639,1640,1641,1642,1652,1653,1717,1719,1816,
+					1819,1820,1821,1822,1823,1824,1825,1826,1827,1828,1829,1830,
+					1831,1832,1833,1834,1835,1836,1837,1838,1839,1840,1841,1842,
+					1843,1844,1845,1846,1847,1850,1851,1852,1853,1854,1855,1856,
+					1857,1858,1859,1860,1861,1862,1863,1864,1865,1867,1868,1869,
+					1870,1887,1912,1913,1914,1933,1934,1935,1936,1937,1938,1939,
+					1941,1942,1943,1944,1945,1962,1966,1967,1968)
             GROUP BY A.corporationID, solarSystemID, typeID
         ON DUPLICATE KEY UPDATE lastSeen = lastSeen;
             `); err != nil {
@@ -270,10 +266,26 @@ func discoveredAssetsMaint(s *Artifice) error {
             INNER JOIN evedata.corporations C ON C.corporationID = K.victimCorporationID
             INNER JOIN mapSolarSystems S ON S.solarSystemID = K.solarSystemID
 			WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 120 DAY) AND 
-				victimCharacterID = 0 AND groupID IN (365, 549, 1023, 1404, 1406, 1537, 1652, 1653, 1657, 2233)
+				victimCharacterID = 0 AND groupID IN (
+					365, 549, 1023, 1404, 1406, 1537, 1652, 1653, 1657, 2233,
+					1321,1322,1327,1328,1329,1330,1331,1332,1333,1415,1429,1430,
+					1441,1442,1535,1537,1546,1547,1548,1549,1551,1562,1613,1614,
+					1615,1616,1617,1618,1619,1620,1621,1622,1629,1630,1631,1632,
+					1633,1634,1635,1639,1640,1641,1642,1652,1653,1717,1719,1816,
+					1819,1820,1821,1822,1823,1824,1825,1826,1827,1828,1829,1830,
+					1831,1832,1833,1834,1835,1836,1837,1838,1839,1840,1841,1842,
+					1843,1844,1845,1846,1847,1850,1851,1852,1853,1854,1855,1856,
+					1857,1858,1859,1860,1861,1862,1863,1864,1865,1867,1868,1869,
+					1870,1887,1912,1913,1914,1933,1934,1935,1936,1937,1938,1939,
+					1941,1942,1943,1944,1945,1962,1966,1967,1968)
             GROUP BY K.victimCorporationID, solarSystemID, typeID
-        ON DUPLICATE KEY UPDATE lastSeen = lastSeen;
-            `); err != nil {
+        ON DUPLICATE KEY UPDATE lastSeen = lastSeen;`); err != nil {
+		return err
+	}
+
+	if err := s.doSQL(`
+		DELETE FROM evedata.discoveredAssets 
+		WHERE lastSeen < DATE_SUB(UTC_TIMESTAMP(), INTERVAL 2 YEAR);`); err != nil {
 		return err
 	}
 	return nil
