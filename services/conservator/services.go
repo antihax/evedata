@@ -396,7 +396,7 @@ func (s *Conservator) updateData() {
 		if err := s.loadShares(); err != nil {
 			log.Println(err)
 		}
-		//s.checkAllUsers()
+		s.checkAllUsers()
 		<-throttle
 
 	}
