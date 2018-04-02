@@ -1,16 +1,62 @@
 package artifice
 
 import (
+	"fmt"
 	"log"
 	"time"
 )
 
 func init() {
+	registerTrigger("historyMaint", historyMaint, time.NewTicker(time.Second*360))
 	registerTrigger("marketMaint", marketMaint, time.NewTicker(time.Second*3610))
 	registerTrigger("discoveredAssetsMaint", discoveredAssetsMaint, time.NewTicker(time.Second*3620))
 	registerTrigger("entityMaint", entityMaint, time.NewTicker(time.Second*3630*3))
 	registerTrigger("killmailMaint", killmailMaint, time.NewTicker(time.Second*60*60*12))
 	registerTrigger("contactSyncMaint", contactSyncMaint, time.NewTicker(time.Second*3615*6))
+}
+
+type allianceHistoryMaint struct {
+	AllianceID    int32     `db:"allianceID"`
+	CorporationID int32     `db:"corporationID"`
+	RecordID      int32     `db:"recordID"`
+	StartDate     time.Time `db:"startDate"`
+}
+
+var historyMaintRunning bool
+
+func historyMaint(s *Artifice) error {
+	if !historyMaintRunning {
+		historyMaintRunning = true
+		defer func() {
+			historyMaintRunning = false
+		}()
+		v := []allianceHistoryMaint{}
+		err := s.db.Select(&v, `
+		SELECT 	recordID, allianceID, corporationID, startDate
+		FROM 	evedata.allianceHistory 
+		WHERE endDate IS NULL;`)
+		if err != nil {
+			return err
+		}
+
+		for _, c := range v {
+			var t time.Time
+			err := s.db.QueryRowx(`
+			SELECT startDate FROM evedata.allianceHistory
+			WHERE corporationID = ? AND startDate > ? LIMIT 1`, c.CorporationID, c.StartDate).Scan(&t)
+			if err != nil {
+				continue
+			}
+			fmt.Println(t.String())
+			if !t.IsZero() {
+				if err := s.doSQL(`
+				UPDATE evedata.allianceHistory SET endDate = ? WHERE recordID = ?;`, t, c.RecordID); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func contactSyncMaint(s *Artifice) error {
