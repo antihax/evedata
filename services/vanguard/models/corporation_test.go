@@ -26,3 +26,11 @@ func TestGetCorporation(t *testing.T) {
 		return
 	}
 }
+
+func TestGetCorporationJoinHistory(t *testing.T) {
+	_, err := GetCorporationJoinHistory(147035273)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}

@@ -53,7 +53,12 @@ func TestCharacterGet(t *testing.T) {
 	}
 }
 
-func TestAllianceHistoryGet(t *testing.T) {
+func TestGetAllianceHistory(t *testing.T) {
 	_, err := GetAllianceHistory(2)
+	assert.Nil(t, err)
+}
+
+func TestGetAllianceJoinHistory(t *testing.T) {
+	_, err := GetAllianceJoinHistory(2)
 	assert.Nil(t, err)
 }

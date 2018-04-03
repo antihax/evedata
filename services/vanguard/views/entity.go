@@ -28,6 +28,8 @@ func init() {
 	vanguard.AddRoute("entity", "GET", "/J/corporationsForAlliance", corporationsForAllianceAPI)
 	vanguard.AddRoute("entity", "GET", "/J/knownAssociatesForEntity", knownAssociatesForEntityAPI)
 	vanguard.AddRoute("entity", "GET", "/J/allianceHistoryForEntity", allianceHistoryForEntityAPI)
+	vanguard.AddRoute("entity", "GET", "/J/corporationHistoryForEntity", corporationHistoryForEntityAPI)
+	vanguard.AddRoute("entity", "GET", "/J/allianceJoinHistoryForEntity", allianceJoinHistoryForEntityAPI)
 
 	validEntity = map[string]bool{"alliance": true, "corporation": true, "character": true}
 }
@@ -182,6 +184,24 @@ func knownAssociatesForEntityAPI(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(v)
 }
 
+func allianceJoinHistoryForEntityAPI(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 60*60)
+	idStr := r.FormValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	v, err := models.GetAllianceJoinHistory(id)
+	if err != nil {
+		httpErrCode(w, err, http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(v)
+}
+
 func allianceHistoryForEntityAPI(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 60*60)
 	idStr := r.FormValue("id")
@@ -191,20 +211,25 @@ func allianceHistoryForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	entityType := r.FormValue("entityType")
-	if !validEntity[entityType] {
-		httpErr(w, errors.New("entityType must be corporation, character, or alliance"))
+	v, err := models.GetAllianceHistory(id)
+	if err != nil {
+		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
 
-	var v []models.AllianceHistory
-	if entityType == "alliance" {
-		v, err = models.GetAllianceHistory(id)
-	} else {
-		httpErr(w, errors.New("entityType must be an alliance"))
+	json.NewEncoder(w).Encode(v)
+}
+
+func corporationHistoryForEntityAPI(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 60*60)
+	idStr := r.FormValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		httpErr(w, err)
 		return
 	}
 
+	v, err := models.GetCorporationJoinHistory(id)
 	if err != nil {
 		httpErrCode(w, err, http.StatusNotFound)
 		return

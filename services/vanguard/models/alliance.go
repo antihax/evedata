@@ -121,3 +121,37 @@ func GetAllianceHistory(id int64) ([]AllianceHistory, error) {
 
 	return ref, nil
 }
+
+type AllianceJoinHistory struct {
+	CharacterID   int64     `db:"characterID" json:"characterID"`
+	CharacterName string    `db:"characterName" json:"characterName"`
+	Date          time.Time `db:"date" json:"date"`
+	Event         string    `db:"event" json:"event"`
+}
+
+// Obtain a list of corporations history with an alliance by ID.
+// [BENCHMARK] 0.000 sec / 0.000 sec
+func GetAllianceJoinHistory(id int64) ([]AllianceJoinHistory, error) {
+	ref := []AllianceJoinHistory{}
+	if err := database.Select(&ref, `
+		SELECT name AS characterName, C.characterID, event, date FROM (
+			SELECT H.characterID, "joined" AS event, H.startDate AS date
+					FROM evedata.corporationHistory H
+					INNER JOIN evedata.allianceHistory A ON A.corporationID = H.corporationID
+						AND H.startDate > A.startDate AND H.startDate < IFNULL(A.endDate, UTC_TIMESTAMP())
+					WHERE A.allianceID = ?
+			UNION		
+			SELECT H.characterID, "left" AS event, H.endDate AS date
+					FROM evedata.corporationHistory H
+					INNER JOIN evedata.allianceHistory A ON A.corporationID = H.corporationID
+						AND H.endDate > A.startDate AND H.endDate < IFNULL(A.endDate, UTC_TIMESTAMP())
+					WHERE A.allianceID = ? AND H.endDate IS NOT NULL) S 
+			INNER JOIN evedata.characters C ON S.characterID = C.characterID 
+			ORDER BY date DESC
+			
+		`, id, id); err != nil {
+		return nil, err
+	}
+
+	return ref, nil
+}

@@ -30,6 +30,7 @@
 		{{ template "knownallies" . }}
 		{{ template "activity" . }}
 		{{ template "assets" . }}
+		{{ template "corporationJoinHistory" . }}
 		{{ template "knownships" . }}
 		{{ template "knownAssociates" . }}
 		</div>
@@ -88,6 +89,7 @@
 			{{ template "knownships" . }}
 			{{ template "corporations" . }}
 			{{ template "allianceHistory" . }}
+			{{ template "allianceJoinHistory" . }}
 			{{ template "knownAssociates" . }}
 		</div>
 	</div>
@@ -147,6 +149,54 @@
 			<thead>
 				<tr>
 					<th data-field="corporationName" data-sortable="true" data-formatter="corporationFormatter">Name</th>
+					<th data-field="startDate" data-sortable="true">Start Date</th>
+					<th data-field="endDate" data-sortable="true">End Date</th>
+				</tr>
+			</thead>
+		</table>
+		<script>
+			$(function () {
+				$('#corporationHistory').bootstrapTable();
+			});
+		</script>
+	</div>
+{{end}}
+
+
+{{define "allianceJoinHistory"}}
+	<div class="col-md-6 well">
+		<h2>
+			Character History
+		</h2>
+		<table id="allianceJoinHistory" data-sort-name="date" data-url="/J/allianceJoinHistoryForEntity?id={{ .entityID }}&entityType=alliance"
+		data-pagination="true" data-search="true" data-sort-order="desc">
+			<thead>
+				<tr>
+					<th data-field="characterName" data-sortable="true" data-formatter="characterFormatterName">Name</th>
+					<th data-field="date" data-sortable="true">Date</th>
+					<th data-field="event" data-sortable="true">Event</th>
+				</tr>
+			</thead>
+		</table>
+		<script>
+			$(function () {
+				$('#allianceJoinHistory').bootstrapTable();
+			});
+		</script>
+	</div>
+{{end}}
+
+
+{{define "corporationJoinHistory"}}
+	<div class="col-md-6 well">
+		<h2>
+			Character History
+		</h2>
+		<table id="corporationHistory" data-sort-name="startDate" data-url="/J/corporationHistoryForEntity?id={{ .entityID }}&entityType=alliance"
+		data-pagination="true" data-search="true" data-sort-order="desc">
+			<thead>
+				<tr>
+					<th data-field="characterName" data-sortable="true" data-formatter="characterFormatterName">Name</th>
 					<th data-field="startDate" data-sortable="true">Start Date</th>
 					<th data-field="endDate" data-sortable="true">End Date</th>
 				</tr>

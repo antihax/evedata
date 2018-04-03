@@ -34,7 +34,7 @@ func corphistoryMaint(s *Artifice) error {
 	err := s.db.Select(&v, `
 		SELECT 	recordID, characterID, corporationID, startDate
 		FROM 	evedata.corporationHistory 
-		WHERE   endDate IS NULL`)
+		WHERE   endDate IS NULL ORDER BY RAND() LIMIT 1000000`)
 	if err != nil {
 		return err
 	}
