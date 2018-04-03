@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/guregu/null"
+)
 
 // Update an alliances information.
 func UpdateAlliance(allianceID int32, name string, memberCount int, shortName string, executorCorp int32,
@@ -89,6 +93,30 @@ func GetAllianceMembers(id int64) ([]AllianceMember, error) {
 
 	for i := range ref {
 		ref[i].Type = "corporation"
+	}
+
+	return ref, nil
+}
+
+type AllianceHistory struct {
+	CorporationID   int64     `db:"corporationID" json:"corporationID"`
+	CorporationName string    `db:"corporationName" json:"corporationName"`
+	StartDate       time.Time `db:"startDate" json:"startDate"`
+	EndDate         null.Time `db:"endDate" json:"endDate,omitempty"`
+}
+
+// Obtain a list of corporations history with an alliance by ID.
+// [BENCHMARK] 0.000 sec / 0.000 sec
+func GetAllianceHistory(id int64) ([]AllianceHistory, error) {
+	ref := []AllianceHistory{}
+	if err := database.Select(&ref, `
+		SELECT H.corporationID, name AS corporationName, startDate, endDate
+		FROM evedata.allianceHistory H
+		INNER JOIN evedata.corporations C ON C.corporationID = H.corporationID
+		WHERE H.allianceID = ?
+		ORDER BY startDate DESC;
+		`, id); err != nil {
+		return nil, err
 	}
 
 	return ref, nil

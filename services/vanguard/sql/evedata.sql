@@ -8,10 +8,13 @@ CREATE TABLE `allianceHistory` (
   `allianceID` int(11) NOT NULL,
   `corporationID` int(11) NOT NULL,
   `deleted` tinyint(4) NOT NULL,
+  `endDate` datetime DEFAULT NULL,
   PRIMARY KEY (`recordID`),
   KEY `allianceID` (`allianceID`),
   KEY `corporationID` (`corporationID`),
-  KEY `startDate` (`startDate`)
+  KEY `startDate` (`startDate`),
+  KEY `corporationID_Date` (`corporationID`,`startDate`),
+  KEY `endDate` (`endDate`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `alliances` (
@@ -99,10 +102,13 @@ CREATE TABLE `corporationHistory` (
   `startDate` datetime NOT NULL,
   `characterID` int(11) NOT NULL,
   `corporationID` int(11) DEFAULT NULL,
+  `endDate` date DEFAULT NULL,
   PRIMARY KEY (`recordID`),
   KEY `characterID` (`characterID`),
   KEY `corporationID` (`corporationID`),
-  KEY `startDate` (`startDate`)
+  KEY `startDate` (`startDate`),
+  KEY `characterID_Date` (`characterID`,`endDate`),
+  KEY `endDate` (`endDate`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `corporations` (

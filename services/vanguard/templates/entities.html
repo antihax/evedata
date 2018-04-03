@@ -87,6 +87,7 @@
 			{{ template "assets" . }}
 			{{ template "knownships" . }}
 			{{ template "corporations" . }}
+			{{ template "allianceHistory" . }}
 			{{ template "knownAssociates" . }}
 		</div>
 	</div>
@@ -131,6 +132,29 @@
 		<script>
 			$(function () {
 				$('#corporations').bootstrapTable();
+			});
+		</script>
+	</div>
+{{end}}
+
+{{define "allianceHistory"}}
+	<div class="col-md-6 well">
+		<h2>
+			Corporation History
+		</h2>
+		<table id="corporationHistory" data-sort-name="startDate" data-url="/J/allianceHistoryForEntity?id={{ .entityID }}&entityType=alliance"
+		data-pagination="true" data-search="true" data-sort-order="desc">
+			<thead>
+				<tr>
+					<th data-field="corporationName" data-sortable="true" data-formatter="corporationFormatter">Name</th>
+					<th data-field="startDate" data-sortable="true">Start Date</th>
+					<th data-field="endDate" data-sortable="true">End Date</th>
+				</tr>
+			</thead>
+		</table>
+		<script>
+			$(function () {
+				$('#corporationHistory').bootstrapTable();
 			});
 		</script>
 	</div>

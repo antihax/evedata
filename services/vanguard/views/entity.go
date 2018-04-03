@@ -27,6 +27,7 @@ func init() {
 	vanguard.AddRoute("entity", "GET", "/J/corporationHistory", corporationHistoryAPI)
 	vanguard.AddRoute("entity", "GET", "/J/corporationsForAlliance", corporationsForAllianceAPI)
 	vanguard.AddRoute("entity", "GET", "/J/knownAssociatesForEntity", knownAssociatesForEntityAPI)
+	vanguard.AddRoute("entity", "GET", "/J/allianceHistoryForEntity", allianceHistoryForEntityAPI)
 
 	validEntity = map[string]bool{"alliance": true, "corporation": true, "character": true}
 }
@@ -170,6 +171,37 @@ func knownAssociatesForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		v, err = models.GetCharacterKnownAssociates(id)
 	} else {
 		httpErr(w, errors.New("entityType must be corporation or alliance"))
+		return
+	}
+
+	if err != nil {
+		httpErrCode(w, err, http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(v)
+}
+
+func allianceHistoryForEntityAPI(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 60*60)
+	idStr := r.FormValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	entityType := r.FormValue("entityType")
+	if !validEntity[entityType] {
+		httpErr(w, errors.New("entityType must be corporation, character, or alliance"))
+		return
+	}
+
+	var v []models.AllianceHistory
+	if entityType == "alliance" {
+		v, err = models.GetAllianceHistory(id)
+	} else {
+		httpErr(w, errors.New("entityType must be an alliance"))
 		return
 	}
 
