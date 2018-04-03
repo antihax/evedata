@@ -12,18 +12,20 @@
 	<p>The following services are available for you to join. If the wrong character is
 		displayed, uncheck auth from the character in the character pane below and reload
 		this page.</p>
-	<table class="table" id="availableServices">
-		<thead>
-			<tr>
-				<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="joinIntegrationFormatter">Join</th>
-				<th data-field="type">Type</th>
-				<th data-escape=true data-field="name">Service Name</th>
-				<th data-field="characterName" data-formatter="tokenCharacterFormatter">Name</th>
-				<th data-field="reason">Reason</th>
-				<th data-field="entityName" data-formatter="entityTypeFormatter">Entity</th>
-			</tr>
-		</thead>
-	</table>
+	<div class="table">
+		<table class="table" id="availableServices">
+			<thead>
+				<tr>
+					<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="joinIntegrationFormatter">Join</th>
+					<th data-field="type">Type</th>
+					<th data-escape=true data-field="name">Service Name</th>
+					<th data-field="characterName" data-formatter="tokenCharacterFormatter">Name</th>
+					<th data-field="reason">Reason</th>
+					<th data-field="entityName" data-formatter="entityTypeFormatter">Entity</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
 </div>
 
 <div class="well">
@@ -65,15 +67,15 @@
 		});
 	</script>
 
-	<div class="table-responsive">
+	<div class="table">
 		<div class="toolbar cresttokenToolbar" id="cresttokenToolbar">
-			<div class="dropdown">
+			<div class="btn-group">
 				<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChar"
-				    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				    data-toggle="dropdown">
 					Add Character
 					<span class="caret"></span>
 				</button>
-				<ul class="dropdown-menu" id="addCharMenu" aria-labelledby="addChar">
+				<ul class="dropdown-menu" id="addCharMenu">
 					{{ range $scope, $reason := .ScopeGroups }}
 					<li>
 						<a href="#" id="{{ $scope }}" class="small characterScopes" data-value="{{ $scope }}"
@@ -109,10 +111,10 @@
 <div class="well">
 	<h3>Integration Tokens</h3>
 	<p>Integration tokens allow us to determine which alliance/corporation services you
-		can use and authenticate you automatically on these services. Your alliance or corporation
-		can only see characters that you have with them and not out of corp alts unless
-		you are explicitly sharing data with them in the characters table above.</p>
-	<div class="table-responsive">
+		can use and authenticate you automatically on these services. Your alliance or
+		corporation can only see characters that you have with them and not out of corp
+		alts unless you are explicitly sharing data with them in the characters table above.</p>
+	<div class="table">
 		<div class="toolbar integrationTokenToolbar" id="integrationTokenToolbar">
 			<div class="dropdown">
 				<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addDiscord"
