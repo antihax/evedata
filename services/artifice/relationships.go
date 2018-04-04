@@ -16,6 +16,11 @@ func init() {
 }
 
 func buildRelationships(s *Artifice) error {
+	if err := s.cleanupRelationships(); err != nil {
+		log.Println(err)
+		return err
+	}
+
 	if err := s.buildKillmailRelationships(); err != nil {
 		log.Println(err)
 		return err
@@ -26,6 +31,17 @@ func buildRelationships(s *Artifice) error {
 	}
 
 	return nil
+}
+
+// Find relationships between characters in killmails
+func (s *Artifice) cleanupRelationships() error {
+	// Remove any orphan killmails
+	return s.RetryExecTillNoRows(`
+		DELETE FROM evedata.characterAssociations 
+		WHERE
+			characterID = 0
+			OR added < DATE_SUB(UTC_TIMESTAMP(),
+			INTERVAL 6 MONTH) LIMIT 5000;`)
 }
 
 // Find relationships between characters in killmails
