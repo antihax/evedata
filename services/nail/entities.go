@@ -196,7 +196,6 @@ func (s *Nail) loyaltyStoreHandler(message *nsq.Message) error {
 	}
 
 	var offers, requirements []string
-
 	for _, offer := range c.Store {
 		offers = append(offers, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%d)",
 			offer.OfferId, c.CorporationID, offer.TypeId, offer.Quantity, offer.LpCost, 0, int(offer.IskCost)))
@@ -206,7 +205,7 @@ func (s *Nail) loyaltyStoreHandler(message *nsq.Message) error {
 		}
 	}
 
-	stmt := fmt.Sprintf("INSERT INTO evedata.lpOffers (offerID,corporationID,typeID,quantity,lpCost,akCost,iskCost) VALUES %s ON DUPLICATE KEY UPDATE iskCost=VALUES(akCost),iskCost=VALUES(akCost), lpCost=VALUES(lpCost);", strings.Join(offers, ",\n"))
+	stmt := fmt.Sprintf("INSERT INTO evedata.lpOffers (offerID,corporationID,typeID,quantity,lpCost,akCost,iskCost) VALUES %s ON DUPLICATE KEY UPDATE akCost=VALUES(akCost), iskCost=VALUES(iskCost), lpCost=VALUES(lpCost);", strings.Join(offers, ",\n"))
 	err = s.doSQL(stmt)
 	if err != nil {
 		log.Println(err)
