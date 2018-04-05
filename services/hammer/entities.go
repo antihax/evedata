@@ -190,15 +190,16 @@ func loyaltyStoreConsumer(s *Hammer, parameter interface{}) {
 		log.Println(err)
 		return
 	}
-
-	// Send out the result
-	err = s.QueueResult(&datapackages.Store{
-		CorporationID: corporationID,
-		Store:         store},
-		"loyaltyStore")
-	if err != nil {
-		log.Println(err)
-		return
+	if len(store) > 0 {
+		// Send out the result
+		err = s.QueueResult(&datapackages.Store{
+			CorporationID: corporationID,
+			Store:         store},
+			"loyaltyStore")
+		if err != nil {
+			log.Println(err)
+			return
+		}
 	}
 	return
 }
