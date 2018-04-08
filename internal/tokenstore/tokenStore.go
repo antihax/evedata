@@ -1,13 +1,14 @@
 package tokenstore
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/goesi"
+	"github.com/antihax/goesi/esi"
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 	"golang.org/x/oauth2"
@@ -230,10 +231,25 @@ func (c *TokenStore) TokenSuccess(characterID int32, tokenCharacterID int32) err
 	return nil
 }
 
-func (c *TokenStore) CheckSSOError(characterID int32, tokenCharacterID int32, e error) bool {
-	if strings.Contains(e.Error(), `{"error":`) {
-		c.TokenError(characterID, tokenCharacterID, 999, e.Error())
+func (c *TokenStore) CheckSSOError(characterID int32, tokenCharacterID int32, in error) bool {
+	e, ok := in.(esi.GenericSwaggerError)
+	if ok {
+		type ssoerror struct {
+			Error   string `json:"error"`
+			Message string `json:"message"`
+		}
+		message := ssoerror{}
+
+		// See if we can unmarshal the body.
+		err := json.Unmarshal(e.Body(), &message)
+		if err != nil {
+			return false
+		}
+
+		// Store the error message
+		c.TokenError(characterID, tokenCharacterID, 999, message.Error)
 		return true
+
 	}
 	return false
 }
