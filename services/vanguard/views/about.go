@@ -20,14 +20,14 @@ type page struct {
 }
 
 var aboutPages = map[string]page{
-	"":        page{Title: "About EVEData.org", Template: "evedata.html"},
-	"evedata": page{Title: "About EVEData.org", Template: "evedata.html"},
-	"privacy": page{Title: "EVEData.org Privacy Policy", Template: "privacy.html"},
-	"terms":   page{Title: "EVEData.org Terms", Template: "terms.html"},
+	"":        {Title: "About EVEData.org", Template: "evedata.html"},
+	"evedata": {Title: "About EVEData.org", Template: "evedata.html"},
+	"privacy": {Title: "EVEData.org Privacy Policy", Template: "privacy.html"},
+	"terms":   {Title: "EVEData.org Terms", Template: "terms.html"},
 }
 var helpPages = map[string]page{
-	"shares":       page{Title: "Sharing Data", Template: "shares.html"},
-	"integrations": page{Title: "Integrations", Template: "integrations.html"},
+	"shares":       {Title: "Sharing Data", Template: "shares.html"},
+	"integrations": {Title: "Integrations", Template: "integrations.html"},
 }
 
 func aboutPage(w http.ResponseWriter, r *http.Request) {
