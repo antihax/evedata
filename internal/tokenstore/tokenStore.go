@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/antihax/evedata/internal/gobcoder"
@@ -248,6 +249,7 @@ func (c *TokenStore) CheckSSOError(characterID int32, tokenCharacterID int32, in
 
 		// Store the error message
 		c.TokenError(characterID, tokenCharacterID, 999, message.Error)
+		log.Printf("SSO Error: %s: %s", message.Error, message.Message)
 		return true
 
 	}
