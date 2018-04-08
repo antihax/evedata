@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/antihax/goesi/esi"
+	"github.com/antihax/goesi/optional"
 
 	"github.com/antihax/evedata/internal/datapackages"
 )
@@ -63,7 +64,7 @@ func allianceContacts(s *Hammer, parameter interface{}) {
 	contacts := []esi.GetAlliancesAllianceIdContacts200Ok{}
 
 	for {
-		c, _, err := s.esi.ESI.ContactsApi.GetAlliancesAllianceIdContacts(ctx, allianceID, map[string]interface{}{"page": page})
+		c, _, err := s.esi.ESI.ContactsApi.GetAlliancesAllianceIdContacts(ctx, allianceID, &esi.GetAlliancesAllianceIdContactsOpts{Page: optional.NewInt32(page)})
 		if err != nil {
 			log.Println(err)
 			return
@@ -108,7 +109,10 @@ func corporationContacts(s *Hammer, parameter interface{}) {
 	contacts := []esi.GetCorporationsCorporationIdContacts200Ok{}
 
 	for {
-		c, _, err := s.esi.ESI.ContactsApi.GetCorporationsCorporationIdContacts(ctx, corporationID, map[string]interface{}{"page": page})
+		c, _, err := s.esi.ESI.ContactsApi.GetCorporationsCorporationIdContacts(ctx, corporationID,
+			&esi.GetCorporationsCorporationIdContactsOpts{
+				Page: optional.NewInt32(page),
+			})
 		if err != nil {
 			log.Println(err)
 			return

@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/antihax/evedata/internal/redisqueue"
+	"github.com/antihax/goesi/esi"
+	"github.com/antihax/goesi/optional"
 )
 
 func init() {
@@ -19,7 +21,10 @@ func warsTrigger(s *Artifice) error {
 	maxWarID := int32(math.MaxInt32)
 	cycle := 0
 	for {
-		wars, _, err := s.esi.ESI.WarsApi.GetWars(context.Background(), map[string]interface{}{"maxWarId": maxWarID})
+
+		wars, _, err := s.esi.ESI.WarsApi.GetWars(context.Background(), &esi.GetWarsOpts{
+			MaxWarId: optional.NewInt32(maxWarID),
+		})
 		if err != nil {
 			return err
 		}
@@ -79,7 +84,10 @@ func (s *Artifice) warKillmails() {
 func getWarKills(s *Artifice, id int32) error {
 	page := int32(1)
 	for {
-		kills, r, err := s.esi.ESI.WarsApi.GetWarsWarIdKillmails(context.Background(), id, map[string]interface{}{"page": int32(page)})
+		kills, r, err := s.esi.ESI.WarsApi.GetWarsWarIdKillmails(context.Background(), id,
+			&esi.GetWarsWarIdKillmailsOpts{
+				Page: optional.NewInt32(page),
+			})
 		if err != nil {
 			log.Println(err)
 			return err

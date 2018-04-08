@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/antihax/goesi/esi"
+	"github.com/antihax/goesi/optional"
 
 	"github.com/antihax/goesi"
 	"golang.org/x/oauth2"
@@ -94,7 +95,10 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 		auth := context.WithValue(context.Background(), goesi.ContextOAuth2, *token.token)
 		page := int32(1)
 		for {
-			c, _, err := s.esi.ESI.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid), map[string]interface{}{"page": int32(page)})
+			c, _, err := s.esi.ESI.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid),
+				&esi.GetCharactersCharacterIdContactsOpts{
+					Page: optional.NewInt32(page),
+				})
 			if err != nil {
 				s.tokenStore.CheckSSOError(characterID, token.cid, err)
 				log.Println(err)

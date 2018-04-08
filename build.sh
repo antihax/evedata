@@ -1,6 +1,7 @@
 #!/bin/bash
 
 go get -u ./...
+git --git-dir=../../bwmarrin/discordgo checkout develop
 
 for dir in cmd/*/; do
     dir=${dir%/}

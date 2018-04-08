@@ -7,6 +7,7 @@ import (
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/goesi"
 	"github.com/antihax/goesi/esi"
+	"github.com/antihax/goesi/optional"
 )
 
 func init() {
@@ -51,7 +52,10 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 	ctx := context.WithValue(context.Background(), goesi.ContextOAuth2, *s.token)
 
 	for {
-		o, _, err := s.esi.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, structureID, map[string]interface{}{"page": page})
+		o, _, err := s.esi.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, structureID,
+			&esi.GetMarketsStructuresStructureIdOpts{
+				Page: optional.NewInt32(page),
+			})
 		if err != nil {
 			log.Printf("Bad structure market: %s %d\n", err, structureID)
 			err := s.inQueue.SetWorkExpire("evedata_structure_failure", structureID, 86400)

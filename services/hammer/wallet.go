@@ -6,6 +6,7 @@ import (
 
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/goesi/esi"
+	"github.com/antihax/goesi/optional"
 )
 
 func init() {
@@ -38,7 +39,9 @@ func characterWalletTransactionConsumer(s *Hammer, parameter interface{}) {
 	last := lowestTransactionID(transactions)
 	for {
 		top, _, err := s.esi.ESI.WalletApi.GetCharactersCharacterIdWalletTransactions(ctx, tokenCharacterID,
-			map[string]interface{}{"fromId": last})
+			&esi.GetCharactersCharacterIdWalletTransactionsOpts{
+				FromId: optional.NewInt64(last),
+			})
 		if err != nil {
 			s.tokenStore.CheckSSOError(characterID, tokenCharacterID, err)
 			log.Println(err)
@@ -94,7 +97,9 @@ func characterWalletJournalConsumer(s *Hammer, parameter interface{}) {
 	last := lowestRefID(journal)
 	for {
 		top, _, err := s.esi.ESI.WalletApi.GetCharactersCharacterIdWalletJournal(ctx, tokenCharacterID,
-			map[string]interface{}{"fromId": last})
+			&esi.GetCharactersCharacterIdWalletJournalOpts{
+				FromId: optional.NewInt64(last),
+			})
 		if err != nil {
 			s.tokenStore.CheckSSOError(characterID, tokenCharacterID, err)
 			log.Println(err)

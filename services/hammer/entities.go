@@ -7,6 +7,8 @@ import (
 
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/redisqueue"
+	"github.com/antihax/goesi/esi"
+	"github.com/antihax/goesi/optional"
 )
 
 func init() {
@@ -111,7 +113,10 @@ func charSearchConsumer(s *Hammer, parameter interface{}) {
 	}
 
 	if id == 0 {
-		search, _, err := s.esi.ESI.SearchApi.GetSearch(nil, []string{"character"}, char, map[string]interface{}{"strict": true})
+		search, _, err := s.esi.ESI.SearchApi.GetSearch(nil, []string{"character"}, char,
+			&esi.GetSearchOpts{
+				Strict: optional.NewBool(true),
+			})
 		if err != nil {
 			log.Println(err)
 			return

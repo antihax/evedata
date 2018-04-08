@@ -7,6 +7,8 @@ import (
 
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/redisqueue"
+	"github.com/antihax/goesi/esi"
+	"github.com/antihax/goesi/optional"
 )
 
 func init() {
@@ -25,7 +27,10 @@ func marketHistoryTrigger(s *Hammer, parameter interface{}) {
 	var page int32 = 1
 
 	for {
-		items, r, err := s.esi.ESI.UniverseApi.GetUniverseTypes(context.Background(), map[string]interface{}{"page": page})
+		items, r, err := s.esi.ESI.UniverseApi.GetUniverseTypes(context.Background(),
+			&esi.GetUniverseTypesOpts{
+				Page: optional.NewInt32(page),
+			})
 		if err != nil {
 			log.Println(err)
 			continue
@@ -80,7 +85,10 @@ func marketOrdersConsumer(s *Hammer, parameter interface{}) {
 	var page int32 = 1
 
 	for {
-		orders, r, err := s.esi.ESI.MarketApi.GetMarketsRegionIdOrders(context.Background(), "all", regionID, map[string]interface{}{"page": page})
+		orders, r, err := s.esi.ESI.MarketApi.GetMarketsRegionIdOrders(context.Background(), "all", regionID,
+			&esi.GetMarketsRegionIdOrdersOpts{
+				Page: optional.NewInt32(page),
+			})
 		if err != nil {
 			log.Println(err)
 			return
