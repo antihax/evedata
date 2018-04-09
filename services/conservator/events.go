@@ -8,15 +8,15 @@ import (
 	"github.com/antihax/goesi"
 )
 
-func (s *Conservator) checkAllUsers() {
-	s.services.Range(func(ki, vi interface{}) bool {
+func (c *Conservator) checkAllUsers() {
+	c.services.Range(func(ki, vi interface{}) bool {
 		service := vi.(Service)
 		members, err := service.Server.GetMembers()
 		if err != nil {
 			return false
 		}
 		for _, m := range members {
-			if err := s.checkUser(m.ID, m.Name, service.IntegrationID, m.Roles); err != nil {
+			if err := c.checkUser(m.ID, m.Name, service.IntegrationID, m.Roles); err != nil {
 				log.Println(err)
 			}
 		}
@@ -91,8 +91,8 @@ func (c *Conservator) checkUser(memberID, memberName string, integrationID int32
 	return nil
 }
 
-func (s *Conservator) setMemberStatus(memberID string, characterID int32, integrationID int32) error {
-	if _, err := s.db.Exec(`
+func (c *Conservator) setMemberStatus(memberID string, characterID int32, integrationID int32) error {
+	if _, err := c.db.Exec(`
 		INSERT INTO evedata.integrationCharacters (integrationID,characterID,integrationUserID)
 		VALUES (?,?,?) ON DUPLICATE KEY UPDATE integrationID=integrationID;
 		`, integrationID, characterID, memberID); err != nil {
@@ -101,9 +101,9 @@ func (s *Conservator) setMemberStatus(memberID string, characterID int32, integr
 	return nil
 }
 
-func (s *Conservator) getMemberStatus(memberID string, entity int32) (string, error) {
+func (c *Conservator) getMemberStatus(memberID string, entity int32) (string, error) {
 	ref := ""
-	if err := s.db.QueryRowx(`
+	if err := c.db.QueryRowx(`
 		SELECT characterName
 			FROM evedata.integrationCharacters C
 			INNER JOIN evedata.crestTokens T ON T.characterID = C.characterID
@@ -113,9 +113,9 @@ func (s *Conservator) getMemberStatus(memberID string, entity int32) (string, er
 	return ref, nil
 }
 
-func (s *Conservator) getPlusFiveStatus(memberID string, entity int32) (string, error) {
+func (c *Conservator) getPlusFiveStatus(memberID string, entity int32) (string, error) {
 	ref := ""
-	if err := s.db.QueryRowx(`
+	if err := c.db.QueryRowx(`
 		SELECT characterName
 			FROM evedata.integrationCharacters C
 			INNER JOIN evedata.crestTokens T ON T.characterID = C.characterID
@@ -126,9 +126,9 @@ func (s *Conservator) getPlusFiveStatus(memberID string, entity int32) (string, 
 	return ref, nil
 }
 
-func (s *Conservator) getPlusTenStatus(memberID string, entity int32) (string, error) {
+func (c *Conservator) getPlusTenStatus(memberID string, entity int32) (string, error) {
 	ref := ""
-	if err := s.db.QueryRowx(`
+	if err := c.db.QueryRowx(`
 		SELECT characterName
 			FROM evedata.integrationCharacters C
 			INNER JOIN evedata.crestTokens T ON T.characterID = C.characterID
@@ -139,9 +139,9 @@ func (s *Conservator) getPlusTenStatus(memberID string, entity int32) (string, e
 	return ref, nil
 }
 
-func (s *Conservator) getMilitiaStatus(memberID string, militia int32) (string, error) {
+func (c *Conservator) getMilitiaStatus(memberID string, militia int32) (string, error) {
 	ref := ""
-	if err := s.db.QueryRowx(`
+	if err := c.db.QueryRowx(`
 		SELECT characterName
 			FROM evedata.integrationCharacters C
 			INNER JOIN evedata.crestTokens T ON T.characterID = C.characterID

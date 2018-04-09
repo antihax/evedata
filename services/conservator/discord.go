@@ -6,13 +6,13 @@ import (
 
 var dg *discordgo.Session
 
-func (s *Conservator) setupDiscord() (*discordgo.Session, error) {
-	d, err := discordgo.New("Bot " + s.discordToken)
+func (c *Conservator) setupDiscord() (*discordgo.Session, error) {
+	d, err := discordgo.New("Bot " + c.discordToken)
 	if err != nil {
 		return nil, err
 	}
-	d.AddHandler(s.discordMessageCreate)
-	d.AddHandler(s.discordGuildCreate)
+	d.AddHandler(c.discordMessageCreate)
+	d.AddHandler(c.discordGuildCreate)
 	return d, nil
 }
 

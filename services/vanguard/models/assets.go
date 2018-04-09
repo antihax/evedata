@@ -37,14 +37,14 @@ type AssetCharacters struct {
 	Sell          null.Float `db:"sell" json:"sell,omitempty"`
 }
 
-func GetAssetLocations(characterID int32, filterCharacterID int32) ([]AssetLocations, error) {
+func GetAssetLocations(characterID int32, ownerHash string, filterCharacterID int32) ([]AssetLocations, error) {
 	var filter string
 
 	if filterCharacterID == 0 {
-		filter = "IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)"
+		filter = "IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ? AND (characterOwnerHash = ? OR characterOwnerHash = ''))"
 	} else {
 		// False AST, forced int64.
-		filter = fmt.Sprintf("IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ? AND tokenCharacterID=%d)", filterCharacterID)
+		filter = fmt.Sprintf("IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ? AND (characterOwnerHash = ? OR characterOwnerHash = '') AND tokenCharacterID=%d)", filterCharacterID)
 	}
 
 	assetLocations := []AssetLocations{}
@@ -57,13 +57,13 @@ func GetAssetLocations(characterID int32, filterCharacterID int32) ([]AssetLocat
 		WHERE  A.characterID `+filter+`
 		GROUP BY A.locationID
 		ORDER BY sell DESC
-	`, characterID); err != nil {
+	`, characterID, ownerHash); err != nil {
 		return nil, err
 	}
 	return assetLocations, nil
 }
 
-func GetAssetCharacters(characterID int32) ([]AssetCharacters, error) {
+func GetAssetCharacters(characterID int32, ownerHash string) ([]AssetCharacters, error) {
 	assetCharacters := []AssetCharacters{}
 	if err := database.Select(&assetCharacters, `
 		SELECT  A.characterID, characterName, 
@@ -71,10 +71,10 @@ func GetAssetCharacters(characterID int32) ([]AssetCharacters, error) {
 		FROM evedata.assets A
 		JOIN evedata.jitaPrice P  ON A.typeID   = P.itemID
 		JOIN evedata.crestTokens C ON A.characterID = C.tokenCharacterID 
-		WHERE A.characterID IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)
+		WHERE A.characterID IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ? AND (characterOwnerHash = ? OR characterOwnerHash = ''))
 		GROUP BY A.characterID
 		ORDER BY sell DESC
-	`, characterID); err != nil {
+	`, characterID, ownerHash); err != nil {
 		return nil, err
 	}
 	return assetCharacters, nil
@@ -82,15 +82,15 @@ func GetAssetCharacters(characterID int32) ([]AssetCharacters, error) {
 
 // Obtain alliance information by ID.
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetAssets(characterID int32, filterCharacterID int32, locationID int64) ([]Assets, error) {
+func GetAssets(characterID int32, ownerHash string, filterCharacterID int32, locationID int64) ([]Assets, error) {
 
 	var filter string
 
 	if filterCharacterID == 0 {
-		filter = "IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)"
+		filter = "IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ? AND (characterOwnerHash = ? OR characterOwnerHash = ''))"
 	} else {
 		// False AST, forced int64.
-		filter = fmt.Sprintf("IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ? AND tokenCharacterID=%d)", filterCharacterID)
+		filter = fmt.Sprintf("IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ? AND (characterOwnerHash = ? OR characterOwnerHash = '') AND tokenCharacterID=%d)", filterCharacterID)
 	}
 
 	assets := []Assets{}
@@ -128,7 +128,7 @@ func GetAssets(characterID int32, filterCharacterID int32, locationID int64) ([]
 			AND A.locationID = ?
 		GROUP BY A.itemID
 		ORDER BY sell DESC
-	`, characterID, locationID); err != nil {
+	`, characterID, ownerHash, locationID); err != nil {
 		return nil, err
 	}
 

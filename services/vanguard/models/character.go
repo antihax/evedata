@@ -11,14 +11,14 @@ import (
 )
 
 // Obtain an authenticated client from a stored access/refresh token.
-func GetCRESTToken(characterID int32, tokenCharacterID int32) (*CRESTToken, error) {
+func GetCRESTToken(characterID int32, ownerHash string, tokenCharacterID int32) (*CRESTToken, error) {
 	tok := &CRESTToken{}
 	if err := database.QueryRowx(
 		`SELECT expiry, tokenType, accessToken, refreshToken, tokenCharacterID, characterID, characterName
 			FROM evedata.crestTokens
-			WHERE characterID = ? AND tokenCharacterID = ?
+			WHERE characterID = ? AND (characterOwnerHash = ? OR characterOwnerHash = "") AND tokenCharacterID = ?
 			LIMIT 1`,
-		characterID, tokenCharacterID).StructScan(tok); err != nil {
+		characterID, ownerHash, tokenCharacterID).StructScan(tok); err != nil {
 
 		return nil, err
 	}
@@ -100,18 +100,8 @@ func SetCursorCharacter(characterID int32, cursorCharacterID int32) error {
 	return nil
 }
 
-func SetTokenError(characterID int32, tokenCharacterID int32, code int, status string, req []byte, res []byte) error {
-	if _, err := database.Exec(`
-		UPDATE evedata.crestTokens SET lastCode = ?, lastStatus = ?, request = ?, response = ? 
-		WHERE characterID = ? AND tokenCharacterID = ? `,
-		code, status, req, res, characterID, tokenCharacterID); err != nil {
-		return err
-	}
-	return nil
-}
-
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func GetCRESTTokens(characterID int32) ([]CRESTToken, error) {
+func GetCRESTTokens(characterID int32, ownerHash string) ([]CRESTToken, error) {
 	tokens := []CRESTToken{}
 	if err := database.Select(&tokens, `
 		SELECT T.characterID, T.tokenCharacterID, characterName, lastCode, lastStatus, scopes, authCharacter, 
@@ -128,9 +118,9 @@ func GetCRESTTokens(characterID int32) ([]CRESTToken, error) {
 		LEFT OUTER JOIN evedata.sharing S ON T.tokenCharacterID = S.tokenCharacterID AND T.characterID = S.characterID
 		LEFT OUTER JOIN evedata.corporations C ON C.corporationID = S.entityID
 		LEFT OUTER JOIN evedata.alliances A ON A.allianceID = S.entityID
-		WHERE T.characterID = ?
+		WHERE T.characterID = ? AND (T.characterOwnerHash = ? OR T.characterOwnerHash = "")
 		GROUP BY characterID, tokenCharacterID;
-		;`, characterID); err != nil {
+		;`, characterID, ownerHash); err != nil {
 
 		return nil, err
 	}

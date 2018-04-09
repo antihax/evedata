@@ -79,7 +79,7 @@ func GetExpiredContactSyncs() ([]ExpiredContactSync, error) {
 		SELECT S.characterID, source, group_concat(destination) AS destinations
 			FROM evedata.contactSyncs S  
             INNER JOIN evedata.crestTokens T ON T.tokenCharacterID = destination
-            WHERE lastStatus NOT LIKE "%400 Bad Request%"
+            WHERE lastStatus != "invalid_token"
 		    GROUP BY source
             HAVING max(nextSync) < UTC_TIMESTAMP();`); err != nil {
 

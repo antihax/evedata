@@ -26,7 +26,7 @@ func mailNotifications(s *Artifice) error {
 
 	if err := s.db.QueryRowx(
 		`	SELECT characterID, tokenCharacterID, characterName, lastStatus FROM evedata.crestTokens
-			WHERE lastCode = 999 AND mailedError = 0 AND lastStatus LIKE "%invalid_token%"
+			WHERE lastCode = 999 AND mailedError = 0 AND lastStatus = "invalid_token"
 			LIMIT 1;`).StructScan(&recipient); err != nil {
 		// Ignore this error.
 		if strings.Contains(err.Error(), "no rows in result set") {

@@ -98,7 +98,7 @@ func accountInfo(w http.ResponseWriter, r *http.Request) {
 
 	accountInfo, ok := s.Values["accountInfo"].([]byte)
 	if !ok {
-		if err := updateAccountInfo(s, int32(characterID), char.CharacterName); err != nil {
+		if err := updateAccountInfo(s, int32(characterID), char.CharacterOwnerHash, char.CharacterName); err != nil {
 			httpErr(w, err)
 			return
 		}
@@ -144,7 +144,7 @@ func cursorChar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the account information in redis
-	if err = updateAccountInfo(s, characterID, char.CharacterName); err != nil {
+	if err = updateAccountInfo(s, characterID, char.CharacterOwnerHash, char.CharacterName); err != nil {
 		httpErr(w, err)
 		return
 	}
@@ -160,13 +160,14 @@ func apiGetCRESTTokens(w http.ResponseWriter, r *http.Request) {
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int32)
+	char, ok := s.Values["character"].(goesi.VerifyResponse)
 	if !ok {
-		httpErrCode(w, errors.New("could not find character ID for crest token"), http.StatusUnauthorized)
+		httpErrCode(w, errors.New("could not find character response"), http.StatusForbidden)
+		log.Printf("%+v\n", s.Values["character"])
 		return
 	}
 
-	v, err := models.GetCRESTTokens(characterID)
+	v, err := models.GetCRESTTokens(char.CharacterID, char.CharacterOwnerHash)
 	if err != nil {
 		httpErr(w, err)
 		return
@@ -213,7 +214,7 @@ func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = updateAccountInfo(s, characterID, char.CharacterName); err != nil {
+	if err = updateAccountInfo(s, characterID, char.CharacterOwnerHash, char.CharacterName); err != nil {
 		httpErr(w, err)
 		return
 	}

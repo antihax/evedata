@@ -111,7 +111,7 @@ func TestDeleteIntegrationToken(t *testing.T) {
 }
 
 func TestGetCRESTTokens(t *testing.T) {
-	dude, err := GetCRESTTokens(1)
+	dude, err := GetCRESTTokens(1, "ownerhash")
 	if err != nil {
 		t.Error(err)
 		return
@@ -123,21 +123,13 @@ func TestGetCRESTTokens(t *testing.T) {
 }
 
 func TestGetCRESTToken(t *testing.T) {
-	dude, err := GetCRESTToken(1, 1)
+	dude, err := GetCRESTToken(1, "ownerhash", 1)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 	if dude.CharacterName != "Dude" {
 		t.Error("Character name is not as stored")
-		return
-	}
-}
-
-func TestSetTokenError(t *testing.T) {
-	err := SetTokenError(1, 1, 200, "OK", nil, nil)
-	if err != nil {
-		t.Error(err)
 		return
 	}
 }

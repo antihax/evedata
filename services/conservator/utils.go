@@ -9,11 +9,11 @@ func (s *Conservator) getService(integrationID int32) (*Service, error) {
 	// Get the service
 	si, ok := s.services.Load(integrationID)
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("missing integrationID %d", integrationID))
+		return nil, fmt.Errorf("missing integrationID %d", integrationID)
 	}
 	service, ok := si.(Service)
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("missing integrationID %d", integrationID))
+		return nil, fmt.Errorf("missing integrationID %d", integrationID)
 	}
 	return &service, nil
 }
@@ -38,11 +38,11 @@ func (s *Conservator) getChannel(channelID string) (*Channel, error) {
 	// Get the service
 	si, ok := s.channels.Load(channelID)
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("missing channelID %s", channelID))
+		return nil, fmt.Errorf("missing channelID %s", channelID)
 	}
 	channel, ok := si.(Channel)
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("missing channelID %s", channelID))
+		return nil, fmt.Errorf("missing channelID %s", channelID)
 	}
 	return &channel, nil
 }

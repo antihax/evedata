@@ -4,7 +4,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// GobDecoder decode a []byte into a struct
+// GobDecoder decodes a []byte into a struct
 func GobDecoder(message []byte, s interface{}) error {
 	return bson.Unmarshal(message, s)
 }

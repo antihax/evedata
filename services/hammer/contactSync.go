@@ -272,7 +272,7 @@ func min(x, y int) int {
 	return y
 }
 
-// Entity denormalizes corporations, alliance, and characters
+// ContactEntity denormalizes corporations, alliance, and characters
 type ContactEntity struct {
 	ID   int64
 	Type string

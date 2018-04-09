@@ -132,8 +132,8 @@ CREATE TABLE `corporations` (
 CREATE TABLE `crestTokens` (
   `characterID` int(11) NOT NULL,
   `tokenCharacterID` int(11) NOT NULL,
-  `characterOwnerHash` varchar(255) NOT NULL DEFAULT '',
-  `accessToken` text CHARACTER SET latin1 NOT NULL,
+  `characterOwnerHash` varchar(32) NOT NULL DEFAULT '',
+  `accessToken` varchar(100) CHARACTER SET latin1 NOT NULL,
   `refreshToken` text CHARACTER SET latin1 NOT NULL,
   `expiry` datetime NOT NULL,
   `tokenType` varchar(100) CHARACTER SET latin1 NOT NULL,
@@ -149,7 +149,7 @@ CREATE TABLE `crestTokens` (
   `corporationID` int(11) NOT NULL DEFAULT '0',
   `allianceID` int(11) NOT NULL DEFAULT '0',
   `factionID` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`characterID`,`tokenCharacterID`),
+  PRIMARY KEY (`characterID`,`tokenCharacterID`,`characterOwnerHash`),
   KEY `tokenCharacterID` (`tokenCharacterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -379,7 +379,7 @@ CREATE TABLE `lpOffers` (
   KEY `lpOffers_typeid` (`typeID`),
   KEY `lpOffers_corporation` (`corporationID`),
   KEY `lpOffers_corp_type` (`corporationID`,`typeID`)
-) ENGINE=InnoDB AUTO_INCREMENT=16340 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=16341 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `market` (
   `orderID` bigint(11) unsigned NOT NULL DEFAULT '0',

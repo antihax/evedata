@@ -150,6 +150,7 @@ func (s *Artifice) findRelationships(rows *sql.Rows, associationType uint8) erro
 	return nil
 }
 
+// SplitToInt splits a csv into []int
 func SplitToInt(list string) []int {
 	a := strings.Split(list, ",")
 	b := make([]int, len(a))

@@ -65,6 +65,9 @@ func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string,
 	}
 
 	charID, err := strconv.Atoi(refreshCharID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	// Build our token
 	token, err := auth.TokenSource(tok)
@@ -183,7 +186,7 @@ func (s *Artifice) doSQLTranq(stmt string, args ...interface{}) error {
 	return nil
 }
 
-// Retry the exec until we get no error (deadlocks) and no results are returned
+// RetryExecTillNoRows retries the exec until we get no error (deadlocks) and no results are returned
 func (s *Artifice) RetryExecTillNoRows(sql string, args ...interface{}) error {
 	for {
 		rows, err := s.RetryExec(sql, args...)
@@ -197,7 +200,7 @@ func (s *Artifice) RetryExecTillNoRows(sql string, args ...interface{}) error {
 	return nil
 }
 
-// Retry the exec until we get no error (deadlocks)
+// RetryExec retries the exec until we get no error (deadlocks)
 func (s *Artifice) RetryExec(sql string, args ...interface{}) (int64, error) {
 	var rows int64
 	for {
@@ -222,7 +225,7 @@ func (s *Artifice) GetCharactersForScope(scope string) ([]CharacterPairs, error)
 	pairs := []CharacterPairs{}
 	err := s.db.Select(&pairs,
 		`SELECT characterID, tokenCharacterID FROM evedata.crestTokens T
-			WHERE lastStatus NOT LIKE "%400 Bad Request%" AND scopes LIKE ?`, "%"+scope+"%")
+			WHERE lastStatus != "invalid_token" AND scopes LIKE ?`, "%"+scope+"%")
 	return pairs, err
 }
 
@@ -230,7 +233,7 @@ func (s *Artifice) GetAllianceForScope(scope string) ([]CharacterPairs, error) {
 	pairs := []CharacterPairs{}
 	err := s.db.Select(&pairs,
 		`SELECT characterID, tokenCharacterID, allianceID, corporationID FROM evedata.crestTokens T
-			WHERE lastStatus NOT LIKE "%400 Bad Request%" AND scopes LIKE ? AND allianceID > 0
+			WHERE lastStatus != "invalid_token" AND scopes LIKE ? AND allianceID > 0
 			GROUP BY allianceID
 			`, "%"+scope+"%")
 	return pairs, err
@@ -240,7 +243,7 @@ func (s *Artifice) GetCorporationForScope(scope string) ([]CharacterPairs, error
 	pairs := []CharacterPairs{}
 	err := s.db.Select(&pairs,
 		`SELECT characterID, tokenCharacterID, allianceID, corporationID FROM evedata.crestTokens T
-			WHERE lastStatus NOT LIKE "%400 Bad Request%" AND scopes LIKE ? 
+			WHERE lastStatus != "invalid_token" AND scopes LIKE ? 
 			GROUP BY corporationID
 			`, "%"+scope+"%")
 	return pairs, err

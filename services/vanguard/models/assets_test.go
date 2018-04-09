@@ -38,12 +38,12 @@ func TestAssetSetup(t *testing.T) {
 }
 
 func TestGetAssetLocations(t *testing.T) {
-	_, err := GetAssetLocations(1001, 1)
+	_, err := GetAssetLocations(1001, "ownerhash", 1)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	_, err = GetAssetLocations(1001, 0)
+	_, err = GetAssetLocations(1001, "ownerhash", 0)
 	if err != nil {
 		t.Error(err)
 		return
@@ -51,7 +51,7 @@ func TestGetAssetLocations(t *testing.T) {
 }
 
 func TestGetAssetCharacters(t *testing.T) {
-	_, err := GetAssetCharacters(1)
+	_, err := GetAssetCharacters(1, "ownerhash")
 	if err != nil {
 		t.Error(err)
 		return
@@ -59,7 +59,7 @@ func TestGetAssetCharacters(t *testing.T) {
 }
 
 func TestGetAsset(t *testing.T) {
-	data, err := GetAssets(1001, 0, 60012526)
+	data, err := GetAssets(1001, "ownerhash", 0, 60012526)
 	if err != nil {
 		t.Error(err)
 		return
@@ -82,7 +82,7 @@ func TestGetAsset(t *testing.T) {
 		return
 	}
 
-	data, err = GetAssets(1001, 1001, 60012526)
+	data, err = GetAssets(1001, "ownerhash", 1001, 60012526)
 	if err != nil {
 		t.Error(err)
 		return

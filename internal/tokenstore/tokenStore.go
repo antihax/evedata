@@ -9,7 +9,6 @@ import (
 
 	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/goesi"
-	"github.com/antihax/goesi/esi"
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 	"golang.org/x/oauth2"
@@ -29,53 +28,6 @@ func NewTokenStore(redis *redis.Pool, db *sqlx.DB, auth *goesi.SSOAuthenticator)
 	return t
 }
 
-// GetToken retreives a token from storage
-func (c *TokenStore) GetToken(characterID int32, tokenCharacterID int32) (*oauth2.Token, error) {
-	t, err := c.getTokenFromCache(characterID, tokenCharacterID)
-	if err != nil || t == nil {
-		t, err = c.getTokenFromDB(characterID, tokenCharacterID)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if t.Expiry.Before(time.Now().Add(time.Minute)) {
-		a, err := c.auth.TokenSource(t)
-		if err != nil {
-			c.TokenError(characterID, tokenCharacterID, 999, err.Error())
-			return nil, err
-		}
-		token, err := a.Token()
-		if err != nil {
-			c.TokenError(characterID, tokenCharacterID, 999, err.Error())
-			return nil, err
-		}
-		c.setTokenToCache(characterID, tokenCharacterID, token)
-		c.updateTokenToDB(characterID, tokenCharacterID, token)
-
-		tok := &oauth2.Token{
-			Expiry:       token.Expiry,
-			AccessToken:  token.AccessToken,
-			RefreshToken: token.RefreshToken,
-			TokenType:    token.TokenType,
-		}
-		c.TokenSuccess(characterID, tokenCharacterID)
-		return tok, nil
-	}
-
-	return t, nil
-}
-
-// SetToken a token to storage
-func (c *TokenStore) SetToken(characterID int32, tokenCharacterID int32, token *oauth2.Token) error {
-	err := c.setTokenToCache(characterID, tokenCharacterID, token)
-	if err != nil {
-		return err
-	}
-
-	return c.updateTokenToDB(characterID, tokenCharacterID, token)
-}
-
 // GetTokenSource retreives a token from storage and returns a token source
 func (c *TokenStore) GetTokenSource(characterID int32, tokenCharacterID int32) (oauth2.TokenSource, error) {
 	t, err := c.getTokenFromCache(characterID, tokenCharacterID)
@@ -88,27 +40,48 @@ func (c *TokenStore) GetTokenSource(characterID int32, tokenCharacterID int32) (
 
 	a, err := c.auth.TokenSource(t)
 	if err != nil {
-		c.TokenError(characterID, tokenCharacterID, 999, err.Error())
+		c.CheckSSOError(characterID, tokenCharacterID, err)
 		return nil, err
 	}
 
 	if t.Expiry.Before(time.Now().Add(-time.Minute)) {
 		token, err := a.Token()
 		if err != nil {
-			c.invalidateTokenCache(characterID, tokenCharacterID)
-			c.TokenError(characterID, tokenCharacterID, 999, err.Error())
+			if err := c.invalidateTokenCache(characterID, tokenCharacterID); err != nil {
+				log.Println(err)
+			}
+			c.CheckSSOError(characterID, tokenCharacterID, err)
 			return nil, err
 		}
-		c.setTokenToCache(characterID, tokenCharacterID, token)
-		c.updateTokenToDB(characterID, tokenCharacterID, token)
-		c.TokenSuccess(characterID, tokenCharacterID)
+
+		// Run in the background
+		go func(characterID int32, tokenCharacterID int32, token *oauth2.Token) {
+			if err := c.setTokenToCache(characterID, tokenCharacterID, token); err != nil {
+				log.Println(err)
+			}
+			if err := c.updateTokenToDB(characterID, tokenCharacterID, token); err != nil {
+				log.Println(err)
+			}
+			if err := c.tokenSuccess(characterID, tokenCharacterID); err != nil {
+				log.Println(err)
+			}
+		}(characterID, tokenCharacterID, token)
 	}
 
 	return a, err
 }
 
-func (c *TokenStore) getTokenFromDB(characterID int32, tokenCharacterID int32) (*oauth2.Token, error) {
+// SetToken a token to storage
+func (c *TokenStore) SetToken(characterID int32, tokenCharacterID int32, token *oauth2.Token) error {
+	err := c.setTokenToCache(characterID, tokenCharacterID, token)
+	if err != nil {
+		return err
+	}
 
+	return c.updateTokenToDB(characterID, tokenCharacterID, token)
+}
+
+func (c *TokenStore) getTokenFromDB(characterID int32, tokenCharacterID int32) (*oauth2.Token, error) {
 	type CRESTToken struct {
 		Expiry       time.Time `db:"expiry" json:"expiry,omitempty"`
 		TokenType    string    `db:"tokenType" json:"tokenType,omitempty"`
@@ -212,7 +185,7 @@ func (c *TokenStore) updateTokenToDB(characterID int32, tokenCharacterID int32, 
 	return err
 }
 
-func (c *TokenStore) TokenError(characterID int32, tokenCharacterID int32, code int, status string) error {
+func (c *TokenStore) tokenError(characterID int32, tokenCharacterID int32, code int, status string) error {
 	if _, err := c.db.Exec(`
 		UPDATE evedata.crestTokens SET lastCode = ?, lastStatus = ?
 		WHERE characterID = ? AND tokenCharacterID = ?`,
@@ -222,7 +195,7 @@ func (c *TokenStore) TokenError(characterID int32, tokenCharacterID int32, code 
 	return nil
 }
 
-func (c *TokenStore) TokenSuccess(characterID int32, tokenCharacterID int32) error {
+func (c *TokenStore) tokenSuccess(characterID int32, tokenCharacterID int32) error {
 	if _, err := c.db.Exec(`
 		UPDATE evedata.crestTokens SET lastCode = ?, lastStatus = ?
 		WHERE characterID = ? AND tokenCharacterID = ?`,
@@ -232,26 +205,29 @@ func (c *TokenStore) TokenSuccess(characterID int32, tokenCharacterID int32) err
 	return nil
 }
 
+// CheckSSOError determines if the error was an oauth2 error, and updates the character in the database
 func (c *TokenStore) CheckSSOError(characterID int32, tokenCharacterID int32, in error) bool {
-	e, ok := in.(esi.GenericSwaggerError)
+	e, ok := in.(*oauth2.RetrieveError)
 	if ok {
 		type ssoerror struct {
 			Error   string `json:"error"`
-			Message string `json:"message"`
+			Message string `json:"error_description"`
 		}
 		message := ssoerror{}
 
 		// See if we can unmarshal the body.
-		err := json.Unmarshal(e.Body(), &message)
-		if err != nil {
+		if err := json.Unmarshal(e.Body, &message); err != nil {
+			log.Printf("SSO could not unmarshal %v\n", err)
 			return false
 		}
 
 		// Store the error message
-		c.TokenError(characterID, tokenCharacterID, 999, message.Error)
+		if err := c.tokenError(characterID, tokenCharacterID, 999, message.Error); err != nil {
+			log.Println(err)
+		}
 		log.Printf("SSO Error: %s: %s", message.Error, message.Message)
 		return true
-
 	}
+	log.Printf("not SSO error: %#v\n", in)
 	return false
 }

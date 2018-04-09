@@ -185,7 +185,7 @@ func eveSSOAnswer(w http.ResponseWriter, r *http.Request) {
 	s.Values["token"] = tok
 	s.Values["state"] = ""
 
-	if err = updateAccountInfo(s, v.CharacterID, v.CharacterName); err != nil {
+	if err = updateAccountInfo(s, v.CharacterID, v.CharacterOwnerHash, v.CharacterName); err != nil {
 		log.Println(err)
 		httpErr(w, err)
 		return
@@ -208,13 +208,14 @@ type accountInformation struct {
 	Cursor        models.CursorCharacter `json:"cursor"`
 }
 
-func updateAccountInfo(s *sessions.Session, characterID int32, characterName string) error {
+func updateAccountInfo(s *sessions.Session, characterID int32, ownerHash, characterName string) error {
 	var err error
 	a := accountInformation{}
 
 	a.CharacterName = characterName
 	a.CharacterID = characterID
-	a.Characters, err = models.GetCRESTTokens(characterID)
+
+	a.Characters, err = models.GetCRESTTokens(characterID, ownerHash)
 	if err != nil {
 		log.Println(err)
 	}
@@ -305,7 +306,7 @@ func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	charDetails, _, err := c.ESI.ESI.CharacterApi.GetCharactersCharacterId(context.Background(), v.CharacterID, nil)
-	if !ok {
+	if !ok || err != nil {
 		httpErr(w, errors.New("cannot find character in store"))
 		return
 	}
@@ -337,7 +338,7 @@ func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err = updateAccountInfo(s, char.CharacterID, char.CharacterName); err != nil {
+	if err = updateAccountInfo(s, char.CharacterID, char.CharacterOwnerHash, char.CharacterName); err != nil {
 		log.Println(err)
 		httpErr(w, err)
 		return

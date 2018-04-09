@@ -49,14 +49,6 @@ func TestTokenStore(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	token, err := ts.GetToken(133, 133)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if token.AccessToken != "really fake" {
-		t.Fatal("Token is incorrect 1")
-	}
-
 	err = ts.SetToken(133, 133, &oauth2.Token{
 		RefreshToken: "fake",
 		AccessToken:  "really very fake",
@@ -82,11 +74,5 @@ func TestTokenStore(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	token, err = ts.GetToken(133, 133)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if token.AccessToken != "really very fake" {
-		t.Fatal("Token is incorrect 3")
-	}
+
 }

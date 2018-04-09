@@ -1,12 +1,13 @@
 package botservice
 
+// Name returns internal ID, name, and roles from endpoints
 type Name struct {
 	ID    string
 	Name  string
 	Roles []string
 }
 
-// AuthService provides access to an authenticated service
+// Integration provides access to an authenticated service
 type Integration interface {
 	SendMessageToChannel(channel, message string) error
 	SendMessageToUser(user, message string) error

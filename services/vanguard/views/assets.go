@@ -12,6 +12,7 @@ import (
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
 	"github.com/antihax/evedata/services/vanguard/templates"
+	"github.com/antihax/goesi"
 )
 
 func init() {
@@ -39,14 +40,14 @@ func assetCharactersAPI(w http.ResponseWriter, r *http.Request) {
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int32)
+	ch, ok := s.Values["character"].(goesi.VerifyResponse)
 	if !ok {
 		log.Println(err)
 		httpErrCode(w, errors.New("could not find character ID for assets"), http.StatusUnauthorized)
 		return
 	}
 
-	v, err := models.GetAssetCharacters(characterID)
+	v, err := models.GetAssetCharacters(ch.CharacterID, ch.CharacterOwnerHash)
 	if err != nil {
 		log.Println(err)
 		httpErr(w, err)
@@ -62,7 +63,7 @@ func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int32)
+	ch, ok := s.Values["character"].(goesi.VerifyResponse)
 	if !ok {
 		httpErrCode(w, errors.New("could not find character ID for asset locations"), http.StatusUnauthorized)
 		return
@@ -80,7 +81,7 @@ func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	v, err := models.GetAssetLocations(characterID, (int32)(filterCharacterID))
+	v, err := models.GetAssetLocations(ch.CharacterID, ch.CharacterOwnerHash, (int32)(filterCharacterID))
 	if err != nil {
 		log.Println(err)
 		httpErr(w, err)
@@ -101,7 +102,7 @@ func assetsAPI(w http.ResponseWriter, r *http.Request) {
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int32)
+	ch, ok := s.Values["character"].(goesi.VerifyResponse)
 	if !ok {
 		httpErrCode(w, errors.New("could not find character ID for asset API"), http.StatusUnauthorized)
 		return
@@ -129,7 +130,7 @@ func assetsAPI(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	v, err := models.GetAssets(characterID, filterCharacterID, locationID)
+	v, err := models.GetAssets(ch.CharacterID, ch.CharacterOwnerHash, filterCharacterID, locationID)
 	if err != nil {
 		log.Println(err)
 		httpErr(w, err)

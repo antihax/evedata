@@ -21,17 +21,17 @@ func init() {
 }
 
 func characterTransactions(s *Artifice) error {
-	work := []redisqueue.Work{}
+
 	if pairs, err := s.GetCharactersForScope("read_character_wallet"); err != nil {
 		return err
 	} else {
+		work := []redisqueue.Work{}
 		for _, p := range pairs {
 			work = append(work, redisqueue.Work{Operation: "characterWalletTransactions", Parameter: []int32{p.CharacterID, p.TokenCharacterID}})
 			work = append(work, redisqueue.Work{Operation: "characterWalletJournal", Parameter: []int32{p.CharacterID, p.TokenCharacterID}})
 		}
+		return s.QueueWork(work, redisqueue.Priority_Normal)
 	}
-
-	return s.QueueWork(work, redisqueue.Priority_Normal)
 }
 
 func characterAssets(s *Artifice) error {
@@ -91,7 +91,7 @@ func characterContactSync(s *Artifice) error {
 		`SELECT S.characterID, source, group_concat(destination) AS destinations
 		FROM evedata.contactSyncs S
 		INNER JOIN evedata.crestTokens T ON T.tokenCharacterID = destination
-		WHERE lastStatus NOT LIKE "%400 Bad Request%" AND scopes LIKE ?
+		WHERE lastStatus != "invalid_token" AND scopes LIKE ?
 		GROUP BY source
 		HAVING max(nextSync) < UTC_TIMESTAMP();`, "%characters.read_contacts%")
 	if err != nil {
