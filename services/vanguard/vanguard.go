@@ -146,5 +146,12 @@ func (s *Vanguard) RPCall(method string, in interface{}, out interface{}) error 
 func (s *Vanguard) RPCConnect() error {
 	var err error
 	s.Conservator, err = rpc.DialHTTP("tcp", "conservator.evedata:3001")
-	return err
+	if err != nil {
+		s.Conservator, err = rpc.DialHTTP("tcp", "conservator.evedata:32003")
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
