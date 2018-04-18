@@ -71,6 +71,18 @@ func (c *TokenStore) GetTokenSource(characterID int32, tokenCharacterID int32) (
 	return a, err
 }
 
+// GetTokenSource retreives a token from storage and returns a token
+func (c *TokenStore) GetToken(characterID int32, tokenCharacterID int32) (*oauth2.Token, error) {
+	// Get a token and refresh if needed
+	t, err := c.GetTokenSource(characterID, tokenCharacterID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return the current token
+	return t.Token()
+}
+
 // SetToken a token to storage
 func (c *TokenStore) SetToken(characterID int32, tokenCharacterID int32, token *oauth2.Token) error {
 	err := c.setTokenToCache(characterID, tokenCharacterID, token)

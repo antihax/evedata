@@ -38,3 +38,31 @@ func CreateHTTPClientCache(cache *redis.Pool) *http.Client {
 	}
 	return client
 }
+
+// CreateHTTPClientCache creates an error limiting client with auto retry and no cache
+func CreateHTTPClient() *http.Client {
+	// Create a Redis http client for the CCP APIs.
+
+	// Attach a basic transport with our chained custom transport.
+	t := &transport{
+		&http.Transport{
+			MaxIdleConns: 200,
+			DialContext: (&net.Dialer{
+				Timeout:   10 * time.Second,
+				KeepAlive: 5 * 60 * time.Second,
+				DualStack: true,
+			}).DialContext,
+			IdleConnTimeout:       5 * 60 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ResponseHeaderTimeout: 15 * time.Second,
+			ExpectContinueTimeout: 0,
+			MaxIdleConnsPerHost:   20,
+		},
+	}
+
+	client := &http.Client{Transport: t}
+	if client == nil {
+		panic("http client is null")
+	}
+	return client
+}

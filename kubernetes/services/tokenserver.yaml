@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tokenserver
+  namespace: evedata
+spec:
+  selector:
+    app: tokenserver
+  ports:
+  - name: tokenserver
+    protocol: TCP
+    port: 3002
+    targetPort: 3002
+    nodePort: 32004
+  type: NodePort
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: evedata-tokenserver
+  namespace: evedata
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: evedata-tokenserver
+      labels:
+        app: tokenserver
+      annotations:
+        prometheus.io/scrape: "true"
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - tokenserver
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: evedata-tokenserver
+        image: antihax/evedata-tokenserver
+        imagePullPolicy: Always
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-password
+              key: password
+        - name: ESI_SECRET_TOKENSTORE
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: secret-tokenstore
+        - name: ESI_CLIENTID_TOKENSTORE
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: clientID-tokenstore
+        - name: SQLAUTH
+          valueFrom:
+            secretKeyRef:
+              name: sql-password
+              key: sqlauth
+        ports:
+        - containerPort: 3000
+        - containerPort: 3002
+        volumeMounts:
+        - mountPath: /etc/ssl/certs
+          name: ca-certs
+      volumes:
+      - name: ca-certs
+        hostPath:
+          path: /etc/ssl/certs
+          type: Directory
