@@ -31,6 +31,10 @@ var characterScopes = []ScopeGroup{
 	{"esi-characters.read_titles.v1", "roles"},
 	{"esi-alliances.read_contacts.v1", "roles"},
 	{"esi-corporations.read_contacts.v1", "roles"},
+
+	{"esi-mail.send_mail.v1", "evemail"},
+	{"esi-mail.read_mail.v1", "evemail"},
+	{"esi-mail.organize_mail.v1", "evemail"},
 }
 
 var groupReasons = map[string]string{
@@ -41,6 +45,7 @@ var groupReasons = map[string]string{
 	"ui-control":    "Control of in-game UI",
 	"notifications": "Notification tools (locators, structures, wars)",
 	"roles":         "Corporation services based on corp roles",
+	"evemail":       "EVE Mail Proxy Service",
 }
 
 // shareReasons for data shares between characters and entities
