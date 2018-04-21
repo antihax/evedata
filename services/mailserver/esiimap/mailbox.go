@@ -3,6 +3,7 @@ package esiimap
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -38,6 +39,45 @@ func (mbox *Mailbox) Info() (*imap.MailboxInfo, error) {
 		Name:      mbox.name,
 	}
 	return info, nil
+}
+
+func (mbox *Mailbox) getMailUIDSince(since time.Time) ([]uint32, error) {
+	var allMails []uint32
+	lastMailID := int64(2147483647)
+
+	auth := context.WithValue(context.Background(), goesi.ContextOAuth2, mbox.user.token)
+	for {
+		mails, _, err := mbox.user.backend.esi.ESI.MailApi.GetCharactersCharacterIdMail(
+			auth,
+			mbox.user.characterID,
+			&esi.GetCharactersCharacterIdMailOpts{
+				Labels:     optional.NewInterface([]int32{mbox.id}),
+				LastMailId: optional.NewInt64(lastMailID),
+			},
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// breakout if this was the last page
+		if len(mails) == 0 {
+			break
+		}
+
+		// Find the last ID and consolidate mails
+		for _, m := range mails {
+			if m.MailId < lastMailID {
+				lastMailID = m.MailId
+			}
+			if m.Timestamp.After(since) {
+				allMails = append(allMails, uint32(m.MailId))
+			} else {
+				return allMails, nil
+			}
+		}
+	}
+
+	return allMails, nil
 }
 
 func (mbox *Mailbox) getMailHeaders(start int64, end int64) ([]esi.GetCharactersCharacterIdMail200Ok, error) {
@@ -109,7 +149,7 @@ func (mbox *Mailbox) Status(items []imap.StatusItem) (*imap.MailboxStatus, error
 	for _, name := range items {
 		switch name {
 		case imap.StatusMessages:
-			status.Messages = messages
+			status.Messages = nextuid // Hack for Win10 Mail Client
 		case imap.StatusUidNext:
 			status.UidNext = nextuid
 		case imap.StatusUidValidity:
@@ -150,13 +190,18 @@ func (mbox *Mailbox) ListMessages(uid bool, seqSet *imap.SeqSet, items []imap.Fe
 					return
 				}
 				for _, m := range mails {
-					i := imap.NewMessage(uint32(m.MailId), items)
-					err := mbox.fetchMessage(&m, i, uint32(m.MailId), items)
-					if err != nil {
-						log.Println(err)
-						continue
-					}
-					ch <- i
+					sem <- true
+					wg.Add(1)
+					go func(m *esi.GetCharactersCharacterIdMail200Ok) {
+						defer func() { wg.Done(); <-sem }()
+						i := imap.NewMessage(uint32(m.MailId), items)
+						err := mbox.fetchMessage(m, i, uint32(m.MailId), items)
+						if err != nil {
+							log.Println(err)
+							return
+						}
+						ch <- i
+					}(&m)
 				}
 			}
 		}(seq)
@@ -167,8 +212,15 @@ func (mbox *Mailbox) ListMessages(uid bool, seqSet *imap.SeqSet, items []imap.Fe
 
 func (mbox *Mailbox) fetchMessage(m *esi.GetCharactersCharacterIdMail200Ok, i *imap.Message, seqNum uint32, items []imap.FetchItem) error {
 	for _, item := range items {
-		switch item {
+		n, e, err := mbox.makeFakeHeader(m)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
 
+		switch item {
+		case imap.FetchEnvelope:
+			i.Envelope, _ = backendutil.FetchEnvelope(e.Header)
 		case imap.FetchFlags:
 			i.Flags = []string{}
 			if m.IsRead {
@@ -176,9 +228,18 @@ func (mbox *Mailbox) fetchMessage(m *esi.GetCharactersCharacterIdMail200Ok, i *i
 			}
 		case imap.FetchInternalDate:
 			i.InternalDate = m.Timestamp
-
+		case imap.FetchRFC822Size:
+			i.Size = uint32(n) // We're lying
 		case imap.FetchUid:
 			i.Uid = uint32(seqNum)
+		case imap.FetchRFC822Header:
+			section, err := imap.ParseBodySectionName(item)
+			if err != nil {
+				log.Println(err)
+				break
+			}
+			l, _ := backendutil.FetchBodySection(e, section)
+			i.Body[section] = l
 		default:
 			return mbox.fetchWholeMessage(i, seqNum, items)
 		}
@@ -233,6 +294,51 @@ func (mbox *Mailbox) fetchWholeMessage(i *imap.Message, seqNum uint32, items []i
 	}
 
 	return nil
+}
+
+func (mbox *Mailbox) makeFakeHeader(m *esi.GetCharactersCharacterIdMail200Ok) (int, *message.Entity, error) {
+	// Make a list of all IDs and a map to the resulting array
+	idMap := make(map[int32]int)
+	ids := []int32{m.From}
+	seen := make(map[int32]bool)
+	idMap[m.From] = 0
+	seen[m.From] = true
+	i := 0
+	for _, r := range m.Recipients {
+		if !seen[r.RecipientId] && r.RecipientType != "mailing_list" {
+			i++
+			ids = append(ids, r.RecipientId)
+			idMap[r.RecipientId] = i
+			seen[r.RecipientId] = true
+		}
+	}
+
+	// Lookup IDs to names
+	names, _, err := mbox.user.backend.lookupAddresses(ids)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	// Build the To list
+	to := []string{}
+	for _, r := range m.Recipients {
+		to = append(to, fmt.Sprintf("%s <%d>", names[idMap[r.RecipientId]], r.RecipientId))
+	}
+
+	// Build our fake mail
+	s := fmt.Sprintf(`From: %s <%d>
+To: %s
+Subject: %s
+Date: %s
+Message-ID: <%d@evedata.org/>
+Content-Type: text/plain
+
+
+Nothing here i'm afraid
+`, names[idMap[m.From]], m.From, strings.Join(to, "; "), m.Subject, m.Timestamp.Format(time.RFC822Z), m.MailId)
+
+	e, err := message.Read(bytes.NewReader([]byte(s)))
+	return len(s), e, err
 }
 
 func (mbox *Mailbox) makeFakeBody(m *esi.GetCharactersCharacterIdMailMailIdOk, id int64) (int, *message.Entity, error) {
@@ -298,11 +404,17 @@ func (mbox *Mailbox) Check() error {
 	return nil
 }
 func (mbox *Mailbox) SearchMessages(uid bool, criteria *imap.SearchCriteria) ([]uint32, error) {
-	return nil, nil
+	if !criteria.Since.IsZero() {
+		uid, err := mbox.getMailUIDSince(criteria.Since)
+		fmt.Printf("%v\n", uid)
+		return uid, err
+	}
+
+	return nil, errors.New("not supported")
 }
 
 func (mbox *Mailbox) CreateMessage(flags []string, date time.Time, body imap.Literal) error {
-	return nil
+	return errors.New("not supported")
 }
 
 func (mbox *Mailbox) UpdateMessagesFlags(uid bool, seqset *imap.SeqSet, op imap.FlagsOp, flags []string) error {
