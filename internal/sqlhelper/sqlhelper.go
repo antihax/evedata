@@ -8,7 +8,18 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	"golang.org/x/crypto/bcrypt"
 )
+
+func Hash(pwd string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(pwd), 10)
+	return string(hash), err
+}
+
+func CompareHash(pwd string, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(pwd))
+	return err == nil
+}
 
 func NewTestDatabase() *sqlx.DB {
 	database, err := setupDatabase("mysql", "root@tcp(127.0.0.1:3306)/eve?allowOldPasswords=1&parseTime=true")

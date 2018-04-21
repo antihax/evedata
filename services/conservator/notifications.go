@@ -195,7 +195,7 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 			return err
 		}
 
-		message := fmt.Sprintf("@everyone  [%s](https://www.evedata.org/%s?id=%d) just declared war on [%s](https://www.evedata.org/%s?id=%d)\n",
+		message := fmt.Sprintf("[%s](https://www.evedata.org/%s?id=%d) just declared war on [%s](https://www.evedata.org/%s?id=%d)\n",
 			attacker.Name, attacker.EntityType, l.DeclaredByID, defender.Name, defender.EntityType, l.AgainstID)
 
 		return s.sendNotificationMessage("war", characterID, notificationID, message)
@@ -239,7 +239,7 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 			return err
 		}
 
-		message := fmt.Sprintf("@everyone a structure is under attack in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%  A: %.1f%%  H: %.1f%% \n",
+		message := fmt.Sprintf("A structure is under attack in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%  A: %.1f%%  H: %.1f%% \n",
 			systemName, attackerName, attackerType, attacker, l.ShieldValue*100, l.ArmorValue*100, l.HullValue*100)
 
 		return s.sendNotificationMessage("structure", characterID, notificationID, message)
@@ -318,7 +318,7 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 			log.Println(err)
 			return err
 		}
-		message := fmt.Sprintf("@everyone  %s is under attack at %s in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%  A: %.1f%%  H: %.1f%% \n",
+		message := fmt.Sprintf(" %s is under attack at %s in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%  A: %.1f%%  H: %.1f%% \n",
 			structureType, locationName, systemName, attackerName.Name, attackerType, attacker, l.ShieldValue*100, l.ArmorValue*100, l.HullValue*100)
 
 		return s.sendNotificationMessage("structure", characterID, notificationID, message)
@@ -358,7 +358,7 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 			return err
 		}
 
-		message := fmt.Sprintf("@everyone %s was reinforced at %s in %s by [%s](https://www.evedata.org/%s?id=%d).\n\n Timer expires at %s\n",
+		message := fmt.Sprintf("%s was reinforced at %s in %s by [%s](https://www.evedata.org/%s?id=%d).\n\n Timer expires at %s\n",
 			structureType, locationName, systemName, attackerName.Name, attackerType, attacker,
 			time.Unix(datapackages.WintoUnixTimestamp(l.ReinforceExitTime), 0).UTC().String())
 
@@ -380,7 +380,7 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 			return err
 		}
 
-		message := fmt.Sprintf("@everyone %s entered %s in %s: Timer expires at %s\n",
+		message := fmt.Sprintf("%s entered %s in %s: Timer expires at %s\n",
 			structureType, notificationType, systemName,
 			time.Unix(datapackages.WintoUnixTimestamp(l.Timestamp), 0).UTC().String())
 

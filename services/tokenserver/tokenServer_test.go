@@ -9,6 +9,7 @@ import (
 	"github.com/antihax/evedata/internal/msgpackcodec"
 	"github.com/antihax/evedata/internal/redigohelper"
 	"github.com/antihax/evedata/internal/sqlhelper"
+	"github.com/antihax/evedata/internal/tokenstore"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
@@ -52,6 +53,6 @@ func TestTokens(t *testing.T) {
 	assert.NotNil(t, r)
 
 	token := oauth2.Token{}
-	err = r.Invoke(context.Background(), "/TokenStore/GetToken", &TokenRequest{CharacterID: 555, TokenCharacterID: 555}, &token)
+	err = r.Invoke(context.Background(), "/TokenStore/GetToken", &tokenstore.TokenRequest{CharacterID: 555, TokenCharacterID: 555}, &token)
 	assert.Nil(t, err)
 }

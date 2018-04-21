@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/antihax/evedata/internal/gobcoder"
@@ -245,4 +246,69 @@ func (hq *RedisQueue) SetWorkExpire(key string, id int64, seconds int) error {
 	defer conn.Close()
 	_, err := conn.Do("SETEX", fmt.Sprintf("%s:%d", key, id), seconds, true)
 	return err
+}
+
+// SetCache takes a key and sets the string for the ID
+func (hq *RedisQueue) SetCache(key string, id int32, value string) error {
+	conn := hq.redisPool.Get()
+	defer conn.Close()
+	_, err := conn.Do("SET", key+strconv.FormatInt(int64(id), 10), value)
+	return err
+}
+
+// GetCache takes a key and gets the string for the ID
+func (hq *RedisQueue) GetCache(key string, id int32) (string, error) {
+	conn := hq.redisPool.Get()
+	defer conn.Close()
+	return redis.String(conn.Do("GET", key+strconv.FormatInt(int64(id), 10)))
+}
+
+// SetCacheInBulk takes keys and sets the strings for the ID
+func (hq *RedisQueue) SetCacheInBulk(key string, ids []int32, strings []string) error {
+	conn := hq.redisPool.Get()
+	defer conn.Close()
+
+	for i := range ids {
+		err := conn.Send("SET", key, key+strconv.FormatInt(int64(ids[i]), 10), strings[i])
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+	}
+
+	err := conn.Flush()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}
+
+// GetCacheInBulk takes a key and checks if the list of IDs has expired
+func (hq *RedisQueue) GetCacheInBulk(key string, id []int32) ([]string, error) {
+	conn := hq.redisPool.Get()
+	defer conn.Close()
+	var found []string
+
+	conn.Send("MULTI")
+	for _, i := range id {
+		if err := conn.Send("GET", key+strconv.FormatInt(int64(i), 10)); err != nil {
+			log.Println(err)
+			return nil, err
+		}
+	}
+
+	res, err := conn.Do("EXEC")
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	for _, r := range res.([]interface{}) {
+		b, _ := redis.String(r, nil)
+		found = append(found, b)
+	}
+
+	return found, nil
 }

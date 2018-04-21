@@ -88,7 +88,7 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB) *Vanguard {
 		log.Fatalf("Cannot build redis store: %v", err)
 	}
 	// Set options for the store
-	store.SetMaxLength(1024 * 10)
+	store.SetMaxLength(1024 * 100)
 	store.Options.Domain = "evedata.org"
 
 	// Setup a new Vanguard

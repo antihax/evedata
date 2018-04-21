@@ -56,7 +56,7 @@ func warsTrigger(s *Artifice) error {
 			return nil
 		}
 
-		if cycle > 3 {
+		if cycle > 50 {
 			return nil
 		}
 
