@@ -7,8 +7,8 @@ import (
 	"github.com/antihax/evedata/internal/redisqueue"
 
 	"github.com/antihax/evedata/internal/tokenstore"
+	"github.com/antihax/go-imap/backend"
 	"github.com/antihax/goesi"
-	"github.com/emersion/go-imap/backend"
 )
 
 func New(tokenAPI *tokenstore.TokenServerAPI, esi *goesi.APIClient, tokenAuth *goesi.SSOAuthenticator, q *redisqueue.RedisQueue) *Backend {

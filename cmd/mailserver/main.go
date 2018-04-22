@@ -14,10 +14,11 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetPrefix("evedata artifice: ")
-	redis := redigohelper.ConnectRedisProdPool()
+	redis := redigohelper.ConnectRedisLocalPool()
 	// Make a new service and send it into the background.
 	mailserver := mailserver.NewMailServer(redis, os.Getenv("ESI_CLIENTID_TOKENSTORE"), os.Getenv("ESI_SECRET_TOKENSTORE"))
-	go mailserver.Run()
+	log.Printf("Starting MailServer\n")
+	go func() { log.Println(mailserver.Run()) }()
 	defer mailserver.Close()
 
 	// Handle SIGINT and SIGTERM.

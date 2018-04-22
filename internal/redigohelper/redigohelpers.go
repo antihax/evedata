@@ -19,6 +19,23 @@ func ConnectRedisProdPool() *redis.Pool {
 	)
 }
 
+func ConnectRedisLocalPool() *redis.Pool {
+	redis := connectRedisPool(
+		[]string{"127.0.0.1:6379"},
+		"",
+		"",
+		false,
+	)
+	c := redis.Get()
+	defer c.Close()
+
+	_, err := c.Do("FLUSHALL")
+	if err != nil {
+		panic(err)
+	}
+	return redis
+}
+
 func ConnectRedisTestPool() *redis.Pool {
 	redis := connectRedisPool(
 		[]string{"127.0.0.1:6379"},
@@ -35,6 +52,7 @@ func ConnectRedisTestPool() *redis.Pool {
 	}
 	return redis
 }
+
 func connectRedisPool(addresses []string, password string, masterName string, sentinel bool) *redis.Pool {
 	if sentinel {
 		return newSentinelPool(addresses, masterName, password)

@@ -5,8 +5,8 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/antihax/go-imap/backend"
 	"github.com/antihax/goesi"
-	"github.com/emersion/go-imap/backend"
 	"golang.org/x/oauth2"
 )
 

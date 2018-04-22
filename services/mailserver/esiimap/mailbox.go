@@ -15,9 +15,9 @@ import (
 	"github.com/antihax/goesi/optional"
 	"github.com/jaytaylor/html2text"
 
+	imap "github.com/antihax/go-imap"
+	"github.com/antihax/go-imap/backend/backendutil"
 	"github.com/antihax/goesi"
-	imap "github.com/emersion/go-imap"
-	"github.com/emersion/go-imap/backend/backendutil"
 	message "github.com/emersion/go-message"
 )
 
