@@ -66,11 +66,11 @@ func (mbox *Mailbox) loadMailbox() {
 	mbox.loaded.Add(1)
 	defer mbox.loaded.Done()
 	// Get all mail headers
-	lastMailID := int64(2147483647)
+	lastMailID := int32(2147483647)
 	mbox.validity = uint32(time.Now().Unix())
 
 	var unseen, count uint32
-	messageHeaders := make(map[int64]*esi.GetCharactersCharacterIdMail200Ok)
+	messageHeaders := make(map[int32]*esi.GetCharactersCharacterIdMail200Ok)
 
 	auth := context.WithValue(context.Background(), goesi.ContextOAuth2, mbox.user.token)
 	for {
@@ -79,7 +79,7 @@ func (mbox *Mailbox) loadMailbox() {
 			mbox.user.characterID,
 			&esi.GetCharactersCharacterIdMailOpts{
 				Labels:     optional.NewInterface([]int32{mbox.id}),
-				LastMailId: optional.NewInt64(lastMailID),
+				LastMailId: optional.NewInt32(lastMailID),
 			},
 		)
 		if err != nil {
@@ -215,12 +215,11 @@ func (mbox *Mailbox) fetchMessage(m *esi.GetCharactersCharacterIdMail200Ok, i *i
 	return nil
 }
 
-func (mbox *Mailbox) fetchWholeMessage(i *imap.Message, uuid uint32, mailID int64, items []imap.FetchItem) error {
+func (mbox *Mailbox) fetchWholeMessage(i *imap.Message, uuid uint32, mailID int32, items []imap.FetchItem) error {
 	u := mbox.user
 
 	auth := context.WithValue(context.Background(), goesi.ContextOAuth2, u.token)
-	m, _, err := u.backend.esi.ESI.MailApi.GetCharactersCharacterIdMailMailId(auth, u.characterID,
-		int64(mailID), nil)
+	m, _, err := u.backend.esi.ESI.MailApi.GetCharactersCharacterIdMailMailId(auth, u.characterID, mailID, nil)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -337,7 +336,7 @@ Nothing here i'm afraid
 	return len(s), e, err
 }
 
-func (mbox *Mailbox) makeFakeBody(m *esi.GetCharactersCharacterIdMailMailIdOk, id int64) (int, *message.Entity, error) {
+func (mbox *Mailbox) makeFakeBody(m *esi.GetCharactersCharacterIdMailMailIdOk, id int32) (int, *message.Entity, error) {
 	// Make a list of all IDs and a map to the resulting array
 	idMap := make(map[int32]int)
 	ids := []int32{m.From}
