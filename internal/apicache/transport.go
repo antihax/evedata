@@ -46,7 +46,7 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 			tokensS := res.Header.Get("x-esi-error-limit-remain")
 
 			// Tick up and log any errors
-			if res.StatusCode >= 300 {
+			if res.StatusCode >= 400 {
 				metricAPIErrors.Inc()
 				log.Printf("St: %d AWS: %s Res: %s Tok: %s - %s\n", res.StatusCode, res.Header.Get("x-esi-ab-test"), resetS, tokensS, req.URL)
 			}

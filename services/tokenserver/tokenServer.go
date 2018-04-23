@@ -4,6 +4,9 @@ package tokenserver
 import (
 	"net"
 	"sync"
+	"time"
+
+	"google.golang.org/grpc/keepalive"
 
 	"github.com/antihax/evedata/internal/apicache"
 	"github.com/antihax/evedata/internal/msgpackcodec"
@@ -37,7 +40,13 @@ func NewTokenServer(redis *redis.Pool, db *sqlx.DB, clientID, secret string) *To
 	auth := goesi.NewSSOAuthenticator(cache, clientID, secret, "", []string{})
 
 	// Setup RPC server
-	server := grpc.NewServer(grpc.CustomCodec(&msgpackcodec.MsgPackCodec{}))
+	server := grpc.NewServer(grpc.CustomCodec(&msgpackcodec.MsgPackCodec{}),
+		grpc.KeepaliveParams(
+			keepalive.ServerParameters{
+				Time:    time.Second * 5,
+				Timeout: time.Second * 10,
+			}),
+	)
 
 	// create Token Store
 	tokenStore := tokenstore.NewTokenStore(redis, db, auth)

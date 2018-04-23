@@ -3,6 +3,7 @@ package mailserver
 
 import (
 	"crypto/tls"
+	"log"
 	"sync"
 
 	"github.com/antihax/evedata/internal/redisqueue"
@@ -49,6 +50,7 @@ func NewMailServer(redis *redis.Pool, clientID, secret string) *MailServer {
 func (s *MailServer) Run() error {
 	tokenServer, err := tokenstore.NewTokenServerAPI()
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	s.tokenAPI = tokenServer
@@ -58,6 +60,7 @@ func (s *MailServer) Run() error {
 		"/etc/letsencrypt/live/mail.evedata.org/privkey1.pem",
 	)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
@@ -65,6 +68,7 @@ func (s *MailServer) Run() error {
 
 	imap, err := NewIMAPServer(&tls.Config{Certificates: []tls.Certificate{cert}}, s.tokenAPI, s.esi, s.tokenAuth, q)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	imap.Run()

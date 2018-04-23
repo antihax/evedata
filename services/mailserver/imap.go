@@ -10,8 +10,8 @@ import (
 	"github.com/antihax/evedata/internal/tokenstore"
 	"github.com/antihax/evedata/services/mailserver/esiimap"
 	"github.com/antihax/evedata/services/mailserver/esismtp"
-	imap "github.com/antihax/go-imap/server"
 	"github.com/antihax/goesi"
+	imap "github.com/emersion/go-imap/server"
 	smtp "github.com/emersion/go-smtp"
 )
 

@@ -7,8 +7,8 @@ import (
 	"github.com/antihax/evedata/internal/redisqueue"
 
 	"github.com/antihax/evedata/internal/tokenstore"
-	"github.com/antihax/go-imap/backend"
 	"github.com/antihax/goesi"
+	"github.com/emersion/go-imap/backend"
 )
 
 func New(tokenAPI *tokenstore.TokenServerAPI, esi *goesi.APIClient, tokenAuth *goesi.SSOAuthenticator, q *redisqueue.RedisQueue) *Backend {
@@ -78,11 +78,7 @@ func (s *Backend) Login(username, password string) (backend.User, error) {
 		return nil, err
 	}
 
-	return &User{
-		username:    username,
-		token:       ts,
-		backend:     s,
-		characterID: u.TokenCharacterID,
-		mailboxes:   make(map[string]*Mailbox),
-	}, nil
+	user := NewUser(username, ts, s, u.TokenCharacterID)
+
+	return user, nil
 }

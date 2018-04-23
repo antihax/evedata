@@ -2,6 +2,9 @@ package tokenstore
 
 import (
 	"context"
+	"time"
+
+	"google.golang.org/grpc/keepalive"
 
 	"github.com/antihax/evedata/internal/msgpackcodec"
 	"golang.org/x/oauth2"
@@ -13,7 +16,16 @@ type TokenServerAPI struct {
 }
 
 func NewTokenServerAPI() (*TokenServerAPI, error) {
-	r, err := grpc.Dial("tokenserver.evedata:32004", grpc.WithInsecure(), grpc.WithCodec(&msgpackcodec.MsgPackCodec{}))
+	r, err := grpc.Dial("tokenserver.evedata:32004",
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:                time.Second * 5,
+			Timeout:             time.Second * 10,
+			PermitWithoutStream: true,
+		}),
+		grpc.WithInsecure(),
+		grpc.WithCodec(&msgpackcodec.MsgPackCodec{}),
+	)
+
 	if err != nil {
 		return nil, err
 

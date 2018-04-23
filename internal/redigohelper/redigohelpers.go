@@ -31,7 +31,7 @@ func ConnectRedisLocalPool() *redis.Pool {
 
 	_, err := c.Do("FLUSHALL")
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	return redis
 }

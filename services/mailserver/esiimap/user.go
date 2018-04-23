@@ -3,10 +3,11 @@ package esiimap
 import (
 	"context"
 	"errors"
+	"log"
 	"strings"
 
-	"github.com/antihax/go-imap/backend"
 	"github.com/antihax/goesi"
+	"github.com/emersion/go-imap/backend"
 	"golang.org/x/oauth2"
 )
 
@@ -18,37 +19,53 @@ type User struct {
 	mailboxes   map[string]*Mailbox
 }
 
+func NewUser(username string, token oauth2.TokenSource, backend *Backend, characterID int32) *User {
+	user := &User{
+		username:    username,
+		token:       token,
+		backend:     backend,
+		characterID: characterID,
+		mailboxes:   make(map[string]*Mailbox),
+	}
+	user.loadMailboxes()
+	return user
+}
+
 func (u *User) Username() string {
 	return u.username
 }
 
-func (u *User) ListMailboxes(subscribed bool) (mailboxes []backend.Mailbox, err error) {
+func (u *User) loadMailboxes() error {
+	// Retreive all the mailboxes from ESI
 	auth := context.WithValue(context.Background(), goesi.ContextOAuth2, u.token)
 	boxes, _, err := u.backend.esi.ESI.MailApi.GetCharactersCharacterIdMailLabels(auth, u.characterID, nil)
 	if err != nil {
-		return nil, err
+		log.Println(err)
+		return err
 	}
 
+	// Create and load all the mailboxes in the background
 	for _, box := range boxes.Labels {
 		ucn := strings.ToUpper(box.Name)
-		if _, ok := u.mailboxes[ucn]; !ok {
-			u.mailboxes[ucn] = &Mailbox{
-				name:        ucn,
-				id:          box.LabelId,
-				user:        u,
-				unreadCount: box.UnreadCount,
-			}
+		u.mailboxes[ucn] = NewMailbox(ucn, box.LabelId, u, box.UnreadCount)
 
-		}
-		mailboxes = append(mailboxes, u.mailboxes[ucn])
+		go u.mailboxes[ucn].loadMailbox()
 	}
 
-	return mailboxes, err
+	return nil
+}
+
+func (u *User) ListMailboxes(subscribed bool) (mailboxes []backend.Mailbox, err error) {
+	for _, box := range u.mailboxes {
+		mailboxes = append(mailboxes, box)
+	}
+	return mailboxes, nil
 }
 
 func (u *User) GetMailbox(name string) (backend.Mailbox, error) {
 	mailbox, ok := u.mailboxes[name]
 	if !ok {
+		log.Printf("Cant find mailbox %s", name)
 		return mailbox, errors.New("No such mailbox")
 	}
 	return mailbox, nil

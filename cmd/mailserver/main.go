@@ -13,7 +13,7 @@ import (
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.SetPrefix("evedata artifice: ")
+	log.SetPrefix("evedata mailserver: ")
 	redis := redigohelper.ConnectRedisLocalPool()
 	// Make a new service and send it into the background.
 	mailserver := mailserver.NewMailServer(redis, os.Getenv("ESI_CLIENTID_TOKENSTORE"), os.Getenv("ESI_SECRET_TOKENSTORE"))
