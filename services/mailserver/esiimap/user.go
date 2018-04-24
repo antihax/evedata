@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/antihax/goesi"
+	"github.com/antihax/goesi/esi"
 	"github.com/emersion/go-imap/backend"
 	"golang.org/x/oauth2"
 )
@@ -48,11 +49,44 @@ func (u *User) loadMailboxes() error {
 	for _, box := range boxes.Labels {
 		ucn := strings.ToUpper(box.Name)
 		u.mailboxes[ucn] = NewMailbox(ucn, box.LabelId, u, box.UnreadCount)
-
 		go u.mailboxes[ucn].loadMailbox()
 	}
 
+	// Retreive mailing lists
+	mailingLists, _, err := u.backend.esi.ESI.MailApi.GetCharactersCharacterIdMailLists(auth, u.characterID, nil)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// Cache the mail lists
+	if len(mailingLists) > 0 {
+		go u.cacheMailingLists(mailingLists)
+	}
+
 	return nil
+}
+
+func (u *User) cacheMailingLists(mailingLists []esi.GetCharactersCharacterIdMailLists200Ok) {
+	names := []string{}
+	types := []string{}
+	ids := []int32{}
+
+	for _, e := range mailingLists {
+		names = append(names, e.Name)
+		types = append(types, "mailing_list")
+		ids = append(ids, e.MailingListId)
+	}
+
+	if err := u.backend.cacheQueue.SetCacheInBulk("addressName", ids, names); err != nil {
+		log.Println(err)
+		return
+	}
+	if err := u.backend.cacheQueue.SetCacheInBulk("addressType", ids, types); err != nil {
+		log.Println(err)
+		return
+	}
+	return
 }
 
 func (u *User) ListMailboxes(subscribed bool) (mailboxes []backend.Mailbox, err error) {

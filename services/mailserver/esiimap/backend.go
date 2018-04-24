@@ -3,6 +3,7 @@ package esiimap
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/antihax/evedata/internal/redisqueue"
 
@@ -41,15 +42,35 @@ func (s *Backend) lookupAddresses(ids []int32) ([]string, []string, error) {
 			missingIdx = append(missingIdx, i)
 		}
 	}
+
 	if len(missing) > 0 {
 		lookup, _, err := s.esi.ESI.UniverseApi.PostUniverseNames(context.Background(), missing, nil)
 		if err != nil {
-			log.Printf("%v : %s", missing, err)
-			return nil, nil, err
-		}
-		for i, e := range lookup {
-			names[missingIdx[i]] = e.Name
-			types[missingIdx[i]] = e.Category
+			if strings.Contains(err.Error(), "404") {
+				for i, missingID := range missing {
+					lookup, _, err := s.esi.ESI.UniverseApi.PostUniverseNames(context.Background(), []int32{missingID}, nil)
+					if err != nil {
+						if strings.Contains(err.Error(), "404") {
+							names[missingIdx[i]] = "## Unknown Mailing List ##"
+							types[missingIdx[i]] = "mailing_list"
+						} else {
+							return nil, nil, err
+						}
+					} else {
+						for _, e := range lookup {
+							names[missingIdx[i]] = e.Name
+							types[missingIdx[i]] = e.Category
+						}
+					}
+				}
+			} else {
+				return nil, nil, err
+			}
+		} else {
+			for i, e := range lookup {
+				names[missingIdx[i]] = e.Name
+				types[missingIdx[i]] = e.Category
+			}
 		}
 
 		err = s.cacheQueue.SetCacheInBulk("addressName", ids, names)

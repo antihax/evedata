@@ -25,7 +25,7 @@ type IMAPServer struct {
 
 func NewIMAPServer(tls *tls.Config, tokenAPI *tokenstore.TokenServerAPI, esi *goesi.APIClient, tokenAuth *goesi.SSOAuthenticator, q *redisqueue.RedisQueue) (*IMAPServer, error) {
 	imap := imap.New(esiimap.New(tokenAPI, esi, tokenAuth, q))
-	smtp := smtp.NewServer(esismtp.New(tokenAPI, esi, tokenAuth))
+	smtp := smtp.NewServer(esismtp.New(tokenAPI, esi, tokenAuth, q))
 	imap.Addr = ":1993"
 	smtp.Addr = ":1587"
 	imap.Debug = os.Stdout

@@ -279,7 +279,7 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 			return err
 		}
 
-		message := fmt.Sprintf("@everyone  %s is under attack at %s in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%\n",
+		message := fmt.Sprintf("%s is under attack at %s in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%\n",
 			structureType, locationName, systemName, attackerName.Name, attackerType, attacker, l.ShieldLevel*100)
 
 		return s.sendNotificationMessage("structure", characterID, notificationID, message)
