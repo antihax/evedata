@@ -76,7 +76,11 @@ func contextWithSession(ctx context.Context, r *http.Request) context.Context {
 
 // SessionFromContext returns user session data from a request.Context
 func SessionFromContext(ctx context.Context) *sessions.Session {
-	return ctx.Value(sessionKey).(*sessions.Session)
+	s, ok := ctx.Value(sessionKey).(*sessions.Session)
+	if !ok {
+		return nil
+	}
+	return s
 }
 
 // Handle authenticated requests
