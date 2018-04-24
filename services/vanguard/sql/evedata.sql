@@ -150,7 +150,7 @@ CREATE TABLE `crestTokens` (
   `allianceID` int(11) NOT NULL DEFAULT '0',
   `factionID` int(11) NOT NULL DEFAULT '0',
   `mailPassword` varchar(100) NOT NULL DEFAULT '',
-  PRIMARY KEY (`characterID`,`tokenCharacterID`,`characterOwnerHash`),
+  PRIMARY KEY (`characterID`,`tokenCharacterID`),
   KEY `tokenCharacterID` (`tokenCharacterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
