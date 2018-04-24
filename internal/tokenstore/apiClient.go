@@ -57,12 +57,12 @@ func (s *TokenServerAPI) GetToken(characterID, tokenCharacterID int32) (*oauth2.
 	return token, nil
 }
 
-func (s *TokenServerAPI) GetMailUser(username, password string) (*MailUser, error) {
+func (s *TokenServerAPI) GetMailUser(characterID int32, password string) (*MailUser, error) {
 	user := &MailUser{}
 	if err := s.grpc.Invoke(context.Background(), "/TokenStore/GetMailUser",
 		&MailUserRequest{
-			Username: username,
-			Password: password,
+			CharacterID: characterID,
+			Password:    password,
 		}, user); err != nil {
 		return nil, err
 	}
@@ -75,8 +75,8 @@ type TokenRequest struct {
 	TokenCharacterID int32
 }
 type MailUserRequest struct {
-	Username string
-	Password string
+	CharacterID int32
+	Password    string
 }
 
 type MailUser struct {

@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"unicode"
 
 	"github.com/antihax/goesi"
 	"golang.org/x/oauth2"
@@ -25,22 +26,28 @@ func init() {
 	vanguard.AddAuthRoute("account", "GET", "/X/accountInfo", accountInfo)
 	vanguard.AddAuthRoute("account", "POST", "/X/cursorChar", cursorChar)
 
-	vanguard.AddAuthRoute("crestTokens", "GET", "/U/crestTokens", apiGetCRESTTokens)
-	vanguard.AddAuthRoute("crestTokens", "DELETE", "/U/crestTokens", apiDeleteCRESTToken)
+	vanguard.AddAuthRoute("account", "GET", "/U/crestTokens", apiGetCRESTTokens)
+	vanguard.AddAuthRoute("account", "DELETE", "/U/crestTokens", apiDeleteCRESTToken)
 
-	vanguard.AddAuthRoute("crestTokens", "GET", "/U/integrationTokens", apiGetIntegrationTokens)
-	vanguard.AddAuthRoute("crestTokens", "DELETE", "/U/integrationTokens", apiDeleteIntegrationToken)
+	vanguard.AddAuthRoute("account", "GET", "/U/integrationTokens", apiGetIntegrationTokens)
+	vanguard.AddAuthRoute("account", "DELETE", "/U/integrationTokens", apiDeleteIntegrationToken)
 
 	vanguard.AddAuthRoute("account", "POST", "/U/toggleAuth", apiToggleAuth)
 
-	vanguard.AddAuthRoute("crestTokens", "GET", "/U/accessableIntegrations", apiAccessableIntegrations)
-	vanguard.AddAuthRoute("crestTokens", "POST", "/U/joinIntegration", apiJoinIntegration)
+	vanguard.AddAuthRoute("account", "GET", "/U/accessableIntegrations", apiAccessableIntegrations)
+	vanguard.AddAuthRoute("account", "POST", "/U/joinIntegration", apiJoinIntegration)
+
+	vanguard.AddAuthRoute("account", "POST", "/U/setMailPassword", apiSetMailPassword)
 
 }
 
 func apiToggleAuth(w http.ResponseWriter, r *http.Request) {
 	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
+	if s == nil {
+		httpErrCode(w, errors.New("Cannot find session"), http.StatusInternalServerError)
+		return
+	}
 	g := vanguard.GlobalsFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -351,6 +358,55 @@ func apiDeleteIntegrationToken(w http.ResponseWriter, r *http.Request) {
 
 	if err := models.DeleteIntegrationToken(r.FormValue("type"), characterID, r.FormValue("userID")); err != nil {
 		httpErrCode(w, err, http.StatusConflict)
+		return
+	}
+}
+
+func verifyPassword(s string) bool {
+	var upper, lower, number bool
+	for _, s := range s {
+		switch {
+		case unicode.IsNumber(s):
+			number = true
+		case unicode.IsUpper(s):
+			upper = true
+		case unicode.IsLower(s):
+			lower = true
+		}
+	}
+	if upper && lower && number && len(s) >= 12 {
+		return true
+	}
+	return false
+}
+
+func apiSetMailPassword(w http.ResponseWriter, r *http.Request) {
+	setCache(w, 0)
+	s := vanguard.SessionFromContext(r.Context())
+	if s == nil {
+		httpErrCode(w, errors.New("could not find session"), http.StatusUnauthorized)
+		return
+	}
+
+	char, ok := s.Values["character"].(goesi.VerifyResponse)
+	if !ok {
+		httpErrCode(w, errors.New("could not find verify response to change mail password"), http.StatusForbidden)
+		return
+	}
+
+	tokenCharacterID, err := strconv.ParseInt(r.FormValue("tokenCharacterID"), 10, 32)
+	if err != nil {
+		httpErrCode(w, errors.New("invalid tokenCharacterID"), http.StatusBadRequest)
+		return
+	}
+
+	if !verifyPassword(r.FormValue("password")) {
+		httpErrCode(w, errors.New("Password must be at least 12 characters with one uppercase, one lowercase, and one number"), http.StatusBadRequest)
+		return
+	}
+
+	if err := models.SetMailPassword(char.CharacterID, int32(tokenCharacterID), char.CharacterOwnerHash, r.FormValue("password")); err != nil {
+		httpErr(w, err)
 		return
 	}
 }

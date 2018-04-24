@@ -28,14 +28,14 @@ func NewIMAPServer(tls *tls.Config, tokenAPI *tokenstore.TokenServerAPI, esi *go
 	smtp := smtp.NewServer(esismtp.New(tokenAPI, esi, tokenAuth, q))
 	imap.Addr = ":993"
 	smtp.Addr = ":465"
-	imap.Debug = os.Stdout
+	//imap.Debug = os.Stdout
+	//smtp.Debug = os.Stdout
 	imap.ErrorLog = log.New(os.Stdout, "INFO: ", log.Lshortfile)
 
 	smtp.TLSConfig = tls
 	imap.TLSConfig = tls
 
 	smtp.Domain = "localhost"
-	smtp.Debug = os.Stdout
 
 	return &IMAPServer{
 		imap: imap,

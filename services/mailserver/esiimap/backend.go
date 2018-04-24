@@ -3,6 +3,7 @@ package esiimap
 import (
 	"context"
 	"log"
+	"strconv"
 	"strings"
 
 	"github.com/antihax/evedata/internal/redisqueue"
@@ -87,7 +88,14 @@ func (s *Backend) lookupAddresses(ids []int32) ([]string, []string, error) {
 }
 
 func (s *Backend) Login(username, password string) (backend.User, error) {
-	u, err := s.tokenAPI.GetMailUser(username, password)
+	parts := strings.Split(username, "@")
+	characterID, err := strconv.ParseInt(parts[0], 10, 32)
+	if err != nil {
+		log.Print(err)
+		return nil, err
+	}
+
+	u, err := s.tokenAPI.GetMailUser(int32(characterID), password)
 	if err != nil {
 		log.Print(err)
 		return nil, err

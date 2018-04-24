@@ -121,6 +121,10 @@
 		return numberCommafy(value);
 	}
 
+	function escapeFormatter(value, row) {
+		return escapeHtml(value);
+	}
+
 	function sumFormatter(data) {
 		field = this.field;
 		return numberCommafy(data.reduce(function (sum, row) {

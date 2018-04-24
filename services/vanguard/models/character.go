@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/antihax/evedata/internal/sqlhelper"
 	"github.com/antihax/evedata/services/conservator"
 	"github.com/guregu/null"
 	"golang.org/x/oauth2"
@@ -40,6 +41,7 @@ type CRESTToken struct {
 	AuthCharacter    int                 `db:"authCharacter" json:"authCharacter"`
 	SharingInt       string              `db:"sharingint" json:"_,omitempty"`
 	Sharing          []conservator.Share `json:"sharing"`
+	MailPassword     int                 `db:"mailPassword" json:"mailPassword"`
 }
 
 type IntegrationToken struct {
@@ -188,6 +190,23 @@ func AddIntegrationToken(tokenType string, characterID int32, userID string, use
 				lastStatus			= "Unused",
 				mailedError 		= 0`,
 		tokenType, characterID, userID, userName, tok.AccessToken, tok.RefreshToken, tok.Expiry, tok.TokenType, scopes); err != nil {
+		return err
+	}
+	return nil
+}
+
+// [BENCHMARK] 0.000 sec / 0.000 sec
+func SetMailPassword(characterID, tokenCharacterID int32, ownerHash, password string) error {
+	// BCrypt the password
+	hash, err := sqlhelper.Hash(password)
+	if err != nil {
+		return err
+	}
+
+	if _, err := database.Exec(`UPDATE evedata.crestTokens
+		SET mailPassword = ?
+		WHERE characterID = ? AND tokenCharacterID = ? AND characterOwnerHash = ?;
+		`, hash, characterID, tokenCharacterID, ownerHash); err != nil {
 		return err
 	}
 	return nil

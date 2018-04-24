@@ -1,4 +1,37 @@
 {{define "body"}} {{template "checkAuthentication" .}}
+<div class="modal fade" id="mailPasswordDialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">							
+				<button aria-label="Close" class="close" data-dismiss="modal" type="button">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title"></h4>
+			</div>
+			<div class="modal-body">
+				<p>You must have EVE Mail Proxy Service scopes selected on this character or you will not authenticate.</p>
+					<p>Set your mail client to the following settings:</p>
+					<table class="table table-striped">
+						<tr><td>Server:</td><td>mail.evedata.org</td></tr>
+						<tr><td>EMail:</td><td id="email">mail.evedata.org</td></tr>
+						<tr><td>Username:</td><td name="characterID" class="characterID">characterID</td></tr>
+						<tr><td>IMAP Port:</td><td>993</td></tr>
+						<tr><td>SMTP Port:</td><td>465</td></tr>
+						<tr><td>Security:</td><td>TLS</td></tr>
+					</table>
+				<div class="form-group">
+					<label>Password</label>
+					<div class="well"><h5 id="password">We cannot restore passwords, please generate another if you lose it.</h5></div>
+					<button type="submit" onClick="genPassword()" id="genPassword" class="btn btn-primary">Generate New Password</button>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <h3>Single Sign On Account:
 	<span class="SSOCharacterName">SomeRandomDude</span>
 </h3>
@@ -18,7 +51,7 @@
 				<tr>
 					<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="joinIntegrationFormatter">Join</th>
 					<th data-field="type">Type</th>
-					<th data-escape=true data-field="name">Service Name</th>
+					<th data-field="name" data-formatter="escapeFormatter">Service Name</th>
 					<th data-field="characterName" data-formatter="tokenCharacterFormatter">Name</th>
 					<th data-field="reason">Reason</th>
 					<th data-field="entityName" data-formatter="entityTypeFormatter">Entity</th>
@@ -96,7 +129,9 @@
 			<thead>
 				<tr>
 					<th data-align="center" data-field="authCharacter" data-events="actionEvents" data-formatter="authFormatter"
-					    title="Allow alliance access to my data">Auth</th>
+						title="Allow alliance access to my data">Auth</th>
+					<th data-align="center" data-field="mailPassword" data-events="actionEvents" data-formatter="mailPasswordFormatter"
+					    title="EveMail Proxy Password is Set">Mail PW</th>
 					<th data-align="center" data-field="sharing" data-formatter="sharingFormatter" title="Share my data with explicit entities">Sharing</th>
 					<th data-field="characterName">Name</th>
 					<th data-field="scopes" title="Authorization grants provided by this character">Scope Groups</th>
@@ -135,7 +170,7 @@
 			<thead>
 				<tr>
 					<th data-field="type">Type</th>
-					<th data-escape=true data-field="integrationUserName">Name</th>
+					<th data-field="integrationUserName" data-formatter="escapeFormatter">Name</th>
 					<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="deleteIntegrationFormatter"
 					    title="Delete Token">Delete</th>
 				</tr>
@@ -144,7 +179,10 @@
 	</div>
 
 	<script>
-		var $cresttable = $('#cresttable').bootstrapTable({
+		var $mailPasswordDialog = $('#mailPasswordDialog').modal({
+			show: false
+		}),
+			$cresttable = $('#cresttable').bootstrapTable({
 				url: "/U/crestTokens"
 			}, "changeLocale", "en_US"),
 			$availableServices = $('#availableServices').bootstrapTable({},
@@ -171,7 +209,6 @@
 			$('.adddiscord').click(function () {
 				window.location.replace("/X/discordAuth");
 			});
-
 			refreshData();
 		});
 
@@ -225,6 +262,16 @@
 				value + '<\/a>';
 		}
 
+		function mailPasswordFormatter(value, row) {
+			if (value == 0) {
+				value = "&#10008;";
+			} else {
+				value = "&#10003;";
+			}
+			return '<a class="setMailPassword" style="text-decoration: none;" href="javascript:void(0)" title="Set Mail Password">' +
+				value + '<\/a>';
+		}
+
 		function deleteFormatter(value, row) {
 			return [
 				'<a class="removecrest" style="text-decoration: none;" href="javascript:void(0)" title="Delete ' +
@@ -249,8 +296,6 @@
 				'">&#10006;<\/a>',
 			].join('');
 		}
-
-
 
 		// update and delete events
 		window.actionEvents = {
@@ -299,11 +344,18 @@
 					}
 				})
 			},
+			'click .setMailPassword': function (e, value, row) {
+				$mailPasswordDialog.find('.modal-title').text("Set Mail Password: " + row.characterName);
+				$mailPasswordDialog.find('.characterID').text(row.tokenCharacterID);
+				$mailPasswordDialog.find('#email').text(row.tokenCharacterID+"@evedata.org");
+				$("input[name=genPassword]").attr("disabled", "enabled");
+				$mailPasswordDialog.modal('show');
+			},
 			'click .toggleauth': function (e, value, row) {
 				if (row.authCharacter == 1 || confirm(
-						'You are about to turn on authentication for ' + row.characterName +
-						'.\n\nThis will allow the corporation this character is a member of to identify them on EVEData.org for authentication purposes with services like Discord, TeamSpeak, or Slack.\n\nAre you sure you wish to do this?'
-					)) {
+					'You are about to turn on authentication for ' + row.characterName +
+					'.\n\nThis will allow the corporation this character is a member of to identify them on EVEData.org for authentication purposes with services like Discord, TeamSpeak, or Slack.\n\nAre you sure you wish to do this?'
+				)) {
 					$.ajax({
 						url: "/U/toggleAuth?tokenCharacterID=" + row.tokenCharacterID,
 						type: 'post',
@@ -320,4 +372,34 @@
 				}
 			}
 		};
+			function genPassword() {
+				$("input[name=genPassword]").attr("disabled", "disabled");
+				var randPassword = "",
+					ok = null,
+					pwRe = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{12,}$/g;
+
+				while (ok == null) {
+					randPassword = Array(Math.floor(Math.random() * 4) + 12).fill("123456789ABCDEFGHJKMNPQRSTUWXYZabcdefgh-ijkmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
+					ok = pwRe.exec(randPassword);
+				}
+
+				console.log($(".characterID").text());
+
+				$.ajax({
+					url: "/U/setMailPassword?tokenCharacterID=" + $(".characterID").text() + "&password=" + randPassword,
+					type: 'post',
+					success: function () {
+						$cresttable.bootstrapTable('refresh');
+						showAlert('Password changed for ' + $(".characterID").text() + '!',
+							'success');
+						$('#password').text(randPassword);
+						refreshData();
+					},
+					error: function () {
+						showAlert('Error changing password state!', 'danger');
+						$("input[name=genPassword]").attr("disabled", "enabled");
+					}
+				})
+			};
+
 	</script> {{end}}

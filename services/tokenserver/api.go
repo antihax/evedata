@@ -61,11 +61,12 @@ func (s TokenServer) GetMailUser(ctx context.Context, u *tokenstore.MailUserRequ
 		TokenCharacterID int32  `db:"tokenCharacterID"`
 		Password         string `db:"mailPassword"`
 	}
+
 	t := MailUser{}
 	err := s.db.QueryRowx(
 		`	SELECT characterID, tokenCharacterID, mailPassword FROM evedata.crestTokens
-			WHERE characterName = ? AND mailPassword != "" AND scopes LIKE "%read_mail%"
-			LIMIT 1;`, u.Username).StructScan(&t)
+			WHERE tokenCharacterID = ? AND mailPassword != "" AND scopes LIKE "%read_mail%"
+			LIMIT 1;`, u.CharacterID).StructScan(&t)
 	if err != nil {
 		// Ignore this error.
 		if strings.Contains(err.Error(), "no rows in result set") {
