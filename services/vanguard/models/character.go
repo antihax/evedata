@@ -104,7 +104,8 @@ func SetCursorCharacter(characterID int32, cursorCharacterID int32) error {
 func GetCRESTTokens(characterID int32, ownerHash string) ([]CRESTToken, error) {
 	tokens := []CRESTToken{}
 	if err := database.Select(&tokens, `
-		SELECT T.characterID, T.tokenCharacterID, characterName, lastCode, lastStatus, scopes, authCharacter, 
+		SELECT T.characterID, T.tokenCharacterID, characterName, IF(mailPassword != "", "Set", "Not Set") AS mailPassword,
+		lastCode, lastStatus, scopes, authCharacter, 
 		IFNULL(
 			CONCAT("[", GROUP_CONCAT(CONCAT(
 				'{"id": ', entityID, 
