@@ -324,7 +324,7 @@ To: %s
 Subject: %s
 Date: %s
 Message-ID: <%d@evedata.org/>
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
 
 Nothing here i'm afraid
 `, names[idMap[m.From]], m.From, strings.Join(to, "; "), m.Subject, m.Timestamp.Format(time.RFC822Z), m.MailId)
@@ -384,7 +384,7 @@ To: %s
 Subject: %s
 Date: %s
 Message-ID: <%d@evedata.org/>
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
 
 %s
 `, names[idMap[m.From]], m.From, strings.Join(to, "; "), m.Subject, m.Timestamp.Format(time.RFC822Z), id, plain)

@@ -16,7 +16,11 @@ func main() {
 	log.SetPrefix("evedata mailserver: ")
 	redis := redigohelper.ConnectRedisLocalPool()
 	// Make a new service and send it into the background.
-	mailserver := mailserver.NewMailServer(redis, os.Getenv("ESI_CLIENTID_TOKENSTORE"), os.Getenv("ESI_SECRET_TOKENSTORE"))
+	mailserver, err := mailserver.NewMailServer(redis, os.Getenv("ESI_CLIENTID_TOKENSTORE"), os.Getenv("ESI_SECRET_TOKENSTORE"))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	log.Printf("Starting MailServer\n")
 	go func() { log.Println(mailserver.Run()) }()
 	defer mailserver.Close()

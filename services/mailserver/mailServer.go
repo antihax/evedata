@@ -4,11 +4,17 @@ package mailserver
 import (
 	"crypto/tls"
 	"log"
+	"os"
+	"os/user"
 	"sync"
 
-	"github.com/antihax/evedata/internal/redisqueue"
+	"github.com/antihax/evedata/services/mailserver/esiimap"
+	"github.com/antihax/evedata/services/mailserver/esismtp"
+	imap "github.com/emersion/go-imap/server"
+	smtp "github.com/emersion/go-smtp"
 
 	"github.com/antihax/evedata/internal/apicache"
+	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/evedata/internal/tokenstore"
 	"github.com/antihax/goesi"
 	"github.com/garyburd/redigo/redis"
@@ -16,9 +22,10 @@ import (
 
 // MailServer provides token information.
 type MailServer struct {
-	stop chan bool
-	wg   *sync.WaitGroup
-
+	stop      chan bool
+	wg        *sync.WaitGroup
+	imap      *imap.Server
+	smtp      *smtp.Server
 	tokenAPI  *tokenstore.TokenServerAPI
 	esi       *goesi.APIClient
 	tokenAuth *goesi.SSOAuthenticator
@@ -26,7 +33,7 @@ type MailServer struct {
 }
 
 // NewMailServer Service.
-func NewMailServer(redis *redis.Pool, clientID, secret string) *MailServer {
+func NewMailServer(redis *redis.Pool, clientID, secret string) (*MailServer, error) {
 
 	// Get a caching http client
 	httpClient := apicache.CreateHTTPClientCache(redis)
@@ -34,44 +41,73 @@ func NewMailServer(redis *redis.Pool, clientID, secret string) *MailServer {
 	// Setup a token authenticator
 	auth := goesi.NewSSOAuthenticator(httpClient, clientID, secret, "", []string{})
 	esiClient := goesi.NewAPIClient(httpClient, "EVEData-Mail-Server")
-	// Setup a new MailServer
-	s := &MailServer{
-		stop:      make(chan bool),
-		wg:        &sync.WaitGroup{},
-		esi:       esiClient,
-		tokenAuth: auth,
-		redis:     redis,
-	}
 
-	return s
-}
-
-// Run the hammer service
-func (s *MailServer) Run() error {
 	tokenServer, err := tokenstore.NewTokenServerAPI()
 	if err != nil {
 		log.Println(err)
-		return err
+		return nil, err
 	}
-	s.tokenAPI = tokenServer
 
+	q := redisqueue.NewRedisQueue(redis, "mailserver_queue")
+
+	imap := imap.New(esiimap.New(tokenServer, esiClient, auth, q))
+	smtp := smtp.NewServer(esismtp.New(tokenServer, esiClient, auth, q))
+
+	us, err := user.Current()
+	if err != nil {
+		return nil, err
+	}
+
+	if us.Username == "root" {
+		imap.Addr = ":993"
+		smtp.Addr = ":465"
+	} else {
+		imap.Addr = ":1993"
+		smtp.Addr = ":1465"
+		imap.Debug = os.Stdout
+		smtp.Debug = os.Stdout
+	}
+
+	imap.ErrorLog = log.New(os.Stdout, "INFO: ", log.Lshortfile)
+
+	// [TODO] not hardcode this
 	cert, err := tls.LoadX509KeyPair(
 		"/etc/letsencrypt/live/mail.evedata.org/fullchain1.pem",
 		"/etc/letsencrypt/live/mail.evedata.org/privkey1.pem",
 	)
 	if err != nil {
 		log.Println(err)
-		return err
+		return nil, err
 	}
 
-	q := redisqueue.NewRedisQueue(s.redis, "mailserver_queue")
+	tls := &tls.Config{Certificates: []tls.Certificate{cert}}
 
-	imap, err := NewIMAPServer(&tls.Config{Certificates: []tls.Certificate{cert}}, s.tokenAPI, s.esi, s.tokenAuth, q)
-	if err != nil {
-		log.Println(err)
-		return err
+	smtp.TLSConfig = tls
+	imap.TLSConfig = tls
+
+	smtp.Domain = "localhost"
+
+	// Setup a new MailServer
+	s := &MailServer{
+		stop:      make(chan bool),
+		wg:        &sync.WaitGroup{},
+		esi:       esiClient,
+		tokenAuth: auth,
+		tokenAPI:  tokenServer,
+		redis:     redis,
+		imap:      imap,
+		smtp:      smtp,
 	}
-	imap.Run()
+
+	return s, nil
+}
+
+// Run the hammer service
+func (s *MailServer) Run() error {
+	log.Printf("Starting SMTP\n")
+	go func() { log.Fatal(s.smtp.ListenAndServeTLS()) }()
+	log.Printf("Starting IMAP\n")
+	go func() { log.Fatal(s.imap.ListenAndServeTLS()) }()
 	return nil
 }
 

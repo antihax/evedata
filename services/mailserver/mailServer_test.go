@@ -1,6 +1,7 @@
 package mailserver
 
 import (
+	"log"
 	"os"
 	"testing"
 	"time"
@@ -13,11 +14,14 @@ var mailserver *MailServer
 func TestMain(m *testing.M) {
 	redis := redigohelper.ConnectRedisTestPool()
 	defer redis.Close()
-	mailserver = NewMailServer(redis, "notreal", "reallynotreal")
+	mailserver, err := NewMailServer(redis, "notreal", "reallynotreal")
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	go func() {
 		if err := mailserver.Run(); err != nil {
-			panic(err)
+			log.Fatalln(err)
 		}
 	}()
 	retCode := m.Run()
