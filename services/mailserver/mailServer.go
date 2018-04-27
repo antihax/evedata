@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"log"
 	"os"
-	"os/user"
 	"sync"
 
 	"github.com/antihax/evedata/services/mailserver/esiimap"
@@ -53,20 +52,20 @@ func NewMailServer(redis *redis.Pool, clientID, secret string) (*MailServer, err
 	imap := imap.New(esiimap.New(tokenServer, esiClient, auth, q))
 	smtp := smtp.NewServer(esismtp.New(tokenServer, esiClient, auth, q))
 
-	us, err := user.Current()
-	if err != nil {
-		return nil, err
-	}
+	/*	us, err := user.Current()
+		if err != nil {
+			return nil, err
+		}
 
-	if us.Username == "root" {
-		imap.Addr = ":993"
-		smtp.Addr = ":465"
-	} else {
+		if us.Username == "root" {*/
+	imap.Addr = ":993"
+	smtp.Addr = ":465"
+	/*	} else {
 		imap.Addr = ":1993"
 		smtp.Addr = ":1465"
-		imap.Debug = os.Stdout
-		smtp.Debug = os.Stdout
-	}
+		//	imap.Debug = os.Stdout
+		//smtp.Debug = os.Stdout
+	}*/
 
 	imap.ErrorLog = log.New(os.Stdout, "INFO: ", log.Lshortfile)
 

@@ -33,6 +33,7 @@ type Mailbox struct {
 	messageHeaders map[uint32]*esi.GetCharactersCharacterIdMail200Ok
 	messagesUuid   []*esi.GetCharactersCharacterIdMail200Ok
 	loaded         sync.WaitGroup
+	loadStarted    bool
 }
 
 func NewMailbox(ucn string, id int32, u *User, unreadCount int32) *Mailbox {
@@ -42,6 +43,13 @@ func NewMailbox(ucn string, id int32, u *User, unreadCount int32) *Mailbox {
 		user:           u,
 		unreadCount:    uint32(unreadCount),
 		messageHeaders: make(map[uint32]*esi.GetCharactersCharacterIdMail200Ok),
+	}
+}
+
+func (mbox *Mailbox) Load() {
+	if !mbox.loadStarted {
+		mbox.loadStarted = true
+		mbox.loadMailbox()
 	}
 }
 
@@ -69,7 +77,7 @@ func (mbox *Mailbox) loadMailbox() {
 	lastMailID := int32(2147483647)
 	mbox.validity = uint32(time.Now().Unix())
 
-	var unseen, count uint32
+	var unseen, count, pages uint32
 	messageHeaders := make(map[int32]*esi.GetCharactersCharacterIdMail200Ok)
 
 	auth := context.WithValue(context.Background(), goesi.ContextOAuth2, mbox.user.token)
@@ -86,14 +94,26 @@ func (mbox *Mailbox) loadMailbox() {
 			log.Println(err)
 			continue
 		}
+		pages++
 
-		// breakout if this was the last page
+		// breakout if this was the last page or we have 5 pages
 		if len(mails) == 0 {
 			break
 		}
 
 		// Store pointers to the mail headers
 		for i, m := range mails {
+			// Precache entityIDs to names
+			mbox.user.backend.cacheLookup <- m.From
+			for _, r := range m.Recipients {
+				if r.RecipientType != "mailing_list" {
+					mbox.user.backend.cacheLookup <- r.RecipientId
+				} else {
+					mbox.user.backend.cacheMailingList <- r.RecipientId
+				}
+			}
+
+			// Cache the message headers
 			if _, ok := messageHeaders[m.MailId]; !ok {
 				messageHeaders[m.MailId] = &mails[i]
 				mbox.messagesUuid = append(mbox.messagesUuid, &mails[i])
@@ -103,9 +123,14 @@ func (mbox *Mailbox) loadMailbox() {
 				count++
 			}
 
+			// Find the last mail ID
 			if m.MailId < lastMailID {
 				lastMailID = m.MailId
 			}
+		}
+		// Break out at 5 pages
+		if pages >= 5 {
+			break
 		}
 	}
 
@@ -113,7 +138,6 @@ func (mbox *Mailbox) loadMailbox() {
 	for i := len(mbox.messagesUuid)/2 - 1; i >= 0; i-- {
 		opp := len(mbox.messagesUuid) - 1 - i
 		mbox.messagesUuid[i], mbox.messagesUuid[opp] = mbox.messagesUuid[opp], mbox.messagesUuid[i]
-
 	}
 
 	// Put the messages into the map with correct uid
@@ -371,6 +395,10 @@ func (mbox *Mailbox) makeFakeBody(m *esi.GetCharactersCharacterIdMailMailIdOk, i
 	// Replace killmails killReport:66991326:b80d548e48c419002cccbe74886b8c05e40af596
 	rp := regexp.MustCompile("(?m)killReport:([0-9]+):[a-z0-9]+")
 	plain = rp.ReplaceAllString(plain, "https://www.zkillboard.com/kill/$1/")
+
+	// Replace showinfo:1377//1331768660 strip for now.
+	rp2 := regexp.MustCompile("(?m) \\( showinfo:[0-9].{1,4}//([0-9]+) \\)")
+	plain = rp2.ReplaceAllString(plain, "")
 
 	// Build the To list
 	to := []string{}

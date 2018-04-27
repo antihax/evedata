@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"io"
-	"io/ioutil"
 	"log"
-	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/antihax/goesi/esi"
+	"github.com/jaytaylor/html2text"
+	"github.com/veqryn/go-email/email"
 
 	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/evedata/internal/tokenstore"
@@ -82,6 +82,7 @@ func (u *User) Send(from string, to []string, r io.Reader) error {
 		s := strings.Split(email, "@")
 		id, err := strconv.ParseInt(s[0], 10, 32)
 		if err != nil {
+			log.Println(err)
 			return err
 		}
 		ids = append(ids, int32(id))
@@ -90,26 +91,54 @@ func (u *User) Send(from string, to []string, r io.Reader) error {
 	// Lookup the IDs
 	_, types, err := u.backend.lookupAddresses(ids)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
-	b, err := ioutil.ReadAll(r)
+	mail, err := email.ParseMessage(r)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
+	subject := mail.Header.Get("Subject")
 
-	// Find the subject
-	subjectRegx := regexp.MustCompile(`Subject: (.*)`)
-	subjectMatch := subjectRegx.FindStringSubmatch(string(b))
-	subject := subjectMatch[1]
+	body := ""
+	preference := 0
 
-	// Find the body
-	bodyRegx := regexp.MustCompile(`(?s)\n\n(.*)`)
-	bodyMatch := bodyRegx.FindStringSubmatch(string(b))
-	body := bodyMatch[1]
+	// find usable plain text or decode html
+	for _, part := range mail.MessagesAll() {
+		mediaType, _, _ := part.Header.ContentType()
+		switch mediaType {
+		case "text/plain":
+			body = string(part.Body)
+			preference = 2
+			break
+		case "text/html":
+			if preference < 1 {
+				preference = 1
+				body = string(part.Body)
+				// Convert to text/plain
+				body = strings.Replace(body, "\n", "<br>", -1) // Hack for breaks..
+				body, err = html2text.FromString(body, html2text.Options{PrettyTables: true})
+				if err != nil {
+					log.Println(err)
+					return err
+				}
+			}
+		}
+	}
+	if preference == 0 {
+		log.Println("Could not find usable part")
+		return errors.New("Could not find a useable part")
+	}
 
 	if subject == "" || body == "" {
+		log.Println("Did not understand mail format")
 		return errors.New("Did not understand mail format")
+	}
+
+	if !strings.Contains(body, "https://www.evedata.org/") {
+		body += "\n\nSent via EVEMail Proxy - https://www.evedata.org/"
 	}
 
 	// Build the recepient list
@@ -131,7 +160,9 @@ func (u *User) Send(from string, to []string, r io.Reader) error {
 			Body:         body,
 			Recipients:   recepients,
 		}, nil)
-
+	if err != nil {
+		log.Println(err)
+	}
 	return err
 }
 

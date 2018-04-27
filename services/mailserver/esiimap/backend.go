@@ -1,7 +1,6 @@
 package esiimap
 
 import (
-	"context"
 	"log"
 	"strconv"
 	"strings"
@@ -13,78 +12,29 @@ import (
 	"github.com/emersion/go-imap/backend"
 )
 
-func New(tokenAPI *tokenstore.TokenServerAPI, esi *goesi.APIClient, tokenAuth *goesi.SSOAuthenticator, q *redisqueue.RedisQueue) *Backend {
-	return &Backend{tokenAPI, esi, tokenAuth, q}
-}
-
 type Backend struct {
-	tokenAPI   *tokenstore.TokenServerAPI
-	esi        *goesi.APIClient
-	tokenAuth  *goesi.SSOAuthenticator
-	cacheQueue *redisqueue.RedisQueue
+	tokenAPI         *tokenstore.TokenServerAPI
+	esi              *goesi.APIClient
+	tokenAuth        *goesi.SSOAuthenticator
+	cacheQueue       *redisqueue.RedisQueue
+	cacheLookup      chan int32
+	cacheMailingList chan int32
 }
 
-func (s *Backend) lookupAddresses(ids []int32) ([]string, []string, error) {
-	names, err := s.cacheQueue.GetCacheInBulk("addressName", ids)
-	if err != nil {
-		return nil, nil, err
-	}
-	types, err := s.cacheQueue.GetCacheInBulk("addressType", ids)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	missing := []int32{}
-	missingIdx := []int{}
-
-	for i := range ids {
-		if names[i] == "" || types[i] == "" {
-			missing = append(missing, ids[i])
-			missingIdx = append(missingIdx, i)
-		}
+func New(tokenAPI *tokenstore.TokenServerAPI, esi *goesi.APIClient, tokenAuth *goesi.SSOAuthenticator, q *redisqueue.RedisQueue) *Backend {
+	b := &Backend{
+		tokenAPI,
+		esi,
+		tokenAuth,
+		q,
+		make(chan int32, 1000000),
+		make(chan int32, 1000000),
 	}
 
-	if len(missing) > 0 {
-		lookup, _, err := s.esi.ESI.UniverseApi.PostUniverseNames(context.Background(), missing, nil)
-		if err != nil {
-			if strings.Contains(err.Error(), "404") {
-				for i, missingID := range missing {
-					lookup, _, err := s.esi.ESI.UniverseApi.PostUniverseNames(context.Background(), []int32{missingID}, nil)
-					if err != nil {
-						if strings.Contains(err.Error(), "404") {
-							names[missingIdx[i]] = "## Unknown Mailing List ##"
-							types[missingIdx[i]] = "mailing_list"
-						} else {
-							return nil, nil, err
-						}
-					} else {
-						for _, e := range lookup {
-							names[missingIdx[i]] = e.Name
-							types[missingIdx[i]] = e.Category
-						}
-					}
-				}
-			} else {
-				return nil, nil, err
-			}
-		} else {
-			for i, e := range lookup {
-				names[missingIdx[i]] = e.Name
-				types[missingIdx[i]] = e.Category
-			}
-		}
-
-		err = s.cacheQueue.SetCacheInBulk("addressName", ids, names)
-		if err != nil {
-			return nil, nil, err
-		}
-		err = s.cacheQueue.SetCacheInBulk("addressType", ids, types)
-		if err != nil {
-			return nil, nil, err
-		}
-	}
-
-	return names, types, nil
+	// Start the cache lookup queue
+	go b.precacheLookup()
+	go b.precacheMailingLists()
+	return b
 }
 
 func (s *Backend) Login(username, password string) (backend.User, error) {
