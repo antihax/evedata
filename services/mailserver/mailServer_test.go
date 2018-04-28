@@ -1,14 +1,6 @@
 package mailserver
 
-import (
-	"log"
-	"os"
-	"testing"
-	"time"
-
-	"github.com/antihax/evedata/internal/redigohelper"
-)
-
+/*
 var mailserver *MailServer
 
 func TestMain(m *testing.M) {
@@ -32,3 +24,4 @@ func TestMain(m *testing.M) {
 
 	os.Exit(retCode)
 }
+*/

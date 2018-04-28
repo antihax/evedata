@@ -4,7 +4,7 @@ set +e
 docker stop mysql teamspeak mock-esi redis nsqlookup nsqadmin nsqd | xargs docker rm
 
 # MySQL Server
-docker run --net=host --name=mysql --health-cmd='mysqladmin ping --silent' -d -p 127.0.0.1:3306:3306 -h sql.evedata -e MYSQL_ALLOW_EMPTY_PASSWORD=true percona
+docker run --net=host --name=mysql --health-cmd='mysqladmin ping --silent' -d -p 127.0.0.1:3306:3306 -h sql.evedata -e INIT_TOKUDB=1 -e MYSQL_ALLOW_EMPTY_PASSWORD=true percona/percona-server
 
 # Teamspeak Server
 docker run --net=host --name=teamspeak -d -p 127.0.0.1:9987:9987/udp -p 127.0.0.1:30033:30033 -p 127.0.0.1:10011:10011 -p 127.0.0.1:41144:41144 mbentley/teamspeak clear_database=1 license_accepted=1 serveradmin_password=nothinguseful
@@ -38,7 +38,7 @@ do
 done
 echo Percona Ready
 
-echo "create database eve; create database evedata; set sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO';" | docker exec -i mysql /bin/bash -c mysql
-cat ./services/vanguard/sql/evedata.sql | docker exec -i mysql /bin/bash -c 'mysql -Devedata'
-unzip -p ./services/vanguard/sql/eve.zip | docker exec -i mysql /bin/bash -c 'mysql -Deve'
+echo "create database eve; create database evedata; set sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO';" | docker exec -i mysql /bin/bash -c 'mysql -uroot'
+cat ./services/vanguard/sql/evedata.sql | docker exec -i mysql /bin/bash -c 'mysql -uroot -Devedata'
+unzip -p ./services/vanguard/sql/eve.zip | docker exec -i mysql /bin/bash -c 'mysql -uroot -Deve'
 set -e
