@@ -1,15 +1,13 @@
 package views
 
 import (
-	"encoding/json"
 	"errors"
-	"html/template"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
-	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 var validEntity map[string]bool
@@ -35,7 +33,6 @@ func init() {
 }
 
 func shipsForEntityAPI(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60*4)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
@@ -55,11 +52,10 @@ func shipsForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour*12)
 }
 
 func assetsForEntityAPI(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60*4)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
@@ -87,11 +83,10 @@ func assetsForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour*12)
 }
 
 func activityForEntityAPI(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60*4)
 
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
@@ -112,11 +107,10 @@ func activityForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour*12)
 }
 
 func alliesForEntityAPI(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60*4)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
@@ -129,11 +123,10 @@ func alliesForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour*12)
 }
 
 func corporationHistoryAPI(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
@@ -146,11 +139,10 @@ func corporationHistoryAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour*12)
 }
 
 func knownAssociatesForEntityAPI(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
@@ -181,11 +173,10 @@ func knownAssociatesForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour*12)
 }
 
 func allianceJoinHistoryForEntityAPI(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
@@ -199,11 +190,10 @@ func allianceJoinHistoryForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour*12)
 }
 
 func allianceHistoryForEntityAPI(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
@@ -217,11 +207,10 @@ func allianceHistoryForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour*12)
 }
 
 func corporationHistoryForEntityAPI(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
@@ -235,11 +224,10 @@ func corporationHistoryForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour*12)
 }
 
 func warsForEntityAPI(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
@@ -252,11 +240,10 @@ func warsForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour*4)
 }
 
 func corporationsForAllianceAPI(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
 	idStr := r.FormValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
@@ -269,11 +256,10 @@ func corporationsForAllianceAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour*12)
 }
 
 func alliancePage(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
 	p := newPage(r, "Unknown Alliance")
 
 	idStr := r.FormValue("id")
@@ -294,16 +280,10 @@ func alliancePage(w http.ResponseWriter, r *http.Request) {
 	p["Alliance"] = ref
 	p["Title"] = ref.AllianceName
 
-	templates.Templates = template.Must(template.ParseFiles("templates/entities.html", templates.LayoutPath))
-	err = templates.Templates.ExecuteTemplate(w, "base", p)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
+	renderTemplate(w, "entities.html", time.Hour*24*7, p)
 }
 
 func corporationPage(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
 	p := newPage(r, "Unknown Corporation")
 
 	idStr := r.FormValue("id")
@@ -324,16 +304,10 @@ func corporationPage(w http.ResponseWriter, r *http.Request) {
 	p["Corporation"] = ref
 	p["Title"] = ref.CorporationName
 
-	templates.Templates = template.Must(template.ParseFiles("templates/entities.html", templates.LayoutPath))
-	err = templates.Templates.ExecuteTemplate(w, "base", p)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
+	renderTemplate(w, "entities.html", time.Hour*24*7, p)
 }
 
 func characterPage(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
 	p := newPage(r, "Unknown Character")
 
 	idStr := r.FormValue("id")
@@ -355,10 +329,5 @@ func characterPage(w http.ResponseWriter, r *http.Request) {
 	p["Character"] = ref
 	p["Title"] = ref.CharacterName
 
-	templates.Templates = template.Must(template.ParseFiles("templates/entities.html", templates.LayoutPath))
-	err = templates.Templates.ExecuteTemplate(w, "base", p)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
+	renderTemplate(w, "entities.html", time.Hour*24*7, p)
 }

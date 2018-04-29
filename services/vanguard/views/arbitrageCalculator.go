@@ -1,53 +1,35 @@
 package views
 
 import (
-	"encoding/json"
-	"html/template"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
-	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	vanguard.AddRoute("arbitrageCalculator", "GET", "/arbitrageCalculator", arbitrageCalculatorPage)
+	vanguard.AddRoute("arbitrageCalculator", "GET", "/arbitrageCalculator",
+		func(w http.ResponseWriter, r *http.Request) {
+			renderTemplate(w, "arbitrageCalculator.html", time.Hour*24*31, newPage(r, "Arbitrage Calculator"))
+		})
+
 	vanguard.AddRoute("arbitrageCalculatorStations", "GET", "/J/arbitrageCalculatorStations", arbitrageCalculatorStations)
 	vanguard.AddRoute("arbitrageCalculator", "GET", "/J/arbitrageCalculator", arbitrageCalculator)
 }
 
-func arbitrageCalculatorPage(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60*24)
-	p := newPage(r, "Arbitrage Calculator")
-
-	templates.Templates = template.Must(template.ParseFiles("templates/arbitrageCalculator.html", templates.LayoutPath))
-	err := templates.Templates.ExecuteTemplate(w, "base", p)
-
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
-}
-
 func arbitrageCalculatorStations(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*30)
 	v, err := models.GetArbitrageCalculatorStations()
 	if err != nil {
 		httpErr(w, err)
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(v)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
+	renderJSON(w, v, time.Hour)
 }
 
 func arbitrageCalculator(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*30)
-
 	stationID, err := strconv.ParseInt(r.FormValue("stationID"), 10, 64)
 	if err != nil {
 		httpErr(w, err)
@@ -89,5 +71,5 @@ func arbitrageCalculator(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour)
 }

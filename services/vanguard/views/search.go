@@ -1,10 +1,10 @@
 package views
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
@@ -19,7 +19,6 @@ func init() {
 
 // searchAPI for characters, alliances, corporations, and items.
 func searchEntitiesAPI(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 12*60*60)
 	// Get the query
 	q := r.FormValue("q")
 	q = strings.TrimSpace(q)
@@ -37,13 +36,11 @@ func searchEntitiesAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Return the JSON representation
-	json.NewEncoder(w).Encode(list)
+	renderJSON(w, list, time.Hour*24)
 }
 
 // searchAPI for characters, alliances, corporations, and items.
 func searchAPI(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 12*60*60)
 	// Get the query
 	q := r.FormValue("q")
 	q = strings.TrimSpace(q)
@@ -62,7 +59,7 @@ func searchAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return the JSON representation
-	json.NewEncoder(w).Encode(list)
+	renderJSON(w, list, time.Hour*24)
 }
 
 // searchAPI for characters, alliances, corporations, and items.

@@ -1,38 +1,29 @@
 package views
 
 import (
-	"encoding/json"
 	"errors"
-	"html/template"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
-	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	vanguard.AddRoute("marketBrowser", "GET", "/marketBrowser", marketBrowser)
+	vanguard.AddRoute("marketBrowser", "GET", "/marketBrowser",
+		func(w http.ResponseWriter, r *http.Request) {
+			renderTemplate(w,
+				"marketBrowser.html",
+				time.Hour*24*31,
+				newPage(r, "Market Browser"))
+		})
 	vanguard.AddRoute("searchMarketItems", "GET", "/J/searchMarketItems", searchMarketItemsAPI)
 	vanguard.AddRoute("marketSellRegionItems", "GET", "/J/marketSellRegionItems", MarketSellRegionItems)
 	vanguard.AddRoute("marketBuyRegionItems", "GET", "/J/marketBuyRegionItems", MarketBuyRegionItems)
 }
 
-// marketBrowser generates.... stuff
-func marketBrowser(w http.ResponseWriter, r *http.Request) {
-	p := newPage(r, "Market Browser")
-
-	templates.Templates = template.Must(template.ParseFiles("templates/marketBrowser.html", templates.LayoutPath))
-	err := templates.Templates.ExecuteTemplate(w, "base", p)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
-}
-
 func searchMarketItemsAPI(w http.ResponseWriter, r *http.Request) {
-
 	var q string
 	q = r.FormValue("q")
 
@@ -41,13 +32,13 @@ func searchMarketItemsAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mIL, err := models.SearchMarketNames(q)
+	v, err := models.SearchMarketNames(q)
 	if err != nil {
 		httpErr(w, err)
 		return
 	}
 
-	json.NewEncoder(w).Encode(mIL)
+	renderJSON(w, v, time.Hour)
 }
 
 func marketRegionItems(w http.ResponseWriter, r *http.Request, buy bool) {
@@ -68,13 +59,13 @@ func marketRegionItems(w http.ResponseWriter, r *http.Request, buy bool) {
 		return
 	}
 
-	mR, err := models.MarketRegionItems(regionID, itemID, secFlags, buy)
+	v, err := models.MarketRegionItems(regionID, itemID, secFlags, buy)
 	if err != nil {
 		httpErr(w, err)
 		return
 	}
 
-	json.NewEncoder(w).Encode(mR)
+	renderJSON(w, v, time.Hour)
 }
 
 // MarketSellRegionItems Query market sell orders for a user specified

@@ -4,38 +4,30 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
-	"github.com/antihax/evedata/services/vanguard/templates"
+
 	"github.com/antihax/goesi"
 	"github.com/garyburd/redigo/redis"
 )
 
 func init() {
-	vanguard.AddRoute("localIntel", "GET", "/localIntel", localIntelPage)
+	vanguard.AddRoute("localIntel", "GET", "/localIntel",
+		func(w http.ResponseWriter, r *http.Request) {
+			p := newPage(r, "Local Intel Summary")
+			hash := r.FormValue("hash")
+			if hash != "" {
+				p["HashURL"] = "/J/localIntel?hash=" + hash
+			}
+			renderTemplate(w, "localIntel.html", time.Hour*24*31, p)
+		})
 	vanguard.AddRoute("localIntel", "POST", "/J/localIntel", localIntel)
 	vanguard.AddRoute("localIntel", "GET", "/J/localIntel", localIntel)
-}
-
-func localIntelPage(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
-	p := newPage(r, "Local Intel Summary")
-	hash := r.FormValue("hash")
-	if hash != "" {
-		p["HashURL"] = "/J/localIntel?hash=" + hash
-	}
-
-	templates.Templates = template.Must(template.ParseFiles("templates/localIntel.html", templates.LayoutPath))
-	err := templates.Templates.ExecuteTemplate(w, "base", p)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
 }
 
 func localIntel(w http.ResponseWriter, r *http.Request) {

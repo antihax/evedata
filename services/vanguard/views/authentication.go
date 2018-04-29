@@ -46,7 +46,6 @@ func discordAuth(w http.ResponseWriter, r *http.Request) {
 }
 
 func discordAnswer(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 	c := vanguard.GlobalsFromContext(r.Context())
 
@@ -108,7 +107,6 @@ func discordAnswer(w http.ResponseWriter, r *http.Request) {
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 	s.Options.MaxAge = -1
 	err := s.Save(r, w)
@@ -122,7 +120,6 @@ func logout(w http.ResponseWriter, r *http.Request) {
 }
 
 func generateState(stateType string, w http.ResponseWriter, r *http.Request) (string, error) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
 	b := make([]byte, 16)
@@ -147,7 +144,6 @@ func eveSSO(w http.ResponseWriter, r *http.Request) {
 }
 
 func eveSSOAnswer(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 	c := vanguard.GlobalsFromContext(r.Context())
 
@@ -231,7 +227,6 @@ func updateAccountInfo(s *sessions.Session, characterID int32, ownerHash, charac
 }
 
 func eveCRESTToken(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	c := vanguard.GlobalsFromContext(r.Context())
 
 	var scopes []string
@@ -269,7 +264,6 @@ func eveCRESTToken(w http.ResponseWriter, r *http.Request) {
 }
 
 func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 	c := vanguard.GlobalsFromContext(r.Context())
 

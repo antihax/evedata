@@ -1,42 +1,30 @@
 package views
 
 import (
-	"encoding/json"
 	"errors"
 	"log"
 	"strconv"
+	"time"
 
-	"html/template"
 	"net/http"
 
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
-	"github.com/antihax/evedata/services/vanguard/templates"
+
 	"github.com/antihax/goesi"
 )
 
 func init() {
-	vanguard.AddRoute("assets", "GET", "/assets", assetsPage)
+	vanguard.AddRoute("assets", "GET", "/assets", func(w http.ResponseWriter, r *http.Request) {
+		renderTemplate(w, "assets.html", time.Hour*24*31, newPage(r, "Asset Information"))
+	})
 	vanguard.AddAuthRoute("assets", "GET", "/U/assets", assetsAPI)
 	vanguard.AddAuthRoute("assets", "GET", "/U/assetLocations", assetLocationsAPI)
 	vanguard.AddAuthRoute("assets", "GET", "/U/assetCharacters", assetCharactersAPI)
 }
 
-func assetsPage(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
-	p := newPage(r, "Asset Information")
-	templates.Templates = template.Must(template.ParseFiles("templates/assets.html", templates.LayoutPath))
-
-	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
-		log.Println(err)
-		httpErr(w, err)
-		return
-	}
-}
-
 func assetCharactersAPI(w http.ResponseWriter, r *http.Request) {
 	var err error
-	setCache(w, 5*60)
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -54,7 +42,7 @@ func assetCharactersAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour)
 }
 
 func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
@@ -87,8 +75,7 @@ func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
 		httpErr(w, err)
 		return
 	}
-	setCache(w, 5*60)
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour)
 }
 
 func assetsAPI(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +85,6 @@ func assetsAPI(w http.ResponseWriter, r *http.Request) {
 		filterCharacterID int32
 	)
 
-	setCache(w, 5*60)
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -137,5 +123,5 @@ func assetsAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour)
 }

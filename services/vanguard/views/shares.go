@@ -1,42 +1,34 @@
 package views
 
 import (
-	"encoding/json"
 	"errors"
-	"html/template"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
-	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
 
-	vanguard.AddRoute("sharing", "GET", "/shares", sharesPage)
+	vanguard.AddRoute("sharing", "GET", "/shares",
+		func(w http.ResponseWriter, r *http.Request) {
+			p := newPage(r, "Share data with entities")
+			p["ShareGroups"] = models.GetCharacterShareGroups()
+			renderTemplate(w,
+				"shares.html",
+				time.Hour*24*31,
+				p)
+		})
 
 	vanguard.AddAuthRoute("sharing", "GET", "/U/shares", apiGetShares)
 	vanguard.AddAuthRoute("sharing", "DELETE", "/U/shares", apiDeleteShare)
 	vanguard.AddAuthRoute("sharing", "POST", "/U/shares", apiAddShare)
 }
 
-func sharesPage(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
-	p := newPage(r, "Account Information")
-	templates.Templates = template.Must(template.ParseFiles("templates/shares.html", templates.LayoutPath))
-
-	p["ShareGroups"] = models.GetCharacterShareGroups()
-
-	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
-		httpErr(w, err)
-		return
-	}
-}
-
 func apiDeleteShare(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -65,7 +57,6 @@ func apiDeleteShare(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiAddShare(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -110,7 +101,6 @@ func apiAddShare(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiGetShares(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -126,7 +116,7 @@ func apiGetShares(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, 0)
 
 	if err = s.Save(r, w); err != nil {
 		httpErr(w, err)

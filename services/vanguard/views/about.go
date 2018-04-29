@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/antihax/evedata/services/vanguard"
-	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
@@ -52,11 +51,11 @@ func helpPage(w http.ResponseWriter, r *http.Request) {
 
 func renderStatic(w http.ResponseWriter, r *http.Request, area string, page page) {
 	p := newPage(r, page.Title)
-	setCache(w, 60*60*24)
-	templates.Templates = template.Must(
-		template.ParseFiles("templates/"+area+"/"+page.Template, "templates/"+area+"/base.html", templates.LayoutPath),
+	setCache(w, 60*60*24*31)
+	template := template.Must(
+		template.ParseFiles("templates/"+area+"/"+page.Template, "templates/"+area+"/base.html", LayoutPath),
 	)
-	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
+	if err := template.ExecuteTemplate(w, "base", p); err != nil {
 		httpErrCode(w, err, http.StatusInternalServerError)
 		return
 	}

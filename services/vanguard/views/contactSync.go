@@ -2,35 +2,27 @@ package views
 
 import (
 	"encoding/json"
-	"html/template"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
-	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	vanguard.AddRoute("ContactSync", "GET", "/contactSync", contactSyncPage)
+	vanguard.AddRoute("ContactSync", "GET", "/contactSync", func(w http.ResponseWriter, r *http.Request) {
+		renderTemplate(w,
+			"contactSync.html",
+			time.Hour*24*31,
+			newPage(r, "Contact Copiers"))
+	})
 	vanguard.AddAuthRoute("ContactSync", "PUT", "/U/contactSync", apiAddContactSync)
 	vanguard.AddAuthRoute("ContactSync", "GET", "/U/contactSync", apiGetContactSyncs)
 	vanguard.AddAuthRoute("ContactSync", "DELETE", "/U/contactSync", apiDeleteContactSync)
 }
 
-func contactSyncPage(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
-	p := newPage(r, "Contact Copiers")
-	templates.Templates = template.Must(template.ParseFiles("templates/contactSync.html", templates.LayoutPath))
-
-	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
-		httpErr(w, err)
-		return
-	}
-}
-
 func apiAddContactSync(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
 	type localContactSync struct {
@@ -63,7 +55,6 @@ func apiAddContactSync(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiGetContactSyncs(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
 	characterID, ok := s.Values["characterID"].(int32)
@@ -77,11 +68,10 @@ func apiGetContactSyncs(w http.ResponseWriter, r *http.Request) {
 		httpErrCode(w, err, http.StatusNotFound)
 		return
 	}
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, 0)
 }
 
 func apiDeleteContactSync(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
 	characterID, ok := s.Values["characterID"].(int32)

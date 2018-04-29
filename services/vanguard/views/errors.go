@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/antihax/evedata/services/vanguard"
-	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
@@ -26,11 +25,10 @@ func httpErr(w http.ResponseWriter, err error) {
 }
 
 func notFoundPage(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
 	p := newPage(r, "Page Not Found")
 
-	templates.Templates = template.Must(template.ParseFiles("templates/error/notFound.html", templates.LayoutPath))
-	err := templates.Templates.ExecuteTemplate(w, "base", p)
+	template := template.Must(template.ParseFiles("templates/error/notFound.html", LayoutPath))
+	err := template.ExecuteTemplate(w, "base", p)
 	if err != nil {
 		httpErr(w, err)
 		return

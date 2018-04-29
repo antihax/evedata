@@ -17,8 +17,6 @@ func init() {
 }
 
 func bootstrapEveSSO(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
-
 	s := vanguard.SessionFromContext(r.Context())
 	c := vanguard.GlobalsFromContext(r.Context())
 
@@ -43,7 +41,6 @@ func bootstrapEveSSO(w http.ResponseWriter, r *http.Request) {
 }
 
 func bootstrapEveSSOAnswer(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	c := vanguard.GlobalsFromContext(r.Context())
 
 	code := r.FormValue("code")

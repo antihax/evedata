@@ -3,43 +3,45 @@ package views
 import (
 	"encoding/json"
 	"errors"
-	"html/template"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/antihax/evedata/services/conservator"
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
-	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	vanguard.AddRoute("integrations", "GET", "/integrations", integrationsPage)
+	// Integrations
+	vanguard.AddRoute("integrations", "GET", "/integrations",
+		func(w http.ResponseWriter, r *http.Request) {
+			renderTemplate(w,
+				"integrations.html",
+				time.Hour*24*31,
+				newPage(r, "Integrations"))
+		})
+
 	vanguard.AddAuthRoute("integrations", "GET", "/U/integrations", apiGetIntegrations)
 	vanguard.AddAuthRoute("integrations", "DELETE", "/U/integrations", apiDeleteIntegration)
 	vanguard.AddAuthRoute("integrations", "POST", "/U/integrationsDiscord", apiAddDiscordIntegration)
 	vanguard.AddAuthRoute("integrations", "POST", "/U/integrationShareToggleIgnore", apiIntegrationToggleIgnore)
 
-	vanguard.AddRoute("integrations", "GET", "/integrationDetails", integrationDetailsPage)
+	// Integration Details
+	vanguard.AddRoute("integrations", "GET", "/integrationDetails", func(w http.ResponseWriter, r *http.Request) {
+		renderTemplate(w,
+			"integrationDetails.html",
+			time.Hour*24*31,
+			newPage(r, "Integration Services"))
+	})
+
 	vanguard.AddAuthRoute("integrations", "GET", "/U/integrationDetails", apiGetIntegrationDetails)
 	vanguard.AddAuthRoute("integrations", "PUT", "/U/integrationDetails", apiIntegrationOptions)
 
 	vanguard.AddAuthRoute("integrations", "GET", "/U/entitiesWithRoles", apiGetEntitiesWithRoles)
 }
 
-func integrationsPage(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
-	p := newPage(r, "Integrations")
-	templates.Templates = template.Must(template.ParseFiles("templates/integrations.html", templates.LayoutPath))
-
-	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
-		httpErr(w, err)
-		return
-	}
-}
-
 func apiDeleteIntegration(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -62,7 +64,6 @@ func apiDeleteIntegration(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiAddDiscordIntegration(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 	g := vanguard.GlobalsFromContext(r.Context())
 
@@ -106,7 +107,6 @@ func apiAddDiscordIntegration(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiGetIntegrations(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -121,23 +121,10 @@ func apiGetIntegrations(w http.ResponseWriter, r *http.Request) {
 		httpErr(w, err)
 		return
 	}
-	json.NewEncoder(w).Encode(v)
-}
-
-func integrationDetailsPage(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
-	p := newPage(r, "Integration Services")
-	templates.Templates = template.Must(template.ParseFiles("templates/integrationDetails.html", templates.LayoutPath))
-
-	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
-		httpErr(w, err)
-		return
-	}
+	renderJSON(w, v, 0)
 }
 
 func apiGetIntegrationDetails(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
-
 	// Verify the user has access to this service
 	v, err := getIntegration(r)
 	if err != nil {
@@ -149,11 +136,10 @@ func apiGetIntegrationDetails(w http.ResponseWriter, r *http.Request) {
 	for i := range v.Channels {
 		json.Unmarshal([]byte(v.Channels[i].OptionsJSON), &v.Channels[i].Options)
 	}
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, 0)
 }
 
 func apiIntegrationToggleIgnore(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	g := vanguard.GlobalsFromContext(r.Context())
 
 	// Check tokenCharacterID is valid
@@ -178,7 +164,6 @@ func apiIntegrationToggleIgnore(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiGetEntitiesWithRoles(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -194,11 +179,10 @@ func apiGetEntitiesWithRoles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, 0)
 }
 
 func apiIntegrationOptions(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	// Verify the user has access to this service
 	service, err := getIntegration(r)
 	if err != nil {

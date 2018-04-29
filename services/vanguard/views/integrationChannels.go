@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/antihax/evedata/services/conservator"
 
@@ -22,7 +23,6 @@ func init() {
 }
 
 func apiGetIntegrationChannels(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	g := vanguard.GlobalsFromContext(r.Context())
 
 	// Verify the user has access to this service
@@ -42,16 +42,15 @@ func apiGetIntegrationChannels(w http.ResponseWriter, r *http.Request) {
 		ChannelID   string `json:"channelID"`
 		ChannelName string `json:"channelName"`
 	}
-	convChannels := []channel{}
+	v := []channel{}
 
 	for _, ch := range channels {
-		convChannels = append(convChannels, channel{ChannelID: ch[0], ChannelName: ch[1]})
+		v = append(v, channel{ChannelID: ch[0], ChannelName: ch[1]})
 	}
-	json.NewEncoder(w).Encode(convChannels)
+	renderJSON(w, v, time.Hour)
 }
 
 func apiGetIntegrationRoles(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	g := vanguard.GlobalsFromContext(r.Context())
 
 	// Verify the user has access to this service
@@ -71,17 +70,15 @@ func apiGetIntegrationRoles(w http.ResponseWriter, r *http.Request) {
 		RoleID   string `json:"roleID"`
 		RoleName string `json:"roleName"`
 	}
-	convRoles := []role{}
+	v := []role{}
 
 	for _, ch := range roles {
-		convRoles = append(convRoles, role{RoleID: ch[0], RoleName: ch[1]})
+		v = append(v, role{RoleID: ch[0], RoleName: ch[1]})
 	}
-	json.NewEncoder(w).Encode(convRoles)
+	renderJSON(w, v, time.Hour)
 }
 
 func apiAddIntegrationChannel(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
-
 	g := vanguard.GlobalsFromContext(r.Context())
 
 	// Verify the user has access to this service
@@ -123,12 +120,9 @@ func apiAddIntegrationChannel(w http.ResponseWriter, r *http.Request) {
 		httpErr(w, err)
 		return
 	}
-
-	return
 }
 
 func apiDeleteIntegrationChannel(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	// Verify the user has access to this service
 	service, err := getIntegration(r)
 	if err != nil {
@@ -148,7 +142,6 @@ func apiDeleteIntegrationChannel(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiSetIntegrationChannelOptions(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	// Verify the user has access to this service
 	service, err := getIntegration(r)
 	if err != nil {

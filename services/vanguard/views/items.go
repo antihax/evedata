@@ -1,17 +1,15 @@
 package views
 
 import (
-	"encoding/json"
-	"html/template"
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/antihax/evedata/internal/strip"
 
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
-	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
@@ -20,7 +18,6 @@ func init() {
 }
 
 func itemPage(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
 	p := newPage(r, "Unknown Item")
 
 	idStr := r.FormValue("id")
@@ -63,16 +60,10 @@ func itemPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	templates.Templates = template.Must(template.ParseFiles("templates/items.html", templates.LayoutPath))
-	err = templates.Templates.ExecuteTemplate(w, "base", p)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
+	renderTemplate(w, "item.html", time.Hour*24*31, p)
 }
 
 func marketHistory(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60*24)
 	region := r.FormValue("regionID")
 	item := r.FormValue("itemID")
 
@@ -99,5 +90,5 @@ func marketHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour*12)
 }

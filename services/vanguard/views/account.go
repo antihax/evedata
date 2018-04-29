@@ -1,10 +1,8 @@
 package views
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"strconv"
@@ -17,11 +15,15 @@ import (
 	"github.com/antihax/evedata/services/conservator"
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
-	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	vanguard.AddRoute("account", "GET", "/account", accountPage)
+	vanguard.AddRoute("account", "GET", "/account",
+		func(w http.ResponseWriter, r *http.Request) {
+			p := newPage(r, "Account Information")
+			p["ScopeGroups"] = models.GetCharacterScopeGroups()
+			renderTemplate(w, "account.html", time.Hour*24*31, p)
+		})
 
 	vanguard.AddAuthRoute("account", "GET", "/X/accountInfo", accountInfo)
 	vanguard.AddAuthRoute("account", "POST", "/X/cursorChar", cursorChar)
@@ -42,7 +44,6 @@ func init() {
 }
 
 func apiToggleAuth(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 	if s == nil {
 		httpErrCode(w, errors.New("Cannot find session"), http.StatusInternalServerError)
@@ -71,22 +72,7 @@ func apiToggleAuth(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func accountPage(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
-	p := newPage(r, "Account Information")
-	templates.Templates = template.Must(template.ParseFiles("templates/account.html", templates.LayoutPath))
-
-	p["ScopeGroups"] = models.GetCharacterScopeGroups()
-
-	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
-		httpErr(w, err)
-		return
-	}
-}
-
 func accountInfo(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
-
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -120,7 +106,6 @@ func accountInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func cursorChar(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -163,7 +148,6 @@ func cursorChar(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiGetCRESTTokens(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -185,7 +169,7 @@ func apiGetCRESTTokens(w http.ResponseWriter, r *http.Request) {
 		v[i].Scopes = models.GetCharacterGroupsByScopesString(v[i].Scopes)
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, 0)
 
 	if err = s.Save(r, w); err != nil {
 		httpErr(w, err)
@@ -194,7 +178,6 @@ func apiGetCRESTTokens(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 	g := vanguard.GlobalsFromContext(r.Context())
 	// Get the sessions main characterID
@@ -238,7 +221,6 @@ func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiAccessableIntegrations(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -254,7 +236,7 @@ func apiAccessableIntegrations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, 0)
 
 	if err = s.Save(r, w); err != nil {
 		httpErr(w, err)
@@ -263,7 +245,6 @@ func apiAccessableIntegrations(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiJoinIntegration(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 	g := vanguard.GlobalsFromContext(r.Context())
 
@@ -321,7 +302,6 @@ func apiJoinIntegration(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiGetIntegrationTokens(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -337,7 +317,7 @@ func apiGetIntegrationTokens(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, 0)
 
 	if err = s.Save(r, w); err != nil {
 		httpErr(w, err)
@@ -346,7 +326,6 @@ func apiGetIntegrationTokens(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiDeleteIntegrationToken(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -381,7 +360,6 @@ func verifyPassword(s string) bool {
 }
 
 func apiSetMailPassword(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 	if s == nil {
 		httpErrCode(w, errors.New("could not find session"), http.StatusUnauthorized)

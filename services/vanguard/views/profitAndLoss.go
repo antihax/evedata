@@ -1,31 +1,24 @@
 package views
 
 import (
-	"encoding/json"
 	"strconv"
+	"time"
 
-	"html/template"
 	"net/http"
 
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
-	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	vanguard.AddRoute("profitandloss", "GET", "/profitAndLoss", profitAndLossPage)
+	vanguard.AddRoute("profitandloss", "GET", "/profitAndLoss",
+		func(w http.ResponseWriter, r *http.Request) {
+			renderTemplate(w,
+				"profitAndLoss.html",
+				time.Hour*24*31,
+				newPage(r, "Profit and Loss Statement"))
+		})
 	vanguard.AddAuthRoute("profitandloss", "GET", "/U/walletSummary", walletSummaryAPI)
-}
-
-func profitAndLossPage(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
-	p := newPage(r, "Profit and Loss Statement")
-	templates.Templates = template.Must(template.ParseFiles("templates/profitAndLoss.html", templates.LayoutPath))
-
-	if err := templates.Templates.ExecuteTemplate(w, "base", p); err != nil {
-		httpErr(w, err)
-		return
-	}
 }
 
 func walletSummaryAPI(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +27,6 @@ func walletSummaryAPI(w http.ResponseWriter, r *http.Request) {
 		rangeI int64
 	)
 
-	setCache(w, 5*60)
 	s := vanguard.SessionFromContext(r.Context())
 
 	// Get the sessions main characterID
@@ -63,5 +55,5 @@ func walletSummaryAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(v)
+	renderJSON(w, v, time.Hour)
 }

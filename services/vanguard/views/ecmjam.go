@@ -1,26 +1,18 @@
 package views
 
 import (
-	"html/template"
 	"net/http"
+	"time"
 
 	"github.com/antihax/evedata/services/vanguard"
-	"github.com/antihax/evedata/services/vanguard/templates"
 )
 
 func init() {
-	vanguard.AddRoute("ecmjam", "GET", "/ecmjam", ecmjamPage)
-}
-
-func ecmjamPage(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*60)
-
-	p := newPage(r, "EVE ECM Jam")
-
-	templates.Templates = template.Must(template.ParseFiles("templates/ecmjam.html", templates.LayoutPath))
-	err := templates.Templates.ExecuteTemplate(w, "base", p)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
+	vanguard.AddRoute("ecmjam", "GET", "/ecmjam",
+		func(w http.ResponseWriter, r *http.Request) {
+			renderTemplate(w,
+				"ecmjam.html",
+				time.Hour*24*31,
+				newPage(r, "EVE ECM Jam"))
+		})
 }

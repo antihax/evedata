@@ -14,7 +14,6 @@ func init() {
 }
 
 func openMarketWindow(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 	c := vanguard.GlobalsFromContext(r.Context())
 
@@ -53,7 +52,6 @@ func openMarketWindow(w http.ResponseWriter, r *http.Request) {
 }
 
 func setDestination(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 	c := vanguard.GlobalsFromContext(r.Context())
 
@@ -92,7 +90,6 @@ func setDestination(w http.ResponseWriter, r *http.Request) {
 }
 
 func addDestination(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 0)
 	s := vanguard.SessionFromContext(r.Context())
 	c := vanguard.GlobalsFromContext(r.Context())
 
