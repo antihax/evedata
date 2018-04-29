@@ -15,6 +15,47 @@ func GetKnownKillmails() ([]int64, error) {
 }
 
 // [TODO] Break out the CSV into an array
+type KillmailHeatMap struct {
+	Day   int64 `db:"day" json:"day"`
+	Hour  int64 `db:"hour" json:"hour"`
+	Value int64 `db:"value" json:"value"`
+}
+
+// [BENCHMARK] 0.015 sec / 0.000 sec
+func GetKillmailHeatMap(id int64, entityType string) ([]KillmailHeatMap, error) {
+	v := []KillmailHeatMap{}
+
+	var victim, entity string
+
+	switch entityType {
+	case "corporation":
+		victim = fmt.Sprintf("victimCorporationID=%d", id)
+		entity = fmt.Sprintf("corporationID=%d", id)
+	case "alliance":
+		victim = fmt.Sprintf("victimAllianceID=%d", id)
+		entity = fmt.Sprintf("allianceID=%d", id)
+	case "character":
+		victim = fmt.Sprintf("victimCharacterID=%d", id)
+		entity = fmt.Sprintf("characterID=%d", id)
+	}
+
+	if err := database.Select(&v, `
+		SELECT DAYOFWEEK(killTime) AS day, HOUR(killTime) AS hour, count(S.id) FROM (
+			SELECT killTime, K.id
+			FROM evedata.killmails K
+			WHERE `+victim+`
+			UNION
+			SELECT DISTINCT killTime, K.id
+			FROM evedata.killmails K
+			INNER JOIN evedata.killmailAttackers A ON K.id = A.id
+			WHERE `+entity+`
+		) S GROUP BY DAYOFWEEK(killTime), HOUR(killTime)`); err != nil {
+		return nil, err
+	}
+	return v, nil
+}
+
+// [TODO] Break out the CSV into an array
 type ConstellationActivity struct {
 	Number            int64  `db:"number" json:"number"`
 	SolarSystemIDs    string `db:"solarSystemIDs" json:"solarSystemIDs"`
