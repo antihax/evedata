@@ -29,8 +29,7 @@ func bootstrapEveSSO(w http.ResponseWriter, r *http.Request) {
 
 	// Save the code to our session store to compare later
 	s.Values["TOKENstate"] = state
-	err := s.Save(r, w)
-	if err != nil {
+	if err := s.Save(r, w); err != nil {
 		httpErr(w, err)
 		return
 	}
