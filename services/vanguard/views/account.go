@@ -197,12 +197,10 @@ func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 	// Revoke the token before we delete. Do not error out if this fails.
 	if tok, err := models.GetCRESTToken(char.CharacterID, char.CharacterOwnerHash, int32(cid)); err != nil {
 		log.Println(err)
-		return
 	} else {
 		err = g.TokenAuthenticator.TokenRevoke(tok.RefreshToken)
 		if err != nil {
 			log.Println(err)
-			return
 		}
 	}
 
