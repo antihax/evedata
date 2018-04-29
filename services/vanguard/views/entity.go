@@ -19,6 +19,7 @@ func init() {
 	vanguard.AddRoute("entity", "GET", "/character", characterPage)
 	vanguard.AddRoute("entity", "GET", "/J/warsForEntity", warsForEntityAPI)
 	vanguard.AddRoute("entity", "GET", "/J/activityForEntity", activityForEntityAPI)
+	vanguard.AddRoute("entity", "GET", "/J/heatmapForEntity", heatmapForEntityAPI)
 	vanguard.AddRoute("entity", "GET", "/J/assetsForEntity", assetsForEntityAPI)
 	vanguard.AddRoute("entity", "GET", "/J/alliesForEntity", alliesForEntityAPI)
 	vanguard.AddRoute("entity", "GET", "/J/shipsForEntity", shipsForEntityAPI)
@@ -102,6 +103,30 @@ func activityForEntityAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	v, err := models.GetConstellationActivity(id, entityType)
+	if err != nil {
+		httpErrCode(w, err, http.StatusNotFound)
+		return
+	}
+
+	renderJSON(w, v, time.Hour*12)
+}
+
+func heatmapForEntityAPI(w http.ResponseWriter, r *http.Request) {
+
+	idStr := r.FormValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	entityType := r.FormValue("entityType")
+	if !validEntity[entityType] {
+		httpErr(w, errors.New("entityType must be corporation, character, or alliance"))
+		return
+	}
+
+	v, err := models.GetKillmailHeatMap(id, entityType)
 	if err != nil {
 		httpErrCode(w, err, http.StatusNotFound)
 		return
