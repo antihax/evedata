@@ -180,10 +180,11 @@ func apiGetCRESTTokens(w http.ResponseWriter, r *http.Request) {
 func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 	s := vanguard.SessionFromContext(r.Context())
 	g := vanguard.GlobalsFromContext(r.Context())
+
 	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int32)
+	char, ok := s.Values["character"].(goesi.VerifyResponse)
 	if !ok {
-		httpErrCode(w, errors.New("could not find character ID to delete"), http.StatusUnauthorized)
+		httpErrCode(w, errors.New("could not find verify response to delete"), http.StatusForbidden)
 		return
 	}
 
@@ -193,23 +194,29 @@ func apiDeleteCRESTToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := models.DeleteCRESTToken(characterID, int32(cid)); err != nil {
+	// Revoke the token before we delete. Do not error out if this fails.
+	if tok, err := models.GetCRESTToken(char.CharacterID, char.CharacterOwnerHash, int32(cid)); err != nil {
+		log.Println(err)
+		return
+	} else {
+		err = g.TokenAuthenticator.TokenRevoke(tok.RefreshToken)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
+
+	if err := models.DeleteCRESTToken(char.CharacterID, int32(cid)); err != nil {
 		httpErrCode(w, err, http.StatusConflict)
 		return
 	}
 
-	char, ok := s.Values["character"].(goesi.VerifyResponse)
-	if !ok {
-		httpErrCode(w, errors.New("could not find verify response to delete"), http.StatusForbidden)
-		return
-	}
-
-	if err = updateAccountInfo(s, characterID, char.CharacterOwnerHash, char.CharacterName); err != nil {
+	if err = updateAccountInfo(s, char.CharacterID, char.CharacterOwnerHash, char.CharacterName); err != nil {
 		httpErr(w, err)
 		return
 	}
 
-	key := fmt.Sprintf("EVEDATA_TOKENSTORE_%d_%d", characterID, cid)
+	key := fmt.Sprintf("EVEDATA_TOKENSTORE_%d_%d", char.CharacterID, cid)
 	red := g.Cache.Get()
 	defer red.Close()
 	red.Do("DEL", key)
