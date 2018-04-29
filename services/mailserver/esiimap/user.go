@@ -72,6 +72,10 @@ func (u *User) ListMailboxes(subscribed bool) (mailboxes []backend.Mailbox, err 
 }
 
 func (u *User) GetMailbox(name string) (backend.Mailbox, error) {
+	// WHY?!
+	if name == "INBOX" {
+		name = "Inbox"
+	}
 	mailbox, ok := u.mailboxes[name]
 	if !ok {
 		log.Printf("Cant find mailbox %s", name)
