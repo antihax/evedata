@@ -40,7 +40,7 @@ func GetKillmailHeatMap(id int64, entityType string) ([]KillmailHeatMap, error) 
 	}
 
 	if err := database.Select(&v, `
-		SELECT DAYOFWEEK(killTime) AS day, HOUR(killTime) AS hour, count(S.id) FROM (
+		SELECT DAYOFWEEK(killTime) AS day, HOUR(killTime) AS hour, count(S.id) AS value FROM (
 			SELECT killTime, K.id
 			FROM evedata.killmails K
 			WHERE `+victim+`

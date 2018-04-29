@@ -1,22 +1,26 @@
 {{define "heatmap"}}
-<div id="{{.ChartName}}"></div>
+<center>
+    <div id="{{.ChartName}}"></div>
+</center>
 <script>
     var margin = {
             top: 15,
             right: 0,
-            bottom: 100,
-            left: 20
+            bottom: 0,
+            left: 50
         },
         gridSize = 16,
         width = gridSize * 24,
         height = gridSize * 7,
 
         legendElementWidth = gridSize * 2,
-        buckets = 9,
-        colors = ["#ffffd9", "#edf8b1", "#c7e9b4", "#7fcdbb", "#41b6c4",
-            "#1d91c0", "#225ea8", "#253494", "#081d58"
+        buckets = 20,
+        colors = ['#ffff9a', '#fff387', '#ffe977', '#fedc67', '#fcd15a',
+            '#f9c74f', '#f5bc44', '#f1b23a', '#eca631', '#e79c29', '#e29221',
+            '#dd871a', '#d77d14', '#d1730d', '#cb6808', '#c55d04', '#bf5301',
+            '#b94700', '#b33c00', '#ac2f00'
         ],
-        days = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+        days = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
         times = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09",
             "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
             "21", "22", "23"
@@ -28,8 +32,10 @@
         url: '{{.DataURL}}',
         dataType: 'json',
         async: true,
-        data: "{}",
         success: function (data) {
+            if (data.length == 0) {
+                return;
+            }
             var colorScale = d3.scaleQuantile()
                 .domain([0, buckets - 1, d3.max(data, function (d) {
                     return d.value;
@@ -37,7 +43,7 @@
                 .range(colors);
 
 
-            var svg = d3.select("{{.ChartName}}").append("svg")
+            var svg = d3.select("#{{.ChartName}}").append("svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
@@ -51,18 +57,14 @@
                 .text(function (d) {
                     return d;
                 })
-                .attr("x", 0)
+                .attr("x", -gridSize)
                 .attr("y", function (d, i) {
                     return i * gridSize;
                 })
                 .style("text-anchor", "end")
                 .attr("transform", "translate(-6," + gridSize / 1.5 +
                     ")")
-                .attr("class", function (d, i) {
-                    return ((i >= 0 && i <= 4) ?
-                        "dayLabel mono axis axis-workweek" :
-                        "dayLabel mono axis");
-                });
+                .attr("class", "dayLabel mono axis");
 
             var timeLabels = svg.selectAll(".timeLabel")
                 .data(times)
@@ -71,17 +73,13 @@
                     return d;
                 })
                 .attr("x", function (d, i) {
-                    return i * gridSize;
+                    return (i - 1) * gridSize;
                 })
                 .attr("y", 0)
                 .style("text-anchor", "middle")
                 .attr("transform", "translate(" + gridSize / 2 +
                     ", -6)")
-                .attr("class", function (d, i) {
-                    return ((i >= 7 && i <= 16) ?
-                        "timeLabel mono axis axis-worktime" :
-                        "timeLabel mono axis");
-                });
+                .attr("class", "timeLabel mono axis");
 
             var heatMap = svg.selectAll(".hour")
                 .data(data)

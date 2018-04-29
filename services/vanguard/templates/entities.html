@@ -97,9 +97,9 @@
 
 {{define "corporations"}}
 	<div class="col-md-6 well">
-		<h2>
+		<h3>
 			Corporations
-		</h2>
+		</h3>
 		<table id="corporations" data-sort-name="name" data-url="/J/corporationsForAlliance?id={{ .entityID }}"
 		data-pagination="true" data-search="true" data-sort-order="asc">
 			<thead>
@@ -119,9 +119,9 @@
 
 {{define "corporationHistory"}}
 	<div class="col-md-6 well">
-		<h2>
+		<h3>
 			Corporation History
-		</h2>
+		</h3>
 		<table id="corporations" data-sort-name="startDate" data-url="/J/corporationHistory?id={{ .entityID }}"
 		data-pagination="true" data-search="true" data-sort-order="desc">
 			<thead>
@@ -141,9 +141,9 @@
 
 {{define "allianceHistory"}}
 	<div class="col-md-6 well">
-		<h2>
+		<h3>
 			Corporation History
-		</h2>
+		</h3>
 		<table id="corporationHistory" data-sort-name="startDate" data-url="/J/allianceHistoryForEntity?id={{ .entityID }}&entityType=alliance"
 		data-pagination="true" data-search="true" data-sort-order="desc">
 			<thead>
@@ -165,9 +165,9 @@
 
 {{define "allianceJoinHistory"}}
 	<div class="col-md-6 well">
-		<h2>
+		<h3>
 			Character History
-		</h2>
+		</h3>
 		<table id="allianceJoinHistory" data-sort-name="date" data-url="/J/allianceJoinHistoryForEntity?id={{ .entityID }}&entityType=alliance"
 		data-pagination="true" data-search="true" data-sort-order="desc">
 			<thead>
@@ -189,9 +189,9 @@
 
 {{define "corporationJoinHistory"}}
 	<div class="col-md-6 well">
-		<h2>
+		<h3>
 			Character History
-		</h2>
+		</h3>
 		<table id="corporationHistory" data-sort-name="startDate" data-url="/J/corporationHistoryForEntity?id={{ .entityID }}&entityType=alliance"
 		data-pagination="true" data-search="true" data-sort-order="desc">
 			<thead>
@@ -212,9 +212,9 @@
 
 {{define "knownAssociates"}}
 	<div class="col-md-6 well">
-		<h2>
+		<h3>
 			Known Associates
-		</h2>
+		</h3>
 		<table id="alts" data-sort-name="frequency" data-url="/J/knownAssociatesForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
 		data-pagination="true" data-search="true" data-sort-order="desc">
 			<thead>
@@ -234,9 +234,9 @@
 
 {{define "wars"}}
 	<div class="col-md-6 well">
-		<h2>
+		<h3>
 			Active Wars
-		</h2>
+		</h3>
 		<table id="wars" data-sort-name="aggressorName" data-pagination="true" data-search="true"
 		 data-url="/J/warsForEntity?id={{ .entityID }}" data-sort-order="asc">
 			<thead>
@@ -258,11 +258,13 @@
 
 {{define "activity"}}
 	<div class="col-md-6 well">
-		<h2>
-			Active Constellations
-		</h2>
+		<h3>
+			Kill/Loss Activity
+		</h3>
+		{{ $dataURL := print "/J/heatmapForEntity?id=" .entityID "" "&entityType=" .entityType }}
+		{{ template "heatmap" dict "ChartName" "killmailHeatMap" "DataURL" $dataURL}}
 		<table id="activity" data-sort-name="number" data-pagination="true" data-url="/J/activityForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
-		 data-search="true" data-sort-order="desc">
+		 data-sort-order="desc">
 			<thead>
 				<tr>
 					<th data-field="number">#</th>
@@ -282,9 +284,9 @@
 
 {{define "knownships"}}
 	<div class="col-md-6 well">
-		<h2>
+		<h3>
 			Known Ships
-		</h2>
+		</h3>
 		<table id="knownships" data-sort-name="number" data-pagination="true" data-search="true"
 		 data-url="/J/shipsForEntity?id={{ .entityID }}&entityType={{ .entityType }}" data-sort-order="desc">
 			<thead>
@@ -304,9 +306,9 @@
 
 {{define "knownallies"}}
 	<div class="col-md-6 well">
-		<h2>
+		<h3>
 			Known Allies
-		</h2>
+		</h3>
 		<table id="knownallies" data-sort-name="number" data-pagination="true" data-url="/J/alliesForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
 		 data-search="true" data-sort-order="desc">
 			<thead>
@@ -326,9 +328,9 @@
 
 {{define "assets"}}
 	<div class="col-md-6 well">
-		<h2>
+		<h3>
 			Possible Assets In Space
-		</h2>
+		</h3>
 		Note: Citadels may show as fighter drones.
 		<table id="assets" data-sort-name="lastSeen" data-pagination="true" data-url="/J/assetsForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
 		 data-search="true" data-sort-order="desc">

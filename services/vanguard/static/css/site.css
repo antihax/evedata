@@ -4,17 +4,9 @@ rect.bordered {
 }
 
 text.mono {
-    font-size: 9pt;
+    font-size: 8pt;
     font-family: Consolas, courier;
     fill: #aaa;
-}
-
-text.axis-workweek {
-    fill: #000;
-}
-
-text.axis-worktime {
-    fill: #000;
 }
 
 #imageblock {
