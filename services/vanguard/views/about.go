@@ -2,7 +2,6 @@ package views
 
 import (
 	"errors"
-	"html/template"
 	"net/http"
 
 	"github.com/antihax/evedata/services/vanguard"
@@ -45,19 +44,6 @@ func helpPage(w http.ResponseWriter, r *http.Request) {
 		renderStatic(w, r, "help", page)
 	} else {
 		httpErrCode(w, errors.New("not found"), http.StatusNotFound)
-	}
-	return
-}
-
-func renderStatic(w http.ResponseWriter, r *http.Request, area string, page page) {
-	p := newPage(r, page.Title)
-	setCache(w, 60*60*24*31)
-	template := template.Must(
-		template.ParseFiles("templates/"+area+"/"+page.Template, "templates/"+area+"/base.html", LayoutPath),
-	)
-	if err := template.ExecuteTemplate(w, "base", p); err != nil {
-		httpErrCode(w, err, http.StatusInternalServerError)
-		return
 	}
 	return
 }

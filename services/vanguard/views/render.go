@@ -17,7 +17,8 @@ var Templates *template.Template
 const LayoutPath string = "templates/layout/layout.html"
 
 var (
-	templates map[string]*template.Template
+	templates            map[string]*template.Template
+	templateIncludeFiles []string
 )
 
 func init() {
@@ -29,6 +30,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	includeFiles, err := filepath.Glob("templates/includes/*.html")
 	if err != nil {
 		log.Fatal(err)
@@ -38,6 +40,8 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	templateIncludeFiles = append(includeFiles, "templates/layout/layout.html")
 
 	for _, file := range pageFiles {
 		fileName := filepath.Base(file)
@@ -73,6 +77,32 @@ func renderTemplate(w http.ResponseWriter, name string, cacheTime time.Duration,
 	cache(w, cacheTime)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	return nil
+}
+
+func renderStatic(w http.ResponseWriter, r *http.Request, area string, page page) {
+	p := newPage(r, page.Title)
+	setCache(w, 60*60*24*31)
+
+	mainTemplate := template.New("base")
+	mainTemplate, err := mainTemplate.ParseFiles("templates/layout/layout.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+	t, err := mainTemplate.Clone()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	templates := append(templateIncludeFiles, "templates/"+area+"/"+page.Template, "templates/"+area+"/base.html")
+	t = template.Must(
+		t.ParseFiles(templates...),
+	)
+
+	if err := t.ExecuteTemplate(w, "base", p); err != nil {
+		httpErrCode(w, err, http.StatusInternalServerError)
+		return
+	}
+	return
 }
 
 func cache(w http.ResponseWriter, cacheTime time.Duration) {
