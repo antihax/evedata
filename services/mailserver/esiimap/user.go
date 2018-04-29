@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log"
-	"strings"
 
 	"github.com/antihax/goesi"
 	"github.com/emersion/go-imap/backend"
@@ -36,7 +35,6 @@ func (u *User) Username() string {
 }
 
 func (u *User) loadMailboxes() error {
-
 	// Retreive all the mailboxes from ESI
 	auth := context.WithValue(context.Background(), goesi.ContextOAuth2, u.token)
 	boxes, _, err := u.backend.esi.ESI.MailApi.GetCharactersCharacterIdMailLabels(auth, u.characterID, nil)
@@ -47,8 +45,7 @@ func (u *User) loadMailboxes() error {
 
 	// Create and load all the mailboxes in the background
 	for _, box := range boxes.Labels {
-		ucn := strings.ToUpper(box.Name)
-		u.mailboxes[ucn] = NewMailbox(ucn, box.LabelId, u, box.UnreadCount)
+		u.mailboxes[box.Name] = NewMailbox(box.Name, box.LabelId, u, box.UnreadCount)
 	}
 
 	go func() {

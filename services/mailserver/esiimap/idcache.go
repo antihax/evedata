@@ -115,7 +115,6 @@ func (s *Backend) lookupAddresses(ids []int32) ([]string, []string, error) {
 }
 
 func (u *User) cacheMailingLists(mailingLists []esi.GetCharactersCharacterIdMailLists200Ok) {
-	log.Println("cacheMailingLists")
 	names := []string{}
 	types := []string{}
 	ids := []int32{}
