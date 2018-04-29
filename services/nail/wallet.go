@@ -82,51 +82,9 @@ func (s *Nail) characterWalletJournalConsumer(message *nsq.Message) error {
 	var values []string
 
 	for _, wallet := range journal.Journal {
-		var (
-			argID   int64
-			argName string
-		)
-
-		e := wallet.ExtraInfo
-
-		if e.AllianceId != 0 {
-			argID = int64(e.AllianceId)
-			argName = "alliance"
-		} else if e.CharacterId != 0 {
-			argID = int64(e.CharacterId)
-			argName = "character"
-		} else if e.CorporationId != 0 {
-			argID = int64(e.CorporationId)
-			argName = "corporation"
-		} else if e.ContractId != 0 {
-			argID = int64(e.ContractId)
-			argName = "contract"
-		} else if e.DestroyedShipTypeId != 0 {
-			argID = int64(e.DestroyedShipTypeId)
-			argName = "destroyedship"
-		} else if e.JobId != 0 {
-			argID = int64(e.JobId)
-			argName = "job"
-		} else if e.LocationId != 0 {
-			argID = int64(e.LocationId)
-			argName = "location"
-		} else if e.NpcId != 0 {
-			argID = int64(e.NpcId)
-			argName = e.NpcName
-		} else if e.PlanetId != 0 {
-			argID = int64(e.PlanetId)
-			argName = "planet"
-		} else if e.SystemId != 0 {
-			argID = int64(e.SystemId)
-			argName = "system"
-		} else if e.TransactionId != 0 {
-			argID = int64(e.TransactionId)
-			argName = "transaction"
-		}
-
 		values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%q,%f,%f,%q,%d,%f,%q)",
-			journal.TokenCharacterID, wallet.RefId, goesi.GetJournalRefID(wallet.RefType), wallet.FirstPartyId, wallet.SecondPartyId,
-			argID, argName, wallet.Amount, wallet.Balance,
+			journal.TokenCharacterID, wallet.Id, goesi.GetJournalRefID(wallet.RefType), wallet.FirstPartyId, wallet.SecondPartyId,
+			wallet.ContextId, wallet.ContextIdType, wallet.Amount, wallet.Balance,
 			wallet.Reason, wallet.TaxReceiverId, wallet.Tax, wallet.Date.UTC().Format(models.SQLTimeFormat)))
 	}
 
