@@ -6,8 +6,8 @@ import (
 )
 
 func init() {
-	registerTrigger("alliancehistoryMaint", alliancehistoryMaint, time.NewTicker(time.Second*320))
-	registerTrigger("corphistoryMaint", corphistoryMaint, time.NewTicker(time.Second*240))
+	registerTrigger("alliancehistoryMaint", alliancehistoryMaint, time.NewTicker(time.Hour*2))
+	registerTrigger("corphistoryMaint", corphistoryMaint, time.NewTicker(time.Hour*2))
 	registerTrigger("marketMaint", marketMaint, time.NewTicker(time.Second*3610))
 	registerTrigger("discoveredAssetsMaint", discoveredAssetsMaint, time.NewTicker(time.Second*3620))
 	registerTrigger("entityMaint", entityMaint, time.NewTicker(time.Second*3630*3))
@@ -15,74 +15,33 @@ func init() {
 	registerTrigger("contactSyncMaint", contactSyncMaint, time.NewTicker(time.Second*3615*6))
 }
 
-type allianceHistoryMaint struct {
-	AllianceID    int32     `db:"allianceID"`
-	CorporationID int32     `db:"corporationID"`
-	RecordID      int32     `db:"recordID"`
-	StartDate     time.Time `db:"startDate"`
-}
-
-type corpHistoryMaint struct {
-	CharacterID   int32     `db:"characterID"`
-	CorporationID int32     `db:"corporationID"`
-	RecordID      int32     `db:"recordID"`
-	StartDate     time.Time `db:"startDate"`
-}
-
 func corphistoryMaint(s *Artifice) error {
-	v := []corpHistoryMaint{}
-	err := s.db.Select(&v, `
-		SELECT 	recordID, characterID, corporationID, startDate
-		FROM 	evedata.corporationHistory 
-		WHERE   endDate IS NULL ORDER BY RAND() LIMIT 1000000`)
-	if err != nil {
+	if err := s.doSQL(`
+		UPDATE evedata.corporationHistory A
+		INNER JOIN (
+			SELECT H.recordID, MIN(L.startDate) AS endDate
+				FROM 	evedata.corporationHistory H
+				INNER JOIN evedata.corporationHistory L ON H.characterID = L.characterID AND L.startDate > H.startDate
+				WHERE   H.endDate IS NULL
+				GROUP BY H.recordID) B ON A.recordID = B.recordID
+			SET A.endDate = B.endDate`); err != nil {
 		return err
-	}
-
-	for _, c := range v {
-		var t time.Time
-		err := s.db.QueryRowx(`
-			SELECT startDate FROM evedata.corporationHistory
-			WHERE characterID = ? AND startDate > ? LIMIT 1`, c.CharacterID, c.StartDate).Scan(&t)
-		if err != nil {
-			continue
-		}
-
-		if !t.IsZero() {
-			if err := s.doSQL(`
-				UPDATE evedata.corporationHistory SET endDate = ? WHERE recordID = ?;`, t, c.RecordID); err != nil {
-				return err
-			}
-		}
 	}
 	return nil
 }
 
 func alliancehistoryMaint(s *Artifice) error {
-	v := []allianceHistoryMaint{}
-	err := s.db.Select(&v, `
-		SELECT 	recordID, allianceID, corporationID, startDate
-		FROM 	evedata.allianceHistory 
-		WHERE   endDate IS NULL;`)
-	if err != nil {
+	if err := s.doSQL(`
+		UPDATE evedata.allianceHistory A
+		INNER JOIN (SELECT H.recordID, MIN(L.startDate) AS endDate
+			FROM evedata.allianceHistory H
+			INNER JOIN evedata.allianceHistory L ON H.corporationID = L.corporationID AND L.startDate > H.startDate
+			WHERE H.endDate IS NULL
+			GROUP BY H.recordID) B ON A.recordID = B.recordID
+		SET A.endDate = B.endDate`); err != nil {
 		return err
 	}
 
-	for _, c := range v {
-		var t time.Time
-		err := s.db.QueryRowx(`
-			SELECT startDate FROM evedata.allianceHistory
-			WHERE corporationID = ? AND startDate > ? LIMIT 1`, c.CorporationID, c.StartDate).Scan(&t)
-		if err != nil {
-			continue
-		}
-		if !t.IsZero() {
-			if err := s.doSQL(`
-				UPDATE evedata.allianceHistory SET endDate = ? WHERE recordID = ?;`, t, c.RecordID); err != nil {
-				return err
-			}
-		}
-	}
 	return nil
 }
 
