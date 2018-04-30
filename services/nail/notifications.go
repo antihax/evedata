@@ -5,9 +5,10 @@ import (
 	"log"
 	"strings"
 
+	"github.com/antihax/goesi/notification"
+
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/gobcoder"
-	"github.com/antihax/evedata/services/conservator"
 	"github.com/antihax/evedata/services/vanguard/models"
 	nsq "github.com/nsqio/go-nsq"
 	yaml "gopkg.in/yaml.v2"
@@ -39,7 +40,7 @@ func (s *Nail) characterNotificationsHandler(message *nsq.Message) error {
 	for _, n := range notifications.Notifications {
 		if n.Type_ == "LocateCharMsg" {
 			done = true
-			l := conservator.Locator{}
+			l := notification.LocateCharMsg{}
 			err = yaml.Unmarshal([]byte(n.Text), &l)
 			if err != nil {
 				return err

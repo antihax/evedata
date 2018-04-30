@@ -7,6 +7,7 @@ import (
 
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/gobcoder"
+	"github.com/antihax/goesi/notification"
 	"github.com/bradfitz/slice"
 	nsq "github.com/nsqio/go-nsq"
 	yaml "gopkg.in/yaml.v2"
@@ -57,102 +58,11 @@ func (s *Conservator) characterNotificationsHandler(message *nsq.Message) error 
 	return nil
 }
 
-// AllWarDeclaredMsg & CorpWarDeclaredMsg message
-type AllWarDeclaredMsg struct {
-	AgainstID    int64   `yaml:"againstID"`
-	Cost         float64 `yaml:"cost"`
-	DeclaredByID int64   `yaml:"declaredByID"`
-	DelayHours   int64   `yaml:"delayHours"`
-	HostileState int64   `yaml:"hostileState"`
-}
-
-// OrbitalAttacked message
-type OrbitalAttacked struct {
-	AggressorAllianceID int64   `yaml:"aggressorAllianceID"`
-	AggressorCorpID     int64   `yaml:"aggressorCorpID"`
-	AggressorID         int64   `yaml:"aggressorID"`
-	PlanetID            int64   `yaml:"planetID"`
-	PlanetTypeID        int64   `yaml:"planetTypeID"`
-	ShieldLevel         float64 `yaml:"shieldLevel"`
-	TypeID              int64   `yaml:"typeID"`
-	SolarSystemID       int64   `yaml:"solarSystemID"`
-}
-
-// TowerAlertMsg message
-type TowerAlertMsg struct {
-	AggressorAllianceID int64   `yaml:"aggressorAllianceID"`
-	AggressorCorpID     int64   `yaml:"aggressorCorpID"`
-	AggressorID         int64   `yaml:"aggressorID"`
-	MoonID              int64   `yaml:"moonID"`
-	ShieldValue         float64 `yaml:"shieldValue"`
-	ArmorValue          float64 `yaml:"armorValue"`
-	HullValue           float64 `yaml:"hullValue"`
-	TypeID              int64   `yaml:"typeID"`
-	SolarSystemID       int64   `yaml:"solarSystemID"`
-}
-
-// StructureUnderAttack message
-type StructureUnderAttack struct {
-	AllianceID      int64   `yaml:"allianceID"`
-	CorporationID   int64   `yaml:"corporationID"`
-	AllianceName    string  `yaml:"allianceName"`
-	CorporationName string  `yaml:"corporationName"`
-	ShieldValue     float64 `yaml:"shieldPercentage"`
-	ArmorValue      float64 `yaml:"armorPercentage"`
-	HullValue       float64 `yaml:"hullPercentage"`
-	StructureID     int64   `yaml:"structureID"`
-	SolarSystemID   int64   `yaml:"solarsystemID"`
-}
-
-// OrbitalReinforced message
-type OrbitalReinforced struct {
-	AggressorAllianceID int64 `yaml:"aggressorAllianceID"`
-	AggressorCorpID     int64 `yaml:"aggressorCorpID"`
-	AggressorID         int64 `yaml:"aggressorID"`
-	PlanetID            int64 `yaml:"planetID"`
-	ReinforceExitTime   int64 `yaml:"reinforceExitTime"`
-	TypeID              int64 `yaml:"typeID"`
-	SolarSystemID       int64 `yaml:"solarSystemID"`
-}
-
-// StructureReinforced message for StructureLostArmor and StructureLostShields
-type StructureReinforced struct {
-	TimeLeft        int64 `yaml:"timeLeft"`
-	Timestamp       int64 `yaml:"timestamp"`
-	StructureTypeID int64 `yaml:"structureTypeID"`
-	SolarSystemID   int64 `yaml:"solarsystemID"`
-}
-
-// Locator message
-type Locator struct {
-	AgentLocation struct {
-		Region        int64 `yaml:"3"`
-		Constellation int64 `yaml:"4"`
-		SolarSystem   int64 `yaml:"5"`
-		Station       int64 `yaml:"15,omitempty"`
-	} `yaml:"agentLocation"`
-	TargetLocation struct {
-		Region        int64 `yaml:"3"`
-		Constellation int64 `yaml:"4"`
-		SolarSystem   int64 `yaml:"5"`
-		Station       int64 `yaml:"15,omitempty"`
-	} `yaml:"targetLocation"`
-	CharacterID  int64 `yaml:"characterID"`
-	MessageIndex int64 `yaml:"messageIndex"`
-}
-
-// CorpAppNewMsg corporation application
-type CorpAppNewMsg struct {
-	ApplicationText string `yaml:"applicationText"`
-	CharacterID     int64  `yaml:"charID"`
-	CorporationID   int64  `yaml:"corpID"`
-}
-
 func (s *Conservator) checkNotification(characterID int32, notificationID int64, notificationType, text string, timestamp time.Time) error {
 	switch notificationType {
 
 	case "LocateCharMsg":
-		l := Locator{}
+		l := notification.LocateCharMsg{}
 		if err := yaml.Unmarshal([]byte(text), &l); err != nil {
 			log.Println(err)
 			return err
@@ -178,7 +88,7 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 		return s.sendNotificationMessage("locator", characterID, notificationID, message)
 
 	case "AllWarDeclaredMsg", "CorpWarDeclaredMsg":
-		l := AllWarDeclaredMsg{}
+		l := notification.AllWarDeclaredMsg{}
 		if err := yaml.Unmarshal([]byte(text), &l); err != nil {
 			log.Println(err)
 			return err
@@ -202,53 +112,53 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 
 	case "CorpAppNewMsg":
 		{
-			l := CorpAppNewMsg{}
+			l := notification.CorpAppNewMsg{}
 			yaml.Unmarshal([]byte(text), &l)
-			character, err := s.getEntityName(l.CharacterID)
+			character, err := s.getEntityName(l.CharID)
 			if err != nil {
 				character.Name = "!! No fricking clue !!"
 			}
-			corporation, _ := s.getEntityName(l.CorporationID)
+			corporation, _ := s.getEntityName(l.CorpID)
 
 			message := fmt.Sprintf("New corporation application from [%s](https://www.evedata.org/character?id=%d) to %s. Application Comment: %s\n",
-				character.Name, l.CharacterID, corporation.Name, l.ApplicationText)
+				character.Name, l.CharID, corporation.Name, l.ApplicationText)
 
 			return s.sendNotificationMessage("application", characterID, notificationID, message)
 		}
 
 	case "StructureUnderAttack":
-		l := StructureUnderAttack{}
+		l := notification.StructureUnderAttack{}
 		yaml.Unmarshal([]byte(text), &l)
 
-		attacker := int64(0)
+		attacker := int32(0)
 		attackerType := ""
 		attackerName := ""
 		if l.AllianceID > 0 {
 			attacker = l.AllianceID
 			attackerType = "alliance"
 			attackerName = l.AllianceName
-		} else if l.CorporationID > 0 {
-			attacker = l.CorporationID
-			attackerType = "corporation"
-			attackerName = l.CorporationName
+		} else if l.CharID > 0 { // There is no corporationID? WTF CCPls?
+			attacker = l.CharID
+			attackerType = "character"
+			attackerName = l.CorpName
 		}
 
-		systemName, err := s.getCelestialName(l.SolarSystemID)
+		systemName, err := s.getCelestialName(l.SolarsystemID) // -.-
 		if err != nil {
 			log.Println(err)
 			return err
 		}
 
 		message := fmt.Sprintf("A structure is under attack in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%  A: %.1f%%  H: %.1f%% \n",
-			systemName, attackerName, attackerType, attacker, l.ShieldValue*100, l.ArmorValue*100, l.HullValue*100)
+			systemName, attackerName, attackerType, attacker, l.ShieldPercentage*100, l.ArmorPercentage*100, l.HullPercentage*100)
 
 		return s.sendNotificationMessage("structure", characterID, notificationID, message)
 
 	case "OrbitalAttacked":
-		l := OrbitalAttacked{}
+		l := notification.OrbitalAttacked{}
 		yaml.Unmarshal([]byte(text), &l)
 
-		attacker := int64(0)
+		attacker := int32(0)
 		attackerType := ""
 		if l.AggressorAllianceID > 0 {
 			attacker = l.AggressorAllianceID
@@ -285,10 +195,10 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 		return s.sendNotificationMessage("structure", characterID, notificationID, message)
 
 	case "TowerAlertMsg":
-		l := TowerAlertMsg{}
+		l := notification.TowerAlertMsg{}
 		yaml.Unmarshal([]byte(text), &l)
 
-		attacker := int64(0)
+		attacker := int32(0)
 		attackerType := ""
 		if l.AggressorAllianceID > 0 {
 			attacker = l.AggressorAllianceID
@@ -324,10 +234,10 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 		return s.sendNotificationMessage("structure", characterID, notificationID, message)
 
 	case "OrbitalReinforced":
-		l := OrbitalReinforced{}
+		l := notification.OrbitalReinforced{}
 		yaml.Unmarshal([]byte(text), &l)
 
-		attacker := int64(0)
+		attacker := int32(0)
 		attackerType := ""
 		if l.AggressorAllianceID > 0 {
 			attacker = l.AggressorAllianceID
@@ -365,10 +275,10 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 		return s.sendNotificationMessage("structure", characterID, notificationID, message)
 
 	case "StructureLostShields", "StructureLostArmor":
-		l := StructureReinforced{}
+		l := notification.StructureLostShields{}
 		yaml.Unmarshal([]byte(text), &l)
 
-		systemName, err := s.getCelestialName(l.SolarSystemID)
+		systemName, err := s.getCelestialName(l.SolarsystemID)
 		if err != nil {
 			log.Println(err)
 			return err
@@ -432,7 +342,7 @@ type EntityName struct {
 
 // Obtain entity name and type by ID.
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func (s *Conservator) getEntityName(id int64) (*EntityName, error) {
+func (s *Conservator) getEntityName(id int32) (*EntityName, error) {
 	ref := EntityName{}
 	if err := s.db.QueryRowx(`
 		SELECT name, 'corporation' AS type FROM evedata.corporations WHERE corporationID = ?
@@ -448,7 +358,7 @@ func (s *Conservator) getEntityName(id int64) (*EntityName, error) {
 
 // Obtain type name.
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func (s *Conservator) getTypeName(id int64) (string, error) {
+func (s *Conservator) getTypeName(id int32) (string, error) {
 	ref := ""
 	if err := s.db.QueryRowx(`
 		SELECT typeName FROM invTypes WHERE typeID = ?
@@ -460,7 +370,7 @@ func (s *Conservator) getTypeName(id int64) (string, error) {
 
 // Obtain SolarSystem name.
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func (s *Conservator) getSystemName(id int64) (string, error) {
+func (s *Conservator) getSystemName(id int32) (string, error) {
 	ref := ""
 	if err := s.db.QueryRowx(`
 		SELECT solarSystemName FROM mapSolarSystems WHERE solarSystemID = ?
@@ -472,7 +382,7 @@ func (s *Conservator) getSystemName(id int64) (string, error) {
 
 // Obtain Celestial name.
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func (s *Conservator) getCelestialName(id int64) (string, error) {
+func (s *Conservator) getCelestialName(id int32) (string, error) {
 	ref := ""
 	if err := s.db.QueryRowx(`
 		SELECT itemName FROM mapDenormalize WHERE itemID = ?
@@ -484,7 +394,7 @@ func (s *Conservator) getCelestialName(id int64) (string, error) {
 
 // Obtain Station name.
 // [BENCHMARK] 0.000 sec / 0.000 sec
-func (s *Conservator) getStationName(id int64) (string, error) {
+func (s *Conservator) getStationName(id int32) (string, error) {
 	ref := ""
 	if err := s.db.QueryRowx(`
 		SELECT stationName FROM staStations WHERE stationID = ?
