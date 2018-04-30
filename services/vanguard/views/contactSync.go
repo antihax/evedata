@@ -15,7 +15,7 @@ func init() {
 		renderTemplate(w,
 			"contactSync.html",
 			time.Hour*24*31,
-			newPage(r, "Contact Copiers"))
+			newPage(r, "War Contact Syncronization"))
 	})
 	vanguard.AddAuthRoute("ContactSync", "PUT", "/U/contactSync", apiAddContactSync)
 	vanguard.AddAuthRoute("ContactSync", "GET", "/U/contactSync", apiGetContactSyncs)
