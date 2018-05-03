@@ -31,7 +31,7 @@ type Mailbox struct {
 	count          uint32
 	validity       uint32
 	messageHeaders map[uint32]*esi.GetCharactersCharacterIdMail200Ok
-	messagesUuid   []*esi.GetCharactersCharacterIdMail200Ok
+	messagesSeqNum []*esi.GetCharactersCharacterIdMail200Ok
 	loaded         sync.WaitGroup
 	loadStarted    bool
 }
@@ -75,7 +75,8 @@ func (mbox *Mailbox) loadMailbox() {
 	defer mbox.loaded.Done()
 	// Get all mail headers
 	lastMailID := int32(2147483647)
-	mbox.validity = uint32(time.Now().Unix())
+	maxMailID := int32(0)
+	mbox.validity = 1 // Always valid
 
 	var unseen, count, pages uint32
 	messageHeaders := make(map[int32]*esi.GetCharactersCharacterIdMail200Ok)
@@ -116,37 +117,29 @@ func (mbox *Mailbox) loadMailbox() {
 			// Cache the message headers
 			if _, ok := messageHeaders[m.MailId]; !ok {
 				messageHeaders[m.MailId] = &mails[i]
-				mbox.messagesUuid = append(mbox.messagesUuid, &mails[i])
+				mbox.messagesSeqNum = append(mbox.messagesSeqNum, &mails[i])
 				if !m.IsRead {
 					unseen++
 				}
 				count++
 			}
 
-			// Find the last mail ID
+			// Find the first and last mail ID
 			if m.MailId < lastMailID {
 				lastMailID = m.MailId
 			}
+			if m.MailId > maxMailID {
+				maxMailID = m.MailId
+			}
 		}
-		// Break out at 5 pages
-		if pages >= 5 {
+		// Break out at 1 pages
+		if pages >= 1 {
 			break
 		}
 	}
 
-	// Reverse UUID slice so oldest is first
-	for i := len(mbox.messagesUuid)/2 - 1; i >= 0; i-- {
-		opp := len(mbox.messagesUuid) - 1 - i
-		mbox.messagesUuid[i], mbox.messagesUuid[opp] = mbox.messagesUuid[opp], mbox.messagesUuid[i]
-	}
-
-	// Put the messages into the map with correct uid
-	for i, m := range mbox.messagesUuid {
-		mbox.messageHeaders[uint32(i)] = m
-	}
-
-	mbox.nextuid = count + 1
-	mbox.firstuid = 0
+	mbox.nextuid = uint32(maxMailID)
+	mbox.firstuid = uint32(lastMailID)
 	mbox.unreadCount = unseen
 	mbox.count = count
 }
@@ -180,8 +173,9 @@ func (mbox *Mailbox) ListMessages(uid bool, seqSet *imap.SeqSet, items []imap.Fe
 	mbox.WaitForLoad()
 	wg := sync.WaitGroup{}
 	sem := make(chan bool, 50)
-	for i, m := range mbox.messagesUuid {
-		if seqSet.Contains(uint32(i)) {
+	for i, m := range mbox.messagesSeqNum {
+		if (!uid && seqSet.Contains(uint32(i))) || // SeqNum Match
+			(uid && seqSet.Contains(uint32(m.MailId))) { // UID Match
 			sem <- true
 			wg.Add(1)
 			go func(m *esi.GetCharactersCharacterIdMail200Ok, i int) {
@@ -222,7 +216,7 @@ func (mbox *Mailbox) fetchMessage(m *esi.GetCharactersCharacterIdMail200Ok, i *i
 		case imap.FetchRFC822Size:
 			i.Size = uint32(n) // We're lying
 		case imap.FetchUid:
-			i.Uid = uint32(seqNum)
+			i.Uid = uint32(m.MailId)
 		case imap.FetchRFC822Header:
 			section, err := imap.ParseBodySectionName(item)
 			if err != nil {
@@ -271,7 +265,7 @@ func (mbox *Mailbox) fetchWholeMessage(i *imap.Message, uuid uint32, mailID int3
 		case imap.FetchRFC822Size:
 			i.Size = uint32(n)
 		case imap.FetchUid:
-			i.Uid = uuid
+			i.Uid = uint32(mailID)
 		default:
 			section, err := imap.ParseBodySectionName(item)
 			if err != nil {
@@ -288,20 +282,29 @@ func (mbox *Mailbox) fetchWholeMessage(i *imap.Message, uuid uint32, mailID int3
 
 func (mbox *Mailbox) SearchMessages(uid bool, criteria *imap.SearchCriteria) ([]uint32, error) {
 	mbox.WaitForLoad()
-
 	var ids []uint32
-	for i, msg := range mbox.messagesUuid {
-		ok, err := mbox.MatchMessage(msg, uint32(i), criteria)
-		if err != nil || !ok {
-			continue
+	if !uid {
+		for i, msg := range mbox.messagesSeqNum {
+			ok, err := mbox.MatchMessage(msg, uid, uint32(i), uint32(msg.MailId), criteria)
+			if err != nil || !ok {
+				continue
+			}
+			ids = append(ids, uint32(i))
 		}
-		ids = append(ids, uint32(i))
+	} else {
+		for i, msg := range mbox.messagesSeqNum {
+			ok, err := mbox.MatchMessage(msg, uid, uint32(i), uint32(msg.MailId), criteria)
+			if err != nil || !ok {
+				continue
+			}
+			ids = append(ids, uint32(msg.MailId))
+		}
 	}
 	return ids, nil
 }
 
-func (mbox *Mailbox) MatchMessage(m *esi.GetCharactersCharacterIdMail200Ok, seqNum uint32, c *imap.SearchCriteria) (bool, error) {
-	if !MatchSeqNumAndUid(seqNum, seqNum, c) {
+func (mbox *Mailbox) MatchMessage(m *esi.GetCharactersCharacterIdMail200Ok, uid bool, id uint32, mailID uint32, c *imap.SearchCriteria) (bool, error) {
+	if !MatchSeqNumAndUid(id, mailID, c) {
 		return false, nil
 	}
 

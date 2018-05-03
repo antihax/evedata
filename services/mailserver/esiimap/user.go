@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"strings"
 
 	"github.com/antihax/goesi"
 	"github.com/emersion/go-imap/backend"
@@ -45,6 +46,9 @@ func (u *User) loadMailboxes() error {
 
 	// Create and load all the mailboxes in the background
 	for _, box := range boxes.Labels {
+		if strings.ToUpper(box.Name) == "INBOX" {
+			box.Name = "INBOX"
+		}
 		u.mailboxes[box.Name] = NewMailbox(box.Name, box.LabelId, u, box.UnreadCount)
 	}
 
@@ -72,10 +76,6 @@ func (u *User) ListMailboxes(subscribed bool) (mailboxes []backend.Mailbox, err 
 }
 
 func (u *User) GetMailbox(name string) (backend.Mailbox, error) {
-	// WHY?!
-	if name == "INBOX" {
-		name = "Inbox"
-	}
 	mailbox, ok := u.mailboxes[name]
 	if !ok {
 		log.Printf("Cant find mailbox %s", name)
