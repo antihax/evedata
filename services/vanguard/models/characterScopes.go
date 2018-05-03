@@ -39,12 +39,12 @@ var characterScopes = []ScopeGroup{
 
 var groupReasons = map[string]string{
 	"market":        "Reporting and Market tools",
-	"contacts":      "War Contact Synchronization",
+	"contacts":      "Character Contacts (War Sync, Copy)",
 	"wallet":        "Profit and Loss Tools",
 	"assets":        "Asset Value Tools",
 	"ui-control":    "Control of in-game UI",
 	"notifications": "Notification tools (locators, structures, wars)",
-	"roles":         "Corporation services based on corp roles",
+	"roles":         "Corp Roles (Contact Copy, Corp Tools, Integrations)",
 	"evemail":       "EVE Mail Proxy Service",
 }
 

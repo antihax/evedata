@@ -12,12 +12,12 @@ import (
 )
 
 // Custom transport to chain into the HTTPClient to gather statistics.
-type transport struct {
+type ApiCacheTransport struct {
 	next *http.Transport
 }
 
 // RoundTrip wraps http.DefaultTransport.RoundTrip to provide stats and handle error rates.
-func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
+func (t *ApiCacheTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	// Loop until success
 	tries := 0

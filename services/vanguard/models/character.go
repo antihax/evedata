@@ -15,7 +15,7 @@ import (
 func GetCRESTToken(characterID int32, ownerHash string, tokenCharacterID int32) (*CRESTToken, error) {
 	tok := &CRESTToken{}
 	if err := database.QueryRowx(
-		`SELECT expiry, tokenType, accessToken, refreshToken, tokenCharacterID, characterID, characterName
+		`SELECT expiry, tokenType, accessToken, refreshToken, tokenCharacterID, characterID, characterName, corporationID, allianceID
 			FROM evedata.crestTokens
 			WHERE characterID = ? AND (characterOwnerHash = ? OR characterOwnerHash = "") AND tokenCharacterID = ?
 			LIMIT 1`,
@@ -30,9 +30,13 @@ func GetCRESTToken(characterID int32, ownerHash string, tokenCharacterID int32) 
 type CRESTToken struct {
 	Expiry           time.Time           `db:"expiry" json:"expiry,omitempty"`
 	CharacterID      int32               `db:"characterID" json:"characterID,omitempty"`
+	CorporationID    int32               `db:"corporationID" json:"corporationID,omitempty"`
+	AllianceID       int32               `db:"allianceID" json:"allianceID,omitempty"`
 	TokenType        string              `db:"tokenType" json:"tokenType,omitempty"`
 	TokenCharacterID int32               `db:"tokenCharacterID" json:"tokenCharacterID,omitempty"`
 	CharacterName    string              `db:"characterName" json:"characterName,omitempty"`
+	CorporationName  null.String         `db:"corporationName" json:"corporationName,omitempty"`
+	AllianceName     null.String         `db:"allianceName" json:"allianceName,omitempty"`
 	LastCode         int64               `db:"lastCode" json:"lastCode,omitempty"`
 	LastStatus       null.String         `db:"lastStatus" json:"lastStatus,omitempty"`
 	AccessToken      string              `db:"accessToken" json:"accessToken,omitempty"`
@@ -107,7 +111,8 @@ func GetCRESTTokens(characterID int32, ownerHash string) ([]CRESTToken, error) {
 	tokens := []CRESTToken{}
 	if err := database.Select(&tokens, `
 		SELECT T.characterID, T.tokenCharacterID, characterName, IF(mailPassword != "", 1, 0) AS mailPassword,
-		lastCode, lastStatus, scopes, authCharacter, 
+		lastCode, lastStatus, scopes, authCharacter, C1.name AS corporationName, A1.name AS allianceName,
+		T.corporationID, T.allianceID,
 		IFNULL(
 			CONCAT("[", GROUP_CONCAT(CONCAT(
 				'{"id": ', entityID, 
@@ -121,6 +126,8 @@ func GetCRESTTokens(characterID int32, ownerHash string) ([]CRESTToken, error) {
 		LEFT OUTER JOIN evedata.sharing S ON T.tokenCharacterID = S.tokenCharacterID AND T.characterID = S.characterID
 		LEFT OUTER JOIN evedata.corporations C ON C.corporationID = S.entityID
 		LEFT OUTER JOIN evedata.alliances A ON A.allianceID = S.entityID
+		LEFT OUTER JOIN evedata.corporations C1 ON C1.corporationID = T.corporationID
+		LEFT OUTER JOIN evedata.alliances A1 ON A1.allianceID = T.allianceID
 		WHERE T.characterID = ? AND (T.characterOwnerHash = ? OR T.characterOwnerHash = "")
 		GROUP BY characterID, tokenCharacterID;
 		;`, characterID, ownerHash); err != nil {

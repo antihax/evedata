@@ -266,7 +266,7 @@ CREATE TABLE `integrations` (
   `factionID` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`integrationID`),
   UNIQUE KEY `UNIQUE` (`address`,`authentication`)
-) ENGINE=TokuDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `iskPerLp` (
   `itemName` varchar(100) NOT NULL,

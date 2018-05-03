@@ -1,0 +1,76 @@
+{{define "body"}}
+<h3>Contact Copy</h3>
+{{template "checkAuthentication" .}}
+
+<p>Copy contacts from a character, corporation or alliance to a character. Useful for
+	copying between entities. CCP currently does not allow us to set corporation and
+	alliance contacts.</p>
+<p>To use this tool, add characters on the
+	<a href="/account">account page</a> with Character Contact and Corp Role permissions. You can then
+	copy contacts around in bulk.</p>
+
+</div>
+<div class="well">
+	<div class="form-group">
+		<h4>Copy From</h4>
+		<select class="form-control" name="source" id="source"></select>
+		<select class="form-control" name="type" id="type">
+			<option id="character">Character</option>
+			<option id="corporation">Corporation</option>
+			<option id="alliance">Alliance</option>
+		</select>
+		<br>
+
+		<h4>Copy To - This will delete all contacts on this character!</h4>
+		<select class="form-control" name="destination" id="destination"></select>
+		<button class="btn btn-primary submit" id="load" type="button">Copy Contacts</button>
+	</div>
+</div>
+
+<script>
+	$(function () {
+		$.ajax({
+			url: '/U/crestTokens',
+			dataType: 'JSON',
+			success: function (data) {
+				$.each(data, function (key, val) {
+					$source = val.characterName + ' - ' + val.corporationName;
+					if (val.allianceName != null) {
+						$source += ' - ' + val.allianceName;
+					}
+
+					$('#source').append('<option id=' + val.tokenCharacterID + '>' +
+						$source + '</option>');
+					if (~val.scopes.indexOf("contacts")) {
+						$('#destination').append('<option id=' + val.tokenCharacterID +
+							'>' + val.characterName + '</option>');
+					}
+				})
+			},
+			error: function () {
+				$select.html(
+					'<option id="-1">You must add characters first.</option>');
+			}
+		});
+
+		$('#load').click(function () {
+			var row = {
+				"source": $('#source').children(":selected").attr("id"),
+				"destination": $('#destination').children(":selected").attr("id"),
+				"type": $('#type').children(":selected").attr("id")
+			};
+			$.ajax({
+				url: "/U/contactCopy?" + $.param(row),
+				method: 'PUT',
+				contentType: 'application/json',
+				success: function (data) {
+					showAlert("Copied Ok!", 'success');
+				},
+				error: function (error) {
+					showAlert('Load Contacts Failed: ' + error.responseText, 'danger');
+				}
+			});
+		});
+	});
+</script>
+{{end}}

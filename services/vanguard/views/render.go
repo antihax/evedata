@@ -3,7 +3,6 @@ package views
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -18,12 +17,25 @@ var Templates *template.Template
 const LayoutPath string = "templates/layout/layout.html"
 
 var (
-	templates            map[string]*template.Template
 	templateIncludeFiles []string
 )
 
 func init() {
-	templates = make(map[string]*template.Template)
+
+	includeFiles, err := filepath.Glob("templates/includes/*.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	templateIncludeFiles = append(includeFiles, "templates/layout/layout.html")
+}
+
+func renderJSON(w http.ResponseWriter, v interface{}, cacheTime time.Duration) error {
+	cache(w, cacheTime)
+	return json.NewEncoder(w).Encode(v)
+}
+
+func renderTemplate(w http.ResponseWriter, name string, cacheTime time.Duration, data interface{}) error {
 
 	mainTemplate := template.Must(template.New("base").Funcs(template.FuncMap{
 		"dict": func(values ...interface{}) (map[string]interface{}, error) {
@@ -57,46 +69,18 @@ func init() {
 		},
 	}).ParseFiles("templates/layout/layout.html"))
 
-	pageFiles, err := filepath.Glob("templates/*.html")
+	t, err := mainTemplate.Clone()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	includeFiles, err := filepath.Glob("templates/includes/*.html")
-	if err != nil {
-		log.Fatal(err)
-	}
+	templates := append(templateIncludeFiles, "templates/"+name)
+	t = template.Must(
+		t.ParseFiles(templates...),
+	)
 
-	templateIncludeFiles = append(includeFiles, "templates/layout/layout.html")
-
-	for _, file := range pageFiles {
-		fileName := filepath.Base(file)
-		files := append(includeFiles, file)
-		templates[fileName], err = mainTemplate.Clone()
-		if err != nil {
-			log.Fatal(err)
-		}
-		templates[fileName] = template.Must(templates[fileName].ParseFiles(files...))
-	}
-
-}
-
-func renderJSON(w http.ResponseWriter, v interface{}, cacheTime time.Duration) error {
-	cache(w, cacheTime)
-	return json.NewEncoder(w).Encode(v)
-}
-
-func renderTemplate(w http.ResponseWriter, name string, cacheTime time.Duration, data interface{}) error {
-	tmpl, ok := templates[name]
-	if !ok {
-		http.Error(w, fmt.Sprintf("The template %s does not exist.", name),
-			http.StatusInternalServerError)
-		return errors.New(fmt.Sprintf("The template %s does not exist.", name))
-	}
-
-	err := tmpl.Execute(w, data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := t.ExecuteTemplate(w, "base", data); err != nil {
+		httpErrCode(w, err, http.StatusInternalServerError)
 		return err
 	}
 
@@ -120,6 +104,32 @@ func renderStatic(w http.ResponseWriter, r *http.Request, area string, page page
 	}
 
 	templates := append(templateIncludeFiles, "templates/"+area+"/"+page.Template, "templates/"+area+"/base.html")
+	t = template.Must(
+		t.ParseFiles(templates...),
+	)
+
+	if err := t.ExecuteTemplate(w, "base", p); err != nil {
+		httpErrCode(w, err, http.StatusInternalServerError)
+		return
+	}
+	return
+}
+
+func notFoundPage(w http.ResponseWriter, r *http.Request) {
+	p := newPage(r, "Page Not Found")
+	setCache(w, 60*60*24*31)
+
+	mainTemplate := template.New("base")
+	mainTemplate, err := mainTemplate.ParseFiles("templates/layout/layout.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+	t, err := mainTemplate.Clone()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	templates := append(templateIncludeFiles, "templates/error/notFound.html")
 	t = template.Must(
 		t.ParseFiles(templates...),
 	)

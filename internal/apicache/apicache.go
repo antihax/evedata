@@ -16,7 +16,7 @@ func CreateHTTPClientCache(cache *redis.Pool) *http.Client {
 	transportCache := httpcache.NewTransport(httpredis.NewWithClient(cache))
 
 	// Attach a basic transport with our chained custom transport.
-	transportCache.Transport = &transport{
+	transportCache.Transport = &ApiCacheTransport{
 		&http.Transport{
 			MaxIdleConns: 200,
 			DialContext: (&net.Dialer{
@@ -44,7 +44,7 @@ func CreateHTTPClient() *http.Client {
 	// Create a Redis http client for the CCP APIs.
 
 	// Attach a basic transport with our chained custom transport.
-	t := &transport{
+	t := &ApiCacheTransport{
 		&http.Transport{
 			MaxIdleConns: 200,
 			DialContext: (&net.Dialer{
