@@ -148,7 +148,7 @@ func (mbox *Mailbox) Status(items []imap.StatusItem) (*imap.MailboxStatus, error
 	mbox.WaitForLoad()
 	status := imap.NewMailboxStatus(mbox.name, items)
 	status.Flags = []string{}
-	status.PermanentFlags = []string{"\\*"}
+	status.PermanentFlags = []string{"\\Seen"}
 	status.UnseenSeqNum = mbox.firstuid
 	for _, name := range items {
 		switch name {
@@ -209,7 +209,7 @@ func (mbox *Mailbox) fetchMessage(m *esi.GetCharactersCharacterIdMail200Ok, i *i
 		case imap.FetchFlags:
 			i.Flags = []string{}
 			if m.IsRead {
-				i.Flags = append(i.Flags, "Seen")
+				i.Flags = append(i.Flags, "\\Seen")
 			}
 		case imap.FetchInternalDate:
 			i.InternalDate = m.Timestamp
@@ -258,7 +258,7 @@ func (mbox *Mailbox) fetchWholeMessage(i *imap.Message, uuid uint32, mailID int3
 		case imap.FetchFlags:
 			i.Flags = []string{}
 			if m.Read {
-				i.Flags = append(i.Flags, "Seen")
+				i.Flags = append(i.Flags, "\\Seen")
 			}
 		case imap.FetchInternalDate:
 			i.InternalDate = m.Timestamp
@@ -436,8 +436,45 @@ func (mbox *Mailbox) CreateMessage(flags []string, date time.Time, body imap.Lit
 	return errors.New("not supported")
 }
 
-func (mbox *Mailbox) UpdateMessagesFlags(uid bool, seqset *imap.SeqSet, op imap.FlagsOp, flags []string) error {
+func (mbox *Mailbox) UpdateMessagesFlags(uid bool, seqSet *imap.SeqSet, op imap.FlagsOp, flags []string) error {
+	if flags[0] != "\\Seen" {
+		return errors.New("Unsupported flag")
+	}
+
+	mbox.WaitForLoad()
+	wg := sync.WaitGroup{}
+	sem := make(chan bool, 10)
+	auth := context.WithValue(context.Background(), goesi.ContextOAuth2, mbox.user.token)
+	set := false
+	if op[0] == '+' {
+		set = true
+	}
+
+	for i, m := range mbox.messagesSeqNum {
+		if (!uid && seqSet.Contains(uint32(i))) || // SeqNum Match
+			(uid && seqSet.Contains(uint32(m.MailId))) { // UID Match
+			sem <- true
+			wg.Add(1)
+
+			go func(i int32, r bool) {
+				defer func() { wg.Done(); <-sem }()
+				_, err := mbox.user.backend.esi.ESI.MailApi.PutCharactersCharacterIdMailMailId(
+					auth,
+					mbox.user.characterID,
+					esi.PutCharactersCharacterIdMailMailIdContents{Read: r},
+					i,
+					nil,
+				)
+				if err != nil {
+					log.Println(err)
+				}
+			}(mbox.messagesSeqNum[i].MailId, set)
+		}
+	}
+
+	wg.Wait()
 	return nil
+
 }
 
 func (mbox *Mailbox) CopyMessages(uid bool, seqset *imap.SeqSet, destName string) error {
