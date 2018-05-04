@@ -455,7 +455,7 @@ func (mbox *Mailbox) UpdateMessagesFlags(uid bool, seqSet *imap.SeqSet, op imap.
 			(uid && seqSet.Contains(uint32(m.MailId))) { // UID Match
 			sem <- true
 			wg.Add(1)
-
+			m.IsRead = set // Hack this... hopefully it sticks
 			go func(i int32, r bool) {
 				defer func() { wg.Done(); <-sem }()
 				_, err := mbox.user.backend.esi.ESI.MailApi.PutCharactersCharacterIdMailMailId(
