@@ -20,6 +20,7 @@ You will need Docker for the mock services
 | Artifice      | Task scheduler | 
 | Conservator    | Integration (discord, slack, ts3, mumble) | 
 | Hammer | ESI Consumer |  
+| MailServer | IMAP/SMTP Proxy for EVE Mail |  
 | Nail | Database store |  
 | Vanguard | Web Front End|  
 | ZKillboard | ZKillboard API and RedisQ Consumer |  
