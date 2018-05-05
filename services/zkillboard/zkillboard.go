@@ -71,7 +71,7 @@ func (s *ZKillboard) getJSON(url string, v interface{}) error {
 	if err != nil {
 		return err
 	}
-	req.Header.Set("User-Agent", "EVEData.org ZKill Consumer (nom nom)")
+	req.Header.Set("user-agent", "EVEData.org ZKill Consumer (nom nom)")
 	r, err := s.http.Do(req)
 	if err != nil {
 		return err

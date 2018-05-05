@@ -116,7 +116,7 @@ func getWarKills(s *Artifice, id int32) error {
 
 		s.QueueWork(work, redisqueue.Priority_High)
 
-		xpagesS := r.Header.Get("X-Pages")
+		xpagesS := r.Header.Get("x-pages")
 		xpages, _ := strconv.Atoi(xpagesS)
 		if int32(xpages) == page || len(kills) == 0 {
 			return nil

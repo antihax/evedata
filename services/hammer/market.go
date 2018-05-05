@@ -51,7 +51,7 @@ func marketHistoryTrigger(s *Hammer, parameter interface{}) {
 			}
 		}
 
-		xpagesS := r.Header.Get("X-Pages")
+		xpagesS := r.Header.Get("x-pages")
 		xpages, _ := strconv.Atoi(xpagesS)
 		if int32(xpages) == page || len(items) == 0 {
 			return
@@ -104,7 +104,7 @@ func marketOrdersConsumer(s *Hammer, parameter interface{}) {
 			return
 		}
 
-		xpagesS := r.Header.Get("X-Pages")
+		xpagesS := r.Header.Get("x-pages")
 		xpages, _ := strconv.Atoi(xpagesS)
 		if int32(xpages) == page || len(orders) == 0 {
 			return

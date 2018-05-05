@@ -212,7 +212,7 @@ func getCharacterContacts(g *vanguard.Vanguard, auth context.Context, characterI
 	}
 
 	// Decode the page into int32. Return if this fails as there were no extra pages.
-	pagesInt, err := strconv.Atoi(r.Header.Get("X-Pages"))
+	pagesInt, err := strconv.Atoi(r.Header.Get("x-pages"))
 	if err != nil {
 		return contacts, nil
 	}
@@ -261,7 +261,7 @@ func getCorporationContacts(g *vanguard.Vanguard, auth context.Context, corporat
 
 	// Decode the page into int32. Return if this fails as there were no extra pages.
 	pages := int32(1)
-	pagesInt, err := strconv.Atoi(r.Header.Get("X-Pages"))
+	pagesInt, err := strconv.Atoi(r.Header.Get("x-pages"))
 	if err == nil {
 		pages = int32(pagesInt)
 	}
@@ -315,7 +315,7 @@ func getAllianceContacts(g *vanguard.Vanguard, auth context.Context, allianceID 
 
 	// Decode the page into int32. Return if this fails as there were no extra pages.
 	pages := int32(1)
-	pagesInt, err := strconv.Atoi(r.Header.Get("X-Pages"))
+	pagesInt, err := strconv.Atoi(r.Header.Get("x-pages"))
 	if err == nil {
 		pages = int32(pagesInt)
 	}

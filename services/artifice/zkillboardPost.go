@@ -34,8 +34,8 @@ func (s *Artifice) zkillboardPost() {
 		mail := fmt.Sprintf("https://zkillboard.com/crestmail/%d/%s/", k.ID, k.Hash)
 
 		r, _ := http.NewRequest("GET", mail, nil)
-		r.Header.Add("Content-Type", "text/text")
-		r.Header.Set("User-Agent", "EVEData.org - from croakroach with love.")
+		r.Header.Add("content-type", "text/text")
+		r.Header.Set("user-agent", "EVEData.org - from croakroach with love.")
 		resp, _ := httpClient.Do(r)
 
 		log.Printf("Posted to Zkillboard %s %s\n", resp.Status, mail)
