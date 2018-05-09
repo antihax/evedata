@@ -194,6 +194,7 @@ CREATE TABLE `entityKillStats` (
   `kills` int(10) unsigned NOT NULL DEFAULT '0',
   `losses` int(10) unsigned NOT NULL DEFAULT '0',
   `efficiency` float NOT NULL DEFAULT '0',
+  `capKills` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
@@ -339,7 +340,8 @@ CREATE TABLE `killmails` (
   KEY `ix_victimCorporationID` (`victimCorporationID`),
   KEY `ix_killTime` (`killTime`),
   KEY `ix_war` (`warID`),
-  KEY `ix_victimCharacterID` (`victimCharacterID`)
+  KEY `ix_victimCharacterID` (`victimCharacterID`),
+  KEY `ix_id_killtime` (`id`,`killTime`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `locatedCharacters` (

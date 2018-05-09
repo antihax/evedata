@@ -64,11 +64,14 @@
 	}
 
 	function capabilityFormatter(value, row) {
-		return Number((row.efficiency * 100).toFixed(0)) + '% Efficiency; Kills: ' + row.kills + '; Losses: ' + row.losses;
+		return 'Kills: ' + row.kills +  '; Losses: ' + row.losses + '<br>' + Number((row.efficiency * 100).toFixed(0)) + '% Efficiency; ' + Number((row.capProbability * 100).toFixed(0)) + '% Hot Drop';
 	}
 
 	function warsFormatter(value, row) {
-		return 'Aggressor: ' + row.warAggressor + "  Defender: " + row.warDefender;
+		if (row.warAggressor + row.warDefender == 0) {
+			return 'None';
+		}
+		return 'Agg: ' + row.warAggressor + "<br>Def: " + row.warDefender;
 	}
 
 	function entityFormatter(value, row) {

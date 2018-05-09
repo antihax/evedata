@@ -36,7 +36,7 @@ func (t *ApiCacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 
 		metricAPICalls.With(
 			prometheus.Labels{"host": req.Host},
-		).Observe(float64(time.Since(start).Nanoseconds()) / 1000.0)
+		).Observe(float64(time.Since(start).Nanoseconds()) / float64(time.Millisecond))
 
 		// We got a response
 		if res != nil {
@@ -49,6 +49,11 @@ func (t *ApiCacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 			if res.StatusCode >= 400 {
 				metricAPIErrors.Inc()
 				log.Printf("St: %d Res: %s Tok: %s - %s\n", res.StatusCode, resetS, tokensS, req.URL)
+			}
+
+			// Early out for "our bad" statuses
+			if res.StatusCode >= 300 && res.StatusCode < 400 {
+				log.Printf("Wut? St: %d - %s\n", res.StatusCode, req.URL)
 			}
 
 			// Early out for "our bad" statuses

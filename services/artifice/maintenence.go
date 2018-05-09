@@ -8,10 +8,11 @@ import (
 func init() {
 	registerTrigger("alliancehistoryMaint", alliancehistoryMaint, time.NewTicker(time.Hour*2))
 	registerTrigger("corphistoryMaint", corphistoryMaint, time.NewTicker(time.Hour*2))
-	registerTrigger("marketMaint", marketMaint, time.NewTicker(time.Second*3610))
+	registerTrigger("marketMaint", marketMaint, time.NewTicker(time.Hour))
 	registerTrigger("discoveredAssetsMaint", discoveredAssetsMaint, time.NewTicker(time.Second*3620))
 	registerTrigger("entityMaint", entityMaint, time.NewTicker(time.Second*3630*3))
-	registerTrigger("killmailMaint", killmailMaint, time.NewTicker(time.Second*60*60*12))
+	registerTrigger("killmailMaint", killmailMaint, time.NewTicker(time.Hour*11))
+	registerTrigger("entityStatsMaint", entityStatsMaint, time.NewTicker(time.Hour*8))
 	registerTrigger("contactSyncMaint", contactSyncMaint, time.NewTicker(time.Second*3615*6))
 }
 
@@ -62,6 +63,158 @@ func contactSyncMaint(s *Artifice) error {
 	return nil
 }
 
+func entityStatsMaint(s *Artifice) error {
+	// Prefill stats for known entities that may have no kills
+	if err := s.doSQL(`
+			INSERT IGNORE INTO evedata.entityKillStats (id) (SELECT characterID AS id FROM evedata.characters);
+				`); err != nil {
+		return err
+	}
+	if err := s.doSQL(`
+			INSERT IGNORE INTO evedata.entityKillStats (id) (SELECT corporationID AS id FROM evedata.corporations WHERE memberCount > 0);
+				`); err != nil {
+		return err
+	}
+	if err := s.doSQL(`
+			INSERT IGNORE INTO evedata.entityKillStats (id) (SELECT allianceID AS id FROM evedata.alliances);
+				`); err != nil {
+		return err
+	}
+	if err := s.doSQL(`
+		UPDATE evedata.entityKillStats SET kills=0, losses=0, capKills=0, efficiency = 0;
+			`); err != nil {
+		return err
+	}
+
+	// Build entity stats
+	if err := s.doSQL(`
+		INSERT INTO evedata.entityKillStats (id, losses)
+			(SELECT 
+				victimCharacterID AS id,
+				COUNT(DISTINCT K.id) AS losses
+			FROM evedata.killmails K
+			WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY)
+			GROUP BY victimCharacterID
+			) ON DUPLICATE KEY UPDATE losses = values(losses);
+			`); err != nil {
+		return err
+	}
+
+	// Build entity stats
+	if err := s.doSQL(`
+			INSERT INTO evedata.entityKillStats (id, losses)
+				(SELECT 
+					victimCorporationID AS id,
+					COUNT(DISTINCT K.id) AS losses
+				FROM evedata.killmails K
+				WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY)
+				GROUP BY victimCorporationID
+				) ON DUPLICATE KEY UPDATE losses = values(losses);
+				`); err != nil {
+		return err
+	}
+
+	if err := s.doSQL(`
+			INSERT INTO evedata.entityKillStats (id, losses)
+				(SELECT 
+					victimAllianceID AS id,
+					COUNT(DISTINCT K.id) AS losses
+				FROM evedata.killmails K
+				WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY)
+				GROUP BY victimAllianceID
+				) ON DUPLICATE KEY UPDATE losses = values(losses);
+				`); err != nil {
+		return err
+	}
+
+	if err := s.doSQL(`
+		INSERT INTO evedata.entityKillStats (id, kills)
+			(SELECT 
+				characterID AS id,
+				COUNT(DISTINCT K.id) AS kills
+			FROM evedata.killmails K
+			INNER JOIN evedata.killmailAttackers A ON A.id = K.id
+			WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY)
+			GROUP BY A.characterID
+			) ON DUPLICATE KEY UPDATE kills = values(kills);
+			`); err != nil {
+		return err
+	}
+
+	if err := s.doSQL(`
+			INSERT INTO evedata.entityKillStats (id, kills)
+				(SELECT 
+					corporationID AS id,
+					COUNT(DISTINCT K.id) AS kills
+				FROM evedata.killmails K
+				INNER JOIN evedata.killmailAttackers A ON A.id = K.id
+				WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY)
+				GROUP BY A.corporationID
+				) ON DUPLICATE KEY UPDATE kills = values(kills);
+				`); err != nil {
+		return err
+	}
+
+	if err := s.doSQL(`
+			INSERT INTO evedata.entityKillStats (id, kills)
+				(SELECT 
+					allianceID AS id,
+					COUNT(DISTINCT K.id) AS kills
+				FROM evedata.killmails K
+				INNER JOIN evedata.killmailAttackers A ON A.id = K.id
+				WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY)
+				GROUP BY A.allianceID
+				) ON DUPLICATE KEY UPDATE kills = values(kills);
+				`); err != nil {
+		return err
+	}
+
+	if err := s.doSQL(`
+		INSERT INTO evedata.entityKillStats (id, capKills) (
+			SELECT C.characterID, COUNT(DISTINCT A.id) FROM evedata.characters C
+			INNER JOIN evedata.killmailAttackers A ON C.characterID = A.characterID
+			INNER JOIN evedata.killmails K ON A.id = K.id AND K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY)
+            INNER JOIN evedata.killmailAttackers A2 ON A.id = A2.id
+				AND A2.shipType IN (SELECT typeID FROM eve.invTypes WHERE groupID IN (30, 547, 485, 1538, 659))
+			GROUP BY characterID) ON DUPLICATE KEY UPDATE capKills = values(capKills);	
+			`); err != nil {
+		return err
+	}
+
+	if err := s.doSQL(`
+		INSERT INTO evedata.entityKillStats (id, capKills) (
+			SELECT C.corporationID, COUNT(DISTINCT A.id) FROM evedata.corporations C
+			INNER JOIN evedata.killmailAttackers A ON C.corporationID = A.corporationID
+			INNER JOIN evedata.killmails K ON A.id = K.id AND K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY)
+            INNER JOIN evedata.killmailAttackers A2 ON A.id = A2.id
+				AND A2.shipType IN (SELECT typeID FROM eve.invTypes WHERE groupID IN (30, 547, 485, 1538, 659))
+			GROUP BY corporationID) ON DUPLICATE KEY UPDATE capKills = values(capKills);	
+			`); err != nil {
+		return err
+	}
+
+	if err := s.doSQL(`
+		INSERT INTO evedata.entityKillStats (id, capKills) (
+			SELECT C.allianceID, COUNT(DISTINCT A.id) FROM evedata.alliances C
+			INNER JOIN evedata.killmailAttackers A ON C.allianceID = A.allianceID
+			INNER JOIN evedata.killmails K ON A.id = K.id AND K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 90 DAY)
+            INNER JOIN evedata.killmailAttackers A2 ON A.id = A2.id
+				AND A2.shipType IN (SELECT typeID FROM eve.invTypes WHERE groupID IN (30, 547, 485, 1538, 659))
+			GROUP BY allianceID) ON DUPLICATE KEY UPDATE capKills = values(capKills);	
+			`); err != nil {
+		return err
+	}
+
+	// Update everyone efficiency
+	if err := s.doSQL(`
+			UPDATE evedata.entityKillStats SET efficiency = IF(losses+kills, (kills/(kills+losses)), 1.0000);
+				`); err != nil {
+		return err
+	}
+	return nil
+
+}
+
 func killmailMaint(s *Artifice) error { // Broken into smaller chunks so we have a chance of it getting completed.
 	// Delete old killmails
 	if err := s.RetryExecTillNoRows(`
@@ -76,7 +229,7 @@ func killmailMaint(s *Artifice) error { // Broken into smaller chunks so we have
 		DELETE D.* FROM evedata.killmailAttackers D
 		JOIN (select A.id FROM evedata.killmailAttackers A
 			LEFT JOIN evedata.killmails K ON K.id = A.id
-			WHERE K.id IS NULL LIMIT 1000) S ON D.id = S.id;
+			WHERE K.id IS NULL LIMIT 500) S ON D.id = S.id;
 				   `); err != nil {
 		return err
 	}
@@ -88,83 +241,6 @@ func killmailMaint(s *Artifice) error { // Broken into smaller chunks so we have
 				LEFT JOIN evedata.killmailAttackers A ON A.id = K.id
 				WHERE A.id IS NULL LIMIT 1000) S ON D.id = S.id;
 					   `); err != nil {
-		return err
-	}
-
-	// Prefill stats for known entities that may have no kills
-	if err := s.doSQL(`
-        INSERT IGNORE INTO evedata.entityKillStats (id)
-	    (SELECT corporationID AS id FROM evedata.corporations WHERE memberCount > 0); 
-            `); err != nil {
-		return err
-	}
-
-	if err := s.doSQL(`
-        INSERT IGNORE INTO evedata.entityKillStats (id)
-	    (SELECT allianceID AS id FROM evedata.alliances); 
-            `); err != nil {
-		return err
-	}
-
-	// Build entity stats
-	if err := s.doSQL(`
-        INSERT INTO evedata.entityKillStats (id, losses)
-            (SELECT 
-                victimCorporationID AS id,
-                COUNT(DISTINCT K.id) AS losses
-            FROM evedata.killmails K
-            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 180 DAY)
-            GROUP BY victimCorporationID
-            ) ON DUPLICATE KEY UPDATE losses = values(losses);
-            `); err != nil {
-		return err
-	}
-
-	if err := s.doSQL(`
-        INSERT INTO evedata.entityKillStats (id, losses)
-            (SELECT 
-                victimAllianceID AS id,
-                COUNT(DISTINCT K.id) AS losses
-            FROM evedata.killmails K
-            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 180 DAY)
-            GROUP BY victimAllianceID
-            ) ON DUPLICATE KEY UPDATE losses = values(losses);
-            `); err != nil {
-		return err
-	}
-
-	if err := s.doSQL(`
-        INSERT INTO evedata.entityKillStats (id, kills)
-            (SELECT 
-                corporationID AS id,
-                COUNT(DISTINCT K.id) AS kills
-            FROM evedata.killmails K
-            INNER JOIN evedata.killmailAttackers A ON A.id = K.id
-            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 180 DAY)
-            GROUP BY A.corporationID
-            ) ON DUPLICATE KEY UPDATE kills = values(kills);
-            `); err != nil {
-		return err
-	}
-
-	if err := s.doSQL(`
-        INSERT INTO evedata.entityKillStats (id, kills)
-            (SELECT 
-                allianceID AS id,
-                COUNT(DISTINCT K.id) AS kills
-            FROM evedata.killmails K
-            INNER JOIN evedata.killmailAttackers A ON A.id = K.id
-            WHERE K.killTime > DATE_SUB(UTC_TIMESTAMP, INTERVAL 180 DAY)
-            GROUP BY A.allianceID
-            ) ON DUPLICATE KEY UPDATE kills = values(kills);
-            `); err != nil {
-		return err
-	}
-
-	// Update everyone efficiency
-	if err := s.doSQL(`
-        UPDATE evedata.entityKillStats SET efficiency = IF(losses+kills, (kills/(kills+losses)) , 1.0000);
-            `); err != nil {
 		return err
 	}
 
