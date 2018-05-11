@@ -1,8 +1,3 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: nsq
----
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -26,6 +21,7 @@ spec:
                 values:
                 - nsqadmin
             topologyKey: "kubernetes.io/hostname"
+      containers:
       - name: nsqadmin
         image: nsqio/nsq
         command:
@@ -45,11 +41,11 @@ metadata:
   labels:
     name: nsqadmin
 spec:
-  externalIPs:
-    - 192.168.10.5
   ports:
     - port: 4171
       name: http
       targetPort: 4171
+      nodePort: 31002
   selector:
     name: nsqadmin
+  type: NodePort
