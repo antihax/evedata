@@ -98,7 +98,7 @@ metadata:
 spec:
   ports:
     - port: 4160
-      name:
+      name: tcp
       targetPort: 4160
     - port: 4161
       name: http
