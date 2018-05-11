@@ -76,7 +76,7 @@ func (mbox *Mailbox) loadMailbox() {
 	// Get all mail headers
 	lastMailID := int32(2147483647)
 	maxMailID := int32(0)
-	mbox.validity = 1 // Always valid
+	mbox.validity = uint32(time.Now().Unix())
 
 	var unseen, count, pages uint32
 	messageHeaders := make(map[int32]*esi.GetCharactersCharacterIdMail200Ok)
@@ -140,7 +140,7 @@ func (mbox *Mailbox) loadMailbox() {
 
 	mbox.nextuid = uint32(maxMailID)
 	mbox.firstuid = uint32(lastMailID)
-	mbox.unreadCount = unseen
+	mbox.unreadCount = unseen + 1
 	mbox.count = count
 }
 
