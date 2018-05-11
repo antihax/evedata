@@ -53,4 +53,3 @@ spec:
       targetPort: 4171
   selector:
     name: nsqadmin
-
