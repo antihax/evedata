@@ -35,6 +35,7 @@ spec:
       - configMap:
           name: redis-config
         name: config-volume
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
