@@ -3,6 +3,8 @@
 .settings
 .vscode
 evedata-server
+secret.yaml
+secrets.yaml
 debug
 profile.out
 coverage.txt
