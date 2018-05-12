@@ -63,9 +63,8 @@ spec:
         command:
         - "/bin/prometheus"
         args:
-        - "-config.file=/etc/prometheus/prometheus.yml"
-        - "-storage.local.path=/prometheus"
-        - "-storage.local.retention=960h"
+        - "--config.file=/etc/prometheus/prometheus.yml"
+        - "--storage.tsdb.retention=5d"
         ports:
         - containerPort: 9090
           protocol: TCP
