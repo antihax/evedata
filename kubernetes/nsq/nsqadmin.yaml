@@ -32,20 +32,4 @@ spec:
           - containerPort: 4171
             name: http
             protocol: TCP
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: nsqadmin
-  namespace: nsq
-  labels:
-    name: nsqadmin
-spec:
-  ports:
-    - port: 4171
-      name: http
-      targetPort: 4171
-      nodePort: 31002
-  selector:
-    name: nsqadmin
-  type: NodePort
+
