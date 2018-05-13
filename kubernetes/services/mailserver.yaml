@@ -59,11 +59,6 @@ spec:
             secretKeyRef:
               name: esi-secret
               key: clientID-tokenstore
-        - name: SQLAUTH
-          valueFrom:
-            secretKeyRef:
-              name: sql-password
-              key: sqlauth
         ports:
         - containerPort: 3000
         - containerPort: 465
