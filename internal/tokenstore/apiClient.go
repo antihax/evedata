@@ -16,7 +16,7 @@ type TokenServerAPI struct {
 }
 
 func NewTokenServerAPI() (*TokenServerAPI, error) {
-	r, err := grpc.Dial("tokenserver.evedata:32004",
+	r, err := grpc.Dial("tokenserver.evedata:3002",
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{
 			Time:                time.Second * 5,
 			Timeout:             time.Second * 10,

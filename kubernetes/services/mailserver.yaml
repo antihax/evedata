@@ -7,12 +7,12 @@ spec:
   selector:
     app: mailserver
   ports:
-  - name: IMAP
+  - name: imap
     protocol: TCP
     port: 993
     targetPort: 993
     nodePort: 32005
-  - name: SMTP
+  - name: smtp
     protocol: TCP
     port: 465
     targetPort: 465
