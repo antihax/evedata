@@ -14,8 +14,6 @@ metadata:
   namespace: evedata
 subsets:
 - addresses:
-  - ip: 192.168.10.10
-  - ip: 192.168.10.11
-  - ip: 192.168.10.13
+  - ip: 192.168.10.3
   ports:
   - port: 3306
