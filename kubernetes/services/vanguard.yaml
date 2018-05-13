@@ -94,3 +94,19 @@ spec:
         hostPath:
           path: /etc/ssl/certs
           type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vanguard
+  namespace: evedata
+spec:
+  selector:
+    app: vanguard
+  ports:
+  - name: vanguard
+    protocol: TCP
+    port: 3000
+    targetPort: 3000
+    nodePort: 32001
+  type: NodePort
