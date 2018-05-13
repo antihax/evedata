@@ -15,7 +15,7 @@ func ConnectRedisProdPool() *redis.Pool {
 		[]string{"redis.evedata:6379"},
 		os.Getenv("REDIS_PASSWORD"),
 		"evedata",
-		true,
+		false,
 	)
 }
 
