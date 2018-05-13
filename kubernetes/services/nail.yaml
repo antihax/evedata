@@ -28,11 +28,6 @@ spec:
         image: antihax/evedata-nail
         imagePullPolicy: Always
         env:
-        - name: REDIS_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: redis-password
-              key: password
         - name: SQLAUTH
           valueFrom:
             secretKeyRef:

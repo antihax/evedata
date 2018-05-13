@@ -44,11 +44,6 @@ spec:
         image: antihax/evedata-tokenserver
         imagePullPolicy: Always
         env:
-        - name: REDIS_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: redis-password
-              key: password
         - name: ESI_SECRET_TOKENSTORE
           valueFrom:
             secretKeyRef:

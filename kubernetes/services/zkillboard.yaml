@@ -29,11 +29,6 @@ spec:
         image: antihax/evedata-zkillboard
         imagePullPolicy: Always
         env:
-        - name: REDIS_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: redis-password
-              key: password
         ports:
         - containerPort: 3000
         volumeMounts:

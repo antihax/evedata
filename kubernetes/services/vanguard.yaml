@@ -39,11 +39,6 @@ spec:
             secretKeyRef:
               name: sql-password
               key: sqlauth
-        - name: REDIS_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: redis-password
-              key: password
         - name: ESI_REFRESHKEY
           valueFrom:
             secretKeyRef:
