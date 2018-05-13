@@ -32,9 +32,9 @@ func GetLocalIntel(names []interface{}) ([]LocalIntelData, error) {
 				IFNULL(factionName, "") AS factionName,
 				COUNT(DISTINCT Agg.ID) AS warAggressor,
 				COUNT(DISTINCT Def.ID) AS warDefender,
-				kills,
-				losses,
-				capKills,
+				COALESCE(kills,0) AS kills,
+				COALESCE(losses,0) AS losses,
+				COALESCE(capKills,0) AS capKills,
 				IF(kills, capKills / kills, 0) AS capProbability,
 				IF(losses+kills, (kills/(kills+losses)), 1.0000) AS efficiency
 		FROM

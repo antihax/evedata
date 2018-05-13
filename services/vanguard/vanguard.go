@@ -53,7 +53,7 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB) *Vanguard {
 	gob.Register(goesi.VerifyResponse{})
 
 	// Get a caching http client
-	cache := apicache.CreateHTTPClientCache(redis)
+	cache := apicache.CreateHTTPClientCache()
 
 	// Create our ESI API Client
 	esi := goesi.NewAPIClient(cache, "EVEData-API-Vanguard")

@@ -34,7 +34,7 @@ type MailServer struct {
 func NewMailServer(redis *redis.Pool, clientID, secret string) (*MailServer, error) {
 
 	// Get a caching http client
-	httpClient := apicache.CreateHTTPClientCache(redis)
+	httpClient := apicache.CreateHTTPClientCache()
 
 	// Setup a token authenticator
 	auth := goesi.NewSSOAuthenticator(httpClient, clientID, secret, "", []string{})

@@ -31,7 +31,7 @@ func NewZKillboard(redis *redis.Pool) *ZKillboard {
 			redis,
 			"evedata-hammer",
 		),
-		http:  apicache.CreateHTTPClientCache(redis),
+		http:  apicache.CreateHTTPClientCache(),
 		redis: redis,
 	}
 	return s

@@ -49,7 +49,7 @@ func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string,
 		log.Fatalln("Missing refresh CharID")
 	}
 	// Get a caching http client
-	cache := apicache.CreateHTTPClientCache(redis)
+	cache := apicache.CreateHTTPClientCache()
 
 	// Create our ESI API Client
 	esiClient := goesi.NewAPIClient(cache, "EVEData-API-Artifice")

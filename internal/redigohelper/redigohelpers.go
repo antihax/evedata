@@ -10,9 +10,20 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
+// Memory Store
 func ConnectRedisProdPool() *redis.Pool {
 	return connectRedisPool(
 		[]string{"redis.storage:6379"},
+		os.Getenv("REDIS_PASSWORD"),
+		"evedata",
+		false,
+	)
+}
+
+// Disk Store
+func ConnectLedisProdPool() *redis.Pool {
+	return connectRedisPool(
+		[]string{"ledis.storage:6379"},
 		os.Getenv("REDIS_PASSWORD"),
 		"evedata",
 		false,
