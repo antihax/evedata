@@ -2,7 +2,6 @@
 package mailserver
 
 import (
-	"crypto/tls"
 	"log"
 	"os"
 	"sync"
@@ -64,21 +63,6 @@ func NewMailServer(redis *redis.Pool, clientID, secret string) (*MailServer, err
 
 	imap.ErrorLog = log.New(os.Stdout, "INFO: ", log.Lshortfile)
 
-	// [TODO] not hardcode this
-	cert, err := tls.LoadX509KeyPair(
-		"/etc/letsencrypt/live/mail.evedata.org/fullchain1.pem",
-		"/etc/letsencrypt/live/mail.evedata.org/privkey1.pem",
-	)
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-
-	tls := &tls.Config{Certificates: []tls.Certificate{cert}}
-
-	smtp.TLSConfig = tls
-	imap.TLSConfig = tls
-
 	smtp.Domain = "localhost"
 
 	// Setup a new MailServer
@@ -99,9 +83,9 @@ func NewMailServer(redis *redis.Pool, clientID, secret string) (*MailServer, err
 // Run the hammer service
 func (s *MailServer) Run() error {
 	log.Printf("Starting SMTP\n")
-	go func() { log.Fatal(s.smtp.ListenAndServeTLS()) }()
+	go func() { log.Fatal(s.smtp.ListenAndServe()) }()
 	log.Printf("Starting IMAP\n")
-	go func() { log.Fatal(s.imap.ListenAndServeTLS()) }()
+	go func() { log.Fatal(s.imap.ListenAndServe()) }()
 	return nil
 }
 
