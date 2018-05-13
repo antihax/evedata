@@ -2,7 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: redis
-  namespace: evedata
+  namespace: storage
 spec:
   replicas: 1
   template:
@@ -40,7 +40,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: redis
-  namespace: evedata
+  namespace: storage
   labels:
     name: redis
 spec:
@@ -55,7 +55,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: redis-config
-  namespace: evedata
+  namespace: storage
 data:
   redis.conf: |
     # Redis configuration file example.

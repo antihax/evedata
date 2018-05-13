@@ -9,6 +9,7 @@ addons:
     - nsqd.nsq
     - nsqadmind.nsq
     - nsqlookupd.nsq
+    - redis.storage
 
 services:
   - docker
