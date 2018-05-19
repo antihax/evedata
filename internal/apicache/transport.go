@@ -52,11 +52,6 @@ func (t *ApiCacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 			}
 
 			// Early out for "our bad" statuses
-			if res.StatusCode >= 300 && res.StatusCode < 400 {
-				log.Printf("Wut? St: %d - %s\n", res.StatusCode, req.URL)
-			}
-
-			// Early out for "our bad" statuses
 			if res.StatusCode >= 400 && res.StatusCode < 420 {
 				return res, err
 			}
@@ -71,23 +66,22 @@ func (t *ApiCacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 				esiRateLimiter = false
 			}
 
+			// Backoff
 			if res.StatusCode == 420 { // Something went wrong
-				time.Sleep(time.Second * time.Duration(reset+rand.Intn(15)))
+				time.Sleep(time.Duration(reset)*time.Second + time.Duration(rand.Intn(int(time.Second*5))))
 			} else if res.StatusCode == 429 { // SNAFU
 				time.Sleep(time.Second * time.Duration(60+rand.Intn(30)))
 			} else if esiRateLimiter { // Sleep based on error rate.
 				time.Sleep(time.Second * time.Duration(float64(reset)*1.1*(1-(float64(tokens)/100))))
+			} else if !esiRateLimiter { // Not an ESI error
+				time.Sleep(time.Second * time.Duration(tries))
 			}
 
+			// break out after 10 tries
 			if res.StatusCode == 420 || res.StatusCode == 429 || res.StatusCode >= 500 || res.StatusCode == 0 {
-				// break out after 10 tries
 				if tries > 10 {
 					return res, err
 				}
-				if !esiRateLimiter {
-					time.Sleep(time.Second * time.Duration(tries))
-				}
-				continue
 			}
 		}
 		return res, err
