@@ -132,8 +132,8 @@ func (mbox *Mailbox) loadMailbox() {
 				maxMailID = m.MailId
 			}
 		}
-		// Break out at 1 pages
-		if pages >= 1 {
+		// Break out at 30 pages (evemail limits to 1500)
+		if pages >= 30 {
 			break
 		}
 	}

@@ -51,11 +51,16 @@ func NewMailServer(redis *redis.Pool, clientID, secret string) (*MailServer, err
 	imap := imap.New(esiimap.New(tokenServer, esiClient, auth, q))
 	smtp := smtp.NewServer(esismtp.New(tokenServer, esiClient, auth, q))
 
+	// haproxy handles encryption
+	imap.AllowInsecureAuth = true
+	smtp.AllowInsecureAuth = true
+
 	if len(os.Args) > 1 && os.Args[1] == "debug" {
 		imap.Addr = ":1993"
 		smtp.Addr = ":1465"
 		imap.Debug = os.Stdout
 		smtp.Debug = os.Stdout
+
 	} else {
 		imap.Addr = ":993"
 		smtp.Addr = ":465"
