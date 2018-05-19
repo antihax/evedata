@@ -24,9 +24,9 @@ func registerConsumer(name string, f consumerFunc) {
 
 func (s *Hammer) wait(f consumerFunc, p interface{}) {
 	// Limit go routines
-	s.hammerWG.Add(1)
+	s.wg.Add(1)
 	atomic.AddUint64(&s.activeWorkers, 1)
-	defer func() { <-s.sem; s.hammerWG.Done(); atomic.AddUint64(&s.activeWorkers, ^uint64(0)) }()
+	defer func() { <-s.sem; s.wg.Done(); atomic.AddUint64(&s.activeWorkers, ^uint64(0)) }()
 	f(s, p)
 }
 

@@ -27,7 +27,7 @@ const NUM_WORKERS = 100
 // Hammer completes work handling CCP ESI and other API.
 type Hammer struct {
 	stop       chan bool
-	hammerWG   *sync.WaitGroup
+	wg         *sync.WaitGroup
 	inQueue    *redisqueue.RedisQueue
 	esi        *goesi.APIClient
 	db         *sqlx.DB
@@ -72,8 +72,8 @@ func NewHammer(redis *redis.Pool, db *sqlx.DB, nsq *nsq.Producer, refresh, token
 
 	// Setup a new hammer
 	s := &Hammer{
-		stop:     make(chan bool),
-		hammerWG: &sync.WaitGroup{},
+		stop: make(chan bool),
+		wg:   &sync.WaitGroup{},
 		inQueue: redisqueue.NewRedisQueue(
 			redis,
 			"evedata-hammer",
@@ -94,7 +94,7 @@ func NewHammer(redis *redis.Pool, db *sqlx.DB, nsq *nsq.Producer, refresh, token
 // Close the hammer service
 func (s *Hammer) Close() {
 	close(s.stop)
-	s.hammerWG.Wait()
+	s.wg.Wait()
 }
 
 // ChangeBasePath for ESI (sisi/mock/tranquility)
