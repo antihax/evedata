@@ -223,10 +223,7 @@ func getCharacterContacts(g *vanguard.Vanguard, auth context.Context, characterI
 
 	// Concurrently pull the remaining contact pages
 	wg := sync.WaitGroup{}
-	for {
-		if pages == 1 {
-			break
-		}
+	for pages != 1 {
 		wg.Add(1)
 		go func(page int32) {
 			defer wg.Done()
