@@ -113,7 +113,7 @@ func (s *Hammer) QueueWork(work []redisqueue.Work, priority int) error {
 	return s.inQueue.QueueWork(work, priority)
 }
 
-// Run the hammer service
+// Run the service
 func (s *Hammer) Run() {
 	go s.tickWorkersToPrometheus()
 
@@ -155,7 +155,6 @@ func (s *Hammer) SetToken(cid, tcid int32, token *oauth2.Token) error {
 	return s.tokenStore.SetToken(cid, tcid, token)
 }
 
-// Close the hammer service
 func (s *Hammer) tickWorkersToPrometheus() {
 	for {
 		<-time.After(5 * time.Second)

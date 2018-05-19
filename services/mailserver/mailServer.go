@@ -80,7 +80,7 @@ func NewMailServer(redis *redis.Pool, clientID, secret string) (*MailServer, err
 	return s, nil
 }
 
-// Run the hammer service
+// Run the service
 func (s *MailServer) Run() error {
 	log.Printf("Starting SMTP\n")
 	go func() { log.Fatal(s.smtp.ListenAndServe()) }()
@@ -89,7 +89,7 @@ func (s *MailServer) Run() error {
 	return nil
 }
 
-// Close the hammer service
+// Close the service
 func (s *MailServer) Close() {
 
 	close(s.stop)

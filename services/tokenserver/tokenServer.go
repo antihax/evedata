@@ -65,7 +65,7 @@ func NewTokenServer(redis *redis.Pool, db *sqlx.DB, clientID, secret string) *To
 	return s
 }
 
-// Run the hammer service
+// Run the service
 func (s *TokenServer) Run() error {
 	lis, err := net.Listen("tcp", ":3002")
 	if err != nil {
@@ -80,7 +80,7 @@ func (s *TokenServer) Run() error {
 	return nil
 }
 
-// Close the hammer service
+// Close the service
 func (s *TokenServer) Close() {
 	s.tokenAPI.GracefulStop()
 	close(s.stop)

@@ -23,7 +23,7 @@ type ZKillboard struct {
 
 // NewZKillboard Service.
 func NewZKillboard(redis *redis.Pool) *ZKillboard {
-	// Setup a new hammer
+	// Setup a new service
 	s := &ZKillboard{
 		stop: make(chan bool),
 		wg:   &sync.WaitGroup{},

@@ -120,13 +120,13 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB) *Vanguard {
 	return globalVanguard
 }
 
-// Close the hammer service
+// Close the  service
 func (s *Vanguard) Close() {
 	close(s.stop)
 	s.wg.Wait()
 }
 
-// Close the hammer service
+// RPCall calls remote procedures
 func (s *Vanguard) RPCall(method string, in interface{}, out interface{}) error {
 	for {
 		err := s.Conservator.Call(method, in, out)
@@ -142,7 +142,7 @@ func (s *Vanguard) RPCall(method string, in interface{}, out interface{}) error 
 	}
 }
 
-// Close the hammer service
+// Close the service
 func (s *Vanguard) RPCConnect() error {
 	var err error
 	s.Conservator, err = rpc.DialHTTP("tcp", "conservator.evedata:3001")

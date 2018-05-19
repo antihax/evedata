@@ -93,7 +93,7 @@ func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string,
 	return s
 }
 
-// Close the hammer service
+// Close the service
 func (s *Artifice) Close() {
 	close(s.stop)
 }
@@ -119,7 +119,7 @@ func (s *Artifice) QueueSize() (int, error) {
 	return s.inQueue.Size()
 }
 
-// Run the hammer service
+// Run the service
 func (s *Artifice) Run() {
 	go s.startup()
 	go s.zkillboardPost()
