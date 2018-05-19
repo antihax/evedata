@@ -5,7 +5,6 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/antihax/evedata/internal/apicache"
@@ -19,13 +18,12 @@ import (
 
 // Artifice handles the scheduling of routine tasks.
 type Artifice struct {
-	stop     chan bool
-	hammerWG *sync.WaitGroup
-	inQueue  *redisqueue.RedisQueue
-	esi      *goesi.APIClient
-	redis    *redis.Pool
-	db       *sqlx.DB
-	mail     chan esi.PostCharactersCharacterIdMailMail
+	stop    chan bool
+	inQueue *redisqueue.RedisQueue
+	esi     *goesi.APIClient
+	redis   *redis.Pool
+	db      *sqlx.DB
+	mail    chan esi.PostCharactersCharacterIdMailMail
 
 	// authentication
 	token       *oauth2.TokenSource
@@ -77,8 +75,7 @@ func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string,
 
 	// Setup a new artifice
 	s := &Artifice{
-		stop:     make(chan bool),
-		hammerWG: &sync.WaitGroup{},
+		stop: make(chan bool),
 		inQueue: redisqueue.NewRedisQueue(
 			redis,
 			"evedata-hammer",
@@ -99,7 +96,6 @@ func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string,
 // Close the hammer service
 func (s *Artifice) Close() {
 	close(s.stop)
-	s.hammerWG.Wait()
 }
 
 // ChangeBasePath for ESI (sisi/mock/tranquility)
