@@ -174,20 +174,21 @@ func (mbox *Mailbox) ListMessages(uid bool, seqSet *imap.SeqSet, items []imap.Fe
 	wg := sync.WaitGroup{}
 	sem := make(chan bool, 50)
 	for i, m := range mbox.messagesSeqNum {
-		if (!uid && seqSet.Contains(uint32(i))) || // SeqNum Match
+		seqNum := i + 1
+		if (!uid && seqSet.Contains(uint32(seqNum))) || // SeqNum Match
 			(uid && seqSet.Contains(uint32(m.MailId))) { // UID Match
 			sem <- true
 			wg.Add(1)
-			go func(m *esi.GetCharactersCharacterIdMail200Ok, i int) {
+			go func(m *esi.GetCharactersCharacterIdMail200Ok, seqNum int) {
 				defer func() { wg.Done(); <-sem }()
-				im := imap.NewMessage(uint32(i), items)
-				err := mbox.fetchMessage(m, im, uint32(i), items)
+				im := imap.NewMessage(uint32(seqNum), items)
+				err := mbox.fetchMessage(m, im, uint32(seqNum), items)
 				if err != nil {
 					log.Println(err)
 					return
 				}
 				ch <- im
-			}(m, i)
+			}(m, seqNum)
 		}
 	}
 
@@ -283,17 +284,20 @@ func (mbox *Mailbox) fetchWholeMessage(i *imap.Message, uuid uint32, mailID int3
 func (mbox *Mailbox) SearchMessages(uid bool, criteria *imap.SearchCriteria) ([]uint32, error) {
 	mbox.WaitForLoad()
 	var ids []uint32
+
 	if !uid {
 		for i, msg := range mbox.messagesSeqNum {
-			ok, err := mbox.MatchMessage(msg, uid, uint32(i), uint32(msg.MailId), criteria)
+			seqNum := i + 1
+			ok, err := mbox.MatchMessage(msg, uid, uint32(seqNum), uint32(msg.MailId), criteria)
 			if err != nil || !ok {
 				continue
 			}
-			ids = append(ids, uint32(i))
+			ids = append(ids, uint32(seqNum))
 		}
 	} else {
 		for i, msg := range mbox.messagesSeqNum {
-			ok, err := mbox.MatchMessage(msg, uid, uint32(i), uint32(msg.MailId), criteria)
+			seqNum := i + 1
+			ok, err := mbox.MatchMessage(msg, uid, uint32(seqNum), uint32(msg.MailId), criteria)
 			if err != nil || !ok {
 				continue
 			}
@@ -451,7 +455,8 @@ func (mbox *Mailbox) UpdateMessagesFlags(uid bool, seqSet *imap.SeqSet, op imap.
 	}
 
 	for i, m := range mbox.messagesSeqNum {
-		if (!uid && seqSet.Contains(uint32(i))) || // SeqNum Match
+		seqNum := i + 1
+		if (!uid && seqSet.Contains(uint32(seqNum))) || // SeqNum Match
 			(uid && seqSet.Contains(uint32(m.MailId))) { // UID Match
 			sem <- true
 			wg.Add(1)
