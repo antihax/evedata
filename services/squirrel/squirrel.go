@@ -9,21 +9,24 @@ import (
 	"time"
 
 	"github.com/antihax/evedata/internal/apicache"
+	"github.com/antihax/evedata/internal/redisqueue"
 	"github.com/antihax/goesi"
+	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 )
 
 // Squirrel Collects and dumps all static data from ESI
 type Squirrel struct {
-	stop   chan bool
-	esi    *goesi.APIClient
-	esiSem chan bool
-	wg     sync.WaitGroup
-	db     *sqlx.DB
+	stop    chan bool
+	esi     *goesi.APIClient
+	esiSem  chan bool
+	inQueue *redisqueue.RedisQueue
+	wg      sync.WaitGroup
+	db      *sqlx.DB
 }
 
 // NewSquirrel Service.
-func NewSquirrel(db *sqlx.DB) *Squirrel {
+func NewSquirrel(redis *redis.Pool, db *sqlx.DB) *Squirrel {
 	// Get a caching http client
 	cache := apicache.CreateHTTPClientCache()
 
@@ -35,7 +38,11 @@ func NewSquirrel(db *sqlx.DB) *Squirrel {
 		wg:     sync.WaitGroup{},
 		esiSem: make(chan bool, 100),
 		db:     db,
-		esi:    esiClient,
+		inQueue: redisqueue.NewRedisQueue(
+			redis,
+			"evedata-hammer",
+		),
+		esi: esiClient,
 	}
 
 	return s
@@ -159,4 +166,9 @@ func getPages(r *http.Response) (int32, error) {
 	}
 	pages := int32(pagesInt)
 	return pages, err
+}
+
+// QueueWork directly
+func (s *Squirrel) QueueWork(work []redisqueue.Work, priority int) error {
+	return s.inQueue.QueueWork(work, priority)
 }

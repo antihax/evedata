@@ -6,6 +6,7 @@ import (
 	_ "net/http/pprof"
 	"time"
 
+	"github.com/antihax/evedata/internal/redigohelper"
 	"github.com/antihax/evedata/internal/sqlhelper"
 	"github.com/antihax/evedata/services/squirrel"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -15,6 +16,8 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetPrefix("evedata squirrel: ")
 
+	redis := redigohelper.ConnectRedisProdPool()
+
 	db := sqlhelper.NewDatabase()
 	// Run metrics
 	go func() {
@@ -23,7 +26,7 @@ func main() {
 	}()
 
 	// Make a new service and send it into the background.
-	squirrel := squirrel.NewSquirrel(db)
+	squirrel := squirrel.NewSquirrel(redis, db)
 
 	squirrel.Run()
 	squirrel.Close()

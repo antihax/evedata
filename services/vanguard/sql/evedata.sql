@@ -269,6 +269,14 @@ CREATE TABLE `integrations` (
   UNIQUE KEY `UNIQUE` (`address`,`authentication`)
 ) ENGINE=TokuDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `invMarketGroups` (
+  `marketGroupID` mediumint(6) unsigned NOT NULL,
+  `parentGroupID` mediumint(6) unsigned NOT NULL,
+  `marketGroupName` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `description` text COLLATE utf8_bin,
+  PRIMARY KEY (`marketGroupID`)
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `iskPerLp` (
   `itemName` varchar(100) NOT NULL,
   `typeID` int(11) NOT NULL DEFAULT '0',
