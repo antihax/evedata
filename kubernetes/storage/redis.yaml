@@ -50,7 +50,7 @@ spec:
       targetPort: 6379
       protocol: TCP
       nodePort: 36379
-    type: NodePort
+  type: NodePort
   selector:
     name: redis
 ---
