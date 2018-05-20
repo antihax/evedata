@@ -21,8 +21,9 @@ func ConnectRedisProdPool() *redis.Pool {
 	test := pool.Get()
 	_, err := test.Do("PING")
 	if err != nil {
+		log.Printf("Fallback to external redis\n")
 		pool := connectRedisPool(
-			[]string{"redis.storage:36379"},
+			[]string{"redis.storage:32379"},
 			os.Getenv("REDIS_PASSWORD"),
 			"evedata",
 			false,
