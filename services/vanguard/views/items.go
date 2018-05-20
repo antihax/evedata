@@ -60,7 +60,7 @@ func itemPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	renderTemplate(w, "item.html", time.Hour*24*31, p)
+	renderTemplate(w, "items.html", time.Hour*24*31, p)
 }
 
 func marketHistory(w http.ResponseWriter, r *http.Request) {

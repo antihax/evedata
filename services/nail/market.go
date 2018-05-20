@@ -2,6 +2,7 @@ package nail
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -50,6 +51,7 @@ func (s *Nail) marketOrderHandler(message *nsq.Message) error {
 		if count >= 80 {
 			s.doMarketOrders(values)
 			values = []string{}
+			count = 0
 		}
 	}
 
@@ -57,15 +59,20 @@ func (s *Nail) marketOrderHandler(message *nsq.Message) error {
 }
 
 func (s *Nail) doMarketOrders(values []string) error {
+	if len(values) == 0 {
+		return nil
+	}
 	stmt := fmt.Sprintf(`INSERT INTO evedata.market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, reported)
 	VALUES %s
-	ON DUPLICATE KEY UPDATE price=VALUES(price),
-		remainingVolume=VALUES(remainingVolume),
-		issued=VALUES(issued),
-		duration=VALUES(duration),
-		reported=VALUES(reported);
+	ON DUPLICATE KEY UPDATE price=VALUES(price), remainingVolume=VALUES(remainingVolume), issued=VALUES(issued), duration=VALUES(duration), reported=VALUES(reported);
 		`, strings.Join(values, ",\n"))
-	return s.doSQL(stmt)
+
+	if err := s.doSQL(stmt); err != nil {
+		log.Println(stmt)
+		return err
+	}
+
+	return nil
 }
 
 func (s *Nail) marketHistoryHandler(message *nsq.Message) error {
