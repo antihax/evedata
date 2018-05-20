@@ -12,12 +12,26 @@ import (
 
 // Memory Store
 func ConnectRedisProdPool() *redis.Pool {
-	return connectRedisPool(
+	pool := connectRedisPool(
 		[]string{"redis.storage:6379"},
 		os.Getenv("REDIS_PASSWORD"),
 		"evedata",
 		false,
 	)
+	test := pool.Get()
+	_, err := test.Do("PING")
+	if err != nil {
+		pool := connectRedisPool(
+			[]string{"redis.storage:36379"},
+			os.Getenv("REDIS_PASSWORD"),
+			"evedata",
+			false,
+		)
+		return pool
+	}
+
+	return pool
+
 }
 
 // Disk Store
