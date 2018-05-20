@@ -83,7 +83,6 @@ func GetAssetCharacters(characterID int32, ownerHash string) ([]AssetCharacters,
 // Obtain alliance information by ID.
 // [BENCHMARK] 0.000 sec / 0.000 sec
 func GetAssets(characterID int32, ownerHash string, filterCharacterID int32, locationID int64) ([]Assets, error) {
-
 	var filter string
 
 	if filterCharacterID == 0 {
@@ -123,8 +122,8 @@ func GetAssets(characterID int32, ownerHash string, filterCharacterID int32, loc
 		LEFT JOIN evedata.jitaPrice P3 ON L3.typeID = P3.itemID
 
 		JOIN invTypes T ON A.typeID = T.typeID
-		WHERE A.locationType != "other"
-			AND A.characterID `+filter+`
+		WHERE 
+			A.characterID `+filter+`
 			AND A.locationID = ?
 		GROUP BY A.itemID
 		ORDER BY sell DESC
