@@ -1,0 +1,184 @@
+{{define "body"}}
+<h3>Marketable Assets</h3>
+{{template "checkAuthentication" .}}
+
+<div class="toolbar assetToolbar" id="LocationContainer">
+    <select class="selectpicker" data-width="auto" name="locationList" id="locationList"></select>
+    <select class="selectpicker" data-width="auto" name="characterList" id="characterList"></select>
+</div>
+
+<table class="table" data-cache="true" data-toolbar=".assetToolbar" data-sort-name="typeName"
+    data-sort-order="asc" data-show-columns="true" data-row-style="warningFormatter"
+    id="assets">
+    <thead>
+        <tr>
+            <th data-field="typeName" data-formatter="typeFormatter" data-sortable="true">Type</th>
+            <th data-field="quantity" data-formatter="numberFormatter" data-align="right">Quantity</th>
+            <th data-field="buy" data-visible="false" data-formatter="numberFormatter" data-align="right"
+                data-sortable="true">Jita Buy Price</th>
+            <th data-field="sell" data-formatter="numberFormatter" data-align="right" data-sortable="true">Jita Sell Price</th>
+            <th data-field="regionOrders" data-visible="false" data-formatter="numberFormatter"
+                data-align="right" data-sortable="true">Region Orders</th>
+            <th data-field="stationOrders" data-visible="false" data-formatter="numberFormatter"
+                data-align="right" data-sortable="true">Station Orders</th>
+            <th data-field="regionPrice" data-formatter="numberFormatter" data-align="right"
+                data-sortable="true">Region Price</th>
+            <th data-field="stationPrice" data-visible="false" data-formatter="numberFormatter"
+                data-align="right" data-sortable="true">Station Price</th>
+            <th data-field="" data-formatter="markupFormatter" data-align="right" data-sortable="true">Marked Up Price</th>
+        </tr>
+    </thead>
+</table>
+
+<script>
+    function warningFormatter(row, index) {
+        console.log(row);
+        if (getPrice(row) < row.sell) {
+            return {
+                classes: {},
+                css: {
+                    "color": "red"
+                }
+            };
+        }
+
+        if (getPrice(row) < row.sell * 1.3) {
+            return {
+                classes: {},
+                css: {
+                    "color": "yellow"
+                }
+            };
+        }
+        return {
+            classes: {},
+            css: {}
+        };
+    }
+
+    function getPrice(row) {
+        price = 0;
+        if (row.regionPrice) {
+            price = row.regionPrice - 0.01;
+        } else if (row.stationPrice) {
+            price = row.stationPrice - 0.01;
+        }
+        if (!price) {
+            price = row.sell * 1.3;
+        }
+        return price;
+    }
+
+    function markupFormatter(value, row) {
+
+        return numberCommafy(getPrice(row).toFixed(2));
+    }
+
+    var $assets = $('#assets').bootstrapTable({
+        url: "/U/marketableAssets",
+        detailView: true,
+        onExpandRow: function (index, row, $detail) {
+            $detail.html('<table></table>').find('table').bootstrapTable({
+                columns: [{
+                    field: 'typeName',
+                    title: 'Type',
+                    formatter: "typeFormatter"
+                }, {
+                    field: 'quantity',
+                    title: 'Quantity',
+                    align: "right",
+                    formatter: "numberFormatter"
+                }, {
+                    field: 'subCount',
+                    title: 'Items Inside',
+                    align: "right",
+                    formatter: "numberFormatter"
+                }, {
+                    field: 'buy',
+                    title: 'Buy Price',
+                    align: "right",
+                    formatter: "numberFormatter"
+                }, {
+                    field: 'sell',
+                    title: 'Sell Price',
+                    align: "right",
+                    formatter: "numberFormatter"
+                }],
+                data: row.subItems,
+                detailView: row.subItems[0]['subItems'] !==
+                    undefined,
+                onExpandRow: function (indexb, rowb,
+                    $detailb) {
+                    $detailb.html('<table></table>').find(
+                        'table').bootstrapTable({
+                        columns: [{
+                            field: 'col6',
+                            title: 'Col6'
+                        }, {
+                            field: 'col7',
+                            title: 'Col7'
+                        }],
+                        data: rowb.other
+                    });
+                }
+            });
+        }
+    });
+
+
+    function updateStationList(characterID) {
+        $.ajax({
+            url: '/U/assetLocations?marketable=1&filterCharacterID=' +
+                characterID,
+            dataType: 'JSON',
+            success: function (data) {
+                $('#locationList').empty();
+                $.each(data, function (key, val) {
+                    $('#locationList').append(
+                        '<option value=' + val.locationID +
+                        ' data-subtext="' +
+                        numberCommafy(val.sell) +
+                        ' ISK">' + val.locationName +
+                        '</option>');
+                })
+                $('#locationList').selectpicker('refresh')
+                $('#assets').bootstrapTable('refreshOptions', {
+                    url: '/U/marketableAssets?locationID=' +
+                        $(
+                            '#locationList').val() +
+                        '&tokenCharacterID=' + $(
+                            '#characterList').val()
+                });
+            },
+            error: function () {}
+        });
+    }
+
+    $('#locationList').change(function () {
+        $('#assets').bootstrapTable('refreshOptions', {
+            url: '/U/marketableAssets?locationID=' + $(
+                    '#locationList').val() +
+                '&tokenCharacterID=' + $('#characterList').val()
+        });
+    });
+
+    $.ajax({
+        url: '/U/assetCharacters?marketable=1',
+        dataType: 'JSON',
+        success: function (data) {
+            $.each(data, function (key, val) {
+                $('#characterList').append('<option value=' +
+                    val.characterID + ' data-subtext="' +
+                    numberCommafy(val.sell) + ' ISK">' +
+                    val.characterName + '</option>');
+            })
+            updateStationList(0)
+        },
+        error: function () {}
+    });
+
+    $('#characterList').change(function () {
+        updateStationList($('#characterList').val());
+    });
+</script>
+{{end}}

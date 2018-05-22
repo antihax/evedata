@@ -38,12 +38,12 @@ func TestAssetSetup(t *testing.T) {
 }
 
 func TestGetAssetLocations(t *testing.T) {
-	_, err := GetAssetLocations(1001, "ownerhash", 1)
+	_, err := GetAssetLocations(1001, "ownerhash", 1, false)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	_, err = GetAssetLocations(1001, "ownerhash", 0)
+	_, err = GetAssetLocations(1001, "ownerhash", 0, false)
 	if err != nil {
 		t.Error(err)
 		return
@@ -51,7 +51,7 @@ func TestGetAssetLocations(t *testing.T) {
 }
 
 func TestGetAssetCharacters(t *testing.T) {
-	_, err := GetAssetCharacters(1, "ownerhash")
+	_, err := GetAssetCharacters(1, "ownerhash", false)
 	if err != nil {
 		t.Error(err)
 		return

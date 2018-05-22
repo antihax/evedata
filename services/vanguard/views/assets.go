@@ -18,7 +18,11 @@ func init() {
 	vanguard.AddRoute("assets", "GET", "/assets", func(w http.ResponseWriter, r *http.Request) {
 		renderTemplate(w, "assets.html", time.Hour*24*31, newPage(r, "Asset Information"))
 	})
+	vanguard.AddRoute("assets", "GET", "/marketableAssets", func(w http.ResponseWriter, r *http.Request) {
+		renderTemplate(w, "marketableAssets.html", time.Hour*24*31, newPage(r, "Marketable Asset Valuation"))
+	})
 	vanguard.AddAuthRoute("assets", "GET", "/U/assets", assetsAPI)
+	vanguard.AddAuthRoute("assets", "GET", "/U/marketableAssets", marketableAssetsAPI)
 	vanguard.AddAuthRoute("assets", "GET", "/U/assetLocations", assetLocationsAPI)
 	vanguard.AddAuthRoute("assets", "GET", "/U/assetCharacters", assetCharactersAPI)
 }
@@ -35,7 +39,12 @@ func assetCharactersAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	v, err := models.GetAssetCharacters(ch.CharacterID, ch.CharacterOwnerHash)
+	marketable := false
+	if r.FormValue("marketable") == "1" {
+		marketable = true
+	}
+
+	v, err := models.GetAssetCharacters(ch.CharacterID, ch.CharacterOwnerHash, marketable)
 	if err != nil {
 		log.Println(err)
 		httpErr(w, err)
@@ -68,8 +77,11 @@ func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
-	v, err := models.GetAssetLocations(ch.CharacterID, ch.CharacterOwnerHash, (int32)(filterCharacterID))
+	marketable := false
+	if r.FormValue("marketable") == "1" {
+		marketable = true
+	}
+	v, err := models.GetAssetLocations(ch.CharacterID, ch.CharacterOwnerHash, (int32)(filterCharacterID), marketable)
 	if err != nil {
 		log.Println(err)
 		httpErr(w, err)
@@ -117,6 +129,42 @@ func assetsAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	v, err := models.GetAssets(ch.CharacterID, ch.CharacterOwnerHash, filterCharacterID, locationID)
+	if err != nil {
+		log.Println(err)
+		httpErr(w, err)
+		return
+	}
+
+	renderJSON(w, v, time.Hour)
+}
+
+func marketableAssetsAPI(w http.ResponseWriter, r *http.Request) {
+	s := vanguard.SessionFromContext(r.Context())
+
+	// Get the sessions main characterID
+	ch, ok := s.Values["character"].(goesi.VerifyResponse)
+	if !ok {
+		httpErrCode(w, errors.New("could not find character ID for marketable asset API"), http.StatusUnauthorized)
+		return
+	}
+
+	// Get arguments
+	tokenCharacterID, err := strconv.ParseInt(r.FormValue("tokenCharacterID"), 10, 64)
+	if err != nil {
+		log.Println(err)
+		httpErrCode(w, err, http.StatusNotFound)
+		return
+	}
+
+	locationID, err := strconv.ParseInt(r.FormValue("locationID"), 10, 64)
+	if err != nil {
+		log.Println(err)
+		httpErrCode(w, err, http.StatusNotFound)
+		return
+	}
+
+	// Get Assets
+	v, err := models.GetMarketableAssets(ch.CharacterID, ch.CharacterOwnerHash, int32(tokenCharacterID), locationID)
 	if err != nil {
 		log.Println(err)
 		httpErr(w, err)

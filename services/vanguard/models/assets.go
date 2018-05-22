@@ -37,7 +37,7 @@ type AssetCharacters struct {
 	Sell          null.Float `db:"sell" json:"sell,omitempty"`
 }
 
-func GetAssetLocations(characterID int32, ownerHash string, filterCharacterID int32) ([]AssetLocations, error) {
+func GetAssetLocations(characterID int32, ownerHash string, filterCharacterID int32, marketable bool) ([]AssetLocations, error) {
 	var filter string
 
 	if filterCharacterID == 0 {
@@ -47,9 +47,13 @@ func GetAssetLocations(characterID int32, ownerHash string, filterCharacterID in
 		filter = fmt.Sprintf("IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ? AND (characterOwnerHash = ? OR characterOwnerHash = '') AND tokenCharacterID=%d)", filterCharacterID)
 	}
 
+	if marketable {
+		filter += " AND A.isSingleton = 0"
+	}
+
 	assetLocations := []AssetLocations{}
 	if err := database.Select(&assetLocations, `
-		SELECT  A.locationID, stationName AS locationName, 
+		SELECT A.locationID, stationName AS locationName, 
 			SUM(P.sell  * IF(A.quantity, A.quantity, A.isSingleton)) AS sell
 		FROM evedata.assets A
 		JOIN evedata.jitaPrice P  ON A.typeID   = P.itemID
@@ -63,7 +67,12 @@ func GetAssetLocations(characterID int32, ownerHash string, filterCharacterID in
 	return assetLocations, nil
 }
 
-func GetAssetCharacters(characterID int32, ownerHash string) ([]AssetCharacters, error) {
+func GetAssetCharacters(characterID int32, ownerHash string, marketable bool) ([]AssetCharacters, error) {
+	filter := ""
+	if marketable {
+		filter = "A.isSingleton = 0 AND "
+	}
+
 	assetCharacters := []AssetCharacters{}
 	if err := database.Select(&assetCharacters, `
 		SELECT  A.characterID, characterName, 
@@ -71,7 +80,7 @@ func GetAssetCharacters(characterID int32, ownerHash string) ([]AssetCharacters,
 		FROM evedata.assets A
 		JOIN evedata.jitaPrice P  ON A.typeID   = P.itemID
 		JOIN evedata.crestTokens C ON A.characterID = C.tokenCharacterID 
-		WHERE A.characterID IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ? AND (characterOwnerHash = ? OR characterOwnerHash = ''))
+		WHERE `+filter+` A.characterID IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ? AND (characterOwnerHash = ? OR characterOwnerHash = ''))
 		GROUP BY A.characterID
 		ORDER BY sell DESC
 	`, characterID, ownerHash); err != nil {
@@ -80,7 +89,6 @@ func GetAssetCharacters(characterID int32, ownerHash string) ([]AssetCharacters,
 	return assetCharacters, nil
 }
 
-// Obtain alliance information by ID.
 // [BENCHMARK] 0.000 sec / 0.000 sec
 func GetAssets(characterID int32, ownerHash string, filterCharacterID int32, locationID int64) ([]Assets, error) {
 	var filter string
@@ -210,4 +218,48 @@ func getSubAssets(itemID int64, assets *[]Assets, errc chan error, limit chan bo
 	}
 
 	errc <- nil
+}
+
+type MarketableAssets struct {
+	TypeID        int64      `db:"typeID" json:"typeID"`
+	TypeName      string     `db:"typeName" json:"typeName"`
+	Quantity      int64      `db:"quantity" json:"quantity"`
+	Buy           null.Float `db:"buy" json:"buy,omitempty"`
+	Sell          null.Float `db:"sell" json:"sell,omitempty"`
+	StationPrice  null.Float `db:"stationPrice" json:"stationPrice,omitempty"`
+	StationOrders null.Float `db:"stationOrders" json:"stationOrders,omitempty"`
+	RegionPrice   null.Float `db:"regionPrice" json:"regionPrice,omitempty"`
+	RegionOrders  null.Float `db:"regionOrders" json:"regionOrders,omitempty"`
+}
+
+func GetMarketableAssets(characterID int32, ownerHash string, tokenCharacterID int32, locationID int64) ([]MarketableAssets, error) {
+	// Get the regionID
+	var regionID int32
+	if err := database.QueryRowx(`
+		SELECT regionID FROM staStations WHERE stationID = ? LIMIT 1;`, locationID).Scan(&regionID); err != nil {
+		return nil, err
+	}
+	assets := []MarketableAssets{}
+	if err := database.Select(&assets, `
+		SELECT A.typeID, typeName, A.quantity, buy, sell, 
+			coalesce(stationPrice, 0) AS stationPrice, coalesce(regionPrice, 0) AS regionPrice,
+			coalesce(regionOrders, 0) AS regionOrders, coalesce(stationOrders, 0) AS stationOrders 
+			FROM evedata.assets A
+			JOIN evedata.crestTokens C on A.characterID = C.tokenCharacterID	
+			INNER JOIN evedata.jitaPrice J ON A.typeID = J.itemID
+			INNER JOIN invTypes T ON A.typeID = T.typeID
+			INNER JOIN staStations S ON S.stationID = A.locationID
+			LEFT OUTER JOIN (SELECT typeID, count(*) AS regionOrders, min(price) AS regionPrice FROM evedata.market M FORCE INDEX(regionID_bid) WHERE regionID = ? AND bid = 0 GROUP BY typeID) MR ON MR.typeID = A.typeID
+			LEFT OUTER JOIN (SELECT typeID, count(*) AS stationOrders, min(price) AS stationPrice FROM evedata.market M WHERE stationID = ? AND bid = 0 GROUP BY typeID) SR ON SR.typeID = A.typeID
+			WHERE A.isSingleton = 0
+				AND C.characterID = ?
+				AND C.characterOwnerHash = ?
+				AND A.characterID = ?
+				AND A.locationID = ?
+			ORDER BY typeName ASC
+	`, regionID, locationID, characterID, ownerHash, tokenCharacterID, locationID); err != nil {
+		return nil, err
+	}
+
+	return assets, nil
 }
