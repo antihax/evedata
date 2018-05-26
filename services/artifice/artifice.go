@@ -148,7 +148,7 @@ func retryTransaction(tx *sqlx.Tx) error {
 // DoSQL executes a sql statement
 func (s *Artifice) doSQL(stmt string, args ...interface{}) error {
 	for {
-		err := s.doSQLTranq(stmt, args...)
+		_, err := s.RetryExec(stmt, args...)
 		if err != nil {
 			if !strings.Contains(err.Error(), "1213") {
 
@@ -160,26 +160,6 @@ func (s *Artifice) doSQL(stmt string, args ...interface{}) error {
 			return err
 		}
 	}
-}
-
-// DoSQL executes a sql statement
-func (s *Artifice) doSQLTranq(stmt string, args ...interface{}) error {
-	tx, err := s.db.Beginx()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	_, err = tx.Exec(stmt, args...)
-	if err != nil {
-		return err
-	}
-
-	err = retryTransaction(tx)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 // RetryExecTillNoRows retries the exec until we get no error (deadlocks) and no results are returned
