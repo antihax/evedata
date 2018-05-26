@@ -408,7 +408,6 @@ CREATE TABLE `market` (
   PRIMARY KEY (`orderID`),
   KEY `regionID_typeID` (`regionID`,`typeID`),
   KEY `typeID` (`typeID`),
-  KEY `stationID` (`stationID`),
   KEY `stationID_bid_reported` (`stationID`,`bid`,`reported`),
   KEY `regionID_bid` (`regionID`,`bid`)
 ) ENGINE=TokuDB DEFAULT CHARSET=latin1;
@@ -509,8 +508,7 @@ CREATE TABLE `walletJournal` (
   `date` datetime NOT NULL,
   `characterID` int(11) unsigned NOT NULL,
   PRIMARY KEY (`refID`,`ownerID1`,`ownerID2`,`characterID`),
-  KEY `charID_date` (`characterID`,`date`),
-  KEY `char_ref_date` (`characterID`,`refTypeID`,`date`)
+  KEY `charID_date` (`characterID`,`date`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `walletJournalRefType` (

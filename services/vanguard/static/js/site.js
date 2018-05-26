@@ -5,6 +5,19 @@
 		return string;
 	}
 
+	Array.prototype.inArray = function (comparer) {
+		for (var i = 0; i < this.length; i++) {
+			if (comparer(this[i])) return true;
+		}
+		return false;
+	};
+
+	Array.prototype.pushIfNotExist = function (element, comparer) {
+		if (!this.inArray(comparer)) {
+			this.push(element);
+		}
+	};
+
 	function characterImage(row) {
 		return '//imageserver.eveonline.com/character/' + row.characterID + '_32.jpg';
 	}
@@ -64,7 +77,7 @@
 	}
 
 	function capabilityFormatter(value, row) {
-		return 'Kills: ' + row.kills +  '; Losses: ' + row.losses + '<br>' + Number((row.efficiency * 100).toFixed(0)) + '% Efficiency; ' + Number((row.capProbability * 100).toFixed(0)) + '% Hot Drop';
+		return 'Kills: ' + row.kills + '; Losses: ' + row.losses + '<br>' + Number((row.efficiency * 100).toFixed(0)) + '% Efficiency; ' + Number((row.capProbability * 100).toFixed(0)) + '% Hot Drop';
 	}
 
 	function warsFormatter(value, row) {

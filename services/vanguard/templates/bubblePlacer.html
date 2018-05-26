@@ -4,14 +4,18 @@
 <script type="text/javascript" src="/js/ccpwgl.js"></script>
 
 <h3>Bubble-O-Matic 9002</h3>
+<label>Region: &nbsp;</label>
+<select class="selectpicker" data-width="auto" name="region" id="region">
+    <option SELECTED id="">All Regions</option>
+</select>
 
 <label>System: &nbsp;</label>
 <select class="selectpicker" data-width="auto" name="solarSystem" id="solarSystem"></select>
 &nbsp;
 <label>Gate: &nbsp;</label>
 <select class="selectpicker" data-width="auto" name="gate" id="gate"></select>
-<div id="stats">Distance from gate: 0m<br>
-        Close to align: All the things</div>
+<div id="stats">Distance from gate: 0m
+    <br> Close to align: All the things</div>
 </div>
 
 <center>
@@ -28,11 +32,12 @@
     var bubble, gate;
     var hits = [];
     var mat4 = ccpwgl_int.math.mat4,
-        vec3 = ccpwgl_int.math.vec3;
+        vec3 = ccpwgl_int.math.vec3,
+        quat = ccpwgl_int.math.quat;
 
     var expectedTypes = ["Sun", "Stargate", "Station", "Planet"];
 
-    var systemData;
+    var systemData, solarSystems;
 
     $(document).ready(function () {
         var canvas = document.getElementById('mainCanvas');
@@ -63,6 +68,8 @@
         url: '/J/nullSystems',
         dataType: 'JSON',
         success: function (data) {
+            var regions = [];
+            solarSystems = data;
             $.each(data, function (key, val) {
                 $('#solarSystem').append(
                     '<option id=' +
@@ -70,9 +77,22 @@
                     '>' + val.solarSystemName +
                     ' - ' + val.regionName +
                     '</option>');
+                regions.pushIfNotExist(val.regionName,
+                    function (e) {
+                        return e === val.regionName;
+                    });
             });
             $('#solarSystem').selectpicker('refresh');
             $('#solarSystem').change();
+            regions.sort();
+            $.each(regions, function (key, val) {
+                $('#region').append(
+                    '<option id=' +
+                    val +
+                    '>' + val +
+                    '</option>');
+            });
+            $('#region').selectpicker('refresh');
         },
         error: function () {}
     });
@@ -81,7 +101,23 @@
         loadSystem($(
             '#gate option:selected').attr(
             "id"), );
+    });
 
+    $('#region').change(function () {
+        var region = $('#region option:selected').attr("id");
+        $('#solarSystem').empty();
+        $.each(solarSystems, function (key, val) {
+            if (val.regionName == region || region == "") {
+                $('#solarSystem').append(
+                    '<option id=' +
+                    val.solarSystemID +
+                    '>' + val.solarSystemName +
+                    ' - ' + val.regionName +
+                    '</option>');
+            }
+        });
+        $('#solarSystem').selectpicker('refresh');
+        $('#solarSystem').change();
     });
 
     $('#solarSystem').change(function () {
@@ -111,9 +147,9 @@
     });
 
 
-    function loadSystem(gate) {
+    function loadSystem(sysgate) {
         $(':focus').blur();
-        var base;
+        var base,thesun;
         paths = [];
 
         curveSet.items = [];
@@ -122,8 +158,11 @@
             systemData[i].position = vec3.fromValues(systemData[i].x,
                 systemData[i].y, systemData[i].z);
 
-            if (systemData[i].name == gate) {
+            if (systemData[i].name == sysgate) {
                 base = systemData[i];
+            }
+            if (systemData[i].type == "Sun") {
+                thesun = systemData[i];
             }
         }
 
@@ -136,21 +175,33 @@
         }
 
         setPosition(bubble, vec3.create());
+        gate = scene.loadObject(base.DNA);
+        var dest = vec3.fromValues(base.dx, base.dy, base.dz);
+        var src = vec3.fromValues(base.sx, base.sy, base.sz);
+        vec3.add(src, src, vec3.fromValues(base.x, base.y, base.z));
+        direction = vec3.create();
+        vec3.sub(direction, dest, src);
+        vec3.normalize(direction,direction);
+        console.log(src, dest, direction)
 
-        gate = scene.loadObject('ghg:gallentebase:gallente');
-
+        var transform = mat4.create();
+        mat4.targetTo(transform, vec3.create(), direction, [0, 1, 0])
+        gate.setTransform(transform)
 
         for (var i = 0; i < systemData.length; i++) {
-            if (systemData[i].name != base.name && expectedTypes.indexOf(
-                    systemData[i].type) > -1) {
+            if (systemData[i].name != base.name) {
+                var draw = false;
+                if (expectedTypes.indexOf(systemData[i].type) > -1)
+                    draw = true
+
                 drawPath(getDirection(systemData[i].position, base.position),
                     systemData[i].name,
-                    systemData[i].type);
+                    systemData[i].type, draw);
             }
         }
 
         var sunpos = vec3.sub(vec3.create(), vec3.create(), base.position);
-        scene.loadSun('res:/fisfx/lensflare/orange_sun.red');
+        scene.loadSun('res:/fisfx/lensflare/purple_sun.red');
         scene.setSunDirection(sunpos);
 
         window.keyboard = new KeyboardInit('test', bubble);
@@ -316,7 +367,8 @@
         hits = [];
         for (var j = 0; j < paths.length; j++) {
             p = paths[j];
-            drawHit(p, bubble, p.type);
+            if (p.draw)
+                drawHit(p, bubble, p.type);
         }
         camera.focus(bubble);
     }
@@ -347,19 +399,22 @@
         }
     }
 
-    function drawPath(dir, name, type) {
-        color = getColor(type);
+    function drawPath(dir, name, type, draw) {
         start = vec3.mul(vec3.create(), dir, vec3.fromValues(500000, 500000,
             500000));
         end = vec3.mul(vec3.create(), dir, vec3.fromValues(-500000, -500000, -
             500000))
-        curveSet.AddStraightLine(start, end, 2, color, color);
+        if (draw) {
+            color = getColor(type);
+            curveSet.AddStraightLine(start, end, 2, color, color);
+        }
         paths.push({
             name: name,
             type: type,
             direction: dir,
             start: start,
-            end: end
+            end: end,
+            draw: draw
         });
     }
 
