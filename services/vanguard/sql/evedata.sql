@@ -410,8 +410,6 @@ CREATE TABLE `market` (
   KEY `typeID` (`typeID`),
   KEY `stationID` (`stationID`),
   KEY `stationID_bid_reported` (`stationID`,`bid`,`reported`),
-  KEY `duration_issued` (`duration`,`issued`),
-  KEY `reported` (`reported`),
   KEY `regionID_bid` (`regionID`,`bid`)
 ) ENGINE=TokuDB DEFAULT CHARSET=latin1;
 

@@ -284,3 +284,9 @@ p+p {
     align-items: center;
     height: 60px;
 }
+
+#mainCanvas {
+
+    width:100%;
+    height:100%
+}

@@ -1,0 +1,422 @@
+{{define "body"}}
+
+<script type="text/javascript" src="/js/ccpwgl_int.min.js"></script>
+<script type="text/javascript" src="/js/ccpwgl.js"></script>
+
+<h3>Bubble-O-Matic 9002</h3>
+
+<label>System: &nbsp;</label>
+<select class="selectpicker" data-width="auto" name="solarSystem" id="solarSystem"></select>
+&nbsp;
+<label>Gate: &nbsp;</label>
+<select class="selectpicker" data-width="auto" name="gate" id="gate"></select>
+<div id="stats">Distance from gate: 0m<br>
+        Close to align: All the things</div>
+</div>
+
+<center>
+    <canvas name="mainCanvas" id="mainCanvas" width="700" height="500">
+    </canvas>
+</center>
+
+<script>
+    window.ccpwgl = ccpwgl;
+    window.ccpwgl_int = ccpwgl_int;
+
+    var curveSet, scene, camera;
+    var paths = [];
+    var bubble, gate;
+    var hits = [];
+    var mat4 = ccpwgl_int.math.mat4,
+        vec3 = ccpwgl_int.math.vec3;
+
+    var expectedTypes = ["Sun", "Stargate", "Station", "Planet"];
+
+    var systemData;
+
+    $(document).ready(function () {
+        var canvas = document.getElementById('mainCanvas');
+        ccpwgl.initialize(canvas, {});
+
+        camera = ccpwgl.createCamera(canvas, {
+            distance: 100000,
+            maxDistance: 50000000,
+            farPlane: 50000000
+        }, true);
+        scene = ccpwgl.loadScene(
+            'res:/dx9/scene/universe/m10_cube.red');
+
+        curveSet = new ccpwgl_int.EveCurveLineSet();
+        curveSet.Initialize();
+
+        var batches = new ccpwgl_int.Tw2BatchAccumulator();
+        ccpwgl.onPostSceneRender = function (dt) {
+            curveSet.GetBatches(ccpwgl_int.device.RM_TRANSPARENT,
+                batches);
+            batches.Render();
+            batches.Clear();
+        };
+
+    });
+
+    $.ajax({
+        url: '/J/nullSystems',
+        dataType: 'JSON',
+        success: function (data) {
+            $.each(data, function (key, val) {
+                $('#solarSystem').append(
+                    '<option id=' +
+                    val.solarSystemID +
+                    '>' + val.solarSystemName +
+                    ' - ' + val.regionName +
+                    '</option>');
+            });
+            $('#solarSystem').selectpicker('refresh');
+            $('#solarSystem').change();
+        },
+        error: function () {}
+    });
+
+    $('#gate').change(function () {
+        loadSystem($(
+            '#gate option:selected').attr(
+            "id"), );
+
+    });
+
+    $('#solarSystem').change(function () {
+        $.ajax({
+            url: '/J/systemCelestials?solarSystemID=' + $(
+                '#solarSystem option:selected').attr(
+                "id"),
+            dataType: 'JSON',
+            success: function (data) {
+                systemData = data;
+                $('#gate').empty();
+                $.each(data, function (key, val) {
+                    if (val.type ==
+                        "Stargate") {
+                        $('#gate').append(
+                            '<option id="' +
+                            val.name + '">' +
+                            val.name +
+                            '</option>');
+                    }
+                });
+                $('#gate').selectpicker('refresh');
+                $('#gate').change();
+            },
+            error: function () {}
+        });
+    });
+
+
+    function loadSystem(gate) {
+        $(':focus').blur();
+        var base;
+        paths = [];
+
+        curveSet.items = [];
+
+        for (var i = 0; i < systemData.length; i++) {
+            systemData[i].position = vec3.fromValues(systemData[i].x,
+                systemData[i].y, systemData[i].z);
+
+            if (systemData[i].name == gate) {
+                base = systemData[i];
+            }
+        }
+
+        scene.removeObject(scene.indexOf(gate))
+
+        if (bubble == undefined) {
+            bubble = scene.loadObject(
+                'res:/fisfx/generic/warp_disruption/warp_disruption_field_generator.red'
+            );
+        }
+
+        setPosition(bubble, vec3.create());
+
+        gate = scene.loadObject('ghg:gallentebase:gallente');
+
+
+        for (var i = 0; i < systemData.length; i++) {
+            if (systemData[i].name != base.name && expectedTypes.indexOf(
+                    systemData[i].type) > -1) {
+                drawPath(getDirection(systemData[i].position, base.position),
+                    systemData[i].name,
+                    systemData[i].type);
+            }
+        }
+
+        var sunpos = vec3.sub(vec3.create(), vec3.create(), base.position);
+        scene.loadSun('res:/fisfx/lensflare/orange_sun.red');
+        scene.setSunDirection(sunpos);
+
+        window.keyboard = new KeyboardInit('test', bubble);
+
+        curveSet.Rebuild();
+        renderBubbleHits();
+    }
+
+    var KeyboardInit = function (element, obj) {
+        this.activeKeys = [];
+        var self = this;
+        var lastDownTarget;
+
+        var canvas = document.getElementById('mainCanvas');
+
+        document.onmousedown = function (event) {
+            lastDownTarget = event.target;
+        };
+
+
+        document.onkeydown = function (e) {
+            if (lastDownTarget == canvas) {
+                return setKeysTo(e, true);
+            }
+        };
+
+        document.onkeyup = function (e) {
+            if (lastDownTarget == canvas) {
+                return setKeysTo(e, false);
+            }
+        };
+
+
+        function setKeysTo(e, state) {
+            if (e.shiftKey) {
+                self.activeKeys['faster'] = state;
+            }
+            if (e.keyCode == 65) {
+                self.activeKeys['left'] = state;
+            }
+            if (e.keyCode == 68) {
+                self.activeKeys['right'] = state;
+            }
+            if (e.keyCode == 87) {
+                self.activeKeys['forward'] = state;
+            }
+            if (e.keyCode == 83) {
+                self.activeKeys['back'] = state;
+            }
+            if (e.keyCode == 69) {
+                self.activeKeys['up'] = state;
+            }
+            if (e.keyCode == 81) {
+                self.activeKeys['down'] = state;
+            }
+
+            var sinH = Math.sin(camera.rotationX);
+            var cosH = Math.cos(camera.rotationX);
+            var sinV = Math.sin(-camera.rotationY);
+            var cosV = Math.cos(-camera.rotationY);
+            var forward = vec3.fromValues(cosV * sinH, sinV, cosV * cosH);
+            var left = vec3.fromValues(Math.sin(camera.rotationX - Math.PI /
+                2), 0, Math.cos(camera.rotationX - Math.PI / 2));
+            var up = vec3.fromValues(Math.cos(camera.rotationY - Math.PI /
+                2), Math.sin(camera.rotationY - Math.PI / 2), 0);
+
+            var position = getPosition(bubble);
+
+            var moved = false;
+            try {
+                var mul = 300;
+                if (self.activeKeys.faster)
+                    mul = mul * 8;
+
+                vec3.multiply(forward, forward, vec3.fromValues(mul, mul, -
+                    mul));
+                vec3.multiply(left, left, vec3.fromValues(mul, mul, -mul));
+                vec3.multiply(up, up, vec3.fromValues(mul, mul, -mul));
+
+                if (self.activeKeys.left) {
+                    vec3.add(position, position, left)
+                    moved = true;
+                }
+
+                if (self.activeKeys.right) {
+                    vec3.sub(position, position, left)
+                    moved = true;
+                }
+
+                if (self.activeKeys.up) {
+                    vec3.add(position, position, up)
+                    moved = true;
+                }
+
+                if (self.activeKeys.down) {
+                    vec3.sub(position, position, up)
+                    moved = true;
+                }
+
+                if (self.activeKeys.forward) {
+                    vec3.add(position, position, forward)
+                    moved = true;
+                }
+
+                if (self.activeKeys.back) {
+                    vec3.sub(position, position, forward)
+                    moved = true;
+                }
+            } catch (err) {
+                console.log(err);
+            }
+
+            if (moved) {
+                setPosition(bubble, position)
+                renderBubbleHits();
+                updateStats();
+            }
+        }
+    };
+
+    function updateStats() {
+        var text = "";
+        p = getPosition(bubble);
+        var distance = Math.sqrt(Math.pow(p[0], 2) + Math.pow(p[1], 2) + Math.pow(
+            p[2], 2));
+        text += "Distance from gate: " + Math.round(distance) + "m\n\n";
+
+        var r = closestRay();
+        if (r) {
+            text += "<br>Close to align: " + r.name;
+        }
+
+        $("#stats").html(text);
+    }
+
+    function closestRay() {
+        var p = getPosition(bubble);
+        var bestDist = 2147483647;
+        var bestRay = {};
+        for (var j = 0; j < paths.length; j++) {
+            var r = paths[j];
+            var distance = Math.sqrt(Math.pow(p[0] - r.end[0], 2) + Math.pow(p[
+                1] - r.end[1], 2) + Math.pow(p[2] - r.end[2], 2));
+            if (distance < bestDist) {
+                bestDist = distance;
+                bestRay = r;
+            }
+            var distance = Math.sqrt(Math.pow(p[0] - r.start[0], 2) + Math.pow(
+                p[1] - r.start[1], 2) + Math.pow(p[2] - r.start[2], 2));
+            if (distance < bestDist) {
+                bestDist = distance;
+                bestRay = r;
+            }
+
+        }
+        return bestRay;
+    }
+
+    function renderBubbleHits() {
+        for (var i = 0; i < hits.length; i++) {
+            scene.removeObject(scene.indexOf(hits[i]));
+        }
+        hits = [];
+        for (var j = 0; j < paths.length; j++) {
+            p = paths[j];
+            drawHit(p, bubble, p.type);
+        }
+        camera.focus(bubble);
+    }
+
+    function getColor(type) {
+        switch (type) {
+            case "Planet":
+                return [1, 0, 1, 0.1]
+            case "Sun":
+                return [1, 1, 0, 0.1]
+            case "Stargate":
+                return [1, 1, 1, 0.1]
+            case "Station":
+                return [1, 1, 1, 0.1]
+        }
+    }
+
+    function getModel(type) {
+        switch (type) {
+            case "Planet":
+                return "res:/dx9/model/worldobject/forcefield/forcefield_ems.red"
+            case "Sun":
+                return "res:/dx9/model/worldobject/forcefield/forcefield_explosivem.red"
+            case "Stargate":
+                return "res:/dx9/model/worldobject/forcefield/forcefield_thermalm.red"
+            case "Station":
+                return "res:/dx9/model/worldobject/forcefield/forcefield_kinetics.red"
+        }
+    }
+
+    function drawPath(dir, name, type) {
+        color = getColor(type);
+        start = vec3.mul(vec3.create(), dir, vec3.fromValues(500000, 500000,
+            500000));
+        end = vec3.mul(vec3.create(), dir, vec3.fromValues(-500000, -500000, -
+            500000))
+        curveSet.AddStraightLine(start, end, 2, color, color);
+        paths.push({
+            name: name,
+            type: type,
+            direction: dir,
+            start: start,
+            end: end
+        });
+    }
+
+    function drawHit(dir, bubble, type) {
+        start = vec3.mul(vec3.create(), dir.direction, vec3.fromValues(-500000, -
+            500000, -500000))
+        var position = intersectRaySphere(vec3.create(), start, dir.direction,
+            getPosition(bubble), 21000);
+        if (position) {
+            var hit = scene.loadObject(getModel(type));
+            setPosition(hit, position);
+            hits.push(hit);
+        }
+    }
+
+    function getDirection(a, b) {
+        var dir = vec3.sub(vec3.create(), a, b);
+        vec3.normalize(dir, dir);
+        return dir
+    }
+
+    function getPosition(o) {
+        var m = o.getTransform();
+        return vec3.fromValues(m[12], m[13], m[14]);
+    }
+
+    function setPosition(o, v) {
+        var m = o.getTransform();
+        m[12] = v[0];
+        m[13] = v[1];
+        m[14] = v[2];
+        o.setTransform(m);
+    }
+
+    function setBubbleScale(o, scale) {
+        var m = o.getTransform();
+        mat4.scale(m, m, vec3.fromValues(scale, scale, scale));
+        o.setTransform(m);
+    }
+
+    function intersectRaySphere(out, origin, direction, center, radius) {
+        var tmp = vec3.create();
+        vec3.sub(tmp, center, origin)
+        var len = vec3.dot(direction, tmp)
+        if (len < 0) { // sphere is behind ray
+            return null
+        }
+
+        vec3.scaleAndAdd(tmp, origin, direction, len)
+        var dSq = vec3.squaredDistance(center, tmp)
+        var rSq = radius * radius
+        if (dSq > rSq) {
+            return null
+        }
+
+        vec3.scale(out, direction, len - Math.sqrt(rSq - dSq))
+        return vec3.add(out, out, origin)
+    }
+</script>
+{{end}}
