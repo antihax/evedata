@@ -87,7 +87,7 @@
                         ' ISK">' + val.locationName +
                         '</option>');
                 })
-                $('#locationList').selectpicker('refresh')
+                $('#locationList').selectpicker('refresh');
                 $('#assets').bootstrapTable('refreshOptions', {
                     url: '/U/assets?locationID=' + $(
                             '#locationList').val() +

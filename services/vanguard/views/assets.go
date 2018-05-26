@@ -51,6 +51,11 @@ func assetCharactersAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(v) == 0 {
+		httpErrCode(w, errors.New("No asset characters"), http.StatusNotFound)
+		return
+	}
+
 	renderJSON(w, v, time.Hour)
 }
 
@@ -87,6 +92,12 @@ func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
 		httpErr(w, err)
 		return
 	}
+
+	if len(v) == 0 {
+		httpErrCode(w, errors.New("No asset locations"), http.StatusNotFound)
+		return
+	}
+
 	renderJSON(w, v, time.Hour)
 }
 
