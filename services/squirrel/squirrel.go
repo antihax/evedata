@@ -77,26 +77,10 @@ func (s *Squirrel) Run() {
 	s.runTriggers()
 }
 
-// RetryTransaction on deadlocks
-func retryTransaction(tx *sqlx.Tx) error {
-	for {
-		err := tx.Commit()
-		if err != nil {
-			if !strings.Contains(err.Error(), "1213") {
-				return err
-			}
-			time.Sleep(250 * time.Millisecond)
-			continue
-		} else {
-			return err
-		}
-	}
-}
-
 // DoSQL executes a sql statement
 func (s *Squirrel) doSQL(stmt string, args ...interface{}) error {
 	for {
-		err := s.doSQLTranq(stmt, args...)
+		_, err := s.RetryExec(stmt, args...)
 		if err != nil {
 			if !strings.Contains(err.Error(), "1213") {
 
@@ -108,26 +92,6 @@ func (s *Squirrel) doSQL(stmt string, args ...interface{}) error {
 			return err
 		}
 	}
-}
-
-// DoSQL executes a sql statement
-func (s *Squirrel) doSQLTranq(stmt string, args ...interface{}) error {
-	tx, err := s.db.Beginx()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	_, err = tx.Exec(stmt, args...)
-	if err != nil {
-		return err
-	}
-
-	err = retryTransaction(tx)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 // RetryExecTillNoRows retries the exec until we get no error (deadlocks) and no results are returned

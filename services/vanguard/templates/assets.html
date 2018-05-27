@@ -118,6 +118,7 @@
                     numberCommafy(val.sell) + ' ISK">' +
                     val.characterName + '</option>');
             })
+            $('#characterList').selectpicker('refresh');
             updateStationList(0)
         },
         error: function () {}
