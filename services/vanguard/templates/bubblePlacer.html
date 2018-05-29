@@ -16,7 +16,7 @@
 &nbsp;
 <label>Gate: &nbsp;</label>
 <select class="selectpicker" data-width="auto" name="gate" id="gate"></select>
-
+&nbsp;
 <label>Paths: &nbsp;</label>
 <select id="showPaths" multiple="multiple">
     <option value="Sun" selected="selected">Sun</option>
@@ -25,7 +25,7 @@
     <option value="Station">Stations</option>
     <option value="Moon">Moons</option>
 </select>
-
+&nbsp;
 <label>Bubble Type: &nbsp;</label>
 <select id="bubbleType">
     <option value=20000 selected="selected">Warp Disrupt Probe</option>
@@ -55,14 +55,14 @@
 
     var curveSet, scene, camera;
     var paths = [];
-    var bubble, gate, currentGate;
+    var bubble, gate, currentGate, jumpRadius;
     var hits = [];
     var mat4 = ccpwgl_int.math.mat4,
         vec3 = ccpwgl_int.math.vec3,
         quat = ccpwgl_int.math.quat;
 
     var systemData, solarSystems;
-    var bubbleSize = 20000;
+    var bubbleSize = 40000;
 
     $('#showPaths').multiselect({
         onChange: function () {
@@ -72,7 +72,7 @@
 
     $('#bubbleType').multiselect({
         onChange: function () {
-            bubbleSize = parseInt($('#bubbleType option:selected').val());
+            bubbleSize = parseInt($('#bubbleType option:selected').val() * 2);
             loadSystem(currentGate);
         }
     });
@@ -83,8 +83,8 @@
 
         camera = ccpwgl.createCamera(canvas, {
             distance: 100000,
-            maxDistance: 50000000,
-            farPlane: 50000000
+            maxDistance: 2000000,
+            farPlane: 2000000
         }, true);
         scene = ccpwgl.loadScene(
             'res:/dx9/scene/universe/m10_cube.red');
@@ -205,25 +205,21 @@
         }
 
         scene.removeObject(scene.indexOf(gate))
-
+        scene.removeObject(scene.indexOf(jumpRadius))
         if (bubble == undefined) {
             bubble = scene.loadObject(
-                'res:/fisfx/generic/warp_disruption/warp_disruption_field_generator.red'
+                'res:/fisfx/generic/warp_disruption/warp_disruption_probe.red'
             );
         }
 
-        setPositionAndScale(bubble, vec3.create(), bubbleSize/20000);
+        setPositionAndScale(bubble, vec3.create(), bubbleSize / 20000);
         gate = scene.loadObject(base.DNA);
-        var dest = vec3.fromValues(base.dx, base.dy, base.dz);
-        var src = vec3.fromValues(base.sx, base.sy, base.sz);
-        vec3.add(src, src, vec3.fromValues(base.x, base.y, base.z));
-        direction = vec3.create();
-        vec3.sub(direction, dest, src);
-        vec3.normalize(direction, direction);
 
-        var transform = mat4.create();
-        mat4.targetTo(transform, vec3.create(), direction, [0, 1, 0])
-        gate.setTransform(transform)
+        jumpRadius = scene.loadObject(
+            'res:/dx9/model/worldobject/forcefield/forcefield_eml.red'
+        );
+
+        setPositionAndScale(jumpRadius, vec3.create(), getGateRadius(base.DNA) / 1000);
 
         for (var i = 0; i < systemData.length; i++) {
             if (systemData[i].name != base.name) {
@@ -427,33 +423,6 @@
         }
     }
 
-    function getBubbleDistance(type) {
-        switch (type) {
-            case "Warp Disrupt Probe":
-                return 20000;
-            case "Surgical Warp Disrupt Probe":
-                return 10000;
-            case "Warp Disruption Field Generator I":
-                return 16000;
-            case "Warp Disruption Field Generator II":
-                return 20000;
-            case "Mobile Small Warp Disruptor I":
-                return 5000;
-            case "Mobile Small Warp Disruptor I":
-                return 5000;
-            case "Mobile Small Warp Disruptor II":
-                return 7500;
-            case "Mobile Medium Warp Disruptor I":
-                return 11500;
-            case "Mobile Medium Warp Disruptor II":
-                return 17500;
-            case "Mobile Large Warp Disruptor I":
-                return 26500;
-            case "Mobile Large Warp Disruptor II":
-                return 40000;
-        }
-    }
-
     function getModel(type) {
         switch (type) {
             case "Planet":
@@ -466,6 +435,31 @@
                 return "res:/dx9/model/worldobject/forcefield/forcefield_kineticl.red"
             case "Moon":
                 return "res:/dx9/model/worldobject/forcefield/forcefield_eml.red"
+        }
+    }
+    function getGateRadius(dna) {
+        switch (dna) {
+            case "abg:amarrbase:amarr": return 26000
+            case "ahg:amarrbase:amarr": return 14000
+            case "asg:amarrbase:amarr": return 4646
+            case "asmg:amarrbase:amarr": return 4946
+
+            case "cbg:caldaribase:caldari": return 28000
+            case "chg:caldaribase:caldari": return 15000
+            case "csmg:caldaribase:caldari": return 8998
+            case "csg:caldaribase:caldari": return 7065
+
+            case "gbg:gallentebase:gallente": return 37000
+            case "ghg:gallentebase:gallente": return 10000
+            case "gsg:gallentebase:gallente": return 9412
+            case "gsmg:gallentebase:gallente": return 6754
+
+            case "mbg:minmatarbase:minmatar": return 4995
+            case "mhg:minmatarbase:minmatar": return 25000
+            case "msg:minmatarbase:minmatar": return 24000
+            case "msmg:minmatarbase:minmatar": return 42000
+
+            case "ssg:smuggler:generic ": return 7650
         }
     }
 
@@ -493,7 +487,6 @@
             500000, -500000))
         var position = intersectRaySphere(vec3.create(), start, dir.direction,
             getPosition(bubble), bubbleSize + 1250);
-        console.log(bubbleSize + 1250);
         if (position) {
             var hit = scene.loadObject(getModel(type));
             setPositionAndScale(hit, position, 2.5);
