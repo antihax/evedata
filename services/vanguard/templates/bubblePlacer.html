@@ -2,6 +2,8 @@
 
 <script type="text/javascript" src="/js/ccpwgl_int.min.js"></script>
 <script type="text/javascript" src="/js/ccpwgl.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 
 <h3>Bubble-O-Matic 9002</h3>
 <label>Region: &nbsp;</label>
@@ -14,6 +16,30 @@
 &nbsp;
 <label>Gate: &nbsp;</label>
 <select class="selectpicker" data-width="auto" name="gate" id="gate"></select>
+
+<label>Paths: &nbsp;</label>
+<select id="showPaths" multiple="multiple">
+    <option value="Sun" selected="selected">Sun</option>
+    <option value="Stargate" selected="selected">Stargates</option>
+    <option value="Planet">Planets</option>
+    <option value="Station">Stations</option>
+    <option value="Moon">Moons</option>
+</select>
+
+<label>Bubble Type: &nbsp;</label>
+<select id="bubbleType">
+    <option value=20000 selected="selected">Warp Disrupt Probe</option>
+    <option value=10000>Surgical Warp Disrupt Probe</option>
+    <option value=16000>Warp Disruption Field Generator I</option>
+    <option value=20000>Warp Disruption Field Generator II</option>
+    <option value=5000>Mobile Small Warp Disruptor I</option>
+    <option value=7500>Mobile Small Warp Disruptor II</option>
+    <option value=11500>Mobile Medium Warp Disruptor I</option>
+    <option value=17500>Mobile Medium Warp Disruptor II</option>
+    <option value=26500>Mobile Large Warp Disruptor I</option>
+    <option value=40000>Mobile Large Warp Disruptor II</option>
+</select>
+
 <div id="stats">Distance from gate: 0m
     <br> Close to align: All the things</div>
 </div>
@@ -29,15 +55,27 @@
 
     var curveSet, scene, camera;
     var paths = [];
-    var bubble, gate;
+    var bubble, gate, currentGate;
     var hits = [];
     var mat4 = ccpwgl_int.math.mat4,
         vec3 = ccpwgl_int.math.vec3,
         quat = ccpwgl_int.math.quat;
 
-    var expectedTypes = ["Sun", "Stargate", "Station", "Planet"];
-
     var systemData, solarSystems;
+    var bubbleSize = 20000;
+
+    $('#showPaths').multiselect({
+        onChange: function () {
+            loadSystem(currentGate);
+        }
+    });
+
+    $('#bubbleType').multiselect({
+        onChange: function () {
+            bubbleSize = parseInt($('#bubbleType option:selected').val());
+            loadSystem(currentGate);
+        }
+    });
 
     $(document).ready(function () {
         var canvas = document.getElementById('mainCanvas');
@@ -61,7 +99,6 @@
             batches.Render();
             batches.Clear();
         };
-
     });
 
     $.ajax({
@@ -94,13 +131,12 @@
             });
             $('#region').selectpicker('refresh');
         },
-        error: function () {}
+        error: function () { }
     });
 
     $('#gate').change(function () {
-        loadSystem($(
-            '#gate option:selected').attr(
-            "id"), );
+        currentGate = $('#gate option:selected').attr("id");
+        loadSystem(currentGate);
     });
 
     $('#region').change(function () {
@@ -124,7 +160,7 @@
         $.ajax({
             url: '/J/systemCelestials?solarSystemID=' + $(
                 '#solarSystem option:selected').attr(
-                "id"),
+                    "id"),
             dataType: 'JSON',
             success: function (data) {
                 systemData = data;
@@ -142,14 +178,16 @@
                 $('#gate').selectpicker('refresh');
                 $('#gate').change();
             },
-            error: function () {}
+            error: function () { }
         });
     });
 
-
     function loadSystem(sysgate) {
+        if (sysgate == undefined)
+            return;
+
         $(':focus').blur();
-        var base,thesun;
+        var base, thesun;
         paths = [];
 
         curveSet.items = [];
@@ -174,15 +212,14 @@
             );
         }
 
-        setPosition(bubble, vec3.create());
+        setPositionAndScale(bubble, vec3.create(), bubbleSize/20000);
         gate = scene.loadObject(base.DNA);
         var dest = vec3.fromValues(base.dx, base.dy, base.dz);
         var src = vec3.fromValues(base.sx, base.sy, base.sz);
         vec3.add(src, src, vec3.fromValues(base.x, base.y, base.z));
         direction = vec3.create();
         vec3.sub(direction, dest, src);
-        vec3.normalize(direction,direction);
-        console.log(src, dest, direction)
+        vec3.normalize(direction, direction);
 
         var transform = mat4.create();
         mat4.targetTo(transform, vec3.create(), direction, [0, 1, 0])
@@ -191,8 +228,10 @@
         for (var i = 0; i < systemData.length; i++) {
             if (systemData[i].name != base.name) {
                 var draw = false;
-                if (expectedTypes.indexOf(systemData[i].type) > -1)
-                    draw = true
+                $('#showPaths option:selected').each(function () {
+                    if ($(this).val() == systemData[i].type)
+                        draw = true
+                });
 
                 drawPath(getDirection(systemData[i].position, base.position),
                     systemData[i].name,
@@ -383,19 +422,50 @@
                 return [1, 1, 1, 0.1]
             case "Station":
                 return [1, 1, 1, 0.1]
+            case "Moon":
+                return [0.5, 0, 0, 0.1]
+        }
+    }
+
+    function getBubbleDistance(type) {
+        switch (type) {
+            case "Warp Disrupt Probe":
+                return 20000;
+            case "Surgical Warp Disrupt Probe":
+                return 10000;
+            case "Warp Disruption Field Generator I":
+                return 16000;
+            case "Warp Disruption Field Generator II":
+                return 20000;
+            case "Mobile Small Warp Disruptor I":
+                return 5000;
+            case "Mobile Small Warp Disruptor I":
+                return 5000;
+            case "Mobile Small Warp Disruptor II":
+                return 7500;
+            case "Mobile Medium Warp Disruptor I":
+                return 11500;
+            case "Mobile Medium Warp Disruptor II":
+                return 17500;
+            case "Mobile Large Warp Disruptor I":
+                return 26500;
+            case "Mobile Large Warp Disruptor II":
+                return 40000;
         }
     }
 
     function getModel(type) {
         switch (type) {
             case "Planet":
-                return "res:/dx9/model/worldobject/forcefield/forcefield_ems.red"
+                return "res:/dx9/model/worldobject/forcefield/forcefield_eml.red"
             case "Sun":
-                return "res:/dx9/model/worldobject/forcefield/forcefield_explosivem.red"
+                return "res:/dx9/model/worldobject/forcefield/forcefield_explosivel.red"
             case "Stargate":
-                return "res:/dx9/model/worldobject/forcefield/forcefield_thermalm.red"
+                return "res:/dx9/model/worldobject/forcefield/forcefield_thermall.red"
             case "Station":
-                return "res:/dx9/model/worldobject/forcefield/forcefield_kinetics.red"
+                return "res:/dx9/model/worldobject/forcefield/forcefield_kineticl.red"
+            case "Moon":
+                return "res:/dx9/model/worldobject/forcefield/forcefield_eml.red"
         }
     }
 
@@ -422,10 +492,11 @@
         start = vec3.mul(vec3.create(), dir.direction, vec3.fromValues(-500000, -
             500000, -500000))
         var position = intersectRaySphere(vec3.create(), start, dir.direction,
-            getPosition(bubble), 21000);
+            getPosition(bubble), bubbleSize + 1250);
+        console.log(bubbleSize + 1250);
         if (position) {
             var hit = scene.loadObject(getModel(type));
-            setPosition(hit, position);
+            setPositionAndScale(hit, position, 2.5);
             hits.push(hit);
         }
     }
@@ -449,9 +520,22 @@
         o.setTransform(m);
     }
 
-    function setBubbleScale(o, scale) {
+    function setPositionAndScale(o, v, scale) {
         var m = o.getTransform();
-        mat4.scale(m, m, vec3.fromValues(scale, scale, scale));
+        m[0] = scale;
+        m[5] = scale;
+        m[10] = scale;
+        m[12] = v[0];
+        m[13] = v[1];
+        m[14] = v[2];
+        o.setTransform(m);
+    }
+
+    function setScale(o, v, scale) {
+        var m = o.getTransform();
+        m[0] = scale;
+        m[5] = scale;
+        m[10] = scale;
         o.setTransform(m);
     }
 
@@ -473,5 +557,4 @@
         vec3.scale(out, direction, len - Math.sqrt(rSq - dSq))
         return vec3.add(out, out, origin)
     }
-</script>
-{{end}}
+</script> {{end}}
