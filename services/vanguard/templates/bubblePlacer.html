@@ -72,7 +72,7 @@
 
     $('#bubbleType').multiselect({
         onChange: function () {
-            bubbleSize = parseInt($('#bubbleType option:selected').val() * 2);
+            bubbleSize = parseInt($('#bubbleType option:selected').val() );
             loadSystem(currentGate);
         }
     });
