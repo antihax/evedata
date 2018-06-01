@@ -52,7 +52,7 @@ func (t *ApiCacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 			}
 
 			// Early out for "our bad" statuses
-			if res.StatusCode >= 400 && res.StatusCode < 420 && res.StatusCode == 500 {
+			if (res.StatusCode >= 400 && res.StatusCode < 420) || res.StatusCode == 500 {
 				return res, err
 			}
 
