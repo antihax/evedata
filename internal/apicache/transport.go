@@ -5,6 +5,9 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"strings"
+
+	"github.com/antihax/goesi/esi"
 
 	"time"
 
@@ -54,6 +57,14 @@ func (t *ApiCacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 			// Early out for "our bad" statuses
 			if res.StatusCode >= 400 && res.StatusCode < 420 {
 				return res, err
+			}
+
+			if res.StatusCode == 500 {
+				v, ok := err.(esi.GenericSwaggerError)
+				if ok && strings.Contains(string(v.Body()), "Unhandled internal error") {
+					log.Printf("TERRIBLE CCP INTERNAL ERROR: %s", req.URL)
+					return res, err
+				}
 			}
 
 			// If we cannot decode this is likely from another source.
