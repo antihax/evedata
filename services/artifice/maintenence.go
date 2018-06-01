@@ -8,7 +8,8 @@ import (
 func init() {
 	registerTrigger("alliancehistoryMaint", alliancehistoryMaint, time.NewTicker(time.Hour*2))
 	registerTrigger("corphistoryMaint", corphistoryMaint, time.NewTicker(time.Hour*2))
-	registerTrigger("marketMaint", marketMaint, time.NewTicker(time.Hour))
+	registerTrigger("marketMaint", marketMaint, time.NewTicker(time.Minute*10))
+	registerTrigger("marketUpdate", marketUpdate, time.NewTicker(time.Hour*2))
 	registerTrigger("discoveredAssetsMaint", discoveredAssetsMaint, time.NewTicker(time.Second*3620))
 	registerTrigger("entityMaint", entityMaint, time.NewTicker(time.Second*3630*3))
 	registerTrigger("killmailMaint", killmailMaint, time.NewTicker(time.Hour*11))
@@ -361,25 +362,9 @@ func getMarketRegions(s *Artifice) ([]marketRegion, error) {
 	return v, nil
 }
 
-func marketMaint(s *Artifice) error {
+func marketUpdate(s *Artifice) error {
 	regions, err := getMarketRegions(s)
 	if err != nil {
-		log.Println(err)
-	}
-
-	if err := s.RetryExecTillNoRows(`
-        DELETE FROM evedata.market 
-            WHERE date_add(issued, INTERVAL duration DAY) < UTC_TIMESTAMP() OR 
-            reported < DATE_SUB(utc_timestamp(), INTERVAL 6 HOUR)
-            ORDER BY regionID, typeID ASC LIMIT 50000;
-            `); err != nil {
-		log.Println(err)
-	}
-
-	if err := s.RetryExecTillNoRows(`
-        DELETE FROM evedata.market_history
-            WHERE date < date_sub(UTC_TIMESTAMP(), INTERVAL 365 DAY) LIMIT 5000;
-            `); err != nil {
 		log.Println(err)
 	}
 
@@ -485,6 +470,26 @@ func marketMaint(s *Artifice) error {
 			 `); err != nil {
 		log.Println(err)
 		return err
+	}
+	return nil
+}
+
+func marketMaint(s *Artifice) error {
+
+	if err := s.RetryExecTillNoRows(`
+        DELETE FROM evedata.market 
+            WHERE date_add(issued, INTERVAL duration DAY) < UTC_TIMESTAMP() OR 
+            reported < DATE_SUB(utc_timestamp(), INTERVAL 10 MINUTE)
+            ORDER BY regionID, typeID ASC LIMIT 50000;
+            `); err != nil {
+		log.Println(err)
+	}
+
+	if err := s.RetryExecTillNoRows(`
+        DELETE FROM evedata.market_history
+            WHERE date < date_sub(UTC_TIMESTAMP(), INTERVAL 365 DAY) LIMIT 50000;
+            `); err != nil {
+		log.Println(err)
 	}
 
 	return nil

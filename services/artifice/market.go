@@ -8,8 +8,8 @@ import (
 )
 
 func init() {
-	registerTrigger("marketOrders", marketTrigger, time.NewTicker(time.Second*500))
-	registerTrigger("structures", structuresTrigger, time.NewTicker(time.Second*500))
+	registerTrigger("marketOrders", marketTrigger, time.NewTicker(time.Second*300))
+	registerTrigger("structures", structuresTrigger, time.NewTicker(time.Second*300))
 	registerTrigger("marketHistory", historyTrigger, time.NewTicker(time.Second*1900))
 }
 
