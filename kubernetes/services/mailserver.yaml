@@ -11,13 +11,10 @@ spec:
     protocol: TCP
     port: 993
     targetPort: 993
-    nodePort: 32005
   - name: smtp
     protocol: TCP
     port: 465
     targetPort: 465
-    nodePort: 32006
-  type: NodePort
 ---
 apiVersion: apps/v1beta1
 kind: Deployment

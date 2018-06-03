@@ -98,8 +98,6 @@ spec:
     protocol: TCP
     port: 9090
     targetPort: 9090
-    nodePort: 31001
-  type: NodePort
 ---
 apiVersion: v1
 kind: ConfigMap

@@ -11,8 +11,6 @@ spec:
     protocol: TCP
     port: 3001
     targetPort: 3001
-    nodePort: 32003
-  type: NodePort
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
