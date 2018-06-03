@@ -22,7 +22,7 @@ func CompareHash(pwd string, hash string) bool {
 }
 
 func NewTestDatabase() *sqlx.DB {
-	database, err := setupDatabase("mysql", "root@tcp(127.0.0.1:3306)/eve?allowOldPasswords=1&parseTime=true")
+	database, err := setupDatabase("mysql", "root@tcp(127.0.0.1:3306)/eve?allowOldPasswords=1&parseTime=true&tls=skip-verify")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -30,7 +30,7 @@ func NewTestDatabase() *sqlx.DB {
 }
 
 func NewDatabase() *sqlx.DB {
-	database, err := setupDatabase("mysql", os.Getenv("SQLAUTH")+"@tcp(sql.evedata:3306)/eve?allowOldPasswords=1&parseTime=true")
+	database, err := setupDatabase("mysql", os.Getenv("SQLAUTH")+"@tcp(sql.evedata:3306)/eve?allowOldPasswords=1&parseTime=true&tls=skip-verify")
 	if err != nil {
 		log.Fatalln(err)
 	}

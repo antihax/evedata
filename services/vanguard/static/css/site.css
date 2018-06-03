@@ -44,6 +44,13 @@ text.mono {
     border-radius: 8px;
 }
 
+.whitewell {
+    background-color: #ffffff;
+    border: 2px solid black;
+    border-radius: 8px;
+}
+
+
 #mainWell {
     padding: 15px;
     border-radius: 15px;

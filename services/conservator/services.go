@@ -47,13 +47,14 @@ func (c *ServiceTypes) GetServices() string {
 
 type ChannelOptions struct {
 	Killmail struct {
-		IgnoreHighSec   bool `json:"ignoreHighsec,omitempty"`
-		IgnoreLowSec    bool `json:"ignoreLowsec,omitempty"`
-		IgnoreNullSec   bool `json:"ignoreNullsec,omitempty"`
-		IgnoreWorthless bool `json:"ignoreWorthless,omitempty"`
-		War             bool `json:"war,omitempty"`
-		FactionWar      bool `json:"factionWar,omitempty"`
-		SendAll         bool `json:"sendAll,omitempty"`
+		IgnoreHighSec    bool `json:"ignoreHighsec,omitempty"`
+		IgnoreLowSec     bool `json:"ignoreLowsec,omitempty"`
+		IgnoreNullSec    bool `json:"ignoreNullsec,omitempty"`
+		IgnoreWorthless  bool `json:"ignoreWorthless,omitempty"`
+		War              bool `json:"war,omitempty"`
+		FactionWar       bool `json:"factionWar,omitempty"`
+		SendAll          bool `json:"sendAll,omitempty"`
+		SendAllAbyssalT4 bool `json:"sendAllAbyssalT4,omitempty"`
 	} `json:"killmail,omitempty"`
 }
 

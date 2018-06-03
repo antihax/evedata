@@ -68,7 +68,6 @@ func (s *Conservator) reportKillmail(mail *esi.GetKillmailsKillmailIdKillmailHas
 		if err != nil {
 			return true
 		}
-
 		// filters
 		if channel.Options.Killmail.IgnoreWorthless && isWorthlessTypeID(mail.Victim.ShipTypeId) {
 			return true
@@ -92,6 +91,12 @@ func (s *Conservator) reportKillmail(mail *esi.GetKillmailsKillmailIdKillmailHas
 			sendMail = true
 		} else if channel.Options.Killmail.SendAll {
 			sendMail = true
+		} else if channel.Options.Killmail.SendAllAbyssalT4 && isAbyssalCruiser(mail.Victim.ShipTypeId) {
+			for _, item := range mail.Victim.Items {
+				if isAbyssalT4TypeID(item.ItemTypeId) {
+					sendMail = true
+				}
+			}
 		}
 
 		if sendMail {
@@ -126,6 +131,163 @@ func (s *Conservator) killmailHandler(message *nsq.Message) error {
 		return err
 	}
 	return nil
+}
+
+func isAbyssalT4TypeID(typeID int32) bool {
+	types := []int32{
+		47891,
+		47895,
+		47899,
+		47903,
+		47907,
+		47890,
+		47894,
+		47898,
+		47902,
+		47906,
+		47906,
+		47701,
+		47731,
+		47735,
+		47739,
+		47741,
+		47744,
+		47748,
+		47752,
+		47756,
+		47768,
+		47772,
+		47776,
+		47780,
+		47784,
+		47788,
+		47792,
+		47799,
+		47803,
+		47807,
+		47811,
+		47815,
+		47819,
+		47823,
+		47827,
+		47831,
+		47830,
+		47826,
+		47822,
+		47818,
+		47814,
+		47810,
+		47806,
+		47802,
+		47798,
+		47791,
+		47787,
+		47783,
+		47779,
+		47775,
+		47771,
+		47767,
+		47755,
+		47751,
+		47747,
+		47743,
+		47738,
+		47734,
+		47730,
+		47700,
+	}
+
+	for _, id := range types {
+		if id == typeID {
+			return true
+		}
+	}
+	return false
+}
+
+func isAbyssalCruiser(typeID int32) bool {
+	types := []int32{
+		2836,
+		3518,
+		11993,
+		11999,
+		12003,
+		12005,
+		12011,
+		12015,
+		12019,
+		12023,
+		32209,
+		34477,
+		34479,
+		620,
+		621,
+		622,
+		623,
+		624,
+		11959,
+		11961,
+		11971,
+		20125,
+		625,
+		626,
+		627,
+		628,
+		11957,
+		11963,
+		11965,
+		11969,
+		33395,
+		33675,
+		44995,
+		45531,
+		629,
+		630,
+		631,
+		632,
+		633,
+		634,
+		635,
+		1904,
+		2006,
+		11011,
+		17634,
+		17709,
+		17713,
+		17715,
+		17718,
+		17720,
+		17722,
+		17843,
+		17922,
+		25560,
+		29336,
+		29337,
+		29340,
+		29344,
+		33470,
+		33553,
+		33639,
+		33641,
+		33643,
+		33645,
+		33647,
+		33649,
+		33651,
+		33653,
+		33818,
+		34445,
+		34475,
+		34590,
+		47270,
+	}
+
+	for _, id := range types {
+		if id == typeID {
+			return true
+		}
+	}
+	return false
 }
 
 func isWorthlessTypeID(typeID int32) bool {

@@ -442,7 +442,8 @@ CREATE TABLE `market_history` (
   `regionID` mediumint(8) unsigned NOT NULL,
   PRIMARY KEY (`date`,`regionID`,`itemID`),
   KEY `regionIDDate` (`regionID`,`date`),
-  KEY `date` (`date`)
+  KEY `date` (`date`),
+  KEY `itemID_regionID_date` (`itemID`,`regionID`,`date`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `market_vol` (
