@@ -1,0 +1,210 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nsq
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nsqd
+  namespace: nsq
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        name: nsqd
+        app: nsqd
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nsqd
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      -
+        name: nsq
+        image: nsqio/nsq
+        env:
+          -
+            name: IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+        command:
+          - /bin/sh
+          - -c
+          - "/nsqd -max-msg-size=9388608 -mem-queue-size=1000 --lookupd-tcp-address=nsqlookupd1:4160 --lookupd-tcp-address=nsqlookupd2:4160 --broadcast-address=$IP"
+        ports:
+          - containerPort: 4150
+            name: tcp
+            protocol: TCP
+          - containerPort: 4151
+            name: http
+            protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nsqd
+  namespace: nsq
+  labels:
+    name: nsqd
+spec:
+  ports:
+    - port: 4151
+      name: http
+      targetPort: 4151
+    - port: 4150
+      name: tcp
+      targetPort: 4150
+  selector:
+    name: nsqd
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nsqadmin
+  namespace: nsq
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: nsqadmin
+        app: nsqadmin
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nsqadmin
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: nsqadmin
+        image: nsqio/nsq
+        command:
+          - /nsqadmin
+          - --lookupd-http-address=nsqlookupd1:4161
+          - --lookupd-http-address=nsqlookupd2:4161
+        ports:
+          - containerPort: 4171
+            name: http
+            protocol: TCP
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nsqlookupd1
+  namespace: nsq
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: nsqlookupd1
+        app: nsqlookupd
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nsqlookupd
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: nsqlookup1
+        image: nsqio/nsq
+        command:
+          - /nsqlookupd
+        ports:
+          - containerPort: 4160
+            name: tcp
+            protocol: TCP
+          - containerPort: 4161
+            name: http
+            protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nsqlookupd1
+  namespace: nsq
+  labels:
+    name: nsqlookupd1
+spec:
+  ports:
+    - port: 4160
+      name: tcp
+      targetPort: 4160
+    - port: 4161
+      name: http
+      targetPort: 4161
+  selector:
+    name: nsqlookupd1
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nsqlookupd2
+  namespace: nsq
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: nsqlookupd2
+        app: nsqlookupd
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nsqlookupd
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: nsqlookup2
+        image: nsqio/nsq
+        command:
+          - /nsqlookupd
+        ports:
+          - containerPort: 4160
+            name: tcp
+            protocol: TCP
+          - containerPort: 4161
+            name: http
+            protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nsqlookupd2
+  namespace: nsq
+  labels:
+    name: nsqlookupd2
+spec:
+  ports:
+    - port: 4160
+      name: tcp
+      targetPort: 4160
+    - port: 4161
+      name: http
+      targetPort: 4161
+  selector:
+    name: nsqlookupd2
