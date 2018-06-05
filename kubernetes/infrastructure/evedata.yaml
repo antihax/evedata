@@ -51,6 +51,7 @@ spec:
       backend:
         serviceName: mailserver.evedata
         servicePort: '993'
+  - host: mail.evedata.org
     tcp:
       port: 465
       backend:
