@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -52,11 +51,9 @@ func main() {
 		if _, ok := structs[notifType]; ok {
 			if len(structs[notifType]) < len(s) {
 				structs[notifType] = s
-				fmt.Printf("%s\n", s)
 			}
 		} else {
 			structs[notifType] = s
-			fmt.Printf("%s\n", s)
 		}
 	}
 

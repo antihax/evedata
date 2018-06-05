@@ -1,0 +1,5 @@
+kubectl create secret generic voyager-cloudflare --namespace default \
+  --from-literal=CLOUDFLARE_EMAIL= \
+  --from-literal=CLOUDFLARE_API_KEY=
+
+kubectl create secret generic acme-account --from-literal=ACME_EMAIL=

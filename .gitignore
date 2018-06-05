@@ -5,6 +5,7 @@
 evedata-server
 secret.yaml
 secrets.yaml
+configuration.sh
 debug
 profile.out
 coverage.txt

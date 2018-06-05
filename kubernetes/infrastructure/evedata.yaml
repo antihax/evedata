@@ -1,0 +1,58 @@
+apiVersion: voyager.appscode.com/v1beta1
+kind: Certificate
+metadata:
+  name: evedata
+  namespace: default
+spec:
+  domains:
+  - evedata.org
+  - www.evedata.org
+  - mail.evedata.org
+  - grafana.evedata.org
+  - graylog.evedata.org
+  acmeUserSecretName: acme-account
+  challengeProvider:
+    dns:
+      provider: cloudflare
+      credentialSecretName: voyager-cloudflare
+  storage:
+    secret:
+      name: cert-evedata
+---
+apiVersion: voyager.appscode.com/v1beta1
+kind: Ingress
+metadata:
+  name: vanguard-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: voyager
+    ingress.appscode.com/type: NodePort
+    ingress.appscode.com/use-node-port: "true"
+    ingress.appscode.com/replicas: '2'
+spec:
+  tls:
+    - secretName: cert-evedata
+      hosts:
+      - evedata.org
+      - www.evedata.org
+      - mail.evedata.org
+  nodeSelector:
+    loadbalancer: voyager
+  rules:
+  - host: www.evedata.org
+    tcp:
+      port: 443
+      backend:
+        serviceName: vanguard.evedata
+        servicePort: '3000'
+  - host: mail.evedata.org
+    tcp:
+      port: 993
+      backend:
+        serviceName: mailserver.evedata
+        servicePort: '993'
+    tcp:
+      port: 465
+      backend:
+        serviceName: mailserver.evedata
+        servicePort: '465'

@@ -1,7 +1,6 @@
 package apicache
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/http/httputil"
@@ -29,7 +28,6 @@ func TestAPICache(t *testing.T) {
 
 	res, err = client.Get("http://" + server.Listener.Addr().String() + "/?size=30")
 	resb, _ := httputil.DumpResponse(res, true)
-	fmt.Printf("%s\n", resb)
 	assert.Nil(t, err)
 	assert.Equal(t, 200, res.StatusCode)
 	assert.Equal(t, "1", res.Header.Get("x-from-cache"))
