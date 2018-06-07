@@ -4,6 +4,6 @@ kubectl create secret generic voyager-cloudflare --namespace default \
 
 kubectl create secret generic acme-account --from-literal=ACME_EMAIL=
 
-kubectl create secret generic monitor --namespace monitoring \
+kubectl create secret generic monitoring --namespace monitoring \
   --from-literal=GF_SECURITY_ADMIN_USER= \
   --from-literal=GF_SECURITY_ADMIN_PASSWORD=
