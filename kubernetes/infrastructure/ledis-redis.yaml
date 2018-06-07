@@ -28,7 +28,7 @@ spec:
             topologyKey: "kubernetes.io/hostname"
       containers:
       - name: ledis
-        image: bborbe/ledisdb
+        image: antihax/ledisdb
         ports:
           - containerPort: 6379
             name: http
