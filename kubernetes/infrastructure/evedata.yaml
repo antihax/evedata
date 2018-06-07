@@ -26,8 +26,8 @@ metadata:
   namespace: default
   annotations:
     kubernetes.io/ingress.class: voyager
-    ingress.appscode.com/type: NodePort
-    ingress.appscode.com/use-node-port: "true"
+    ingress.appscode.com/type: HostPort
+    ingress.appscode.com/use-host-port: "true"
     ingress.appscode.com/replicas: '2'
 spec:
   tls:

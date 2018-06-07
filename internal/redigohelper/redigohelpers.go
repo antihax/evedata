@@ -21,28 +21,27 @@ func ConnectRedisProdPool() *redis.Pool {
 	test := pool.Get()
 	_, err := test.Do("PING")
 	if err != nil {
-		log.Printf("Fallback to external redis\n")
-		pool := connectRedisPool(
-			[]string{"redis.storage:32379"},
-			os.Getenv("REDIS_PASSWORD"),
-			"evedata",
-			false,
-		)
-		return pool
+		log.Fatalln(err)
 	}
 
 	return pool
-
 }
 
 // Disk Store
 func ConnectLedisProdPool() *redis.Pool {
-	return connectRedisPool(
+	pool := connectRedisPool(
 		[]string{"ledis.storage:6379"},
 		os.Getenv("REDIS_PASSWORD"),
 		"evedata",
 		false,
 	)
+	test := pool.Get()
+	_, err := test.Do("PING")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return pool
 }
 
 func ConnectRedisLocalPool() *redis.Pool {
