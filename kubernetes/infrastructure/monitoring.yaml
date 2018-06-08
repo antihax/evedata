@@ -422,3 +422,18 @@ spec:
           httpGet:
             path: /login
             port: 3000
+        volumeMounts:
+        - mountPath: "/etc/grafana"
+          name: grafana-config
+      volumes:
+      - configMap:
+        name: grafana-config
+          name: grafana-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  namespace: monitoring
+data:
+  grafana.conf: |

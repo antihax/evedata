@@ -57,3 +57,9 @@ spec:
       backend:
         serviceName: mailserver.evedata
         servicePort: '465'
+  - host: www.evedata.org
+    tcp:
+      port: 8080
+      backend:
+        serviceName: grafana.monitoring
+        servicePort: '3000'
