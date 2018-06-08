@@ -43,21 +43,21 @@ spec:
     http:
       port: 443
       paths:
-        backend:
+      - backend:
           serviceName: vanguard.evedata
           servicePort: '3000'
   - host: evedata.org
     http:
       port: 443
       paths:
-        backend:
+      - backend:
           serviceName: vanguard.evedata
           servicePort: '3000'
   - host: grafana.evedata.org
     http:
       port: 443
       paths:
-        backend:
+      - backend:
           serviceName: grafana.monitoring
           servicePort: '3000'
   - host: mail.evedata.org
