@@ -401,9 +401,7 @@ spec:
       containers:
       - image: grafana/grafana:latest
         name: grafana-core
-        imagePullPolicy: Always
         env:
-          # The following env variables set up basic auth twith the default admin user and admin password.
           - name: GF_AUTH_BASIC_ENABLED
             value: "true"
           - name: GF_AUTH_ANONYMOUS_ENABLED
@@ -427,21 +425,19 @@ spec:
           name: grafana-config
       volumes:
       - configMap:
-        name: grafana-config
           name: grafana-config
+        name: grafana-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
-    name: grafana-svc
-    kubernetes.io/name: "Grafana"
   name: grafana
   namespace: monitoring
 spec:
   selector:
     app: grafana
   ports:
-  - name: grafama
+  - name: grafana
     protocol: TCP
     port: 3000
     targetPort: 3000
@@ -452,5 +448,5 @@ metadata:
   name: grafana-config
   namespace: monitoring
 data:
-  grafana.conf: |
+  grafana.ini: |
     #no data yet

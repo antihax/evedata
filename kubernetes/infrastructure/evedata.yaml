@@ -36,6 +36,7 @@ spec:
       - evedata.org
       - www.evedata.org
       - mail.evedata.org
+      - grafana.evedata.org
   nodeSelector:
     loadbalancer: voyager
   rules:
