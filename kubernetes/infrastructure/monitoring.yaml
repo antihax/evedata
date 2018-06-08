@@ -453,3 +453,4 @@ metadata:
   namespace: monitoring
 data:
   grafana.conf: |
+    #no data yet
