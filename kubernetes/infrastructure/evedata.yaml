@@ -40,10 +40,22 @@ spec:
     loadbalancer: voyager
   rules:
   - host: www.evedata.org
-    tcp:
+    http:
       port: 443
       backend:
         serviceName: vanguard.evedata
+        servicePort: '3000'
+  - host: evedata.org
+    http:
+      port: 443
+      backend:
+        serviceName: vanguard.evedata
+        servicePort: '3000'
+  - host: grafana.evedata.org
+    http:
+      port: 443
+      backend:
+        serviceName: grafana.monitoring
         servicePort: '3000'
   - host: mail.evedata.org
     tcp:
@@ -57,9 +69,3 @@ spec:
       backend:
         serviceName: mailserver.evedata
         servicePort: '465'
-  - host: www.evedata.org
-    tcp:
-      port: 8080
-      backend:
-        serviceName: grafana.monitoring
-        servicePort: '3000'
