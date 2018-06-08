@@ -431,6 +431,22 @@ spec:
           name: grafana-config
 ---
 apiVersion: v1
+kind: Service
+metadata:
+    name: grafana-svc
+    kubernetes.io/name: "Grafana"
+  name: grafana
+  namespace: monitoring
+spec:
+  selector:
+    app: grafana
+  ports:
+  - name: grafama
+    protocol: TCP
+    port: 3000
+    targetPort: 3000
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-config
