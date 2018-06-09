@@ -6,7 +6,7 @@ docker run --net=none --rm -it -v $PWD:/etc/openvpn kylemanna/openvpn easyrsa bu
 docker run --net=none --rm -v $PWD:/etc/openvpn kylemanna/openvpn ovpn_getclient $CLIENTNAME > ../$CLIENTNAME.ovpn
 sed -i 's/ 1194/ 31194/g' ../$CLIENTNAME.ovpn
 
-IP=(kubectl get service kube-dns -n kube-system -o custom-columns=:.spec.clusterIP | sed -n 2p)
+IP=$(kubectl get service kube-dns -n kube-system -o custom-columns=:.spec.clusterIP | sed -n 2p)
 
 cat <<EOT >> ../$CLIENTNAME.ovpn
 script-security 2
