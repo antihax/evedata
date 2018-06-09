@@ -11,8 +11,9 @@ IP=$(kubectl get service kube-dns -n kube-system -o custom-columns=:.spec.cluste
 cat <<EOT >> ../$CLIENTNAME.ovpn
 script-security 2
 dhcp-option DNS $IP
-dhcp-option DOMAIN evedata
+dhcp-option DOMAIN svc.cluster.local
 
+# remove these two lines for windows
 up /etc/openvpn/update-resolv-conf
 down /etc/openvpn/update-resolv-conf
 EOT
