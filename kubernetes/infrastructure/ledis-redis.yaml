@@ -170,10 +170,6 @@ data:
     # but it is still not a easy work.
     disable_wal = false
 
-    [lmdb]
-    map_size = 524288000
-    nosync = true
-
     [replication]
     # Path to store replication information(write ahead log, commit log, etc.)
     # if not set, use data_dir/rpl
@@ -738,7 +734,7 @@ data:
     # limit for maxmemory so that there is some free RAM on the system for slave
     # output buffers (but this is not needed if the policy is 'noeviction').
     #
-    maxmemory 1073741824
+    maxmemory 3073741824
 
     # MAXMEMORY POLICY: how Redis will select what to remove when maxmemory
     # is reached. You can select among five behaviors:

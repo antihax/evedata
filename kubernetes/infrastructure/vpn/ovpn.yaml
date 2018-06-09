@@ -1,0 +1,72 @@
+# From https://github.com/kylemanna/docker-openvpn
+apiVersion: v1
+kind: Service
+metadata:
+  name: ovpn
+  namespace: ovpn
+  labels:
+    app: ovpn
+spec:
+  type: NodePort
+  ports:
+    - port: 1194
+      targetPort: 1194
+      protocol: UDP
+      name: openvpn
+      nodePort: 31194
+  selector:
+    app: ovpn
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ovpn
+  namespace: ovpn
+  labels:
+    app: ovpn
+spec:
+  template:
+    metadata:
+      labels:
+        name: openvpn
+        app: ovpn
+    spec:
+      containers:
+      - image: kylemanna/openvpn
+        name: ovpn
+        ports:
+        - containerPort: 1194
+          name: openvpn
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+        volumeMounts:
+        - name: ovpn-key
+          mountPath: /etc/openvpn/pki/private
+        - name: ovpn-cert
+          mountPath: /etc/openvpn/pki/issued
+        - name: ovpn-pki
+          mountPath: /etc/openvpn/pki
+        - name: ovpn-conf
+          mountPath: /etc/openvpn
+        - name: ccd
+          mountPath: /etc/openvpn/ccd
+      volumes:
+      - name: ovpn-key
+        secret:
+          secretName: ovpn-key
+          defaultMode: 0600
+      - name: ovpn-cert
+        secret:
+          secretName: ovpn-cert
+      - name: ovpn-pki
+        secret:
+          secretName: ovpn-pki
+          defaultMode: 0600
+      - name: ovpn-conf
+        configMap:
+          name: ovpn-conf
+      - name: ccd
+        configMap:
+          name: ccd
