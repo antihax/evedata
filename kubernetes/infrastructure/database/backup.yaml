@@ -1,0 +1,60 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: mysql-backup
+  namespace: backup
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: mysql-backup
+      labels:
+        app: mysql-backup
+      annotations:
+        prometheus.io/scrape: "true"
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - mysql-backup
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: mysql-backup
+        image: antihax/mysqldump-b2
+        imagePullPolicy: Always
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: backup-secrets
+              key: dbuser
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: backup-secrets
+              key: dbpass
+        - name: B2_ACCOUNT_ID
+          valueFrom:
+            secretKeyRef:
+              name: backup-secrets
+              key: accountID
+        - name: B2_APPLICATION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: backup-secrets
+              key: applicationKey
+        - name: DB_HOST
+          value: "sql.evedata"
+        - name: DATABASES
+          value: "evedata"
+        - name: DB_DUMP_FREQ
+          value: "1440"
+        - name: B2_TARGET_DIR
+          value: "evedata"
+        - name: B2_BUCKET
+          value: "evedata-backup"
