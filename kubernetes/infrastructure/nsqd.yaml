@@ -101,6 +101,21 @@ spec:
             name: http
             protocol: TCP
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nsqadmin
+  namespace: nsq
+  labels:
+    name: nsqadmin
+spec:
+  ports:
+    - port: 4171
+      name: tcp
+      targetPort: 4171
+  selector:
+    name: nsqadmin
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
