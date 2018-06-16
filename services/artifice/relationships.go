@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	registerTrigger("buildRelationships", buildRelationships, time.NewTicker(time.Second*14400))
+	registerTrigger("buildRelationships", buildRelationships, time.NewTicker(time.Second*86400))
 }
 
 func buildRelationships(s *Artifice) error {

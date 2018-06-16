@@ -153,18 +153,21 @@ func allianceConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	allianceCorporations, _, err := s.esi.ESI.AllianceApi.GetAlliancesAllianceIdCorporations(context.Background(), allianceID, nil)
+	allianceCorporations, r, err := s.esi.ESI.AllianceApi.GetAlliancesAllianceIdCorporations(context.Background(), allianceID, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
+	etag := r.Header.Get("etag")
+
 	// Send out the result
 	err = s.QueueResult(&datapackages.Alliance{
 		AllianceID:           allianceID,
 		Alliance:             alliance,
-		AllianceCorporations: allianceCorporations},
-		"alliance")
+		AllianceCorporations: allianceCorporations,
+		ETag:                 etag,
+	}, "alliance")
 	if err != nil {
 		log.Println(err)
 		return
@@ -211,17 +214,19 @@ func loyaltyStoreConsumer(s *Hammer, parameter interface{}) {
 
 func corporationConsumer(s *Hammer, parameter interface{}) {
 	corporationID := int32(parameter.(int))
-	corporation, _, err := s.esi.ESI.CorporationApi.GetCorporationsCorporationId(context.Background(), corporationID, nil)
+	corporation, r, err := s.esi.ESI.CorporationApi.GetCorporationsCorporationId(context.Background(), corporationID, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
+	etag := r.Header.Get("etag")
 	// Send out the result
 	err = s.QueueResult(&datapackages.Corporation{
 		CorporationID: corporationID,
-		Corporation:   corporation},
-		"corporation")
+		Corporation:   corporation,
+		ETag:          etag,
+	}, "corporation")
 	if err != nil {
 		log.Println(err)
 		return
@@ -248,16 +253,20 @@ func corporationConsumer(s *Hammer, parameter interface{}) {
 func corporationHistoryConsumer(s *Hammer, parameter interface{}) {
 	characterID := int32(parameter.(int))
 
-	corporationHistory, _, err := s.esi.ESI.CharacterApi.GetCharactersCharacterIdCorporationhistory(context.Background(), characterID, nil)
+	corporationHistory, r, err := s.esi.ESI.CharacterApi.GetCharactersCharacterIdCorporationhistory(context.Background(), characterID, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+
+	etag := r.Header.Get("etag")
+
 	// Send out the result
 	err = s.QueueResult(&datapackages.CorporationHistory{
 		CharacterID:        characterID,
-		CorporationHistory: corporationHistory},
-		"corporationHistory")
+		CorporationHistory: corporationHistory,
+		ETag:               etag,
+	}, "corporationHistory")
 	if err != nil {
 		log.Println(err)
 		return
@@ -276,16 +285,20 @@ func corporationHistoryConsumer(s *Hammer, parameter interface{}) {
 func allianceHistoryConsumer(s *Hammer, parameter interface{}) {
 	corporationID := int32(parameter.(int))
 
-	allianceHistory, _, err := s.esi.ESI.CorporationApi.GetCorporationsCorporationIdAlliancehistory(context.Background(), corporationID, nil)
+	allianceHistory, r, err := s.esi.ESI.CorporationApi.GetCorporationsCorporationIdAlliancehistory(context.Background(), corporationID, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+
+	etag := r.Header.Get("etag")
+
 	// Send out the result
 	err = s.QueueResult(&datapackages.AllianceHistory{
 		CorporationID:   corporationID,
-		AllianceHistory: allianceHistory},
-		"allianceHistory")
+		AllianceHistory: allianceHistory,
+		ETag:            etag,
+	}, "allianceHistory")
 	if err != nil {
 		log.Println(err)
 		return
@@ -294,17 +307,19 @@ func allianceHistoryConsumer(s *Hammer, parameter interface{}) {
 
 func characterConsumer(s *Hammer, parameter interface{}) {
 	characterID := int32(parameter.(int))
-
-	character, _, err := s.esi.ESI.CharacterApi.GetCharactersCharacterId(context.Background(), characterID, nil)
+	character, r, err := s.esi.ESI.CharacterApi.GetCharactersCharacterId(context.Background(), characterID, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
+	etag := r.Header.Get("etag")
+
 	// Send out the result
 	err = s.QueueResult(&datapackages.Character{
 		CharacterID: characterID,
-		Character:   character},
+		Character:   character,
+		ETag:        etag},
 		"character")
 	if err != nil {
 		log.Println(err)

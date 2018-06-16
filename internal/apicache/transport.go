@@ -72,7 +72,7 @@ func (t *ApiCacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 			} else if res.StatusCode == 429 { // SNAFU
 				time.Sleep(time.Second * time.Duration(60+rand.Intn(30)))
 			} else if esiRateLimiter { // Sleep based on error rate.
-				time.Sleep(time.Second * time.Duration(float64(reset)*1.1*(1-(float64(tokens)/100))))
+				time.Sleep(time.Second * time.Duration(float64(reset)*2*(1-(float64(tokens)/100))))
 			} else if !esiRateLimiter { // Not an ESI error
 				time.Sleep(time.Second * time.Duration(tries))
 			}

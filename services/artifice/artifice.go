@@ -3,8 +3,10 @@ package artifice
 
 import (
 	"log"
+	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/antihax/evedata/internal/apicache"
@@ -24,6 +26,7 @@ type Artifice struct {
 	redis   *redis.Pool
 	db      *sqlx.DB
 	mail    chan esi.PostCharactersCharacterIdMailMail
+	etags   sync.Map
 
 	// authentication
 	token       *oauth2.TokenSource
@@ -223,4 +226,21 @@ func (s *Artifice) GetCorporationForScope(scope string) ([]CharacterPairs, error
 			GROUP BY corporationID
 			`, "%"+scope+"%")
 	return pairs, err
+}
+
+func (s *Artifice) etagKnown(r *http.Response, key string) bool {
+	etag := r.Header.Get("etag")
+	v, ok := s.etags.Load(key)
+	if !ok {
+		return false
+	}
+	if etag == v.(string) {
+		return true
+	}
+	return false
+}
+
+func (s *Artifice) setEtagKnown(r *http.Response, key string) {
+	etag := r.Header.Get("etag")
+	s.etags.Store(key, etag)
 }

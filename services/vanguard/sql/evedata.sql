@@ -79,6 +79,8 @@ CREATE TABLE `characters` (
   `gender` varchar(50) NOT NULL DEFAULT '0',
   `dead` tinyint(4) NOT NULL DEFAULT '0',
   `birthDate` datetime DEFAULT NULL,
+  `etag` varchar(255) NOT NULL DEFAULT '',
+  `historyEtag` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`characterID`),
   KEY `cacheUntil` (`cacheUntil`),
   KEY `name` (`name`),

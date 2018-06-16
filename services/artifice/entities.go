@@ -10,37 +10,43 @@ import (
 func init() {
 	registerTrigger("npcCorporations", npcCorporationsTrigger, time.NewTicker(time.Second*172800))
 	registerTrigger("alliance", allianceTrigger, time.NewTicker(time.Second*3600))
-	registerTrigger("characterUpdate", characterUpdate, time.NewTicker(time.Second*10))
-	registerTrigger("corporationUpdate", corporationUpdate, time.NewTicker(time.Second*10))
+	registerTrigger("characterUpdate", characterUpdate, time.NewTicker(time.Second*120))
+	registerTrigger("corporationUpdate", corporationUpdate, time.NewTicker(time.Second*120))
 }
 
 func npcCorporationsTrigger(s *Artifice) error {
-	corporations, _, err := s.esi.ESI.CorporationApi.GetCorporationsNpccorps(context.Background(), nil)
+	corporations, r, err := s.esi.ESI.CorporationApi.GetCorporationsNpccorps(context.Background(), nil)
 	if err != nil {
 		return err
 	}
+	if !s.etagKnown(r, "npcCorporations") {
+		s.setEtagKnown(r, "npcCorporations")
+		work := []redisqueue.Work{}
+		for _, corporation := range corporations {
+			work = append(work, redisqueue.Work{Operation: "corporation", Parameter: corporation})
+			work = append(work, redisqueue.Work{Operation: "loyaltyStore", Parameter: corporation})
+		}
 
-	work := []redisqueue.Work{}
-	for _, corporation := range corporations {
-		work = append(work, redisqueue.Work{Operation: "corporation", Parameter: corporation})
-		work = append(work, redisqueue.Work{Operation: "loyaltyStore", Parameter: corporation})
+		return s.QueueWork(work, redisqueue.Priority_Lowest)
 	}
-
-	return s.QueueWork(work, redisqueue.Priority_Lowest)
+	return nil
 }
 
 func allianceTrigger(s *Artifice) error {
-	alliances, _, err := s.esi.ESI.AllianceApi.GetAlliances(context.Background(), nil)
+	alliances, r, err := s.esi.ESI.AllianceApi.GetAlliances(context.Background(), nil)
 	if err != nil {
 		return err
 	}
+	if !s.etagKnown(r, "alliances") {
+		s.setEtagKnown(r, "alliances")
+		work := []redisqueue.Work{}
+		for _, alliance := range alliances {
+			work = append(work, redisqueue.Work{Operation: "alliance", Parameter: alliance})
+		}
 
-	work := []redisqueue.Work{}
-	for _, alliance := range alliances {
-		work = append(work, redisqueue.Work{Operation: "alliance", Parameter: alliance})
+		return s.QueueWork(work, redisqueue.Priority_Lowest)
 	}
-
-	return s.QueueWork(work, redisqueue.Priority_Lowest)
+	return nil
 }
 
 func characterUpdate(s *Artifice) error {
@@ -48,7 +54,7 @@ func characterUpdate(s *Artifice) error {
 		`SELECT characterID AS id FROM evedata.characters A
 			WHERE cacheUntil < UTC_TIMESTAMP() AND dead = 0
 			AND characterID > 90000000
-            ORDER BY cacheUntil ASC LIMIT 1000`)
+            ORDER BY cacheUntil ASC LIMIT 100000`)
 	if err != nil {
 		return err
 	}
@@ -66,7 +72,6 @@ func characterUpdate(s *Artifice) error {
 		}
 
 		work = append(work, redisqueue.Work{Operation: "character", Parameter: id})
-
 	}
 
 	return s.QueueWork(work, redisqueue.Priority_Lowest)
@@ -76,7 +81,7 @@ func corporationUpdate(s *Artifice) error {
 	entities, err := s.db.Query(
 		`SELECT corporationID AS id FROM evedata.corporations A
 		 WHERE cacheUntil < UTC_TIMESTAMP() AND memberCount > 0 AND corporationId> 90000000
-		 ORDER BY cacheUntil ASC LIMIT 1000`)
+		 ORDER BY cacheUntil ASC LIMIT 100000`)
 	if err != nil {
 		return err
 	}
