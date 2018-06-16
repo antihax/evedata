@@ -29,6 +29,7 @@ spec:
       containers:
       - name: ledis
         image: antihax/ardb
+        imagePullPolicy: Always
         ports:
           - containerPort: 6379
             name: http
