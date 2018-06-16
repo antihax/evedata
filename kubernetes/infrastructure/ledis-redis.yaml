@@ -43,9 +43,9 @@ metadata:
     name: ledis
 spec:
   ports:
-    - port: 16379
+    - port: 6379
       name: ledis
-      targetPort: 6379
+      targetPort: 16379
   selector:
     name: ledis
 ---
