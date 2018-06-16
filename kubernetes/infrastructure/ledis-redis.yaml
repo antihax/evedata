@@ -30,7 +30,7 @@ spec:
       - name: ledis
         image: antihax/ardb
         ports:
-          - containerPort: 16379
+          - containerPort: 6379
             name: http
             protocol: TCP
 ---
@@ -45,7 +45,7 @@ spec:
   ports:
     - port: 6379
       name: ledis
-      targetPort: 16379
+      targetPort: 6379
   selector:
     name: ledis
 ---
