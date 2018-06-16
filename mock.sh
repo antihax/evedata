@@ -14,6 +14,8 @@ if test -f /sys/kernel/mm/transparent_hugepage/defrag; then
    echo never > /sys/kernel/mm/transparent_hugepage/defrag
 fi
 
+set +e
+
 # Remove any currently running containers
 docker stop mysql teamspeak mock-esi redis nsqlookup nsqadmin nsqd | xargs docker rm
 
@@ -33,8 +35,6 @@ docker run --net=host --name=redis -d -p 127.0.0.1:6379:6379 -h evedata.sql redi
 docker run --net=host --name=nsqlookup -d -p 127.0.0.1:4160:4160 -p 4161:4161 -h nsqlookupd1.nsq nsqio/nsq /nsqlookupd
 docker run --net=host --name=nsqadmin -d -p 127.0.0.1:4171:4171 -h nsqadmin.nsq nsqio/nsq /nsqadmin --lookupd-http-address=127.0.0.1:4161
 docker run --net=host --name=nsqd -d -p 127.0.0.1:4151:4151 -p 4150:4150 -h localhost nsqio/nsq /nsqd --lookupd-tcp-address=127.0.0.1:4160 -max-msg-size=8388608
-
-set +e
 
 # Get the admin token for the TS server
 until [ `docker inspect -f "{{.State.Status}}" teamspeak | grep -c running` -eq 1 ]
@@ -56,5 +56,5 @@ echo Percona Ready
 
 echo "create database eve; create database evedata; set sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO';" | docker exec -i mysql /bin/bash -c 'mysql -uroot'
 cat ./services/vanguard/sql/evedata.sql | docker exec -i mysql /bin/bash -c 'mysql -uroot -Devedata'
-unzip -p ./services/vanguard/sql/eve.zip | docker exec -i mysql /bin/bash -c 'mysql -uroot -Deve'
+gzip -dc ./services/vanguard/sql/eve.gz | docker exec -i mysql /bin/bash -c 'mysql -uroot -Deve'
 
