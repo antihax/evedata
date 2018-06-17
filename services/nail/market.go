@@ -69,6 +69,7 @@ func (s *Nail) doMarketOrders(values []string) error {
 
 	if err := s.doSQL(stmt); err != nil {
 		log.Println(stmt)
+		log.Println(err)
 		return err
 	}
 

@@ -15,29 +15,31 @@ import (
 
 // Nail handles storage of data to SQL
 type Nail struct {
-	stop     chan bool
-	wg       *sync.WaitGroup
-	db       *sqlx.DB
-	inQueue  map[string]*nsq.Consumer
-	redis    *redis.Pool
-	outQueue *redisqueue.RedisQueue
+	stop           chan bool
+	wg             *sync.WaitGroup
+	db             *sqlx.DB
+	inQueue        map[string]*nsq.Consumer
+	redis          *redis.Pool
+	outQueue       *redisqueue.RedisQueue
+	characterRaces map[int32]string
 }
 
 // NewNail creates a new storage engine
 func NewNail(redis *redis.Pool, db *sqlx.DB, addresses []string) *Nail {
 	n := &Nail{
-		db:      db,
-		wg:      &sync.WaitGroup{},
-		stop:    make(chan bool),
-		inQueue: make(map[string]*nsq.Consumer),
+		db:             db,
+		wg:             &sync.WaitGroup{},
+		stop:           make(chan bool),
+		inQueue:        make(map[string]*nsq.Consumer),
+		characterRaces: make(map[int32]string),
 		outQueue: redisqueue.NewRedisQueue(
 			redis,
 			"evedata-hammer",
 		),
 	}
-
+	go n.loadStaticData()
 	nsqcfg := nsq.NewConfig()
-
+	nsqcfg.MaxInFlight = 12
 	for _, h := range handlers {
 		c, err := nsq.NewConsumer(h.Topic, "nail", nsqcfg)
 		if err != nil {
@@ -154,6 +156,26 @@ func (s *Nail) doSQLTranq(stmt string, args ...interface{}) error {
 	err = retryTransaction(tx)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (s *Nail) loadStaticData() error {
+	rows, err := s.db.Query(`SELECT raceID, raceName FROM chrRaces;`)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var (
+			id   int32
+			race string
+		)
+		err := rows.Scan(&id, &race)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		s.characterRaces[id] = race
 	}
 	return nil
 }

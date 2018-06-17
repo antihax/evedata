@@ -6,46 +6,41 @@ import (
 	"strings"
 	"time"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/gobcoder"
 	nsq "github.com/nsqio/go-nsq"
 )
 
+type entityIDType struct {
+	ID   int32
+	Type string
+}
+
+var entitySQLQueue chan entityIDType
+
 func init() {
-	AddHandler("character", spawnCharacterConsumer)
-	AddHandler("alliance", spawnAllianceConsumer)
-	AddHandler("corporation", spawnCorporationConsumer)
-	AddHandler("corporationHistory", spawnCorporationHistoryConsumer)
-	AddHandler("allianceHistory", spawnAllianceHistoryConsumer)
-	AddHandler("loyaltyStore", spawnLoyaltyStoreConsumer)
-	AddHandler("characterAuthOwner", spawnCharacterAuthOwnerConsumer)
-}
+	entitySQLQueue = make(chan entityIDType, 500)
+	AddHandler("alliance", func(s *Nail, consumer *nsq.Consumer) {
+		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.allianceHandler)))
+		go s.entitySQLPost()
+	})
+	AddHandler("corporation", func(s *Nail, consumer *nsq.Consumer) {
+		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.corporationHandler)))
+	})
+	AddHandler("corporationHistory", func(s *Nail, consumer *nsq.Consumer) {
+		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.corporationHistoryHandler)))
+	})
+	AddHandler("allianceHistory", func(s *Nail, consumer *nsq.Consumer) {
+		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.allianceHistoryHandler)))
+	})
+	AddHandler("loyaltyStore", func(s *Nail, consumer *nsq.Consumer) {
+		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.loyaltyStoreHandler)))
+	})
+	AddHandler("characterAuthOwner", func(s *Nail, consumer *nsq.Consumer) {
+		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterAuthOwnerHandler)))
+	})
 
-func spawnCharacterConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterHandler)))
-}
-
-func spawnAllianceConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.allianceHandler)))
-}
-
-func spawnCorporationConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.corporationHandler)))
-}
-
-func spawnCorporationHistoryConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.corporationHistoryHandler)))
-}
-
-func spawnAllianceHistoryConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.allianceHistoryHandler)))
-}
-func spawnLoyaltyStoreConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.loyaltyStoreHandler)))
-}
-
-func spawnCharacterAuthOwnerConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterAuthOwnerHandler)))
 }
 
 func (s *Nail) corporationHandler(message *nsq.Message) error {
@@ -164,30 +159,6 @@ func (s *Nail) allianceHistoryHandler(message *nsq.Message) error {
 	return nil
 }
 
-func (s *Nail) characterHandler(message *nsq.Message) error {
-	c := datapackages.Character{}
-	err := gobcoder.GobDecoder(message.Body, &c)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 31)
-
-	err = s.doSQL(`
-		INSERT INTO evedata.characters (characterID,name,bloodlineID,ancestryID,corporationID,allianceID,race,gender,securityStatus,updated,cacheUntil,birthDate,etag)
-			VALUES(?,?,?,?,?,?,evedata.raceByID(?),?,?,UTC_TIMESTAMP(),?,?,?) 
-			ON DUPLICATE KEY UPDATE corporationID=VALUES(corporationID), gender=VALUES(gender), allianceID=VALUES(allianceID),birthDate=VALUES(birthDate),
-			securityStatus=VALUES(securityStatus), updated = UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil), etag=VALUES(etag)
-	`, c.CharacterID, c.Character.Name, c.Character.BloodlineId, c.Character.AncestryId, c.Character.CorporationId, c.Character.AllianceId, c.Character.RaceId, c.Character.Gender, c.Character.SecurityStatus, cacheUntil, c.Character.Birthday, c.ETag)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	return s.addEntity(c.CharacterID, "character")
-}
-
 func (s *Nail) loyaltyStoreHandler(message *nsq.Message) error {
 	c := datapackages.Store{}
 	err := gobcoder.GobDecoder(message.Body, &c)
@@ -224,7 +195,33 @@ func (s *Nail) loyaltyStoreHandler(message *nsq.Message) error {
 }
 
 func (s *Nail) addEntity(id int32, entityType string) error {
-	return s.doSQL("INSERT INTO evedata.entities (id, type) VALUES (?,?) ON DUPLICATE KEY UPDATE id = id;", id, entityType)
+	entitySQLQueue <- entityIDType{id, entityType}
+	return nil
+}
+
+func (s *Nail) entitySQLPost() {
+	for {
+		count := 0
+		sql := sq.Insert("evedata.entities").Columns("id", "type")
+		for c := range entitySQLQueue {
+			count++
+			sql = sql.Values(c.ID, c.Type)
+			if count > 80 {
+				break
+			}
+		}
+		if count == 0 {
+			break
+		}
+		sqlq, args, err := sql.ToSql()
+		if err != nil {
+			log.Println(err)
+		}
+		err = s.doSQL(sqlq+` ON DUPLICATE KEY UPDATE id = id`, args...)
+		if err != nil {
+			log.Println(err)
+		}
+	}
 }
 
 func (s *Nail) characterAuthOwnerHandler(message *nsq.Message) error {
