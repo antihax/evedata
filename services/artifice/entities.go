@@ -15,21 +15,18 @@ func init() {
 }
 
 func npcCorporationsTrigger(s *Artifice) error {
-	corporations, r, err := s.esi.ESI.CorporationApi.GetCorporationsNpccorps(context.Background(), nil)
+	corporations, _, err := s.esi.ESI.CorporationApi.GetCorporationsNpccorps(context.Background(), nil)
 	if err != nil {
 		return err
 	}
-	if !s.etagKnown(r, "npcCorporations") {
-		s.setEtagKnown(r, "npcCorporations")
-		work := []redisqueue.Work{}
-		for _, corporation := range corporations {
-			work = append(work, redisqueue.Work{Operation: "corporation", Parameter: corporation})
-			work = append(work, redisqueue.Work{Operation: "loyaltyStore", Parameter: corporation})
-		}
 
-		return s.QueueWork(work, redisqueue.Priority_Lowest)
+	work := []redisqueue.Work{}
+	for _, corporation := range corporations {
+		work = append(work, redisqueue.Work{Operation: "corporation", Parameter: corporation})
+		work = append(work, redisqueue.Work{Operation: "loyaltyStore", Parameter: corporation})
 	}
-	return nil
+
+	return s.QueueWork(work, redisqueue.Priority_Lowest)
 }
 
 func allianceTrigger(s *Artifice) error {
@@ -37,16 +34,13 @@ func allianceTrigger(s *Artifice) error {
 	if err != nil {
 		return err
 	}
-	if !s.etagKnown(r, "alliances") {
-		s.setEtagKnown(r, "alliances")
-		work := []redisqueue.Work{}
-		for _, alliance := range alliances {
-			work = append(work, redisqueue.Work{Operation: "alliance", Parameter: alliance})
-		}
 
-		return s.QueueWork(work, redisqueue.Priority_Lowest)
+	work := []redisqueue.Work{}
+	for _, alliance := range alliances {
+		work = append(work, redisqueue.Work{Operation: "alliance", Parameter: alliance})
 	}
-	return nil
+
+	return s.QueueWork(work, redisqueue.Priority_Lowest)
 }
 
 func characterUpdate(s *Artifice) error {

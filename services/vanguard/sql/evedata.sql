@@ -41,7 +41,7 @@ CREATE TABLE `assets` (
   `characterID` int(10) unsigned NOT NULL DEFAULT '0',
   `locationFlag` varchar(40) NOT NULL,
   `itemID` bigint(20) unsigned NOT NULL,
-  `locationType` varchar(10) NOT NULL,
+  `locationType` varchar(20) NOT NULL,
   `isSingleton` tinyint(1) unsigned NOT NULL,
   PRIMARY KEY (`itemID`),
   KEY `locationID` (`locationID`),
