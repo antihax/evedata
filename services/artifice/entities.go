@@ -30,7 +30,7 @@ func npcCorporationsTrigger(s *Artifice) error {
 }
 
 func allianceTrigger(s *Artifice) error {
-	alliances, r, err := s.esi.ESI.AllianceApi.GetAlliances(context.Background(), nil)
+	alliances, _, err := s.esi.ESI.AllianceApi.GetAlliances(context.Background(), nil)
 	if err != nil {
 		return err
 	}
