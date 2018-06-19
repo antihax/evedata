@@ -383,8 +383,6 @@
 					ok = pwRe.exec(randPassword);
 				}
 
-				console.log($(".characterID").text());
-
 				$.ajax({
 					url: "/U/setMailPassword?tokenCharacterID=" + $(".characterID").text() + "&password=" + randPassword,
 					type: 'post',

@@ -32,7 +32,6 @@
 
 <script>
     function warningFormatter(row, index) {
-        console.log(row);
         if (getPrice(row) < row.sell) {
             return {
                 classes: {},
