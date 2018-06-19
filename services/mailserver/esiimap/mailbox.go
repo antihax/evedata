@@ -81,15 +81,19 @@ func (mbox *Mailbox) loadMailbox() {
 	var unseen, count, pages uint32
 	messageHeaders := make(map[int32]*esi.GetCharactersCharacterIdMail200Ok)
 
+	var opts *esi.GetCharactersCharacterIdMailOpts
+	if strings.ToUpper(mbox.Name()) != "INBOX" {
+		opts = &esi.GetCharactersCharacterIdMailOpts{
+			Labels:     optional.NewInterface([]int32{mbox.id}),
+			LastMailId: optional.NewInt32(lastMailID),
+		}
+	}
 	auth := context.WithValue(context.Background(), goesi.ContextOAuth2, mbox.user.token)
 	for {
 		mails, _, err := mbox.user.backend.esi.ESI.MailApi.GetCharactersCharacterIdMail(
 			auth,
 			mbox.user.characterID,
-			&esi.GetCharactersCharacterIdMailOpts{
-				Labels:     optional.NewInterface([]int32{mbox.id}),
-				LastMailId: optional.NewInt32(lastMailID),
-			},
+			opts,
 		)
 		if err != nil {
 			log.Println(err)
