@@ -5,3 +5,6 @@ kubectl apply -f evedata.yaml
 kubectl apply -f monitoring.yaml
 kubectl apply -f nsqd.yaml
 kubectl apply -f ledis-redis.yaml
+kubectl apply -f graylog.yaml
+
+kubectl label nodes --all beta.kubernetes.io/fluentd-ds-ready=true
