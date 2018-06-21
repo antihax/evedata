@@ -123,7 +123,7 @@ The further from known modules the attributes go, the worse the confidence will 
     i = graphs.length;
     while (i--) {
         var p = jStat.ttest(fit.t[i+1], dataSet.length - 1, 2)
-        if (p > 0.1) {
+        if (p > 0.05) {
             console.log(graphs[i].name, "deleting for bad p-value ", p, p > 0.05)
             graphs.splice(i, 1);
         }

@@ -39,7 +39,9 @@ func NewNail(redis *redis.Pool, db *sqlx.DB, addresses []string) *Nail {
 	}
 	go n.loadStaticData()
 	nsqcfg := nsq.NewConfig()
-	nsqcfg.MaxInFlight = 12
+	nsqcfg.MaxInFlight = 50
+	nsqcfg.MsgTimeout = time.Second * 30
+
 	for _, h := range handlers {
 		c, err := nsq.NewConsumer(h.Topic, "nail", nsqcfg)
 		if err != nil {
