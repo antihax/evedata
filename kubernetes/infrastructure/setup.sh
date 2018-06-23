@@ -8,3 +8,5 @@ kubectl apply -f ledis-redis.yaml
 kubectl apply -f graylog.yaml
 
 kubectl label nodes --all beta.kubernetes.io/fluentd-ds-ready=true
+kubectl label nodes loadbalancer01 loadbalancer=voyager
+kubectl label nodes loadbalancer02 loadbalancer=voyager

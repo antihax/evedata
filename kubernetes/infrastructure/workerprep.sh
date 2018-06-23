@@ -19,5 +19,3 @@ apt upgrade -y
 apt autoremove -y
 
 systemctl enable docker.service
-
-#kubectl label nodes platinum loadbalancer=voyager

@@ -1,0 +1,38 @@
+#!/bin/bash
+kubectl create namespace evedata
+
+# sql authentication format: "user:pass"
+kubectl create secret generic sql-password -n evedata --from-literal=sqlauth=""
+kubectl create service -n evedata clusterip sql --tcp=3306
+
+# IP Address of SQL server. append for cluster
+cat << EOF | kubectl apply -f -
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: sql
+  namespace: evedata
+subsets:
+- addresses:
+  - ip: 192.168.10.3
+  ports:
+  - port: 3306
+EOF
+
+# discord token
+kubectl create secret generic discord-secret -n evedata --from-literal=discord-token=""
+
+# ESI Secrets. SSO Application Information
+kubectl create secret generic esi-secret -n evedata \
+ --from-literal=secret-sso="" --from-literal=clientID-sso=""
+
+# ESI Secrets. Token Application Information
+kubectl create secret generic esi-secret -n evedata \
+ --from-literal=secret-tokenserver="" --from-literal=clientID-tokenserver=""
+
+# Discord Secrets. Discord API Information
+kubectl create secret generic esi-secret -n evedata \
+ --from-literal=secret-discord="" --from-literal=clientID-discord=""
+
+
+
