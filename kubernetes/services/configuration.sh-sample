@@ -2,6 +2,7 @@
 kubectl create namespace evedata
 
 # sql authentication format: "user:pass"
+kubectl delete -n evedata secret sql-password
 kubectl create secret generic sql-password -n evedata --from-literal=sqlauth=""
 kubectl create service -n evedata clusterip sql --tcp=3306
 
@@ -20,19 +21,14 @@ subsets:
 EOF
 
 # discord token
+kubectl delete -n evedata secret discord-secret
 kubectl create secret generic discord-secret -n evedata --from-literal=discord-token=""
 
 # ESI Secrets. SSO Application Information
+kubectl delete -n evedata secret esi-secret
 kubectl create secret generic esi-secret -n evedata \
- --from-literal=secret-sso="" --from-literal=clientID-sso=""
-
-# ESI Secrets. Token Application Information
-kubectl create secret generic esi-secret -n evedata \
- --from-literal=secret-tokenserver="" --from-literal=clientID-tokenserver=""
-
-# Discord Secrets. Discord API Information
-kubectl create secret generic esi-secret -n evedata \
- --from-literal=secret-discord="" --from-literal=clientID-discord=""
-
-
-
+ --from-literal=secret-sso="" --from-literal=clientID-sso="" \
+ --from-literal=secret-tokenserver="" --from-literal=clientID-tokenserver="" \
+ --from-literal=secret-discord="" --from-literal=clientID-discord="" \
+ --from-literal=domain="" --from-literal=cookie-secret="" \
+ --from-literal=refreshCharID="" --from-literal=refreshKey=""
