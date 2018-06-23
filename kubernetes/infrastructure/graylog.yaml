@@ -108,9 +108,9 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         - name: ES_HEAP_SIZE
-          value: 1g
+          value: 3g
         - name: ES_JAVA_OPTS
-          value: -Xms1g -Xmx1g
+          value: -Xms3g -Xmx3g
       volumes:
       - name: elasticsearch-logging
         emptyDir: {}
