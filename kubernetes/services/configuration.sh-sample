@@ -4,10 +4,18 @@ kubectl create namespace evedata
 # sql authentication format: "user:pass"
 kubectl delete -n evedata secret sql-password
 kubectl create secret generic sql-password -n evedata --from-literal=sqlauth=""
-kubectl create service -n evedata clusterip sql --tcp=3306
 
 # IP Address of SQL server. append for cluster
 cat << EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: sql
+  namespace: evedata
+spec:
+  ports:
+  - port: 3306
+---
 apiVersion: v1
 kind: Endpoints
 metadata:
@@ -28,7 +36,7 @@ kubectl create secret generic discord-secret -n evedata --from-literal=discord-t
 kubectl delete -n evedata secret esi-secret
 kubectl create secret generic esi-secret -n evedata \
  --from-literal=secret-sso="" --from-literal=clientID-sso="" \
- --from-literal=secret-tokenserver="" --from-literal=clientID-tokenserver="" \
+ --from-literal=secret-tokenstore="" --from-literal=clientID-tokenstore="" \
  --from-literal=secret-discord="" --from-literal=clientID-discord="" \
  --from-literal=domain="" --from-literal=cookie-secret="" \
  --from-literal=refreshCharID="" --from-literal=refreshKey=""
