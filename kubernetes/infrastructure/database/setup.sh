@@ -49,5 +49,5 @@ read_rnd_buffer_size    = 20M
 join_buffer_size        = 512K
 " > /data/mysqlconf/my.cnf
 
-docker run -d --name percona -e INIT_TOKUDB=yes -e MYSQL_RANDOM_ROOT_PASSWORD=yes \
+docker run -d --name percona -e INIT_TOKUDB=yes --log-driver syslog -e MYSQL_RANDOM_ROOT_PASSWORD=yes \
 -p 0.0.0.0:3306:3306 -v /data/mysql:/var/lib/mysql -v /data/mysqlconf:/etc/mysql/conf.d percona/percona-server:5.7
