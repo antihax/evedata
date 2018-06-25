@@ -531,7 +531,8 @@ CREATE TABLE `walletTransactions` (
   `transactionFor` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `journalTransactionID` bigint(20) unsigned NOT NULL,
   `clientTypeID` bigint(20) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`transactionID`,`characterID`)
+  PRIMARY KEY (`transactionID`,`characterID`),
+  KEY `journalID` (`journalTransactionID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `warAllies` (
