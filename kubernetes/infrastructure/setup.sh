@@ -10,3 +10,6 @@ kubectl apply -f graylog.yaml
 kubectl label nodes --all beta.kubernetes.io/fluentd-ds-ready=true
 kubectl label nodes loadbalancer01 loadbalancer=voyager
 kubectl label nodes loadbalancer02 loadbalancer=voyager
+
+kubectl label nodes database01 database=mysql
+kubectl label nodes database02 database=mysql
