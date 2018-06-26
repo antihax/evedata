@@ -30,7 +30,7 @@ func NewTestDatabase() *sqlx.DB {
 }
 
 func NewDatabase() *sqlx.DB {
-	database, err := setupDatabase("mysql", os.Getenv("SQLAUTH")+"@tcp(sql.evedata:3306)/eve?allowOldPasswords=1&parseTime=true&tls=skip-verify")
+	database, err := setupDatabase("mysql", os.Getenv("SQLAUTH")+"@tcp(sql.storage:3306)/eve?allowOldPasswords=1&parseTime=true&tls=skip-verify")
 	if err != nil {
 		log.Fatalln(err)
 	}

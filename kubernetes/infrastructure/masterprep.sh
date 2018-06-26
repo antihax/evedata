@@ -51,7 +51,7 @@ metadata:
     addonmanager.kubernetes.io/mode: EnsureExists
 data:
   upstreamNameservers: |-
-    ["8.8.8.8", "1.1.1.1", "8.8.4.4"]
+    ["8.8.8.8", "1.1.1.1"]
 EOF
 
 # restart kubernetes pods to make sure everything is now clean

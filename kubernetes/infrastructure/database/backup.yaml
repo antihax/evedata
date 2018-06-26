@@ -49,7 +49,7 @@ spec:
               name: backup-secrets
               key: applicationKey
         - name: DB_HOST
-          value: "sql.evedata"
+          value: "sql.storage"
         - name: DATABASES
           value: "evedata"
         - name: DB_DUMP_FREQ
