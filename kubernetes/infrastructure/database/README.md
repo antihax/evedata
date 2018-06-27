@@ -1,7 +1,9 @@
 # Database Setup (required)
 
-Run setup.sh as root.
-Inspect the container logs for the random root password and import databases and create privileges.
+Run setup.sh as root on DB node and label with database=mysql
+Apply sql.yaml to cluster
+Create database users
+Apply eve.sql and evedata.sql
 
 # Database Backup (optional)
 
