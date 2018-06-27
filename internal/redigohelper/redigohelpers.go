@@ -44,6 +44,22 @@ func ConnectLedisProdPool() *redis.Pool {
 	return pool
 }
 
+func ConnectLedisTestPool() *redis.Pool {
+	redis := connectRedisPool(
+		[]string{"127.0.0.1:6379"},
+		"",
+		"",
+		false,
+	)
+	c := redis.Get()
+	defer c.Close()
+
+	_, err := c.Do("FLUSHALL")
+	if err != nil {
+		panic(err)
+	}
+	return redis
+}
 func ConnectRedisTestPool() *redis.Pool {
 	redis := connectRedisPool(
 		[]string{"127.0.0.1:6379"},

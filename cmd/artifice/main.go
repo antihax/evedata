@@ -17,12 +17,20 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetPrefix("evedata artifice: ")
-	redis := redigohelper.ConnectRedisProdPool()
 
 	db := sqlhelper.NewDatabase()
 
 	// Make a new service and send it into the background.
-	artifice := artifice.NewArtifice(redis, db, os.Getenv("ESI_CLIENTID_TOKENSTORE"), os.Getenv("ESI_SECRET_TOKENSTORE"), os.Getenv("ESI_REFRESHKEY"), os.Getenv("ESI_REFRESHCHARID"))
+	artifice := artifice.NewArtifice(
+		redigohelper.ConnectRedisProdPool(),
+		redigohelper.ConnectLedisProdPool(),
+		db,
+		os.Getenv("ESI_CLIENTID_TOKENSTORE"),
+		os.Getenv("ESI_SECRET_TOKENSTORE"),
+		os.Getenv("ESI_REFRESHKEY"),
+		os.Getenv("ESI_REFRESHCHARID"),
+	)
+
 	go artifice.Run()
 	defer artifice.Close()
 

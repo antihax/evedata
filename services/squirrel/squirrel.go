@@ -26,9 +26,9 @@ type Squirrel struct {
 }
 
 // NewSquirrel Service.
-func NewSquirrel(redis *redis.Pool, db *sqlx.DB) *Squirrel {
+func NewSquirrel(redis *redis.Pool, ledis *redis.Pool, db *sqlx.DB) *Squirrel {
 	// Get a caching http client
-	cache := apicache.CreateHTTPClientCache()
+	cache := apicache.CreateHTTPClientCache(ledis)
 
 	// Create our ESI API Client
 	esiClient := goesi.NewAPIClient(cache, "EVEData-API-Squirrel")

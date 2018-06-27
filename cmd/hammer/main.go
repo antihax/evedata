@@ -18,7 +18,7 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetPrefix("evedata hammer: ")
-	redis := redigohelper.ConnectRedisProdPool()
+
 	db := sqlhelper.NewDatabase()
 
 	producer, err := nsqhelper.NewNSQProducer()
@@ -27,7 +27,16 @@ func main() {
 	}
 
 	// Make a new service and send it into the background.
-	hammer := hammer.NewHammer(redis, db, producer, os.Getenv("ESI_REFRESHKEY"), os.Getenv("ESI_CLIENTID_TOKENSTORE"), os.Getenv("ESI_SECRET_TOKENSTORE"))
+	hammer := hammer.NewHammer(
+		redigohelper.ConnectRedisProdPool(),
+		redigohelper.ConnectLedisProdPool(),
+		db,
+		producer,
+		os.Getenv("ESI_REFRESHKEY"),
+		os.Getenv("ESI_CLIENTID_TOKENSTORE"),
+		os.Getenv("ESI_SECRET_TOKENSTORE"),
+	)
+
 	go hammer.Run()
 	defer hammer.Close()
 

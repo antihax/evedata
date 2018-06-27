@@ -1,25 +1,20 @@
 package apicache
 
 import (
-	"log"
 	"net"
 	"net/http"
 	"time"
 
-	"github.com/antihax/evedata/internal/redigohelper"
 	"github.com/antihax/httpcache"
 	httpredis "github.com/antihax/httpcache/redis"
+	"github.com/garyburd/redigo/redis"
 )
 
 // CreateHTTPClientCache creates an error limiting client with auto retry and redis cache
-func CreateHTTPClientCache() *http.Client {
+func CreateHTTPClientCache(redis *redis.Pool) *http.Client {
 
-	ledis := redigohelper.ConnectLedisProdPool()
-	if ledis == nil {
-		log.Fatal("ledis is nil")
-	}
 	// Create a Redis http client for the CCP APIs.
-	transportCache := httpcache.NewTransport(httpredis.NewWithClient(ledis))
+	transportCache := httpcache.NewTransport(httpredis.NewWithClient(redis))
 
 	// Attach a basic transport with our chained custom transport.
 	transportCache.Transport = &ApiCacheTransport{

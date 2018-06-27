@@ -31,10 +31,10 @@ type MailServer struct {
 }
 
 // NewMailServer Service.
-func NewMailServer(redis *redis.Pool, clientID, secret string) (*MailServer, error) {
+func NewMailServer(redis *redis.Pool, ledis *redis.Pool, clientID, secret string) (*MailServer, error) {
 
 	// Get a caching http client
-	httpClient := apicache.CreateHTTPClientCache()
+	httpClient := apicache.CreateHTTPClientCache(ledis)
 
 	// Setup a token authenticator
 	auth := goesi.NewSSOAuthenticator(httpClient, clientID, secret, "", []string{})

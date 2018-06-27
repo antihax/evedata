@@ -14,9 +14,14 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetPrefix("evedata mailserver: ")
-	redis := redigohelper.ConnectRedisProdPool()
+
 	// Make a new service and send it into the background.
-	mailserver, err := mailserver.NewMailServer(redis, os.Getenv("ESI_CLIENTID_TOKENSTORE"), os.Getenv("ESI_SECRET_TOKENSTORE"))
+	mailserver, err := mailserver.NewMailServer(
+		redigohelper.ConnectRedisProdPool(),
+		redigohelper.ConnectLedisProdPool(),
+		os.Getenv("ESI_CLIENTID_TOKENSTORE"),
+		os.Getenv("ESI_SECRET_TOKENSTORE"),
+	)
 	if err != nil {
 		log.Fatalln(err)
 	}

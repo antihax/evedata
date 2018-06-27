@@ -32,7 +32,7 @@ type Artifice struct {
 }
 
 // NewArtifice Service.
-func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string, refresh string, refreshCharID string) *Artifice {
+func NewArtifice(redis *redis.Pool, ledis *redis.Pool, db *sqlx.DB, clientID string, secret string, refresh string, refreshCharID string) *Artifice {
 
 	if clientID == "" {
 		log.Fatalln("Missing clientID")
@@ -47,7 +47,7 @@ func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string,
 		log.Fatalln("Missing refresh CharID")
 	}
 	// Get a caching http client
-	cache := apicache.CreateHTTPClientCache()
+	cache := apicache.CreateHTTPClientCache(ledis)
 
 	// Create our ESI API Client
 	esiClient := goesi.NewAPIClient(cache, "EVEData-API-Artifice")

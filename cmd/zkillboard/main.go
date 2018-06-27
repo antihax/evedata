@@ -18,10 +18,12 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetPrefix("evedata zkillboard: ")
 	log.Printf("Starting ZKillboard Microservice Go: %s\n", runtime.Version())
-	redis := redigohelper.ConnectRedisProdPool()
 
 	// Make a new service and send it into the background.
-	zkill := zkillboard.NewZKillboard(redis)
+	zkill := zkillboard.NewZKillboard(
+		redigohelper.ConnectRedisProdPool(),
+		redigohelper.ConnectLedisProdPool(),
+	)
 	go zkill.Run()
 
 	// Run metrics

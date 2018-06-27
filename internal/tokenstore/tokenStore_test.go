@@ -29,7 +29,7 @@ func TestTokenStore(t *testing.T) {
 	redis := redigohelper.ConnectRedisTestPool()
 	defer redis.Close()
 	// Get a caching http client
-	cache := apicache.CreateHTTPClientCache()
+	cache := apicache.CreateHTTPClientCache(redigohelper.ConnectLedisTestPool())
 
 	// Setup an authenticator for our private token
 	auth := goesi.NewSSOAuthenticator(cache, "fake", "reeeeely fake", "",

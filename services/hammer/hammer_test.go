@@ -61,7 +61,7 @@ func TestHammerService(t *testing.T) {
 	producer, err := nsqhelper.NewTestNSQProducer()
 	assert.Nil(t, err)
 
-	hammer := NewHammer(redis, sql, producer, "sofake", "1232423423", "now with 200% more fake!")
+	hammer := NewHammer(redis, redigohelper.ConnectLedisTestPool(), sql, producer, "sofake", "1232423423", "now with 200% more fake!")
 	hammer.ChangeBasePath("http://127.0.0.1:8080")
 	hammer.ChangeTokenPath("http://127.0.0.1:8080")
 	hammer.tokenStore.SetToken(1, 1, &oauth2.Token{

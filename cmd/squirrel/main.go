@@ -16,8 +16,6 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetPrefix("evedata squirrel: ")
 
-	redis := redigohelper.ConnectRedisProdPool()
-
 	db := sqlhelper.NewDatabase()
 	// Run metrics
 	go func() {
@@ -26,7 +24,11 @@ func main() {
 	}()
 
 	// Make a new service and send it into the background.
-	squirrel := squirrel.NewSquirrel(redis, db)
+	squirrel := squirrel.NewSquirrel(
+		redigohelper.ConnectRedisProdPool(),
+		redigohelper.ConnectLedisProdPool(),
+		db,
+	)
 
 	squirrel.Run()
 	squirrel.Close()
