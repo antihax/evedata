@@ -1,86 +1,79 @@
-{{define "body"}} 
+{{define "body"}}
 <h3>Profit and Loss Statement</h3>
 {{template "checkAuthentication" .}}
 
-<p>Explore your characters income and expenses to determine if you are making a profit overall or losing big, and more importantly: where!</p>
+<p>Explore your characters income and expenses to determine if you are making a profit overall or losing big, and more importantly:
+    where!</p>
 
- <div class="toolbar walletSummaryToolbar" id="walletSummaryToolbar">
+<div class="toolbar walletSummaryToolbar" id="walletSummaryToolbar">
     <h4>Duration: &nbsp;
-	<select class="selectpicker" data-width="auto" name="duration" id="duration">
-        <option value="1">1 Day</option>
-        <option value="3">3 Days</option>
-        <option value="7">7 Days</option>
-        <option value="14">14 Days</option>
-        <option value="30" SELECTED>30 Days</option>
-        <option value="90">90 Days</option>
-        <option value="180">180 Days</option>
-        <option value="365">1 Year</option>
-        <option value="730">2 Years</option>
-        <option value="1095">3 Years</option>
-        <option value="1825">5 Years</option>
-    </select></h4>
+        <select class="selectpicker" data-width="auto" name="duration" id="duration">
+            <option value="1">1 Day</option>
+            <option value="3">3 Days</option>
+            <option value="7">7 Days</option>
+            <option value="14">14 Days</option>
+            <option value="30" SELECTED>30 Days</option>
+            <option value="90">90 Days</option>
+            <option value="180">180 Days</option>
+            <option value="365">1 Year</option>
+            <option value="730">2 Years</option>
+            <option value="1095">3 Years</option>
+            <option value="1825">5 Years</option>
+        </select>
+    </h4>
 </div>
 
-<table class="table" 
-    data-cache="true" 
-    data-toolbar=".walletSummaryToolbar" 
-    data-sort-name="balance"
-    data-sort-order="desc"
-    data-show-footer="true"
-    id="walletSummary">
-	<thead>
-		<tr>
-			<th data-field="refTypeName" data-footer-formatter="totalTextFormatter">Account</th>
+<table class="table" data-cache="true" data-toolbar=".walletSummaryToolbar" data-sort-name="balance" data-sort-order="desc"
+    data-show-footer="true" id="walletSummary">
+    <thead>
+        <tr>
+            <th data-field="refTypeName" data-footer-formatter="totalTextFormatter">Account</th>
             <th data-field="balance" data-formatter="currencyFormatter" data-sortable="true" data-footer-formatter="sumFormatter" data-align="right">Balance</th>
-		</tr>
-	</thead>
+        </tr>
+    </thead>
 </table>
 
 <script>
-var 	$walletSummary = $('#walletSummary').bootstrapTable({ 
-            url: '/U/walletSummary?range='+$('#duration').val(), 
-            detailView: true,
-            onExpandRow: function(index, row, $detail) {
-                $detail.html('<table></table>').find('table').bootstrapTable({
+    var $walletSummary = $('#walletSummary').bootstrapTable({
+        url: '/U/walletSummary?range=' + $('#duration').val(),
+        detailView: true,
+        onExpandRow: function (index, row, $detail) {
+            $detail.html('<table></table>').find('table').bootstrapTable({
                 columns: [
-                {
-                    field: 'ownerID1',
-                    title: 'From',
-                    formatter: "owner1Formatter"
-                }, {
-                    field: 'ownerID2',
-                    title: 'To',
-                    formatter: "owner2Formatter"
-                }, {
-                    field: 'amount',
-                    title: 'Amount',
-                    align: "right",
-                    valign: "middle",
-                    formatter: "currencyFormatter"
-                }, {
-                    field: 'taxAmount',
-                    title: 'Corporate Tax',
-                    align: "right",
-                    valign: "middle",
-                    formatter: "currencyFormatter"
-                }, {
-                    field: 'date',
-                    title: 'Date' ,
-                    valign: "middle",          
-                }
+                    {
+                        field: 'ownerID1',
+                        title: 'From',
+                        formatter: "owner1Formatter"
+                    }, {
+                        field: 'ownerID2',
+                        title: 'To',
+                        formatter: "owner2Formatter"
+                    }, {
+                        field: 'reason',
+                        title: 'Reason'
+                    }, {
+                        field: 'amount',
+                        title: 'Amount',
+                        align: "right",
+                        valign: "middle",
+                        formatter: "currencyFormatter"
+                    }, {
+                        field: 'date',
+                        title: 'Date',
+                        valign: "middle",
+                    }
                 ],
                 data: row.journalEntries,
                 // Simple contextual, assumes all entries have further nesting
                 // Just shows example of how you might differentiate some rows, though also remember row class and similar possible flags
                 detailView: false,
-            });         
+            });
         }
     });
 
- 	$('#duration').change(function(){
+    $('#duration').change(function () {
         $('#walletSummary').bootstrapTable('refreshOptions', {
-            url: '/U/walletSummary?range='+$('#duration').val()
-        });	
-	});	   
-</script>
-{{end}}
+            url: '/U/walletSummary?range=' + $('#duration').val()
+        });
+    });	   
+</script> {{end}}

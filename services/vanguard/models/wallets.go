@@ -69,12 +69,15 @@ func getJournalEntries(characterID int32, rangeI int64, refTypeID int64, entries
 		SELECT refID, refTypeID, 
 			ownerID1, C1.name AS ownerName1,
 			ownerID2, C2.name AS ownerName2,
-			argID1, argName1, amount, reason, taxAmount, 
+			argID1, argName1, amount, coalesce(typeName, stationName, reason) AS reason, taxAmount, 
 			date, T.characterID, characterName
 		FROM evedata.walletJournal J
 		INNER JOIN evedata.crestTokens T ON J.characterID = T.tokenCharacterID
 		LEFT JOIN evedata.characters C1 ON J.ownerID1 = C1.characterID
 		LEFT JOIN evedata.characters C2 ON J.ownerID2 = C2.characterID
+		LEFT JOIN evedata.walletTransactions TR ON J.refID = TR.journalTransactionID
+        LEFT JOIN invTypes TY ON TY.typeID = TR.typeID
+        LEFT JOIN staStations ST ON J.argID1 = ST.stationID
 		WHERE T.characterID IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)
 		AND refTypeID = ?
 		AND date > DATE_SUB(UTC_TIMESTAMP(), INTERVAL ? DAY)
