@@ -50,13 +50,17 @@ func structuresTrigger(s *Artifice) error {
 		return err
 	}
 
-	work := []redisqueue.Work{}
 	for i := range failed {
 		if !failed[i] {
+			work := []redisqueue.Work{}
 			work = append(work, redisqueue.Work{Operation: "structure", Parameter: structures[i]})
 			work = append(work, redisqueue.Work{Operation: "structureOrders", Parameter: structures[i]})
+			err = s.QueueWork(work, redisqueue.Priority_Lowest)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
-	return s.QueueWork(work, redisqueue.Priority_Lowest)
+	return nil
 }
