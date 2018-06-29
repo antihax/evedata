@@ -134,7 +134,7 @@ func retryTransaction(tx *sqlx.Tx) error {
 	for {
 		err := tx.Commit()
 		if err != nil {
-			if !strings.Contains(err.Error(), "1213") {
+			if !strings.Contains(err.Error(), "1213") && !strings.Contains(err.Error(), "1205") {
 				return err
 			}
 			time.Sleep(250 * time.Millisecond)
@@ -150,8 +150,7 @@ func (s *Artifice) doSQL(stmt string, args ...interface{}) error {
 	for {
 		_, err := s.RetryExec(stmt, args...)
 		if err != nil {
-			if !strings.Contains(err.Error(), "1213") {
-
+			if !strings.Contains(err.Error(), "1213") && !strings.Contains(err.Error(), "1205") {
 				return err
 			}
 			time.Sleep(250 * time.Millisecond)
@@ -184,7 +183,7 @@ func (s *Artifice) RetryExec(sql string, args ...interface{}) (int64, error) {
 		if err == nil {
 			rows, err = res.RowsAffected()
 			return rows, err
-		} else if strings.Contains(err.Error(), "1213") == false {
+		} else if strings.Contains(err.Error(), "1213") == false && strings.Contains(err.Error(), "1205") == false {
 			return rows, err
 		}
 	}

@@ -16,7 +16,7 @@ func RetryTransaction(tx *sqlx.Tx) error {
 	for {
 		err := tx.Commit()
 		if err != nil {
-			if strings.Contains(err.Error(), "1213") == false {
+			if !strings.Contains(err.Error(), "1213") && !strings.Contains(err.Error(), "1205") {
 				return err
 			} else {
 				time.Sleep(500 * time.Millisecond)

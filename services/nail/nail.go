@@ -115,7 +115,7 @@ func retryTransaction(tx *sqlx.Tx) error {
 	for {
 		err := tx.Commit()
 		if err != nil {
-			if !strings.Contains(err.Error(), "1213") {
+			if !strings.Contains(err.Error(), "1213") && !strings.Contains(err.Error(), "1205") {
 				return err
 			}
 			time.Sleep(time.Duration(rand.Intn(250)) * time.Millisecond)
@@ -131,7 +131,7 @@ func (s *Nail) doSQL(stmt string, args ...interface{}) error {
 	for {
 		err := s.doSQLTranq(stmt, args...)
 		if err != nil {
-			if !strings.Contains(err.Error(), "1213") {
+			if !strings.Contains(err.Error(), "1213") && !strings.Contains(err.Error(), "1205") {
 				return err
 			}
 			time.Sleep(time.Duration(rand.Intn(250)) * time.Millisecond)
