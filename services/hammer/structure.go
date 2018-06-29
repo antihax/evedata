@@ -25,7 +25,6 @@ func structureConsumer(s *Hammer, parameter interface{}) {
 	ctx := context.WithValue(context.Background(), goesi.ContextOAuth2, *s.token)
 	struc, _, err := s.esi.ESI.UniverseApi.GetUniverseStructuresStructureId(ctx, structureID, nil)
 	if err != nil {
-		log.Printf("Bad structure: %s %d\n", err, structureID)
 		err := s.inQueue.SetWorkExpire("evedata_structure_failure", structureID, 86400)
 		if err != nil {
 			log.Printf("failed setting failure: %s %d\n", err, structureID)
@@ -57,7 +56,6 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 				Page: optional.NewInt32(page),
 			})
 		if err != nil {
-			log.Printf("Bad structure market: %s %d\n", err, structureID)
 			err := s.inQueue.SetWorkExpire("evedata_structure_failure", structureID, 86400)
 			if err != nil {
 				log.Printf("failed setting failure: %s %d\n", err, structureID)

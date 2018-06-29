@@ -11,12 +11,12 @@ import (
 )
 
 func init() {
-	AddHandler("structureOrders", spawnStructureMarketConsumer)
-	AddHandler("structure", spawnStructureConsumer)
-}
-
-func spawnStructureMarketConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.structureMarketHandler)))
+	AddHandler("structureOrders", func(s *Nail, consumer *nsq.Consumer) {
+		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.structureMarketHandler)))
+	})
+	AddHandler("structure", func(s *Nail, consumer *nsq.Consumer) {
+		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.structureHandler)))
+	})
 }
 
 func (s *Nail) structureMarketHandler(message *nsq.Message) error {
@@ -40,7 +40,7 @@ func (s *Nail) structureMarketHandler(message *nsq.Message) error {
 		}
 		values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,%q,%d,%d,evedata.regionIDByStructureID(%d),UTC_TIMESTAMP())",
 			e.OrderId, e.Price, e.VolumeRemain, e.TypeId, e.VolumeTotal, e.MinVolume,
-			buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, e.LocationId))
+			buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, b.StructureID, b.StructureID))
 	}
 
 	stmt := fmt.Sprintf(`INSERT INTO evedata.market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, reported)
@@ -52,10 +52,6 @@ func (s *Nail) structureMarketHandler(message *nsq.Message) error {
 				reported=VALUES(reported);
 				`, strings.Join(values, ",\n"))
 	return s.doSQL(stmt)
-}
-
-func spawnStructureConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.structureHandler)))
 }
 
 func (s *Nail) structureHandler(message *nsq.Message) error {

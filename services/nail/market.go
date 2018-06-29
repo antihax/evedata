@@ -13,15 +13,12 @@ import (
 )
 
 func init() {
-	AddHandler("marketOrders", spawnMarketOrderConsumer)
-	AddHandler("marketHistory", spawnMarketHistoryConsumer)
-}
-
-func spawnMarketOrderConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.marketOrderHandler)))
-}
-func spawnMarketHistoryConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.marketHistoryHandler)))
+	AddHandler("marketOrders", func(s *Nail, consumer *nsq.Consumer) {
+		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.marketOrderHandler)))
+	})
+	AddHandler("marketHistory", func(s *Nail, consumer *nsq.Consumer) {
+		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.marketHistoryHandler)))
+	})
 }
 
 func (s *Nail) marketOrderHandler(message *nsq.Message) error {
