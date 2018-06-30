@@ -509,7 +509,8 @@ CREATE TABLE `walletJournal` (
   `date` datetime NOT NULL,
   `characterID` int(11) unsigned NOT NULL,
   PRIMARY KEY (`refID`,`ownerID1`,`ownerID2`,`characterID`),
-  KEY `charID_date` (`characterID`,`date`)
+  KEY `charID_date` (`characterID`,`date`),
+  KEY `argID1` (`argID1`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `walletJournalRefType` (
