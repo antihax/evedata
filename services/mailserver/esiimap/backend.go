@@ -38,7 +38,6 @@ func New(tokenAPI *tokenstore.TokenServerAPI, esi *goesi.APIClient, tokenAuth *g
 }
 
 func (s *Backend) Login(username, password string) (backend.User, error) {
-	log.Printf("login user %s\n", username)
 	parts := strings.Split(username, "@")
 	characterID, err := strconv.ParseInt(parts[0], 10, 32)
 	if err != nil {
@@ -59,6 +58,5 @@ func (s *Backend) Login(username, password string) (backend.User, error) {
 	}
 
 	user := NewUser(username, ts, s, u.TokenCharacterID)
-	log.Printf("logged in user %s\n", username)
 	return user, nil
 }
