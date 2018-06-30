@@ -45,15 +45,30 @@ func structuresTrigger(s *Artifice) error {
 		return err
 	}
 
-	failed, err := s.inQueue.CheckWorkCompletedInBulk("evedata_structure_failure", structures)
+	structure, err := s.inQueue.CheckWorkCompletedInBulk("evedata_structure_failure", structures)
 	if err != nil {
 		return err
 	}
 
-	for i := range failed {
-		if !failed[i] {
+	market, err := s.inQueue.CheckWorkCompletedInBulk("evedata_structure_market_failure", structures)
+	if err != nil {
+		return err
+	}
+
+	for i := range structure {
+		if !structure[i] {
 			work := []redisqueue.Work{}
 			work = append(work, redisqueue.Work{Operation: "structure", Parameter: structures[i]})
+			err = s.QueueWork(work, redisqueue.Priority_Lowest)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	for i := range market {
+		if !market[i] {
+			work := []redisqueue.Work{}
 			work = append(work, redisqueue.Work{Operation: "structureOrders", Parameter: structures[i]})
 			err = s.QueueWork(work, redisqueue.Priority_Lowest)
 			if err != nil {

@@ -8,7 +8,7 @@ import (
 func init() {
 	registerTrigger("alliancehistoryMaint", alliancehistoryMaint, time.NewTicker(time.Hour*2))
 	registerTrigger("corphistoryMaint", corphistoryMaint, time.NewTicker(time.Hour*2))
-	registerTrigger("marketMaint", marketMaint, time.NewTicker(time.Minute*30))
+	registerTrigger("marketMaint", marketMaint, time.NewTicker(time.Minute*5))
 	registerTrigger("marketUpdate", marketUpdate, time.NewTicker(time.Hour*2))
 	registerTrigger("discoveredAssetsMaint", discoveredAssetsMaint, time.NewTicker(time.Second*3620))
 	registerTrigger("entityMaint", entityMaint, time.NewTicker(time.Second*3630*3))
@@ -479,7 +479,7 @@ func marketMaint(s *Artifice) error {
 	if err := s.RetryExecTillNoRows(`
         DELETE FROM evedata.market 
             WHERE date_add(issued, INTERVAL duration DAY) < UTC_TIMESTAMP() OR 
-            reported < DATE_SUB(utc_timestamp(), INTERVAL 30 MINUTE)
+            reported < DATE_SUB(utc_timestamp(), INTERVAL 7 MINUTE)
             ORDER BY regionID, typeID ASC LIMIT 50000;
             `); err != nil {
 		log.Println(err)

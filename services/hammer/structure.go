@@ -3,6 +3,7 @@ package hammer
 import (
 	"context"
 	"log"
+	"strings"
 
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/goesi"
@@ -24,11 +25,12 @@ func structureConsumer(s *Hammer, parameter interface{}) {
 
 	ctx := context.WithValue(context.Background(), goesi.ContextOAuth2, *s.token)
 	struc, _, err := s.esi.ESI.UniverseApi.GetUniverseStructuresStructureId(ctx, structureID, nil)
+
 	if err != nil {
-		err := s.inQueue.SetWorkExpire("evedata_structure_failure", structureID, 86400)
-		if err != nil {
-			log.Printf("failed setting failure: %s %d\n", err, structureID)
+		if strings.Contains(err.Error(), "403") {
+			s.inQueue.SetWorkExpire("evedata_structure_failure", structureID, 86400)
 		}
+		log.Println(err)
 		return
 	}
 	// Send out the result
@@ -44,22 +46,21 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 	var page int32 = 1
 	orders := []esi.GetMarketsStructuresStructureId200Ok{}
 
-	if s.inQueue.CheckWorkExpired("evedata_structure_failure", structureID) {
+	if s.inQueue.CheckWorkExpired("evedata_structure_market_failure", structureID) {
 		return
 	}
 
 	ctx := context.WithValue(context.Background(), goesi.ContextOAuth2, *s.token)
-
 	for {
 		o, _, err := s.esi.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, structureID,
 			&esi.GetMarketsStructuresStructureIdOpts{
 				Page: optional.NewInt32(page),
 			})
 		if err != nil {
-			err := s.inQueue.SetWorkExpire("evedata_structure_failure", structureID, 86400)
-			if err != nil {
-				log.Printf("failed setting failure: %s %d\n", err, structureID)
+			if strings.Contains(err.Error(), "403") {
+				s.inQueue.SetWorkExpire("evedata_structure_market_failure", structureID, 86400)
 			}
+			log.Println(err)
 			return
 		} else if len(o) == 0 { // end of the pages
 			break
