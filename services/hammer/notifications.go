@@ -71,9 +71,7 @@ func (s *Hammer) learnFromNotifications(notifications []esi.GetCharactersCharact
 	lookup := []int32{}
 	for _, n := range notifications {
 		l := stripEntities{}
-		if err := yaml.Unmarshal([]byte(n.Text), &l); err != nil {
-			log.Println(err)
-		}
+		yaml.Unmarshal([]byte(n.Text), &l)
 		addID(&lookup, l.AgainstID)
 		addID(&lookup, l.AggressorAllianceID)
 		addID(&lookup, l.AggressorCorpID)

@@ -2,6 +2,7 @@ package conservator
 
 import (
 	"log"
+	"os"
 	"time"
 
 	nsq "github.com/nsqio/go-nsq"
@@ -39,6 +40,9 @@ func (s *Conservator) registerHandlers() error {
 			log.Fatalln(err)
 			return err
 		}
+
+		// Stop the logger being so verbose
+		c.SetLogger(log.New(os.Stderr, "", log.Flags()), nsq.LogLevelError)
 	}
 	return nil
 }

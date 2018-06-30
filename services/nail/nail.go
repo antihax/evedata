@@ -3,6 +3,7 @@ package nail
 import (
 	"log"
 	"math/rand"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -55,6 +56,9 @@ func NewNail(redis *redis.Pool, db *sqlx.DB, addresses []string) *Nail {
 		if err != nil {
 			log.Fatalln(err)
 		}
+
+		// Stop the logger being so verbose
+		c.SetLogger(log.New(os.Stderr, "", log.Flags()), nsq.LogLevelError)
 	}
 
 	return n
