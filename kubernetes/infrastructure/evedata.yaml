@@ -54,15 +54,11 @@ spec:
           serviceName: vanguard.evedata
           servicePort: '3000'
   - host: log.evedata.org
-    auth:
-      basic:
-        secretName: logging-auth
-        realm: EVEData Logs
     http:
       paths:
       - backend:
-          serviceName: kibana-logging.kube-system
-          servicePort: '5601'
+          serviceName: kibana-auth.kube-system
+          servicePort: '80'
   - host: grafana.evedata.org
     http:
       paths:

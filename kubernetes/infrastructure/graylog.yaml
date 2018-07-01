@@ -789,3 +789,63 @@ spec:
     targetPort: ui
   selector:
     k8s-app: kibana-logging
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana-auth
+  namespace: kube-system
+  labels:
+    k8s-app: kibana-auth
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: kibana-auth
+  template:
+    metadata:
+      labels:
+        k8s-app: kibana-auth
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
+    spec:
+      containers:
+      - name: kibana-auth
+        image: antihax/nginx-basic-auth-proxy
+        env:
+          - name: BACKEND
+            value: kibana-logging.kube-system:5601
+          - name: USER
+            valueFrom:
+              secretKeyRef:
+                name: kibana-secrets
+                key: user
+          - name: PASS
+            valueFrom:
+              secretKeyRef:
+                name: kibana-secrets
+                key: pass
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana-auth
+  namespace: kube-system
+  labels:
+    k8s-app: kibana-auth
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/name: "Kibana-Auth"
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    k8s-app: kibana-auth
