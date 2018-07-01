@@ -173,6 +173,8 @@ spec:
         version: v5.6.4
         kubernetes.io/cluster-service: "true"
     spec:
+      nodeSelector:
+        elasticsearch: elasticsearch
       serviceAccountName: elasticsearch-logging
       containers:
       - image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.3.0
