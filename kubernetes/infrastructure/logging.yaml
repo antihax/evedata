@@ -190,6 +190,7 @@ spec:
         - name: elasticsearch-logging
           mountPath: /data
         env:
+        args: ["-E logger._root=error"]
         - name: "NAMESPACE"
           valueFrom:
             fieldRef:

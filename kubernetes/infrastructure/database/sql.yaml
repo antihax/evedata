@@ -89,9 +89,6 @@ data:
     character-set-server = utf8
     require_secure_transport = ON
 
-    # log to syslog
-    log_syslog              = 1
-
     skip-log-bin
     default_storage_engine=TokuDB
 
