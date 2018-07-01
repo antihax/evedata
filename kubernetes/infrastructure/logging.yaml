@@ -192,6 +192,9 @@ spec:
         - name: es-config
           mountPath: /usr/share/elasticsearch/config/log4j2.properties
           subPath: log4j2.properties
+        - name: es-config
+          mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+          subPath: elasticsearch.yml
         env:
         - name: "NAMESPACE"
           valueFrom:
