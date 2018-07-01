@@ -821,12 +821,12 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: kibana-secrets
-                key: user
+                key: USER
           - name: PASS
             valueFrom:
               secretKeyRef:
                 name: kibana-secrets
-                key: pass
+                key: PASS
         ports:
         - containerPort: 80
           name: http
