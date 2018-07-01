@@ -13,3 +13,7 @@ kubectl label nodes loadbalancer02 loadbalancer=voyager
 
 kubectl label nodes database01 database=mysql
 kubectl label nodes database02 database=mysql
+
+kubectl label nodes database01 elasticsearch=elasticsearch
+kubectl label nodes database02 elasticsearch=elasticsearch
+kubectl label nodes database03 elasticsearch=elasticsearch
