@@ -9,7 +9,7 @@ spec:
   - www.evedata.org
   - mail.evedata.org
   - grafana.evedata.org
-  - graylog.evedata.org
+  - log.evedata.org
   acmeUserSecretName: acme-account
   challengeProvider:
     dns:
@@ -37,6 +37,7 @@ spec:
       - www.evedata.org
       - mail.evedata.org
       - grafana.evedata.org
+      - log.evedata.org
   nodeSelector:
     loadbalancer: voyager
   rules:
@@ -52,6 +53,16 @@ spec:
       - backend:
           serviceName: vanguard.evedata
           servicePort: '3000'
+  - host: log.evedata.org
+    auth:
+      basic:
+        secretName: logging-auth
+        realm: EVEData Logs
+    http:
+      paths:
+      - backend:
+          serviceName: kibana-logging.kube-system
+          servicePort: '5601'
   - host: grafana.evedata.org
     http:
       paths:
