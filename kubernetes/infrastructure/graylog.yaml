@@ -195,7 +195,7 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         - name: ES_JAVA_OPTS
-          value: -Xmx2g -Xmx2g
+          value: -Xms2g -Xmx2g
       volumes:
       - name: elasticsearch-logging
         emptyDir: {}
