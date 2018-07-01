@@ -1,5 +1,8 @@
 curl -fsSL https://raw.githubusercontent.com/appscode/voyager/7.0.0/hack/deploy/voyager.sh \
-    | bash -s -- --provider=baremetal --rbac
+    | bash -s -- --provider=baremetal --rbac --enable-analytics=false
+
+VOYAGER_ENABLE_ANALYTICS
+
 
 kubectl apply -f evedata.yaml
 kubectl apply -f monitoring.yaml
