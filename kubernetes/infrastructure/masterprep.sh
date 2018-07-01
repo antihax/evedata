@@ -39,7 +39,7 @@ export kubeconfig=/etc/kubernetes/admin.conf
 kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 kubectl create secret -n kube-system generic weave-passwd --from-literal=weave-passwd=`pwgen 32 1 -sy`
 kubectl patch daemonset -n kube-system --type=json weave-net -p '[{"op": "add", "path": "/spec/template/spec/containers/0/env/1", "value": {"name":"WEAVE_PASSWORD","valueFrom":{"secretKeyRef":{"name":"weave-passwd","key":"weave-passwd"}}}}]'
-kubectl patch daemonset -n kube-system --type=json weave-net -p '[{"op": "add", "path": "/spec/template/spec/containers/0/env/1", "value": {"name":"LOG_LEVEL","value":"error"}}]'
+kubectl patch daemonset -n kube-system --type=json weave-net -p '[{"op": "add", "path": "/spec/template/spec/containers/0/env/1", "value": {"name":"EXTRA_ARGS","value":"--log-level=error"}}]'
 
 # fix local host DNS issues
 cat <<EOF | kubectl apply -f -
