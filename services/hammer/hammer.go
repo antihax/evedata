@@ -22,6 +22,7 @@ import (
 	nsq "github.com/nsqio/go-nsq"
 )
 
+// NUM_WORKERS number of concurrent workers
 const NUM_WORKERS = 100
 
 // Hammer completes work handling CCP ESI and other API.
