@@ -114,3 +114,11 @@ func TestMarketRegionItems(t *testing.T) {
 		return
 	}
 }
+
+func TestMarketUnderValued(t *testing.T) {
+	_, err := MarketUnderValued(10000002, 10000002, 10000044, 0.2)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
