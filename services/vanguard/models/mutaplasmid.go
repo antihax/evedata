@@ -91,5 +91,3 @@ func GetMutaplasmidData(mutaplasmidType string) (*MutaplasmidData, error) {
 		Data:     strings.Join(strs, ","),
 	}, nil
 }
-
-//			INNER JOIN dgmTypeAttributes A ON A.typeID = T.typeID  AND attributeID IN (50,6,73,84,105,20,72,983,796,54,30,68,97,554,1159)

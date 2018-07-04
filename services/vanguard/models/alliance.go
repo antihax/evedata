@@ -6,7 +6,7 @@ import (
 	"github.com/guregu/null"
 )
 
-// Update an alliances information.
+// UpdateAlliance Update an alliances information.
 func UpdateAlliance(allianceID int32, name string, memberCount int, shortName string, executorCorp int32,
 	startDate time.Time, cacheUntil time.Time) error {
 
@@ -35,6 +35,7 @@ func UpdateAlliance(allianceID int32, name string, memberCount int, shortName st
 	return nil
 }
 
+// Alliance resultset
 type Alliance struct {
 	AllianceID              int64     `db:"allianceID" json:"allianceID"`
 	AllianceName            string    `db:"allianceName" json:"allianceName"`
