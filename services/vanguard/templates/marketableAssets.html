@@ -1,7 +1,11 @@
 {{define "body"}}
 <h3>Marketable Assets</h3>
 {{template "checkAuthentication" .}}
-
+<p>Pricing guide to sell assets in system with 30% Jita price markup.<br><br>
+    White: 30% markup<br>
+    <font color="yellow">Yellow: Below 30% markup</font><br>
+    <font color="red">Red: Selling at a loss</font><br>
+</p>
 <div class="toolbar assetToolbar" id="LocationContainer">
     <select class="selectpicker" data-width="auto" name="locationList" id="locationList"></select>
     <select class="selectpicker" data-width="auto" name="characterList" id="characterList"></select>
@@ -69,13 +73,11 @@
     }
 
     function markupFormatter(value, row) {
-
         return numberCommafy(getPrice(row).toFixed(2));
     }
 
     var $assets = $('#assets').bootstrapTable({
         url: "/U/marketableAssets",
-        detailView: true,
         onExpandRow: function (index, row, $detail) {
             $detail.html('<table></table>').find('table').bootstrapTable({
                 columns: [{
@@ -103,23 +105,7 @@
                     align: "right",
                     formatter: "numberFormatter"
                 }],
-                data: row.subItems,
-                detailView: row.subItems[0]['subItems'] !==
-                    undefined,
-                onExpandRow: function (indexb, rowb,
-                    $detailb) {
-                    $detailb.html('<table></table>').find(
-                        'table').bootstrapTable({
-                        columns: [{
-                            field: 'col6',
-                            title: 'Col6'
-                        }, {
-                            field: 'col7',
-                            title: 'Col7'
-                        }],
-                        data: rowb.other
-                    });
-                }
+
             });
         }
     });
