@@ -35,7 +35,7 @@ var MutaplasmidTypes = map[string]string{
 	"Stasis Webifier":           `T.typeName LIKE "%stasis%"  AND groupID = 65 AND T.typeName NOT LIKE "%civilian%"`,
 	"Warp Disruptor":            `T.typeName LIKE "%disruptor%" AND groupID = 52 AND T.typeName NOT LIKE "%heavy%" AND T.typeName NOT LIKE "%civilian%"`,
 	"Warp Scrambler":            `T.typeName LIKE "%scrambler%" AND groupID = 52 AND T.typeName NOT LIKE "%heavy%" `,
-	"X-Large Shield Booster":    `T.typeName LIKE "%x-large%" AND groupID = 40 AND T.typeName NOT LIKE "%large%"`,
+	"X-Large Shield Booster":    `T.typeName LIKE "%x-large%" AND groupID = 40 AND T.typeName NOT LIKE "% large%"`,
 }
 
 // Obtain Item Attributes by ID.
