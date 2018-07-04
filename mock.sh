@@ -1,19 +1,7 @@
 #!/bin/bash
 set -e
-
-if test -f /sys/kernel/mm/transparent_hugepage/enabled; then
-   echo "Need root permissions to disable /sys/kernel/mm/transparent_hugepage"
-   echo "If this fails, please run this script with sudo"
-   read -p "Press enter to continue or CTRL+C to cancel"
-   echo never > /sys/kernel/mm/transparent_hugepage/enabled
-fi
-if test -f /sys/kernel/mm/transparent_hugepage/defrag; then
-   echo "Need root permissions to disable /sys/kernel/mm/transparent_hugepage/defrag"
-   echo "If this fails, please run this script with sudo"
-   read -p "Press enter to continue or CTRL+C to cancel"
-   echo never > /sys/kernel/mm/transparent_hugepage/defrag
-fi
-
+docker run --privileged=true --rm -v /sys:/hostsys busybox sh -c "echo never > /hostsys/kernel/mm/transparent_hugepage/enabled"
+docker run --privileged=true --rm -v /sys:/hostsys busybox sh -c "echo never > /hostsys/kernel/mm/transparent_hugepage/defrag"
 set +e
 
 # Remove any currently running containers
