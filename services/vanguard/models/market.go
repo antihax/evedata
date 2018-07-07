@@ -157,8 +157,9 @@ func GetArbitrageCalculator(stationID int64, minVolume int64, maxPrice int64, br
 }
 
 type MarketRegion struct {
-	RegionID   int32  `db:"regionID"`
-	RegionName string `db:"regionName"`
+	RegionID   int32  `db:"regionID" json:"regionID"`
+	RegionName string `db:"regionName" json:"regionName"`
+	Orders     int64  `db:"orders" json:"orders"`
 }
 
 // [BENCHMARK] 0.000 sec / 0.000 sec
@@ -166,9 +167,12 @@ type MarketRegion struct {
 func GetMarketRegions() ([]MarketRegion, error) {
 	v := []MarketRegion{}
 	err := database.Select(&v, `
-		SELECT 	regionID, regionName 
-		FROM 	mapRegions 
-		WHERE regionID < 11000000;
+		SELECT 	R.regionID, regionName, count(*) AS orders
+		FROM 	mapRegions R
+        INNER JOIN evedata.market M ON R.regionID = M.regionID
+		WHERE R.regionID < 11000000
+        GROUP BY R.regionID
+		ORDER BY regionName ASC;
 	`)
 	if err != nil {
 		return nil, err
@@ -275,12 +279,12 @@ type MarketUnderValuedItems struct {
 }
 
 // MarketUnderValued looks for items below destination or market price
-func MarketUnderValued(marketRegion int, sourceRegion int, destinationRegion int, discount float64) ([]MarketUnderValuedItems, error) {
+func MarketUnderValued(marketRegion int64, sourceRegion int64, destinationRegion int64, discount float64) ([]MarketUnderValuedItems, error) {
 	mR := []MarketUnderValuedItems{}
 	err := database.Select(&mR, `
-			SELECT  T.typeID, typeName, sum(quantity*mean) AS destinationVolume, 
-					FR.price AS marketPrice, IFNULL(HR.price,0) AS destinationPrice, 
-					IFNULL(CR.Price,0) AS regionPrice, IFNULL(regionOrders, 0) AS regionOrders
+			SELECT  T.typeID, typeName, coalesce(sum(quantity*mean),0) AS destinationVolume, 
+			    coalesce(FR.price,0) AS marketPrice, coalesce(HR.price,0) AS destinationPrice, 
+				coalesce(CR.Price,0) AS regionPrice, coalesce(regionOrders, 0) AS regionOrders
 			FROM evedata.market_history H
 			INNER JOIN eve.invTypes T ON H.itemID = T.typeID
 			LEFT OUTER JOIN (SELECT typeID, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND bid = 0 GROUP BY typeID) CR ON CR.typeID = H.itemID
@@ -290,6 +294,32 @@ func MarketUnderValued(marketRegion int, sourceRegion int, destinationRegion int
 			GROUP BY itemID
 			HAVING RegionPrice < if(destinationPrice>0, destinationPrice, marketPrice)*(1-?) AND regionPrice > 0
 			`, sourceRegion, marketRegion, destinationRegion, destinationRegion, discount)
+	return mR, err
+}
 
+type MarketStationStockerItems struct {
+	TypeID            string  `db:"typeID" json:"typeID"`
+	TypeName          string  `db:"typeName" json:"typeName"`
+	DestinationVolume float64 `db:"destinationVolume" json:"destinationVolume"`
+	MarketPrice       float64 `db:"marketPrice" json:"marketPrice"`
+	DestinationPrice  float64 `db:"destinationPrice" json:"destinationPrice"`
+	RegionPrice       float64 `db:"regionPrice" json:"regionPrice"`
+	RegionOrders      int64   `db:"regionOrders" json:"regionOrders"`
+}
+
+// MarketStationStocker Looks for good deals on items to sell in other regions
+func MarketStationStocker(marketRegion int64, destinationRegion int64, markup float64) ([]MarketStationStockerItems, error) {
+	mR := []MarketStationStockerItems{}
+	err := database.Select(&mR, `
+		SELECT  T.typeID, typeName, sum(quantity*mean) AS destinationVolume, 
+		FR.price AS marketPrice, IFNULL(HR.price,0) AS destinationPrice
+		FROM evedata.market_history H
+		INNER JOIN eve.invTypes T ON H.itemID = T.typeID
+		LEFT OUTER JOIN (SELECT typeID, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND bid = 0 GROUP BY typeID) FR ON FR.typeID = H.itemID
+		LEFT OUTER JOIN (SELECT typeID, count(*) AS regionOrders, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND bid = 0 GROUP BY typeID) HR ON HR.typeID = H.itemID
+		WHERE H.regionID = ? AND H.date >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 31 DAY)
+		GROUP BY itemID
+		HAVING marketPrice * (1+?) < destinationPrice
+			`, marketRegion, destinationRegion, destinationRegion, markup)
 	return mR, err
 }

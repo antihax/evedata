@@ -19,8 +19,15 @@ func init() {
 				newPage(r, "Market Browser"))
 		})
 	vanguard.AddRoute("searchMarketItems", "GET", "/J/searchMarketItems", searchMarketItemsAPI)
-	vanguard.AddRoute("marketSellRegionItems", "GET", "/J/marketSellRegionItems", MarketSellRegionItems)
-	vanguard.AddRoute("marketBuyRegionItems", "GET", "/J/marketBuyRegionItems", MarketBuyRegionItems)
+
+	vanguard.AddRoute("marketSellRegionItems", "GET", "/J/marketSellRegionItems",
+		func(w http.ResponseWriter, r *http.Request) {
+			marketRegionItems(w, r, false)
+		})
+	vanguard.AddRoute("marketBuyRegionItems", "GET", "/J/marketBuyRegionItems",
+		func(w http.ResponseWriter, r *http.Request) {
+			marketRegionItems(w, r, true)
+		})
 }
 
 func searchMarketItemsAPI(w http.ResponseWriter, r *http.Request) {
@@ -66,16 +73,4 @@ func marketRegionItems(w http.ResponseWriter, r *http.Request, buy bool) {
 	}
 
 	renderJSON(w, v, time.Hour)
-}
-
-// MarketSellRegionItems Query market sell orders for a user specified
-// regionID and itemID query string and return JSON to the user
-func MarketSellRegionItems(w http.ResponseWriter, r *http.Request) {
-	marketRegionItems(w, r, false)
-}
-
-// MarketBuyRegionItems Query market buy orders for a user specified
-// regionID and itemID query string and return JSON to the user
-func MarketBuyRegionItems(w http.ResponseWriter, r *http.Request) {
-	marketRegionItems(w, r, true)
 }
