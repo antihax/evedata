@@ -60,7 +60,7 @@ func main() {
 	structures := "package notifications\n\n"
 
 	keys := make([]string, 0)
-	for k, _ := range structs {
+	for k := range structs {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
