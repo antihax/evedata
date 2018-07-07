@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("marketTools", "GET", "/marketUnderValue",
+	vanguard.AddRoute("marketTools", "GET", "/marketUndervalue",
 		func(w http.ResponseWriter, r *http.Request) {
 			renderTemplate(w,
 				"marketUnderValue.html",
@@ -25,7 +25,7 @@ func init() {
 				newPage(r, "EVE Online Station Stocker"))
 		})
 	vanguard.AddRoute("marketRegions", "GET", "/J/marketRegions", marketRegionsAPI)
-	vanguard.AddRoute("marketUnderValue", "GET", "/J/marketUnderValue", marketUnderValueAPI)
+	vanguard.AddRoute("marketUnderValue", "GET", "/J/marketUndervalue", marketUnderValueAPI)
 	vanguard.AddRoute("marketStationStocker", "GET", "/J/marketStationStocker", marketStationStockerAPI)
 }
 
