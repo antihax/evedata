@@ -300,6 +300,7 @@ func MarketUnderValued(marketRegion int64, sourceRegion int64, destinationRegion
 type MarketStationStockerItems struct {
 	TypeID            string  `db:"typeID" json:"typeID"`
 	TypeName          string  `db:"typeName" json:"typeName"`
+	DestinationTraded int64   `db:"destinationTraded" json:"destinationTraded"`
 	DestinationVolume float64 `db:"destinationVolume" json:"destinationVolume"`
 	MarketPrice       float64 `db:"marketPrice" json:"marketPrice"`
 	DestinationPrice  float64 `db:"destinationPrice" json:"destinationPrice"`
@@ -312,14 +313,15 @@ func MarketStationStocker(marketRegion int64, destinationRegion int64, markup fl
 	mR := []MarketStationStockerItems{}
 	err := database.Select(&mR, `
 		SELECT  T.typeID, typeName, sum(quantity*mean) AS destinationVolume, 
+		sum(quantity) AS destinationTraded, 
 		FR.price AS marketPrice, IFNULL(HR.price,0) AS destinationPrice
 		FROM evedata.market_history H
 		INNER JOIN eve.invTypes T ON H.itemID = T.typeID
-		LEFT OUTER JOIN (SELECT typeID, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND bid = 0 GROUP BY typeID) FR ON FR.typeID = H.itemID
+		INNER JOIN (SELECT typeID, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND bid = 0 GROUP BY typeID) FR ON FR.typeID = H.itemID
 		LEFT OUTER JOIN (SELECT typeID, count(*) AS regionOrders, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND bid = 0 GROUP BY typeID) HR ON HR.typeID = H.itemID
 		WHERE H.regionID = ? AND H.date >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 31 DAY)
 		GROUP BY itemID
-		HAVING marketPrice * (1+?) < destinationPrice
+		HAVING marketPrice * (1+?) < destinationPrice OR destinationPrice = 0
 			`, marketRegion, destinationRegion, destinationRegion, markup)
 	return mR, err
 }
