@@ -1,4 +1,4 @@
 #!/bin/bash
 
-go fmt -s -w .
+gofmt -s -w .
 ~/go/bin/goreturns -b -w .
