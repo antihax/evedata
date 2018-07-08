@@ -11,11 +11,9 @@ import (
 )
 
 func init() {
-	AddHandler("characterAssets", spawnCharacterAssetsConsumer)
-}
-
-func spawnCharacterAssetsConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterAssetsConsumer)))
+	AddHandler("characterAssets", func(s *Nail, consumer *nsq.Consumer) {
+		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterAssetsConsumer)))
+	})
 }
 
 func (s *Nail) characterAssetsConsumer(message *nsq.Message) error {
