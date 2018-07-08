@@ -11,7 +11,6 @@ type ScopeGroup struct {
 }
 
 var characterScopes = []ScopeGroup{
-	{"esi-assets.read_assets.v1", "assets"},
 
 	{"esi-characters.read_contacts.v1", "contacts"},
 	{"esi-characters.write_contacts.v1", "contacts"},
@@ -21,11 +20,12 @@ var characterScopes = []ScopeGroup{
 	{"esi-universe.read_structures.v1", "market"},
 	{"esi-search.search_structures.v1", "market"},
 	{"esi-markets.structure_markets.v1", "market"},
+	{"esi-wallet.read_character_wallet.v1", "market"},
+	{"esi-markets.read_character_orders.v1", "market"},
+	{"esi-assets.read_assets.v1", "market"},
 
 	{"esi-ui.open_window.v1", "ui-control"},
 	{"esi-ui.write_waypoint.v1", "ui-control"},
-
-	{"esi-wallet.read_character_wallet.v1", "wallet"},
 
 	{"esi-characters.read_corporation_roles.v1", "roles"},
 	{"esi-characters.read_titles.v1", "roles"},
@@ -38,10 +38,8 @@ var characterScopes = []ScopeGroup{
 }
 
 var groupReasons = map[string]string{
-	"market":        "Reporting and Market tools",
+	"market":        "Market Reporting",
 	"contacts":      "Character Contacts (War Sync, Copy)",
-	"wallet":        "Profit and Loss Tools",
-	"assets":        "Asset Value Tools",
 	"ui-control":    "Control of in-game UI",
 	"notifications": "Notification tools (locators, structures, wars)",
 	"roles":         "Corp Roles (Contact Copy, Corp Tools, Integrations)",
