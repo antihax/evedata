@@ -12,6 +12,41 @@ import (
 func init() {
 	registerConsumer("characterWalletTransactions", characterWalletTransactionConsumer)
 	registerConsumer("characterWalletJournal", characterWalletJournalConsumer)
+	registerConsumer("characterOrders", characterOrdersConsumer)
+}
+
+func characterOrdersConsumer(s *Hammer, parameter interface{}) {
+	// dereference the parameters
+	parameters := parameter.([]interface{})
+	characterID := int32(parameters[0].(int))
+	tokenCharacterID := int32(parameters[1].(int))
+
+	ctx, err := s.GetTokenSourceContext(context.Background(), characterID, tokenCharacterID)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	orders, _, err := s.esi.ESI.MarketApi.GetCharactersCharacterIdOrders(ctx, tokenCharacterID, nil)
+	if err != nil {
+		s.tokenStore.CheckSSOError(characterID, tokenCharacterID, err)
+		log.Println(err)
+		return
+	}
+	if len(orders) == 0 {
+		return
+	}
+
+	// Send out the result
+	err = s.QueueResult(&datapackages.CharacterOrders{
+		CharacterID:      characterID,
+		TokenCharacterID: tokenCharacterID,
+		Orders:           orders,
+	}, "characterOrders")
+	if err != nil {
+		log.Println(err)
+		return
+	}
 }
 
 func characterWalletTransactionConsumer(s *Hammer, parameter interface{}) {

@@ -11,6 +11,7 @@ import (
 func init() {
 	registerTrigger("characterTransactions", characterTransactions, time.NewTicker(time.Second*3600))
 	registerTrigger("characterAssets", characterAssets, time.NewTicker(time.Second*3600))
+	registerTrigger("characterOrders", characterOrders, time.NewTicker(time.Second*1200))
 	registerTrigger("characterNotifications", characterNotifications, time.NewTicker(time.Second*600))
 	registerTrigger("characterContactSync", characterContactSync, time.NewTicker(time.Second*360))
 	registerTrigger("characterAuthOwners", characterAuthOwners, time.NewTicker(time.Second*3600))
@@ -44,7 +45,20 @@ func characterAssets(s *Artifice) error {
 		}
 	}
 
-	return s.QueueWork(work, redisqueue.Priority_Normal)
+	return s.QueueWork(work, redisqueue.Priority_High)
+}
+
+func characterOrders(s *Artifice) error {
+	work := []redisqueue.Work{}
+	if pairs, err := s.GetCharactersForScope("read_character_orders"); err != nil {
+		return err
+	} else {
+		for _, p := range pairs {
+			work = append(work, redisqueue.Work{Operation: "characterOrders", Parameter: []int32{p.CharacterID, p.TokenCharacterID}})
+		}
+	}
+
+	return s.QueueWork(work, redisqueue.Priority_High)
 }
 
 func characterNotifications(s *Artifice) error {
