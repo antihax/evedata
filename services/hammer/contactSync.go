@@ -324,7 +324,7 @@ type FactionWarEntities struct {
 	Type string `db:"type" json:"type"`
 }
 
-// [BENCHMARK] 0.031 sec / 0.000 sec
+// GetFactionWarEntitiesForID gets entities in faction war with this factionID
 func (s *Hammer) GetFactionWarEntitiesForID(factionID int32) ([]FactionWarEntities, error) {
 	if goesi.FactionsByID[factionID] == "" {
 		return nil, errors.New("Unknown FactionID")
