@@ -466,6 +466,26 @@ CREATE TABLE `notifications` (
   PRIMARY KEY (`notificationID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `orders` (
+  `orderid` bigint(20) unsigned NOT NULL,
+  `characterID` int(10) unsigned NOT NULL,
+  `duration` int(10) unsigned NOT NULL,
+  `isBuyOrder` tinyint(3) unsigned NOT NULL,
+  `isCorporation` tinyint(3) unsigned NOT NULL,
+  `escrow` decimal(14,2) NOT NULL,
+  `issued` datetime NOT NULL,
+  `locationID` bigint(20) unsigned NOT NULL,
+  `minVolume` int(10) unsigned NOT NULL,
+  `price` decimal(14,2) unsigned NOT NULL,
+  `range` int(11) NOT NULL,
+  `regionID` int(10) unsigned NOT NULL,
+  `typeID` int(10) unsigned NOT NULL,
+  `volumeRemain` int(10) unsigned NOT NULL,
+  `volumeTotal` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`orderid`),
+  KEY `characterID` (`characterID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `sharing` (
   `characterID` int(11) unsigned NOT NULL,
   `tokenCharacterID` int(11) unsigned NOT NULL,
