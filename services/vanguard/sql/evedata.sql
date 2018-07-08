@@ -477,7 +477,7 @@ CREATE TABLE `orders` (
   `locationID` bigint(20) unsigned NOT NULL,
   `minVolume` int(10) unsigned NOT NULL,
   `price` decimal(14,2) unsigned NOT NULL,
-  `range` int(11) NOT NULL,
+  `orderRange` varchar(45) COLLATE utf8_bin NOT NULL,
   `regionID` int(10) unsigned NOT NULL,
   `typeID` int(10) unsigned NOT NULL,
   `volumeRemain` int(10) unsigned NOT NULL,

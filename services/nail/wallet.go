@@ -5,6 +5,7 @@ import (
 	"log"
 	"strings"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/antihax/goesi"
 
 	"github.com/antihax/evedata/internal/datapackages"
@@ -14,16 +15,67 @@ import (
 )
 
 func init() {
-	AddHandler("characterWalletTransactions", spawnCharacterWalletTransactionConsumer)
-	AddHandler("characterWalletJournal", spawnCharacterWalletJournalConsumer)
+	AddHandler("characterOrders", func(s *Nail, consumer *nsq.Consumer) {
+		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterOrdersConsumer)))
+	})
+	AddHandler("characterWalletTransactions", func(s *Nail, consumer *nsq.Consumer) {
+		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterWalletTransactionConsumer)))
+	})
+	AddHandler("characterWalletJournal", func(s *Nail, consumer *nsq.Consumer) {
+		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterWalletJournalConsumer)))
+	})
 }
 
-func spawnCharacterWalletTransactionConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterWalletTransactionConsumer)))
+func (s *Nail) characterOrdersConsumer(message *nsq.Message) error {
+	orders := datapackages.CharacterOrders{}
+	err := gobcoder.GobDecoder(message.Body, &orders)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	if len(orders.Orders) == 0 {
+		return nil
+	}
+
+	err = s.doSQL("DELETE FROM evedata.orders WHERE characterID = ?;", orders.TokenCharacterID)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// Dump all orders into the DB.
+	sql := sq.Insert("evedata.orders").Columns(
+		"orderid", "characterID", "duration", "isBuyOrder", "isCorporation", "escrow",
+		"issued", "locationID", "minVolume", "price", "orderRange", "regionID", "typeID",
+		"volumeRemain", "volumeTotal",
+	)
+	for _, g := range orders.Orders {
+		sql = sql.Values(
+			g.OrderId, orders.TokenCharacterID, g.Duration, boolToInt(g.IsBuyOrder), boolToInt(g.IsCorporation), g.Escrow,
+			g.Issued, g.LocationId, g.MinVolume, g.Price, g.Range_, g.RegionId, g.TypeId,
+			g.VolumeRemain, g.VolumeTotal,
+		)
+	}
+
+	sqlq, args, err := sql.ToSql()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	err = s.doSQL(sqlq+" ON DUPLICATE KEY UPDATE orderid = orderid", args...)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
 }
 
-func spawnCharacterWalletJournalConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterWalletJournalConsumer)))
+func boolToInt(b bool) int8 {
+	if b {
+		return 1
+	}
+	return 0
 }
 
 func (s *Nail) characterWalletTransactionConsumer(message *nsq.Message) error {
