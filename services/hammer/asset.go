@@ -3,8 +3,11 @@ package hammer
 import (
 	"context"
 	"log"
+	"strconv"
 
 	"github.com/antihax/evedata/internal/datapackages"
+	"github.com/antihax/goesi/esi"
+	"github.com/antihax/goesi/optional"
 )
 
 func init() {
@@ -23,12 +26,29 @@ func characterAssetsConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	assets, _, err := s.esi.ESI.AssetsApi.GetCharactersCharacterIdAssets(ctx, tokenCharacterID, nil)
-	if err != nil {
-		s.tokenStore.CheckSSOError(characterID, tokenCharacterID, err)
-		log.Println(err)
-		return
+	var page int32 = 1
+	assets := []esi.GetCharactersCharacterIdAssets200Ok{}
+	for {
+		a, r, err := s.esi.ESI.AssetsApi.GetCharactersCharacterIdAssets(ctx, tokenCharacterID,
+			&esi.GetCharactersCharacterIdAssetsOpts{
+				Page: optional.NewInt32(page),
+			})
+		if err != nil {
+			s.tokenStore.CheckSSOError(characterID, tokenCharacterID, err)
+			log.Println(err)
+			return
+		}
+
+		assets = append(assets, a...)
+
+		xpagesS := r.Header.Get("x-pages")
+		xpages, _ := strconv.Atoi(xpagesS)
+		if int32(xpages) == page || len(a) == 0 {
+			break
+		}
+		page++
 	}
+
 	if len(assets) == 0 {
 		return
 	}
