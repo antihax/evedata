@@ -7,6 +7,7 @@ import (
 
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
+	"github.com/antihax/goesi"
 )
 
 func init() {
@@ -26,7 +27,7 @@ func init() {
 		})
 	vanguard.AddRoute("marketRegions", "GET", "/J/marketRegions", marketRegionsAPI)
 	vanguard.AddRoute("marketUnderValue", "GET", "/J/marketUndervalue", marketUnderValueAPI)
-	vanguard.AddRoute("marketStationStocker", "GET", "/J/marketStationStocker", marketStationStockerAPI)
+	vanguard.AddAuthRoute("marketStationStocker", "GET", "/J/marketStationStocker", marketStationStockerAPI)
 }
 
 func marketRegionsAPI(w http.ResponseWriter, r *http.Request) {
@@ -72,6 +73,13 @@ func marketUnderValueAPI(w http.ResponseWriter, r *http.Request) {
 }
 
 func marketStationStockerAPI(w http.ResponseWriter, r *http.Request) {
+	characterID := int32(0)
+	s := vanguard.SessionFromContext(r.Context())
+	ch, ok := s.Values["character"].(goesi.VerifyResponse)
+	if ok {
+		characterID = ch.CharacterID
+	}
+
 	marketRegionID, err := strconv.ParseInt(r.FormValue("marketRegionID"), 10, 64)
 	if err != nil {
 		httpErr(w, err)
@@ -90,7 +98,7 @@ func marketStationStockerAPI(w http.ResponseWriter, r *http.Request) {
 	}
 	markup = markup / 100
 
-	v, err := models.MarketStationStocker(marketRegionID, destinationRegionID, markup)
+	v, err := models.MarketStationStocker(characterID, marketRegionID, destinationRegionID, markup)
 	if err != nil {
 		httpErr(w, err)
 		return

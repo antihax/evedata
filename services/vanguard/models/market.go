@@ -306,22 +306,28 @@ type MarketStationStockerItems struct {
 	DestinationPrice  float64 `db:"destinationPrice" json:"destinationPrice"`
 	RegionPrice       float64 `db:"regionPrice" json:"regionPrice"`
 	RegionOrders      int64   `db:"regionOrders" json:"regionOrders"`
+	Selling           int64   `db:"selling" json:"selling"`
 }
 
 // MarketStationStocker Looks for good deals on items to sell in other regions
-func MarketStationStocker(marketRegion int64, destinationRegion int64, markup float64) ([]MarketStationStockerItems, error) {
+func MarketStationStocker(characterID int32, marketRegion int64, destinationRegion int64, markup float64) ([]MarketStationStockerItems, error) {
 	mR := []MarketStationStockerItems{}
 	err := database.Select(&mR, `
 		SELECT  T.typeID, typeName, sum(quantity*mean) AS destinationVolume, 
 		sum(quantity) AS destinationTraded, 
-		FR.price AS marketPrice, IFNULL(HR.price,0) AS destinationPrice
+		FR.price AS marketPrice, IFNULL(HR.price,0) AS destinationPrice,
+		coalesce(count(DISTINCT O.orderID) * sum(O.volumeRemain),0) AS selling
 		FROM evedata.market_history H
 		INNER JOIN eve.invTypes T ON H.itemID = T.typeID
 		INNER JOIN (SELECT typeID, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND bid = 0 GROUP BY typeID) FR ON FR.typeID = H.itemID
+		LEFT OUTER JOIN evedata.orders O ON
+			O.characterID IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)
+            AND O.typeID = T.typeID
+            AND O.regionID = H.regionID
 		LEFT OUTER JOIN (SELECT typeID, count(*) AS regionOrders, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND bid = 0 GROUP BY typeID) HR ON HR.typeID = H.itemID
-		WHERE H.regionID = ? AND H.date >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 31 DAY)
+		WHERE H.regionID = ? AND H.date >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 60 DAY)
 		GROUP BY itemID
 		HAVING marketPrice * (1+?) < destinationPrice OR destinationPrice = 0
-			`, marketRegion, destinationRegion, destinationRegion, markup)
+			`, marketRegion, characterID, destinationRegion, destinationRegion, markup)
 	return mR, err
 }

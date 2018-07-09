@@ -483,7 +483,8 @@ CREATE TABLE `orders` (
   `volumeRemain` int(10) unsigned NOT NULL,
   `volumeTotal` int(10) unsigned NOT NULL,
   PRIMARY KEY (`orderid`),
-  KEY `characterID` (`characterID`)
+  KEY `characterID` (`characterID`),
+  KEY `char_region_item` (`characterID`,`regionID`,`typeID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `sharing` (
