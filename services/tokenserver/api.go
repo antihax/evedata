@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc"
 )
 
+// TokenServerPlan for API
 type TokenServerPlan interface {
 	GetToken(ctx context.Context, t *tokenstore.TokenRequest) (*oauth2.Token, error)
 }
