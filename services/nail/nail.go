@@ -2,13 +2,12 @@ package nail
 
 import (
 	"log"
-	"math/rand"
 	"os"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/antihax/evedata/internal/redisqueue"
+	"github.com/antihax/evedata/internal/sqlhelper"
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 	nsq "github.com/nsqio/go-nsq"
@@ -114,56 +113,9 @@ func AddHandler(topic string, spawnFunc spawnFunc) {
 	handlers = append(handlers, nailHandler{topic, spawnFunc})
 }
 
-// RetryTransaction on deadlocks
-func retryTransaction(tx *sqlx.Tx) error {
-	for {
-		err := tx.Commit()
-		if err != nil {
-			if !strings.Contains(err.Error(), "1213") && !strings.Contains(err.Error(), "1205") {
-				return err
-			}
-			time.Sleep(time.Duration(rand.Intn(250)) * time.Millisecond)
-			continue
-		} else {
-			return err
-		}
-	}
-}
-
 // DoSQL executes a sql statement
 func (s *Nail) doSQL(stmt string, args ...interface{}) error {
-	for {
-		err := s.doSQLTranq(stmt, args...)
-		if err != nil {
-			if !strings.Contains(err.Error(), "1213") && !strings.Contains(err.Error(), "1205") {
-				return err
-			}
-			time.Sleep(time.Duration(rand.Intn(250)) * time.Millisecond)
-			continue
-		} else {
-			return err
-		}
-	}
-}
-
-// DoSQL executes a sql statement
-func (s *Nail) doSQLTranq(stmt string, args ...interface{}) error {
-	tx, err := s.db.Beginx()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	_, err = tx.Exec(stmt, args...)
-	if err != nil {
-		return err
-	}
-
-	err = retryTransaction(tx)
-	if err != nil {
-		return err
-	}
-	return nil
+	return sqlhelper.DoSQL(s.db, stmt, args)
 }
 
 func (s *Nail) loadStaticData() error {

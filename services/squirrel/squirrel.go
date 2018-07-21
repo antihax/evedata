@@ -4,12 +4,11 @@ package squirrel
 import (
 	"net/http"
 	"strconv"
-	"strings"
 	"sync"
-	"time"
 
 	"github.com/antihax/evedata/internal/apicache"
 	"github.com/antihax/evedata/internal/redisqueue"
+	"github.com/antihax/evedata/internal/sqlhelper"
 	"github.com/antihax/goesi"
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
@@ -77,50 +76,6 @@ func (s *Squirrel) Run() {
 	s.runTriggers()
 }
 
-// DoSQL executes a sql statement
-func (s *Squirrel) doSQL(stmt string, args ...interface{}) error {
-	for {
-		_, err := s.RetryExec(stmt, args...)
-		if err != nil {
-			if !strings.Contains(err.Error(), "1213") && !strings.Contains(err.Error(), "1205") {
-				return err
-			}
-			time.Sleep(250 * time.Millisecond)
-			continue
-		} else {
-			return err
-		}
-	}
-}
-
-// RetryExecTillNoRows retries the exec until we get no error (deadlocks) and no results are returned
-func (s *Squirrel) RetryExecTillNoRows(sql string, args ...interface{}) error {
-	for {
-		rows, err := s.RetryExec(sql, args...)
-		if err != nil {
-			return err
-		}
-		if rows == 0 {
-			break
-		}
-	}
-	return nil
-}
-
-// RetryExec retries the exec until we get no error (deadlocks)
-func (s *Squirrel) RetryExec(sql string, args ...interface{}) (int64, error) {
-	var rows int64
-	for {
-		res, err := s.db.Exec(sql, args...)
-		if err == nil {
-			rows, err = res.RowsAffected()
-			return rows, err
-		} else if !strings.Contains(err.Error(), "1213") && !strings.Contains(err.Error(), "1205") {
-			return rows, err
-		}
-	}
-}
-
 func getPages(r *http.Response) (int32, error) {
 	// Decode the page into int32. Return if this fails as there were no extra pages.
 	pagesInt, err := strconv.Atoi(r.Header.Get("x-pages"))
@@ -134,4 +89,8 @@ func getPages(r *http.Response) (int32, error) {
 // QueueWork directly
 func (s *Squirrel) QueueWork(work []redisqueue.Work, priority int) error {
 	return s.inQueue.QueueWork(work, priority)
+}
+
+func (s *Squirrel) doSQL(stmt string, args ...interface{}) error {
+	return sqlhelper.DoSQL(s.db, stmt, args)
 }

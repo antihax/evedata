@@ -2,30 +2,12 @@ package models
 
 import (
 	"strings"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 )
 
 func Begin() (*sqlx.Tx, error) {
 	return database.Beginx()
-}
-
-// Retry on deadlocks
-func RetryTransaction(tx *sqlx.Tx) error {
-	for {
-		err := tx.Commit()
-		if err != nil {
-			if !strings.Contains(err.Error(), "1213") && !strings.Contains(err.Error(), "1205") {
-				return err
-			} else {
-				time.Sleep(500 * time.Millisecond)
-				continue
-			}
-		} else {
-			return err
-		}
-	}
 }
 
 // Escape MySQL string

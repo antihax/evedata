@@ -131,17 +131,7 @@ func (s *Artifice) findRelationships(rows *sql.Rows, associationType uint8) erro
 				source = source | VALUES(source);
 			`, strings.Join(values[start:end], ",\n"))
 
-		tx, err := s.db.Beginx()
-		if err != nil {
-			return err
-		}
-		defer tx.Rollback()
-		_, err = tx.Exec(stmt)
-		if err != nil {
-
-			return err
-		}
-		err = retryTransaction(tx)
+		err := s.doSQL(stmt)
 		if err != nil {
 			return err
 		}

@@ -4,11 +4,11 @@ package artifice
 import (
 	"log"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/antihax/evedata/internal/apicache"
 	"github.com/antihax/evedata/internal/redisqueue"
+	"github.com/antihax/evedata/internal/sqlhelper"
 	"github.com/antihax/goesi"
 	"github.com/antihax/goesi/esi"
 	"github.com/garyburd/redigo/redis"
@@ -129,64 +129,14 @@ func (s *Artifice) Run() {
 	s.runTriggers()
 }
 
-// RetryTransaction on deadlocks
-func retryTransaction(tx *sqlx.Tx) error {
-	for {
-		err := tx.Commit()
-		if err != nil {
-			if !strings.Contains(err.Error(), "1213") && !strings.Contains(err.Error(), "1205") {
-				return err
-			}
-			time.Sleep(250 * time.Millisecond)
-			continue
-		} else {
-			return err
-		}
-	}
-}
-
 // DoSQL executes a sql statement
 func (s *Artifice) doSQL(stmt string, args ...interface{}) error {
-	for {
-		_, err := s.RetryExec(stmt, args...)
-		if err != nil {
-			if !strings.Contains(err.Error(), "1213") && !strings.Contains(err.Error(), "1205") {
-				return err
-			}
-			time.Sleep(250 * time.Millisecond)
-			continue
-		} else {
-			return err
-		}
-	}
+	return sqlhelper.DoSQL(s.db, stmt, args)
 }
 
 // RetryExecTillNoRows retries the exec until we get no error (deadlocks) and no results are returned
-func (s *Artifice) RetryExecTillNoRows(sql string, args ...interface{}) error {
-	for {
-		rows, err := s.RetryExec(sql, args...)
-		if err != nil {
-			return err
-		}
-		if rows == 0 {
-			break
-		}
-	}
-	return nil
-}
-
-// RetryExec retries the exec until we get no error (deadlocks)
-func (s *Artifice) RetryExec(sql string, args ...interface{}) (int64, error) {
-	var rows int64
-	for {
-		res, err := s.db.Exec(sql, args...)
-		if err == nil {
-			rows, err = res.RowsAffected()
-			return rows, err
-		} else if strings.Contains(err.Error(), "1213") == false && strings.Contains(err.Error(), "1205") == false {
-			return rows, err
-		}
-	}
+func (s *Artifice) RetryExecTillNoRows(stmt string, args ...interface{}) error {
+	return sqlhelper.RetryExecTillNoRows(s.db, stmt, args)
 }
 
 type CharacterPairs struct {

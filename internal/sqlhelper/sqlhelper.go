@@ -1,6 +1,7 @@
 package sqlhelper
 
 import (
+	"strings"
 	"time"
 
 	"log"
@@ -57,4 +58,64 @@ func setupDatabase(driver string, spec string) (*sqlx.DB, error) {
 	database.SetMaxOpenConns(50)
 
 	return database, nil
+}
+
+// DoSQL executes a sql statement
+func DoSQL(db *sqlx.DB, stmt string, args ...interface{}) error {
+	for {
+		_, err := RetryExec(db, stmt, args...)
+		if err != nil {
+			if !strings.Contains(err.Error(), "1213") && !strings.Contains(err.Error(), "1205") {
+				return err
+			}
+			time.Sleep(50 * time.Millisecond)
+			continue
+		} else {
+			return err
+		}
+	}
+}
+
+// RetryExecTillNoRows retries the exec until we get no error (deadlocks) and no results are returned
+func RetryExecTillNoRows(db *sqlx.DB, sql string, args ...interface{}) error {
+	for {
+		rows, err := RetryExec(db, sql, args...)
+		if err != nil {
+			return err
+		}
+		if rows == 0 {
+			break
+		}
+	}
+	return nil
+}
+
+// RetryExec retries the exec until we get no error (deadlocks)
+func RetryExec(db *sqlx.DB, sql string, args ...interface{}) (int64, error) {
+	var rows int64
+	for {
+		res, err := db.Exec(sql, args...)
+		if err == nil {
+			rows, err = res.RowsAffected()
+			return rows, err
+		} else if !strings.Contains(err.Error(), "1213") && !strings.Contains(err.Error(), "1205") {
+			return rows, err
+		}
+	}
+}
+
+// RetryTransaction on deadlocks
+func RetryTransaction(tx *sqlx.Tx) error {
+	for {
+		err := tx.Commit()
+		if err != nil {
+			if !strings.Contains(err.Error(), "1213") && !strings.Contains(err.Error(), "1205") {
+				return err
+			}
+			time.Sleep(50 * time.Millisecond)
+			continue
+		} else {
+			return err
+		}
+	}
 }

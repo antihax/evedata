@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/antihax/evedata/internal/redisqueue"
+	"github.com/antihax/evedata/internal/sqlhelper"
 )
 
 func init() {
@@ -208,10 +209,9 @@ func crestCharacters(s *Artifice) error {
 					continue
 				}
 			}
-			if err = retryTransaction(tx); err != nil {
+			if err = sqlhelper.RetryTransaction(tx); err != nil {
 				return err
 			}
-
 		}
 
 		// Update integrations services with factionID.
@@ -222,7 +222,6 @@ func crestCharacters(s *Artifice) error {
 			SET S.factionID = C.factionID`); err != nil {
 			return err
 		}
-
 	}
 	return nil
 }

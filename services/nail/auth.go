@@ -7,6 +7,7 @@ import (
 
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/gobcoder"
+	"github.com/antihax/evedata/internal/sqlhelper"
 	nsq "github.com/nsqio/go-nsq"
 )
 
@@ -64,7 +65,7 @@ func (s *Nail) corporationContactsHandler(message *nsq.Message) error {
 
 	}
 
-	return retryTransaction(tx)
+	return sqlhelper.RetryTransaction(tx)
 }
 
 func (s *Nail) allianceContactsHandler(message *nsq.Message) error {
@@ -108,5 +109,5 @@ func (s *Nail) allianceContactsHandler(message *nsq.Message) error {
 
 	}
 
-	return retryTransaction(tx)
+	return sqlhelper.RetryTransaction(tx)
 }
