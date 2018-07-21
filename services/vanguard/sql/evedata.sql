@@ -327,6 +327,33 @@ CREATE TABLE `killmailAttackers` (
   KEY `ix_id` (`id`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `killmailAttributes` (
+  `id` int(11) NOT NULL,
+  `eHP` double NOT NULL,
+  `DPS` double NOT NULL,
+  `Alpha` double NOT NULL,
+  `scanResolution` double NOT NULL,
+  `signatureRadiusNoMWD` double NOT NULL,
+  `signatureRadius` double NOT NULL,
+  `agility` double NOT NULL,
+  `warpSpeed` double NOT NULL,
+  `speedNoMWD` double NOT NULL,
+  `speed` double NOT NULL,
+  `remoteArmorRepair` double NOT NULL,
+  `remoteShieldRepair` double NOT NULL,
+  `remoteEnergyTransfer` double NOT NULL,
+  `energyNeutralization` double NOT NULL,
+  `sensorStrength` double NOT NULL,
+  `RPS` double NOT NULL,
+  `CPURemaining` double NOT NULL,
+  `powerRemaining` double NOT NULL,
+  `capacitorNoMWD` double NOT NULL,
+  `capacitor` double NOT NULL,
+  `capacitorTimeNoMWD` bigint(20) NOT NULL,
+  `capacitorTime` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `killmails` (
   `id` int(9) unsigned NOT NULL,
   `solarSystemID` int(8) unsigned NOT NULL,
