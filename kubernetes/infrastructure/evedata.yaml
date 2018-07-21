@@ -10,6 +10,7 @@ spec:
   - mail.evedata.org
   - grafana.evedata.org
   - log.evedata.org
+  - scope.evedata.org
   acmeUserSecretName: acme-account
   challengeProvider:
     dns:
@@ -38,6 +39,7 @@ spec:
       - mail.evedata.org
       - grafana.evedata.org
       - log.evedata.org
+      - scope.evedata.org
   nodeSelector:
     loadbalancer: voyager
   rules:

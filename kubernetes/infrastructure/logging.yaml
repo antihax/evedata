@@ -985,3 +985,63 @@ spec:
     targetPort: 80
   selector:
     k8s-app: kibana-auth
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scope-auth
+  namespace: kube-system
+  labels:
+    k8s-app: scope-auth
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: scope-auth
+  template:
+    metadata:
+      labels:
+        k8s-app: scope-auth
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
+    spec:
+      containers:
+      - name: scope-auth
+        image: antihax/nginx-basic-auth-proxy
+        env:
+          - name: BACKEND
+            value: weave-scope-app.weave:80
+          - name: USER
+            valueFrom:
+              secretKeyRef:
+                name: kibana-secrets
+                key: USER
+          - name: PASS
+            valueFrom:
+              secretKeyRef:
+                name: kibana-secrets
+                key: PASS
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scope-auth
+  namespace: kube-system
+  labels:
+    k8s-app: scope-auth
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/name: "Scope-Auth"
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    k8s-app: scope-auth
