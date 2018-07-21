@@ -92,5 +92,5 @@ func (s *Squirrel) QueueWork(work []redisqueue.Work, priority int) error {
 }
 
 func (s *Squirrel) doSQL(stmt string, args ...interface{}) error {
-	return sqlhelper.DoSQL(s.db, stmt, args)
+	return sqlhelper.DoSQL(s.db, stmt, args...)
 }

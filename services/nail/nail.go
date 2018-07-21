@@ -115,7 +115,7 @@ func AddHandler(topic string, spawnFunc spawnFunc) {
 
 // DoSQL executes a sql statement
 func (s *Nail) doSQL(stmt string, args ...interface{}) error {
-	return sqlhelper.DoSQL(s.db, stmt, args)
+	return sqlhelper.DoSQL(s.db, stmt, args...)
 }
 
 func (s *Nail) loadStaticData() error {
