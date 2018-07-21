@@ -55,6 +55,12 @@ spec:
       - backend:
           serviceName: vanguard.evedata
           servicePort: '3000'
+  - host: scope.evedata.org
+    http:
+      paths:
+      - backend:
+          serviceName: scope-auth.kube-system
+          servicePort: '80'
   - host: log.evedata.org
     http:
       paths:
