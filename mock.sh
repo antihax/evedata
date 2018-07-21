@@ -5,7 +5,7 @@ docker run --privileged=true --rm -v /sys:/hostsys busybox sh -c "echo never > /
 set +e
 
 # Remove any currently running containers
-docker stop mysql teamspeak mock-esi redis nsqlookup nsqadmin nsqd | xargs docker rm
+docker stop mysql teamspeak mock-esi redis nsqlookup nsqadmin nsqd eve-axiom | xargs docker rm
 
 # MySQL Server
 docker run --net=host --name=mysql --health-cmd='mysqladmin ping --silent' -d -p 127.0.0.1:3306:3306 -e INIT_TOKUDB=1 -e MYSQL_ALLOW_EMPTY_PASSWORD=true percona/percona-server
@@ -15,6 +15,9 @@ docker run --net=host --name=teamspeak -d -p 127.0.0.1:9987:9987/udp -p 127.0.0.
 
 # Mock ESI Server
 docker run --net=host --name=mock-esi -d  -h mock-esi -p 127.0.0.1:8080:8080 antihax/mock-esi
+
+# eve-axiom
+docker run --net=host --name=eve-axiom -d  -h eve-axiom -p 127.0.0.1:3005:3005 antihax/eve-axiom
 
 # Redis 
 docker run --net=host --name=redis -d -p 127.0.0.1:6379:6379  redis
@@ -45,4 +48,3 @@ echo Percona Ready
 echo "create database eve; create database evedata; set sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO';" | docker exec -i mysql /bin/bash -c 'mysql -uroot'
 cat ./services/vanguard/sql/evedata.sql | docker exec -i mysql /bin/bash -c 'mysql -uroot -Devedata'
 gzip -dc ./services/vanguard/sql/eve.gz | docker exec -i mysql /bin/bash -c 'mysql -uroot -Deve'
-
