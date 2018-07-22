@@ -9,14 +9,14 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("locators", "GET", "/locatorResponses",
+	vanguard.AddRoute("GET", "/locatorResponses",
 		func(w http.ResponseWriter, r *http.Request) {
 			renderTemplate(w,
 				"locatorResponses.html",
 				time.Hour*24*31,
 				newPage(r, "Locator Responses"))
 		})
-	vanguard.AddAuthRoute("locators", "GET", "/U/locatorResponses", apiGetLocatorResponses)
+	vanguard.AddAuthRoute("GET", "/U/locatorResponses", apiGetLocatorResponses)
 }
 
 func apiGetLocatorResponses(w http.ResponseWriter, r *http.Request) {

@@ -11,20 +11,20 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("marketBrowser", "GET", "/marketBrowser",
+	vanguard.AddRoute("GET", "/marketBrowser",
 		func(w http.ResponseWriter, r *http.Request) {
 			renderTemplate(w,
 				"marketBrowser.html",
 				time.Hour*24*31,
 				newPage(r, "Market Browser"))
 		})
-	vanguard.AddRoute("searchMarketItems", "GET", "/J/searchMarketItems", searchMarketItemsAPI)
+	vanguard.AddRoute("GET", "/J/searchMarketItems", searchMarketItemsAPI)
 
-	vanguard.AddRoute("marketSellRegionItems", "GET", "/J/marketSellRegionItems",
+	vanguard.AddRoute("GET", "/J/marketSellRegionItems",
 		func(w http.ResponseWriter, r *http.Request) {
 			marketRegionItems(w, r, false)
 		})
-	vanguard.AddRoute("marketBuyRegionItems", "GET", "/J/marketBuyRegionItems",
+	vanguard.AddRoute("GET", "/J/marketBuyRegionItems",
 		func(w http.ResponseWriter, r *http.Request) {
 			marketRegionItems(w, r, true)
 		})

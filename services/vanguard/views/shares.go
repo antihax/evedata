@@ -13,7 +13,7 @@ import (
 
 func init() {
 
-	vanguard.AddRoute("sharing", "GET", "/shares",
+	vanguard.AddRoute("GET", "/shares",
 		func(w http.ResponseWriter, r *http.Request) {
 			p := newPage(r, "Share data with entities")
 			p["ShareGroups"] = models.GetCharacterShareGroups()
@@ -23,9 +23,9 @@ func init() {
 				p)
 		})
 
-	vanguard.AddAuthRoute("sharing", "GET", "/U/shares", apiGetShares)
-	vanguard.AddAuthRoute("sharing", "DELETE", "/U/shares", apiDeleteShare)
-	vanguard.AddAuthRoute("sharing", "POST", "/U/shares", apiAddShare)
+	vanguard.AddAuthRoute("GET", "/U/shares", apiGetShares)
+	vanguard.AddAuthRoute("DELETE", "/U/shares", apiDeleteShare)
+	vanguard.AddAuthRoute("POST", "/U/shares", apiAddShare)
 }
 
 func apiDeleteShare(w http.ResponseWriter, r *http.Request) {

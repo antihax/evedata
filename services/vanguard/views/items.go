@@ -13,8 +13,8 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("items", "GET", "/item", itemPage)
-	vanguard.AddRoute("items", "GET", "/J/marketHistory", marketHistory)
+	vanguard.AddRoute("GET", "/item", itemPage)
+	vanguard.AddRoute("GET", "/J/marketHistory", marketHistory)
 }
 
 func itemPage(w http.ResponseWriter, r *http.Request) {

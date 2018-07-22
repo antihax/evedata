@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("healthz", "GET", "/healthz", healthz)
+	vanguard.AddRoute("GET", "/healthz", healthz)
 }
 
 func healthz(w http.ResponseWriter, r *http.Request) {

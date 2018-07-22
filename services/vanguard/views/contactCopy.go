@@ -18,13 +18,13 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("ContactCopy", "GET", "/contactCopy", func(w http.ResponseWriter, r *http.Request) {
+	vanguard.AddRoute("GET", "/contactCopy", func(w http.ResponseWriter, r *http.Request) {
 		renderTemplate(w,
 			"contactCopy.html",
 			time.Hour*24*31,
 			newPage(r, "Contact Copy"))
 	})
-	vanguard.AddAuthRoute("ContactCopy", "PUT", "/U/contactCopy", apiPutContactCopy)
+	vanguard.AddAuthRoute("PUT", "/U/contactCopy", apiPutContactCopy)
 }
 
 func apiPutContactCopy(w http.ResponseWriter, r *http.Request) {

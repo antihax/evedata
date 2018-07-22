@@ -11,15 +11,15 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("ContactSync", "GET", "/contactSync", func(w http.ResponseWriter, r *http.Request) {
+	vanguard.AddRoute("GET", "/contactSync", func(w http.ResponseWriter, r *http.Request) {
 		renderTemplate(w,
 			"contactSync.html",
 			time.Hour*24*31,
 			newPage(r, "War Contact Synchronization"))
 	})
-	vanguard.AddAuthRoute("ContactSync", "PUT", "/U/contactSync", apiAddContactSync)
-	vanguard.AddAuthRoute("ContactSync", "GET", "/U/contactSync", apiGetContactSyncs)
-	vanguard.AddAuthRoute("ContactSync", "DELETE", "/U/contactSync", apiDeleteContactSync)
+	vanguard.AddAuthRoute("PUT", "/U/contactSync", apiAddContactSync)
+	vanguard.AddAuthRoute("GET", "/U/contactSync", apiGetContactSyncs)
+	vanguard.AddAuthRoute("DELETE", "/U/contactSync", apiDeleteContactSync)
 }
 
 func apiAddContactSync(w http.ResponseWriter, r *http.Request) {

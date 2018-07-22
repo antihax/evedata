@@ -12,9 +12,9 @@ import (
 
 func init() {
 	// Add routes to the http router
-	vanguard.AddRoute("searchItems", "GET", "/J/search", searchAPI)
-	vanguard.AddRoute("searchItems", "GET", "/J/searchEntities", searchEntitiesAPI)
-	vanguard.AddRoute("searchItems", "GET", "/search", searchRouter)
+	vanguard.AddRoute("GET", "/J/search", searchAPI)
+	vanguard.AddRoute("GET", "/J/searchEntities", searchEntitiesAPI)
+	vanguard.AddRoute("GET", "/search", searchRouter)
 }
 
 // searchAPI for characters, alliances, corporations, and items.

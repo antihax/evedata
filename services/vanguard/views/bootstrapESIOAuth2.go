@@ -12,8 +12,8 @@ import (
 
 // Bootstrap Token provides access to public information in EVE Online. This is not used by users.
 func init() {
-	vanguard.AddAuthRoute("bootstrap", "GET", "/X/bootstrapEveAuth", bootstrapEveSSO)
-	vanguard.AddAuthRoute("bootstrap", "GET", "/X/bootstrapEveSSOAnswer", bootstrapEveSSOAnswer)
+	vanguard.AddAuthRoute("GET", "/X/bootstrapEveAuth", bootstrapEveSSO)
+	vanguard.AddAuthRoute("GET", "/X/bootstrapEveSSOAnswer", bootstrapEveSSOAnswer)
 }
 
 func bootstrapEveSSO(w http.ResponseWriter, r *http.Request) {

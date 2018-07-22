@@ -18,28 +18,28 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("account", "GET", "/account",
+	vanguard.AddRoute("GET", "/account",
 		func(w http.ResponseWriter, r *http.Request) {
 			p := newPage(r, "Account Information")
 			p["ScopeGroups"] = models.GetCharacterScopeGroups()
 			renderTemplate(w, "account.html", time.Hour*24*31, p)
 		})
 
-	vanguard.AddAuthRoute("account", "GET", "/X/accountInfo", accountInfo)
-	vanguard.AddAuthRoute("account", "POST", "/X/cursorChar", cursorChar)
+	vanguard.AddAuthRoute("GET", "/X/accountInfo", accountInfo)
+	vanguard.AddAuthRoute("POST", "/X/cursorChar", cursorChar)
 
-	vanguard.AddAuthRoute("account", "GET", "/U/crestTokens", apiGetCRESTTokens)
-	vanguard.AddAuthRoute("account", "DELETE", "/U/crestTokens", apiDeleteCRESTToken)
+	vanguard.AddAuthRoute("GET", "/U/crestTokens", apiGetCRESTTokens)
+	vanguard.AddAuthRoute("DELETE", "/U/crestTokens", apiDeleteCRESTToken)
 
-	vanguard.AddAuthRoute("account", "GET", "/U/integrationTokens", apiGetIntegrationTokens)
-	vanguard.AddAuthRoute("account", "DELETE", "/U/integrationTokens", apiDeleteIntegrationToken)
+	vanguard.AddAuthRoute("GET", "/U/integrationTokens", apiGetIntegrationTokens)
+	vanguard.AddAuthRoute("DELETE", "/U/integrationTokens", apiDeleteIntegrationToken)
 
-	vanguard.AddAuthRoute("account", "POST", "/U/toggleAuth", apiToggleAuth)
+	vanguard.AddAuthRoute("POST", "/U/toggleAuth", apiToggleAuth)
 
-	vanguard.AddAuthRoute("account", "GET", "/U/accessableIntegrations", apiAccessableIntegrations)
-	vanguard.AddAuthRoute("account", "POST", "/U/joinIntegration", apiJoinIntegration)
+	vanguard.AddAuthRoute("GET", "/U/accessableIntegrations", apiAccessableIntegrations)
+	vanguard.AddAuthRoute("POST", "/U/joinIntegration", apiJoinIntegration)
 
-	vanguard.AddAuthRoute("account", "POST", "/U/setMailPassword", apiSetMailPassword)
+	vanguard.AddAuthRoute("POST", "/U/setMailPassword", apiSetMailPassword)
 
 }
 

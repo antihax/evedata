@@ -9,21 +9,21 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("wars", "GET", "/activeWars",
+	vanguard.AddRoute("GET", "/activeWars",
 		func(w http.ResponseWriter, r *http.Request) {
 			renderTemplate(w,
 				"wars.html",
 				time.Hour*24*31,
 				newPage(r, "Active Wars"))
 		})
-	vanguard.AddRoute("wars", "GET", "/lostFighters",
+	vanguard.AddRoute("GET", "/lostFighters",
 		func(w http.ResponseWriter, r *http.Request) {
 			renderTemplate(w,
 				"lostFighters.html",
 				time.Hour*24*31,
 				newPage(r, "Lost Fighters in HighSec"))
 		})
-	vanguard.AddRoute("wars", "GET", "/lossesInHighsec",
+	vanguard.AddRoute("GET", "/lossesInHighsec",
 		func(w http.ResponseWriter, r *http.Request) {
 			renderTemplate(w,
 				"lossesInHighSec.html",
@@ -31,9 +31,9 @@ func init() {
 				newPage(r, "Ship Losses in Highsec"))
 		})
 
-	vanguard.AddRoute("wars", "GET", "/J/activeWars", activeWars)
-	vanguard.AddRoute("wars", "GET", "/J/lostFighters", lostFighters)
-	vanguard.AddRoute("wars", "GET", "/J/lossesInHighsec", lossesInHighsec)
+	vanguard.AddRoute("GET", "/J/activeWars", activeWars)
+	vanguard.AddRoute("GET", "/J/lostFighters", lostFighters)
+	vanguard.AddRoute("GET", "/J/lossesInHighsec", lossesInHighsec)
 }
 
 func activeWars(w http.ResponseWriter, r *http.Request) {

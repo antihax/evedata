@@ -17,7 +17,7 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("localIntel", "GET", "/localIntel",
+	vanguard.AddRoute("GET", "/localIntel",
 		func(w http.ResponseWriter, r *http.Request) {
 			p := newPage(r, "Local Intel Summary")
 			hash := r.FormValue("hash")
@@ -26,8 +26,8 @@ func init() {
 			}
 			renderTemplate(w, "localIntel.html", time.Hour*24*31, p)
 		})
-	vanguard.AddRoute("localIntel", "POST", "/J/localIntel", localIntel)
-	vanguard.AddRoute("localIntel", "GET", "/J/localIntel", localIntel)
+	vanguard.AddRoute("POST", "/J/localIntel", localIntel)
+	vanguard.AddRoute("GET", "/J/localIntel", localIntel)
 }
 
 func localIntel(w http.ResponseWriter, r *http.Request) {

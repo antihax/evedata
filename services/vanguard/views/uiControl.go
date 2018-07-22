@@ -8,9 +8,9 @@ import (
 )
 
 func init() {
-	vanguard.AddAuthRoute("ui-control", "POST", "/X/setDestination", setDestination)
-	vanguard.AddAuthRoute("ui-control", "POST", "/X/addDestination", addDestination)
-	vanguard.AddAuthRoute("ui-control", "POST", "/X/openMarketWindow", openMarketWindow)
+	vanguard.AddAuthRoute("POST", "/X/setDestination", setDestination)
+	vanguard.AddAuthRoute("POST", "/X/addDestination", addDestination)
+	vanguard.AddAuthRoute("POST", "/X/openMarketWindow", openMarketWindow)
 }
 
 func openMarketWindow(w http.ResponseWriter, r *http.Request) {

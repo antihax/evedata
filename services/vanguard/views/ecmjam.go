@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("ecmjam", "GET", "/ecmjam",
+	vanguard.AddRoute("GET", "/ecmjam",
 		func(w http.ResponseWriter, r *http.Request) {
 			renderTemplate(w,
 				"ecmjam.html",

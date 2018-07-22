@@ -9,23 +9,23 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("iskPerLP", "GET", "/iskPerLP",
+	vanguard.AddRoute("GET", "/iskPerLP",
 		func(w http.ResponseWriter, r *http.Request) {
 			renderTemplate(w,
 				"iskPerLP.html",
 				time.Hour*24*31,
 				newPage(r, "ISK Per Loyalty Point"))
 		})
-	vanguard.AddRoute("iskPerLP", "GET", "/iskPerLPByConversion",
+	vanguard.AddRoute("GET", "/iskPerLPByConversion",
 		func(w http.ResponseWriter, r *http.Request) {
 			renderTemplate(w,
 				"iskPerLPByConversion.html",
 				time.Hour*24*31,
 				newPage(r, "ISK Per Loyalty Point - All Entities"))
 		})
-	vanguard.AddRoute("iskPerLPCorps", "GET", "/J/iskPerLPCorps", iskPerLPCorps)
-	vanguard.AddRoute("iskPerLP", "GET", "/J/iskPerLP", iskPerLP)
-	vanguard.AddRoute("iskPerLP", "GET", "/J/iskPerLPByConversion", iskPerLPByConversion)
+	vanguard.AddRoute("GET", "/J/iskPerLPCorps", iskPerLPCorps)
+	vanguard.AddRoute("GET", "/J/iskPerLP", iskPerLP)
+	vanguard.AddRoute("GET", "/J/iskPerLPByConversion", iskPerLPByConversion)
 }
 
 func iskPerLPCorps(w http.ResponseWriter, r *http.Request) {

@@ -13,22 +13,22 @@ import (
 var validEntity map[string]bool
 
 func init() {
-	vanguard.AddRoute("entity", "GET", "/alliance", alliancePage)
+	vanguard.AddRoute("GET", "/alliance", alliancePage)
 
-	vanguard.AddRoute("entity", "GET", "/corporation", corporationPage)
-	vanguard.AddRoute("entity", "GET", "/character", characterPage)
-	vanguard.AddRoute("entity", "GET", "/J/warsForEntity", warsForEntityAPI)
-	vanguard.AddRoute("entity", "GET", "/J/activityForEntity", activityForEntityAPI)
-	vanguard.AddRoute("entity", "GET", "/J/heatmapForEntity", heatmapForEntityAPI)
-	vanguard.AddRoute("entity", "GET", "/J/assetsForEntity", assetsForEntityAPI)
-	vanguard.AddRoute("entity", "GET", "/J/alliesForEntity", alliesForEntityAPI)
-	vanguard.AddRoute("entity", "GET", "/J/shipsForEntity", shipsForEntityAPI)
-	vanguard.AddRoute("entity", "GET", "/J/corporationHistory", corporationHistoryAPI)
-	vanguard.AddRoute("entity", "GET", "/J/corporationsForAlliance", corporationsForAllianceAPI)
-	vanguard.AddRoute("entity", "GET", "/J/knownAssociatesForEntity", knownAssociatesForEntityAPI)
-	vanguard.AddRoute("entity", "GET", "/J/allianceHistoryForEntity", allianceHistoryForEntityAPI)
-	vanguard.AddRoute("entity", "GET", "/J/corporationHistoryForEntity", corporationHistoryForEntityAPI)
-	vanguard.AddRoute("entity", "GET", "/J/allianceJoinHistoryForEntity", allianceJoinHistoryForEntityAPI)
+	vanguard.AddRoute("GET", "/corporation", corporationPage)
+	vanguard.AddRoute("GET", "/character", characterPage)
+	vanguard.AddRoute("GET", "/J/warsForEntity", warsForEntityAPI)
+	vanguard.AddRoute("GET", "/J/activityForEntity", activityForEntityAPI)
+	vanguard.AddRoute("GET", "/J/heatmapForEntity", heatmapForEntityAPI)
+	vanguard.AddRoute("GET", "/J/assetsForEntity", assetsForEntityAPI)
+	vanguard.AddRoute("GET", "/J/alliesForEntity", alliesForEntityAPI)
+	vanguard.AddRoute("GET", "/J/shipsForEntity", shipsForEntityAPI)
+	vanguard.AddRoute("GET", "/J/corporationHistory", corporationHistoryAPI)
+	vanguard.AddRoute("GET", "/J/corporationsForAlliance", corporationsForAllianceAPI)
+	vanguard.AddRoute("GET", "/J/knownAssociatesForEntity", knownAssociatesForEntityAPI)
+	vanguard.AddRoute("GET", "/J/allianceHistoryForEntity", allianceHistoryForEntityAPI)
+	vanguard.AddRoute("GET", "/J/corporationHistoryForEntity", corporationHistoryForEntityAPI)
+	vanguard.AddRoute("GET", "/J/allianceJoinHistoryForEntity", allianceJoinHistoryForEntityAPI)
 
 	validEntity = map[string]bool{"alliance": true, "corporation": true, "character": true}
 }

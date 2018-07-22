@@ -13,13 +13,13 @@ import (
 )
 
 func init() {
-	vanguard.AddAuthRoute("integrations", "GET", "/U/integrationChannels", apiGetIntegrationChannels)
-	vanguard.AddAuthRoute("integrations", "POST", "/U/integrationChannels", apiAddIntegrationChannel)
-	vanguard.AddAuthRoute("integrations", "DELETE", "/U/integrationChannels", apiDeleteIntegrationChannel)
+	vanguard.AddAuthRoute("GET", "/U/integrationChannels", apiGetIntegrationChannels)
+	vanguard.AddAuthRoute("POST", "/U/integrationChannels", apiAddIntegrationChannel)
+	vanguard.AddAuthRoute("DELETE", "/U/integrationChannels", apiDeleteIntegrationChannel)
 
-	vanguard.AddAuthRoute("integrations", "PUT", "/U/integrationChannelOptions", apiSetIntegrationChannelOptions)
+	vanguard.AddAuthRoute("PUT", "/U/integrationChannelOptions", apiSetIntegrationChannelOptions)
 
-	vanguard.AddAuthRoute("integrations", "GET", "/U/integrationRoles", apiGetIntegrationRoles)
+	vanguard.AddAuthRoute("GET", "/U/integrationRoles", apiGetIntegrationRoles)
 }
 
 func apiGetIntegrationChannels(w http.ResponseWriter, r *http.Request) {

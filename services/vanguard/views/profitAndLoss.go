@@ -11,14 +11,14 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("profitandloss", "GET", "/profitAndLoss",
+	vanguard.AddRoute("GET", "/profitAndLoss",
 		func(w http.ResponseWriter, r *http.Request) {
 			renderTemplate(w,
 				"profitAndLoss.html",
 				time.Hour*24*31,
 				newPage(r, "Profit and Loss Statement"))
 		})
-	vanguard.AddAuthRoute("profitandloss", "GET", "/U/walletSummary", walletSummaryAPI)
+	vanguard.AddAuthRoute("GET", "/U/walletSummary", walletSummaryAPI)
 }
 
 func walletSummaryAPI(w http.ResponseWriter, r *http.Request) {

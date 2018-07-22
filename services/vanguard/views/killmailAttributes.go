@@ -10,16 +10,16 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("GET", "/arbitrageCalculator",
+	vanguard.AddRoute("GET", "/killmailAttributes",
 		func(w http.ResponseWriter, r *http.Request) {
-			renderTemplate(w, "arbitrageCalculator.html", time.Hour*24*31, newPage(r, "Arbitrage Calculator"))
+			renderTemplate(w, "killmailAttributes.html", time.Hour*24*31, newPage(r, "Killmail Attribute Browser"))
 		})
 
-	vanguard.AddRoute("GET", "/J/arbitrageCalculatorStations", arbitrageCalculatorStations)
-	vanguard.AddRoute("GET", "/J/arbitrageCalculator", arbitrageCalculator)
+	vanguard.AddRoute("GET", "/J/killmailAttributesAPI", killmailAttributesAPI)
+	vanguard.AddRoute("GET", "/J/offensiveGroups", offensiveGroupsAPI)
 }
 
-func arbitrageCalculatorStations(w http.ResponseWriter, r *http.Request) {
+func offensiveGroupsAPI(w http.ResponseWriter, r *http.Request) {
 	v, err := models.GetArbitrageCalculatorStations()
 	if err != nil {
 		httpErr(w, err)
@@ -29,7 +29,7 @@ func arbitrageCalculatorStations(w http.ResponseWriter, r *http.Request) {
 	renderJSON(w, v, time.Hour)
 }
 
-func arbitrageCalculator(w http.ResponseWriter, r *http.Request) {
+func killmailAttributesAPI(w http.ResponseWriter, r *http.Request) {
 	stationID, err := strconv.ParseInt(r.FormValue("stationID"), 10, 64)
 	if err != nil {
 		httpErr(w, err)

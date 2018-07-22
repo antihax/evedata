@@ -15,16 +15,16 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("assets", "GET", "/assets", func(w http.ResponseWriter, r *http.Request) {
+	vanguard.AddRoute("GET", "/assets", func(w http.ResponseWriter, r *http.Request) {
 		renderTemplate(w, "assets.html", time.Hour*24*31, newPage(r, "Asset Information"))
 	})
-	vanguard.AddRoute("assets", "GET", "/marketableAssets", func(w http.ResponseWriter, r *http.Request) {
+	vanguard.AddRoute("GET", "/marketableAssets", func(w http.ResponseWriter, r *http.Request) {
 		renderTemplate(w, "marketableAssets.html", time.Hour*24*31, newPage(r, "Marketable Asset Valuation"))
 	})
-	vanguard.AddAuthRoute("assets", "GET", "/U/assets", assetsAPI)
-	vanguard.AddAuthRoute("assets", "GET", "/U/marketableAssets", marketableAssetsAPI)
-	vanguard.AddAuthRoute("assets", "GET", "/U/assetLocations", assetLocationsAPI)
-	vanguard.AddAuthRoute("assets", "GET", "/U/assetCharacters", assetCharactersAPI)
+	vanguard.AddAuthRoute("GET", "/U/assets", assetsAPI)
+	vanguard.AddAuthRoute("GET", "/U/marketableAssets", marketableAssetsAPI)
+	vanguard.AddAuthRoute("GET", "/U/assetLocations", assetLocationsAPI)
+	vanguard.AddAuthRoute("GET", "/U/assetCharacters", assetCharactersAPI)
 }
 
 func assetCharactersAPI(w http.ResponseWriter, r *http.Request) {

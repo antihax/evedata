@@ -20,7 +20,6 @@ const sessionKey key = 2 // User session data
 
 // Structure for handling routes
 type route struct {
-	Name        string
 	Method      string
 	Pattern     string
 	HandlerFunc http.HandlerFunc
@@ -38,19 +37,19 @@ func init() {
 
 // AddRoute adds a non-authenticated web handler to the route list
 // this should be called by func init() within the views package
-func AddRoute(name string, method string, pattern string, handlerFunc http.HandlerFunc) {
-	routes = append(routes, route{name, method, pattern, handlerFunc})
+func AddRoute(method string, pattern string, handlerFunc http.HandlerFunc) {
+	routes = append(routes, route{method, pattern, handlerFunc})
 }
 
 // AddAuthRoute adds an authenticated web handler to the route list
 // this should be called by func init() within the views package
-func AddAuthRoute(name string, method string, pattern string, handlerFunc http.HandlerFunc) {
-	authRoutes = append(authRoutes, route{name, method, pattern, handlerFunc})
+func AddAuthRoute(method string, pattern string, handlerFunc http.HandlerFunc) {
+	authRoutes = append(authRoutes, route{method, pattern, handlerFunc})
 }
 
 // AddNotFoundHandler provides a 404 handler
 func AddNotFoundHandler(handlerFunc http.HandlerFunc) {
-	notFoundHandler = &route{"404", "GET", "", handlerFunc}
+	notFoundHandler = &route{"GET", "", handlerFunc}
 }
 
 // Middleware to add global AppContext to a request.Context
@@ -131,7 +130,6 @@ func (ctx *Vanguard) NewRouter() *mux.Router {
 		router.
 			Methods(route.Method).
 			Path(route.Pattern).
-			Name(route.Name).
 			Handler(middleware(route.HandlerFunc))
 	}
 
@@ -140,7 +138,6 @@ func (ctx *Vanguard) NewRouter() *mux.Router {
 		router.
 			Methods(route.Method).
 			Path(route.Pattern).
-			Name(route.Name).
 			Handler(authedMiddleware(route.HandlerFunc))
 	}
 

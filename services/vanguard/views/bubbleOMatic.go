@@ -10,22 +10,22 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("bubblePlacer", "GET", "/bubblePlacer",
+	vanguard.AddRoute("GET", "/bubblePlacer",
 		func(w http.ResponseWriter, r *http.Request) {
 			renderTemplate(w,
 				"bubblePlacer.html",
 				time.Hour*24*31,
 				newPage(r, "Bubble-O-Matic 9002"))
 		})
-	vanguard.AddRoute("iskPerLP", "GET", "/iskPerLPByConversion",
+	vanguard.AddRoute("GET", "/iskPerLPByConversion",
 		func(w http.ResponseWriter, r *http.Request) {
 			renderTemplate(w,
 				"iskPerLPByConversion.html",
 				time.Hour*24*31,
 				newPage(r, "ISK Per Loyalty Point - All Entities"))
 		})
-	vanguard.AddRoute("nullSystems", "GET", "/J/nullSystems", nullSystems)
-	vanguard.AddRoute("systemCelestials", "GET", "/J/systemCelestials", systemCelestials)
+	vanguard.AddRoute("GET", "/J/nullSystems", nullSystems)
+	vanguard.AddRoute("GET", "/J/systemCelestials", systemCelestials)
 
 }
 

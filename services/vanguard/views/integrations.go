@@ -14,7 +14,7 @@ import (
 
 func init() {
 	// Integrations
-	vanguard.AddRoute("integrations", "GET", "/integrations",
+	vanguard.AddRoute("GET", "/integrations",
 		func(w http.ResponseWriter, r *http.Request) {
 			renderTemplate(w,
 				"integrations.html",
@@ -22,23 +22,23 @@ func init() {
 				newPage(r, "Integrations"))
 		})
 
-	vanguard.AddAuthRoute("integrations", "GET", "/U/integrations", apiGetIntegrations)
-	vanguard.AddAuthRoute("integrations", "DELETE", "/U/integrations", apiDeleteIntegration)
-	vanguard.AddAuthRoute("integrations", "POST", "/U/integrationsDiscord", apiAddDiscordIntegration)
-	vanguard.AddAuthRoute("integrations", "POST", "/U/integrationShareToggleIgnore", apiIntegrationToggleIgnore)
+	vanguard.AddAuthRoute("GET", "/U/integrations", apiGetIntegrations)
+	vanguard.AddAuthRoute("DELETE", "/U/integrations", apiDeleteIntegration)
+	vanguard.AddAuthRoute("POST", "/U/integrationsDiscord", apiAddDiscordIntegration)
+	vanguard.AddAuthRoute("POST", "/U/integrationShareToggleIgnore", apiIntegrationToggleIgnore)
 
 	// Integration Details
-	vanguard.AddRoute("integrations", "GET", "/integrationDetails", func(w http.ResponseWriter, r *http.Request) {
+	vanguard.AddRoute("GET", "/integrationDetails", func(w http.ResponseWriter, r *http.Request) {
 		renderTemplate(w,
 			"integrationDetails.html",
 			time.Hour*24*31,
 			newPage(r, "Integration Services"))
 	})
 
-	vanguard.AddAuthRoute("integrations", "GET", "/U/integrationDetails", apiGetIntegrationDetails)
-	vanguard.AddAuthRoute("integrations", "PUT", "/U/integrationDetails", apiIntegrationOptions)
+	vanguard.AddAuthRoute("GET", "/U/integrationDetails", apiGetIntegrationDetails)
+	vanguard.AddAuthRoute("PUT", "/U/integrationDetails", apiIntegrationOptions)
 
-	vanguard.AddAuthRoute("integrations", "GET", "/U/entitiesWithRoles", apiGetEntitiesWithRoles)
+	vanguard.AddAuthRoute("GET", "/U/entitiesWithRoles", apiGetEntitiesWithRoles)
 }
 
 func apiDeleteIntegration(w http.ResponseWriter, r *http.Request) {

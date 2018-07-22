@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("mutaplasmidEst", "GET", "/mutaplasmidEst",
+	vanguard.AddRoute("GET", "/mutaplasmidEst",
 		func(w http.ResponseWriter, r *http.Request) {
 			mpt := r.FormValue("type")
 			if mpt == "" {

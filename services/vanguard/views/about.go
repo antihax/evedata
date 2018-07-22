@@ -8,8 +8,8 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("account", "GET", "/about", aboutPage)
-	vanguard.AddRoute("help", "GET", "/help", helpPage)
+	vanguard.AddRoute("GET", "/about", aboutPage)
+	vanguard.AddRoute("GET", "/help", helpPage)
 }
 
 type page struct {

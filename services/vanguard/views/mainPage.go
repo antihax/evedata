@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	vanguard.AddRoute("account", "GET", "/",
+	vanguard.AddRoute("GET", "/",
 		func(w http.ResponseWriter, r *http.Request) {
 			renderTemplate(w,
 				"mainPage.html",
