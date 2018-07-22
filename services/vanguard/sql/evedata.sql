@@ -351,7 +351,8 @@ CREATE TABLE `killmailAttributes` (
   `capacitor` double NOT NULL,
   `capacitorTimeNoMWD` bigint(20) NOT NULL,
   `capacitorTime` bigint(20) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `ix_id_cpu_pg_ehp` (`id`,`CPURemaining`,`powerRemaining`,`eHP`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `killmails` (
@@ -376,7 +377,8 @@ CREATE TABLE `killmails` (
   KEY `ix_killTime` (`killTime`),
   KEY `ix_war` (`warID`),
   KEY `ix_victimCharacterID` (`victimCharacterID`),
-  KEY `ix_id_killtime` (`id`,`killTime`)
+  KEY `ix_id_killtime` (`id`,`killTime`),
+  KEY `ix_ship_time` (`shipType`,`killTime`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `locatedCharacters` (
