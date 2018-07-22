@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/antihax/eve-axiom/dogma"
+	"github.com/antihax/eve-axiom/attributes"
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/goesi/esi"
@@ -16,7 +16,7 @@ import (
 )
 
 type killmailAttributes struct {
-	Attributes *dogma.Attributes
+	Attributes *attributes.Attributes
 	KillmailID int32
 }
 
@@ -81,7 +81,7 @@ func (s *Tailor) killmailConsumer() {
 	}
 }
 
-func getAttributesForKillmail(km *esi.GetKillmailsKillmailIdKillmailHashOk) (*dogma.Attributes, error) {
+func getAttributesForKillmail(km *esi.GetKillmailsKillmailIdKillmailHashOk) (*attributes.Attributes, error) {
 	j, err := json.Marshal(km)
 	if err != nil {
 		return nil, err
@@ -100,7 +100,7 @@ func getAttributesForKillmail(km *esi.GetKillmailsKillmailIdKillmailHashOk) (*do
 
 	defer resp.Body.Close()
 	dec := json.NewDecoder(resp.Body)
-	attributes := &dogma.Attributes{}
+	attributes := &attributes.Attributes{}
 	if err = dec.Decode(attributes); err != nil {
 		return nil, err
 	}
