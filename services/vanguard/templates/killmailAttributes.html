@@ -13,17 +13,17 @@
 <div>
     <select class="selectpicker form-control" data-width="auto" name="groupID" id="groupID"></select>
     <select class="selectpicker form-control axisChanger" data-width="auto" name="xAxis" id="xAxis">
-        <option value="rps">RPS</option>
-        <option value="ehp">EHP</option>
-        <option value="speed">MWD Speed</option>
+        <option data-icon="fa fa-times" value="rps">RPS</option>
+        <option data-icon="fa fa-times" value="ehp">EHP</option>
+        <option data-icon="fa fa-times" value="speed">MWD Speed</option>
     </select>
     <select class="selectpicker form-control axisChanger" data-width="auto" name="yAxis" id="yAxis">
-        <option value="dps">DPS</option>
-        <option value="alpha">Alpha</option>
-        <option value="remoteArmorRepair">Remote Armor</option>
-        <option value="remoteShieldRepair">Remote Shield</option>
-        <option value="energyNeutralization">Neutralizer</option>
-        <option value="sensorStrength">ECCM</option>
+        <option data-icon="fab fa-yahoo" value="dps">DPS</option>
+        <option data-icon="fab fa-yahoo" value="alpha">Alpha</option>
+        <option data-icon="fab fa-yahoo" value="remoteArmorRepair">Remote Armor</option>
+        <option data-icon="fab fa-yahoo" value="remoteShieldRepair">Remote Shield</option>
+        <option data-icon="fab fa-yahoo" value="energyNeutralization">Neutralizer</option>
+        <option data-icon="fab fa-yahoo" value="sensorStrength">ECCM</option>
     </select>
     <button type="submit button-inline" id="resetFilters" class="btn btn-primary">Reset Filters</button>
 </div>
@@ -49,7 +49,7 @@
             <th data-visible="false" data-field="energyNeutralization" data-formatter="numberRound0Formatter" data-align="right" data-sortable="true">Neutralizer</th>
             <th data-visible="false" data-field="sensorStrength" data-formatter="numberRound0Formatter" data-align="right" data-sortable="true">ECCM</th>
             <th data-visible="false" data-field="signatureRadiusNoMWD" data-formatter="numberRound0Formatter" data-align="right" data-sortable="true">Sig Radius</th>
-            <th data-visible="false" data-field="agility" data-formatter="numberRound0Formatter" data-align="right" data-sortable="true">Agility</th>
+            <th data-visible="false" data-field="agility" data-formatter="currencyFormatter" data-align="right" data-sortable="true">Agility</th>
             <th data-visible="false" data-field="warpSpeed" data-formatter="numberRound0Formatter" data-align="right" data-sortable="true">Warp Speed</th>
             <th data-field="capacitor" data-formatter="capacitorFormatter" data-align="right" data-sortable="false">Capacitor</th>
         </tr>
@@ -87,7 +87,7 @@
         success: function (data) {
             $.each(data, function (key, val) {
                 $('#groupID').append(
-                    '<option value=' + val.groupID + '>' + val.groupName + '</option>'
+                    '<option data-icon="fa fa-rocket" value=' + val.groupID + '>' + val.groupName + '</option>'
                 );
             });
             $('#groupID').selectpicker('refresh');
@@ -116,6 +116,15 @@
             error: function (x, o, e) { alert(e); }
         });
     }
+    function remove_empty_bins(source_group) {
+        return {
+            all: function () {
+                return source_group.all().filter(function (d) {
+                    return d.value != 0;
+                });
+            }
+        };
+    }
 
     function updateChart() {
         var ndx = crossfilter(killmailData),
@@ -125,6 +134,7 @@
                 return d.typeName;
             }),
             nameCount = nameDim.group().reduceSum(function (d) { return +1; }),
+            nonEmptyNameCount = remove_empty_bins(nameCount),
             scatterDim = ndx.dimension(function (d) {
                 return [d[xAxis], d[yAxis]];
             }),
@@ -148,7 +158,7 @@
         rowChartTypes
             .width(250).height(500)
             .dimension(nameDim)
-            .group(nameCount)
+            .group(nonEmptyNameCount)
             .controlsUseVisibility(true)
             .elasticX(true);
         rowChartTypes.xAxis().ticks(4);
