@@ -33,7 +33,7 @@ func GetKillmailAttributes(groupID int64) ([]KillmailAttributes, error) {
 		INNER JOIN evedata.killmailAttributes A FORCE INDEX(ix_id_cpu_pg_ehp) ON K.id = A.id 
 		INNER JOIN invTypes T ON T.typeID = K.shipType
 		WHERE T.groupID = ? AND powerRemaining >= 0 AND CPURemaining >= 0 AND eHP > 0 AND (alpha > 0 OR rps > 0 OR remoteArmorRepair > 0 OR remoteShieldRepair > 0)
-		AND K.killTime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 3 DAY);`, groupID); err != nil {
+		AND K.killTime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 3 MONTH) ORDER BY killTime DESC LIMIT 10000;`, groupID); err != nil {
 		return nil, err
 	}
 	return v, nil
