@@ -15,61 +15,30 @@ func init() {
 			renderTemplate(w, "killmailAttributes.html", time.Hour*24*31, newPage(r, "Killmail Attribute Browser"))
 		})
 
-	vanguard.AddRoute("GET", "/J/killmailAttributesAPI", killmailAttributesAPI)
+	vanguard.AddRoute("GET", "/J/killmailAttributes", killmailAttributesAPI)
 	vanguard.AddRoute("GET", "/J/offensiveGroups", offensiveGroupsAPI)
 }
 
 func offensiveGroupsAPI(w http.ResponseWriter, r *http.Request) {
-	v, err := models.GetArbitrageCalculatorStations()
+	v, err := models.GetOffensiveShipGroupID()
 	if err != nil {
 		httpErr(w, err)
 		return
 	}
-
-	renderJSON(w, v, time.Hour)
+	renderJSON(w, v, time.Hour*24*31)
 }
 
 func killmailAttributesAPI(w http.ResponseWriter, r *http.Request) {
-	stationID, err := strconv.ParseInt(r.FormValue("stationID"), 10, 64)
+	groupID, err := strconv.ParseInt(r.FormValue("groupID"), 10, 64)
 	if err != nil {
 		httpErr(w, err)
 		return
 	}
 
-	minVolume, err := strconv.ParseInt(r.FormValue("minVolume"), 10, 64)
+	v, err := models.GetKillmailAttributes(groupID)
 	if err != nil {
 		httpErr(w, err)
 		return
 	}
-
-	maxPrice, err := strconv.ParseInt(r.FormValue("maxPrice"), 10, 64)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
-
-	brokersFee, err := strconv.ParseFloat(r.FormValue("brokersFee"), 64)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
-
-	tax, err := strconv.ParseFloat(r.FormValue("tax"), 64)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
-
-	method := r.FormValue("method")
-
-	brokersFee = brokersFee / 100
-	tax = tax / 100
-
-	v, err := models.GetArbitrageCalculator(stationID, minVolume, maxPrice, brokersFee, tax, method)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
-
-	renderJSON(w, v, time.Hour)
+	renderJSON(w, v, time.Hour*24)
 }

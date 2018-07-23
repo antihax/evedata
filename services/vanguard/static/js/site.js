@@ -126,11 +126,21 @@
 	function typeFormatter(value, row) {
 		var typeURL = '/item?id=' + row.typeID
 		return '<a data-toggle="tooltip" title="Open market in-game" href="javascript:openMarketWindow(' + row.typeID + ')"><span class="glyphicon glyphicon-circle-arrow-right"></span></a>' +
-			'&nbsp;&nbsp;<a href="' + typeURL + '"><img src="' + typeImage(row) + '" height=32 width=32> ' + value + '</a>';
+			'&nbsp;&nbsp;<a href="' + typeURL + '"><img src="' + typeImage(row) + '" height=25 width=25></a> &nbsp;<a href="' + typeURL + '">' + value + '</a>';
 	}
 
+	function killmailTypeFormatter(value, row) {
+		var typeURL = '/item?id=' + row.typeID
+		return '<a data-toggle="tooltip" title="Open zkillboard" href="https://zkillboard.com/kill/'+row.id+'" target="zkill"><img src="https://zkillboard.com/img/wreck.png" height=16 width=16></a>' +
+			'&nbsp;&nbsp;<a href="' + typeURL + '"><img src="' + typeImage(row) + '" height=25 width=25></a> &nbsp;<a href="' + typeURL + '">' + value + '</a>';
+	}
+	
 	function currencyFormatter(value, row) {
 		return numberCommafy(value.toFixed(2));
+	}
+
+	function numberRound0Formatter(value, row) {
+		return numberCommafy(value.toFixed(0));
 	}
 
 	function numberFormatter(value, row) {

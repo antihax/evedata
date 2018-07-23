@@ -1,9 +1,9 @@
 package models
 
-// [TODO] Break out the CSV into an array
 type KillmailAttributes struct {
 	ID                   int32   `db:"id" json:"id"`
 	TypeName             string  `db:"typeName" json:"typeName"`
+	TypeID               string  `db:"typeID" json:"typeID"`
 	RPS                  float64 `db:"rps" json:"rps"`
 	DPS                  float64 `db:"dps" json:"dps"`
 	EHP                  float64 `db:"ehp" json:"ehp"`
@@ -26,14 +26,14 @@ func GetKillmailAttributes(groupID int64) ([]KillmailAttributes, error) {
 	v := []KillmailAttributes{}
 
 	if err := database.Select(&v, `
-		SELECT 	K.id, typeName, rps, dps, ehp, alpha, scanResolution, signatureRadiusNoMWD, agility, 
+		SELECT 	K.id, typeName, typeID, rps, dps, ehp, alpha, scanResolution, signatureRadiusNoMWD, agility, 
 			warpSpeed, speed, remoteArmorRepair, remoteShieldRepair, remoteEnergyTransfer,
 			energyNeutralization, sensorStrength, capacitorNoMWD, capacitorTimeNoMWD
 		FROM evedata.killmails K
 		INNER JOIN evedata.killmailAttributes A FORCE INDEX(ix_id_cpu_pg_ehp) ON K.id = A.id 
 		INNER JOIN invTypes T ON T.typeID = K.shipType
-		WHERE T.groupID = ? AND powerRemaining >= 0 AND CPURemaining >= 0 AND eHP > 0 
-		AND K.killTime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 3 MONTH);`, groupID); err != nil {
+		WHERE T.groupID = ? AND powerRemaining >= 0 AND CPURemaining >= 0 AND eHP > 0 AND (alpha > 0 OR rps > 0 OR remoteArmorRepair > 0 OR remoteShieldRepair > 0)
+		AND K.killTime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 3 DAY);`, groupID); err != nil {
 		return nil, err
 	}
 	return v, nil
@@ -49,7 +49,7 @@ func GetOffensiveShipGroupID() ([]OffensiveGroups, error) {
 
 	if err := database.Select(&v, `
 		SELECT groupID, groupName FROM eve.invGroups 
-		WHERE categoryID = 6 AND groupID NOT IN(29, 902, 31, 30, 547, 659)
+		WHERE categoryID = 6 AND groupID NOT IN(29, 902, 31, 30, 547, 659, 1972, 513, 1202, 381, 513, 1022)
 		ORDER BY groupName;`); err != nil {
 		return nil, err
 	}
