@@ -280,7 +280,7 @@ func discoveredAssetsMaint(s *Artifice) error {
 					1870,1887,1912,1913,1914,1933,1934,1935,1936,1937,1938,1939,
 					1941,1942,1943,1944,1945,1962,1966,1967,1968)
             GROUP BY A.corporationID, solarSystemID, typeID
-        ON DUPLICATE KEY UPDATE lastSeen = lastSeen;
+        ON DUPLICATE KEY UPDATE lastSeen =  VALUES(lastSeen);
             `); err != nil {
 		return err
 	}
@@ -315,13 +315,24 @@ func discoveredAssetsMaint(s *Artifice) error {
 					1870,1887,1912,1913,1914,1933,1934,1935,1936,1937,1938,1939,
 					1941,1942,1943,1944,1945,1962,1966,1967,1968)
             GROUP BY K.victimCorporationID, solarSystemID, typeID
-        ON DUPLICATE KEY UPDATE lastSeen = lastSeen;`); err != nil {
+        ON DUPLICATE KEY UPDATE lastSeen =  VALUES(lastSeen);`); err != nil {
+		return err
+	}
+
+	if err := s.doSQL(`
+		INSERT INTO evedata.discoveredAssets 
+			SELECT corporationID, allianceID, typeID, solarSystemID, x, y, z,
+			evedata.closestCelestial(solarSystemID, x, y, z) AS locationID,
+			S.updated AS lastSeen
+			FROM evedata.structures S
+			INNER JOIN evedata.corporations C ON C.corporationID = S.ownerID
+		ON DUPLICATE KEY UPDATE lastSeen = VALUES(lastSeen);`); err != nil {
 		return err
 	}
 
 	if err := s.doSQL(`
 		DELETE FROM evedata.discoveredAssets 
-		WHERE lastSeen < DATE_SUB(UTC_TIMESTAMP(), INTERVAL 2 YEAR);`); err != nil {
+		WHERE lastSeen < DATE_SUB(UTC_TIMESTAMP(), INTERVAL 1 YEAR);`); err != nil {
 		return err
 	}
 	return nil

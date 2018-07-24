@@ -76,7 +76,7 @@ func (s *Nail) structureHandler(message *nsq.Message) error {
 	err = s.doSQL(`INSERT INTO evedata.structures
 		(stationID, solarSystemID, stationName, x, y, z, ownerID, typeID, updated)
 		VALUES(?,?,?,?,?,?,?,?, UTC_TIMESTAMP())
-		ON DUPLICATE KEY UPDATE stationName=VALUES(stationName),solarSystemID=VALUES(solarSystemID),ownerID=VALUES(ownerID),
+		ON DUPLICATE KEY UPDATE stationName=VALUES(stationName),solarSystemID=VALUES(solarSystemID),ownerID=VALUES(ownerID),typeID=VALUES(typeID),
 		x=VALUES(x),y=VALUES(y),z=VALUES(z);`,
 		b.StructureID, b.Structure.SolarSystemId, b.Structure.Name,
 		b.Structure.Position.X, b.Structure.Position.Y, b.Structure.Position.Z,
