@@ -542,6 +542,7 @@ CREATE TABLE `structures` (
   `updated` datetime DEFAULT NULL,
   `marketCacheUntil` datetime DEFAULT '2016-01-01 00:00:00',
   `ownerID` int(11) NOT NULL,
+  `typeID` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`stationID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
