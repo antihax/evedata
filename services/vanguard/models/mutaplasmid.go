@@ -14,21 +14,27 @@ var MutaplasmidTypes = map[string]string{
 	"100mn Afterburner":         `T.typeName LIKE "%100mn%" AND groupID = 46 `,
 	"10mn Afterburner":          `T.typeName LIKE "%10mn%" AND groupID = 46 `,
 	"1mn Afterburner":           `T.typeName LIKE "%1mn%" AND groupID = 46 `,
+	"100-200mm Armor Plate":     `(T.typeName LIKE "%100mm%" OR T.typeName LIKE "%200mm%") AND groupID = 329`,
+	"400-800mm Armor Plate":     `(T.typeName LIKE "%400mm%" OR T.typeName LIKE "%800mm%") AND groupID = 329`,
 	"500mn Microwarpdrive":      `T.typeName LIKE "%500mn%" AND groupID = 46`,
 	"50mn Microwarpdrive":       `T.typeName LIKE "%50mn%" AND groupID = 46`,
 	"5mn Microwarpdrive":        `T.typeName LIKE "%5mn%" AND groupID = 46`,
 	"1600mm Armor Plate":        `T.typeName LIKE "%1600mm%" AND groupID = 329`,
 	"Heavy Energy Neutralizer":  `T.typeName LIKE "%heavy%" AND groupID = 71`,
+	"Heavy Energy Nosferatu":    `T.typeName LIKE "%heavy%" AND groupID = 68`,
 	"Large Armor Repairer":      `T.typeName LIKE "%large%" AND groupID = 62`,
+	"Large Cap Battery":         `T.typeName LIKE "%large%" AND groupID = 61`,
 	"Large Shield Booster":      `T.typeName LIKE "%large%" AND groupID = 40 AND T.typeName NOT LIKE "%x-large%"`,
 	"Large Shield Extender":     `T.typeName LIKE "%large%" AND groupID = 38`,
-	"400-800mm Armor Plate":     `(T.typeName LIKE "%400mm%" OR T.typeName LIKE "%800mm%") AND groupID = 329`,
+	"Medium Cap Battery":        `T.typeName LIKE "%medium%" AND groupID = 61`,
 	"Medium Energy Neutralizer": `T.typeName LIKE "%medium%" AND groupID = 71`,
+	"Medium Energy Nosferatu":   `T.typeName LIKE "%medium%" AND groupID = 68`,
 	"Medium Armor Repairer":     `T.typeName LIKE "%medium%" AND groupID = 62`,
 	"Medium Shield Booster":     `T.typeName LIKE "%medium%" AND groupID = 40`,
 	"Medium Shield Extender":    `T.typeName LIKE "%medium%" AND groupID = 38`,
-	"100-200mm Armor Plate":     `(T.typeName LIKE "%100mm%" OR T.typeName LIKE "%200mm%") AND groupID = 329`,
+	"Small Cap Battery":         `T.typeName LIKE "%small%" AND groupID = 61`,
 	"Small Energy Neutralizer":  `T.typeName LIKE "%small%" AND groupID = 71`,
+	"Small Energy Nosferatu":    `T.typeName LIKE "%small%" AND groupID = 68`,
 	"Small Armor Repairer":      `T.typeName LIKE "%small%" AND groupID = 62`,
 	"Small Shield Booster":      `T.typeName LIKE "%small%" AND groupID = 40`,
 	"Small Shield Extender":     `T.typeName LIKE "%small%" AND groupID = 38`,
@@ -65,10 +71,10 @@ func GetMutaplasmidData(mutaplasmidType string) (*MutaplasmidData, error) {
 				'"typeName": "', typeName, '"' ', ',
 				'"price": ', mean, ', ', 
 				GROUP_CONCAT(
-					DISTINCT CONCAT( '"', attributeName, '": ', IFNULL( valueInt, valueFloat ) ) ORDER BY attributeName ASC
+					DISTINCT CONCAT( '"', attributeName, '": ', ABS(IFNULL( valueInt, valueFloat ) )) ORDER BY attributeName ASC
 				), '}') AS data
 			FROM eve.invTypes T
-			INNER JOIN dgmTypeAttributes A ON A.typeID = T.typeID  AND attributeID IN (50,6,73,84,105,20,72,983,796,54,30,68,97,554,1159)
+			INNER JOIN dgmTypeAttributes A ON A.typeID = T.typeID  AND attributeID IN (50,6,64,90,2267,73,84,105,20,72,983,796,54,30,68,97,554,1159)
 			INNER JOIN dgmAttributeTypes AT ON AT.attributeID = A.attributeID
 			INNER JOIN evedata.market_history H ON H.itemID = T.typeID  AND H.date >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 60 DAY) AND H.regionID IN (10000002, 10000043, 10000030, 10000032, 30002053)
 			WHERE `+mpt+`
