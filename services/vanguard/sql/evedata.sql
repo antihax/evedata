@@ -541,6 +541,7 @@ CREATE TABLE `structures` (
   `z` float DEFAULT NULL,
   `updated` datetime DEFAULT NULL,
   `marketCacheUntil` datetime DEFAULT '2016-01-01 00:00:00',
+  `ownerID` int(11) NOT NULL,
   PRIMARY KEY (`stationID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
