@@ -20,9 +20,13 @@ You will need Docker for the mock services
 | ------------- |-------------| 
 | Artifice      | Task scheduler | 
 | Conservator    | Integration (discord, slack, ts3, mumble) | 
-| Hammer | ESI Consumer |  
+| Hammer | Main ESI Consumer | 
+| KillmailDump | Dumps killmail stream to json files |   
 | MailServer | IMAP/SMTP Proxy for EVE Mail |  
 | Nail | Database store |  
+| Squirrel | Not used yet. Pulls static data into DB get updates faster. |  
+| Tailor | Killmail to dogma attribute service |  
+| TokenServer | CCP OAuth2 Caching service | 
 | Vanguard | Web Front End|  
 | ZKillboard | ZKillboard API and RedisQ Consumer |  
 
