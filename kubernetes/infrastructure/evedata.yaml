@@ -6,11 +6,7 @@ metadata:
 spec:
   domains:
   - evedata.org
-  - www.evedata.org
-  - mail.evedata.org
-  - grafana.evedata.org
-  - log.evedata.org
-  - scope.evedata.org
+  - '*.evedata.org'
   acmeUserSecretName: acme-account
   challengeProvider:
     dns:

@@ -19,9 +19,9 @@ kind: Pod
 metadata:
   name: sql
   namespace: storage
-    labels:
-    name: sql
-    app: sql
+  labels:
+    - name: sql
+      app: sql
 spec:
   restartPolicy: Always
   nodeSelector:
