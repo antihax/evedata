@@ -22,9 +22,6 @@ func (t *ApiCacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 	// Loop until success
 	tries := 0
 	for {
-
-		esiRateLimiter := true
-
 		// Tickup retry counter
 		tries++
 
@@ -40,7 +37,6 @@ func (t *ApiCacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 
 		// We got a response
 		if res != nil {
-
 			// Get the ESI error information
 			resetS := res.Header.Get("x-esi-error-limit-reset")
 			tokensS := res.Header.Get("x-esi-error-limit-remain")
@@ -48,43 +44,48 @@ func (t *ApiCacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 			// Tick up and log any errors
 			if res.StatusCode >= 400 {
 				metricAPIErrors.Inc()
-				log.Printf("St: %d Res: %s Tok: %s - %s\n", res.StatusCode, resetS, tokensS, req.URL)
-			}
-
-			// Early out for "our bad" statuses
-			if (res.StatusCode >= 400 && res.StatusCode < 420) || res.StatusCode == 500 {
-				return res, err
+				//	log.Printf("St: %d Res: %s Tok: %s - %s\n", res.StatusCode, resetS, tokensS, req.URL)
 			}
 
 			// If we cannot decode this is likely from another source.
-			reset, err := strconv.Atoi(resetS)
+			esiRateLimiter := true
+			reset, err := strconv.ParseFloat(resetS, 64)
 			if err != nil {
 				esiRateLimiter = false
 			}
-			tokens, err := strconv.Atoi(tokensS)
+			tokens, err := strconv.ParseFloat(tokensS, 64)
 			if err != nil {
 				esiRateLimiter = false
 			}
 
 			// Backoff
 			if res.StatusCode == 420 { // Something went wrong
-				time.Sleep(time.Duration(reset)*time.Second + time.Duration(rand.Intn(int(time.Second*5))))
-			} else if res.StatusCode == 429 { // SNAFU
-				time.Sleep(time.Second * time.Duration(60+rand.Intn(30)))
+				duration := reset * ((1 + rand.Float64()) * 5)
+				time.Sleep(time.Duration(duration) * time.Second)
 			} else if esiRateLimiter { // Sleep based on error rate.
-				time.Sleep(time.Second * time.Duration(float64(reset)*2*(1-(float64(tokens)/100))))
+				percentRemain := 1 - (tokens / 100)
+				duration := reset * percentRemain * (1 + rand.Float64())
+				time.Sleep(time.Second * time.Duration(duration))
 			} else if !esiRateLimiter { // Not an ESI error
 				time.Sleep(time.Second * time.Duration(tries))
 			}
 
-			// break out after 10 tries
-			if res.StatusCode == 420 || res.StatusCode == 429 || res.StatusCode >= 500 || res.StatusCode == 0 {
-				if tries > 10 {
-					return res, err
+			// Get out for "our bad" statuses
+			if res.StatusCode >= 400 && res.StatusCode < 420 {
+				if res.StatusCode != 403 {
+					log.Printf("Giving up %d %s\n", res.StatusCode, req.URL)
 				}
+				return res, err
+			}
+
+			if tries > 10 {
+				log.Printf("Too many tries %d %s\n", res.StatusCode, req.URL)
+				return res, err
 			}
 		}
-		return res, err
+		if res.StatusCode >= 200 && res.StatusCode < 400 {
+			return res, err
+		}
 	}
 }
 
