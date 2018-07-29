@@ -167,12 +167,13 @@ func DumpDatabase(file string, db string) (err error) {
 		BEGIN
 			DECLARE region int(10) unsigned;
 			SELECT regionID INTO region
-				FROM eve.mapSolarSystems M
-				INNER JOIN evedata.structures S ON S.solarSystemID = M.solarSystemID
+				FROM eve.staStations
 				WHERE stationID = structure
 				LIMIT 1;
-			
-		RETURN region;
+			IF region IS NULL THEN 
+				SET region = 0;
+			END IF;
+		RETURN region;	
 		END$$
 		DELIMITER ;
 		`)
