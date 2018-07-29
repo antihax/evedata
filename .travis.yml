@@ -22,9 +22,9 @@ after_success:
   - ./test.sh
   - bash <(curl -s https://codecov.io/bash)
   - if [ "$TRAVIS_BRANCH" == "master" ]
-  - then
-  - ./build.sh
-  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-  - ./dockerpush.sh
-  - fi
+    then
+    ./build.sh;
+    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+    ./dockerpush.sh;
+    fi
   
