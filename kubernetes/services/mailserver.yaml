@@ -33,6 +33,7 @@ spec:
       name: evedata-mailserver
       labels:
         app: mailserver
+        esi-connector: true
       annotations:
         prometheus.io/scrape: "true"
     spec:

@@ -15,6 +15,7 @@ spec:
       name: evedata-artifice
       labels:
         app: artifice
+        esi-connector: true
       annotations:
         prometheus.io/scrape: "true"
     spec:

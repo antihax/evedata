@@ -15,6 +15,7 @@ spec:
       name: evedata-marketwatch
       labels:
         app: marketwatch
+        esi-connector: true
       annotations:
         prometheus.io/scrape: "true"
     spec:
