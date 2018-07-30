@@ -33,7 +33,7 @@ spec:
       name: evedata-mailserver
       labels:
         app: mailserver
-        esi-connector: true
+        esi-connector: "true"
       annotations:
         prometheus.io/scrape: "true"
     spec:
@@ -42,10 +42,10 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
-              - key: app
+              - key: esi-connector
                 operator: In
                 values:
-                - mailserver
+                - "true"
             topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-mailserver

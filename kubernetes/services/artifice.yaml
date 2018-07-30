@@ -15,7 +15,7 @@ spec:
       name: evedata-artifice
       labels:
         app: artifice
-        esi-connector: true
+        esi-connector: "true"
       annotations:
         prometheus.io/scrape: "true"
     spec:
@@ -24,10 +24,10 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
-              - key: app
+              - key: esi-connector
                 operator: In
                 values:
-                - artifice
+                - "true"
             topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-artifice

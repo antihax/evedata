@@ -15,7 +15,7 @@ spec:
       name: evedata-hammer
       labels:
         app: hammer
-        esi-connector: true
+        esi-connector: "true"
       annotations:
         prometheus.io/scrape: "true"
     spec:
@@ -27,7 +27,7 @@ spec:
               - key: esi-connector
                 operator: In
                 values:
-                - true
+                - "true"
             topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-hammer
