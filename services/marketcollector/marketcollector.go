@@ -37,7 +37,7 @@ func NewMarketCollector(db *sqlx.DB, consumerAddresses []string) *MarketCollecto
 		messageChan:      make(chan *Message, 10000),
 		orderHistoryChan: make(chan []marketwatch.OrderChange, 10000),
 	}
-	c, _, err := wsDialer.Dial("ws://localhost:3005", nil)
+	c, _, err := wsDialer.Dial("ws://marketwatch.evedata:3005", nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
