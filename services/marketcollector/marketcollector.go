@@ -14,7 +14,7 @@ import (
 
 var wsDialer = websocket.Dialer{
 	Subprotocols:     []string{"p1", "p2"},
-	ReadBufferSize:   1024 * 1024 * 200,
+	ReadBufferSize:   1024 * 1024 * 500,
 	WriteBufferSize:  1024,
 	HandshakeTimeout: 30 * time.Second,
 }

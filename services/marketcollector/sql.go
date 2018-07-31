@@ -2,6 +2,7 @@ package marketcollector
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -147,6 +148,7 @@ func (s *MarketCollector) sqlPump() {
 				log.Println(err)
 				continue
 			}
+			fmt.Printf("addition of %d orders\n", len(v))
 			s.saveAdditions(v)
 		case "change":
 			v := []marketwatch.OrderChange{}
@@ -154,6 +156,7 @@ func (s *MarketCollector) sqlPump() {
 				log.Println(err)
 				continue
 			}
+			fmt.Printf("change of %d orders\n", len(v))
 			s.saveChanges(v)
 			s.orderHistoryChan <- v
 		case "deletion":
@@ -162,6 +165,7 @@ func (s *MarketCollector) sqlPump() {
 				log.Println(err)
 				continue
 			}
+			fmt.Printf("delete of %d orders\n", len(v))
 			s.saveDeletions(v)
 			s.orderHistoryChan <- v
 		}
