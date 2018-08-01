@@ -19,7 +19,7 @@ before_install:
   - ./mock.sh
   - go get -u github.com/bwmarrin/discordgo
   - |
-    NOW=`pwd`
+    NOW=$(pwd)
     cd $GOROOT/src/github/bwmarrin/discordgo
     git checkout dev
     cd $NOW
