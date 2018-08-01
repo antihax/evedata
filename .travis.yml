@@ -19,10 +19,9 @@ before_install:
   - ./mock.sh
   - go get -u github.com/bwmarrin/discordgo
   - |
-    NOW=$(pwd)
-    cd $GOPATH/src/github/bwmarrin/discordgo
+    cd $HOME/gopath/src/github.com/bwmarrin/discordgo
     git checkout dev
-    cd $NOW
+    cd $TRAVIS_BUILD_DIR
 
 after_success:
   - ./test.sh
