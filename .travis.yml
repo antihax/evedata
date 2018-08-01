@@ -20,7 +20,7 @@ before_install:
   - go get -u github.com/bwmarrin/discordgo
   - |
     cd $HOME/gopath/src/github.com/bwmarrin/discordgo
-    git checkout dev
+    git checkout develop
     cd $TRAVIS_BUILD_DIR
 
 after_success:
