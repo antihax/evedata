@@ -21,7 +21,9 @@ func (s *MarketCollector) orderChangesPump() {
 
 		count := 0
 		for _, g := range c {
-			if g.VolumeChange > 0 { // Skip price changes
+			if g.VolumeChange > 0 && // Skip price changes
+				g.Issued.Add(time.Hour*24*time.Duration(g.Duration)).
+					After(time.Now().UTC()) { // Skip expired
 				count++
 				order = order.Values(g.OrderID, g.TimeChanged, g.LocationId, g.TypeID, g.VolumeChange, g.VolumeRemain, g.Price, g.Duration, g.IsBuyOrder)
 			}
