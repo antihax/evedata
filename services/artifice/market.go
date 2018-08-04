@@ -8,24 +8,8 @@ import (
 )
 
 func init() {
-	registerTrigger("marketOrders", marketTrigger, time.NewTicker(time.Second*300))
 	registerTrigger("structures", structuresTrigger, time.NewTicker(time.Second*300))
 	registerTrigger("marketHistory", historyTrigger, time.NewTicker(time.Second*1900))
-}
-
-func marketTrigger(s *Artifice) error {
-	regions, _, err := s.esi.ESI.UniverseApi.GetUniverseRegions(context.Background(), nil)
-	if err != nil {
-		return err
-	}
-
-	work := []redisqueue.Work{}
-	for _, region := range regions {
-		if region < 11000000 || region == 11000031 {
-			work = append(work, redisqueue.Work{Operation: "marketOrders", Parameter: region})
-		}
-	}
-	return s.QueueWork(work, redisqueue.Priority_Normal)
 }
 
 func historyTrigger(s *Artifice) error {
@@ -50,26 +34,10 @@ func structuresTrigger(s *Artifice) error {
 		return err
 	}
 
-	market, err := s.inQueue.CheckWorkCompletedInBulk("evedata_structure_market_failure", structures)
-	if err != nil {
-		return err
-	}
-
 	for i := range structure {
 		if !structure[i] {
 			work := []redisqueue.Work{}
 			work = append(work, redisqueue.Work{Operation: "structure", Parameter: structures[i]})
-			err = s.QueueWork(work, redisqueue.Priority_Lowest)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	for i := range market {
-		if !market[i] {
-			work := []redisqueue.Work{}
-			work = append(work, redisqueue.Work{Operation: "structureOrders", Parameter: structures[i]})
 			err = s.QueueWork(work, redisqueue.Priority_Lowest)
 			if err != nil {
 				return err

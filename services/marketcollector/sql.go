@@ -62,7 +62,7 @@ func (s *MarketCollector) saveAdditions(c []esi.GetMarketsRegionIdOrders200Ok) {
 		count++
 		order = order.Values(
 			g.OrderId,
-			squirrel.Expr("evedata.regionIDByStructureID(VALUES(stationID))"),
+			squirrel.Expr("evedata.regionIDByStructureID(?)", g.LocationId),
 			g.LocationId, g.TypeId, g.IsBuyOrder, g.Price, g.MinVolume,
 			g.VolumeRemain, g.VolumeTotal, g.Issued, g.Duration, squirrel.Expr("UTC_TIMESTAMP()"),
 		)
