@@ -136,7 +136,7 @@ func (s *MarketCollector) saveChanges(c []marketwatch.OrderChange) {
 }
 
 func (s *MarketCollector) sqlPump() {
-	// Deal with change records in a seperate routine as we don't have to worry about collisions.
+	// Deal with change records in a separate routine as we don't have to worry about collisions.
 	go s.orderChangesPump()
 
 	for {
