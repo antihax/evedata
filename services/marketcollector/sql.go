@@ -52,9 +52,7 @@ func (s *MarketCollector) saveAdditions(c []esi.GetMarketsRegionIdOrders200Ok) {
 	start := time.Now()
 	count := 0
 	length := len(c)
-	if length > 10000 {
-		return
-	}
+
 	wg := sync.WaitGroup{}
 	sem := make(chan bool, 8)
 

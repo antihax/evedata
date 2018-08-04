@@ -17,14 +17,20 @@ services:
 before_install:
   - sudo /etc/init.d/mysql stop
   - ./mock.sh
+  - go get -u github.com/bwmarrin/discordgo
+  - |
+    cd $HOME/gopath/src/github.com/bwmarrin/discordgo
+    git checkout develop
+    cd $TRAVIS_BUILD_DIR
 
 after_success:
   - ./test.sh
   - bash <(curl -s https://codecov.io/bash)
-  - if [ "$TRAVIS_BRANCH" == "master" ]
+  - |
+    if [ "$TRAVIS_BRANCH" == "master" ]
     then
-    ./build.sh;
-    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-    ./dockerpush.sh;
+      ./build.sh;
+      docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+      ./dockerpush.sh;
     fi
   
