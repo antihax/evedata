@@ -13,46 +13,9 @@ import (
 )
 
 func init() {
-	AddHandler("marketOrders", func(s *Nail, consumer *nsq.Consumer) {
-		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.marketOrderHandler)))
-	})
 	AddHandler("marketHistory", func(s *Nail, consumer *nsq.Consumer) {
 		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.marketHistoryHandler)))
 	})
-}
-
-func (s *Nail) marketOrderHandler(message *nsq.Message) error {
-	b := datapackages.MarketOrders{}
-	err := gobcoder.GobDecoder(message.Body, &b)
-	if err != nil {
-		return err
-	}
-
-	if len(b.Orders) == 0 {
-		return nil
-	}
-
-	values := []string{}
-	count := 0
-	for _, e := range b.Orders {
-		count++
-		var buy byte
-		if e.IsBuyOrder {
-			buy = 1
-		} else {
-			buy = 0
-		}
-		values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,%q,%d,%d,%d,UTC_TIMESTAMP())",
-			e.OrderId, e.Price, e.VolumeRemain, e.TypeId, e.VolumeTotal, e.MinVolume,
-			buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, e.LocationId, (int32)(b.RegionID)))
-		if count >= 80 {
-			s.doMarketOrders(values)
-			values = []string{}
-			count = 0
-		}
-	}
-
-	return s.doMarketOrders(values)
 }
 
 func (s *Nail) doMarketOrders(values []string) error {

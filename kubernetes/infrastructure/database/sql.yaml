@@ -38,6 +38,8 @@ spec:
       mountPath: /var/lib/mysql
     - name: config-volume
       mountPath: /etc/mysql/conf.d
+    - name: infusion-volume
+      mountPath: /usr/lib/mysql/plugin/udf_infusion.so
     env:
     - name: INIT_TOKUDB
       value: "1"
@@ -51,6 +53,10 @@ spec:
     hostPath:
       path: /data/mysql
       type: DirectoryOrCreate
+  - name: infusion-volume
+    hostPath:
+      path: /data/mysqlplugins/udf_infusion.so
+      type: File
   - configMap:
       name: sql-config
     name: config-volume        

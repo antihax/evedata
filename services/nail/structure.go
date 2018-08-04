@@ -1,9 +1,6 @@
 package nail
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/antihax/evedata/internal/datapackages"
 
 	"github.com/antihax/evedata/internal/gobcoder"
@@ -11,47 +8,9 @@ import (
 )
 
 func init() {
-	AddHandler("structureOrders", func(s *Nail, consumer *nsq.Consumer) {
-		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.structureMarketHandler)))
-	})
 	AddHandler("structure", func(s *Nail, consumer *nsq.Consumer) {
 		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.structureHandler)))
 	})
-}
-
-func (s *Nail) structureMarketHandler(message *nsq.Message) error {
-	b := datapackages.StructureOrders{}
-	err := gobcoder.GobDecoder(message.Body, &b)
-	if err != nil {
-		return err
-	}
-
-	if len(b.Orders) == 0 {
-		return nil
-	}
-
-	var values []string
-	for _, e := range b.Orders {
-		var buy byte
-		if e.IsBuyOrder {
-			buy = 1
-		} else {
-			buy = 0
-		}
-		values = append(values, fmt.Sprintf("(%d,%f,%d,%d,%d,%d,%d,%q,%d,%d,evedata.regionIDByStructureID(%d),UTC_TIMESTAMP())",
-			e.OrderId, e.Price, e.VolumeRemain, e.TypeId, e.VolumeTotal, e.MinVolume,
-			buy, e.Issued.UTC().Format("2006-01-02 15:04:05"), e.Duration, b.StructureID, b.StructureID))
-	}
-
-	stmt := fmt.Sprintf(`INSERT INTO evedata.market (orderID, price, remainingVolume, typeID, enteredVolume, minVolume, bid, issued, duration, stationID, regionID, reported)
-			VALUES %s
-			ON DUPLICATE KEY UPDATE price=VALUES(price),
-				remainingVolume=VALUES(remainingVolume),
-				issued=VALUES(issued),
-				duration=VALUES(duration),
-				reported=VALUES(reported);
-				`, strings.Join(values, ",\n"))
-	return s.doSQL(stmt)
 }
 
 func (s *Nail) structureHandler(message *nsq.Message) error {

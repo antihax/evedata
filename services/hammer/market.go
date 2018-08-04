@@ -12,7 +12,6 @@ import (
 )
 
 func init() {
-	registerConsumer("marketOrders", marketOrdersConsumer)
 	registerConsumer("marketHistoryTrigger", marketHistoryTrigger)
 	registerConsumer("marketHistory", marketHistoryConsumer)
 }
@@ -77,38 +76,5 @@ func marketHistoryConsumer(s *Hammer, parameter interface{}) {
 	if err != nil {
 		log.Println(err)
 		return
-	}
-}
-
-func marketOrdersConsumer(s *Hammer, parameter interface{}) {
-	regionID := int32(parameter.(int))
-	var page int32 = 1
-
-	for {
-		orders, r, err := s.esi.ESI.MarketApi.GetMarketsRegionIdOrders(context.Background(), "all", regionID,
-			&esi.GetMarketsRegionIdOrdersOpts{
-				Page: optional.NewInt32(page),
-			})
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		// Send out the result
-		err = s.QueueResult(&datapackages.MarketOrders{
-			Orders:   orders,
-			RegionID: regionID},
-			"marketOrders")
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		xpagesS := r.Header.Get("x-pages")
-		xpages, _ := strconv.Atoi(xpagesS)
-		if int32(xpages) == page || len(orders) == 0 {
-			return
-		}
-		page++
 	}
 }
