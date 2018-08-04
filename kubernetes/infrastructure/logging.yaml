@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: elasticsearch-logging
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
   namespace: kube-system
   labels:
     k8s-app: elasticsearch-logging
@@ -12,7 +14,10 @@ spec:
   ports:
   - port: 9200
     protocol: TCP
-    targetPort: db
+    targetPort: 9200
+  - port: 9300
+    protocol: TCP
+    targetPort: 9300
   selector:
     k8s-app: elasticsearch-logging
 ---
@@ -227,8 +232,9 @@ data:
   elasticsearch.yml: |-
     cluster.name: "elasticsearch-logging"
     network.host: 0.0.0.0
-    discovery.zen.minimum_master_nodes: 1
-    discovery.zen.ping.unicast.hosts: "elasticsearch-logging"
+    discovery.zen:
+      minimum_master_nodes: 2
+      ping.unicast.hosts: elasticsearch-logging
     path.data: /data
   log4j2.properties: |-
     status = error
