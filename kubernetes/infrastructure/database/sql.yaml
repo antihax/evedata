@@ -4,7 +4,7 @@ metadata:
   name: sql
   namespace: storage
   labels:
-    name: sql
+    app: sql
 spec:
   ports:
     - port: 3306
@@ -12,7 +12,7 @@ spec:
       targetPort: 3306
       protocol: TCP
   selector:
-    name: sql
+    app: sql
 ---
 apiVersion: v1
 kind: Pod
