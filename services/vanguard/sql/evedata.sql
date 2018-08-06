@@ -353,7 +353,7 @@ CREATE TABLE `killmailAttributes` (
   `capacitorTime` bigint(20) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `ix_id_cpu_pg_ehp` (`id`,`CPURemaining`,`powerRemaining`,`eHP`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `killmails` (
   `id` int(9) unsigned NOT NULL,
@@ -464,7 +464,7 @@ CREATE TABLE `marketOrderHistory` (
   `changed` datetime NOT NULL,
   PRIMARY KEY (`orderID`,`changed`),
   KEY `ix_chg_buy` (`isBuyOrder`,`changed`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `marketStations` (
   `stationName` varchar(255) DEFAULT NULL,
@@ -528,7 +528,7 @@ CREATE TABLE `orders` (
   PRIMARY KEY (`orderid`),
   KEY `characterID` (`characterID`),
   KEY `char_region_item` (`characterID`,`regionID`,`typeID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `sharing` (
   `characterID` int(11) unsigned NOT NULL,
