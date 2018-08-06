@@ -452,6 +452,20 @@ CREATE TABLE `marketHistoryStatistics` (
   PRIMARY KEY (`itemID`,`regionID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `marketOrderHistory` (
+  `orderID` bigint(20) unsigned NOT NULL,
+  `locationID` bigint(20) unsigned NOT NULL,
+  `typeID` smallint(5) unsigned NOT NULL,
+  `volumeChange` int(11) unsigned NOT NULL,
+  `volumeRemain` int(11) unsigned NOT NULL,
+  `price` decimal(22,2) unsigned NOT NULL,
+  `duration` smallint(5) unsigned NOT NULL,
+  `isBuyOrder` tinyint(4) unsigned NOT NULL,
+  `changed` datetime NOT NULL,
+  PRIMARY KEY (`orderID`,`changed`),
+  KEY `ix_chg_buy` (`isBuyOrder`,`changed`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `marketStations` (
   `stationName` varchar(255) DEFAULT NULL,
   `stationID` bigint(20) unsigned NOT NULL DEFAULT '0',
@@ -695,12 +709,13 @@ CREATE TABLE `wars` (
 		BEGIN
 			DECLARE region int(10) unsigned;
 			SELECT regionID INTO region
-				FROM eve.mapSolarSystems M
-				INNER JOIN evedata.structures S ON S.solarSystemID = M.solarSystemID
+				FROM eve.staStations
 				WHERE stationID = structure
 				LIMIT 1;
-			
-		RETURN region;
+			IF region IS NULL THEN 
+				SET region = 0;
+			END IF;
+		RETURN region;	
 		END$$
 		DELIMITER ;
 		DELIMITER $$
