@@ -91,18 +91,15 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 		l := notification.AllWarDeclaredMsg{}
 		if err := yaml.Unmarshal([]byte(text), &l); err != nil {
 			log.Println(err)
-			return err
 		}
 
 		defender, err := s.getEntityName(l.AgainstID)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 		attacker, err := s.getEntityName(l.DeclaredByID)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 
 		message := fmt.Sprintf("[%s](https://www.evedata.org/%s?id=%d) just declared war on [%s](https://www.evedata.org/%s?id=%d)\n",
@@ -146,11 +143,10 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 		systemName, err := s.getCelestialName(l.SolarsystemID) // -.-
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 
 		message := fmt.Sprintf("A structure is under attack in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%  A: %.1f%%  H: %.1f%% \n",
-			systemName, attackerName, attackerType, attacker, l.ShieldPercentage*100, l.ArmorPercentage*100, l.HullPercentage*100)
+			systemName, attackerName, attackerType, attacker, l.ShieldPercentage, l.ArmorPercentage, l.HullPercentage)
 
 		return s.sendNotificationMessage("structure", characterID, notificationID, message)
 
@@ -171,22 +167,18 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 		locationName, err := s.getCelestialName(l.PlanetID)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 		systemName, err := s.getCelestialName(l.SolarSystemID)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 		structureType, err := s.getTypeName(l.TypeID)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 		attackerName, err := s.getEntityName(attacker)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 
 		message := fmt.Sprintf("%s is under attack at %s in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%\n",
@@ -211,22 +203,18 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 		locationName, err := s.getCelestialName(l.MoonID)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 		systemName, err := s.getCelestialName(l.SolarSystemID)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 		structureType, err := s.getTypeName(l.TypeID)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 		attackerName, err := s.getEntityName(attacker)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 		message := fmt.Sprintf(" %s is under attack at %s in %s by [%s](https://www.evedata.org/%s?id=%d) S: %.1f%%  A: %.1f%%  H: %.1f%% \n",
 			structureType, locationName, systemName, attackerName.Name, attackerType, attacker, l.ShieldValue*100, l.ArmorValue*100, l.HullValue*100)
@@ -250,22 +238,18 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 		locationName, err := s.getCelestialName(l.PlanetID)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 		systemName, err := s.getCelestialName(l.SolarSystemID)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 		structureType, err := s.getTypeName(l.TypeID)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 		attackerName, err := s.getEntityName(attacker)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 
 		message := fmt.Sprintf("%s was reinforced at %s in %s by [%s](https://www.evedata.org/%s?id=%d).\n\n Timer expires at %s\n",
@@ -281,13 +265,11 @@ func (s *Conservator) checkNotification(characterID int32, notificationID int64,
 		systemName, err := s.getCelestialName(l.SolarsystemID)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 
 		structureType, err := s.getTypeName(l.StructureTypeID)
 		if err != nil {
 			log.Println(err)
-			return err
 		}
 
 		message := fmt.Sprintf("%s entered %s in %s: Timer expires at %s\n",
