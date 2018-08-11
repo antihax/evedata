@@ -1,23 +1,5 @@
 @import url("https://fonts.googleapis.com/css?family=Lato:400,700,400italic");
 
-/*!
- * bootswatch v3.3.7
- * Homepage: http://bootswatch.com
- * Copyright 2012-2016 Thomas Park
- * Licensed under MIT
- * Based on Bootstrap
-*/
-
-
-/*!
- * Bootstrap v3.3.7 (http://getbootstrap.com)
- * Copyright 2011-2016 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- */
-
-
-/*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
-
 html {
     font-family: sans-serif;
     -ms-text-size-adjust: 100%;
@@ -1644,7 +1626,7 @@ p {
     line-height: 1.4
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .lead {
         font-size: 22.5px
     }
@@ -1842,7 +1824,7 @@ dd {
     margin-left: 0
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .dl-horizontal dt {
         float: left;
         width: 160px;
@@ -1997,7 +1979,7 @@ pre code {
     padding-right: 15px
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .container {
         width: 750px
     }
@@ -2300,7 +2282,7 @@ pre code {
     margin-left: 0%
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .col-sm-1,
     .col-sm-2,
     .col-sm-3,
@@ -3573,7 +3555,7 @@ select[multiple].input-lg {
     color: #ffffff
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .form-inline .form-group {
         display: inline-block;
         margin-bottom: 0;
@@ -3643,7 +3625,7 @@ select[multiple].input-lg {
     margin-right: -15px
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .form-horizontal .control-label {
         text-align: right;
         margin-bottom: 0;
@@ -3655,14 +3637,14 @@ select[multiple].input-lg {
     right: 15px
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .form-horizontal .form-group-lg .control-label {
         padding-top: 19px;
         font-size: 19px
     }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .form-horizontal .form-group-sm .control-label {
         padding-top: 7px;
         font-size: 13px
@@ -4393,7 +4375,7 @@ tbody.collapse.in {
     margin-bottom: 2px
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .navbar-right .dropdown-menu {
         left: auto;
         right: 0
@@ -4899,7 +4881,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     left: auto
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .nav-tabs.nav-justified>li {
         display: table-cell;
         width: 1%
@@ -4920,7 +4902,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     border: 1px solid #ebebeb
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .nav-tabs.nav-justified>li>a {
         border-bottom: 1px solid #ebebeb;
         border-radius: 4px 4px 0 0
@@ -4978,7 +4960,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     left: auto
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .nav-justified>li {
         display: table-cell;
         width: 1%
@@ -5003,7 +4985,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     border: 1px solid #ebebeb
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .nav-tabs-justified>li>a {
         border-bottom: 1px solid #ebebeb;
         border-radius: 4px 4px 0 0
@@ -5031,18 +5013,18 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
 
 .navbar {
     position: relative;
-    min-height: 60px;
-    margin-bottom: 21px;
+    min-height: 48px;
+    margin-bottom: 5px;
     border: 1px solid transparent
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .navbar {
         border-radius: 4px
     }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .navbar-header {
         float: left
     }
@@ -5062,7 +5044,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     overflow-y: auto
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .navbar-collapse {
         width: auto;
         border-top: 0;
@@ -5106,7 +5088,8 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     margin-left: -15px
 }
 
-@media (min-width: 768px) {
+
+@media (min-width: 800px) {
     .container>.navbar-header,
     .container-fluid>.navbar-header,
     .container>.navbar-collapse,
@@ -5121,7 +5104,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     border-width: 0 0 1px
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .navbar-static-top {
         border-radius: 0
     }
@@ -5135,7 +5118,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     z-index: 1030
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .navbar-fixed-top,
     .navbar-fixed-bottom {
         border-radius: 0
@@ -5155,9 +5138,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
 
 .navbar-brand {
     float: left;
-    padding: 19.5px 15px;
-    font-size: 19px;
-    line-height: 21px;
+    padding: 10px;
     height: 40px
 }
 
@@ -5170,7 +5151,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     display: block
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .navbar>.container .navbar-brand,
     .navbar>.container-fluid .navbar-brand {
         margin-left: -15px
@@ -5182,8 +5163,8 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     float: right;
     margin-right: 15px;
     padding: 9px 10px;
-    margin-top: 13px;
-    margin-bottom: 13px;
+    margin-top: 6px;
+    margin-bottom: 6px;
     background-color: transparent;
     background-image: none;
     border: 1px solid transparent;
@@ -5205,7 +5186,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     margin-top: 4px
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .navbar-toggle {
         display: none
     }
@@ -5216,9 +5197,8 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
 }
 
 .navbar-nav>li>a {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    line-height: 21px
+    padding-top: 15px;
+    padding-bottom: 15px;  
 }
 
 @media (max-width: 767px) {
@@ -5245,7 +5225,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .navbar-nav {
         float: left;
         margin: 0
@@ -5254,8 +5234,8 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
         float: left
     }
     .navbar-nav>li>a {
-        padding-top: 19.5px;
-        padding-bottom: 19.5px
+        padding-top: 15px;
+        padding-bottom: 15px
     }
 }
 
@@ -5271,7 +5251,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     margin-bottom: 7.5px
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .navbar-form .form-group {
         display: inline-block;
         margin-bottom: 0;
@@ -5331,7 +5311,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .navbar-form {
         width: auto;
         border: 0;
@@ -5374,11 +5354,11 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
 }
 
 .navbar-text {
-    margin-top: 19.5px;
-    margin-bottom: 19.5px
+    margin-top: 10px;
+    margin-bottom: 10px
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .navbar-text {
         float: left;
         margin-left: 15px;
@@ -5386,7 +5366,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .navbar-left {
         float: left !important
     }
@@ -5984,7 +5964,7 @@ a.badge:focus {
     max-width: 100%
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 800px) {
     .jumbotron {
         padding-top: 48px;
         padding-bottom: 48px
@@ -7158,7 +7138,7 @@ button.close {
     overflow: scroll
 }
 
-@media (min-width: 768px) {
+@media (min-width: 800px) {
     .modal-dialog {
         width: 600px;
         margin: 30px auto
@@ -7683,7 +7663,7 @@ button.close {
     text-shadow: none
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 800px) {
     .carousel-control .glyphicon-chevron-left,
     .carousel-control .glyphicon-chevron-right,
     .carousel-control .icon-prev,
@@ -7868,7 +7848,7 @@ button.close {
     }
 }
 
-@media (min-width: 768px) and (max-width: 991px) {
+@media (min-width: 800px) and (max-width: 991px) {
     .visible-sm {
         display: block !important
     }
@@ -7884,19 +7864,19 @@ button.close {
     }
 }
 
-@media (min-width: 768px) and (max-width: 991px) {
+@media (min-width: 800px) and (max-width: 991px) {
     .visible-sm-block {
         display: block !important
     }
 }
 
-@media (min-width: 768px) and (max-width: 991px) {
+@media (min-width: 800px) and (max-width: 991px) {
     .visible-sm-inline {
         display: inline !important
     }
 }
 
-@media (min-width: 768px) and (max-width: 991px) {
+@media (min-width: 800px) and (max-width: 991px) {
     .visible-sm-inline-block {
         display: inline-block !important
     }
@@ -7976,7 +7956,7 @@ button.close {
     }
 }
 
-@media (min-width: 768px) and (max-width: 991px) {
+@media (min-width: 800px) and (max-width: 991px) {
     .hidden-sm {
         display: none !important
     }
