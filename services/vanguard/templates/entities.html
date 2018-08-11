@@ -162,7 +162,6 @@
 	</div>
 {{end}}
 
-
 {{define "allianceJoinHistory"}}
 	<div class="col-md-6 well">
 		<h3>
@@ -211,7 +210,7 @@
 {{end}}
 
 {{define "knownAssociates"}}
-	<div class="col-md-6 well">
+	<div class="col-md-6 well" id="well_knownalts">
 		<h3>
 			Known Associates
 		</h3>
@@ -226,14 +225,20 @@
 		</table>
 		<script>
 			$(function () {
-				$('#alts').bootstrapTable();
+				$('#alts').bootstrapTable({
+					onLoadSuccess: function (d) {
+						if (d.length == 0) {
+							$("#well_knownalts").hide();
+						}
+					}
+				});
 			});
 		</script>
 	</div>
 {{end}}
 
 {{define "wars"}}
-	<div class="col-md-6 well">
+	<div class="col-md-6 well" id="well_wars">
 		<h3>
 			Active Wars
 		</h3>
@@ -250,7 +255,13 @@
 		</table>
 		<script>
 			$(function () {
-				$('#wars').bootstrapTable();
+				$('#wars').bootstrapTable({
+					onLoadSuccess: function (d) {
+						if (d.length == 0) {
+							$("#well_wars").hide();
+						}
+					}
+				});
 			});
 		</script>
 	</div>
@@ -283,7 +294,7 @@
 {{end}}
 
 {{define "knownships"}}
-	<div class="col-md-6 well">
+	<div class="col-md-6 well" id="well_knownships">
 		<h3>
 			Known Ships
 		</h3>
@@ -298,14 +309,20 @@
 		</table>
 		<script>
 			$(function () {
-				$('#knownships').bootstrapTable();
+				$('#knownships').bootstrapTable({
+					onLoadSuccess: function (d) {
+						if (d.length == 0) {
+							$("#well_knownships").hide();
+						}
+					}
+				});
 			});
 		</script>
 	</div>
 {{end}}
 
 {{define "knownallies"}}
-	<div class="col-md-6 well">
+	<div class="col-md-6 well" id="well_knownallies">
 		<h3>
 			Known Allies
 		</h3>
@@ -320,14 +337,20 @@
 		</table>
 		<script>
 			$(function () {
-				$('#knownallies').bootstrapTable();
+				$('#knownallies').bootstrapTable({
+					onLoadSuccess: function (d) {
+						if (d.length == 0) {
+							$("#well_knownallies").hide();
+						}
+					}
+				});
 			});
 		</script>
 	</div>
 {{end}}
 
 {{define "assets"}}
-	<div class="col-md-6 well">
+	<div class="col-md-6 well" id="well_assets">
 		<h3>
 			Possible Assets In Space
 		</h3>
@@ -345,7 +368,14 @@
 		</table>
 		<script>
 			$(function () {
-				$('#assets').bootstrapTable({ data: assets });
+				$('#assets').bootstrapTable({ 
+					data: assets,
+					onLoadSuccess: function(d) {
+						if (d.length == 0) {
+							$("#well_assets").hide();
+						}
+					},
+				 });
 			});
 		</script>
 	</div>
