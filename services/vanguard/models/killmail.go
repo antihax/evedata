@@ -21,7 +21,6 @@ type KillmailHeatMap struct {
 	Value int64 `db:"value" json:"value"`
 }
 
-// [BENCHMARK] 0.015 sec / 0.000 sec
 func GetKillmailHeatMap(id int64, entityType string) ([]KillmailHeatMap, error) {
 	v := []KillmailHeatMap{}
 
@@ -66,7 +65,6 @@ type ConstellationActivity struct {
 	RegionName        string `db:"regionName" json:"regionName"`
 }
 
-// [BENCHMARK] 0.015 sec / 0.000 sec
 func GetConstellationActivity(id int64, entityType string) ([]ConstellationActivity, error) {
 	v := []ConstellationActivity{}
 
@@ -122,7 +120,6 @@ type KnownShipTypes struct {
 	ShipName string `db:"shipName" json:"shipName"`
 }
 
-// [BENCHMARK] 0.016 sec / 0.000 sec
 func GetKnownShipTypes(id int64, entityType string) ([]KnownShipTypes, error) {
 	v := []KnownShipTypes{}
 
@@ -179,7 +176,6 @@ type LossesInHighsec struct {
 	Losses     int64       `db:"losses" json:"losses"`
 }
 
-// [BENCHMARK] 0.10.703 sec / 0.000 sec
 // FIXME: i am slow :(
 func GetLossesInHighsec() ([]LossesInHighsec, error) {
 	v := []LossesInHighsec{}

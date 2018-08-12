@@ -12,7 +12,6 @@ type WarEntity struct {
 	Type string
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetActiveWarsByID(id int64) ([]WarEntity, error) {
 	w := []WarEntity{}
 	if err := database.Select(&w, `
@@ -31,7 +30,6 @@ func GetActiveWarsByID(id int64) ([]WarEntity, error) {
 	return w, nil
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetPendingWarsByID(id int64) ([]WarEntity, error) {
 	w := []WarEntity{}
 	if err := database.Select(&w, `
@@ -50,7 +48,6 @@ func GetPendingWarsByID(id int64) ([]WarEntity, error) {
 	return w, nil
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetFinishedWarsByID(id int64) ([]WarEntity, error) {
 	w := []WarEntity{}
 	if err := database.Select(&w, `
@@ -88,7 +85,6 @@ type ActiveWarList struct {
 	Losses        int64       `db:"losses" json:"losses"`
 }
 
-// [BENCHMARK] 1.469 sec / 0.094 sec
 func GetActiveWarList() ([]ActiveWarList, error) {
 	wars := []ActiveWarList{}
 	if err := database.Select(&wars, `
@@ -222,7 +218,6 @@ type KnownAllies struct {
 	Type   string `db:"type" json:"type"`
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetKnownAlliesByID(id int64) ([]KnownAllies, error) {
 	w := []KnownAllies{}
 	if err := database.Select(&w, `

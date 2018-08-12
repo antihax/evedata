@@ -323,7 +323,7 @@ type EntityName struct {
 }
 
 // Obtain entity name and type by ID.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func (s *Conservator) getEntityName(id int32) (*EntityName, error) {
 	ref := EntityName{}
 	if err := s.db.QueryRowx(`
@@ -339,7 +339,7 @@ func (s *Conservator) getEntityName(id int32) (*EntityName, error) {
 }
 
 // Obtain type name.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func (s *Conservator) getTypeName(id int32) (string, error) {
 	ref := ""
 	if err := s.db.QueryRowx(`
@@ -351,7 +351,7 @@ func (s *Conservator) getTypeName(id int32) (string, error) {
 }
 
 // Obtain SolarSystem name.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func (s *Conservator) getSystemName(id int32) (string, error) {
 	ref := ""
 	if err := s.db.QueryRowx(`
@@ -363,7 +363,7 @@ func (s *Conservator) getSystemName(id int32) (string, error) {
 }
 
 // Obtain Celestial name.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func (s *Conservator) getCelestialName(id int32) (string, error) {
 	ref := ""
 	if err := s.db.QueryRowx(`
@@ -375,7 +375,7 @@ func (s *Conservator) getCelestialName(id int32) (string, error) {
 }
 
 // Obtain Station name.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func (s *Conservator) getStationName(id int32) (string, error) {
 	ref := ""
 	if err := s.db.QueryRowx(`

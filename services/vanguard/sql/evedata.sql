@@ -378,7 +378,8 @@ CREATE TABLE `killmails` (
   KEY `ix_war` (`warID`),
   KEY `ix_victimCharacterID` (`victimCharacterID`),
   KEY `ix_id_killtime` (`id`,`killTime`),
-  KEY `ix_ship_time` (`shipType`,`killTime`)
+  KEY `ix_ship_time` (`shipType`,`killTime`),
+  KEY `ix_war_killtime` (`warID`,`killTime`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `locatedCharacters` (
@@ -616,13 +617,15 @@ CREATE TABLE `wars` (
   `timeDeclared` datetime DEFAULT NULL,
   `openForAllies` tinyint(4) unsigned DEFAULT NULL,
   `cacheUntil` datetime DEFAULT NULL,
-  `aggressorID` int(11) unsigned DEFAULT NULL,
-  `defenderID` int(11) unsigned DEFAULT NULL,
-  `mutual` tinyint(4) unsigned DEFAULT NULL,
+  `aggressorID` int(11) unsigned NOT NULL DEFAULT '0',
+  `defenderID` int(11) unsigned NOT NULL DEFAULT '0',
+  `mutual` tinyint(4) unsigned NOT NULL DEFAULT '0',
+  `finished` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `aggressorID` (`aggressorID`),
   KEY `defenderID` (`defenderID`),
-  KEY `timeFinished_cacheUntil` (`timeFinished`,`cacheUntil`)
+  KEY `timeFinished_cacheUntil` (`timeFinished`,`cacheUntil`),
+  KEY `idx_lookup` (`aggressorID`,`defenderID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 

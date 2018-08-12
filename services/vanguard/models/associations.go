@@ -9,7 +9,7 @@ type KnownAlts struct {
 }
 
 // Obtain Character Associates by ID.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetCharacterKnownAssociates(id int64) ([]KnownAlts, error) {
 	ref := []KnownAlts{}
 	if err := database.Select(&ref, `

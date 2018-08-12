@@ -15,7 +15,7 @@ type AssetsInSpace struct {
 }
 
 // Obtain a list of alliance assets in space.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetAllianceAssetsInSpace(id int64) ([]AssetsInSpace, error) {
 	ref := []AssetsInSpace{}
 	if err := database.Select(&ref, `
@@ -31,7 +31,7 @@ func GetAllianceAssetsInSpace(id int64) ([]AssetsInSpace, error) {
 }
 
 // Obtain a list of corporation assets in space.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetCorporationAssetsInSpace(id int64) ([]AssetsInSpace, error) {
 	ref := []AssetsInSpace{}
 	if err := database.Select(&ref, `
@@ -58,7 +58,7 @@ type LostFighters struct {
 }
 
 // Obtain a list lost fighters in highsec
-// [BENCHMARK] 0.437 sec / 0.000 sec
+
 func GetCorporationAssetsInSpaceLostFightersHighsec() ([]LostFighters, error) {
 	ref := []LostFighters{}
 	if err := database.Select(&ref, `

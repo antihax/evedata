@@ -18,7 +18,6 @@ type LocalIntelData struct {
 	CapProbability float64 `db:"capProbability" json:"capProbability"`
 }
 
-// [BENCHMARK] 1.469 sec / 0.094 sec
 // FALSE Positive AST, concatenation is for replace tokens, actual values are fed
 // through vargs.
 func GetLocalIntel(names []interface{}) ([]LocalIntelData, error) {

@@ -358,7 +358,6 @@ type marketRegion struct {
 	RegionName string `db:"regionName"`
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 // Anywhere can now have a public market.
 func getMarketRegions(s *Artifice) ([]marketRegion, error) {
 	v := []marketRegion{}

@@ -5,7 +5,6 @@ type SystemVertex struct {
 	Connections       string `db:"connections"`
 }
 
-// [BENCHMARK] 0.407 sec / 0.421 sec [TODO] Optimize
 func GetSystemVertices() ([]SystemVertex, error) {
 	s := []SystemVertex{}
 	if err := database.Select(&s, `
@@ -33,7 +32,6 @@ type SystemCelestials struct {
 	DZ   float64 `db:"dz" json:"dz,omitempty"`
 }
 
-// [BENCHMARK] 0.407 sec / 0.421 sec [TODO] Optimize
 func GetSystemCelestials(system int32) ([]SystemCelestials, error) {
 	s := []SystemCelestials{}
 	if err := database.Select(&s, `
@@ -67,7 +65,6 @@ type NullSystems struct {
 	RegionName      string `db:"regionName" json:"regionName"`
 }
 
-// [BENCHMARK] 0.407 sec / 0.421 sec [TODO] Optimize
 func GetNullSystems() ([]NullSystems, error) {
 	s := []NullSystems{}
 	if err := database.Select(&s, `

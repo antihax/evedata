@@ -24,7 +24,7 @@ func SetServiceStateByDays(state string, daysToCache int32, page int32) error {
 }
 
 // GetServiceState Get service state (page number, cache expired, etc).
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetServiceState(service string) (time.Time, int32, error) {
 	type ServiceState struct {
 		Value     int32     `db:"value"`

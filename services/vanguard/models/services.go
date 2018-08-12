@@ -7,7 +7,6 @@ import (
 	"github.com/antihax/evedata/services/conservator"
 )
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetShares(characterID int32) ([]conservator.Share, error) {
 	shares := []conservator.Share{}
 	if err := database.Select(&shares, `
@@ -41,7 +40,6 @@ func DeleteShare(characterID, tokenCharacterID, entityID int32) error {
 	return nil
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetIntegrations(characterID int32) ([]conservator.Service, error) {
 	services := []conservator.Service{}
 	if err := database.Select(&services, `
@@ -67,7 +65,6 @@ type IntegrationDetails struct {
 	Shares   []conservator.Share
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetIntegrationDetails(characterID, serverID int32) (IntegrationDetails, error) {
 	// let this perform our authorization checks
 	service := IntegrationDetails{}
@@ -226,7 +223,6 @@ type AvailableIntegrations struct {
 	RefreshToken      string    `db:"refreshToken" json:"refreshToken,omitempty"`
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetAvailableIntegrations(characterID int32) ([]AvailableIntegrations, error) {
 	integrations := []AvailableIntegrations{}
 	if err := database.Select(&integrations, `
@@ -281,7 +277,6 @@ func GetAvailableIntegrations(characterID int32) ([]AvailableIntegrations, error
 	return integrations, nil
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetIntegrationsForCharacter(characterID, integrationID int32) (*AvailableIntegrations, error) {
 	integration := []AvailableIntegrations{}
 	if err := database.Select(&integration, `	

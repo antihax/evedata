@@ -62,7 +62,6 @@ type IntegrationToken struct {
 	Scopes              string      `db:"scopes" json:"scopes"`
 }
 
-// [BENCHMARK] TODO
 func GetCharacterIDByName(character string) (int32, error) {
 	var id int32
 	if err := database.Get(&id, `
@@ -79,7 +78,6 @@ type CursorCharacter struct {
 	CursorCharacterName string `db:"cursorCharacterName" json:"cursorCharacterName"`
 }
 
-// [BENCHMARK] TODO
 func GetCursorCharacter(characterID int32) (CursorCharacter, error) {
 	cursor := CursorCharacter{}
 
@@ -93,7 +91,6 @@ func GetCursorCharacter(characterID int32) (CursorCharacter, error) {
 	return cursor, nil
 }
 
-// [BENCHMARK] TODO
 func SetCursorCharacter(characterID int32, cursorCharacterID int32) error {
 	if _, err := database.Exec(`
 	INSERT INTO evedata.cursorCharacter (characterID, cursorCharacterID)
@@ -106,7 +103,6 @@ func SetCursorCharacter(characterID int32, cursorCharacterID int32) error {
 	return nil
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetCRESTTokens(characterID int32, ownerHash string) ([]CRESTToken, error) {
 	tokens := []CRESTToken{}
 	if err := database.Select(&tokens, `
@@ -202,7 +198,6 @@ func AddIntegrationToken(tokenType string, characterID int32, userID string, use
 	return nil
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 func SetMailPassword(characterID, tokenCharacterID int32, ownerHash, password string) error {
 	// BCrypt the password
 	hash, err := sqlhelper.Hash(password)
@@ -219,7 +214,6 @@ func SetMailPassword(characterID, tokenCharacterID int32, ownerHash, password st
 	return nil
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetIntegrationTokens(characterID int32) ([]IntegrationToken, error) {
 	tokens := []IntegrationToken{}
 	if err := database.Select(&tokens, `
@@ -285,10 +279,14 @@ type Character struct {
 	AllianceName    null.String `db:"allianceName" json:"allianceName"`
 	Race            string      `db:"race" json:"race"`
 	SecurityStatus  float64     `db:"securityStatus" json:"securityStatus"`
+	Efficiency      float64     `db:"efficiency" json:"efficiency"`
+	CapKills        int64       `db:"capKills" json:"capKills"`
+	Kills           int64       `db:"kills" json:"kills"`
+	Losses          int64       `db:"losses" json:"losses"`
 }
 
 // Obtain Character information by ID.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetCharacter(id int32) (*Character, error) {
 	ref := Character{}
 	if err := database.QueryRowx(`
@@ -300,11 +298,15 @@ func GetCharacter(id int32) (*Character, error) {
 		    C.allianceID,
 		    Al.name AS allianceName,
 		    race,
-		    securityStatus
-		
+		    securityStatus,
+			coalesce(efficiency, 0) AS efficiency,
+			coalesce(capKills, 0) AS capKills,
+			coalesce(kills, 0) AS kills,
+			coalesce(losses, 0) AS losses
 		FROM evedata.characters C
 		LEFT OUTER JOIN evedata.corporations Co ON Co.corporationID = C.corporationID
 		LEFT OUTER JOIN evedata.alliances Al ON Al.allianceID = C.allianceID
+		LEFT OUTER JOIN evedata.entityKillStats S ON S.id = C.characterID
 		WHERE characterID = ?
 		LIMIT 1`, id).StructScan(&ref); err != nil {
 		return nil, err
@@ -320,7 +322,7 @@ type CorporationHistory struct {
 }
 
 // Obtain Character information by ID.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetCorporationHistory(id int32) ([]CorporationHistory, error) {
 	ref := []CorporationHistory{}
 	if err := database.Select(&ref, `
@@ -349,7 +351,7 @@ type Entity struct {
 }
 
 // GetEntitiesWithRole determine which corporation/alliance roles are available
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetEntitiesWithRole(characterID int32, role string) ([]Entity, error) {
 	ref := []Entity{}
 	if err := database.Select(&ref, `

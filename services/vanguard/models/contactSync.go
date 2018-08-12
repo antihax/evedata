@@ -29,7 +29,6 @@ func (c *ContactSync) Updated(nextSync time.Time) error {
 	return err
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetContactSyncs(characterID int32) ([]ContactSync, error) {
 	cc := []ContactSync{}
 	if err := database.Select(&cc, `
@@ -72,7 +71,6 @@ type ExpiredContactSync struct {
 	CharacterID  int32  `db:"characterID" json:"characterID"`
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetExpiredContactSyncs() ([]ExpiredContactSync, error) {
 	ecc := []ExpiredContactSync{}
 	if err := database.Select(&ecc, `

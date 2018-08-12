@@ -31,10 +31,14 @@ type Corporation struct {
 	CEOID           int64       `db:"ceoID" json:"ceoID"`
 	CEOName         string      `db:"ceoName" json:"ceoName"`
 	MemberCount     int64       `db:"memberCount" json:"memberCount"`
+	Efficiency      float64     `db:"efficiency" json:"efficiency"`
+	CapKills        int64       `db:"capKills" json:"capKills"`
+	Kills           int64       `db:"kills" json:"kills"`
+	Losses          int64       `db:"losses" json:"losses"`
 }
 
 // Obtain Corporation information by ID.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetCorporation(id int64) (*Corporation, error) {
 	ref := Corporation{}
 	if err := database.QueryRowx(`
@@ -45,10 +49,15 @@ func GetCorporation(id int64) (*Corporation, error) {
             IFNULL(ceoID,0) AS ceoID,
             IFNULL(Ch.name, "") AS ceoName,
 		    IFNULL(Al.allianceID,0) AS allianceID,
-		    Al.name AS allianceName
+			Al.name AS allianceName,
+			coalesce(efficiency, 0) AS efficiency,
+			coalesce(capKills, 0) AS capKills,
+			coalesce(kills, 0) AS kills,
+			coalesce(losses, 0) AS losses
 		FROM evedata.corporations C
 		LEFT OUTER JOIN evedata.alliances Al ON C.allianceID = Al.allianceID
-        LEFT OUTER JOIN evedata.characters Ch ON Ch.characterID = C.ceoID
+		LEFT OUTER JOIN evedata.characters Ch ON Ch.characterID = C.ceoID
+		LEFT OUTER JOIN evedata.entityKillStats S ON S.id = C.corporationID
 		WHERE C.corporationID = ?
 		LIMIT 1`, id).StructScan(&ref); err != nil {
 		return nil, err
@@ -64,7 +73,7 @@ type CorporationJoinHistory struct {
 }
 
 // Obtain a list of corporations history with an alliance by ID.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetCorporationJoinHistory(id int64) ([]CorporationJoinHistory, error) {
 	ref := []CorporationJoinHistory{}
 	if err := database.Select(&ref, `

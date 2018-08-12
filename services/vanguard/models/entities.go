@@ -6,7 +6,7 @@ type EntityName struct {
 }
 
 // Obtain entity name and type by ID.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetEntityName(id int64) (*EntityName, error) {
 	ref := EntityName{}
 	if err := database.QueryRowx(`
@@ -20,7 +20,7 @@ func GetEntityName(id int64) (*EntityName, error) {
 }
 
 // Obtain type name.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetTypeName(id int64) (string, error) {
 	ref := ""
 	if err := database.QueryRowx(`
@@ -32,7 +32,7 @@ func GetTypeName(id int64) (string, error) {
 }
 
 // Obtain SolarSystem name.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetSystemName(id int64) (string, error) {
 	ref := ""
 	if err := database.QueryRowx(`
@@ -44,7 +44,7 @@ func GetSystemName(id int64) (string, error) {
 }
 
 // Obtain Celestial name.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetCelestialName(id int64) (string, error) {
 	ref := ""
 	if err := database.QueryRowx(`

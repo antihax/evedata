@@ -279,7 +279,7 @@ type ContactEntity struct {
 }
 
 // GetActiveWarsByID gets active wars for an entityID
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func (s *Hammer) GetActiveWarsByID(id int64) ([]ContactEntity, error) {
 	w := []ContactEntity{}
 	if err := s.db.Select(&w, `
@@ -299,7 +299,7 @@ func (s *Hammer) GetActiveWarsByID(id int64) ([]ContactEntity, error) {
 }
 
 // GetPendingWarsByID gets pending wars for an entityID
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func (s *Hammer) GetPendingWarsByID(id int64) ([]ContactEntity, error) {
 	w := []ContactEntity{}
 	if err := s.db.Select(&w, `

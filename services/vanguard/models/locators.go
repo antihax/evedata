@@ -22,7 +22,6 @@ type LocatorResults struct {
 	Time              time.Time   `db:"time" json:"time"`
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetLocatorResponses(characterID int32) ([]LocatorResults, error) {
 	locatorResults := []LocatorResults{}
 	if err := database.Select(&locatorResults, `
