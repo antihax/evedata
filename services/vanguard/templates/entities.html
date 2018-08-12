@@ -7,8 +7,14 @@
 		{{ template "character" . }}
 	{{end}}
 {{end}}
-
+{{define "OpenGraph"}}
+<meta property="og:title" content="{{.OG.Title}}" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="{{.OG.Image}}" />
+<meta property="og:description" content="{{.OG.Description}}" />
+{{end}}
 {{define "corporation"}}
+
 	<div class="container-fluid">
 		<header class="row">
 			<div class="col-md-2">
@@ -22,6 +28,8 @@
 						{{if .Corporation.AllianceID }} 
 							Alliance: <a href="/alliance?id={{.Corporation.AllianceID}}">{{.Corporation.AllianceName.String}}</a><br>
 						{{end}}
+						<br>
+						{{.Description}}
 					</dt>
 				</dl>
 		</header>
@@ -52,6 +60,8 @@
 						{{if .Character.AllianceID }} 
 							Alliance: <a href="/alliance?id={{.Character.AllianceID}}">{{.Character.AllianceName.String}}</a><br>
 						{{end}}
+						<br>
+						{{.Description}}
 					</dt>
 
 				</dl>
@@ -77,6 +87,8 @@
 					<dt>
 						<h2>{{.Alliance.AllianceName}}</h2>
 						Executor: <a href="/corporation?id={{.Alliance.ExecutorCorporationID}}">{{.Alliance.ExecutorCorporationName}}</a>
+						<br>
+						{{.Description}}
 					</dt>
 				</dl>
 			</div>
