@@ -286,7 +286,7 @@ func corporationsForAllianceAPI(w http.ResponseWriter, r *http.Request) {
 	renderJSON(w, v, time.Hour*12)
 }
 
-func entityBlurb(name, entType string, eff float64, kills, losses, capKills int64) string {
+func entityBlurb(name, entType string, eff float64, kills, losses, capKills int64, plural bool) string {
 
 	p := message.NewPrinter(language.English)
 
@@ -297,13 +297,17 @@ func entityBlurb(name, entType string, eff float64, kills, losses, capKills int6
 		desc += "dangerous PvP"
 	} else if eff > 0.6 && kills > 25 {
 		desc += "decent PvP"
-	} else if eff > 0.4 {
+	} else if eff > 0.4 && kills > 1 {
 		desc += "mediocre PvP"
 	} else {
 		desc += "boring"
 	}
 
-	desc += " " + entType + " who are "
+	if plural {
+		desc += " " + entType + " who are "
+	} else {
+		desc += " " + entType + " who is "
+	}
 
 	if kills+losses > 50000 {
 		desc += "obnoxiously active"
@@ -370,7 +374,7 @@ func alliancePage(w http.ResponseWriter, r *http.Request) {
 	}
 	p["Alliance"] = ref
 
-	description := entityBlurb(ref.AllianceName, "alliance", ref.Efficiency, ref.Kills, ref.Losses, ref.CapKills)
+	description := entityBlurb(ref.AllianceName, "alliance", ref.Efficiency, ref.Kills, ref.Losses, ref.CapKills, true)
 	p["OG"] = OpenGraph{
 		Image:       entityImage(ref.AllianceID, "alliance", 128),
 		Title:       "Alliance: " + ref.AllianceName + " - EveData.org",
@@ -403,9 +407,9 @@ func corporationPage(w http.ResponseWriter, r *http.Request) {
 
 	p["Corporation"] = ref
 
-	description := entityBlurb(ref.CorporationName, "corporation", ref.Efficiency, ref.Kills, ref.Losses, ref.CapKills)
+	description := entityBlurb(ref.CorporationName, "corporation", ref.Efficiency, ref.Kills, ref.Losses, ref.CapKills, true)
 	p["OG"] = OpenGraph{
-		Image:       entityImage(ref.CorporationID, "corporation", 256),
+		Image:       entityImage(ref.CorporationID, "corporation", 128),
 		Title:       "Corporation: " + ref.CorporationName + " - EveData.org",
 		Description: description,
 	}
@@ -436,9 +440,9 @@ func characterPage(w http.ResponseWriter, r *http.Request) {
 
 	p["Character"] = ref
 
-	description := entityBlurb(ref.CharacterName, "character", ref.Efficiency, ref.Kills, ref.Losses, ref.CapKills)
+	description := entityBlurb(ref.CharacterName, "character", ref.Efficiency, ref.Kills, ref.Losses, ref.CapKills, false)
 	p["OG"] = OpenGraph{
-		Image:       entityImage(int64(ref.CharacterID), "character", 512),
+		Image:       entityImage(int64(ref.CharacterID), "character", 128),
 		Title:       "Character: " + ref.CharacterName + " - EveData.org",
 		Description: description,
 	}
