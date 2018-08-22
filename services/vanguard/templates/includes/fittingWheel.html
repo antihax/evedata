@@ -1,930 +1,5 @@
 {{define "fittingWheel"}}
-<script>
-    var package = new Object();
-    package.killmail = { "attackers": [{ "alliance_id": 99002367, "character_id": 94940242, "corporation_id": 98134777, "damage_done": 2568, "final_blow": true, "security_status": -1.7, "ship_type_id": 11393, "weapon_type_id": 3033 }, { "alliance_id": 99002367, "character_id": 466686290, "corporation_id": 98541763, "security_status": 5, "ship_type_id": 33816, "weapon_type_id": 2404 }], "killmail_id": 71243458, "killmail_time": "2018-07-14T09:56:16-07:00", "solar_system_id": 30004863, "victim": { "alliance_id": 99002821, "character_id": 92283485, "corporation_id": 98146705, "damage_taken": 2568, "items": [{ "flag": 29, "item_type_id": 24519, "quantity_destroyed": 22 }, { "flag": 28, "item_type_id": 24519, "quantity_destroyed": 22 }, { "flag": 28, "item_type_id": 2420, "quantity_destroyed": 1 }, { "flag": 27, "item_type_id": 24519, "quantity_destroyed": 22 }, { "flag": 5, "item_type_id": 24519, "quantity_destroyed": 3256 }, { "flag": 11, "item_type_id": 4254, "quantity_destroyed": 1 }, { "flag": 5, "item_type_id": 45998, "quantity_dropped": 2 }, { "flag": 12, "item_type_id": 4254, "quantity_dropped": 1 }, { "flag": 19, "item_type_id": 12058, "quantity_dropped": 1 }, { "flag": 5, "item_type_id": 16273, "quantity_destroyed": 50 }, { "flag": 20, "item_type_id": 8517, "quantity_dropped": 1 }, { "flag": 92, "item_type_id": 31620, "quantity_destroyed": 1 }, { "flag": 27, "item_type_id": 2420, "quantity_destroyed": 1 }, { "flag": 30, "item_type_id": 11578, "quantity_dropped": 1 }, { "flag": 13, "item_type_id": 4254, "quantity_dropped": 1 }, { "flag": 21, "item_type_id": 9580, "quantity_destroyed": 1 }, { "flag": 93, "item_type_id": 31111, "quantity_destroyed": 1 }, { "flag": 29, "item_type_id": 2420, "quantity_dropped": 1 }, { "flag": 31, "item_type_id": 28646, "quantity_dropped": 1 }], "position": { "x": 4.378227625285876e+11, "y": 3.729209953393203e+10, "z": -1.6880413832903438e+12 }, "ship_type_id": 12034 } };
-    package.attributes = {
-        "ship": {
-            "agility": 0.03985546483966553,
-            "armorAvgDamageResonance": 0.57375,
-            "armorEmDamageResonance": 0.425,
-            "armorExplosiveDamageResonance": 0.765,
-            "armorHP": 8125,
-            "armorKineticDamageResonance": 0.5525,
-            "armorMaxDamageResonance": 0.765,
-            "armorMinDamageResonance": 0.425,
-            "armorThermalDamageResonance": 0.5525,
-            "armorUniformity": 0.75,
-            "avgDamageResonance": 0.402,
-            "avgEHP": 172545.67458957236,
-            "avgRPS": 16.551724137931036,
-            "baseWarpSpeed": 1,
-            "capacitorCapacity": 5625,
-            "capacitorDuration": 53000,
-            "capacitorDurationMWD": 44000,
-            "capacity": 337.31368883016614,
-            "cpuLoad": 733,
-            "cpuOutput": 750,
-            "cpuRemaining": 17,
-            "droneAlphaDamage": 0,
-            "droneBandwidth": 75,
-            "droneCapacity": 75,
-            "droneDPS": 0,
-            "emDamageResonance": 0.402,
-            "explosiveDamageResonance": 0.402,
-            "fwLpKill": 500,
-            "gfxBoosterID": 395,
-            "heatAttenuationHi": 0.79,
-            "heatAttenuationLow": 0.82,
-            "heatAttenuationMed": 0.63,
-            "heatCapacityHi": 100,
-            "heatCapacityLow": 100,
-            "heatCapacityMed": 100,
-            "heatDissipationRateHi": 0.01,
-            "heatDissipationRateLow": 0.01,
-            "heatDissipationRateMed": 0.01,
-            "heatGenerationMultiplier": 0.5,
-            "hiSlots": 7,
-            "hp": 64373.016357421875,
-            "kineticDamageResonance": 0.402,
-            "lowSlots": 8,
-            "mainColor": 16777215,
-            "mass": 296800000,
-            "maxDamageResonance": 0.402,
-            "maxDirectionalVelocity": 1000,
-            "maxEHP": 178131.88148612407,
-            "maxLockedTargets": 7,
-            "maxPassengers": 1000,
-            "maxRPS": 24,
-            "maxTargetRange": 108750,
-            "maxVelocity": 38.125,
-            "maxVelocityMWD": 159.7544116408356,
-            "medSlots": 4,
-            "minDamageResonance": 0.402,
-            "minEHP": 169131.88148612407,
-            "minRPS": 12,
-            "minTargetVelDmgMultiplier": 0.5,
-            "moduleAlphaDamage": 1968.3759375,
-            "moduleDPS": 540.0208333333333,
-            "powerLoad": 12536,
-            "powerOutput": 19375,
-            "powerRemaining": 6839,
-            "powerToSpeed": 1,
-            "propulsionGraphicID": 395,
-            "radius": 250,
-            "rechargeRate": 862500,
-            "requiredSkill1": 3336,
-            "requiredSkill1Level": 1,
-            "rigSize": 3,
-            "rigSlots": 3,
-            "scanMagnetometricStrength": 25.2,
-            "scanResolution": 118.75,
-            "scanSpeed": 6187.5,
-            "shieldAvgDamageResonance": 0.634375,
-            "shieldCapacity": 7875,
-            "shieldEmDamageResonance": 0.875,
-            "shieldExplosiveDamageResonance": 0.4375,
-            "shieldKineticDamageResonance": 0.525,
-            "shieldMaxDamageResonance": 0.875,
-            "shieldMinDamageResonance": 0.4375,
-            "shieldRechargeRate": 1875000,
-            "shieldThermalDamageResonance": 0.7000000000000001,
-            "shieldUniformity": 1,
-            "shipBonusGB": -25,
-            "shipBonusGB2": 37.5,
-            "signatureRadius": 950,
-            "signatureRadiusMWD": 5252.390334336001,
-            "stasisWebifierStrength": -82.5,
-            "structureUniformity": 1,
-            "techLevel": 1,
-            "thermalDamageResonance": 0.402,
-            "totalAlphaDamage": 1968.3759375,
-            "totalDPS": 540.0208333333333,
-            "totalWarpScrambleStrength": 2,
-            "typeColorScheme": 11331,
-            "uniformity": 1,
-            "upgradeCapacity": 400,
-            "upgradeSlotsLeft": 3,
-            "volume": 486000,
-            "warpCapacitorNeed": 6.9e-8,
-            "warpSpeedMultiplier": 1.9
-        },
-        "modules": {
-            "0": {
-                "armorEmDamageResonance": 0.85,
-                "armorExplosiveDamageResonance": 0.85,
-                "armorKineticDamageResonance": 0.85,
-                "armorThermalDamageResonance": 0.85,
-                "cpu": 30,
-                "hp": 40,
-                "hullEmDamageResonance": 0.6,
-                "hullExplosiveDamageResonance": 0.6,
-                "hullKineticDamageResonance": 0.6,
-                "hullThermalDamageResonance": 0.6,
-                "location": 11,
-                "mass": 5000,
-                "maxGroupFitted": 1,
-                "metaLevel": 5,
-                "power": 1,
-                "radius": 1,
-                "requiredSkill1": 3394,
-                "requiredSkill1Level": 4,
-                "shieldEmDamageResonance": 0.875,
-                "shieldExplosiveDamageResonance": 0.875,
-                "shieldKineticDamageResonance": 0.875,
-                "shieldThermalDamageResonance": 0.875,
-                "techLevel": 2,
-                "typeID": 2048,
-                "volume": 5
-            },
-            "1": {
-                "agilityMultiplier": 5,
-                "cargoCapacityMultiplier": 0.89,
-                "cpu": 40,
-                "hp": 40,
-                "location": 18,
-                "mass": 200,
-                "metaLevel": 5,
-                "power": 1,
-                "radius": 100,
-                "requiredSkill1": 3394,
-                "requiredSkill1Level": 2,
-                "structureHPMultiplier": 1.25,
-                "techLevel": 2,
-                "typeID": 1335,
-                "volume": 5
-            },
-            "10": {
-                "agilityMultiplier": 5,
-                "cargoCapacityMultiplier": 0.89,
-                "cpu": 40,
-                "hp": 40,
-                "location": 13,
-                "mass": 200,
-                "metaLevel": 5,
-                "power": 1,
-                "radius": 100,
-                "requiredSkill1": 3394,
-                "requiredSkill1Level": 2,
-                "structureHPMultiplier": 1.25,
-                "techLevel": 2,
-                "typeID": 1335,
-                "volume": 5
-            },
-            "11": {
-                "alphaDamage": 281.19656249999997,
-                "capacitorNeed": 5.88,
-                "capacity": 3,
-                "chargeGroup1": 85,
-                "chargeRate": 1,
-                "chargeSize": 3,
-                "chargeTypeID": 21740,
-                "cpu": 30,
-                "damageMultiplier": 5.094140625,
-                "dps": 77.14583333333333,
-                "duration": 3645,
-                "entityFlyRangeMultiplier": 0.5,
-                "falloff": 10000,
-                "heatAbsorbtionRateModifier": 0.01,
-                "heatDamage": 0.525,
-                "hp": 40,
-                "kineticDamage": 32.2,
-                "launcherGroup": 74,
-                "location": 29,
-                "mainColor": 16764120,
-                "mass": 0.1,
-                "maxRange": 3750,
-                "metaGroupID": 4,
-                "metaLevel": 4,
-                "optimalSigRadius": 40000,
-                "overloadDamageModifier": 15,
-                "power": 1386,
-                "radius": 10,
-                "reloadTime": 5000,
-                "requiredSkill1": 3307,
-                "requiredSkill1Level": 1,
-                "requiredSkill2": 3300,
-                "requiredSkill2Level": 5,
-                "requiredThermoDynamicsSkill": 1,
-                "slots": 1,
-                "speed": 3645,
-                "techLevel": 1,
-                "thermalDamage": 23,
-                "trackingSpeed": 9.4875,
-                "typeColorScheme": 11331,
-                "typeID": 7827,
-                "volume": 0.025,
-                "weaponRangeMultiplier": 0.5
-            },
-            "12": {
-                "agilityMultiplier": 5,
-                "cargoCapacityMultiplier": 0.89,
-                "cpu": 40,
-                "hp": 40,
-                "location": 14,
-                "mass": 200,
-                "metaLevel": 5,
-                "power": 1,
-                "radius": 100,
-                "requiredSkill1": 3394,
-                "requiredSkill1Level": 2,
-                "structureHPMultiplier": 1.25,
-                "techLevel": 2,
-                "typeID": 1335,
-                "volume": 5
-            },
-            "13": {
-                "alphaDamage": 281.19656249999997,
-                "capacitorNeed": 5.88,
-                "capacity": 3,
-                "chargeGroup1": 85,
-                "chargeRate": 1,
-                "chargeSize": 3,
-                "chargeTypeID": 21740,
-                "cpu": 30,
-                "damageMultiplier": 5.094140625,
-                "dps": 77.14583333333333,
-                "duration": 3645,
-                "entityFlyRangeMultiplier": 0.5,
-                "falloff": 10000,
-                "heatAbsorbtionRateModifier": 0.01,
-                "heatDamage": 0.525,
-                "hp": 40,
-                "kineticDamage": 32.2,
-                "launcherGroup": 74,
-                "location": 27,
-                "mainColor": 16764120,
-                "mass": 0.1,
-                "maxRange": 3750,
-                "metaGroupID": 4,
-                "metaLevel": 4,
-                "optimalSigRadius": 40000,
-                "overloadDamageModifier": 15,
-                "power": 1386,
-                "radius": 10,
-                "reloadTime": 5000,
-                "requiredSkill1": 3307,
-                "requiredSkill1Level": 1,
-                "requiredSkill2": 3300,
-                "requiredSkill2Level": 5,
-                "requiredThermoDynamicsSkill": 1,
-                "slots": 1,
-                "speed": 3645,
-                "techLevel": 1,
-                "thermalDamage": 23,
-                "trackingSpeed": 9.4875,
-                "typeColorScheme": 11331,
-                "typeID": 7827,
-                "volume": 0.025,
-                "weaponRangeMultiplier": 0.5
-            },
-            "14": {
-                "agilityBonus": -55,
-                "drawback": -5,
-                "hp": 40,
-                "location": 92,
-                "mass": 200,
-                "massBonusPercentage": 100,
-                "maxGroupFitted": 1,
-                "radius": 100,
-                "rigSize": 3,
-                "techLevel": 1,
-                "typeID": 34306,
-                "upgradeCost": 25,
-                "velocityBonus": -75,
-                "volume": 20
-            },
-            "15": {
-                "agilityMultiplier": 5,
-                "cargoCapacityMultiplier": 0.89,
-                "cpu": 40,
-                "hp": 40,
-                "location": 15,
-                "mass": 200,
-                "metaLevel": 5,
-                "power": 1,
-                "radius": 100,
-                "requiredSkill1": 3394,
-                "requiredSkill1Level": 2,
-                "structureHPMultiplier": 1.25,
-                "techLevel": 2,
-                "typeID": 1335,
-                "volume": 5
-            },
-            "16": {
-                "alphaDamage": 281.19656249999997,
-                "capacitorNeed": 5.88,
-                "capacity": 3,
-                "chargeGroup1": 85,
-                "chargeRate": 1,
-                "chargeSize": 3,
-                "chargeTypeID": 21740,
-                "cpu": 30,
-                "damageMultiplier": 5.094140625,
-                "dps": 77.14583333333333,
-                "duration": 3645,
-                "entityFlyRangeMultiplier": 0.5,
-                "falloff": 10000,
-                "heatAbsorbtionRateModifier": 0.01,
-                "heatDamage": 0.525,
-                "hp": 40,
-                "kineticDamage": 32.2,
-                "launcherGroup": 74,
-                "location": 31,
-                "mainColor": 16764120,
-                "mass": 0.1,
-                "maxRange": 3750,
-                "metaGroupID": 4,
-                "metaLevel": 4,
-                "optimalSigRadius": 40000,
-                "overloadDamageModifier": 15,
-                "power": 1386,
-                "radius": 10,
-                "reloadTime": 5000,
-                "requiredSkill1": 3307,
-                "requiredSkill1Level": 1,
-                "requiredSkill2": 3300,
-                "requiredSkill2Level": 5,
-                "requiredThermoDynamicsSkill": 1,
-                "slots": 1,
-                "speed": 3645,
-                "techLevel": 1,
-                "thermalDamage": 23,
-                "trackingSpeed": 9.4875,
-                "typeColorScheme": 11331,
-                "typeID": 7827,
-                "volume": 0.025,
-                "weaponRangeMultiplier": 0.5
-            },
-            "17": {
-                "alphaDamage": 281.19656249999997,
-                "capacitorNeed": 5.88,
-                "capacity": 3,
-                "chargeGroup1": 85,
-                "chargeRate": 1,
-                "chargeSize": 3,
-                "chargeTypeID": 21740,
-                "cpu": 30,
-                "damageMultiplier": 5.094140625,
-                "dps": 77.14583333333333,
-                "duration": 3645,
-                "entityFlyRangeMultiplier": 0.5,
-                "falloff": 10000,
-                "heatAbsorbtionRateModifier": 0.01,
-                "heatDamage": 0.525,
-                "hp": 40,
-                "kineticDamage": 32.2,
-                "launcherGroup": 74,
-                "location": 30,
-                "mainColor": 16764120,
-                "mass": 0.1,
-                "maxRange": 3750,
-                "metaGroupID": 4,
-                "metaLevel": 4,
-                "optimalSigRadius": 40000,
-                "overloadDamageModifier": 15,
-                "power": 1386,
-                "radius": 10,
-                "reloadTime": 5000,
-                "requiredSkill1": 3307,
-                "requiredSkill1Level": 1,
-                "requiredSkill2": 3300,
-                "requiredSkill2Level": 5,
-                "requiredThermoDynamicsSkill": 1,
-                "slots": 1,
-                "speed": 3645,
-                "techLevel": 1,
-                "thermalDamage": 23,
-                "trackingSpeed": 9.4875,
-                "typeColorScheme": 11331,
-                "typeID": 7827,
-                "volume": 0.025,
-                "weaponRangeMultiplier": 0.5
-            },
-            "18": {
-                "drawback": -5,
-                "hp": 40,
-                "hullHpBonus": 20,
-                "location": 93,
-                "mass": 200,
-                "radius": 100,
-                "rigSize": 3,
-                "techLevel": 1,
-                "typeID": 33898,
-                "upgradeCost": 50,
-                "volume": 20
-            },
-            "19": {
-                "alphaDamage": 281.19656249999997,
-                "capacitorNeed": 5.88,
-                "capacity": 3,
-                "chargeGroup1": 85,
-                "chargeRate": 1,
-                "chargeSize": 3,
-                "chargeTypeID": 21740,
-                "cpu": 30,
-                "damageMultiplier": 5.094140625,
-                "dps": 77.14583333333333,
-                "duration": 3645,
-                "entityFlyRangeMultiplier": 0.5,
-                "falloff": 10000,
-                "heatAbsorbtionRateModifier": 0.01,
-                "heatDamage": 0.525,
-                "hp": 40,
-                "kineticDamage": 32.2,
-                "launcherGroup": 74,
-                "location": 28,
-                "mainColor": 16764120,
-                "mass": 0.1,
-                "maxRange": 3750,
-                "metaGroupID": 4,
-                "metaLevel": 4,
-                "optimalSigRadius": 40000,
-                "overloadDamageModifier": 15,
-                "power": 1386,
-                "radius": 10,
-                "reloadTime": 5000,
-                "requiredSkill1": 3307,
-                "requiredSkill1Level": 1,
-                "requiredSkill2": 3300,
-                "requiredSkill2Level": 5,
-                "requiredThermoDynamicsSkill": 1,
-                "slots": 1,
-                "speed": 3645,
-                "techLevel": 1,
-                "thermalDamage": 23,
-                "trackingSpeed": 9.4875,
-                "typeColorScheme": 11331,
-                "typeID": 7827,
-                "volume": 0.025,
-                "weaponRangeMultiplier": 0.5
-            },
-            "2": {
-                "agilityMultiplier": 5,
-                "cargoCapacityMultiplier": 0.89,
-                "cpu": 40,
-                "hp": 40,
-                "location": 17,
-                "mass": 200,
-                "metaLevel": 5,
-                "power": 1,
-                "radius": 100,
-                "requiredSkill1": 3394,
-                "requiredSkill1Level": 2,
-                "structureHPMultiplier": 1.25,
-                "techLevel": 2,
-                "typeID": 1335,
-                "volume": 5
-            },
-            "20": {
-                "capacitorCapacityMultiplier": 0.75,
-                "capacitorNeed": 210,
-                "cpu": 75,
-                "deadspaceUnsafe": 1,
-                "duration": 10000,
-                "heatAbsorbtionRateModifier": 0.04,
-                "heatDamage": 6.15,
-                "hp": 40,
-                "location": 20,
-                "massAddition": 50000000,
-                "maxGroupActive": 1,
-                "metaLevel": 1,
-                "overloadSpeedFactorBonus": 50,
-                "power": 1250,
-                "radius": 1,
-                "requiredSkill1": 3454,
-                "requiredSkill1Level": 1,
-                "requiredThermoDynamicsSkill": 1,
-                "signatureRadiusBonus": 500,
-                "speedBoostFactor": 150000000,
-                "speedFactor": 319.02796495956875,
-                "techLevel": 1,
-                "typeID": 5945,
-                "volume": 10
-            },
-            "21": {
-                "alphaDamage": 281.19656249999997,
-                "capacitorNeed": 5.88,
-                "capacity": 3,
-                "chargeGroup1": 85,
-                "chargeRate": 1,
-                "chargeSize": 3,
-                "chargeTypeID": 21740,
-                "cpu": 30,
-                "damageMultiplier": 5.094140625,
-                "dps": 77.14583333333333,
-                "duration": 3645,
-                "entityFlyRangeMultiplier": 0.5,
-                "falloff": 10000,
-                "heatAbsorbtionRateModifier": 0.01,
-                "heatDamage": 0.525,
-                "hp": 40,
-                "kineticDamage": 32.2,
-                "launcherGroup": 74,
-                "location": 32,
-                "mainColor": 16764120,
-                "mass": 0.1,
-                "maxRange": 3750,
-                "metaGroupID": 4,
-                "metaLevel": 4,
-                "optimalSigRadius": 40000,
-                "overloadDamageModifier": 15,
-                "power": 1386,
-                "radius": 10,
-                "reloadTime": 5000,
-                "requiredSkill1": 3307,
-                "requiredSkill1Level": 1,
-                "requiredSkill2": 3300,
-                "requiredSkill2Level": 5,
-                "requiredThermoDynamicsSkill": 1,
-                "slots": 1,
-                "speed": 3645,
-                "techLevel": 1,
-                "thermalDamage": 23,
-                "trackingSpeed": 9.4875,
-                "typeColorScheme": 11331,
-                "typeID": 7827,
-                "volume": 0.025,
-                "weaponRangeMultiplier": 0.5
-            },
-            "3": {
-                "agilityMultiplier": 5,
-                "cargoCapacityMultiplier": 0.89,
-                "cpu": 40,
-                "hp": 40,
-                "location": 16,
-                "mass": 200,
-                "metaLevel": 5,
-                "power": 1,
-                "radius": 100,
-                "requiredSkill1": 3394,
-                "requiredSkill1Level": 2,
-                "structureHPMultiplier": 1.25,
-                "techLevel": 2,
-                "typeID": 1335,
-                "volume": 5
-            },
-            "4": {
-                "drawback": -5,
-                "hp": 40,
-                "hullHpBonus": 20,
-                "location": 94,
-                "mass": 200,
-                "radius": 100,
-                "rigSize": 3,
-                "techLevel": 1,
-                "typeID": 33898,
-                "upgradeCost": 50,
-                "volume": 20
-            },
-            "5": {
-                "alphaDamage": 281.19656249999997,
-                "capacitorNeed": 5.88,
-                "capacity": 3,
-                "chargeGroup1": 85,
-                "chargeRate": 1,
-                "chargeSize": 3,
-                "chargeTypeID": 21740,
-                "cpu": 30,
-                "damageMultiplier": 5.094140625,
-                "dps": 77.14583333333333,
-                "duration": 3645,
-                "entityFlyRangeMultiplier": 0.5,
-                "falloff": 10000,
-                "heatAbsorbtionRateModifier": 0.01,
-                "heatDamage": 0.525,
-                "hp": 40,
-                "kineticDamage": 32.2,
-                "launcherGroup": 74,
-                "location": 33,
-                "mainColor": 16764120,
-                "mass": 0.1,
-                "maxRange": 3750,
-                "metaGroupID": 4,
-                "metaLevel": 4,
-                "optimalSigRadius": 40000,
-                "overloadDamageModifier": 15,
-                "power": 1386,
-                "radius": 10,
-                "reloadTime": 5000,
-                "requiredSkill1": 3307,
-                "requiredSkill1Level": 1,
-                "requiredSkill2": 3300,
-                "requiredSkill2Level": 5,
-                "requiredThermoDynamicsSkill": 1,
-                "slots": 1,
-                "speed": 3645,
-                "techLevel": 1,
-                "thermalDamage": 23,
-                "trackingSpeed": 9.4875,
-                "typeColorScheme": 11331,
-                "typeID": 7827,
-                "volume": 0.025,
-                "weaponRangeMultiplier": 0.5
-            },
-            "6": {
-                "canFitShipGroup01": 27,
-                "canFitShipGroup02": 898,
-                "canFitShipGroup03": 900,
-                "canFitShipGroup04": 547,
-                "canFitShipGroup05": 1538,
-                "canFitShipGroup06": 485,
-                "canFitShipGroup07": 659,
-                "canFitShipGroup08": 30,
-                "canFitShipGroup09": 883,
-                "capacitorNeed": 4,
-                "cpu": 25,
-                "duration": 2000,
-                "falloffEffectiveness": 9000,
-                "heatAbsorbtionRateModifier": 0.01,
-                "heatDamage": 3.75,
-                "hp": 40,
-                "location": 22,
-                "maxGroupFitted": 1,
-                "maxRange": 1000,
-                "metaLevel": 1,
-                "overloadRangeBonus": 300,
-                "power": 200,
-                "radius": 500,
-                "remoteResistanceID": 2115,
-                "requiredSkill1": 3453,
-                "requiredSkill1Level": 1,
-                "requiredThermoDynamicsSkill": 1,
-                "speedFactor": -82.5,
-                "techLevel": 1,
-                "typeID": 41055,
-                "volume": 50
-            },
-            "7": {
-                "agilityMultiplier": 5,
-                "cargoCapacityMultiplier": 0.89,
-                "cpu": 40,
-                "hp": 40,
-                "location": 12,
-                "mass": 200,
-                "metaLevel": 5,
-                "power": 1,
-                "radius": 100,
-                "requiredSkill1": 3394,
-                "requiredSkill1Level": 2,
-                "structureHPMultiplier": 1.25,
-                "techLevel": 2,
-                "typeID": 1335,
-                "volume": 5
-            },
-            "8": {
-                "activationBlockedStrenght": 1,
-                "capacitorNeed": 4.5,
-                "cpu": 36,
-                "duration": 5000,
-                "heatAbsorbtionRateModifier": 0.02,
-                "heatDamage": 3.75,
-                "hp": 40,
-                "location": 19,
-                "maxRange": 9000,
-                "maxVelocityMultiplier": 1,
-                "metaLevel": 5,
-                "overloadRangeBonus": 20,
-                "power": 1,
-                "requiredSkill1": 3435,
-                "requiredSkill1Level": 2,
-                "requiredSkill2": 3449,
-                "requiredSkill2Level": 1,
-                "requiredThermoDynamicsSkill": 1,
-                "techLevel": 2,
-                "typeID": 448,
-                "volume": 5,
-                "warpScrambleStrength": 2
-            },
-            "9": {
-                "canFitShipGroup01": 27,
-                "canFitShipGroup02": 898,
-                "canFitShipGroup03": 900,
-                "capacitorNeed": 786,
-                "cpu": 77,
-                "disallowEarlyDeactivation": 1,
-                "disallowRepeatingActivation": 1,
-                "duration": 9000,
-                "hp": 40,
-                "location": 21,
-                "maxGroupActive": 1,
-                "maxGroupFitted": 1,
-                "metaLevel": 1,
-                "moduleReactivationDelay": 180000,
-                "power": 1375,
-                "requiredSkill1": 4385,
-                "requiredSkill1Level": 1,
-                "signatureRadiusBonusPercent": 150,
-                "techLevel": 1,
-                "typeID": 4383,
-                "volume": 10
-            }
-        },
-        "types": {
-            "1335": "Reinforced Bulkheads II",
-            "2048": "Damage Control II",
-            "21740": "Caldari Navy Antimatter Charge L",
-            "33898": "Large Transverse Bulkhead I",
-            "34306": "Large Higgs Anchor I",
-            "41055": "Heavy Karelin Scoped Stasis Grappler",
-            "4383": "Large Micro Jump Drive",
-            "448": "Warp Scrambler II",
-            "5945": "500MN Cold-Gas Enduring Microwarpdrive",
-            "641": "Megathron",
-            "7827": "Modal Mega Ion Particle Accelerator I"
-        },
-        "typeID": 641
-    }
-
-    $(document).ready(function () {
-        populateModules(package)
-        getShip(package);
-    });
-
-    function setResonancePercentage(resonance, value) {
-        if (!value) {
-            value = 1;
-        }
-        value = 1 - value;
-        value = (value * 100).toFixed(0);
-        $('#' + resonance).css('width', value + '%').attr('aria-valuenow', value);
-        $('#' + resonance).text(value + "%");
-    }
-
-    function setModuleSlot(type, slot, i) {
-        typeNames = package.attributes.types;
-        $("#" + type + slot).prepend('<img src="//imageserver.eveonline.com/Type/' + i.typeID + '_32.png" title="' + typeNames[i.typeID] + '" style="height: 32px; width: 32px;">')
-        if (i.chargeTypeID > 0) $("#" + type + slot + "l").prepend('<img src="//imageserver.eveonline.com/Type/' + i.chargeTypeID + '_32.png" style="height: 32px; width: 32px;">')
-    }
-
-    function populateModules(package) {
-        typeNames = package.attributes.types;
-        $.each(package.attributes.modules, function (k, i) {
-            switch (i.location) {
-                case 27: // hiSlots
-                    setModuleSlot("high", "1", i);
-                    break;
-                case 28: // hiSlots
-                    setModuleSlot("high", "2", i);
-                    break;
-                case 29: // hiSlots
-                    setModuleSlot("high", "3", i);
-                    break;
-                case 30: // hiSlots
-                    setModuleSlot("high", "4", i);
-                    break;
-                case 31: // hiSlots
-                    setModuleSlot("high", "5", i);
-                    break;
-                case 32: // hiSlots
-                    setModuleSlot("high", "6", i);
-                    break;
-                case 33: // hiSlots
-                    setModuleSlot("high", "7", i);
-                    break;
-                case 34: // hiSlots
-                    setModuleSlot("high", "8", i);
-                    break;
-
-                case 19:
-                    setModuleSlot("mid", "1", i);
-                    break;
-                case 20:
-                    setModuleSlot("mid", "2", i);
-                    break;
-                case 21:
-                    setModuleSlot("mid", "3", i);
-                    break;
-                case 22:
-                    setModuleSlot("mid", "4", i);
-                    break;
-                case 23:
-                    setModuleSlot("mid", "5", i);
-                    break;
-                case 24:
-                    setModuleSlot("mid", "6", i);
-                    break;
-                case 25:
-                    setModuleSlot("mid", "7", i);
-                    break;
-                case 26:
-                    setModuleSlot("mid", "8", i);
-                    break;
-
-                case 11:
-                    setModuleSlot("low", "1", i);
-                    break;
-                case 12:
-                    setModuleSlot("low", "2", i);
-                    break;
-                case 13:
-                    setModuleSlot("low", "3", i);
-                    break;
-                case 14:
-                    setModuleSlot("low", "4", i);
-                    break;
-                case 15:
-                    setModuleSlot("low", "5", i);
-                    break;
-                case 16:
-                    setModuleSlot("low", "6", i);
-                    break;
-                case 17:
-                    setModuleSlot("low", "7", i);
-                    break;
-                case 18:
-                    setModuleSlot("low", "8", i);
-                    break;
-
-                case 92:
-                    setModuleSlot("rig", "1", i);
-                    break;
-
-                case 93:
-                    setModuleSlot("rig", "2", i);
-                    break;
-                case 94:
-                    setModuleSlot("rig", "3", i);
-                    break;
-
-                case 164:
-                    setModuleSlot("sub", "1", i);
-                    break;
-                case 165:
-                    setModuleSlot("sub", "2", i);
-                    break;
-                case 166:
-                    setModuleSlot("sub", "3", i);
-                    break;
-                case 167:
-                    setModuleSlot("sub", "4", i);
-                    break;
-                case 168:
-                    setModuleSlot("sub", "5", i);
-                    break;
-            }
-        });
-    }
-
-    function getShip(package) {
-        $("#bigship").prepend('<img src="//imageserver.eveonline.com/Render/' + package.attributes.typeID + '_256.png" style="height: 256px; width: 256px;">')
-
-        var a = package.attributes.ship;
-        setResonancePercentage("shieldEm", a.shieldEmDamageResonance)
-        setResonancePercentage("shieldTherm", a.shieldThermalDamageResonance)
-        setResonancePercentage("shieldKin", a.shieldKineticDamageResonance)
-        setResonancePercentage("shieldExp", a.shieldExplosiveDamageResonance)
-        setResonancePercentage("armorEm", a.armorEmDamageResonance)
-        setResonancePercentage("armorTherm", a.armorThermalDamageResonance)
-        setResonancePercentage("armorKin", a.armorKineticDamageResonance)
-        setResonancePercentage("armorExp", a.armorExplosiveDamageResonance)
-        setResonancePercentage("hullEm", a.emDamageResonance)
-        setResonancePercentage("hullTherm", a.thermalDamageResonance)
-        setResonancePercentage("hullKin", a.kineticDamageResonance)
-        setResonancePercentage("hullExp", a.explosiveDamageResonance)
-
-        $("#ehp").text(simpleVal(a.maxEHP) + " EHP");
-
-        $("#hullHP").text(simpleVal(a.hp) + " HP");
-        $("#armorHP").text(simpleVal(a.armorHP) + " HP");
-        $("#shieldHP").text(simpleVal(a.shieldCapacity) + " HP");
-
-        $("#rps").text(simpleVal(a.maxRPS) + " EHP/s");
-
-        $.each(a, function (k, v) {
-            switch (k) {
-                case "hiSlots": // hiSlots
-                    $("#hiSlots").attr('src', '/i/fw/' + v + 'h.png');
-                    break;
-                case "medSlots": // medSlots
-                    $("#medSlots").attr('src', '/i/fw/' + v + 'm.png');
-                    break;
-                case "lowSlots": // lowSlots
-                    $("#lowSlots").attr('src', '/i/fw/' + v + 'l.png');
-                    break;
-                case "rigSlots": // rigSlots
-                    $("#rigSlots").attr('src', '/i/fw/' + v + 'r.png');
-                    break;
-                case "maxSubsystems": // SubSystems
-                    $("#subSlots").attr('src', '/i/fw/' + v + 's.png');
-                    break;
-                case "serviceSlots": // structure services
-                    $("#subSlots").attr('src', '/i/fw/' + att + 's.png');
-                    break;
-                case "capacitorCapacity":
-                    if (a.capacitorStable == 1.0) {
-                        $("#capacitorDuration").text((100 * a.capacitorFraction).toFixed(0) + "% Stable");
-                    } else {
-                        $("#capacitorDuration").text(convertMS(a.capacitorDuration));
-                    }
-
-                    $("#capacitorDetails").text(simpleVal(v) + " GJ")
-                case "totalDPS":
-                    $("#totalDamage").html(v.toFixed(0) + " DPS")
-                    if (a.moduleDPS) $("#offenseModule").html(simpleVal(a.moduleDPS) + " DPS<br>" + simpleVal(a.moduleAlphaDamage) + " Alpha")
-                    if (a.droneDPS) $("#offenseDrone").html(simpleVal(a.droneDPS) + " DPS<br>" + simpleVal(a.droneAlphaDamage) + " Alpha")
-            }
-        });
-    }
+<script src="/js/killmail.js">
 </script>
 
 <div class="row" style="padding: 0px; ">
@@ -1029,17 +104,43 @@
         </div>
         <div style="background-color: #16201a; padding: 2px;">
             <div class="row">
-                <div class="col-xs-1">
+                <div class="col-xs-2" style="text-align: center">
                     <img src="//imageserver.eveonline.com/type/484_32.png" alt="module DPS" style="height: 32px; width: 32px;">
                 </div>
                 <div class="col-xs-4">
                     <small id="offenseModule">0 DPS<br>0 Alpha</small>
                 </div>
-                <div class="col-xs-1">
+                <div class="col-xs-2">
                     <img src="//imageserver.eveonline.com/type/24395_32.png" alt="drone DPS" style="height: 32px; width: 32px;">
                 </div>
                 <div class="col-xs-4">
                     <small id="offenseDrone">0 DPS<br>0 Alpha</small>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-1" style="text-align: center">
+                    <img src="//imageserver.eveonline.com/type/3242_32.png" title="warp scramble strength" alt="warp scramble strength" style="height: 22px; width: 22px;">
+                </div>
+                <div class="col-xs-1">
+                    <small id="warpStrength">0</small>
+                </div>
+                <div class="col-xs-1">
+                    <img src="//imageserver.eveonline.com/type/526_32.png" title="web strength" alt="web strength" style="height: 22px; width: 22px;">
+                </div>
+                <div class="col-xs-1">
+                    <small id="webStrength">0%</small>
+                </div>
+                <div class="col-xs-1">
+                    <img src="/i/icons/22_32_23.png" title="targets" alt="targets" style="height: 22px; width: 22px;">
+                </div>
+                <div class="col-xs-1">
+                    <small id="targets">0</small>
+                </div>
+                <div class="col-xs-1">
+                    <img src="/i/icons/22_32_14.png" title="scan resolution" alt="scan resolution" style="height: 22px; width: 22px;">
+                </div>
+                <div class="col-xs-1">
+                    <small id="scanRes">0</small>
                 </div>
             </div>
         </div>
@@ -1047,37 +148,24 @@
             <span><small>Defensive</small></span>
             <span class='pull-right'><small id="ehp"></small></span>
         </div>
-        <div class="container" style="background-color: #16201a;">
+        <div class="container" style="width: 260px; background-color: #16201a;">
             <div class="row">
                 <div class="col-xs-12">
                     <div class="row" style="padding: 0px; ">
-
                         <div class="col-xs-4" style="padding: 2px;">
                             <small id="rps"></small>
                         </div>
-                        <div class="col-xs-2" style="padding: 2px;">
-                            <div class="progress" style="height: 15px;">
-                                <div id="shieldEm" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width:0%;">0%</div>
-                            </div>
+                        <div class="col-xs-2" style="padding: 0px; text-align: center">
+                            <img alt="em resonance" title="em resonance" src="/i/icons/22_32_12.png" style="width: 20px; padding:0px; height: 20px;">
                         </div>
-                        <div class="col-xs-2" style="padding: 2px;">
-                            <div class="progress" style="height: 15px;">
-                                <div id="shieldTherm" class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width:0%">0%</div>
-                            </div>
+                        <div class="col-xs-2" style="padding: 0px; text-align: center">
+                            <img alt="thermal resonance" title="thermal resonance" src="/i/icons/22_32_10.png" style="width: 20px; padding:0px; height: 20px;">
                         </div>
-                        <div class="col-xs-2" style="padding: 2px;">
-                            <div class="progress" style="height: 15px;">
-                                <div id="shieldKin" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width:0%">0%</div>
-                            </div>
+                        <div class="col-xs-2" style="padding: 0px; text-align: center">
+                            <img alt="kinetic resonance" title="kinetic resonance" src="/i/icons/22_32_9.png" style="width: 20px; padding:0px; height: 20px;">
                         </div>
-                        <div class="col-xs-2" style="padding: 2px;">
-                            <div class="progress" style="height: 15px;">
-                                <div id="shieldExp" class="progress-bar progress-bar-warning" role="progressbar " aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width:0%">0%</div>
-                            </div>
+                        <div class="col-xs-2" style="padding: 0px; text-align: center">
+                            <img alt="explosive resonance" title="explosive resonance" src="/i/icons/22_32_11.png" style="width: 20px; padding:0px; height: 20px;">
                         </div>
                     </div>
                     <div class="row" style="padding: 0px; ">
@@ -1089,25 +177,25 @@
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="shieldEm" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                <div id="shieldEm" class="progress-bar progress-bar-em" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
                                     style="width:0%;">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="shieldTherm" class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                <div id="shieldTherm" class="progress-bar progress-bar-therm" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
                                     style="width:0%">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="shieldKin" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                <div id="shieldKin" class="progress-bar progress-bar-kin" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
                                     style="width:0%">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="shieldExp" class="progress-bar progress-bar-warning" role="progressbar " aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                <div id="shieldExp" class="progress-bar progress-bar-exp" role="progressbar " aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
                                     style="width:0%">0%</div>
                             </div>
                         </div>
@@ -1121,25 +209,25 @@
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="armorEm" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                <div id="armorEm" class="progress-bar progress-bar-em" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
                                     style="width:0%">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="armorTherm" class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                <div id="armorTherm" class="progress-bar progress-bar-therm" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
                                     style="width:0%">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="armorKin" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                <div id="armorKin" class="progress-bar progress-bar-kin" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
                                     style="width:0%">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="armorExp" class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                <div id="armorExp" class="progress-bar progress-bar-exp" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
                                     style="width:0%">0%</div>
                             </div>
                         </div>
@@ -1153,25 +241,25 @@
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="hullEm" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                <div id="hullEm" class="progress-bar progress-bar-em" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
                                     style="width:0%">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="hullTherm" class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                <div id="hullTherm" class="progress-bar progress-bar-therm" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
                                     style="width:0%">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="hullKin" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                <div id="hullKin" class="progress-bar progress-bar-kin" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
                                     style="width:0%">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="hullExp" class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                <div id="hullExp" class="progress-bar progress-bar-exp" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
                                     style="width:0%">0%</div>
                             </div>
                         </div>
@@ -1179,6 +267,61 @@
                 </div>
             </div>
         </div>
+        <div class="remoteRepair hidden" style="background-color: #06100a;  padding: 2px;">
+            <span><small>Remote Assistance</small></span>
+            <span class='pull-right'><small></small></span>
+        </div>
+        <div class="remoteRepair  hidden" style="background-color: #16201a; padding: 2px;">
+            <div class="row">
+                <div class="col-xs-3">
+                    <img alt="em resonance" title="em resonance" src="/i/icons/22_32_8.png" style="width: 32px; padding:0px; height: 32px;">
+                </div>
+                <div class="col-xs-3">
+                    <img alt="em resonance" title="em resonance" src="/i/icons/22_32_7.png" style="width: 32px; padding:0px; height: 32px;">
+                </div>
+                <div class="col-xs-3">
+                    <img alt="em resonance" title="em resonance" src="/i/icons/1_64_11.png" style="width: 32px; padding:0px; height: 32px;">
+                </div>
+                <div class="col-xs-3">
+                    <img alt="em resonance" title="em resonance" src="/i/icons/2_64_13.png" style="width: 32px; padding:0px; height: 32px;">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3 center"><small id="remotePower">0 GJ/s</small></div>
+                <div class="col-xs-3 center"><small id="remoteShield">0 hp/s</small></div>
+                <div class="col-xs-3 center"><small id="remoteArmor">0 hp/s</small></div>
+                <div class="col-xs-3 center"><small id="remoteHull">0 hp/s</small></div>
+            </div>
+        </div>
+        <div style="background-color: #06100a;  padding: 2px;">
+            <span><small>Misc</small></span>
+            <span class='pull-right'><small></small></span>
+        </div>
+        <div style="background-color: #16201a; padding: 2px;">
+            <div class="row">
+                <div class="col-xs-6"> <small>Range:</small> <small id="lockRange">0 hp/s</small></div>
+                <div class="col-xs-6"> <small>Cargo:</small> <small id="cargo"></small></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6"> <small>Sensor Strength:</small> <small id="sensorStrength">0 hp/s</small></div>
+                <div class="col-xs-6"> <small>Warp Speed:</small> <small id="warpSpeed"></small> </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6"> <small>Speed:</small> <small id="speed">0 hp/s</small></div>
+                <div class="col-xs-6"> <small>Prop Speed:</small> <small id="mwdSpeed"></small></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6"> <small>SigRad:</small> <small id="sigRadius">0</small></div>
+                <div class="col-xs-6"> <small>Prop SigRad:</small> <small id="mwdSigRadius">0</small></div>
+            </div>
+        </div>
     </div>
+    <div id="attackers" style="padding: 0px; background-color: #06100a; width: 360px; float: left;">
+        <div class="row killmail killmail-head">
+            <div id="numInvolved" style="float: left; padding: 3px;">Involved</div>
+            <div class="pull-right" style="float: left; padding: 3px;">Damage</div>
+        </div>
+    </div>
+</div>
 </div>
 {{end}}

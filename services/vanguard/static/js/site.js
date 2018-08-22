@@ -23,7 +23,7 @@ function convertMS(ms) {
 	h = h % 24;
 	h += d * 24;
 	m += h * 60;
-	return  m + 'm ' + s + "s";
+	return m + 'm ' + s + "s";
 }
 
 Array.prototype.pushIfNotExist = function (element, comparer) {
@@ -177,10 +177,17 @@ function totalTextFormatter(data) {
 }
 
 function simpleVal(nStr) {
+	if (nStr == undefined) {
+		return 0;
+	}
 	return numberCommafy(nStr.toFixed(0))
 }
 
 function numberCommafy(nStr) {
+
+	if (nStr == undefined) {
+		return 0;
+	}
 	nStr += '';
 	var x = nStr.split('.');
 	var x1 = x[0];
