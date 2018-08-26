@@ -97,6 +97,49 @@ CREATE TABLE `contactSyncs` (
   KEY `source` (`source`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `contractBids` (
+  `contractID` bigint(20) unsigned NOT NULL,
+  `bidID` int(10) unsigned NOT NULL,
+  `bidderID` int(11) NOT NULL,
+  `dateBid` datetime NOT NULL,
+  `amount` decimal(22,2) DEFAULT NULL,
+  PRIMARY KEY (`contractID`,`bidID`)
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `contractItems` (
+  `recordID` bigint(20) NOT NULL,
+  `isBPC` tinyint(3) unsigned DEFAULT NULL,
+  `itemID` bigint(20) DEFAULT NULL,
+  `typeID` int(11) DEFAULT NULL,
+  `isIncluded` tinyint(4) DEFAULT NULL,
+  `ME` tinyint(4) DEFAULT NULL,
+  `TE` tinyint(4) DEFAULT NULL,
+  `runs` tinyint(4) DEFAULT NULL,
+  `quantity` int(11) DEFAULT NULL,
+  PRIMARY KEY (`recordID`)
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `contracts` (
+  `contractID` int(10) unsigned NOT NULL,
+  `buyout` decimal(22,2) DEFAULT NULL,
+  `collateral` decimal(22,2) DEFAULT NULL,
+  `dateExpired` datetime DEFAULT NULL,
+  `dateIssued` datetime NOT NULL,
+  `daysToComplete` tinyint(3) unsigned DEFAULT NULL,
+  `endLocationId` bigint(20) unsigned DEFAULT NULL,
+  `forCorporation` tinyint(3) unsigned NOT NULL,
+  `issuerCorporationID` int(10) unsigned DEFAULT NULL,
+  `issuerID` int(10) unsigned NOT NULL,
+  `price` decimal(22,2) DEFAULT NULL,
+  `reward` decimal(22,2) DEFAULT NULL,
+  `locationID` bigint(20) DEFAULT NULL,
+  `title` varchar(255) COLLATE utf8_bin NOT NULL,
+  `type` varchar(30) COLLATE utf8_bin DEFAULT NULL,
+  `volume` decimal(22,2) DEFAULT NULL,
+  PRIMARY KEY (`contractID`),
+  KEY `ix_location_type_exp` (`locationID`,`type`,`dateExpired`)
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `corporationHistory` (
   `recordID` int(11) NOT NULL,
   `startDate` datetime NOT NULL,
@@ -267,7 +310,7 @@ CREATE TABLE `integrations` (
   `factionID` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`integrationID`),
   UNIQUE KEY `UNIQUE` (`address`,`authentication`)
-) ENGINE=TokuDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `invMarketGroups` (
   `marketGroupID` mediumint(6) unsigned NOT NULL,
