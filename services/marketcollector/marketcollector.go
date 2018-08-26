@@ -19,7 +19,7 @@ var wsDialer = websocket.Dialer{
 	HandshakeTimeout: 30 * time.Second,
 }
 
-// MarketCollector dumps killmails to json files for testing.
+// MarketCollector gathers changes from eve-marketwatch and posts to SQL
 type MarketCollector struct {
 	stop             chan bool
 	ws               *websocket.Conn
@@ -37,7 +37,7 @@ func NewMarketCollector(db *sqlx.DB, consumerAddresses []string) *MarketCollecto
 		messageChan:      make(chan *Message, 10000),
 		orderHistoryChan: make(chan []marketwatch.OrderChange, 10000),
 	}
-	c, _, err := wsDialer.Dial("ws://marketwatch.evedata:3005", nil)
+	c, _, err := wsDialer.Dial("ws://marketwatch.evedata:3005/?market=1&contract=1", nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
