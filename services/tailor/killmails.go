@@ -22,6 +22,17 @@ type KillmailAttributes struct {
 	Attributes *attributes.Attributes                    `json:"attributes"`
 	Killmail   *esi.GetKillmailsKillmailIdKillmailHashOk `json:"killmail"`
 	NameMap    map[int32]string                          `json:"nameMap"`
+	SystemInfo SystemInformation                         `json:"systemInfo"`
+}
+
+// SystemInformation for the killmail
+type SystemInformation struct {
+	CelestialID     int32  `db:"celestialID" json:"celestialID"`
+	CelestialName   string `db:"celestialName" json:"celestialName"`
+	RegionID        int32  `db:"regionID" json:"regionID"`
+	RegionName      string `db:"regionName" json:"regionName"`
+	SolarSystemName string `db:"solarSystemName" json:"solarSystemName"`
+	SolarSystemID   int32  `db:"solarSystemID" json:"solarSystemID"`
 }
 
 var chanKillmailAttributes chan KillmailAttributes
@@ -36,7 +47,6 @@ func (s *Tailor) saveKillmail(pack *KillmailAttributes) error {
 		log.Println(err)
 		return err
 	}
-	fmt.Printf("%s\n", j)
 	return nil
 }
 
@@ -58,10 +68,18 @@ func (s *Tailor) killmailHandler(message *nsq.Message) error {
 		log.Println(err)
 		return err
 	}
+
+	pos := killmail.Kill.Victim.Position
+	sysinfo, err := s.getSystemInformation(killmail.Kill.SolarSystemId, pos.X, pos.Y, pos.Z)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 	pack := KillmailAttributes{
 		Attributes: attr,
 		Killmail:   &killmail.Kill,
 		NameMap:    names,
+		SystemInfo: sysinfo,
 	}
 	s.saveKillmail(&pack)
 
@@ -72,6 +90,20 @@ func (s *Tailor) killmailHandler(message *nsq.Message) error {
 
 func joinInt32(a []int32) string {
 	return strings.Trim(strings.Join(strings.Fields(fmt.Sprint(a)), ","), "[]")
+}
+
+func (s *Tailor) getSystemInformation(system int32, x, y, z float64) (SystemInformation, error) {
+	sysInfo := []SystemInformation{}
+	err := s.db.Select(&sysInfo,
+		`SELECT itemName AS celestialName, itemID AS celestialID, S.solarSystemID, S.regionID, solarSystemName, regionName
+		FROM  eve.mapDenormalize D
+		INNER JOIN eve.mapSolarSystems S ON S.solarSystemID = D.solarSystemID
+		INNER JOIN eve.mapRegions R ON R.regionID = D.regionID
+		WHERE itemID = closestCelestial(?,?,?,?);`, system, x, y, z)
+	if err != nil {
+		return SystemInformation{}, err
+	}
+	return sysInfo[0], err
 }
 
 func (s *Tailor) resolveNames(kill *esi.GetKillmailsKillmailIdKillmailHashOk) (map[int32]string, error) {
@@ -90,6 +122,7 @@ func (s *Tailor) resolveNames(kill *esi.GetKillmailsKillmailIdKillmailHashOk) (m
 			ids[a.ItemTypeId] = ""
 		}
 	}
+
 	ids[kill.Victim.AllianceId] = ""
 	ids[kill.Victim.CorporationId] = ""
 	ids[kill.Victim.CharacterId] = ""
@@ -114,7 +147,7 @@ func (s *Tailor) resolveNames(kill *esi.GetKillmailsKillmailIdKillmailHashOk) (m
 		SELECT characterID as id, name FROM evedata.characters WHERE characterID IN (` + joinInt32(idList) + `)
 		UNION
 		SELECT typeID as id, typeName as name FROM eve.invTypes WHERE typeID IN  (` + joinInt32(idList) + `)
-	`)
+		`)
 	if err != nil {
 		return nil, err
 	}
