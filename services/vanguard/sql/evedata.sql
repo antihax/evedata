@@ -97,6 +97,49 @@ CREATE TABLE `contactSyncs` (
   KEY `source` (`source`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `contractBids` (
+  `contractID` bigint(20) unsigned NOT NULL,
+  `bidID` int(10) unsigned NOT NULL,
+  `bidderID` int(11) NOT NULL,
+  `dateBid` datetime NOT NULL,
+  `amount` decimal(22,2) DEFAULT NULL,
+  PRIMARY KEY (`contractID`,`bidID`)
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `contractItems` (
+  `recordID` bigint(20) NOT NULL,
+  `isBPC` tinyint(3) unsigned DEFAULT NULL,
+  `itemID` bigint(20) DEFAULT NULL,
+  `typeID` int(11) DEFAULT NULL,
+  `isIncluded` tinyint(4) DEFAULT NULL,
+  `ME` tinyint(4) DEFAULT NULL,
+  `TE` tinyint(4) DEFAULT NULL,
+  `runs` tinyint(4) DEFAULT NULL,
+  `quantity` int(11) DEFAULT NULL,
+  PRIMARY KEY (`recordID`)
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `contracts` (
+  `contractID` int(10) unsigned NOT NULL,
+  `buyout` decimal(22,2) DEFAULT NULL,
+  `collateral` decimal(22,2) DEFAULT NULL,
+  `dateExpired` datetime DEFAULT NULL,
+  `dateIssued` datetime NOT NULL,
+  `daysToComplete` tinyint(3) unsigned DEFAULT NULL,
+  `endLocationId` bigint(20) unsigned DEFAULT NULL,
+  `forCorporation` tinyint(3) unsigned NOT NULL,
+  `issuerCorporationID` int(10) unsigned DEFAULT NULL,
+  `issuerID` int(10) unsigned NOT NULL,
+  `price` decimal(22,2) DEFAULT NULL,
+  `reward` decimal(22,2) DEFAULT NULL,
+  `locationID` bigint(20) DEFAULT NULL,
+  `title` varchar(255) COLLATE utf8_bin NOT NULL,
+  `type` varchar(30) COLLATE utf8_bin DEFAULT NULL,
+  `volume` decimal(22,2) DEFAULT NULL,
+  PRIMARY KEY (`contractID`),
+  KEY `ix_location_type_exp` (`locationID`,`type`,`dateExpired`)
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `corporationHistory` (
   `recordID` int(11) NOT NULL,
   `startDate` datetime NOT NULL,
@@ -267,7 +310,7 @@ CREATE TABLE `integrations` (
   `factionID` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`integrationID`),
   UNIQUE KEY `UNIQUE` (`address`,`authentication`)
-) ENGINE=TokuDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `invMarketGroups` (
   `marketGroupID` mediumint(6) unsigned NOT NULL,
@@ -353,7 +396,7 @@ CREATE TABLE `killmailAttributes` (
   `capacitorTime` bigint(20) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `ix_id_cpu_pg_ehp` (`id`,`CPURemaining`,`powerRemaining`,`eHP`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `killmails` (
   `id` int(9) unsigned NOT NULL,
@@ -378,7 +421,8 @@ CREATE TABLE `killmails` (
   KEY `ix_war` (`warID`),
   KEY `ix_victimCharacterID` (`victimCharacterID`),
   KEY `ix_id_killtime` (`id`,`killTime`),
-  KEY `ix_ship_time` (`shipType`,`killTime`)
+  KEY `ix_ship_time` (`shipType`,`killTime`),
+  KEY `ix_war_killtime` (`warID`,`killTime`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `locatedCharacters` (
@@ -452,6 +496,20 @@ CREATE TABLE `marketHistoryStatistics` (
   PRIMARY KEY (`itemID`,`regionID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `marketOrderHistory` (
+  `orderID` bigint(20) unsigned NOT NULL,
+  `locationID` bigint(20) unsigned NOT NULL,
+  `typeID` smallint(5) unsigned NOT NULL,
+  `volumeChange` int(11) unsigned NOT NULL,
+  `volumeRemain` int(11) unsigned NOT NULL,
+  `price` decimal(22,2) unsigned NOT NULL,
+  `duration` smallint(5) unsigned NOT NULL,
+  `isBuyOrder` tinyint(4) unsigned NOT NULL,
+  `changed` datetime NOT NULL,
+  PRIMARY KEY (`orderID`,`changed`),
+  KEY `ix_chg_buy` (`isBuyOrder`,`changed`)
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `marketStations` (
   `stationName` varchar(255) DEFAULT NULL,
   `stationID` bigint(20) unsigned NOT NULL DEFAULT '0',
@@ -514,7 +572,7 @@ CREATE TABLE `orders` (
   PRIMARY KEY (`orderid`),
   KEY `characterID` (`characterID`),
   KEY `char_region_item` (`characterID`,`regionID`,`typeID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `sharing` (
   `characterID` int(11) unsigned NOT NULL,
@@ -602,13 +660,15 @@ CREATE TABLE `wars` (
   `timeDeclared` datetime DEFAULT NULL,
   `openForAllies` tinyint(4) unsigned DEFAULT NULL,
   `cacheUntil` datetime DEFAULT NULL,
-  `aggressorID` int(11) unsigned DEFAULT NULL,
-  `defenderID` int(11) unsigned DEFAULT NULL,
-  `mutual` tinyint(4) unsigned DEFAULT NULL,
+  `aggressorID` int(11) unsigned NOT NULL DEFAULT '0',
+  `defenderID` int(11) unsigned NOT NULL DEFAULT '0',
+  `mutual` tinyint(4) unsigned NOT NULL DEFAULT '0',
+  `finished` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `aggressorID` (`aggressorID`),
   KEY `defenderID` (`defenderID`),
-  KEY `timeFinished_cacheUntil` (`timeFinished`,`cacheUntil`)
+  KEY `timeFinished_cacheUntil` (`timeFinished`,`cacheUntil`),
+  KEY `idx_lookup` (`aggressorID`,`defenderID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 
@@ -695,12 +755,13 @@ CREATE TABLE `wars` (
 		BEGIN
 			DECLARE region int(10) unsigned;
 			SELECT regionID INTO region
-				FROM eve.mapSolarSystems M
-				INNER JOIN evedata.structures S ON S.solarSystemID = M.solarSystemID
+				FROM eve.staStations
 				WHERE stationID = structure
 				LIMIT 1;
-			
-		RETURN region;
+			IF region IS NULL THEN 
+				SET region = 0;
+			END IF;
+		RETURN region;	
 		END$$
 		DELIMITER ;
 		DELIMITER $$

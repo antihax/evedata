@@ -120,7 +120,7 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 
 		// Figure out how many contacts they have outside of ours
 		for _, contact := range contacts {
-			if contact.Standing > -0.4 {
+			if contact.Standing > -0.4 || len(contact.LabelIds) > 0 {
 				untouchableContacts++
 			}
 		}
@@ -152,8 +152,8 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 
 		// Loop through all current contacts and figure out needed moves
 		for _, contact := range contacts {
-			// skip anything > -0.4
-			if contact.Standing > -0.4 {
+			// skip anything > -0.4 or with a label
+			if contact.Standing > -0.4 || len(contact.LabelIds) > 0 {
 				continue
 			}
 
@@ -279,7 +279,7 @@ type ContactEntity struct {
 }
 
 // GetActiveWarsByID gets active wars for an entityID
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func (s *Hammer) GetActiveWarsByID(id int64) ([]ContactEntity, error) {
 	w := []ContactEntity{}
 	if err := s.db.Select(&w, `
@@ -299,7 +299,7 @@ func (s *Hammer) GetActiveWarsByID(id int64) ([]ContactEntity, error) {
 }
 
 // GetPendingWarsByID gets pending wars for an entityID
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func (s *Hammer) GetPendingWarsByID(id int64) ([]ContactEntity, error) {
 	w := []ContactEntity{}
 	if err := s.db.Select(&w, `

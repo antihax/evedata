@@ -14,7 +14,6 @@ type MarketHistory struct {
 	Quantity int64     `db:"quantity" json:"quantity"`
 }
 
-// [BENCHMARK] 0.407 sec / 0.421 sec [TODO] Optimize
 func GetMarketHistory(itemID int64, regionID int32) ([]MarketHistory, error) {
 	s := []MarketHistory{}
 	if err := database.Select(&s, `
@@ -35,7 +34,6 @@ type ArbitrageCalculatorStations struct {
 	StationID   string `db:"stationID" json:"stationID" `
 }
 
-// [BENCHMARK] 0.015 sec / 0.000 sec
 func GetArbitrageCalculatorStations() ([]ArbitrageCalculatorStations, error) {
 	s := []ArbitrageCalculatorStations{}
 	if err := database.Select(&s, `
@@ -75,7 +73,7 @@ func GetArbitrageCalculator(stationID int64, minVolume int64, maxPrice int64, br
 	b := []buys{}
 
 	go func() {
-		// [BENCHMARK] 0.432 sec / 0.016 sec
+
 		err := database.Select(&b, `
 		SELECT  market.typeID AS typeID, typeName, count(*) as buys, ROUND(market_vol.quantity / 2) as volume, ROUND(max(price) + (max(price) * ?),2) AS price
 		FROM    evedata.market, invTypes, evedata.market_vol
@@ -94,7 +92,7 @@ func GetArbitrageCalculator(stationID int64, minVolume int64, maxPrice int64, br
 	sellOrders := make(map[int64]sells)
 	s := []sells{}
 	go func() {
-		// [BENCHMARK] 0.297 sec / 0.000 sec
+
 		err := database.Select(&s, `
 		SELECT  typeID, ROUND(min(price) - (min(price) * ?) - (min(price) * ?),2) AS price
 		FROM    evedata.market
@@ -162,7 +160,6 @@ type MarketRegion struct {
 	Orders     int64  `db:"orders" json:"orders"`
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 // Anywhere can now have a public market.
 func GetMarketRegions() ([]MarketRegion, error) {
 	v := []MarketRegion{}
@@ -185,7 +182,6 @@ type MarketType struct {
 	TypeName string `db:"typeName"`
 }
 
-// [BENCHMARK] 0.000 sec / 0.047 sec
 func GetMarketTypes() ([]MarketType, error) {
 	v := []MarketType{}
 	err := database.Select(&v, `

@@ -10,7 +10,6 @@ type MarketItemList struct {
 func SearchMarketNames(query string) ([]MarketItemList, error) {
 	list := []MarketItemList{}
 
-	// [BENCHMARK] 0.078 sec / 0.000 sec
 	err := database.Select(&list, `SELECT  T.typeID, typeName, CONCAT_WS(',', G5.marketGroupName, G4.marketGroupName, G3.marketGroupName, G2.marketGroupName, G.marketGroupName) AS Categories, count(*) AS count
            FROM invTypes T 
            LEFT JOIN evedata.invMarketGroups G on T.marketGroupID = G.marketGroupID
@@ -40,7 +39,6 @@ func SearchNames(query string) ([]NamesItemList, error) {
 	list := []NamesItemList{}
 	query = query + "%"
 
-	// [BENCHMARK] 0.000 sec / 0.000 sec
 	err := database.Select(&list, `
 		SELECT typeName AS name, typeID AS id, "Item" AS type 
 			FROM invTypes WHERE typeName LIKE ?
@@ -66,7 +64,6 @@ func SearchEntities(query string) ([]NamesItemList, error) {
 	list := []NamesItemList{}
 	query = query + "%"
 
-	// [BENCHMARK] 0.000 sec / 0.000 sec
 	err := database.Select(&list, `
 		SELECT name, id, type FROM (
 			SELECT name, corporationID AS id, "Corporation" AS type 

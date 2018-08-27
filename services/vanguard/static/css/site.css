@@ -44,6 +44,20 @@ text.mono {
     border-radius: 8px;
 }
 
+.killmail {
+    margin-left: 0px;
+    margin-right: 0px;
+    padding: 0px;
+}
+
+.killmail-head {
+    margin-left: 0px;
+    margin-right: 0px;
+    padding: 0px;
+    font-size: 12px;
+    font-weight: bolder;
+}
+
 .whitewell {
     background-color: #ffffff;
     border: 2px solid black;
@@ -63,6 +77,10 @@ text.mono {
 
 .navbar-static-top {
     margin-bottom: 0px;
+}
+
+.hidden {
+    display:none;
 }
 
 .nopadding {
@@ -293,7 +311,31 @@ p+p {
 }
 
 #mainCanvas {
-
     width:100%;
     height:100%
+}
+
+.progress-bar-em {
+    background-color: #195E8C;
+    padding: 2px;
+}
+.progress-bar-therm{
+    background-color: #8C1919;
+    padding: 2px;
+}
+.progress-bar-kin {
+    background-color: #727272;
+    padding: 2px;
+}
+.progress-bar-exp {
+    background-color: #8C5E19;
+    padding: 2px;
+}
+
+.killmail-frame {
+    padding: 0px;
+    width: 260px; 
+    float: left;
+    border: 2px solid #c0c0c0;
+    outline: 2px solid #808080;
 }

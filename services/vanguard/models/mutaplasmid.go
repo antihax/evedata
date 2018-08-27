@@ -45,7 +45,7 @@ var MutaplasmidTypes = map[string]string{
 }
 
 // Obtain Item Attributes by ID.
-// [BENCHMARK] 0.125 sec / 0.000 sec
+
 func GetMutaplasmidData(mutaplasmidType string) (*MutaplasmidData, error) {
 	type mutaplasmidData struct {
 		MetaData string `db:"metaData"`

@@ -89,7 +89,6 @@ func GetAssetCharacters(characterID int32, ownerHash string, marketable bool) ([
 	return assetCharacters, nil
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 func GetAssets(characterID int32, ownerHash string, filterCharacterID int32, locationID int64) ([]Assets, error) {
 	var filter string
 

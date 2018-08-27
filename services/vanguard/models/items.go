@@ -19,7 +19,7 @@ type ItemType struct {
 }
 
 // Obtain Item information by ID.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetItem(id int64) (*ItemType, error) {
 	ref := ItemType{}
 	if err := database.QueryRowx(`
@@ -57,7 +57,7 @@ type ItemAttributes struct {
 }
 
 // Obtain Item Attributes by ID.
-// [BENCHMARK] 0.015 sec / 0.000 sec
+
 func GetItemAttributes(id int64) (*[]ItemAttributes, error) {
 	ref := &[]ItemAttributes{}
 	if err := database.Select(ref, `

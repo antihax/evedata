@@ -44,10 +44,13 @@ type Alliance struct {
 	StartDate               time.Time `db:"startDate" json:"startDate"`
 	ExecutorCorporationID   int64     `db:"executorCorporationID" json:"executorCorporationID"`
 	ExecutorCorporationName string    `db:"executorCorporationName" json:"executorCorporationName"`
+	Efficiency              float64   `db:"efficiency" json:"efficiency"`
+	CapKills                int64     `db:"capKills" json:"capKills"`
+	Kills                   int64     `db:"kills" json:"kills"`
+	Losses                  int64     `db:"losses" json:"losses"`
 }
 
-// Obtain alliance information by ID.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+// GetAlliance Obtain alliance information by ID.
 func GetAlliance(id int64) (*Alliance, error) {
 	ref := Alliance{}
 	if err := database.QueryRowx(`
@@ -56,13 +59,18 @@ func GetAlliance(id int64) (*Alliance, error) {
 		    A.name AS allianceName, 
 		    A.shortName AS allianceTicker,
 		    A.corporationsCount,
-		    A.startDate,
+			A.startDate,
+			coalesce(efficiency, 0) AS efficiency,
+			coalesce(capKills, 0) AS capKills,
+			coalesce(kills, 0) AS kills,
+			coalesce(losses, 0) AS losses,
 		    
 		    EXEC.name AS executorCorporationName,
 		    EXEC.corporationID AS executorCorporationID
 		    
 		FROM evedata.alliances A
 		INNER JOIN evedata.corporations EXEC ON A.executorCorpID = EXEC.corporationID
+		LEFT OUTER JOIN evedata.entityKillStats S ON S.id = A.allianceID
 		WHERE A.allianceID = ?
 		LIMIT 1`, id).StructScan(&ref); err != nil {
 		return nil, err
@@ -78,7 +86,7 @@ type AllianceMember struct {
 }
 
 // Obtain a list of corporations within an alliance by ID.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetAllianceMembers(id int64) ([]AllianceMember, error) {
 	ref := []AllianceMember{}
 	if err := database.Select(&ref, `
@@ -107,7 +115,7 @@ type AllianceHistory struct {
 }
 
 // Obtain a list of corporations history with an alliance by ID.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetAllianceHistory(id int64) ([]AllianceHistory, error) {
 	ref := []AllianceHistory{}
 	if err := database.Select(&ref, `
@@ -131,7 +139,7 @@ type AllianceJoinHistory struct {
 }
 
 // Obtain a list of corporations history with an alliance by ID.
-// [BENCHMARK] 0.000 sec / 0.000 sec
+
 func GetAllianceJoinHistory(id int64) ([]AllianceJoinHistory, error) {
 	ref := []AllianceJoinHistory{}
 	if err := database.Select(&ref, `

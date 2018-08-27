@@ -14,6 +14,39 @@ import (
 	"github.com/gorilla/sessions"
 )
 
+// OpenGraph for Facebook unfurl
+type OpenGraph struct {
+	Title       string
+	Image       string
+	Description string
+}
+
+func entityImage(entityID int64, entityType string, size int) string {
+	switch entityType {
+	case "character":
+		return "https://imageserver.eveonline.com/character/" +
+			strconv.FormatInt(entityID, 10) +
+			"_" + strconv.Itoa(size) + ".jpg"
+	case "corporation":
+		return "https://imageserver.eveonline.com/corporation/" +
+			strconv.FormatInt(entityID, 10) +
+			"_" + strconv.Itoa(size) + ".png"
+	case "alliance":
+		return "https://imageserver.eveonline.com/alliance/" +
+			strconv.FormatInt(entityID, 10) +
+			"_" + strconv.Itoa(size) + ".png"
+	case "type":
+		return "https://imageserver.eveonline.com/type/" +
+			strconv.FormatInt(entityID, 10) +
+			"_" + strconv.Itoa(size) + ".png"
+	case "render":
+		return "https://imageserver.eveonline.com/render/" +
+			strconv.FormatInt(entityID, 10) +
+			"_" + strconv.Itoa(size) + ".png"
+	}
+	return ""
+}
+
 func newPage(r *http.Request, title string) map[string]interface{} {
 	p := make(map[string]interface{})
 	p["Title"] = title

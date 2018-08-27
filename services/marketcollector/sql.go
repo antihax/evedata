@@ -9,7 +9,6 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	"github.com/antihax/eve-marketwatch/marketwatch"
-
 	"github.com/antihax/goesi/esi"
 )
 
@@ -168,6 +167,26 @@ func (s *MarketCollector) sqlPump() {
 			fmt.Printf("delete of %d orders\n", len(v))
 			s.saveDeletions(v)
 			s.orderHistoryChan <- v
+
+		// Handle contracts
+		case "contractAddition":
+			v := []marketwatch.FullContract{}
+			if err := json.Unmarshal(*message.Payload, &v); err != nil {
+				log.Println(err)
+				continue
+			}
+
+			fmt.Printf("addition of %d contracts\n", len(v))
+			s.saveContractAdditions(v)
+
+		case "contractChange", "contractDeletion":
+			v := []marketwatch.ContractChange{}
+			if err := json.Unmarshal(*message.Payload, &v); err != nil {
+				log.Println(err)
+				continue
+			}
+			fmt.Printf("%s of %d contracts\n", message.Action, len(v))
+			s.saveContractChanges(v)
 		}
 	}
 }

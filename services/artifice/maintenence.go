@@ -12,7 +12,7 @@ func init() {
 	registerTrigger("marketUpdate", marketUpdate, time.NewTicker(time.Hour*2))
 	registerTrigger("discoveredAssetsMaint", discoveredAssetsMaint, time.NewTicker(time.Second*3620))
 	registerTrigger("entityMaint", entityMaint, time.NewTicker(time.Second*3630*3))
-	registerTrigger("killmailMaint", killmailMaint, time.NewTicker(time.Hour*11))
+	registerTrigger("killmailMaint", killmailMaint, time.NewTicker(time.Hour*3))
 	registerTrigger("entityStatsMaint", entityStatsMaint, time.NewTicker(time.Hour*8))
 	registerTrigger("contactSyncMaint", contactSyncMaint, time.NewTicker(time.Second*3615*6))
 }
@@ -358,7 +358,6 @@ type marketRegion struct {
 	RegionName string `db:"regionName"`
 }
 
-// [BENCHMARK] 0.000 sec / 0.000 sec
 // Anywhere can now have a public market.
 func getMarketRegions(s *Artifice) ([]marketRegion, error) {
 	v := []marketRegion{}

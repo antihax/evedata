@@ -8,6 +8,8 @@ import (
 
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 var validEntity map[string]bool
@@ -284,6 +286,74 @@ func corporationsForAllianceAPI(w http.ResponseWriter, r *http.Request) {
 	renderJSON(w, v, time.Hour*12)
 }
 
+func entityBlurb(name, entType string, eff float64, kills, losses, capKills int64, plural bool) string {
+
+	p := message.NewPrinter(language.English)
+
+	desc := name + " is a "
+	if eff > 0.9 && kills > 100 {
+		desc += "deadly PvP"
+	} else if eff > 0.75 && kills > 50 {
+		desc += "dangerous PvP"
+	} else if eff > 0.6 && kills > 25 {
+		desc += "decent PvP"
+	} else if eff > 0.4 && kills > 1 {
+		desc += "mediocre PvP"
+	} else {
+		desc += "boring"
+	}
+
+	if plural {
+		desc += " " + entType + " who are "
+	} else {
+		desc += " " + entType + " who is "
+	}
+
+	if kills+losses > 50000 {
+		desc += "obnoxiously active"
+	} else if kills+losses > 25000 {
+		desc += "very active"
+	} else if kills+losses > 250 {
+		desc += "quite active"
+	} else if kills+losses > 50 {
+		desc += "not very active"
+	} else {
+		desc += "barely breathing"
+	}
+
+	capProb := float32(0)
+	if capKills > 0 {
+		capProb = float32(capKills) / float32(kills)
+	}
+
+	if capProb > 0.8 && capKills > 20 {
+		desc += " and drop capital ships way too much."
+	} else if capProb > 0.5 && capKills > 20 {
+		desc += " and drop capital ships a lot."
+	} else if capProb > 0.25 && capKills > 20 {
+		desc += " and drop capital ships often."
+	} else if capProb > 0.10 && capKills > 5 {
+		desc += " and occasionally drop capital ships."
+	} else if capProb > 0.01 && capKills > 5 {
+		desc += " and rarely drop capital ships."
+	} else {
+		desc += "."
+	}
+
+	if kills+losses+capKills > 0 {
+		desc += " In the last 90 days they have " + p.Sprintf("%d", kills) + " kills"
+		if capKills > 0 {
+			desc += p.Sprintf(", %d with capital ships involved,", capKills)
+		}
+		desc += " and " + p.Sprintf("%d", losses) + " losses."
+
+	} else {
+		desc += " They have no kill activity in the last 90 days."
+	}
+
+	return desc
+}
+
 func alliancePage(w http.ResponseWriter, r *http.Request) {
 	p := newPage(r, "Unknown Alliance")
 
@@ -303,6 +373,15 @@ func alliancePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	p["Alliance"] = ref
+
+	description := entityBlurb(ref.AllianceName, "alliance", ref.Efficiency, ref.Kills, ref.Losses, ref.CapKills, true)
+	p["OG"] = OpenGraph{
+		Image:       entityImage(ref.AllianceID, "alliance", 128),
+		Title:       "Alliance: " + ref.AllianceName + " - EveData.org",
+		Description: description,
+	}
+	p["Description"] = description
+
 	p["Title"] = ref.AllianceName
 
 	renderTemplate(w, "entities.html", time.Hour*24*7, p)
@@ -327,6 +406,14 @@ func corporationPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p["Corporation"] = ref
+
+	description := entityBlurb(ref.CorporationName, "corporation", ref.Efficiency, ref.Kills, ref.Losses, ref.CapKills, true)
+	p["OG"] = OpenGraph{
+		Image:       entityImage(ref.CorporationID, "corporation", 128),
+		Title:       "Corporation: " + ref.CorporationName + " - EveData.org",
+		Description: description,
+	}
+	p["Description"] = description
 	p["Title"] = ref.CorporationName
 
 	renderTemplate(w, "entities.html", time.Hour*24*7, p)
@@ -352,6 +439,14 @@ func characterPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p["Character"] = ref
+
+	description := entityBlurb(ref.CharacterName, "character", ref.Efficiency, ref.Kills, ref.Losses, ref.CapKills, false)
+	p["OG"] = OpenGraph{
+		Image:       entityImage(int64(ref.CharacterID), "character", 128),
+		Title:       "Character: " + ref.CharacterName + " - EveData.org",
+		Description: description,
+	}
+	p["Description"] = description
 	p["Title"] = ref.CharacterName
 
 	renderTemplate(w, "entities.html", time.Hour*24*7, p)
