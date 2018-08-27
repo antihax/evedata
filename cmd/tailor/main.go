@@ -12,6 +12,7 @@ import (
 	"github.com/antihax/evedata/internal/sqlhelper"
 	"github.com/antihax/evedata/services/tailor"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	backblaze "gopkg.in/kothar/go-backblaze.v0"
 )
 
 func main() {
@@ -20,9 +21,18 @@ func main() {
 
 	db := sqlhelper.NewDatabase()
 
+	b2, err := backblaze.NewB2(backblaze.Credentials{
+		AccountID:      os.Getenv("B2_ACCOUNTID"),
+		ApplicationKey: os.Getenv("B2_APPLICATION_KEY"),
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Make a new service and send it into the background.
 	tailor := tailor.NewTailor(
 		db,
+		b2,
 		nsqhelper.Prod,
 	)
 

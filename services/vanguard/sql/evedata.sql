@@ -108,15 +108,16 @@ CREATE TABLE `contractBids` (
 
 CREATE TABLE `contractItems` (
   `recordID` bigint(20) NOT NULL,
+  `contractID` int(11) NOT NULL,
   `isBPC` tinyint(3) unsigned DEFAULT NULL,
   `itemID` bigint(20) DEFAULT NULL,
   `typeID` int(11) DEFAULT NULL,
   `isIncluded` tinyint(4) DEFAULT NULL,
   `ME` tinyint(4) DEFAULT NULL,
   `TE` tinyint(4) DEFAULT NULL,
-  `runs` tinyint(4) DEFAULT NULL,
+  `runs` int(11) DEFAULT NULL,
   `quantity` int(11) DEFAULT NULL,
-  PRIMARY KEY (`recordID`)
+  PRIMARY KEY (`recordID`,`contractID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `contracts` (

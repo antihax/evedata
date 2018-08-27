@@ -1,6 +1,7 @@
 {{define "fittingWheel"}}
-<script src="/js/killmail.js">
-</script>
+<script type="text/javascript" src="/js/ccpwgl_int.min.js"></script>
+<script type="text/javascript" src="/js/ccpwgl.js"></script>
+<script src="/js/killmail.js"></script>
 
 <div class="row" style="padding: 0px; ">
     <div id="Fitting_Panel" style="float: left; position: relative; height:398px; width:398px; z-index: 3">
@@ -87,10 +88,31 @@
         <div id="low7l" style="position:absolute; left:251px; top:300px; width:24px; height:24px;"></div>
         <div id="low8l" style="position:absolute; left:225px; top:310px; width:24px; height:24px;"></div>
 
-        <div id="bigship" style='position:absolute; left:72px; top:71px; width:256px; height:256px; z-index:-2;'> </div>
+        <div id="bigship" style='position:absolute; left:72px; top:71px; width:256px; height:256px; z-index:-2;'>
+            <img id="shipImage" width=256 height=256 style="position: absolute; z-index:0">
+            <canvas name="shipCanvas" id="shipCanvas" width="256" height="256" style="position:absolute; z-index:-5"></canvas>
+        </div>
     </div>
     <div class="killmail-border">
         <div class="killmail-frame">
+            <div style="background-color: #06100a;  padding: 2px;">
+                <div class="row killmail" style="padding: 0px;">
+                    <div class="col-xs-2 killmail" style="width: 64px">
+                        <img id="victimImage" style="width:64px; height: 64px">
+                    </div>
+                    <div class="col-xs-1 killmail" style="width: 32px">
+                        <img id="victimCorporationImage" style="width:32px; height: 32px">
+                        <img id="victimAllianceImage" style="width:32px; height: 32px">
+                    </div>
+                    <div class="col-xs-9 killmail" style="width: 155px;">
+                        <div class="row" style="height: 64px; padding: 5px;">
+
+                            Stuff
+
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div style="background-color: #06100a;  padding: 2px;">
                 <span><small>Capacitor</small></span>
                 <span class='pull-right'><small id="capacitorDuration"></small></span>
