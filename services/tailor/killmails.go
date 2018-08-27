@@ -92,7 +92,7 @@ func (s *Tailor) killmailHandler(message *nsq.Message) error {
 	pos := killmail.Kill.Victim.Position
 	sysinfo, err := s.getSystemInformation(killmail.Kill.SolarSystemId, pos.X, pos.Y, pos.Z)
 	if err != nil {
-		log.Println(err)
+		log.Println(err, ": missing system:", killmail.Kill.SolarSystemId)
 		return err
 	}
 

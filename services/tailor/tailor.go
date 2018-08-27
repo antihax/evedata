@@ -12,7 +12,7 @@ import (
 	backblaze "gopkg.in/kothar/go-backblaze.v0"
 )
 
-// Tailor dumps killmails to json files for testing.
+// Tailor dumps killmails to b2 files for killboard.
 type Tailor struct {
 	stop     chan bool
 	consumer *nsq.Consumer
@@ -31,7 +31,7 @@ func NewTailor(db *sqlx.DB, b2 *backblaze.B2, consumerAddresses []string) *Tailo
 
 	nsqcfg := nsq.NewConfig()
 	nsqcfg.MaxInFlight = 50
-	nsqcfg.MsgTimeout = time.Second * 30
+	nsqcfg.MsgTimeout = time.Minute * 5
 	c, err := nsq.NewConsumer("killmail", "tailor", nsqcfg)
 	if err != nil {
 		log.Fatalln(err)

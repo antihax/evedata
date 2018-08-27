@@ -10,6 +10,9 @@ $.ajax({
             getShip(package);
             getAttackers(package);
         });
+    },
+    failure: function (d) {
+        showAlert("Don't know this killmail yet","danger")
     }
 });
 
