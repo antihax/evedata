@@ -39,4 +39,5 @@ kubectl create secret generic esi-secret -n evedata \
  --from-literal=secret-tokenstore="" --from-literal=clientID-tokenstore="" \
  --from-literal=secret-discord="" --from-literal=clientID-discord="" \
  --from-literal=domain="" --from-literal=cookie-secret="" \
- --from-literal=refreshCharID="" --from-literal=refreshKey=""
+ --from-literal=refreshCharID="" --from-literal=refreshKey="" \
+ --from-literal=b2-accountID="" --from-literal=b2-application-key=""

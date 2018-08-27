@@ -176,11 +176,11 @@ function totalTextFormatter(data) {
 	return 'Total';
 }
 
-function simpleVal(nStr) {
+function simpleVal(nStr, decimals = 0) {
 	if (nStr == undefined) {
 		return 0;
 	}
-	return numberCommafy(nStr.toFixed(0))
+	return numberCommafy(nStr.toFixed(decimals))
 }
 
 function numberCommafy(nStr) {

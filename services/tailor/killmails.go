@@ -22,7 +22,8 @@ type KillmailAttributes struct {
 	Attributes *attributes.Attributes                    `json:"attributes"`
 	Killmail   *esi.GetKillmailsKillmailIdKillmailHashOk `json:"killmail"`
 	NameMap    map[int32]string                          `json:"nameMap"`
-	SystemInfo SystemInformation                         `json:"systemInfo"`
+	SystemInfo *SystemInformation                        `json:"systemInfo"`
+	DNA        string                                    `json:"dna"`
 }
 
 // SystemInformation for the killmail
@@ -42,11 +43,30 @@ func init() {
 }
 
 func (s *Tailor) saveKillmail(pack *KillmailAttributes) error {
-	j, err := json.MarshalIndent(pack, " ", "   ")
+
+	b, err := json.Marshal(pack)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
+
+	bucket, err := s.b2.Bucket("evedata-killmails")
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	metadata := make(map[string]string)
+	_, err = bucket.UploadFile(
+		fmt.Sprintf("%d.json", pack.Killmail.KillmailId),
+		metadata,
+		bytes.NewReader(b),
+	)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
 	return nil
 }
 
@@ -65,7 +85,7 @@ func (s *Tailor) killmailHandler(message *nsq.Message) error {
 
 	names, err := s.resolveNames(&killmail.Kill)
 	if err != nil {
-		log.Println(err)
+		log.Println(err, " ", killmail.Kill.KillmailId)
 		return err
 	}
 
@@ -75,14 +95,24 @@ func (s *Tailor) killmailHandler(message *nsq.Message) error {
 		log.Println(err)
 		return err
 	}
+
+	dna, err := s.getDNA(killmail.Kill.Victim.ShipTypeId)
+	if err != nil {
+		log.Println(err)
+		dna = ""
+	}
+
 	pack := KillmailAttributes{
 		Attributes: attr,
 		Killmail:   &killmail.Kill,
 		NameMap:    names,
 		SystemInfo: sysinfo,
+		DNA:        dna,
 	}
-	s.saveKillmail(&pack)
-
+	err = s.saveKillmail(&pack)
+	if err != nil {
+		return err
+	}
 	// Add the package to the list
 	chanKillmailAttributes <- pack
 	return nil
@@ -92,18 +122,30 @@ func joinInt32(a []int32) string {
 	return strings.Trim(strings.Join(strings.Fields(fmt.Sprint(a)), ","), "[]")
 }
 
-func (s *Tailor) getSystemInformation(system int32, x, y, z float64) (SystemInformation, error) {
-	sysInfo := []SystemInformation{}
-	err := s.db.Select(&sysInfo,
+func (s *Tailor) getDNA(typeID int32) (string, error) {
+	var dna string
+	err := s.db.QueryRow(
+		`SELECT concat(sofHullName, ":", sofFactionName, ":", sofRaceName) 
+		FROM eve.invTypes T
+		INNER JOIN eve.eveGraphics G ON T.graphicID = G.graphicID
+		WHERE typeID = ?;`, typeID).Scan(&dna)
+
+	return dna, err
+}
+
+func (s *Tailor) getSystemInformation(system int32, x, y, z float64) (*SystemInformation, error) {
+	sys := &SystemInformation{}
+	err := s.db.QueryRow(
 		`SELECT itemName AS celestialName, itemID AS celestialID, S.solarSystemID, S.regionID, solarSystemName, regionName
 		FROM  eve.mapDenormalize D
 		INNER JOIN eve.mapSolarSystems S ON S.solarSystemID = D.solarSystemID
 		INNER JOIN eve.mapRegions R ON R.regionID = D.regionID
-		WHERE itemID = closestCelestial(?,?,?,?);`, system, x, y, z)
+		WHERE itemID = closestCelestial(?,?,?,?);`, system, x, y, z).Scan(
+		&sys.CelestialName, &sys.CelestialID, &sys.SolarSystemID, &sys.RegionID, &sys.SolarSystemName, &sys.RegionName)
 	if err != nil {
-		return SystemInformation{}, err
+		return nil, err
 	}
-	return sysInfo[0], err
+	return sys, err
 }
 
 func (s *Tailor) resolveNames(kill *esi.GetKillmailsKillmailIdKillmailHashOk) (map[int32]string, error) {
@@ -115,6 +157,7 @@ func (s *Tailor) resolveNames(kill *esi.GetKillmailsKillmailIdKillmailHashOk) (m
 		ids[a.CharacterId] = ""
 		ids[a.ShipTypeId] = ""
 		ids[a.WeaponTypeId] = ""
+		ids[a.FactionId] = ""
 	}
 	for _, a := range kill.Victim.Items {
 		ids[a.ItemTypeId] = ""
@@ -126,6 +169,7 @@ func (s *Tailor) resolveNames(kill *esi.GetKillmailsKillmailIdKillmailHashOk) (m
 	ids[kill.Victim.AllianceId] = ""
 	ids[kill.Victim.CorporationId] = ""
 	ids[kill.Victim.CharacterId] = ""
+	ids[kill.Victim.FactionId] = ""
 	ids[kill.Victim.ShipTypeId] = ""
 
 	// Delete 0 if we picked up no alliance
@@ -146,7 +190,9 @@ func (s *Tailor) resolveNames(kill *esi.GetKillmailsKillmailIdKillmailHashOk) (m
 		UNION
 		SELECT characterID as id, name FROM evedata.characters WHERE characterID IN (` + joinInt32(idList) + `)
 		UNION
-		SELECT typeID as id, typeName as name FROM eve.invTypes WHERE typeID IN  (` + joinInt32(idList) + `)
+		SELECT typeID as id, typeName as name FROM eve.invTypes WHERE typeID IN (` + joinInt32(idList) + `)
+		UNION
+		SELECT itemID as ID, itemName as name FROM eve.eveNames WHERE itemID IN (` + joinInt32(idList) + `)
 		`)
 	if err != nil {
 		return nil, err
@@ -211,7 +257,6 @@ func (s *Tailor) killmailConsumer() {
 			log.Println(err)
 			continue
 		}
-
 	}
 }
 

@@ -25,38 +25,32 @@ func init() {
 
 // AddAlliance adds an alliance to queue
 func (s *Hammer) AddAlliance(allianceID int32) error {
-	if allianceID > 99000000 { // Skip NPC Alliances
-		if !s.inQueue.CheckWorkExpired("evedata_entity", int64(allianceID)) {
-			return s.inQueue.QueueWork([]redisqueue.Work{
-				{Operation: "alliance", Parameter: allianceID},
-			}, redisqueue.Priority_Low)
-		}
+	if !s.inQueue.CheckWorkExpired("evedata_entity", int64(allianceID)) {
+		return s.inQueue.QueueWork([]redisqueue.Work{
+			{Operation: "alliance", Parameter: allianceID},
+		}, redisqueue.Priority_Low)
 	}
 	return nil
 }
 
 // AddCorporation adds a corporation to queue
 func (s *Hammer) AddCorporation(corporationID int32) error {
-	if corporationID > 98000000 { // Skip NPC Corporations
-		if !s.inQueue.CheckWorkExpired("evedata_entity", int64(corporationID)) {
-			return s.inQueue.QueueWork([]redisqueue.Work{
-				{Operation: "corporation", Parameter: corporationID},
-				{Operation: "allianceHistory", Parameter: corporationID},
-			}, redisqueue.Priority_Low)
-		}
+	if !s.inQueue.CheckWorkExpired("evedata_entity", int64(corporationID)) {
+		return s.inQueue.QueueWork([]redisqueue.Work{
+			{Operation: "corporation", Parameter: corporationID},
+			{Operation: "allianceHistory", Parameter: corporationID},
+		}, redisqueue.Priority_Low)
 	}
 	return nil
 }
 
 // AddCharacter adds a character to queue
 func (s *Hammer) AddCharacter(characterID int32) error {
-	if characterID > 90000000 { // Skip NPC Characters
-		if !s.inQueue.CheckWorkExpired("evedata_entity", int64(characterID)) {
-			return s.inQueue.QueueWork([]redisqueue.Work{
-				{Operation: "character", Parameter: characterID},
-				{Operation: "corporationHistory", Parameter: characterID},
-			}, redisqueue.Priority_Low)
-		}
+	if !s.inQueue.CheckWorkExpired("evedata_entity", int64(characterID)) {
+		return s.inQueue.QueueWork([]redisqueue.Work{
+			{Operation: "character", Parameter: characterID},
+			{Operation: "corporationHistory", Parameter: characterID},
+		}, redisqueue.Priority_Low)
 	}
 	return nil
 }

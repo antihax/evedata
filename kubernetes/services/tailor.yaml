@@ -28,11 +28,21 @@ spec:
         image: antihax/evedata-tailor
         imagePullPolicy: Always
         env:
+        - name: B2_ACCOUNTID
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: b2-accountID
+        - name: B2_APPLICATION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: esi-secret
+              key: b2-application-key       
         - name: SQLAUTH
           valueFrom:
             secretKeyRef:
               name: sql-password
-              key: sqlauth
+              key: sqlauth           
         ports:
         - containerPort: 3000
         volumeMounts:

@@ -4,10 +4,12 @@ package tailor
 import (
 	"log"
 	"os"
+	"time"
 
 	"github.com/antihax/evedata/internal/sqlhelper"
 	"github.com/jmoiron/sqlx"
 	nsq "github.com/nsqio/go-nsq"
+	backblaze "gopkg.in/kothar/go-backblaze.v0"
 )
 
 // Tailor dumps killmails to json files for testing.
@@ -15,17 +17,21 @@ type Tailor struct {
 	stop     chan bool
 	consumer *nsq.Consumer
 	db       *sqlx.DB
+	b2       *backblaze.B2
 }
 
 // NewTailor Service.
-func NewTailor(db *sqlx.DB, consumerAddresses []string) *Tailor {
+func NewTailor(db *sqlx.DB, b2 *backblaze.B2, consumerAddresses []string) *Tailor {
 	// Setup a new artifice
 	s := &Tailor{
 		stop: make(chan bool),
 		db:   db,
+		b2:   b2,
 	}
 
 	nsqcfg := nsq.NewConfig()
+	nsqcfg.MaxInFlight = 50
+	nsqcfg.MsgTimeout = time.Second * 30
 	c, err := nsq.NewConsumer("killmail", "tailor", nsqcfg)
 	if err != nil {
 		log.Fatalln(err)
