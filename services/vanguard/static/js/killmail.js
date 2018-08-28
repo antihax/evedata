@@ -2,9 +2,14 @@ var package,
     urlVars = getUrlVars();
 
 $.ajax({
-    url: "https://static.evedata.org/file/evedata-killmails/" + urlVars["id"] + ".json",
+    url: "https://static.evedata.org/file/evedata-killmails/" + urlVars["id"] + ".json.gz",
+    dataType: 'native',
+    xhrFields: {
+        responseType: 'arraybuffer'
+    },
     success: function (d) {
-        package = d;
+        package = $.parseJSON(pako.inflate(d, {to: 'string'}));
+        console.log(package);
         $(document).ready(function () {
             populateModules(package)
             getShip(package);
@@ -12,7 +17,7 @@ $.ajax({
         });
     },
     failure: function (d) {
-        showAlert("Don't know this killmail yet","danger")
+        showAlert("Don't know this killmail yet", "danger")
     }
 });
 

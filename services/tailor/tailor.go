@@ -18,6 +18,7 @@ type Tailor struct {
 	consumer *nsq.Consumer
 	db       *sqlx.DB
 	b2       *backblaze.B2
+	bucket   *backblaze.Bucket
 }
 
 // NewTailor Service.
@@ -30,13 +31,19 @@ func NewTailor(db *sqlx.DB, b2 *backblaze.B2, consumerAddresses []string) *Tailo
 	}
 
 	nsqcfg := nsq.NewConfig()
-	nsqcfg.MaxInFlight = 50
+	nsqcfg.MaxInFlight = 100
 	nsqcfg.MsgTimeout = time.Minute * 5
 	c, err := nsq.NewConsumer("killmail", "tailor", nsqcfg)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	s.consumer = c
+
+	s.bucket, err = s.b2.Bucket("evedata-killmails")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	c.AddHandler(nsq.HandlerFunc(s.killmailHandler))
 	err = c.ConnectToNSQLookupds(consumerAddresses)
 	if err != nil {

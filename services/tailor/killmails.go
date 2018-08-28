@@ -2,11 +2,13 @@ package tailor
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/antihax/eve-axiom/attributes"
@@ -42,25 +44,39 @@ func init() {
 	chanKillmailAttributes = make(chan KillmailAttributes, 100)
 }
 
+// saveKillmail saves the data to backblaze b2 in json.gz format
 func (s *Tailor) saveKillmail(pack *KillmailAttributes) error {
-
 	b, err := json.Marshal(pack)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	bucket, err := s.b2.Bucket("evedata-killmails")
+	var gzb bytes.Buffer
+	gz, err := gzip.NewWriterLevel(&gzb, gzip.BestCompression)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
+	if _, err := gz.Write(b); err != nil {
+		log.Println(err)
+		return err
+	}
+	if err := gz.Flush(); err != nil {
+		log.Println(err)
+		return err
+	}
+	if err := gz.Close(); err != nil {
+		log.Println(err)
+		return err
+	}
+
 	metadata := make(map[string]string)
-	_, err = bucket.UploadFile(
-		fmt.Sprintf("%d.json", pack.Killmail.KillmailId),
+	_, err = s.bucket.UploadFile(
+		fmt.Sprintf("%d.json.gz", pack.Killmail.KillmailId),
 		metadata,
-		bytes.NewReader(b),
+		bytes.NewReader(gzb.Bytes()),
 	)
 	if err != nil {
 		log.Println(err)
@@ -72,6 +88,7 @@ func (s *Tailor) saveKillmail(pack *KillmailAttributes) error {
 
 func (s *Tailor) killmailHandler(message *nsq.Message) error {
 	killmail := datapackages.Killmail{}
+	start := time.Now()
 	if err := gobcoder.GobDecoder(message.Body, &killmail); err != nil {
 		log.Println(err)
 		return err
