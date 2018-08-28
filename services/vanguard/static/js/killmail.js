@@ -8,13 +8,17 @@ $.ajax({
         responseType: 'arraybuffer'
     },
     success: function (d) {
-        package = $.parseJSON(pako.inflate(d, {to: 'string'}));
-        console.log(package);
-        $(document).ready(function () {
-            populateModules(package)
-            getShip(package);
-            getAttackers(package);
-        });
+        try {
+            package = $.parseJSON(pako.inflate(d, { to: 'string' }));
+            console.log(package);
+            $(document).ready(function () {
+                populateModules(package)
+                getShip(package);
+                getAttackers(package);
+            });
+        } catch {
+            showAlert("Failed to decode killmail package", "danger")
+        }
     },
     failure: function (d) {
         showAlert("Don't know this killmail yet", "danger")
