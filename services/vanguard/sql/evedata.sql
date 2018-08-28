@@ -100,7 +100,6 @@ CREATE TABLE `contactSyncs` (
 CREATE TABLE `contractBids` (
   `contractID` bigint(20) unsigned NOT NULL,
   `bidID` int(10) unsigned NOT NULL,
-  `bidderID` int(11) NOT NULL,
   `dateBid` datetime NOT NULL,
   `amount` decimal(22,2) DEFAULT NULL,
   PRIMARY KEY (`contractID`,`bidID`)
