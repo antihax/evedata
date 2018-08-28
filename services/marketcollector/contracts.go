@@ -50,12 +50,12 @@ func (s *MarketCollector) saveContractItems(id int32, c []esi.GetContractsPublic
 func (s *MarketCollector) saveContractBids(id int32, c []esi.GetContractsPublicBidsContractId200Ok) error {
 	if len(c) > 0 {
 		items := squirrel.Insert("evedata.contractBids").Columns(
-			"contractID", "bidID", "bidderID", "dateBid", "amount",
+			"contractID", "bidID", "dateBid", "amount",
 		)
 
 		for _, g := range c {
 			items = items.Values(
-				id, g.BidId, g.BidderId, g.DateBid, g.Amount,
+				id, g.BidId, g.DateBid, g.Amount,
 			)
 		}
 
