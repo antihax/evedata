@@ -1,4 +1,4 @@
-// Package artifice provides seqencing of timed triggers for pulling information.
+// Package squirrel collects static data from ESI and dumps it into the db
 package squirrel
 
 import (
@@ -16,11 +16,9 @@ import (
 
 // Squirrel Collects and dumps all static data from ESI
 type Squirrel struct {
-	stop    chan bool
 	esi     *goesi.APIClient
-	esiSem  chan bool
-	inQueue *redisqueue.RedisQueue
 	wg      sync.WaitGroup
+	inQueue *redisqueue.RedisQueue
 	db      *sqlx.DB
 }
 
@@ -29,14 +27,15 @@ func NewSquirrel(redis *redis.Pool, ledis *redis.Pool, db *sqlx.DB) *Squirrel {
 	// Get a caching http client
 	cache := apicache.CreateHTTPClientCache(ledis)
 
+	// Limit concurrency of outbound calls
+	cache.Transport = LimiterTransport{next: cache.Transport}
+
 	// Create our ESI API Client
 	esiClient := goesi.NewAPIClient(cache, "EVEData-API-Squirrel")
 
 	// Setup a new squirrel
 	s := &Squirrel{
-		wg:     sync.WaitGroup{},
-		esiSem: make(chan bool, 100),
-		db:     db,
+		db: db,
 		inQueue: redisqueue.NewRedisQueue(
 			redis,
 			"evedata-hammer",
@@ -45,18 +44,6 @@ func NewSquirrel(redis *redis.Pool, ledis *redis.Pool, db *sqlx.DB) *Squirrel {
 	}
 
 	return s
-}
-
-// Tick up the concurrency limit
-func (s *Squirrel) esiSemStart() {
-	s.esiSem <- true
-	s.wg.Add(1)
-}
-
-// Completed
-func (s *Squirrel) esiSemFinished() {
-	<-s.esiSem
-	s.wg.Done()
 }
 
 // Close the service
@@ -71,8 +58,6 @@ func (s *Squirrel) ChangeBasePath(path string) {
 
 // Run the service
 func (s *Squirrel) Run() {
-	s.wg.Add(1)
-	defer s.wg.Done()
 	s.runTriggers()
 }
 
