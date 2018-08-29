@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/antihax/eve-axiom/attributes"
@@ -24,6 +23,7 @@ type KillmailAttributes struct {
 	Attributes *attributes.Attributes                    `json:"attributes"`
 	Killmail   *esi.GetKillmailsKillmailIdKillmailHashOk `json:"killmail"`
 	NameMap    map[int32]string                          `json:"nameMap"`
+	PriceMap   map[int32]float64                         `json:"priceMap"`
 	SystemInfo *SystemInformation                        `json:"systemInfo"`
 	DNA        string                                    `json:"dna"`
 }
@@ -88,7 +88,7 @@ func (s *Tailor) saveKillmail(pack *KillmailAttributes) error {
 
 func (s *Tailor) killmailHandler(message *nsq.Message) error {
 	killmail := datapackages.Killmail{}
-	start := time.Now()
+
 	if err := gobcoder.GobDecoder(message.Body, &killmail); err != nil {
 		log.Println(err)
 		return err
@@ -101,6 +101,12 @@ func (s *Tailor) killmailHandler(message *nsq.Message) error {
 	}
 
 	names, err := s.resolveNames(&killmail.Kill)
+	if err != nil {
+		log.Println(err, " ", killmail.Kill.KillmailId)
+		return err
+	}
+
+	prices, err := s.getPrices(&killmail.Kill)
 	if err != nil {
 		log.Println(err, " ", killmail.Kill.KillmailId)
 		return err
@@ -123,6 +129,7 @@ func (s *Tailor) killmailHandler(message *nsq.Message) error {
 		Attributes: attr,
 		Killmail:   &killmail.Kill,
 		NameMap:    names,
+		PriceMap:   prices,
 		SystemInfo: sysinfo,
 		DNA:        dna,
 	}
@@ -163,6 +170,48 @@ func (s *Tailor) getSystemInformation(system int32, x, y, z float64) (*SystemInf
 		return nil, err
 	}
 	return sys, err
+}
+
+func (s *Tailor) getPrices(kill *esi.GetKillmailsKillmailIdKillmailHashOk) (map[int32]float64, error) {
+
+	// Make a list of lost items
+	idList := []int32{}
+	idList = append(idList, kill.Victim.ShipTypeId)
+	for _, a := range kill.Victim.Items {
+		idList = append(idList, a.ItemTypeId)
+		for _, a := range a.Items {
+			idList = append(idList, a.ItemTypeId)
+		}
+	}
+
+	// Lookup the information
+	rows, err := s.db.Query(`
+		SELECT itemID, AVG(mean) 
+		FROM evedata.market_history 
+		WHERE itemID IN (`+joinInt32(idList)+`) AND 
+			DATE_FORMAT(DATE_SUB(?, INTERVAL 28 DAY), '%Y-%m-01') = DATE_FORMAT(date, '%Y-%m-01')
+			GROUP BY itemID;
+		`, kill.KillmailTime)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Make a map of the lost items
+	ids := make(map[int32]float64)
+	for rows.Next() {
+		var (
+			id    int32
+			price float64
+		)
+		err := rows.Scan(&id, &price)
+		if err != nil {
+			return nil, err
+		}
+		ids[id] = price
+	}
+
+	return ids, nil
 }
 
 func (s *Tailor) resolveNames(kill *esi.GetKillmailsKillmailIdKillmailHashOk) (map[int32]string, error) {
