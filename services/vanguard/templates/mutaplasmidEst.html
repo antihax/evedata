@@ -8,6 +8,7 @@ The further from known modules the attributes go, the worse the confidence will 
 <br>
 <h5>Type: &nbsp;
     <select class="selectpicker" data-width="auto" name="mutaplasmidType" id="mutaplasmidType"></select>
+    &nbsp;&nbsp;&nbsp; Cubic: <input type="checkbox" id="cubic">
 </h5>
 </div>
 
@@ -58,12 +59,20 @@ The further from known modules the attributes go, the worse the confidence will 
     var graphs = JSON.parse({{.Graphs }}),
     mutaplasmidTypes = {{.Types }},
     dataSet = JSON.parse({{.Data }}),
-        currentType = decodeURIComponent(getUrlVars()["type"]);
-    
+        currentType = decodeURIComponent(getUrlVars()["type"]),
+        cubic = decodeURIComponent(getUrlVars()["cubic"]);
+
     if (currentType == 'undefined') {
         currentType = "Warp Disruptor";
     }
+
+    if (cubic == 'undefined') {
+        cubic = "true";
+    }
     
+    if (cubic == "true")
+        $('#cubic').prop("checked", cubic);
+
     mutaplasmidTypes.sort();
     mutaplasmidTypes.forEach(function (d) {
         $('#mutaplasmidType').append(
@@ -72,8 +81,19 @@ The further from known modules the attributes go, the worse the confidence will 
 
     $('#mutaplasmidType').val(currentType);
     $('#mutaplasmidType').on("changed.bs.select", function () {
-        window.location.replace("/mutaplasmidEst?type=" + $('#mutaplasmidType').val());
+        reload();
     });
+
+    $('#cubic').change(function () {
+        reload();
+    });
+
+    function reload() {
+        window.location.replace(
+            "/mutaplasmidEst?type=" + $('#mutaplasmidType').val() +
+            "&cubic=" + $('#cubic').prop("checked")
+        );
+    }
 
     var i = graphs.length;
     while (i--) {
@@ -107,44 +127,21 @@ The further from known modules the attributes go, the worse the confidence will 
 
     var values = d3.select("#values");
 
-    var model = lm()
-        .y(function (d) { return d.price / 1000000; })
-        .X(function (d) {
-            var v = [1];
-            graphs.forEach(function (f) {
-                v.push(d[f.key]);
-            });
-     
-            return v
-        }).data(dataSet);
+    var model = getModel(0, graphs, dataSet);
 
     var fit = model();
 
     i = graphs.length;
     while (i--) {
-        var p = jStat.ttest(fit.t[i+1], dataSet.length - 1, 2)
+        var p = jStat.ttest(fit.t[i + 1], dataSet.length - 1, 2)
         if (p > 0.05) {
-            console.log(graphs[i].name, "deleting for bad p-value ", p, p > 0.05)
             graphs.splice(i, 1);
         }
     }
 
-    model = lm()
-        .y(function (d) { return d.price / 1000000; })
-        .X(function (d) {
-            var v = [1];
-            graphs.forEach(function (f) {
-                v.push(d[f.key]);
-            });
-
-            return v
-        }).data(dataSet);
+    model = getModel(cubic, graphs, dataSet);
 
     fit = model();
-
-    fit.t.forEach(function (t) {
-        var p = jStat.ttest(t, dataSet.length - 1, 2)
-    });
 
     graphs.forEach(function (d) {
         values.append("foreignObject")
@@ -334,4 +331,33 @@ The further from known modules the attributes go, the worse the confidence will 
     function getSum(total, num) {
         return total + num;
     }
+
+    function getModel(cubic, graphs, dataSet) {
+        var model = lm()
+            .y(function (d) { return d.price / 1000000; })
+            .X(function (d) {
+                if (cubic == "true") {
+                    var v = [1];
+                    graphs.forEach(function (f) {
+                        v.push(d[f.key]);
+                    });
+                    var mul = 1;
+                    graphs.forEach(function (f) {
+                        mul *= d[f.key];
+                    });
+                    v.push(mul);
+                    graphs.forEach(function (f) {
+                        v.push(Math.pow(d[f.key], 8));
+                    });
+                } else {
+                    var v = [1];
+                    graphs.forEach(function (f) {
+                        v.push(d[f.key]);
+                    });
+                }
+                return v
+            }).data(dataSet);
+        return model;
+    }
+
 </script> {{end}}
