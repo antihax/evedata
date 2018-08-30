@@ -31,8 +31,9 @@ func NewTailor(db *sqlx.DB, b2 *backblaze.B2, consumerAddresses []string) *Tailo
 	}
 
 	nsqcfg := nsq.NewConfig()
-	nsqcfg.MaxInFlight = 100
+	nsqcfg.MaxInFlight = 25
 	nsqcfg.MsgTimeout = time.Minute * 5
+
 	c, err := nsq.NewConsumer("killmail", "tailor", nsqcfg)
 	if err != nil {
 		log.Fatalln(err)
@@ -44,7 +45,7 @@ func NewTailor(db *sqlx.DB, b2 *backblaze.B2, consumerAddresses []string) *Tailo
 		log.Fatalln(err)
 	}
 
-	c.AddHandler(nsq.HandlerFunc(s.killmailHandler))
+	c.AddConcurrentHandlers(nsq.HandlerFunc(s.killmailHandler), 20)
 	err = c.ConnectToNSQLookupds(consumerAddresses)
 	if err != nil {
 		log.Fatalln(err)

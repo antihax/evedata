@@ -14,7 +14,7 @@ import (
 
 func init() {
 	AddHandler("marketHistory", func(s *Nail, consumer *nsq.Consumer) {
-		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.marketHistoryHandler)))
+		consumer.AddConcurrentHandlers(s.wait(nsq.HandlerFunc(s.marketHistoryHandler)), 50)
 	})
 }
 

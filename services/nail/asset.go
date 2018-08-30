@@ -12,7 +12,7 @@ import (
 
 func init() {
 	AddHandler("characterAssets", func(s *Nail, consumer *nsq.Consumer) {
-		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterAssetsConsumer)))
+		consumer.AddConcurrentHandlers(s.wait(nsq.HandlerFunc(s.characterAssetsConsumer)), 5)
 	})
 }
 
