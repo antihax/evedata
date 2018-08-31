@@ -459,5 +459,16 @@ func marketMaint(s *Artifice) error {
 		log.Println(err)
 	}
 
+	if err := s.RetryExecTillNoRows(`
+	INSERT INTO evedata.typePricesMonthly 
+	SELECT YEAR(date) AS year, MONTH(date) AS month, itemID AS typeID, avg(mean) AS mean
+	FROM evedata.market_history
+	WHERE DATE > DATE_FORMAT(NOW() ,'%Y-%m-01')
+	GROUP BY itemID, YEAR(date), MONTH(date)
+	ON DUPLICATE KEY UPDATE mean = VALUES(mean)DELETE FROM evedata.market WHERE DATE_ADD(issued, INTERVAL duration DAY) < utc_timestamp();
+	            `); err != nil {
+		log.Println(err)
+	}
+
 	return nil
 }
