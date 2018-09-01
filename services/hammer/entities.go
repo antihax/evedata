@@ -164,7 +164,7 @@ func allianceConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	err = s.inQueue.SetWorkExpire("evedata_entity", int64(allianceID), 86400)
+	err = s.inQueue.SetWorkExpire("evedata_entity", int64(allianceID), 43200)
 	if err != nil {
 		log.Println(err)
 		return
@@ -221,7 +221,7 @@ func corporationConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	s.inQueue.SetWorkExpire("evedata_entity", int64(corporationID), 86400)
+	s.inQueue.SetWorkExpire("evedata_entity", int64(corporationID), 43200)
 
 	// Grab intel from meta data
 	err = s.AddCharacter(corporation.CeoId)
@@ -306,7 +306,7 @@ func characterConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	s.inQueue.SetWorkExpire("evedata_entity", int64(characterID), 86400)
+	s.inQueue.SetWorkExpire("evedata_entity", int64(characterID), 43200)
 
 	// Grab intel from meta data
 	err = s.AddCorporation(character.CorporationId)

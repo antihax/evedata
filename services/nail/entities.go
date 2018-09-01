@@ -51,7 +51,7 @@ func (s *Nail) corporationHandler(message *nsq.Message) error {
 		return err
 	}
 
-	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 31)
+	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 14)
 
 	err = s.doSQL(`INSERT INTO evedata.corporations
 		(corporationID,name,ticker,ceoID,allianceID,factionID,memberCount,updated,cacheUntil)
