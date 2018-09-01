@@ -500,567 +500,577 @@ data:
   evedata.json: |
     {
       "annotations": {
-        "list": []
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": "-- Grafana --",
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
       },
       "editable": true,
       "gnetId": null,
       "graphTooltip": 0,
-      "hideControls": false,
-      "id": 1,
       "links": [],
-      "refresh": "5s",
-      "rows": [
+      "panels": [
         {
-          "collapse": false,
-          "height": 256,
-          "panels": [
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "Prometheus",
+          "fill": 9,
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "height": "300",
+          "id": 1,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": true,
+            "hideEmpty": true,
+            "hideZero": true,
+            "max": true,
+            "min": false,
+            "rightSide": true,
+            "show": true,
+            "sideWidth": 400,
+            "sort": "current",
+            "sortDesc": true,
+            "total": false,
+            "values": true
+          },
+          "lines": true,
+          "linewidth": 0,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 1,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
             {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "Prometheus",
-              "fill": 9,
-              "height": "300",
-              "id": 1,
-              "legend": {
-                "alignAsTable": true,
-                "avg": true,
-                "current": true,
-                "hideEmpty": true,
-                "hideZero": true,
-                "max": true,
-                "min": false,
-                "rightSide": true,
-                "show": true,
-                "sideWidth": 400,
-                "sort": "current",
-                "sortDesc": true,
-                "total": false,
-                "values": true
-              },
-              "lines": true,
-              "linewidth": 0,
-              "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 1,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "span": 12,
-              "stack": false,
-              "steppedLine": false,
-              "targets": [
-                {
-                  "expr": "60*sum(rate(evedata_api_calls_count[2m]))",
-                  "format": "time_series",
-                  "hide": false,
-                  "interval": "2m",
-                  "intervalFactor": 1,
-                  "legendFormat": "Total",
-                  "refId": "C",
-                  "step": 120
-                },
-                {
-                  "expr": "60* sum by (host) (rate(evedata_api_calls_count[2m]))",
-                  "format": "time_series",
-                  "interval": "2m",
-                  "intervalFactor": 1,
-                  "legendFormat": "{{host}}",
-                  "refId": "A",
-                  "step": 120
-                },
-                {
-                  "expr": "60*sum(rate(evedata_api_errors[2m]))",
-                  "format": "time_series",
-                  "interval": "2m",
-                  "intervalFactor": 1,
-                  "legendFormat": "Errors",
-                  "refId": "B",
-                  "step": 120
-                }
-              ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
-              "title": "External API Calls",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "transparent": true,
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "opm",
-                  "label": "HTTP Operations per Minute",
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                },
-                {
-                  "decimals": null,
-                  "format": "short",
-                  "label": "",
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": false
-                }
-              ]
-            }
-          ],
-          "repeat": null,
-          "repeatIteration": null,
-          "repeatRowId": null,
-          "showTitle": false,
-          "title": "Dashboard Row",
-          "titleSize": "h6"
-        },
-        {
-          "collapse": false,
-          "height": 192,
-          "panels": [
-            {
-              "cacheTimeout": null,
-              "colorBackground": false,
-              "colorValue": false,
-              "colors": [
-                "rgba(50, 172, 45, 0.97)",
-                "rgba(237, 129, 40, 0.89)",
-                "rgba(245, 54, 54, 0.9)"
-              ],
-              "datasource": null,
-              "format": "none",
-              "gauge": {
-                "maxValue": 300,
-                "minValue": 0,
-                "show": true,
-                "thresholdLabels": false,
-                "thresholdMarkers": true
-              },
-              "id": 5,
-              "interval": null,
-              "links": [],
-              "mappingType": 1,
-              "mappingTypes": [
-                {
-                  "name": "value to text",
-                  "value": 1
-                },
-                {
-                  "name": "range to text",
-                  "value": 2
-                }
-              ],
-              "maxDataPoints": 100,
-              "nullPointMode": "connected",
-              "nullText": null,
-              "postfix": "",
-              "postfixFontSize": "50%",
-              "prefix": "",
-              "prefixFontSize": "50%",
-              "rangeMaps": [
-                {
-                  "from": "null",
-                  "text": "N/A",
-                  "to": "null"
-                }
-              ],
-              "span": 4,
-              "sparkline": {
-                "fillColor": "rgba(31, 118, 189, 0.18)",
-                "full": true,
-                "lineColor": "rgb(31, 120, 193)",
-                "show": true
-              },
-              "tableColumn": "",
-              "targets": [
-                {
-                  "expr": "sum(evedata_hammer_activeWorkers)",
-                  "format": "time_series",
-                  "intervalFactor": 2,
-                  "refId": "A",
-                  "step": 1800
-                }
-              ],
-              "thresholds": "200,280",
-              "title": "Active Hammer Workers",
-              "type": "singlestat",
-              "valueFontSize": "80%",
-              "valueMaps": [
-                {
-                  "op": "=",
-                  "text": "N/A",
-                  "value": "null"
-                }
-              ],
-              "valueName": "current"
+              "expr": "60*sum(rate(evedata_api_calls_count[2m])) + 60*sum( rate(evemarketwatch_api_calls_count[2m]))",
+              "format": "time_series",
+              "hide": false,
+              "interval": "2m",
+              "intervalFactor": 1,
+              "legendFormat": "Total",
+              "refId": "C",
+              "step": 120
             },
             {
-              "cacheTimeout": null,
-              "colorBackground": false,
-              "colorValue": false,
-              "colors": [
-                "rgba(50, 172, 45, 0.97)",
-                "rgba(237, 129, 40, 0.89)",
-                "rgba(245, 54, 54, 0.9)"
-              ],
-              "datasource": null,
-              "format": "none",
-              "gauge": {
-                "maxValue": 100000,
-                "minValue": 0,
-                "show": true,
-                "thresholdLabels": false,
-                "thresholdMarkers": true
-              },
-              "id": 6,
-              "interval": null,
-              "links": [],
-              "mappingType": 1,
-              "mappingTypes": [
-                {
-                  "name": "value to text",
-                  "value": 1
-                },
-                {
-                  "name": "range to text",
-                  "value": 2
-                }
-              ],
-              "maxDataPoints": 100,
-              "nullPointMode": "connected",
-              "nullText": null,
-              "postfix": "",
-              "postfixFontSize": "50%",
-              "prefix": "",
-              "prefixFontSize": "50%",
-              "rangeMaps": [
-                {
-                  "from": "null",
-                  "text": "N/A",
-                  "to": "null"
-                }
-              ],
-              "span": 4,
-              "sparkline": {
-                "fillColor": "rgba(31, 118, 189, 0.18)",
-                "full": false,
-                "lineColor": "rgb(31, 120, 193)",
-                "show": true
-              },
-              "tableColumn": "",
-              "targets": [
-                {
-                  "expr": "max(evedata_hammerqueue_calls)",
-                  "format": "time_series",
-                  "interval": "5m",
-                  "intervalFactor": 1,
-                  "legendFormat": "",
-                  "refId": "A",
-                  "step": 900
-                }
-              ],
-              "thresholds": "50000,75000",
-              "title": "Hammer Queue Size",
-              "type": "singlestat",
-              "valueFontSize": "80%",
-              "valueMaps": [
-                {
-                  "op": "=",
-                  "text": "N/A",
-                  "value": "null"
-                }
-              ],
-              "valueName": "current"
+              "expr": "60* sum (rate(evedata_api_calls_count[2m]) ) by (host) OR 60* sum (rate(evemarketwatch_api_calls_count[2m]) ) by (host)",
+              "format": "time_series",
+              "interval": "2m",
+              "intervalFactor": 1,
+              "legendFormat": "{{host}}",
+              "refId": "A",
+              "step": 120
             },
             {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": null,
-              "fill": 1,
-              "id": 7,
-              "legend": {
-                "avg": false,
-                "current": true,
-                "max": false,
-                "min": false,
-                "show": false,
-                "total": false,
-                "values": true
-              },
-              "lines": true,
-              "linewidth": 1,
-              "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "span": 4,
-              "stack": false,
-              "steppedLine": false,
-              "targets": [
-                {
-                  "expr": "sum(go_goroutines{app!=\"\"}) by (app) ",
-                  "format": "time_series",
-                  "intervalFactor": 2,
-                  "legendFormat": "{{app}}",
-                  "refId": "A",
-                  "step": 240
-                }
-              ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
-              "title": "goRoutines",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "short",
-                  "label": "",
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": "",
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ]
+              "expr": "60*sum(rate(evedata_api_errors[2m])) + 60*sum(rate(evemarketwatch_api_errors[2m]))",
+              "format": "time_series",
+              "interval": "2m",
+              "intervalFactor": 1,
+              "legendFormat": "Errors",
+              "refId": "B",
+              "step": 120
             }
           ],
-          "repeat": null,
-          "repeatIteration": null,
-          "repeatRowId": null,
-          "showTitle": false,
-          "title": "Dashboard Row",
-          "titleSize": "h6"
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "External API Calls",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "transparent": true,
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "opm",
+              "label": "HTTP Operations per Minute",
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "decimals": null,
+              "format": "short",
+              "label": "",
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
         },
         {
-          "collapse": false,
-          "height": 250,
-          "panels": [
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(50, 172, 45, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "datasource": null,
+          "format": "none",
+          "gauge": {
+            "maxValue": 300,
+            "minValue": 0,
+            "show": true,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 8,
+            "x": 0,
+            "y": 8
+          },
+          "id": 5,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
             {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": null,
-              "fill": 1,
-              "height": "300",
-              "id": 3,
-              "legend": {
-                "alignAsTable": true,
-                "avg": true,
-                "current": true,
-                "max": true,
-                "min": false,
-                "rightSide": true,
-                "show": true,
-                "sideWidth": 400,
-                "sort": "max",
-                "sortDesc": true,
-                "total": false,
-                "values": true
-              },
-              "lines": true,
-              "linewidth": 1,
-              "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "span": 12,
-              "stack": false,
-              "steppedLine": false,
-              "targets": [
-                {
-                  "expr": "histogram_quantile(0.50, sum(rate(evedata_hammer_ticks_bucket[5m])) by (operation, le))",
-                  "format": "time_series",
-                  "intervalFactor": 2,
-                  "legendFormat": "Ha-{{operation}}",
-                  "refId": "B",
-                  "step": 120
-                }
-              ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
-              "title": "Consumer Time to Complete",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "transparent": true,
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "ms",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                },
-                {
-                  "format": "none",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ]
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
             }
           ],
-          "repeat": null,
-          "repeatIteration": null,
-          "repeatRowId": null,
-          "showTitle": false,
-          "title": "Dashboard Row",
-          "titleSize": "h6"
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": true,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": true
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "sum(evedata_hammer_activeWorkers)",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "refId": "A",
+              "step": 1800
+            }
+          ],
+          "thresholds": "200,280",
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Active Hammer Workers",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
         },
         {
-          "collapse": false,
-          "height": 250,
-          "panels": [
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(50, 172, 45, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "datasource": null,
+          "format": "none",
+          "gauge": {
+            "maxValue": 100000,
+            "minValue": 0,
+            "show": true,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 8,
+            "x": 8,
+            "y": 8
+          },
+          "id": 6,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
             {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": null,
-              "fill": 1,
-              "height": "400px",
-              "id": 4,
-              "legend": {
-                "alignAsTable": true,
-                "avg": true,
-                "current": true,
-                "max": true,
-                "min": false,
-                "rightSide": true,
-                "show": true,
-                "sort": "avg",
-                "sortDesc": true,
-                "total": false,
-                "values": true
-              },
-              "lines": true,
-              "linewidth": 1,
-              "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "span": 12,
-              "stack": false,
-              "steppedLine": false,
-              "targets": [
-                {
-                  "expr": "60 * sum(rate(evedata_hammer_ticks_count[2m])) by (operation, le)",
-                  "format": "time_series",
-                  "intervalFactor": 1,
-                  "legendFormat": "{{operation}}",
-                  "refId": "A",
-                  "step": 60
-                }
-              ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
-              "title": "Operations per Minute per Operation",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "transparent": true,
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "opm",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ]
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
             }
           ],
-          "repeat": null,
-          "repeatIteration": null,
-          "repeatRowId": null,
-          "showTitle": false,
-          "title": "Dashboard Row",
-          "titleSize": "h6"
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": true
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "max(evedata_hammerqueue_calls)",
+              "format": "time_series",
+              "interval": "5m",
+              "intervalFactor": 1,
+              "legendFormat": "",
+              "refId": "A",
+              "step": 900
+            }
+          ],
+          "thresholds": "50000,75000",
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Hammer Queue Size",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": null,
+          "fill": 1,
+          "gridPos": {
+            "h": 5,
+            "w": 8,
+            "x": 16,
+            "y": 8
+          },
+          "id": 7,
+          "legend": {
+            "avg": false,
+            "current": true,
+            "max": false,
+            "min": false,
+            "show": false,
+            "total": false,
+            "values": true
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "sum(go_goroutines{app!=\"\"}) by (app) ",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "{{app}}",
+              "refId": "A",
+              "step": 240
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "goRoutines",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": "",
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": "",
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": null,
+          "fill": 1,
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 13
+          },
+          "height": "300",
+          "id": 3,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": true,
+            "max": true,
+            "min": false,
+            "rightSide": true,
+            "show": true,
+            "sideWidth": 400,
+            "sort": "max",
+            "sortDesc": true,
+            "total": false,
+            "values": true
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.50, sum(rate(evedata_hammer_ticks_bucket[5m])) by (operation, le))",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "Ha-{{operation}}",
+              "refId": "B",
+              "step": 120
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Consumer Time to Complete",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "transparent": true,
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "ms",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "none",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": null,
+          "fill": 1,
+          "gridPos": {
+            "h": 10,
+            "w": 24,
+            "x": 0,
+            "y": 21
+          },
+          "height": "400px",
+          "id": 4,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": true,
+            "max": true,
+            "min": false,
+            "rightSide": true,
+            "show": true,
+            "sort": "avg",
+            "sortDesc": true,
+            "total": false,
+            "values": true
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "60 * sum(rate(evedata_hammer_ticks_count[2m])) by (operation, le)",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{operation}}",
+              "refId": "A",
+              "step": 60
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Operations per Minute per Operation",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "transparent": true,
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "opm",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
         }
       ],
-      "schemaVersion": 14,
+      "refresh": "5s",
+      "schemaVersion": 16,
       "style": "dark",
       "tags": [],
       "templating": {
@@ -1097,7 +1107,8 @@ data:
       },
       "timezone": "",
       "title": "EVEData Cluster",
-      "version": 53
+      "uid": "luJ4doFmk",
+      "version": 1
     }
   kubernetes.json: |
     {
@@ -3173,6 +3184,6 @@ data:
         ]
       },
       "timezone": "browser",
-      "title": "Kubernetes cluster monitoring (via Prometheus)",
+      "title": "Kubernetes cluster monitoring",
       "version": 2
     }
