@@ -119,7 +119,7 @@ The further from known modules the attributes go, the worse the confidence will 
         width = 250 - margin.left - margin.right,
         height = 250 - margin.top - margin.bottom;
 
-    var maxPrice = d3.max(dataSet, pluck("price")) / 1000000;
+    var maxPrice = (d3.max(dataSet, pluck("price")) / 1000000000)*1.1;
     var lineChart = d3.lineChart()
         .width(width)
         .height(height)
@@ -180,7 +180,7 @@ The further from known modules the attributes go, the worse the confidence will 
             .attr("y", 0)
             .attr("dx", ".71em")
             .style("text-anchor", "start")
-            .text("Price (m)")
+            .text("Price (b)")
 
         svg.append("rect")
             .attr("class", "event-rect")
@@ -316,8 +316,8 @@ The further from known modules the attributes go, the worse the confidence will 
             yval = val - d0[key] > d1[key] - val ? d1 : d0;
 
         $('#value_' + key).val(Math.round(100 * val) / 100);
-        $('#estimatedPrice').text(currencyFormatter(1000000 * yval.y_pred));
-        $('#priceConfidence').text(currencyFormatter(1000000 * (yval.y_upper - yval.y_lower)));
+        $('#estimatedPrice').text(currencyFormatter(1000000000 * yval.y_pred));
+        $('#priceConfidence').text(currencyFormatter(1000000000 * (yval.y_upper - yval.y_lower)));
     }
 
     function pluck(key) { return function (d) { return d[key]; }; }
@@ -334,7 +334,7 @@ The further from known modules the attributes go, the worse the confidence will 
 
     function getModel(cubic, graphs, dataSet) {
         var model = lm()
-            .y(function (d) { return d.price / 1000000; })
+            .y(function (d) { return d.price / 1000000000; })
             .X(function (d) {
                 if (cubic == "true") {
                     var v = [1];
