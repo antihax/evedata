@@ -42,5 +42,5 @@ func resolveItems(s *Artifice) error {
 			}})
 	}
 
-	return s.QueueWork(work)
+	return s.QueueWork(work, redisqueue.Priority_High)
 }
