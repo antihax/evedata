@@ -119,3 +119,10 @@ func RetryTransaction(tx *sqlx.Tx) error {
 		}
 	}
 }
+
+func IToB(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
+}

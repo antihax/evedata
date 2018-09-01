@@ -136,6 +136,7 @@ CREATE TABLE `contracts` (
   `title` varchar(255) COLLATE utf8_bin NOT NULL,
   `type` varchar(30) COLLATE utf8_bin DEFAULT NULL,
   `volume` decimal(22,2) DEFAULT NULL,
+  `updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`contractID`),
   KEY `ix_location_type_exp` (`locationID`,`type`,`dateExpired`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -410,7 +411,7 @@ CREATE TABLE `killmails` (
   `hash` varchar(100) NOT NULL DEFAULT '',
   `x` float NOT NULL DEFAULT '0',
   `y` float NOT NULL DEFAULT '0',
-  `z` float NOT NULL,
+  `z` float NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `ix_victimAllianceID` (`victimAllianceID`),
   KEY `ix_victimCorporationID` (`victimCorporationID`),
@@ -538,6 +539,29 @@ CREATE TABLE `market_vol` (
   PRIMARY KEY (`regionID`,`itemID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `mutationAttributes` (
+  `itemID` bigint(20) unsigned NOT NULL,
+  `attributeID` int(11) unsigned NOT NULL,
+  `value` double NOT NULL,
+  PRIMARY KEY (`itemID`,`attributeID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `mutationEffects` (
+  `itemID` bigint(20) unsigned NOT NULL,
+  `effectID` int(11) unsigned NOT NULL,
+  `isDefault` tinyint(4) NOT NULL,
+  PRIMARY KEY (`itemID`,`effectID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `mutations` (
+  `typeID` mediumint(9) unsigned NOT NULL,
+  `itemID` bigint(20) unsigned NOT NULL,
+  `createdBy` int(11) unsigned NOT NULL,
+  `mutatorTypeID` int(11) unsigned NOT NULL,
+  `sourceTypeID` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`typeID`,`itemID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `notifications` (
   `notificationID` int(11) NOT NULL,
   `characterID` int(11) DEFAULT NULL,
@@ -600,6 +624,14 @@ CREATE TABLE `structures` (
   `typeID` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`stationID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `typePricesMonthly` (
+  `year` smallint(5) unsigned NOT NULL,
+  `month` tinyint(3) unsigned NOT NULL,
+  `typeID` smallint(5) unsigned NOT NULL,
+  `mean` decimal(24,2) NOT NULL DEFAULT '0.00',
+  PRIMARY KEY (`year`,`month`,`typeID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `walletJournal` (
   `refID` bigint(20) unsigned NOT NULL,
