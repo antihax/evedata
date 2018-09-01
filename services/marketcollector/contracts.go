@@ -117,7 +117,7 @@ func (s *MarketCollector) saveContractAdditions(c []marketwatch.FullContract) {
 				sem <- true
 				go func(sqlq string, args []interface{}, start time.Time, count int) {
 					defer func() { <-sem; wg.Done() }()
-					err = s.doSQL(sqlq+`ON DUPLICATE KEY UPDATE price=VALUES(price);`, args...)
+					err = s.doSQL(sqlq+`ON DUPLICATE KEY UPDATE price=VALUES(price), updated=UTC_TIMESTAMP();`, args...)
 					if err != nil {
 						log.Println(err)
 					}
