@@ -267,7 +267,7 @@ function getShipwebGL(package) {
             window.setTimeout(spawnExplosion, 2000 + Math.random() * 2000);
         }
 
-        spawnExplosion();
+        //spawnExplosion();
 
         ccpwgl.onPreRender = function (dt) {
             camera.rotationX += 0.01;
@@ -281,9 +281,6 @@ function getShipwebGL(package) {
                 $("#shipImage").addClass("hidden");
             }
             camera.focus(ship, 5, 1);
-
-
-
         }
     } catch (err) {
         getShipFallback(package.attributes.typeID);

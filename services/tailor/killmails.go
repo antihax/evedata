@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/antihax/eve-axiom/attributes"
@@ -41,7 +42,7 @@ type SystemInformation struct {
 var chanKillmailAttributes chan KillmailAttributes
 
 func init() {
-	chanKillmailAttributes = make(chan KillmailAttributes, 100)
+	chanKillmailAttributes = make(chan KillmailAttributes, 1000)
 }
 
 // saveKillmail saves the data to backblaze b2 in json.gz format
@@ -86,31 +87,45 @@ func (s *Tailor) saveKillmail(pack *KillmailAttributes) error {
 	return nil
 }
 
+func timeStage(s string, t time.Time) {
+	/*if time.Since(t) > time.Second {
+		fmt.Printf("%s %s\n", s, time.Since(t))
+	}*/
+}
+
 func (s *Tailor) killmailHandler(message *nsq.Message) error {
 	killmail := datapackages.Killmail{}
-
+	start := time.Now()
 	if err := gobcoder.GobDecoder(message.Body, &killmail); err != nil {
 		log.Println(err)
 		return err
 	}
+	timeStage("decode", start)
+	start = time.Now()
 
 	attr, err := getAttributesForKillmail(&killmail.Kill)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
+	timeStage("axiom", start)
+	start = time.Now()
 
 	names, err := s.resolveNames(&killmail.Kill)
 	if err != nil {
 		log.Println(err, " ", killmail.Kill.KillmailId)
 		return err
 	}
+	timeStage("names", start)
+	start = time.Now()
 
 	prices, err := s.getPrices(&killmail.Kill)
 	if err != nil {
 		log.Println(err, " ", killmail.Kill.KillmailId)
 		return err
 	}
+	timeStage("prices", start)
+	start = time.Now()
 
 	pos := killmail.Kill.Victim.Position
 	sysinfo, err := s.getSystemInformation(killmail.Kill.SolarSystemId, pos.X, pos.Y, pos.Z)
@@ -118,12 +133,15 @@ func (s *Tailor) killmailHandler(message *nsq.Message) error {
 		log.Println(err, ": missing system:", killmail.Kill.SolarSystemId)
 		return err
 	}
+	timeStage("system", start)
+	start = time.Now()
 
 	dna, err := s.getDNA(killmail.Kill.Victim.ShipTypeId)
 	if err != nil {
 		log.Println(err)
 		dna = ""
 	}
+	timeStage("dna", start)
 
 	pack := KillmailAttributes{
 		Attributes: attr,
@@ -137,8 +155,10 @@ func (s *Tailor) killmailHandler(message *nsq.Message) error {
 	if err != nil {
 		return err
 	}
+
 	// Add the package to the list
 	chanKillmailAttributes <- pack
+
 	return nil
 }
 
@@ -157,6 +177,20 @@ func (s *Tailor) getDNA(typeID int32) (string, error) {
 	return dna, err
 }
 
+func (s *Tailor) getFallbackSystemInformation(system int32) (*SystemInformation, error) {
+	sys := &SystemInformation{CelestialName: "Unknown", CelestialID: 0}
+	err := s.db.QueryRow(
+		`SELECT  S.solarSystemID, S.regionID, solarSystemName, regionName
+		FROM  eve.mapSolarSystems S 
+		INNER JOIN eve.mapRegions R ON R.regionID = S.regionID
+		WHERE solarSystemID = ?;`, system).Scan(
+		&sys.SolarSystemID, &sys.RegionID, &sys.SolarSystemName, &sys.RegionName)
+	if err != nil {
+		return nil, err
+	}
+	return sys, err
+}
+
 func (s *Tailor) getSystemInformation(system int32, x, y, z float64) (*SystemInformation, error) {
 	sys := &SystemInformation{}
 	err := s.db.QueryRow(
@@ -167,7 +201,7 @@ func (s *Tailor) getSystemInformation(system int32, x, y, z float64) (*SystemInf
 		WHERE itemID = closestCelestial(?,?,?,?);`, system, x, y, z).Scan(
 		&sys.CelestialName, &sys.CelestialID, &sys.SolarSystemID, &sys.RegionID, &sys.SolarSystemName, &sys.RegionName)
 	if err != nil {
-		return nil, err
+		return s.getFallbackSystemInformation(system)
 	}
 	return sys, err
 }
@@ -186,12 +220,12 @@ func (s *Tailor) getPrices(kill *esi.GetKillmailsKillmailIdKillmailHashOk) (map[
 
 	// Lookup the information
 	rows, err := s.db.Query(`
-		SELECT itemID, AVG(mean) 
-		FROM evedata.market_history 
-		WHERE itemID IN (`+joinInt32(idList)+`) AND 
-			DATE_FORMAT(DATE_SUB(?, INTERVAL 28 DAY), '%Y-%m-01') = DATE_FORMAT(date, '%Y-%m-01')
-			GROUP BY itemID;
-		`, kill.KillmailTime)
+		SELECT typeID, mean
+		FROM evedata.typePricesMonthly 
+		WHERE typeID IN (`+joinInt32(idList)+`) AND 
+			month = MONTH(DATE_SUB(?, INTERVAL 28 DAY)) AND
+			year = YEAR(DATE_SUB(?, INTERVAL 28 DAY));
+		`, kill.KillmailTime, kill.KillmailTime)
 	if err != nil {
 		return nil, err
 	}
@@ -250,7 +284,7 @@ func (s *Tailor) resolveNames(kill *esi.GetKillmailsKillmailIdKillmailHashOk) (m
 
 	// Lookup the information
 	rows, err := s.db.Query(`
-		SELECT allianceID as id, name FROM evedata.alliances WHERE allianceID IN (` + joinInt32(idList) + `)
+		SELECT allianceID as id, name FROM evedata.alliances FORCE INDEX(PRIMARY) WHERE allianceID IN (` + joinInt32(idList) + `)
 		UNION
 		SELECT corporationID as id, name FROM evedata.corporations WHERE corporationID IN (` + joinInt32(idList) + `)
 		UNION
@@ -309,7 +343,7 @@ func (s *Tailor) killmailConsumer() {
 			b["remoteShieldBonusAmountPerSecond"], b["remotePowerTransferAmountPerSecond"], b["energyNeutralizerAmountPerSecond"],
 			b["scanRadarStrength"]+b["scanLadarStrength"]+b["scanMagnetometricStrength"]+b["scanGravimetricStrength"],
 			b["avgRPS"], b["cpuRemaining"], b["powerRemaining"], b["capacitorFraction"], b["capacitorFractionMWD"],
-			b["capacitorDuration"]*1000000, b["capacitorDurationMWD"]*1000000,
+			b["capacitorDuration"]*100000, b["capacitorDurationMWD"]*100000,
 		)
 
 		sqlq, args, err := sq.ToSql()
