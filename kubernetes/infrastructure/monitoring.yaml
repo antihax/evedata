@@ -518,6 +518,19 @@ data:
       "links": [],
       "panels": [
         {
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "id": 17,
+          "panels": [],
+          "title": "API Stats",
+          "type": "row"
+        },
+        {
           "aliasColors": {},
           "bars": false,
           "dashLength": 10,
@@ -528,7 +541,7 @@ data:
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 0
+            "y": 1
           },
           "height": "300",
           "id": 1,
@@ -562,7 +575,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "60*sum(rate(evedata_api_calls_count[2m])) + 60*sum( rate(evemarketwatch_api_calls_count[2m]))",
+              "expr": "60*sum(rate(evedata_api_calls_count[2m]))",
               "format": "time_series",
               "hide": false,
               "interval": "2m",
@@ -572,7 +585,7 @@ data:
               "step": 120
             },
             {
-              "expr": "60* sum (rate(evedata_api_calls_count[2m]) ) by (host) OR 60* sum (rate(evemarketwatch_api_calls_count[2m]) ) by (host)",
+              "expr": "60* sum by (host) (rate(evedata_api_calls_count[2m]))",
               "format": "time_series",
               "interval": "2m",
               "intervalFactor": 1,
@@ -581,7 +594,7 @@ data:
               "step": 120
             },
             {
-              "expr": "60*sum(rate(evedata_api_errors[2m])) + 60*sum(rate(evemarketwatch_api_errors[2m]))",
+              "expr": "60*sum(rate(evedata_api_errors[2m]))",
               "format": "time_series",
               "interval": "2m",
               "intervalFactor": 1,
@@ -633,284 +646,40 @@ data:
           }
         },
         {
-          "cacheTimeout": null,
-          "colorBackground": false,
-          "colorValue": false,
-          "colors": [
-            "rgba(50, 172, 45, 0.97)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(245, 54, 54, 0.9)"
-          ],
-          "datasource": null,
-          "format": "none",
-          "gauge": {
-            "maxValue": 300,
-            "minValue": 0,
-            "show": true,
-            "thresholdLabels": false,
-            "thresholdMarkers": true
-          },
+          "collapsed": false,
           "gridPos": {
-            "h": 5,
-            "w": 8,
-            "x": 0,
-            "y": 8
-          },
-          "id": 5,
-          "interval": null,
-          "links": [],
-          "mappingType": 1,
-          "mappingTypes": [
-            {
-              "name": "value to text",
-              "value": 1
-            },
-            {
-              "name": "range to text",
-              "value": 2
-            }
-          ],
-          "maxDataPoints": 100,
-          "nullPointMode": "connected",
-          "nullText": null,
-          "postfix": "",
-          "postfixFontSize": "50%",
-          "prefix": "",
-          "prefixFontSize": "50%",
-          "rangeMaps": [
-            {
-              "from": "null",
-              "text": "N/A",
-              "to": "null"
-            }
-          ],
-          "sparkline": {
-            "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": true,
-            "lineColor": "rgb(31, 120, 193)",
-            "show": true
-          },
-          "tableColumn": "",
-          "targets": [
-            {
-              "expr": "sum(evedata_hammer_activeWorkers)",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "refId": "A",
-              "step": 1800
-            }
-          ],
-          "thresholds": "200,280",
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Active Hammer Workers",
-          "type": "singlestat",
-          "valueFontSize": "80%",
-          "valueMaps": [
-            {
-              "op": "=",
-              "text": "N/A",
-              "value": "null"
-            }
-          ],
-          "valueName": "current"
-        },
-        {
-          "cacheTimeout": null,
-          "colorBackground": false,
-          "colorValue": false,
-          "colors": [
-            "rgba(50, 172, 45, 0.97)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(245, 54, 54, 0.9)"
-          ],
-          "datasource": null,
-          "format": "none",
-          "gauge": {
-            "maxValue": 100000,
-            "minValue": 0,
-            "show": true,
-            "thresholdLabels": false,
-            "thresholdMarkers": true
-          },
-          "gridPos": {
-            "h": 5,
-            "w": 8,
-            "x": 8,
-            "y": 8
-          },
-          "id": 6,
-          "interval": null,
-          "links": [],
-          "mappingType": 1,
-          "mappingTypes": [
-            {
-              "name": "value to text",
-              "value": 1
-            },
-            {
-              "name": "range to text",
-              "value": 2
-            }
-          ],
-          "maxDataPoints": 100,
-          "nullPointMode": "connected",
-          "nullText": null,
-          "postfix": "",
-          "postfixFontSize": "50%",
-          "prefix": "",
-          "prefixFontSize": "50%",
-          "rangeMaps": [
-            {
-              "from": "null",
-              "text": "N/A",
-              "to": "null"
-            }
-          ],
-          "sparkline": {
-            "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": false,
-            "lineColor": "rgb(31, 120, 193)",
-            "show": true
-          },
-          "tableColumn": "",
-          "targets": [
-            {
-              "expr": "max(evedata_hammerqueue_calls)",
-              "format": "time_series",
-              "interval": "5m",
-              "intervalFactor": 1,
-              "legendFormat": "",
-              "refId": "A",
-              "step": 900
-            }
-          ],
-          "thresholds": "50000,75000",
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Hammer Queue Size",
-          "type": "singlestat",
-          "valueFontSize": "80%",
-          "valueMaps": [
-            {
-              "op": "=",
-              "text": "N/A",
-              "value": "null"
-            }
-          ],
-          "valueName": "current"
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": null,
-          "fill": 1,
-          "gridPos": {
-            "h": 5,
-            "w": 8,
-            "x": 16,
-            "y": 8
-          },
-          "id": 7,
-          "legend": {
-            "avg": false,
-            "current": true,
-            "max": false,
-            "min": false,
-            "show": false,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "sum(go_goroutines{app!=\"\"}) by (app) ",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{app}}",
-              "refId": "A",
-              "step": 240
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "goRoutines",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "label": "",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": "",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": null,
-          "fill": 1,
-          "gridPos": {
-            "h": 8,
+            "h": 1,
             "w": 24,
             "x": 0,
-            "y": 13
+            "y": 9
           },
-          "height": "300",
-          "id": 3,
+          "id": 11,
+          "panels": [],
+          "title": "Killmail Processor",
+          "type": "row"
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": null,
+          "fill": 1,
+          "gridPos": {
+            "h": 6,
+            "w": 24,
+            "x": 0,
+            "y": 10
+          },
+          "id": 9,
           "legend": {
             "alignAsTable": true,
             "avg": true,
             "current": true,
             "max": true,
-            "min": false,
+            "min": true,
             "rightSide": true,
             "show": true,
-            "sideWidth": 400,
-            "sort": "max",
-            "sortDesc": true,
             "total": false,
             "values": true
           },
@@ -928,24 +697,22 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "histogram_quantile(0.50, sum(rate(evedata_hammer_ticks_bucket[5m])) by (operation, le))",
+              "expr": "histogram_quantile(0.50, sum(rate(evedata_tailor_stageTime_bucket[5m])) by (stage, le))",
               "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "Ha-{{operation}}",
-              "refId": "B",
-              "step": 120
+              "intervalFactor": 1,
+              "legendFormat": "{{stage}}",
+              "refId": "A"
             }
           ],
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Consumer Time to Complete",
+          "title": "Median Killmail Stage Time",
           "tooltip": {
             "shared": true,
             "sort": 0,
             "value_type": "individual"
           },
-          "transparent": true,
           "type": "graph",
           "xaxis": {
             "buckets": null,
@@ -964,7 +731,7 @@ data:
               "show": true
             },
             {
-              "format": "none",
+              "format": "short",
               "label": null,
               "logBase": 1,
               "max": null,
@@ -985,13 +752,12 @@ data:
           "datasource": null,
           "fill": 1,
           "gridPos": {
-            "h": 10,
+            "h": 5,
             "w": 24,
             "x": 0,
-            "y": 21
+            "y": 16
           },
-          "height": "400px",
-          "id": 4,
+          "id": 19,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -1000,8 +766,6 @@ data:
             "min": false,
             "rightSide": true,
             "show": true,
-            "sort": "avg",
-            "sortDesc": true,
             "total": false,
             "values": true
           },
@@ -1019,24 +783,22 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "60 * sum(rate(evedata_hammer_ticks_count[2m])) by (operation, le)",
+              "expr": "sum(rate(evedata_tailor_status[2m])) by (status)",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "{{operation}}",
-              "refId": "A",
-              "step": 60
+              "legendFormat": "{{status}}",
+              "refId": "A"
             }
           ],
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Operations per Minute per Operation",
+          "title": "Killmails Saved Per Second",
           "tooltip": {
             "shared": true,
             "sort": 0,
             "value_type": "individual"
           },
-          "transparent": true,
           "type": "graph",
           "xaxis": {
             "buckets": null,
@@ -1047,7 +809,7 @@ data:
           },
           "yaxes": [
             {
-              "format": "opm",
+              "format": "short",
               "label": null,
               "logBase": 1,
               "max": null,
@@ -1067,6 +829,466 @@ data:
             "align": false,
             "alignLevel": null
           }
+        },
+        {
+          "collapsed": true,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 21
+          },
+          "id": 13,
+          "panels": [
+            {
+              "cacheTimeout": null,
+              "colorBackground": false,
+              "colorValue": false,
+              "colors": [
+                "rgba(50, 172, 45, 0.97)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(245, 54, 54, 0.9)"
+              ],
+              "datasource": null,
+              "format": "none",
+              "gauge": {
+                "maxValue": 300,
+                "minValue": 0,
+                "show": true,
+                "thresholdLabels": false,
+                "thresholdMarkers": true
+              },
+              "gridPos": {
+                "h": 5,
+                "w": 8,
+                "x": 0,
+                "y": 3
+              },
+              "id": 5,
+              "interval": null,
+              "links": [],
+              "mappingType": 1,
+              "mappingTypes": [
+                {
+                  "name": "value to text",
+                  "value": 1
+                },
+                {
+                  "name": "range to text",
+                  "value": 2
+                }
+              ],
+              "maxDataPoints": 100,
+              "nullPointMode": "connected",
+              "nullText": null,
+              "postfix": "",
+              "postfixFontSize": "50%",
+              "prefix": "",
+              "prefixFontSize": "50%",
+              "rangeMaps": [
+                {
+                  "from": "null",
+                  "text": "N/A",
+                  "to": "null"
+                }
+              ],
+              "sparkline": {
+                "fillColor": "rgba(31, 118, 189, 0.18)",
+                "full": true,
+                "lineColor": "rgb(31, 120, 193)",
+                "show": true
+              },
+              "tableColumn": "",
+              "targets": [
+                {
+                  "expr": "sum(evedata_hammer_activeWorkers)",
+                  "format": "time_series",
+                  "intervalFactor": 2,
+                  "refId": "A",
+                  "step": 1800
+                }
+              ],
+              "thresholds": "200,280",
+              "title": "Active Hammer Workers",
+              "type": "singlestat",
+              "valueFontSize": "80%",
+              "valueMaps": [
+                {
+                  "op": "=",
+                  "text": "N/A",
+                  "value": "null"
+                }
+              ],
+              "valueName": "current"
+            },
+            {
+              "cacheTimeout": null,
+              "colorBackground": false,
+              "colorValue": false,
+              "colors": [
+                "rgba(50, 172, 45, 0.97)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(245, 54, 54, 0.9)"
+              ],
+              "datasource": null,
+              "format": "none",
+              "gauge": {
+                "maxValue": 100000,
+                "minValue": 0,
+                "show": true,
+                "thresholdLabels": false,
+                "thresholdMarkers": true
+              },
+              "gridPos": {
+                "h": 5,
+                "w": 8,
+                "x": 8,
+                "y": 3
+              },
+              "id": 6,
+              "interval": null,
+              "links": [],
+              "mappingType": 1,
+              "mappingTypes": [
+                {
+                  "name": "value to text",
+                  "value": 1
+                },
+                {
+                  "name": "range to text",
+                  "value": 2
+                }
+              ],
+              "maxDataPoints": 100,
+              "nullPointMode": "connected",
+              "nullText": null,
+              "postfix": "",
+              "postfixFontSize": "50%",
+              "prefix": "",
+              "prefixFontSize": "50%",
+              "rangeMaps": [
+                {
+                  "from": "null",
+                  "text": "N/A",
+                  "to": "null"
+                }
+              ],
+              "sparkline": {
+                "fillColor": "rgba(31, 118, 189, 0.18)",
+                "full": false,
+                "lineColor": "rgb(31, 120, 193)",
+                "show": true
+              },
+              "tableColumn": "",
+              "targets": [
+                {
+                  "expr": "max(evedata_hammerqueue_calls)",
+                  "format": "time_series",
+                  "interval": "5m",
+                  "intervalFactor": 1,
+                  "legendFormat": "",
+                  "refId": "A",
+                  "step": 900
+                }
+              ],
+              "thresholds": "50000,75000",
+              "title": "Hammer Queue Size",
+              "type": "singlestat",
+              "valueFontSize": "80%",
+              "valueMaps": [
+                {
+                  "op": "=",
+                  "text": "N/A",
+                  "value": "null"
+                }
+              ],
+              "valueName": "current"
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": null,
+              "fill": 1,
+              "gridPos": {
+                "h": 5,
+                "w": 8,
+                "x": 16,
+                "y": 3
+              },
+              "id": 7,
+              "legend": {
+                "avg": false,
+                "current": true,
+                "max": false,
+                "min": false,
+                "show": false,
+                "total": false,
+                "values": true
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "sum(go_goroutines{app!=\"\"}) by (app) ",
+                  "format": "time_series",
+                  "intervalFactor": 2,
+                  "legendFormat": "{{app}}",
+                  "refId": "A",
+                  "step": 240
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "goRoutines",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "short",
+                  "label": "",
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": "",
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            }
+          ],
+          "title": "Hammer & Nail",
+          "type": "row"
+        },
+        {
+          "collapsed": true,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 22
+          },
+          "id": 15,
+          "panels": [
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": null,
+              "fill": 1,
+              "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 4
+              },
+              "height": "300",
+              "id": 3,
+              "legend": {
+                "alignAsTable": true,
+                "avg": true,
+                "current": true,
+                "max": true,
+                "min": false,
+                "rightSide": true,
+                "show": true,
+                "sideWidth": 400,
+                "sort": "max",
+                "sortDesc": true,
+                "total": false,
+                "values": true
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "histogram_quantile(0.50, sum(rate(evedata_hammer_ticks_bucket[5m])) by (operation, le))",
+                  "format": "time_series",
+                  "intervalFactor": 2,
+                  "legendFormat": "Ha-{{operation}}",
+                  "refId": "B",
+                  "step": 120
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Consumer Time to Complete",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "transparent": true,
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "ms",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                },
+                {
+                  "format": "none",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": null,
+              "fill": 1,
+              "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 12
+              },
+              "height": "400px",
+              "id": 4,
+              "legend": {
+                "alignAsTable": true,
+                "avg": true,
+                "current": true,
+                "max": true,
+                "min": false,
+                "rightSide": true,
+                "show": true,
+                "sort": "avg",
+                "sortDesc": true,
+                "total": false,
+                "values": true
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "60 * sum(rate(evedata_hammer_ticks_count[2m])) by (operation, le)",
+                  "format": "time_series",
+                  "intervalFactor": 1,
+                  "legendFormat": "{{operation}}",
+                  "refId": "A",
+                  "step": 60
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Operations per Minute per Operation",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "transparent": true,
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "opm",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            }
+          ],
+          "title": "Timing Detail",
+          "type": "row"
         }
       ],
       "refresh": "5s",
