@@ -15,6 +15,7 @@ import (
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/gobcoder"
 	"github.com/antihax/goesi/esi"
+	"github.com/prometheus/client_golang/prometheus"
 
 	nsq "github.com/nsqio/go-nsq"
 )
@@ -81,19 +82,23 @@ func (s *Tailor) saveKillmail(pack *KillmailAttributes) error {
 			bytes.NewReader(gzb.Bytes()),
 		)
 		if err != nil {
-
 			log.Println(err)
+			metricStatus.With(
+				prometheus.Labels{"status": "fail"},
+			).Inc()
 			return err
 		}
 	}
-
+	metricStatus.With(
+		prometheus.Labels{"status": "ok"},
+	).Inc()
 	return nil
 }
 
 func timeStage(s string, t time.Time) {
-	/*if time.Since(t) > time.Second {
-		fmt.Printf("%s %s\n", s, time.Since(t))
-	}*/
+	metricStageTime.With(
+		prometheus.Labels{"stage": s},
+	).Observe(float64(time.Since(t).Nanoseconds() / 1000000))
 }
 
 func (s *Tailor) killmailHandler(message *nsq.Message) error {
@@ -145,6 +150,7 @@ func (s *Tailor) killmailHandler(message *nsq.Message) error {
 		dna = ""
 	}
 	timeStage("dna", start)
+	start = time.Now()
 
 	pack := KillmailAttributes{
 		Attributes: attr,
@@ -158,6 +164,8 @@ func (s *Tailor) killmailHandler(message *nsq.Message) error {
 	if err != nil {
 		return err
 	}
+	timeStage("save", start)
+	start = time.Now()
 
 	// Add the package to the list
 	chanKillmailAttributes <- pack
