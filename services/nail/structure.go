@@ -36,7 +36,7 @@ func (s *Nail) structureHandler(message *nsq.Message) error {
 		(stationID, solarSystemID, stationName, x, y, z, ownerID, typeID, updated)
 		VALUES(?,?,?,?,?,?,?,?, UTC_TIMESTAMP())
 		ON DUPLICATE KEY UPDATE stationName=VALUES(stationName),solarSystemID=VALUES(solarSystemID),ownerID=VALUES(ownerID),typeID=VALUES(typeID),
-		x=VALUES(x),y=VALUES(y),z=VALUES(z);`,
+		x=VALUES(x),y=VALUES(y),z=VALUES(z),updated=UTC_TIMESTAMP();`,
 		b.StructureID, b.Structure.SolarSystemId, b.Structure.Name,
 		b.Structure.Position.X, b.Structure.Position.Y, b.Structure.Position.Z,
 		b.Structure.OwnerId, b.Structure.TypeId)
