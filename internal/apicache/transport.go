@@ -82,6 +82,8 @@ func (t *ApiCacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 				log.Printf("Too many tries %d %s\n", res.StatusCode, req.URL)
 				return res, err
 			}
+		} else {
+			return res, err
 		}
 		if res.StatusCode >= 200 && res.StatusCode < 400 {
 			return res, err
