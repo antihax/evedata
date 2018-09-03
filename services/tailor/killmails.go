@@ -31,12 +31,13 @@ type KillmailAttributes struct {
 
 // SystemInformation for the killmail
 type SystemInformation struct {
-	CelestialID     int32  `db:"celestialID" json:"celestialID"`
-	CelestialName   string `db:"celestialName" json:"celestialName"`
-	RegionID        int32  `db:"regionID" json:"regionID"`
-	RegionName      string `db:"regionName" json:"regionName"`
-	SolarSystemName string `db:"solarSystemName" json:"solarSystemName"`
-	SolarSystemID   int32  `db:"solarSystemID" json:"solarSystemID"`
+	CelestialID     int32   `db:"celestialID" json:"celestialID"`
+	CelestialName   string  `db:"celestialName" json:"celestialName"`
+	RegionID        int32   `db:"regionID" json:"regionID"`
+	RegionName      string  `db:"regionName" json:"regionName"`
+	SolarSystemName string  `db:"solarSystemName" json:"solarSystemName"`
+	SolarSystemID   int32   `db:"solarSystemID" json:"solarSystemID"`
+	Security        float32 `db:"security" json:"security"`
 }
 
 var chanKillmailAttributes chan KillmailAttributes
@@ -72,16 +73,18 @@ func (s *Tailor) saveKillmail(pack *KillmailAttributes) error {
 		log.Println(err)
 		return err
 	}
+	if len(gzb.Bytes()) > 0 {
+		metadata := make(map[string]string)
+		_, err = s.bucket.UploadFile(
+			fmt.Sprintf("%d.json.gz", pack.Killmail.KillmailId),
+			metadata,
+			bytes.NewReader(gzb.Bytes()),
+		)
+		if err != nil {
 
-	metadata := make(map[string]string)
-	_, err = s.bucket.UploadFile(
-		fmt.Sprintf("%d.json.gz", pack.Killmail.KillmailId),
-		metadata,
-		bytes.NewReader(gzb.Bytes()),
-	)
-	if err != nil {
-		log.Println(err)
-		return err
+			log.Println(err)
+			return err
+		}
 	}
 
 	return nil
@@ -180,11 +183,11 @@ func (s *Tailor) getDNA(typeID int32) (string, error) {
 func (s *Tailor) getFallbackSystemInformation(system int32) (*SystemInformation, error) {
 	sys := &SystemInformation{CelestialName: "Unknown", CelestialID: 0}
 	err := s.db.QueryRow(
-		`SELECT  S.solarSystemID, S.regionID, solarSystemName, regionName
+		`SELECT  S.solarSystemID, S.regionID, solarSystemName, regionName, security
 		FROM  eve.mapSolarSystems S 
 		INNER JOIN eve.mapRegions R ON R.regionID = S.regionID
 		WHERE solarSystemID = ?;`, system).Scan(
-		&sys.SolarSystemID, &sys.RegionID, &sys.SolarSystemName, &sys.RegionName)
+		&sys.SolarSystemID, &sys.RegionID, &sys.SolarSystemName, &sys.RegionName, &sys.Security)
 	if err != nil {
 		return nil, err
 	}
@@ -194,12 +197,12 @@ func (s *Tailor) getFallbackSystemInformation(system int32) (*SystemInformation,
 func (s *Tailor) getSystemInformation(system int32, x, y, z float64) (*SystemInformation, error) {
 	sys := &SystemInformation{}
 	err := s.db.QueryRow(
-		`SELECT itemName AS celestialName, itemID AS celestialID, S.solarSystemID, S.regionID, solarSystemName, regionName
+		`SELECT itemName AS celestialName, itemID AS celestialID, S.solarSystemID, S.regionID, solarSystemName, regionName, security
 		FROM  eve.mapDenormalize D
 		INNER JOIN eve.mapSolarSystems S ON S.solarSystemID = D.solarSystemID
 		INNER JOIN eve.mapRegions R ON R.regionID = D.regionID
 		WHERE itemID = closestCelestial(?,?,?,?);`, system, x, y, z).Scan(
-		&sys.CelestialName, &sys.CelestialID, &sys.SolarSystemID, &sys.RegionID, &sys.SolarSystemName, &sys.RegionName)
+		&sys.CelestialName, &sys.CelestialID, &sys.SolarSystemID, &sys.RegionID, &sys.SolarSystemName, &sys.RegionName, &sys.Security)
 	if err != nil {
 		return s.getFallbackSystemInformation(system)
 	}
