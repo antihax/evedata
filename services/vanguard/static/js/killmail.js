@@ -10,11 +10,12 @@ $.ajax({
     success: function (d) {
         try {
             package = $.parseJSON(pako.inflate(d, { to: 'string' }));
-            console.log(package);
             $(document).ready(function () {
                 populateModules(package)
                 getShip(package);
                 getAttackers(package);
+                getVictimInformation(package.killmail.victim);
+                getSystemInfo(package.systemInfo);
             });
         } catch {
             showAlert("Failed to decode killmail package", "danger")
@@ -150,6 +151,23 @@ function populateModules(package) {
     });
 }
 
+function getCorporationImage(a) {
+    if (a.corporation_id != undefined) {
+        return "corporation/" + a.corporation_id + "_32.png";
+    } else {
+        return "corporation/" + a.faction_id + "_32.png";
+    }
+}
+function getAllianceImage(a) {
+    if (a.alliance_id != undefined) {
+        return "alliance/" + a.alliance_id + "_64.png";
+    } else if (a.faction_id != undefined) {
+        return "corporation/" + a.faction_id + "_64.png";
+    } else {
+        return "corporation/" + a.corporation_id + "_64.png";
+    }
+}
+
 function getPortrait(a) {
     if (a.character_id != undefined) {
         return "character/" + a.character_id + "_64.jpg";
@@ -170,7 +188,26 @@ function getWeaponImage(a) {
         a.weapon_type_id + "_32.png";
 }
 
-function getThatStuff(a) {
+function getSystemInfo(a) {
+    if (a.security == undefined) a.security = 0;
+
+    var theStuff = "";
+    theStuff += `Location: ${a.solarSystemName} (${a.security}) ${a.regionName}<br>`;
+
+    if (a.celestialID != undefined) theStuff += "Near: " + a.celestialName + "<br>";
+    $("#sysInfo").html(`<small>${theStuff}</small>`);
+}
+
+function getVictimInformation(a) {
+    $("#victimImage").attr('src', `//imageserver.eveonline.com/${getPortrait(a)}`)
+
+    $("#victimCorporationImage").attr('src', `//imageserver.eveonline.com/${getCorporationImage(a)}`)
+    $("#victimAllianceImage").attr('src', `//imageserver.eveonline.com/${getAllianceImage(a)}`)
+
+    $("#victim").html(getCharacterInformation(a));
+}
+
+function getCharacterInformation(a) {
     var theStuff = "";
 
     if (a.character_id != undefined) theStuff += package.nameMap[a.character_id] + "<br>";
@@ -197,7 +234,7 @@ function getAttackers(package) {
                 <div class="col-xs-9 killmail" style="width: 264px;">
                     <div class="row" style="height: 64px; padding: 5px;">
                         <div class="col-xs-9">
-                           ${getThatStuff(a)}
+                           ${getCharacterInformation(a)}
                         </div>
                         <div class="col-xs-3" style="height: 64px; text-align: right">
                             ${simpleVal(a.damage_done)}
@@ -363,7 +400,7 @@ function getShip(package) {
                 $("#capacitorDetails").text(simpleVal(v) + " GJ")
                 break;
             case "totalDPS":
-                $("#totalDamage").html(v.toFixed(0) + " DPS")
+                $("#totalDamage").html(simpleVal(v) + " DPS")
                 if (a.moduleDPS) $("#offenseModule").html(simpleVal(a.moduleDPS) + " DPS<br>" + simpleVal(a.moduleAlphaDamage) + " Alpha")
                 if (a.droneDPS) $("#offenseDrone").html(simpleVal(a.droneDPS) + " DPS<br>" + simpleVal(a.droneAlphaDamage) + " Alpha")
                 break;

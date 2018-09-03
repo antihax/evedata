@@ -5,7 +5,7 @@
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/pako/1.0.6/pako_inflate.min.js"></script>
 <script src="/js/killmail.js"></script>
 
-<div  class="row" style="padding: 0px; ">
+<div class="row" style="padding: 0px; ">
     <div id="Fitting_Panel" style="float: left; position: relative; height:398px; width:398px; z-index: 3">
         <img style="position:absolute; left: 0px; top: 0px;  height:398px; width:398px; border:0px" src='/i/fw/tyrannis.png' alt=''
         />
@@ -107,14 +107,16 @@
                         <img id="victimAllianceImage" style="width:32px; height: 32px">
                     </div>
                     <div class="col-xs-9 killmail" style="width: 155px;">
-                        <div class="row" style="height: 64px; padding: 5px;">
-
-                            Stuff
-
+                        <div class="row killmail" style="height: 64px; padding: 5px;">
+                            <div id="victim"></div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div id="sysInfo" style="background-color: #16201a;  padding: 2px;">
+            </div>
+
             <div style="background-color: #06100a;  padding: 2px;">
                 <span><small>Capacitor</small></span>
                 <span class='pull-right'><small id="capacitorDuration"></small></span>
