@@ -9,7 +9,7 @@ import (
 
 func init() {
 	AddHandler("structure", func(s *Nail, consumer *nsq.Consumer) {
-		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.structureHandler)))
+		consumer.AddConcurrentHandlers(s.wait(nsq.HandlerFunc(s.structureHandler)), 10)
 	})
 }
 
@@ -36,7 +36,7 @@ func (s *Nail) structureHandler(message *nsq.Message) error {
 		(stationID, solarSystemID, stationName, x, y, z, ownerID, typeID, updated)
 		VALUES(?,?,?,?,?,?,?,?, UTC_TIMESTAMP())
 		ON DUPLICATE KEY UPDATE stationName=VALUES(stationName),solarSystemID=VALUES(solarSystemID),ownerID=VALUES(ownerID),typeID=VALUES(typeID),
-		x=VALUES(x),y=VALUES(y),z=VALUES(z),updated=UTC_TIMESTAMP();`,
+		x=VALUES(x),y=VALUES(y),z=VALUES(z),updated=VALUES(updated);`,
 		b.StructureID, b.Structure.SolarSystemId, b.Structure.Name,
 		b.Structure.Position.X, b.Structure.Position.Y, b.Structure.Position.Z,
 		b.Structure.OwnerId, b.Structure.TypeId)
