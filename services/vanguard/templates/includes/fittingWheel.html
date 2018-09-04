@@ -1,6 +1,8 @@
 {{define "fittingWheel"}}
 <script type="text/javascript" src="/js/ccpwgl_int.min.js"></script>
 <script type="text/javascript" src="/js/ccpwgl.js"></script>
+<script type="text/javascript" src="/js/native.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/pako/1.0.6/pako_inflate.min.js"></script>
 <script src="/js/killmail.js"></script>
 
 <div class="row" style="padding: 0px; ">
@@ -105,14 +107,16 @@
                         <img id="victimAllianceImage" style="width:32px; height: 32px">
                     </div>
                     <div class="col-xs-9 killmail" style="width: 155px;">
-                        <div class="row" style="height: 64px; padding: 5px;">
-
-                            Stuff
-
+                        <div class="row killmail" style="height: 64px; padding: 5px;">
+                            <div id="victim"></div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div id="sysInfo" style="background-color: #16201a;  padding: 2px;">
+            </div>
+
             <div style="background-color: #06100a;  padding: 2px;">
                 <span><small>Capacitor</small></span>
                 <span class='pull-right'><small id="capacitorDuration"></small></span>
@@ -344,7 +348,13 @@
     <div id="attackers" style="padding: 0px; background-color: #06100a; width: 360px; float: left;">
         <div class="row killmail killmail-head">
             <div id="numInvolved" style="float: left; padding: 3px;">Involved</div>
-            <div class="pull-right" style="float: left; padding: 3px;">Damage</div>
+            <div id="totalDamaged" class="pull-right" style="float: left; padding: 3px;"> Damage</div>
+        </div>
+    </div>
+    <div id="types" style="padding: 0px; background-color: #06100a; width: 360px; float: left;">
+        <div class="row killmail killmail-head">
+            <div id="totalValue" style="float: left; padding: 3px;">Total</div>
+            <div id="droppedValue" class="pull-right" style="float: left; padding: 3px;"></div>
         </div>
     </div>
 </div>

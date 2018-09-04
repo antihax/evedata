@@ -54,7 +54,11 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 
 	// Get the tokens for our destinations
 	for _, cidS := range strings.Split(destinations, ",") {
-		cid, _ := strconv.ParseInt(cidS, 10, 64)
+		cid, err := strconv.ParseInt(cidS, 10, 64)
+		if err != nil {
+			log.Println(err, destinations, cidS, characterID)
+			return
+		}
 		a, err := s.tokenStore.GetTokenSource(int32(characterID), int32(cid))
 		if err != nil {
 			log.Println(err, characterID, cidS)

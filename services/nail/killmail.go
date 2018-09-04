@@ -17,7 +17,7 @@ func init() {
 }
 
 func spawnKillmailConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.killmailHandler)))
+	consumer.AddConcurrentHandlers(s.wait(nsq.HandlerFunc(s.killmailHandler)), 25)
 }
 
 func (s *Nail) killmailHandler(message *nsq.Message) error {
@@ -32,11 +32,12 @@ func (s *Nail) killmailHandler(message *nsq.Message) error {
 	err = s.doSQL(`
 		INSERT INTO evedata.killmails
 		(id,solarSystemID,killTime,victimCharacterID,victimCorporationID,victimAllianceID,
-		attackerCount,factionID,damageTaken,x,y,z,shipType,warID,hash) 
-		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id=id;
-		`, mail.KillmailId, mail.SolarSystemId, mail.KillmailTime.Format(models.SQLTimeFormat), mail.Victim.CharacterId, mail.Victim.CorporationId, mail.Victim.AllianceId,
-		len(mail.Attackers), mail.Victim.FactionId, mail.Victim.DamageTaken, mail.Victim.Position.X, mail.Victim.Position.Y, mail.Victim.Position.Z, mail.Victim.ShipTypeId,
-		mail.WarId, killmail.Hash)
+		factionID,shipType,warID,hash, x, y, z) 
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE x=values(x),y=values(y),z=values(z);
+		`, mail.KillmailId, mail.SolarSystemId, mail.KillmailTime.Format(models.SQLTimeFormat),
+		mail.Victim.CharacterId, mail.Victim.CorporationId, mail.Victim.AllianceId,
+		mail.Victim.FactionId, mail.Victim.ShipTypeId, mail.WarId, killmail.Hash,
+		mail.Victim.Position.X, mail.Victim.Position.Y, mail.Victim.Position.Z)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -44,13 +45,13 @@ func (s *Nail) killmailHandler(message *nsq.Message) error {
 
 	var attackers []interface{}
 	for _, a := range mail.Attackers {
-		attackers = append(attackers, mail.KillmailId, a.CharacterId, a.CorporationId, a.AllianceId, a.ShipTypeId, a.SecurityStatus)
+		attackers = append(attackers, mail.KillmailId, a.CharacterId, a.CorporationId, a.AllianceId, a.ShipTypeId)
 	}
 	if len(attackers) > 0 {
 		err = s.doSQL(fmt.Sprintf(`INSERT INTO evedata.killmailAttackers
-			(id,characterID,corporationID,allianceID,shipType,securityStatus)
+			(id,characterID,corporationID,allianceID,shipType)
 			VALUES %s ON DUPLICATE KEY UPDATE id=id;
-			`, joinParameters(6, len(mail.Attackers))), attackers...)
+			`, joinParameters(5, len(mail.Attackers))), attackers...)
 		if err != nil {
 			log.Println(err)
 			return err

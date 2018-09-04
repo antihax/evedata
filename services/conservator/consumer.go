@@ -25,7 +25,7 @@ func addHandler(topic string, spawnFunc spawnFunc) {
 
 func (s *Conservator) registerHandlers() error {
 	nsqcfg := nsq.NewConfig()
-
+	nsqcfg.MaxInFlight = 50
 	for _, h := range handlers {
 		c, err := nsq.NewConsumer(h.Topic, "conservator", nsqcfg)
 		if err != nil {

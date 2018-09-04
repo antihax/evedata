@@ -17,7 +17,7 @@ var (
 func init() {
 	characterSQLQueue = make(chan datapackages.Character, 500)
 	AddHandler("character", func(s *Nail, consumer *nsq.Consumer) {
-		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterHandler)))
+		consumer.AddConcurrentHandlers(s.wait(nsq.HandlerFunc(s.characterHandler)), 100)
 		go s.characterSQLPost()
 	})
 }
@@ -25,7 +25,7 @@ func init() {
 func (s *Nail) characterSQLPost() {
 	for {
 		count := 0
-		cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 31)
+		cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 14)
 		sql := sq.Insert("evedata.characters").Columns("characterID", "name", "bloodlineID", "ancestryID", "corporationID", "allianceID", "race", "gender", "securityStatus", "updated", "cacheUntil", "birthDate")
 		for c := range characterSQLQueue {
 			count++

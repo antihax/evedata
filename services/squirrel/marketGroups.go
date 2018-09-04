@@ -13,19 +13,16 @@ var marketGroupsChannel = make(chan esi.GetMarketsGroupsMarketGroupIdOk, 10000)
 
 func init() {
 	registerTrigger("marketGroups", func(s *Squirrel) error {
-		s.esiSemStart()
 		groups, _, err := s.esi.ESI.MarketApi.GetMarketsGroups(context.Background(), nil)
-		s.esiSemFinished()
 		if err != nil {
 			return err
 		}
 
 		wg := sync.WaitGroup{}
 		for _, g := range groups {
-			s.esiSemStart()
 			wg.Add(1)
 			go func(g int32) {
-				defer func() { s.esiSemFinished(); wg.Done() }()
+				defer func() { wg.Done() }()
 				group, _, err := s.esi.ESI.MarketApi.GetMarketsGroupsMarketGroupId(context.Background(), g, nil)
 				if err != nil {
 					return
@@ -45,10 +42,10 @@ func init() {
 	registerCollector("marketGroups", func(s *Squirrel) error {
 		for {
 			count := 0
-			sql := sq.Insert("evedata.invMarketGroups").Columns("marketGroupID", "parentGroupID", "marketGroupName", "description")
+			sql := sq.Insert("eve.invMarketGroups").Columns("marketGroupID", "parentGroupID", "marketGroupName", "description", "hasTypes")
 			for g := range marketGroupsChannel {
 				count++
-				sql = sql.Values(g.MarketGroupId, g.ParentGroupId, g.Name, g.Description)
+				sql = sql.Values(g.MarketGroupId, g.ParentGroupId, g.Name, g.Description, len(g.Types) > 0)
 				if count > 80 {
 					break
 				}

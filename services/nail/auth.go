@@ -17,11 +17,11 @@ func init() {
 }
 
 func spawnCorporationContactsConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.corporationContactsHandler)))
+	consumer.AddConcurrentHandlers(s.wait(nsq.HandlerFunc(s.corporationContactsHandler)), 5)
 }
 
 func spawnAllianceContactsConsumer(s *Nail, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.allianceContactsHandler)))
+	consumer.AddConcurrentHandlers(s.wait(nsq.HandlerFunc(s.allianceContactsHandler)), 5)
 }
 
 func (s *Nail) corporationContactsHandler(message *nsq.Message) error {

@@ -12,12 +12,13 @@ import (
 	backblaze "gopkg.in/kothar/go-backblaze.v0"
 )
 
-// Tailor dumps killmails to json files for testing.
+// Tailor dumps killmails to b2 files for killboard.
 type Tailor struct {
 	stop     chan bool
 	consumer *nsq.Consumer
 	db       *sqlx.DB
 	b2       *backblaze.B2
+	bucket   *backblaze.Bucket
 }
 
 // NewTailor Service.
@@ -29,15 +30,24 @@ func NewTailor(db *sqlx.DB, b2 *backblaze.B2, consumerAddresses []string) *Tailo
 		b2:   b2,
 	}
 
+	b2.MaxIdleUploads = 100
+
 	nsqcfg := nsq.NewConfig()
-	nsqcfg.MaxInFlight = 50
-	nsqcfg.MsgTimeout = time.Second * 30
+	nsqcfg.MaxInFlight = 100
+	nsqcfg.MsgTimeout = time.Minute * 5
+
 	c, err := nsq.NewConsumer("killmail", "tailor", nsqcfg)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	s.consumer = c
-	c.AddHandler(nsq.HandlerFunc(s.killmailHandler))
+
+	s.bucket, err = s.b2.Bucket("evedata-killmails")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	c.AddConcurrentHandlers(nsq.HandlerFunc(s.killmailHandler), 100)
 	err = c.ConnectToNSQLookupds(consumerAddresses)
 	if err != nil {
 		log.Fatalln(err)

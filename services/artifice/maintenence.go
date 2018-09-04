@@ -12,7 +12,6 @@ func init() {
 	registerTrigger("marketUpdate", marketUpdate, time.NewTicker(time.Hour*2))
 	registerTrigger("discoveredAssetsMaint", discoveredAssetsMaint, time.NewTicker(time.Second*3620))
 	registerTrigger("entityMaint", entityMaint, time.NewTicker(time.Second*3630*3))
-	registerTrigger("killmailMaint", killmailMaint, time.NewTicker(time.Hour*3))
 	registerTrigger("entityStatsMaint", entityStatsMaint, time.NewTicker(time.Hour*8))
 	registerTrigger("contactSyncMaint", contactSyncMaint, time.NewTicker(time.Second*3615*6))
 }
@@ -214,38 +213,6 @@ func entityStatsMaint(s *Artifice) error {
 	}
 	return nil
 
-}
-
-func killmailMaint(s *Artifice) error { // Broken into smaller chunks so we have a chance of it getting completed.
-	// Delete old killmails
-	if err := s.RetryExecTillNoRows(`
-		DELETE FROM evedata.killmails
-		WHERE killTime < DATE_SUB(UTC_TIMESTAMP, INTERVAL 365 DAY) LIMIT 8000;
-			`); err != nil {
-		return err
-	}
-
-	// Remove any orphan attackers
-	if err := s.RetryExecTillNoRows(`
-		DELETE D.* FROM evedata.killmailAttackers D
-		JOIN (select A.id FROM evedata.killmailAttackers A
-			LEFT JOIN evedata.killmails K ON K.id = A.id
-			WHERE K.id IS NULL LIMIT 500) S ON D.id = S.id;
-				   `); err != nil {
-		return err
-	}
-
-	// Remove any orphan killmails
-	if err := s.RetryExecTillNoRows(`
-			DELETE D.* FROM evedata.killmails D
-			JOIN (select K.id FROM evedata.killmails K
-				LEFT JOIN evedata.killmailAttackers A ON A.id = K.id
-				WHERE A.id IS NULL LIMIT 1000) S ON D.id = S.id;
-					   `); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func discoveredAssetsMaint(s *Artifice) error {
@@ -488,6 +455,17 @@ func marketMaint(s *Artifice) error {
 	// Deal with any possible orphaned orders
 	if err := s.RetryExecTillNoRows(`
 	DELETE FROM evedata.market WHERE DATE_ADD(issued, INTERVAL duration DAY) < utc_timestamp();
+	            `); err != nil {
+		log.Println(err)
+	}
+
+	if err := s.RetryExecTillNoRows(`
+	INSERT INTO evedata.typePricesMonthly 
+	SELECT YEAR(date) AS year, MONTH(date) AS month, itemID AS typeID, avg(mean) AS mean
+	FROM evedata.market_history
+	WHERE DATE > DATE_FORMAT(NOW() ,'%Y-%m-01')
+	GROUP BY itemID, YEAR(date), MONTH(date)
+	ON DUPLICATE KEY UPDATE mean = VALUES(mean)DELETE FROM evedata.market WHERE DATE_ADD(issued, INTERVAL duration DAY) < utc_timestamp();
 	            `); err != nil {
 		log.Println(err)
 	}

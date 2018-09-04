@@ -45,9 +45,10 @@ func (s *ZKillboard) redisQ() error {
 // Loops collecting one year of kill mails.
 func (s *ZKillboard) apiConsumer() error {
 	// Start from where we left off.
-	nextCheck := time.Now().UTC().Add(time.Hour * 24 * -365)
+	//nextCheck = time.Now().UTC().Add(time.Hour * 24 * -365)
+	nextCheck := time.Unix(1196812800, 0)
 
-	rate := time.Second / 2
+	rate := time.Second / 3
 	throttle := time.Tick(rate)
 
 	for {
@@ -57,9 +58,10 @@ func (s *ZKillboard) apiConsumer() error {
 		date := nextCheck.Format("20060102")
 		nextCheck = nextCheck.Add(time.Hour * 24)
 
-		// If we are at today, restart from 90 days
+		// If we are at today, restart
 		if nextCheck.Sub(time.Now().UTC()) > 0 {
-			nextCheck = time.Now().UTC().Add(time.Hour * 24 * -365)
+			//nextCheck = time.Now().UTC().Add(time.Hour * 24 * -365)
+			nextCheck = time.Unix(1196812800, 0)
 			log.Printf("Restart zKill Consumer to %s", nextCheck.String())
 		}
 

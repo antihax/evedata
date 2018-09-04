@@ -35,22 +35,26 @@ func (s *Hammer) AddAlliance(allianceID int32) error {
 
 // AddCorporation adds a corporation to queue
 func (s *Hammer) AddCorporation(corporationID int32) error {
-	if !s.inQueue.CheckWorkExpired("evedata_entity", int64(corporationID)) {
-		return s.inQueue.QueueWork([]redisqueue.Work{
-			{Operation: "corporation", Parameter: corporationID},
-			{Operation: "allianceHistory", Parameter: corporationID},
-		}, redisqueue.Priority_Low)
+	if corporationID > 1000000 {
+		if !s.inQueue.CheckWorkExpired("evedata_entity", int64(corporationID)) {
+			return s.inQueue.QueueWork([]redisqueue.Work{
+				{Operation: "corporation", Parameter: corporationID},
+				{Operation: "allianceHistory", Parameter: corporationID},
+			}, redisqueue.Priority_Low)
+		}
 	}
 	return nil
 }
 
 // AddCharacter adds a character to queue
 func (s *Hammer) AddCharacter(characterID int32) error {
-	if !s.inQueue.CheckWorkExpired("evedata_entity", int64(characterID)) {
-		return s.inQueue.QueueWork([]redisqueue.Work{
-			{Operation: "character", Parameter: characterID},
-			{Operation: "corporationHistory", Parameter: characterID},
-		}, redisqueue.Priority_Low)
+	if characterID > 3000000 {
+		if !s.inQueue.CheckWorkExpired("evedata_entity", int64(characterID)) {
+			return s.inQueue.QueueWork([]redisqueue.Work{
+				{Operation: "character", Parameter: characterID},
+				{Operation: "corporationHistory", Parameter: characterID},
+			}, redisqueue.Priority_Low)
+		}
 	}
 	return nil
 }
@@ -164,7 +168,7 @@ func allianceConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	err = s.inQueue.SetWorkExpire("evedata_entity", int64(allianceID), 86400)
+	err = s.inQueue.SetWorkExpire("evedata_entity", int64(allianceID), 43200)
 	if err != nil {
 		log.Println(err)
 		return
@@ -221,7 +225,7 @@ func corporationConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	s.inQueue.SetWorkExpire("evedata_entity", int64(corporationID), 86400)
+	s.inQueue.SetWorkExpire("evedata_entity", int64(corporationID), 43200)
 
 	// Grab intel from meta data
 	err = s.AddCharacter(corporation.CeoId)
@@ -306,7 +310,7 @@ func characterConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	s.inQueue.SetWorkExpire("evedata_entity", int64(characterID), 86400)
+	s.inQueue.SetWorkExpire("evedata_entity", int64(characterID), 43200)
 
 	// Grab intel from meta data
 	err = s.AddCorporation(character.CorporationId)

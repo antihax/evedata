@@ -14,11 +14,9 @@ import (
 )
 
 func init() {
-	addHandler("killmail", spawnKillmailConsumer)
-}
-
-func spawnKillmailConsumer(s *Conservator, consumer *nsq.Consumer) {
-	consumer.AddHandler(s.wait(nsq.HandlerFunc(s.killmailHandler)))
+	addHandler("killmail", func(s *Conservator, consumer *nsq.Consumer) {
+		consumer.AddConcurrentHandlers(s.wait(nsq.HandlerFunc(s.killmailHandler)), 20)
+	})
 }
 
 type atWarWith struct {

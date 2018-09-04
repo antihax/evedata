@@ -50,12 +50,12 @@ func (s *MarketCollector) saveContractItems(id int32, c []esi.GetContractsPublic
 func (s *MarketCollector) saveContractBids(id int32, c []esi.GetContractsPublicBidsContractId200Ok) error {
 	if len(c) > 0 {
 		items := squirrel.Insert("evedata.contractBids").Columns(
-			"contractID", "bidID", "bidderID", "dateBid", "amount",
+			"contractID", "bidID", "dateBid", "amount",
 		)
 
 		for _, g := range c {
 			items = items.Values(
-				id, g.BidId, g.BidderId, g.DateBid, g.Amount,
+				id, g.BidId, g.DateBid, g.Amount,
 			)
 		}
 
@@ -117,7 +117,7 @@ func (s *MarketCollector) saveContractAdditions(c []marketwatch.FullContract) {
 				sem <- true
 				go func(sqlq string, args []interface{}, start time.Time, count int) {
 					defer func() { <-sem; wg.Done() }()
-					err = s.doSQL(sqlq+`ON DUPLICATE KEY UPDATE price=VALUES(price);`, args...)
+					err = s.doSQL(sqlq+`ON DUPLICATE KEY UPDATE price=VALUES(price), updated=UTC_TIMESTAMP();`, args...)
 					if err != nil {
 						log.Println(err)
 					}

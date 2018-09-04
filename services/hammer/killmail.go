@@ -2,7 +2,6 @@ package hammer
 
 import (
 	"log"
-	"time"
 
 	"github.com/antihax/evedata/internal/datapackages"
 )
@@ -29,12 +28,10 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 
 	// Send out the result, but ignore DUST stuff.
 	if kill.Victim.ShipTypeId < 65535 {
-		if kill.KillmailTime.After(time.Now().UTC().Add(-time.Hour * 24 * 365)) {
-			err = s.QueueResult(&datapackages.Killmail{Hash: hash, Kill: kill}, "killmail")
-			if err != nil {
-				log.Println(err)
-				return
-			}
+		err = s.QueueResult(&datapackages.Killmail{Hash: hash, Kill: kill}, "killmail")
+		if err != nil {
+			log.Println(err)
+			return
 		}
 
 		err = s.AddCharacter(kill.Victim.CharacterId)
