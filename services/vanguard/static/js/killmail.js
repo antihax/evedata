@@ -45,13 +45,17 @@ function setModuleSlot(type, slot, i) {
     if (i.chargeTypeID > 0) $("#" + type + slot + "l").prepend('<img src="//imageserver.eveonline.com/Type/' + i.chargeTypeID + '_32.png" style="height: 32px; width: 32px;">')
 }
 
+function rc() {
+    return (Math.random() >= 0.5 ? 1 : -1) * Math.random() * 2000000;
+}
+
 function cycleModule(slot) {
     var vec4 = ccpwgl_int.math.vec4,
         quat = ccpwgl_int.math.quat,
         mat4 = ccpwgl_int.math.mat4;
     var viewProjInv = ship.getTransform();
-    var dir = Math.random() >= 0.5 ? 1 : -1;
-    var pt = quat.fromValues(1, 1, dir * 2000000, 1);
+   
+    var pt = quat.fromValues(rc(), rc(), rc(), 1);
 
     ship.setTurretTargetPosition(slot, pt);
     ship.setTurretState(slot, ccpwgl.TurretState.FIRING);
@@ -390,10 +394,10 @@ function getShipwebGL(package) {
             var explosion = [null, 0];
             explosion[0] = getRandomExplosion(explosion);
             explosions.push(explosion);
-            window.setTimeout(spawnExplosion, 2000 + Math.random() * 2000);
+            window.setTimeout(spawnExplosion, 3000 + Math.random() * 2000);
         }
 
-        //spawnExplosion();
+        spawnExplosion();
 
         ccpwgl.onPreRender = function (dt) {
             camera.rotationX += 0.01;
