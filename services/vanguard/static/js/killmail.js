@@ -394,7 +394,7 @@ function getShipwebGL(package) {
             var explosion = [null, 0];
             explosion[0] = getRandomExplosion(explosion);
             explosions.push(explosion);
-            window.setTimeout(spawnExplosion, 3000 + Math.random() * 2000);
+            window.setTimeout(spawnExplosion, 5000 + Math.random() * 2000);
         }
 
         spawnExplosion();
