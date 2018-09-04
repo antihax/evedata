@@ -54,7 +54,7 @@ function cycleModule(slot) {
         quat = ccpwgl_int.math.quat,
         mat4 = ccpwgl_int.math.mat4;
     var viewProjInv = ship.getTransform();
-   
+
     var pt = quat.fromValues(rc(), rc(), rc(), 1);
 
     ship.setTurretTargetPosition(slot, pt);
@@ -340,78 +340,48 @@ function getTypes(package) {
     $("#droppedValue").html(simpleVal(droppedValue) + " Dropped");
 }
 
+function resizeCanvasToDisplaySize(canvas, mult) {
+    const width = Math.round(256);
+    const height = Math.round(256);
+    if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+    }
+}
+
 function getShipwebGL(package) {
     $("#shipImage").attr("src", "//imageserver.eveonline.com/Render/" + package.attributes.typeID + "_256.png")
+
+    var mat4 = ccpwgl_int.math.mat4,
+        rotation = 0.0,
+        direction = 0.001,
+        canvas = document.getElementById('shipCanvas'),
+        gl = canvas.getContext("webgl");
+
+    ccpwgl.initialize(canvas, {});
+
+    camera = ccpwgl.createCamera(canvas, {}, true);
+    scene = ccpwgl.loadScene('res:/dx9/scene/universe/m10_cube.red');
+    ship = scene.loadShip(package.dna);
+    scene.loadSun('res:/fisfx/lensflare/purple_sun.red');
+
+    ccpwgl.onPreRender = function (dt) {
+        resizeCanvasToDisplaySize(canvas, window.devicePixelRatio);
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+        camera.rotationX += 0.01;
+        camera.rotationY += direction;
+        if (camera.rotationY > 1.57 & direction > 0) {
+            direction = -0.001;
+        } else if (camera.rotationY < -1.57 & direction < 0) {
+            direction = 0.001;
+        }
+        if (ship.isLoaded() == true) {
+            $("#shipImage").addClass("hidden");
+        }
+        camera.focus(ship, 5, 1);
+    }
     try {
-        var mat4 = ccpwgl_int.math.mat4,
-            rotation = 0.0,
-            direction = 0.001,
-            canvas = document.getElementById('shipCanvas');
-
-        ccpwgl.initialize(canvas, {});
-
-        camera = ccpwgl.createCamera(canvas, {}, true);
-
-        scene = ccpwgl.loadScene('res:/dx9/scene/universe/m10_cube.red');
-        ship = scene.loadShip(package.dna);
-
-        scene.loadSun('res:/fisfx/lensflare/purple_sun.red');
-
-
-        var sizes = ['c', 'd', 'h', 'l', 'm', 's', 't'];
-        var races = ['amarr', 'angel', 'blooodraider', 'caldari', 'concord', 'gallente', 'generic', 'jove', 'minmatar', 'ore', 'rogue', 'sansha', 'sepentis', 'sleeper', 'soct', 'soe', 'talocan'];
-        var radius = 50;
-
-        var explosions = [];
-        var currentTime = 0;
-
-        function getRandomExplosion(explodionData) {
-            var size = sizes[Math.floor(Math.random() * sizes.length)];
-            var race = races[Math.floor(Math.random() * races.length)];
-            var explosion = scene.loadObject('res:/fisfx/deathexplosion/death_' + size + '_' + race + '.red', function () {
-                this.wrappedObjects[0].Start();
-                explodionData[1] = currentTime + this.wrappedObjects[0].duration;
-            });
-            explosion.setTransform([
-                1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                Math.random() * 2 * radius - radius, Math.random() * 2 * radius - radius, Math.random() * 2 * radius - radius, 1
-            ]);
-            return explosion;
-        }
-
-        function spawnExplosion() {
-            for (var i = 0; i < explosions.length;) {
-                if (currentTime > explosions[i][1]) {
-                    scene.removeObject(scene.indexOf(explosions[i][0]));
-                    explosions.splice(i, 1);
-                }
-                else {
-                    ++i;
-                }
-            }
-            var explosion = [null, 0];
-            explosion[0] = getRandomExplosion(explosion);
-            explosions.push(explosion);
-            window.setTimeout(spawnExplosion, 5000 + Math.random() * 2000);
-        }
-
-        spawnExplosion();
-
-        ccpwgl.onPreRender = function (dt) {
-            camera.rotationX += 0.01;
-            camera.rotationY += direction;
-            if (camera.rotationY > 1.57 & direction > 0) {
-                direction = -0.001;
-            } else if (camera.rotationY < -1.57 & direction < 0) {
-                direction = 0.001;
-            }
-            if (ship.isLoaded() == true) {
-                $("#shipImage").addClass("hidden");
-            }
-            camera.focus(ship, 5, 1);
-        }
     } catch (err) {
         getShipFallback(package.attributes.typeID);
     }
