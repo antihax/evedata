@@ -374,7 +374,7 @@ func alliancePage(w http.ResponseWriter, r *http.Request) {
 	}
 	p["Alliance"] = ref
 	if ref.Kills > 0 && ref.Losses > 0 {
-		ref.Efficiency = float64(ref.Losses) / float64(ref.Kills)
+		ref.Efficiency = 1 - (float64(ref.Losses) / float64(ref.Kills))
 	}
 	description := entityBlurb(ref.AllianceName, "alliance", ref.Efficiency, ref.Kills, ref.Losses, ref.CapKills, true)
 	p["OG"] = OpenGraph{
@@ -409,7 +409,7 @@ func corporationPage(w http.ResponseWriter, r *http.Request) {
 
 	p["Corporation"] = ref
 	if ref.Kills > 0 && ref.Losses > 0 {
-		ref.Efficiency = float64(ref.Losses) / float64(ref.Kills)
+		ref.Efficiency = 1 - (float64(ref.Losses) / float64(ref.Kills))
 	}
 	description := entityBlurb(ref.CorporationName, "corporation", ref.Efficiency, ref.Kills, ref.Losses, ref.CapKills, true)
 	p["OG"] = OpenGraph{
@@ -445,7 +445,7 @@ func characterPage(w http.ResponseWriter, r *http.Request) {
 	p["Character"] = ref
 
 	if ref.Kills > 0 && ref.Losses > 0 {
-		ref.Efficiency = float64(ref.Losses) / float64(ref.Kills)
+		ref.Efficiency = 1 - (float64(ref.Losses) / float64(ref.Kills))
 	}
 	description := entityBlurb(ref.CharacterName, "character", ref.Efficiency, ref.Kills, ref.Losses, ref.CapKills, false)
 	p["OG"] = OpenGraph{
