@@ -12,7 +12,6 @@ $.ajax({
         try {
             package = $.parseJSON(pako.inflate(d, { to: 'string' }));
             $(document).ready(function () {
-                console.log(package)
                 getShip(package);
                 populateModules(package)
                 getAttackers(package);
@@ -314,20 +313,31 @@ function getTypes(package) {
     var stripe = true,
         pm = package.priceMap,
         droppedValue = 0,
+        totalValue = 0;
+
+    if (pm[package.killmail.victim.ship_type_id]) {
         totalValue = pm[package.killmail.victim.ship_type_id];
+    }
 
     addTypeRow(package.killmail.victim.ship_type_id, false, 1, totalValue, !stripe);
-    $.each(package.killmail.victim.items, function (k, a) {
 
+    $.each(package.killmail.victim.items, function (k, a) {
+        if (pm[a.item_type_id] != undefined) {
+            package.killmail.victim.items[k].value = pm[a.item_type_id] *
+                (a.quantity_destroyed != undefined ? a.quantity_destroyed : a.quantity_dropped);
+        } else {
+            package.killmail.victim.items[k].value = 0;
+        }
+    });
+
+    $.each(package.killmail.victim.items, function (k, a) {
         if (a.quantity_destroyed) {
-            var value = pm[a.item_type_id] * a.quantity_destroyed;
-            addTypeRow(a.item_type_id, false, a.quantity_destroyed, value, stripe);
-            totalValue += value;
+            addTypeRow(a.item_type_id, false, a.quantity_destroyed, a.value, stripe);
+            totalValue += a.value;
         } else if (a.quantity_dropped) {
-            var value = pm[a.item_type_id] * a.quantity_dropped;
-            droppedValue += pm[a.item_type_id] * a.quantity_dropped;
-            addTypeRow(a.item_type_id, true, a.quantity_dropped, value, stripe);
-            totalValue += value;
+            addTypeRow(a.item_type_id, true, a.quantity_dropped, a.value, stripe);
+            totalValue += a.value;
+            droppedValue += a.value;
         }
 
         stripe = !stripe;
