@@ -268,22 +268,18 @@ function getAttackers(package) {
 
         var row = `
             <div class="row killmail" style="background-color: ${stripe ? "#06100a;" : "#16201a;"} padding: 0px;">
-                <div class="col-xs-2 killmail" style="width: 64px">
+                <div style="float: left; width: 64px">
                     <img src="//imageserver.eveonline.com/${getPortrait(a)}" style="width:64px; height: 64px">
                 </div>
-                <div class="col-xs-1 killmail" style="width: 32px">
+                <div style="float: left; width: 32px">
                     <img src="//imageserver.eveonline.com/type/${getShipImage(a)}" style="width:32px; height: 32px">
                     <img src="//imageserver.eveonline.com/type/${getWeaponImage(a)}" style="width:32px; height: 32px">
                 </div>
-                <div class="col-xs-9 killmail" style="width: 264px;">
-                    <div class="row" style="height: 64px; padding: 5px;">
-                        <div class="col-xs-9">
-                           ${getCharacterInformation(a)}
-                        </div>
-                        <div class="col-xs-3" style="height: 64px; text-align: right">
-                            ${simpleVal(a.damage_done)}
-                        </div>
-                    </div>
+                <div style="width: 210px; float: left; ">
+                    ${getCharacterInformation(a)}
+                </div>
+                <div style="float: left; text-align: right">
+                    ${simpleVal(a.damage_done)}
                 </div>
             </div>`;
 
@@ -294,18 +290,20 @@ function getAttackers(package) {
 }
 
 function addTypeRow(typeID, dropped, quantity, value, stripe) {
+    if (value == undefined)
+        value = 0;
     var row = `
             <div class="row killmail" style="background-color: ${stripe ? "#06100a;" : "#16201a;"} padding: 0px;">
-                <div class="col-xs-2 killmail" style="width: 32px">
+                <div style="float: left; width: 32px">
                     <img src="//imageserver.eveonline.com/${getTypeImage(typeID)}" style="width: 32px; height: 32px">
                 </div>
-                <div class="col-xs-4" style="width: 182px;">
+                <div style="float: left; width: 182px;">
                   ${package.nameMap[typeID]}
                 </div>
-                <div class="col-xs-4" style="width: 32px; text-align: right">
+                <div style="width: 64px; float: left; text-align: right">
                     ${simpleVal(quantity)}
                 </div>
-                <div class="col-xs-2" style="width: 114px; text-align: right">
+                <div style="width: 114px; float: left; text-align: right">
                     ${simpleVal(value)}
                 </div>
             </div>`;
@@ -321,19 +319,17 @@ function getTypes(package) {
     addTypeRow(package.killmail.victim.ship_type_id, false, 1, totalValue, !stripe);
     $.each(package.killmail.victim.items, function (k, a) {
 
-        if (pm[a.item_type_id]) {
-            if (a.quantity_destroyed) {
-                var value = pm[a.item_type_id] * a.quantity_destroyed;
-                addTypeRow(a.item_type_id, false, a.quantity_destroyed, value, stripe);
-                totalValue += value;
-            } else if (a.quantity_dropped) {
-                var value = pm[a.item_type_id] * a.quantity_dropped;
-                droppedValue += pm[a.item_type_id] * a.quantity_dropped;
-                addTypeRow(a.item_type_id, true, a.quantity_dropped, value, stripe);
-                totalValue += value;
-            }
+        if (a.quantity_destroyed) {
+            var value = pm[a.item_type_id] * a.quantity_destroyed;
+            addTypeRow(a.item_type_id, false, a.quantity_destroyed, value, stripe);
+            totalValue += value;
+        } else if (a.quantity_dropped) {
+            var value = pm[a.item_type_id] * a.quantity_dropped;
+            droppedValue += pm[a.item_type_id] * a.quantity_dropped;
+            addTypeRow(a.item_type_id, true, a.quantity_dropped, value, stripe);
+            totalValue += value;
         }
-        totalValue
+
         stripe = !stripe;
     });
     $("#totalValue").html(simpleVal(totalValue) + " Total");
@@ -351,37 +347,36 @@ function resizeCanvasToDisplaySize(canvas, mult) {
 
 function getShipwebGL(package) {
     $("#shipImage").attr("src", "//imageserver.eveonline.com/Render/" + package.attributes.typeID + "_256.png")
-
-    var mat4 = ccpwgl_int.math.mat4,
-        rotation = 0.0,
-        direction = 0.001,
-        canvas = document.getElementById('shipCanvas'),
-        gl = canvas.getContext("webgl");
-
-    ccpwgl.initialize(canvas, {});
-
-    camera = ccpwgl.createCamera(canvas, {}, true);
-    scene = ccpwgl.loadScene('res:/dx9/scene/universe/m10_cube.red');
-    ship = scene.loadShip(package.dna);
-    scene.loadSun('res:/fisfx/lensflare/purple_sun.red');
-
-    ccpwgl.onPreRender = function (dt) {
-        resizeCanvasToDisplaySize(canvas, window.devicePixelRatio);
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-
-        camera.rotationX += 0.01;
-        camera.rotationY += direction;
-        if (camera.rotationY > 1.57 & direction > 0) {
-            direction = -0.001;
-        } else if (camera.rotationY < -1.57 & direction < 0) {
-            direction = 0.001;
-        }
-        if (ship.isLoaded() == true) {
-            $("#shipImage").addClass("hidden");
-        }
-        camera.focus(ship, 5, 1);
-    }
     try {
+        var mat4 = ccpwgl_int.math.mat4,
+            rotation = 0.0,
+            direction = 0.001,
+            canvas = document.getElementById('shipCanvas'),
+            gl = canvas.getContext("webgl");
+
+        ccpwgl.initialize(canvas, {});
+
+        camera = ccpwgl.createCamera(canvas, {}, true);
+        scene = ccpwgl.loadScene('res:/dx9/scene/universe/m10_cube.red');
+        ship = scene.loadShip(package.dna);
+        scene.loadSun('res:/fisfx/lensflare/purple_sun.red');
+
+        ccpwgl.onPreRender = function (dt) {
+            resizeCanvasToDisplaySize(canvas, window.devicePixelRatio);
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+            camera.rotationX += 0.01;
+            camera.rotationY += direction;
+            if (camera.rotationY > 1.57 & direction > 0) {
+                direction = -0.001;
+            } else if (camera.rotationY < -1.57 & direction < 0) {
+                direction = 0.001;
+            }
+            if (ship.isLoaded() == true) {
+                $("#shipImage").addClass("hidden");
+            }
+            camera.focus(ship, 5, 1);
+        }
     } catch (err) {
         getShipFallback(package.attributes.typeID);
     }
