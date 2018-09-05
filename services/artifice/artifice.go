@@ -68,10 +68,7 @@ func NewArtifice(redis *redis.Pool, ledis *redis.Pool, db *sqlx.DB, clientID str
 	}
 
 	// Build our token
-	token, err := auth.TokenSource(tok)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	token := auth.TokenSource(tok)
 
 	// Setup a new artifice
 	s := &Artifice{

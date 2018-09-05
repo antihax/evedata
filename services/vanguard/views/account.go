@@ -281,11 +281,8 @@ func apiJoinIntegration(w http.ResponseWriter, r *http.Request) {
 
 	// refresh the token if it expired
 	if token.Expiry.After(time.Now()) {
-		src, err := g.DiscordAuthenticator.TokenSource(token)
-		if err != nil {
-			httpErr(w, err)
-			return
-		}
+		src := g.DiscordAuthenticator.TokenSource(token)
+
 		token, err = src.Token()
 		if err != nil {
 			httpErr(w, err)

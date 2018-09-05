@@ -51,11 +51,7 @@ func (s *Backend) Login(username, password string) (backend.User, error) {
 		return nil, err
 	}
 
-	ts, err := s.tokenAuth.TokenSource(u.Token)
-	if err != nil {
-		log.Print(err)
-		return nil, err
-	}
+	ts := s.tokenAuth.TokenSource(u.Token)
 
 	user := NewUser(username, ts, s, u.TokenCharacterID)
 	return user, nil

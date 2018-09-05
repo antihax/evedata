@@ -50,11 +50,7 @@ func bootstrapEveSSOAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokSrc, err := c.TokenAuthenticator.TokenSource(tok)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
+	tokSrc := c.TokenAuthenticator.TokenSource(tok)
 
 	_, err = c.TokenAuthenticator.Verify(tokSrc)
 	if err != nil {

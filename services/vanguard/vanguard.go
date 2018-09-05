@@ -74,10 +74,7 @@ func NewVanguard(redis *redis.Pool, ledis *redis.Pool, db *sqlx.DB) *Vanguard {
 		RefreshToken: os.Getenv("ESI_REFRESHKEY"),
 		TokenType:    "Bearer",
 	}
-	token, err := tauth.TokenSource(tok)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	token := tauth.TokenSource(tok)
 
 	// create Token Store
 	tokenStore := tokenstore.NewTokenStore(redis, db, tauth)
