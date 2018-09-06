@@ -332,10 +332,13 @@ p+p {
     padding: 2px;
 }
 
+.killmail-border{
+    border: 2px solid #c0c0c0;
+    outline: 2px solid #808080;
+}
+
 .killmail-frame {
     padding: 0px;
     width: 260px; 
     float: left;
-    border: 2px solid #c0c0c0;
-    outline: 2px solid #808080;
 }

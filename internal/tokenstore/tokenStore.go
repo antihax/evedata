@@ -38,11 +38,7 @@ func (c *TokenStore) GetTokenSource(characterID int32, tokenCharacterID int32) (
 		}
 	}
 
-	a, err := c.auth.TokenSource(t)
-	if err != nil {
-		c.CheckSSOError(characterID, tokenCharacterID, err)
-		return nil, err
-	}
+	a := c.auth.TokenSource(t)
 
 	if t.Expiry.Before(time.Now().Add(-time.Minute)) {
 		token, err := a.Token()

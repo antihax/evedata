@@ -1,14 +1,55 @@
 package views
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/antihax/evedata/services/vanguard"
+	"github.com/antihax/evedata/services/vanguard/models"
 )
 
 func init() {
 	vanguard.AddRoute("GET", "/killmail", func(w http.ResponseWriter, r *http.Request) {
-		renderTemplate(w, "killmail.html", time.Hour*24*31, newPage(r, "Killmail"))
+
+		idStr := r.FormValue("id")
+		id, err := strconv.ParseInt(idStr, 10, 64)
+		if err != nil {
+			httpErr(w, err)
+			return
+		}
+
+		km, err := models.GetKillmailDetails(id)
+		if err != nil {
+			httpErr(w, err)
+			return
+		}
+
+		entity := "Someone"
+		if km.AllianceID.Valid {
+			entity = km.AllianceName.String
+		} else if km.CorporationID.Valid {
+			entity = km.CorporationName.String
+		} else if km.CharacterID.Valid {
+			entity = km.CharacterName.String
+		} else if km.FactionID.Valid {
+			entity = km.FactionName.String
+		}
+
+		title := fmt.Sprintf("%s lost their %s in %s (%.1f)",
+			entity,
+			km.TypeName,
+			km.SolarSystemName,
+			km.Security,
+		)
+		p := newPage(r, title)
+		p["Killmail"] = km
+		p["OG"] = OpenGraph{
+			Image:       entityImage(int64(km.TypeID), "render", 128),
+			Title:       title,
+			Description: title,
+		}
+		renderTemplate(w, "killmail.html", time.Hour*24*31, p)
 	})
 }

@@ -95,268 +95,266 @@
             <canvas name="shipCanvas" id="shipCanvas" width="256" height="256" style="position:absolute; z-index:-5"></canvas>
         </div>
     </div>
-    <div class="killmail-border">
-        <div class="killmail-frame">
-            <div style="background-color: #06100a;  padding: 2px;">
-                <div class="row killmail" style="padding: 0px;">
-                    <div class="col-xs-2 killmail" style="width: 64px">
-                        <img id="victimImage" style="width:64px; height: 64px">
-                    </div>
-                    <div class="col-xs-1 killmail" style="width: 32px">
-                        <img id="victimCorporationImage" style="width:32px; height: 32px">
-                        <img id="victimAllianceImage" style="width:32px; height: 32px">
-                    </div>
-                    <div class="col-xs-9 killmail" style="width: 155px;">
-                        <div class="row killmail" style="height: 64px; padding: 5px;">
-                            <div id="victim"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <div id="sysInfo" style="background-color: #16201a;  padding: 2px;">
-            </div>
-
-            <div style="background-color: #06100a;  padding: 2px;">
-                <span><small>Capacitor</small></span>
-                <span class='pull-right'><small id="capacitorDuration"></small></span>
-            </div>
-
-            <div style="background-color: #16201a;  padding: 2px;">
-                <span><small id="capacitorDetails"></small></span>
-            </div>
-            <div style="background-color: #06100a;  padding: 2px;">
-                <span><small>Offensive</small></span>
-                <span class='pull-right'><small id="totalDamage"></small></span>
-            </div>
-            <div style="background-color: #16201a; padding: 2px;">
-                <div class="row">
-                    <div class="col-xs-2" style="text-align: center">
-                        <img src="//imageserver.eveonline.com/type/484_32.png" alt="module DPS" style="height: 32px; width: 32px;">
-                    </div>
-                    <div class="col-xs-4">
-                        <small id="offenseModule">0 DPS<br>0 Alpha</small>
-                    </div>
-                    <div class="col-xs-2">
-                        <img src="//imageserver.eveonline.com/type/24395_32.png" alt="drone DPS" style="height: 32px; width: 32px;">
-                    </div>
-                    <div class="col-xs-4">
-                        <small id="offenseDrone">0 DPS<br>0 Alpha</small>
-                    </div>
+    <div class="killmail-frame killmail-border">
+        <div style="background-color: #06100a;  padding: 2px;">
+            <div class="row killmail" style="padding: 0px;">
+                <div class="col-xs-2 killmail" style="width: 64px">
+                    <img id="victimImage" style="width:64px; height: 64px">
                 </div>
-                <div class="row">
-                    <div class="col-xs-1" style="text-align: center">
-                        <img src="//imageserver.eveonline.com/type/3242_32.png" title="warp scramble strength" alt="warp scramble strength" style="height: 22px; width: 22px;">
-                    </div>
-                    <div class="col-xs-1">
-                        <small id="warpStrength">0</small>
-                    </div>
-                    <div class="col-xs-1">
-                        <img src="//imageserver.eveonline.com/type/526_32.png" title="web strength" alt="web strength" style="height: 22px; width: 22px;">
-                    </div>
-                    <div class="col-xs-1">
-                        <small id="webStrength">0%</small>
-                    </div>
-                    <div class="col-xs-1">
-                        <img src="/i/icons/22_32_23.png" title="targets" alt="targets" style="height: 22px; width: 22px;">
-                    </div>
-                    <div class="col-xs-1">
-                        <small id="targets">0</small>
-                    </div>
-                    <div class="col-xs-1">
-                        <img src="/i/icons/22_32_14.png" title="scan resolution" alt="scan resolution" style="height: 22px; width: 22px;">
-                    </div>
-                    <div class="col-xs-1">
-                        <small id="scanRes">0</small>
-                    </div>
+                <div class="col-xs-1 killmail" style="width: 32px">
+                    <img id="victimCorporationImage" style="width:32px; height: 32px">
+                    <img id="victimAllianceImage" style="width:32px; height: 32px">
                 </div>
-            </div>
-            <div style="background-color: #06100a; padding: 2px;">
-                <span><small>Defensive</small></span>
-                <span class='pull-right'><small id="ehp"></small></span>
-            </div>
-            <div class="container" style="width: 255px">
-                <div class="row" style="background-color: #16201a; padding: 2px;">
-                    <div class="col-xs-12">
-                        <div class="row" style="padding: 0px; ">
-                            <div class="col-xs-4" style="padding: 2px;">
-                                <small id="rps"></small>
-                            </div>
-                            <div class="col-xs-2" style="padding: 0px; text-align: center">
-                                <img alt="em resonance" title="em resonance" src="/i/icons/22_32_12.png" style="width: 20px; padding:0px; height: 20px;">
-                            </div>
-                            <div class="col-xs-2" style="padding: 0px; text-align: center">
-                                <img alt="thermal resonance" title="thermal resonance" src="/i/icons/22_32_10.png" style="width: 20px; padding:0px; height: 20px;">
-                            </div>
-                            <div class="col-xs-2" style="padding: 0px; text-align: center">
-                                <img alt="kinetic resonance" title="kinetic resonance" src="/i/icons/22_32_9.png" style="width: 20px; padding:0px; height: 20px;">
-                            </div>
-                            <div class="col-xs-2" style="padding: 0px; text-align: center">
-                                <img alt="explosive resonance" title="explosive resonance" src="/i/icons/22_32_11.png" style="width: 20px; padding:0px; height: 20px;">
-                            </div>
-                        </div>
-                        <div class="row" style="padding: 0px; ">
-                            <div class="col-xs-1" style="padding: 0px;">
-                                <img alt="shield" title="shield" src="//imageserver.eveonline.com/type/399_32.png" style="width: 23px; padding:0px; height: 23px;">
-                            </div>
-                            <div class="col-xs-3" style="padding: 2px;">
-                                <small id="shieldHP"></small>
-                            </div>
-                            <div class="col-xs-2" style="padding: 2px;">
-                                <div class="progress" style="height: 15px;">
-                                    <div id="shieldEm" class="progress-bar progress-bar-em" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                        style="width:0%;">0%</div>
-                                </div>
-                            </div>
-                            <div class="col-xs-2" style="padding: 2px;">
-                                <div class="progress" style="height: 15px;">
-                                    <div id="shieldTherm" class="progress-bar progress-bar-therm" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                        style="width:0%">0%</div>
-                                </div>
-                            </div>
-                            <div class="col-xs-2" style="padding: 2px;">
-                                <div class="progress" style="height: 15px;">
-                                    <div id="shieldKin" class="progress-bar progress-bar-kin" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                        style="width:0%">0%</div>
-                                </div>
-                            </div>
-                            <div class="col-xs-2" style="padding: 2px;">
-                                <div class="progress" style="height: 15px;">
-                                    <div id="shieldExp" class="progress-bar progress-bar-exp" role="progressbar " aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                        style="width:0%">0%</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row" style="padding: 0px; ">
-                            <div class="col-xs-1" style="padding: 0px;">
-                                <img alt="armor" title="armor" src="//imageserver.eveonline.com/type/1197_32.png" style="width: 23px; padding:0px; height: 23px;">
-                            </div>
-                            <div class="col-xs-3" style="padding: 2px;">
-                                <small id="armorHP"></small>
-                            </div>
-                            <div class="col-xs-2" style="padding: 2px;">
-                                <div class="progress" style="height: 15px;">
-                                    <div id="armorEm" class="progress-bar progress-bar-em" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                        style="width:0%">0%</div>
-                                </div>
-                            </div>
-                            <div class="col-xs-2" style="padding: 2px;">
-                                <div class="progress" style="height: 15px;">
-                                    <div id="armorTherm" class="progress-bar progress-bar-therm" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                        style="width:0%">0%</div>
-                                </div>
-                            </div>
-                            <div class="col-xs-2" style="padding: 2px;">
-                                <div class="progress" style="height: 15px;">
-                                    <div id="armorKin" class="progress-bar progress-bar-kin" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                        style="width:0%">0%</div>
-                                </div>
-                            </div>
-                            <div class="col-xs-2" style="padding: 2px;">
-                                <div class="progress" style="height: 15px;">
-                                    <div id="armorExp" class="progress-bar progress-bar-exp" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                        style="width:0%">0%</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row" style="padding: 0px; ">
-                            <div class="col-xs-1" style="padding: 0px;">
-                                <img alt="hull" title="hull" src="//imageserver.eveonline.com/type/2603_32.png" style="width: 23px; padding:0px; height: 23px;">
-                            </div>
-                            <div class="col-xs-3" style="padding: 2px;">
-                                <small id="hullHP"></small>
-                            </div>
-                            <div class="col-xs-2" style="padding: 2px;">
-                                <div class="progress" style="height: 15px;">
-                                    <div id="hullEm" class="progress-bar progress-bar-em" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                        style="width:0%">0%</div>
-                                </div>
-                            </div>
-                            <div class="col-xs-2" style="padding: 2px;">
-                                <div class="progress" style="height: 15px;">
-                                    <div id="hullTherm" class="progress-bar progress-bar-therm" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                        style="width:0%">0%</div>
-                                </div>
-                            </div>
-                            <div class="col-xs-2" style="padding: 2px;">
-                                <div class="progress" style="height: 15px;">
-                                    <div id="hullKin" class="progress-bar progress-bar-kin" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                        style="width:0%">0%</div>
-                                </div>
-                            </div>
-                            <div class="col-xs-2" style="padding: 2px;">
-                                <div class="progress" style="height: 15px;">
-                                    <div id="hullExp" class="progress-bar progress-bar-exp" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                        style="width:0%">0%</div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="col-xs-9 killmail" style="width: 155px;">
+                    <div class="row killmail" style="height: 64px; padding: 5px;">
+                        <div id="victim"></div>
                     </div>
-                </div>
-            </div>
-
-            <div class="remoteRepair hidden" style="background-color: #06100a;  padding: 2px;">
-                <span><small>Remote Assistance</small></span>
-                <span class='pull-right'><small></small></span>
-            </div>
-            <div class="remoteRepair  hidden" style="background-color: #16201a; padding: 2px;">
-                <div class="row">
-                    <div class="col-xs-3">
-                        <img alt="em resonance" title="em resonance" src="/i/icons/22_32_8.png" style="width: 32px; padding:0px; height: 32px;">
-                    </div>
-                    <div class="col-xs-3">
-                        <img alt="em resonance" title="em resonance" src="/i/icons/22_32_7.png" style="width: 32px; padding:0px; height: 32px;">
-                    </div>
-                    <div class="col-xs-3">
-                        <img alt="em resonance" title="em resonance" src="/i/icons/1_64_11.png" style="width: 32px; padding:0px; height: 32px;">
-                    </div>
-                    <div class="col-xs-3">
-                        <img alt="em resonance" title="em resonance" src="/i/icons/2_64_13.png" style="width: 32px; padding:0px; height: 32px;">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-3 center"><small id="remotePower">0 GJ/s</small></div>
-                    <div class="col-xs-3 center"><small id="remoteShield">0 hp/s</small></div>
-                    <div class="col-xs-3 center"><small id="remoteArmor">0 hp/s</small></div>
-                    <div class="col-xs-3 center"><small id="remoteHull">0 hp/s</small></div>
-                </div>
-            </div>
-            <div style="background-color: #06100a;  padding: 2px;">
-                <span><small>Misc</small></span>
-                <span class='pull-right'><small></small></span>
-            </div>
-            <div style="background-color: #16201a; padding: 2px;">
-                <div class="row">
-                    <div class="col-xs-6"> <small>Range:</small> <small id="lockRange">0 hp/s</small></div>
-                    <div class="col-xs-6"> <small>Cargo:</small> <small id="cargo"></small></div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-6"> <small>Sensor Strength:</small> <small id="sensorStrength">0 hp/s</small></div>
-                    <div class="col-xs-6"> <small>Warp Speed:</small> <small id="warpSpeed"></small> </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-6"> <small>Speed:</small> <small id="speed">0 hp/s</small></div>
-                    <div class="col-xs-6"> <small>Prop Speed:</small> <small id="mwdSpeed"></small></div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-6"> <small>SigRad:</small> <small id="sigRadius">0</small></div>
-                    <div class="col-xs-6"> <small>Prop SigRad:</small> <small id="mwdSigRadius">0</small></div>
                 </div>
             </div>
         </div>
+
+        <div id="sysInfo" style="background-color: #16201a;  padding: 2px;">
+        </div>
+
+        <div style="background-color: #06100a;  padding: 2px;">
+            <span><small>Capacitor</small></span>
+            <span class='pull-right'><small id="capacitorDuration"></small></span>
+        </div>
+
+        <div style="background-color: #16201a;  padding: 2px;">
+            <span><small id="capacitorDetails"></small></span>
+        </div>
+        <div style="background-color: #06100a;  padding: 2px;">
+            <span><small>Offensive</small></span>
+            <span class='pull-right'><small id="totalDamage"></small></span>
+        </div>
+        <div style="background-color: #16201a; padding: 2px;">
+            <div class="row">
+                <div class="col-xs-2" style="text-align: center">
+                    <img src="//imageserver.eveonline.com/type/484_32.png" alt="module DPS" style="height: 32px; width: 32px;">
+                </div>
+                <div class="col-xs-4">
+                    <small id="offenseModule">0 DPS<br>0 Alpha</small>
+                </div>
+                <div class="col-xs-2">
+                    <img src="//imageserver.eveonline.com/type/24395_32.png" alt="drone DPS" style="height: 32px; width: 32px;">
+                </div>
+                <div class="col-xs-4">
+                    <small id="offenseDrone">0 DPS<br>0 Alpha</small>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-1" style="text-align: center">
+                    <img src="//imageserver.eveonline.com/type/3242_32.png" title="warp scramble strength" alt="warp scramble strength" style="height: 22px; width: 22px;">
+                </div>
+                <div class="col-xs-1">
+                    <small id="warpStrength">0</small>
+                </div>
+                <div class="col-xs-1">
+                    <img src="//imageserver.eveonline.com/type/526_32.png" title="web strength" alt="web strength" style="height: 22px; width: 22px;">
+                </div>
+                <div class="col-xs-1">
+                    <small id="webStrength">0%</small>
+                </div>
+                <div class="col-xs-1">
+                    <img src="/i/icons/22_32_23.png" title="targets" alt="targets" style="height: 22px; width: 22px;">
+                </div>
+                <div class="col-xs-1">
+                    <small id="targets">0</small>
+                </div>
+                <div class="col-xs-1">
+                    <img src="/i/icons/22_32_14.png" title="scan resolution" alt="scan resolution" style="height: 22px; width: 22px;">
+                </div>
+                <div class="col-xs-1">
+                    <small id="scanRes">0</small>
+                </div>
+            </div>
+        </div>
+        <div style="background-color: #06100a; padding: 2px;">
+            <span><small>Defensive</small></span>
+            <span class='pull-right'><small id="ehp"></small></span>
+        </div>
+        <div class="container" style="width: 255px">
+            <div class="row" style="background-color: #16201a; padding: 2px;">
+                <div class="col-xs-12">
+                    <div class="row" style="padding: 0px; ">
+                        <div class="col-xs-4" style="padding: 2px;">
+                            <small id="rps"></small>
+                        </div>
+                        <div class="col-xs-2" style="padding: 0px; text-align: center">
+                            <img alt="em resonance" title="em resonance" src="/i/icons/22_32_12.png" style="width: 20px; padding:0px; height: 20px;">
+                        </div>
+                        <div class="col-xs-2" style="padding: 0px; text-align: center">
+                            <img alt="thermal resonance" title="thermal resonance" src="/i/icons/22_32_10.png" style="width: 20px; padding:0px; height: 20px;">
+                        </div>
+                        <div class="col-xs-2" style="padding: 0px; text-align: center">
+                            <img alt="kinetic resonance" title="kinetic resonance" src="/i/icons/22_32_9.png" style="width: 20px; padding:0px; height: 20px;">
+                        </div>
+                        <div class="col-xs-2" style="padding: 0px; text-align: center">
+                            <img alt="explosive resonance" title="explosive resonance" src="/i/icons/22_32_11.png" style="width: 20px; padding:0px; height: 20px;">
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 0px; ">
+                        <div class="col-xs-1" style="padding: 0px;">
+                            <img alt="shield" title="shield" src="//imageserver.eveonline.com/type/399_32.png" style="width: 23px; padding:0px; height: 23px;">
+                        </div>
+                        <div class="col-xs-3" style="padding: 2px;">
+                            <small id="shieldHP"></small>
+                        </div>
+                        <div class="col-xs-2" style="padding: 2px;">
+                            <div class="progress" style="height: 15px;">
+                                <div id="shieldEm" class="progress-bar progress-bar-em" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                    style="width:0%;">0%</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-2" style="padding: 2px;">
+                            <div class="progress" style="height: 15px;">
+                                <div id="shieldTherm" class="progress-bar progress-bar-therm" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                    style="width:0%">0%</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-2" style="padding: 2px;">
+                            <div class="progress" style="height: 15px;">
+                                <div id="shieldKin" class="progress-bar progress-bar-kin" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                    style="width:0%">0%</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-2" style="padding: 2px;">
+                            <div class="progress" style="height: 15px;">
+                                <div id="shieldExp" class="progress-bar progress-bar-exp" role="progressbar " aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                    style="width:0%">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 0px; ">
+                        <div class="col-xs-1" style="padding: 0px;">
+                            <img alt="armor" title="armor" src="//imageserver.eveonline.com/type/1197_32.png" style="width: 23px; padding:0px; height: 23px;">
+                        </div>
+                        <div class="col-xs-3" style="padding: 2px;">
+                            <small id="armorHP"></small>
+                        </div>
+                        <div class="col-xs-2" style="padding: 2px;">
+                            <div class="progress" style="height: 15px;">
+                                <div id="armorEm" class="progress-bar progress-bar-em" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                    style="width:0%">0%</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-2" style="padding: 2px;">
+                            <div class="progress" style="height: 15px;">
+                                <div id="armorTherm" class="progress-bar progress-bar-therm" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                    style="width:0%">0%</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-2" style="padding: 2px;">
+                            <div class="progress" style="height: 15px;">
+                                <div id="armorKin" class="progress-bar progress-bar-kin" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                    style="width:0%">0%</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-2" style="padding: 2px;">
+                            <div class="progress" style="height: 15px;">
+                                <div id="armorExp" class="progress-bar progress-bar-exp" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                    style="width:0%">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 0px; ">
+                        <div class="col-xs-1" style="padding: 0px;">
+                            <img alt="hull" title="hull" src="//imageserver.eveonline.com/type/2603_32.png" style="width: 23px; padding:0px; height: 23px;">
+                        </div>
+                        <div class="col-xs-3" style="padding: 2px;">
+                            <small id="hullHP"></small>
+                        </div>
+                        <div class="col-xs-2" style="padding: 2px;">
+                            <div class="progress" style="height: 15px;">
+                                <div id="hullEm" class="progress-bar progress-bar-em" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                    style="width:0%">0%</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-2" style="padding: 2px;">
+                            <div class="progress" style="height: 15px;">
+                                <div id="hullTherm" class="progress-bar progress-bar-therm" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                    style="width:0%">0%</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-2" style="padding: 2px;">
+                            <div class="progress" style="height: 15px;">
+                                <div id="hullKin" class="progress-bar progress-bar-kin" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                    style="width:0%">0%</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-2" style="padding: 2px;">
+                            <div class="progress" style="height: 15px;">
+                                <div id="hullExp" class="progress-bar progress-bar-exp" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                                    style="width:0%">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="remoteRepair hidden" style="background-color: #06100a;  padding: 2px;">
+            <span><small>Remote Assistance</small></span>
+            <span class='pull-right'><small></small></span>
+        </div>
+        <div class="remoteRepair  hidden" style="background-color: #16201a; padding: 2px;">
+            <div class="row">
+                <div class="col-xs-3">
+                    <img alt="em resonance" title="em resonance" src="/i/icons/22_32_8.png" style="width: 32px; padding:0px; height: 32px;">
+                </div>
+                <div class="col-xs-3">
+                    <img alt="em resonance" title="em resonance" src="/i/icons/22_32_7.png" style="width: 32px; padding:0px; height: 32px;">
+                </div>
+                <div class="col-xs-3">
+                    <img alt="em resonance" title="em resonance" src="/i/icons/1_64_11.png" style="width: 32px; padding:0px; height: 32px;">
+                </div>
+                <div class="col-xs-3">
+                    <img alt="em resonance" title="em resonance" src="/i/icons/2_64_13.png" style="width: 32px; padding:0px; height: 32px;">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-3 center"><small id="remotePower">0 GJ/s</small></div>
+                <div class="col-xs-3 center"><small id="remoteShield">0 hp/s</small></div>
+                <div class="col-xs-3 center"><small id="remoteArmor">0 hp/s</small></div>
+                <div class="col-xs-3 center"><small id="remoteHull">0 hp/s</small></div>
+            </div>
+        </div>
+        <div style="background-color: #06100a;  padding: 2px;">
+            <span><small>Misc</small></span>
+            <span class='pull-right'><small></small></span>
+        </div>
+        <div style="background-color: #16201a; padding: 2px;">
+            <div class="row">
+                <div class="col-xs-6"> <small>Range:</small> <small id="lockRange">0 hp/s</small></div>
+                <div class="col-xs-6"> <small>Cargo:</small> <small id="cargo"></small></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6"> <small>Sensor Strength:</small> <small id="sensorStrength">0</small></div>
+                <div class="col-xs-6"> <small>Warp Speed:</small> <small id="warpSpeed"></small> </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6"> <small>Speed:</small> <small id="speed">0 hp/s</small></div>
+                <div class="col-xs-6"> <small>Prop Speed:</small> <small id="mwdSpeed"></small></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6"> <small>SigRad:</small> <small id="sigRadius">0</small></div>
+                <div class="col-xs-6"> <small>Prop SigRad:</small> <small id="mwdSigRadius">0</small></div>
+            </div>
+        </div>
     </div>
-    <div id="attackers" style="padding: 0px; background-color: #06100a; width: 360px; float: left;">
+    <div id="attackers" class="killmail-border" style="padding: 0px; background-color: #06100a; float: left;">
         <div class="row killmail killmail-head">
             <div id="numInvolved" style="float: left; padding: 3px;">Involved</div>
             <div id="totalDamaged" class="pull-right" style="float: left; padding: 3px;"> Damage</div>
         </div>
     </div>
-    <div id="types" style="padding: 0px; background-color: #06100a; width: 360px; float: left;">
+    <div id="types" class="killmail-border" style="padding: 0px; background-color: #06100a; float: left;">
         <div class="row killmail killmail-head">
             <div id="totalValue" style="float: left; padding: 3px;">Total</div>
             <div id="droppedValue" class="pull-right" style="float: left; padding: 3px;"></div>
         </div>
     </div>
-</div>
 </div>
 {{end}}

@@ -45,11 +45,8 @@ func (s *Backend) Login(username, password string) (smtp.User, error) {
 		return nil, err
 	}
 
-	ts, err := s.tokenAuth.TokenSource(u.Token)
-	if err != nil {
-		log.Print(err)
-		return nil, err
-	}
+	ts := s.tokenAuth.TokenSource(u.Token)
+
 	return &User{
 		username:    username,
 		token:       ts,

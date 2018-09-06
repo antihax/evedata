@@ -71,12 +71,7 @@ func discordAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokSrc, err := c.DiscordAuthenticator.TokenSource(tok)
-	if err != nil {
-		log.Println(err)
-		httpErr(w, err)
-		return
-	}
+	tokSrc := c.DiscordAuthenticator.TokenSource(tok)
 
 	v, err := c.DiscordAuthenticator.Verify(tokSrc)
 	if err != nil {
@@ -162,12 +157,7 @@ func eveSSOAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokSrc, err := c.SSOAuthenticator.TokenSource(tok)
-	if err != nil {
-		log.Println(err)
-		httpErr(w, err)
-		return
-	}
+	tokSrc := c.SSOAuthenticator.TokenSource(tok)
 
 	v, err := c.SSOAuthenticator.Verify(tokSrc)
 	if err != nil {
@@ -281,11 +271,7 @@ func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokSrc, err := c.SSOAuthenticator.TokenSource(tok)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
+	tokSrc := c.SSOAuthenticator.TokenSource(tok)
 
 	v, err := c.SSOAuthenticator.Verify(tokSrc)
 	if err != nil {

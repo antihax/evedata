@@ -64,10 +64,7 @@ func NewHammer(redis *redis.Pool, ledis *redis.Pool, db *sqlx.DB, nsq *nsq.Produ
 	}
 
 	// Build our private token
-	token, err := tauth.TokenSource(tok)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	token := tauth.TokenSource(tok)
 
 	tokenStore := tokenstore.NewTokenStore(redis, db, tauth)
 

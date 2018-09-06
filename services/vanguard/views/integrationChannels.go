@@ -113,7 +113,7 @@ func apiAddIntegrationChannel(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !ok {
-		httpErr(w, errors.New("serverID is invalid or the bot has no access."))
+		httpErr(w, errors.New("serverID is invalid or the bot has no access"))
 	}
 
 	if err = models.AddIntegrationChannel(service.IntegrationID, channelID, channelName); err != nil {
