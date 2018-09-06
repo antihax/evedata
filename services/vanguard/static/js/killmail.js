@@ -45,7 +45,7 @@ function setModuleSlot(type, slot, i) {
 }
 
 function rc() {
-    return (Math.random() >= 0.5 ? 1 : -1) * Math.random() * 2000000;
+    return (Math.random() >= 0.5 ? 1 : -1) * Math.random() * 1000000;
 }
 
 function cycleModule(slot) {
@@ -54,18 +54,18 @@ function cycleModule(slot) {
         mat4 = ccpwgl_int.math.mat4;
     var viewProjInv = ship.getTransform();
 
-    var pt = quat.fromValues(rc(), rc(), rc(), 1);
+    var pt = quat.fromValues(rc(), rc(), 4000000, 1);
 
     ship.setTurretTargetPosition(slot, pt);
     ship.setTurretState(slot, ccpwgl.TurretState.FIRING);
 
-    setTimeout(cycleModule, Math.random() * 1000, slot);
+    setTimeout(cycleModule, Math.random() * 3000, slot);
 }
 
 function setModule(slot, type) {
     if (graphicsMap[type]) {
         ship.mountTurret(slot, graphicsMap[type]);
-        setTimeout(cycleModule, 1000, slot);
+        setTimeout(cycleModule, 100, slot);
     }
 }
 function populateModules(package) {
