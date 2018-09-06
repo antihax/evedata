@@ -143,11 +143,6 @@ function typeFormatter(value, row) {
 		'&nbsp;&nbsp;<a href="' + typeURL + '"><img src="' + typeImage(row) + '" height=25 width=25></a> &nbsp;<a href="' + typeURL + '">' + value + '</a>';
 }
 
-function killmailTypeFormatter(value, row) {
-	var typeURL = '/item?id=' + row.typeID
-	return '<a data-toggle="tooltip" title="Open zkillboard" href="https://zkillboard.com/kill/' + row.id + '" target="zkill"><img src="https://zkillboard.com/img/wreck.png" height=16 width=16></a>' +
-		'&nbsp;&nbsp;<a href="' + typeURL + '"><img src="' + typeImage(row) + '" height=25 width=25></a> &nbsp;<a href="' + typeURL + '">' + value + '</a>';
-}
 
 function currencyFormatter(value, row) {
 	return numberCommafy(value.toFixed(2));
@@ -267,4 +262,28 @@ function escapeHtml(string) {
 	return String(string).replace(/[&<>"'`=\/]/g, function (s) {
 		return entityMap[s];
 	});
+}
+
+function nsToTime(nanoseconds) {
+	var duration = nanoseconds / 1000;
+	var seconds = parseInt((duration / 1000) % 60)
+		, minutes = parseInt((duration / (1000 * 60)) % 60)
+		, hours = parseInt((duration / (1000 * 60 * 60)) % 24);
+	minutes = (minutes < 10) ? "0" + minutes : minutes;
+	seconds = (seconds < 10) ? "0" + seconds : seconds;
+	return hours + "h " + minutes + "m " + seconds + "s ";
+}
+
+function killmailTypeFormatter(value, row) {
+	var typeURL = '/killmail?id=' + row.id
+	return '<a data-toggle="tooltip" title="Open zkillboard" href="https://zkillboard.com/kill/' + row.id + '" target="zkill"><img src="https://zkillboard.com/img/wreck.png" height=16 width=16></a>' +
+		'&nbsp;&nbsp;<a href="' + typeURL + '" target="zkill"><img src="' + typeImage(row) + '" height=25 width=25></a> &nbsp;<a href="' + typeURL + '" target="zkill">' + value + '</a>';
+}
+
+function kmCapacitorFormatter(value, row) {
+	if (row.capacitorNoMWD > 0) {
+		return (row.capacitorNoMWD * 100).toFixed(0) + "%";
+	} else {
+		return nsToTime(row.capacitorTimeNoMWD);
+	}
 }
