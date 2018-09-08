@@ -16,15 +16,15 @@ var validEntity map[string]bool
 
 func init() {
 	vanguard.AddRoute("GET", "/alliance", alliancePage)
-
-	vanguard.AddRoute("GET", "/corporation", corporationPage)
 	vanguard.AddRoute("GET", "/character", characterPage)
+	vanguard.AddRoute("GET", "/corporation", corporationPage)
 	vanguard.AddRoute("GET", "/J/warsForEntity", warsForEntityAPI)
-	vanguard.AddRoute("GET", "/J/activityForEntity", activityForEntityAPI)
-	vanguard.AddRoute("GET", "/J/heatmapForEntity", heatmapForEntityAPI)
+	vanguard.AddRoute("GET", "/J/shipsForEntity", shipsForEntityAPI)
 	vanguard.AddRoute("GET", "/J/assetsForEntity", assetsForEntityAPI)
 	vanguard.AddRoute("GET", "/J/alliesForEntity", alliesForEntityAPI)
-	vanguard.AddRoute("GET", "/J/shipsForEntity", shipsForEntityAPI)
+	vanguard.AddRoute("GET", "/J/heatmapForEntity", heatmapForEntityAPI)
+	vanguard.AddRoute("GET", "/J/activityForEntity", activityForEntityAPI)
+	vanguard.AddRoute("GET", "/J/killmailsForEntity", killmailsForEntityAPI)
 	vanguard.AddRoute("GET", "/J/corporationHistory", corporationHistoryAPI)
 	vanguard.AddRoute("GET", "/J/corporationsForAlliance", corporationsForAllianceAPI)
 	vanguard.AddRoute("GET", "/J/knownAssociatesForEntity", knownAssociatesForEntityAPI)
@@ -111,6 +111,30 @@ func activityForEntityAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	renderJSON(w, v, time.Hour*12)
+}
+
+func killmailsForEntityAPI(w http.ResponseWriter, r *http.Request) {
+
+	idStr := r.FormValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	entityType := r.FormValue("entityType")
+	if !validEntity[entityType] {
+		httpErr(w, errors.New("entityType must be corporation, character, or alliance"))
+		return
+	}
+
+	v, err := models.GetKillmailsForEntity(id, entityType)
+	if err != nil {
+		httpErrCode(w, err, http.StatusNotFound)
+		return
+	}
+
+	renderJSON(w, v, time.Hour*1)
 }
 
 func heatmapForEntityAPI(w http.ResponseWriter, r *http.Request) {

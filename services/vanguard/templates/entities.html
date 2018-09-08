@@ -1,3 +1,8 @@
+{{define "Head"}}
+<script type="text/javascript" src="/js/native.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/pako/1.0.6/pako_inflate.min.js"></script>
+<script src="/js/killmaillib.js"></script>
+{{end}}
 {{define "body"}}
 	{{if .Alliance }} 
 		{{ template "alliance" . }}
@@ -14,7 +19,6 @@
 <meta property="og:description" content="{{.OG.Description}}" />
 {{end}}
 {{define "corporation"}}
-
 	<div class="container-fluid">
 		<header class="row">
 			<div class="col-md-2">
@@ -70,6 +74,7 @@
 		<div class="row flex-row">
 		{{ template "activity" . }}
 		{{ template "knownships" . }}
+		{{ template "killmails" . }}
 		{{ template "corporationHistory" . }}
 		{{ template "knownAssociates" . }}
 		</div>
@@ -388,6 +393,34 @@
 						}
 					},
 				 });
+			});
+		</script>
+	</div>
+{{end}}
+
+{{define "killmails"}}
+	<div class="col-md-6 well" id="well_killmails">
+		<h3>
+			Killmails
+		</h3>
+		<table id="killmails" data-pagination="true" data-url="/J/killmailsForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+		 data-search="true" data-sort-order="desc">
+			<thead>
+				<tr>
+					<th data-field="killmail" data-formatter="killmailFormatter">Killmail</th>
+				</tr>
+			</thead>
+		</table>
+		<script>
+			$(function () {
+				$('#killmails').bootstrapTable({
+					data: killmails,
+					onLoadSuccess: function (d) {
+						if (d.length == 0) {
+							$("#well_killmails").hide();
+						}
+					},
+				});
 			});
 		</script>
 	</div>

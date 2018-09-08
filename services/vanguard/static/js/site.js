@@ -287,3 +287,5 @@ function kmCapacitorFormatter(value, row) {
 		return nsToTime(row.capacitorTimeNoMWD);
 	}
 }
+
+
