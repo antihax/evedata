@@ -14,7 +14,7 @@
 }
 
 .bootstrap-table .table:not(.table-condensed),.bootstrap-table .table:not(.table-condensed)>tbody>tr>td,.bootstrap-table .table:not(.table-condensed)>tbody>tr>th,.bootstrap-table .table:not(.table-condensed)>tfoot>tr>td,.bootstrap-table .table:not(.table-condensed)>tfoot>tr>th,.bootstrap-table .table:not(.table-condensed)>thead>tr>td {
-    padding: 8px
+    padding: 3px
 }
 
 .bootstrap-table .table.table-no-bordered>tbody>tr>td,.bootstrap-table .table.table-no-bordered>thead>tr>th {

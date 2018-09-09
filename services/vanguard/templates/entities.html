@@ -1,16 +1,16 @@
 {{define "Head"}}
 <script type="text/javascript" src="/js/native.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/pako/1.0.6/pako_inflate.min.js"></script>
-<script src="/js/killmaillib.js"></script>
+<script src="/js/libkm.js"></script>
 {{end}}
 {{define "body"}}
-	{{if .Alliance }} 
-		{{ template "alliance" . }}
-	{{else if .Corporation }} 
-		{{ template "corporation" . }}
-	{{else if .Character }} 
-		{{ template "character" . }}
-	{{end}}
+{{if .Alliance }}
+{{ template "alliance" . }}
+{{else if .Corporation }}
+{{ template "corporation" . }}
+{{else if .Character }}
+{{ template "character" . }}
+{{end}}
 {{end}}
 {{define "OpenGraph"}}
 <meta property="og:title" content="{{.OG.Title}}" />
@@ -19,409 +19,532 @@
 <meta property="og:description" content="{{.OG.Description}}" />
 {{end}}
 {{define "corporation"}}
-	<div class="container-fluid">
-		<header class="row">
-			<div class="col-md-2">
-				<img alt="{{.Corporation.CorporationName}}" src="//imageserver.eveonline.com/corporation/{{.Corporation.CorporationID}}_128.png" />
-			</div>
-			<div class="col-md-10">
-				<dl>
-					<dt>
-						<h2>{{.Corporation.CorporationName}}</h2>
-						CEO: <a href="/character?id={{.Corporation.CEOID}}">{{.Corporation.CEOName}}</a><br>
-						{{if .Corporation.AllianceID }} 
-							Alliance: <a href="/alliance?id={{.Corporation.AllianceID}}">{{.Corporation.AllianceName.String}}</a><br>
-						{{end}}
-						<br>
-						{{.Description}}
-					</dt>
-				</dl>
-		</header>
-		<div class="row flex-row">
+<div class="container-fluid">
+	<header class="row">
+		<div class="col-md-2">
+			<img alt="{{.Corporation.CorporationName}}" src="//imageserver.eveonline.com/corporation/{{.Corporation.CorporationID}}_128.png" />
+		</div>
+		<div class="col-md-10">
+			<dl>
+				<dt>
+					<h2>{{.Corporation.CorporationName}}</h2>
+					CEO: <a href="/character?id={{.Corporation.CEOID}}">{{.Corporation.CEOName}}</a><br>
+					{{if .Corporation.AllianceID }}
+					Alliance: <a href="/alliance?id={{.Corporation.AllianceID}}">{{.Corporation.AllianceName.String}}</a><br>
+					{{end}}
+					<br>
+					{{.Description}}
+				</dt>
+			</dl>
+	</header>
+	<div class="row flex-row">
 		{{ template "wars" . }}
 		{{ template "knownallies" . }}
 		{{ template "activity" . }}
+		{{ template "killmails" . }}
 		{{ template "assets" . }}
 		{{ template "corporationJoinHistory" . }}
 		{{ template "knownships" . }}
 		{{ template "knownAssociates" . }}
-		</div>
 	</div>
+</div>
 {{end}}
 
 {{define "character"}}
-	<div class="container-fluid">
-		<header class="row">
-			<div class="col-md-2">
-				<img alt="{{.Character.CharacterName}}" src="//imageserver.eveonline.com/character/{{.Character.CharacterID}}_128.jpg" />
-			</div>
-			<div class="col-md-10">
-				<dl>
-					<dt>
-						<h2>{{.Character.CharacterName}}</h2>
-						Security: {{.Character.SecurityStatus}}</a><br>
-						Corporation: <a href="/corporation?id={{.Character.CorporationID}}">{{.Character.CorporationName}}</a><br>
-						{{if .Character.AllianceID }} 
-							Alliance: <a href="/alliance?id={{.Character.AllianceID}}">{{.Character.AllianceName.String}}</a><br>
-						{{end}}
-						<br>
-						{{.Description}}
-					</dt>
+<div class="container-fluid">
+	<header class="row">
+		<div class="col-md-2">
+			<img alt="{{.Character.CharacterName}}" src="//imageserver.eveonline.com/character/{{.Character.CharacterID}}_128.jpg" />
+		</div>
+		<div class="col-md-10">
+			<dl>
+				<dt>
+					<h2>{{.Character.CharacterName}}</h2>
+					Security: {{.Character.SecurityStatus}}</a><br>
+					Corporation: <a href="/corporation?id={{.Character.CorporationID}}">{{.Character.CorporationName}}</a><br>
+					{{if .Character.AllianceID }}
+					Alliance: <a href="/alliance?id={{.Character.AllianceID}}">{{.Character.AllianceName.String}}</a><br>
+					{{end}}
+					<br>
+					{{.Description}}
+				</dt>
 
-				</dl>
-			</div>
-		</header>
-		<div class="row flex-row">
+			</dl>
+		</div>
+	</header>
+	<div class="row flex-row">
 		{{ template "activity" . }}
 		{{ template "knownships" . }}
 		{{ template "killmails" . }}
 		{{ template "corporationHistory" . }}
 		{{ template "knownAssociates" . }}
-		</div>
 	</div>
+</div>
 {{end}}
 
 {{define "alliance"}}
-	<div class="container-fluid">
-		<header class="row">
-			<div class="col-md-2">
-				<img alt="{{.Alliance.AllianceName}}" src="//imageserver.eveonline.com/Alliance/{{.Alliance.AllianceID}}_128.png" />
-			</div>
-			<div class="col-md-10">
-				<dl>
-					<dt>
-						<h2>{{.Alliance.AllianceName}}</h2>
-						Executor: <a href="/corporation?id={{.Alliance.ExecutorCorporationID}}">{{.Alliance.ExecutorCorporationName}}</a>
-						<br>
-						{{.Description}}
-					</dt>
-				</dl>
-			</div>
-		</header>
-	<div class="row flex-row">
-			{{ template "wars" . }}
-			{{ template "knownallies" . }}
-			{{ template "activity" . }}
-			{{ template "assets" . }}
-			{{ template "knownships" . }}
-			{{ template "corporations" . }}
-			{{ template "allianceHistory" . }}
-			{{ template "allianceJoinHistory" . }}
-			{{ template "knownAssociates" . }}
+<div class="container-fluid">
+	<header class="row">
+		<div class="col-md-2">
+			<img alt="{{.Alliance.AllianceName}}" src="//imageserver.eveonline.com/Alliance/{{.Alliance.AllianceID}}_128.png" />
 		</div>
+		<div class="col-md-10">
+			<dl>
+				<dt>
+					<h2>{{.Alliance.AllianceName}}</h2>
+					Executor: <a href="/corporation?id={{.Alliance.ExecutorCorporationID}}">{{.Alliance.ExecutorCorporationName}}</a>
+					<br>
+					{{.Description}}
+				</dt>
+			</dl>
+		</div>
+	</header>
+	<div class="row flex-row">
+		{{ template "wars" . }}
+		{{ template "knownallies" . }}
+		{{ template "activity" . }}
+		{{ template "killmails" . }}
+		{{ template "assets" . }}
+		{{ template "knownships" . }}
+		{{ template "corporations" . }}
+		{{ template "allianceHistory" . }}
+		{{ template "allianceJoinHistory" . }}
+		{{ template "knownAssociates" . }}
 	</div>
+</div>
 {{end}}
 
 {{define "corporations"}}
-	<div class="col-md-6 well">
-		<h3>
-			Corporations
-		</h3>
-		<table id="corporations" data-sort-name="name" data-url="/J/corporationsForAlliance?id={{ .entityID }}"
-		data-pagination="true" data-search="true" data-sort-order="asc">
-			<thead>
-				<tr>
-					<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
-					<th data-field="memberCount" data-sortable="true">Members</th>
-				</tr>
-			</thead>
-		</table>
-		<script>
-			$(function () {
-				$('#corporations').bootstrapTable();
-			});
-		</script>
-	</div>
+<div class="col-md-6 well">
+	<h3>
+		Corporations
+	</h3>
+	<table id="corporations" data-sort-name="name" data-url="/J/corporationsForAlliance?id={{ .entityID }}"
+	 data-pagination="true" data-search="true" data-sort-order="asc">
+		<thead>
+			<tr>
+				<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
+				<th data-field="memberCount" data-sortable="true">Members</th>
+			</tr>
+		</thead>
+	</table>
+	<script>
+		$(function () {
+			$('#corporations').bootstrapTable();
+		});
+	</script>
+</div>
 {{end}}
 
 {{define "corporationHistory"}}
-	<div class="col-md-6 well">
-		<h3>
-			Corporation History
-		</h3>
-		<table id="corporations" data-sort-name="startDate" data-url="/J/corporationHistory?id={{ .entityID }}"
-		data-pagination="true" data-search="true" data-sort-order="desc">
-			<thead>
-				<tr>
-					<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
-					<th data-field="startDate" data-sortable="true">Start Date</th>
-				</tr>
-			</thead>
-		</table>
-		<script>
-			$(function () {
-				$('#corporations').bootstrapTable();
-			});
-		</script>
-	</div>
+<div class="col-md-6 well">
+	<h3>
+		Corporation History
+	</h3>
+	<table id="corporations" data-sort-name="startDate" data-url="/J/corporationHistory?id={{ .entityID }}"
+	 data-pagination="true" data-search="true" data-sort-order="desc">
+		<thead>
+			<tr>
+				<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
+				<th data-field="startDate" data-sortable="true">Start Date</th>
+			</tr>
+		</thead>
+	</table>
+	<script>
+		$(function () {
+			$('#corporations').bootstrapTable();
+		});
+	</script>
+</div>
 {{end}}
 
 {{define "allianceHistory"}}
-	<div class="col-md-6 well">
-		<h3>
-			Corporation History
-		</h3>
-		<table id="corporationHistory" data-sort-name="startDate" data-url="/J/allianceHistoryForEntity?id={{ .entityID }}&entityType=alliance"
-		data-pagination="true" data-search="true" data-sort-order="desc">
-			<thead>
-				<tr>
-					<th data-field="corporationName" data-sortable="true" data-formatter="corporationFormatter">Name</th>
-					<th data-field="startDate" data-sortable="true">Start Date</th>
-					<th data-field="endDate" data-sortable="true">End Date</th>
-				</tr>
-			</thead>
-		</table>
-		<script>
-			$(function () {
-				$('#corporationHistory').bootstrapTable();
-			});
-		</script>
-	</div>
+<div class="col-md-6 well">
+	<h3>
+		Corporation History
+	</h3>
+	<table id="corporationHistory" data-sort-name="startDate" data-url="/J/allianceHistoryForEntity?id={{ .entityID }}&entityType=alliance"
+	 data-pagination="true" data-search="true" data-sort-order="desc">
+		<thead>
+			<tr>
+				<th data-field="corporationName" data-sortable="true" data-formatter="corporationFormatter">Name</th>
+				<th data-field="startDate" data-sortable="true">Start Date</th>
+				<th data-field="endDate" data-sortable="true">End Date</th>
+			</tr>
+		</thead>
+	</table>
+	<script>
+		$(function () {
+			$('#corporationHistory').bootstrapTable();
+		});
+	</script>
+</div>
 {{end}}
 
 {{define "allianceJoinHistory"}}
-	<div class="col-md-6 well">
-		<h3>
-			Character History
-		</h3>
-		<table id="allianceJoinHistory" data-sort-name="date" data-url="/J/allianceJoinHistoryForEntity?id={{ .entityID }}&entityType=alliance"
-		data-pagination="true" data-search="true" data-sort-order="desc">
-			<thead>
-				<tr>
-					<th data-field="characterName" data-sortable="true" data-formatter="characterFormatterName">Name</th>
-					<th data-field="date" data-sortable="true">Date</th>
-					<th data-field="event" data-sortable="true">Event</th>
-				</tr>
-			</thead>
-		</table>
-		<script>
-			$(function () {
-				$('#allianceJoinHistory').bootstrapTable();
-			});
-		</script>
-	</div>
+<div class="col-md-6 well">
+	<h3>
+		Character History
+	</h3>
+	<table id="allianceJoinHistory" data-sort-name="date" data-url="/J/allianceJoinHistoryForEntity?id={{ .entityID }}&entityType=alliance"
+	 data-pagination="true" data-search="true" data-sort-order="desc">
+		<thead>
+			<tr>
+				<th data-field="characterName" data-sortable="true" data-formatter="characterFormatterName">Name</th>
+				<th data-field="date" data-sortable="true">Date</th>
+				<th data-field="event" data-sortable="true">Event</th>
+			</tr>
+		</thead>
+	</table>
+	<script>
+		$(function () {
+			$('#allianceJoinHistory').bootstrapTable();
+		});
+	</script>
+</div>
 {{end}}
 
 
 {{define "corporationJoinHistory"}}
-	<div class="col-md-6 well">
-		<h3>
-			Character History
-		</h3>
-		<table id="corporationHistory" data-sort-name="startDate" data-url="/J/corporationHistoryForEntity?id={{ .entityID }}&entityType=alliance"
-		data-pagination="true" data-search="true" data-sort-order="desc">
-			<thead>
-				<tr>
-					<th data-field="characterName" data-sortable="true" data-formatter="characterFormatterName">Name</th>
-					<th data-field="startDate" data-sortable="true">Start Date</th>
-					<th data-field="endDate" data-sortable="true">End Date</th>
-				</tr>
-			</thead>
-		</table>
-		<script>
-			$(function () {
-				$('#corporationHistory').bootstrapTable();
-			});
-		</script>
-	</div>
+<div class="col-md-6 well">
+	<h3>
+		Character History
+	</h3>
+	<table id="corporationHistory" data-sort-name="startDate" data-url="/J/corporationHistoryForEntity?id={{ .entityID }}&entityType=alliance"
+	 data-pagination="true" data-search="true" data-sort-order="desc">
+		<thead>
+			<tr>
+				<th data-field="characterName" data-sortable="true" data-formatter="characterFormatterName">Name</th>
+				<th data-field="startDate" data-sortable="true">Start Date</th>
+				<th data-field="endDate" data-sortable="true">End Date</th>
+			</tr>
+		</thead>
+	</table>
+	<script>
+		$(function () {
+			$('#corporationHistory').bootstrapTable();
+		});
+	</script>
+</div>
 {{end}}
 
 {{define "knownAssociates"}}
-	<div class="col-md-6 well" id="well_knownalts">
-		<h3>
-			Known Associates
-		</h3>
-		<table id="alts" data-sort-name="frequency" data-url="/J/knownAssociatesForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
-		data-pagination="true" data-search="true" data-sort-order="desc">
-			<thead>
-				<tr>
-					<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
-					<th data-field="frequency" data-sortable="true">Frequency</th>
-				</tr>
-			</thead>
-		</table>
-		<script>
-			$(function () {
-				$('#alts').bootstrapTable({
-					onLoadSuccess: function (d) {
-						if (d.length == 0) {
-							$("#well_knownalts").hide();
-						}
+<div class="col-md-6 well" id="well_knownalts">
+	<h3>
+		Known Associates
+	</h3>
+	<table id="alts" data-sort-name="frequency" data-url="/J/knownAssociatesForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+	 data-pagination="true" data-search="true" data-sort-order="desc">
+		<thead>
+			<tr>
+				<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
+				<th data-field="frequency" data-sortable="true">Frequency</th>
+			</tr>
+		</thead>
+	</table>
+	<script>
+		$(function () {
+			$('#alts').bootstrapTable({
+				onLoadSuccess: function (d) {
+					if (d.length == 0) {
+						$("#well_knownalts").hide();
 					}
-				});
+				}
 			});
-		</script>
-	</div>
+		});
+	</script>
+</div>
 {{end}}
 
 {{define "wars"}}
-	<div class="col-md-6 well" id="well_wars">
-		<h3>
-			Active Wars
-		</h3>
-		<table id="wars" data-sort-name="aggressorName" data-pagination="true" data-search="true"
-		 data-url="/J/warsForEntity?id={{ .entityID }}" data-sort-order="asc">
-			<thead>
-				<tr>
-					<th data-field="aggressorName" data-formatter="aggressorFormatter">Aggressor</th>
-					<th data-field="defenderName" data-formatter="defenderFormatter">Defender</th>
-					<th data-field="kills" data-sortable="true">Kills</th>
-					<th data-field="losses" data-sortable="true">Losses</th>
-				</tr>
-			</thead>
-		</table>
-		<script>
-			$(function () {
-				$('#wars').bootstrapTable({
-					onLoadSuccess: function (d) {
-						if (d.length == 0) {
-							$("#well_wars").hide();
-						}
+<div class="col-md-6 well" id="well_wars">
+	<h3>
+		Active Wars
+	</h3>
+	<table id="wars" data-sort-name="aggressorName" data-pagination="true" data-search="true" data-url="/J/warsForEntity?id={{ .entityID }}"
+	 data-sort-order="asc">
+		<thead>
+			<tr>
+				<th data-field="aggressorName" data-formatter="aggressorFormatter">Aggressor</th>
+				<th data-field="defenderName" data-formatter="defenderFormatter">Defender</th>
+				<th data-field="kills" data-sortable="true">Kills</th>
+				<th data-field="losses" data-sortable="true">Losses</th>
+			</tr>
+		</thead>
+	</table>
+	<script>
+		$(function () {
+			$('#wars').bootstrapTable({
+				onLoadSuccess: function (d) {
+					if (d.length == 0) {
+						$("#well_wars").hide();
 					}
-				});
+				}
 			});
-		</script>
-	</div>
+		});
+	</script>
+</div>
 {{end}}
 
 {{define "activity"}}
-	<div class="col-md-6 well">
-		<h3>
-			Kill/Loss Activity
-		</h3>
-		{{ $dataURL := print "/J/heatmapForEntity?id=" .entityID "" "&entityType=" .entityType }}
-		{{ template "heatmap" dict "ChartName" "killmailHeatMap" "DataURL" $dataURL}}
-		<table id="activity" data-sort-name="number" data-pagination="true" data-url="/J/activityForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
-		 data-sort-order="desc">
-			<thead>
-				<tr>
-					<th data-field="number">#</th>
-					<th data-field="regionName" data-sortable="true">Region</th>
-					<th data-field="constellationName" data-sortable="true">Constellation</th>
-					<th data-field="solarSystemNames" data-sortable="true">Solar Systems</th>
-				</tr>
-			</thead>
-		</table>
-		<script>
-			$(function () {
-				$('#activity').bootstrapTable();
+<div class="col-md-6 well" id="well_activity">
+	<h3>
+		Kill/Loss Activity
+	</h3>
+	{{ $dataURL := print "/J/heatmapForEntity?id=" .entityID "" "&entityType=" .entityType }}
+	{{ template "heatmap" dict "ChartName" "killmailHeatMap" "DataURL" $dataURL}}
+	<table id="activity" data-sort-name="number" data-pagination="true" data-url="/J/activityForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+	 data-sort-order="desc">
+		<thead>
+			<tr>
+				<th data-field="number">#</th>
+				<th data-field="regionName" data-sortable="true">Region</th>
+				<th data-field="constellationName" data-sortable="true">Constellation</th>
+				<th data-field="solarSystemNames" data-sortable="true">Solar Systems</th>
+			</tr>
+		</thead>
+	</table>
+	<script>
+		$(function () {
+			$('#activity').bootstrapTable({
+				onLoadSuccess: function (d) {
+					if (d.length == 0) {
+						$("#well_activity").hide();
+					}
+				}
 			});
-		</script>
-	</div>
+		});
+	</script>
+</div>
 {{end}}
 
 {{define "knownships"}}
-	<div class="col-md-6 well" id="well_knownships">
-		<h3>
-			Known Ships
-		</h3>
-		<table id="knownships" data-sort-name="number" data-pagination="true" data-search="true"
-		 data-url="/J/shipsForEntity?id={{ .entityID }}&entityType={{ .entityType }}" data-sort-order="desc">
-			<thead>
-				<tr>
-					<th data-field="number">#</th>
-					<th data-field="shipName" data-sortable="true">Ship Name</th>
-				</tr>
-			</thead>
-		</table>
-		<script>
-			$(function () {
-				$('#knownships').bootstrapTable({
-					onLoadSuccess: function (d) {
-						if (d.length == 0) {
-							$("#well_knownships").hide();
-						}
+<div class="col-md-6 well" id="well_knownships">
+	<h3>
+		Known Ships
+	</h3>
+	<table id="knownships" data-sort-name="number" data-pagination="true" data-search="true" data-url="/J/shipsForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+	 data-sort-order="desc">
+		<thead>
+			<tr>
+				<th data-field="number">#</th>
+				<th data-field="shipName" data-sortable="true">Ship Name</th>
+			</tr>
+		</thead>
+	</table>
+	<script>
+		$(function () {
+			$('#knownships').bootstrapTable({
+				onLoadSuccess: function (d) {
+					if (d.length == 0) {
+						$("#well_knownships").hide();
 					}
-				});
+				}
 			});
-		</script>
-	</div>
+		});
+	</script>
+</div>
 {{end}}
 
 {{define "knownallies"}}
-	<div class="col-md-6 well" id="well_knownallies">
-		<h3>
-			Known Allies
-		</h3>
-		<table id="knownallies" data-sort-name="number" data-pagination="true" data-url="/J/alliesForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
-		 data-search="true" data-sort-order="desc">
-			<thead>
-				<tr>
-					<th data-field="number">#</th>
-					<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Ally Name</th>
-				</tr>
-			</thead>
-		</table>
-		<script>
-			$(function () {
-				$('#knownallies').bootstrapTable({
-					onLoadSuccess: function (d) {
-						if (d.length == 0) {
-							$("#well_knownallies").hide();
-						}
+<div class="col-md-6 well" id="well_knownallies">
+	<h3>
+		Known Allies
+	</h3>
+	<table id="knownallies" data-sort-name="number" data-pagination="true" data-url="/J/alliesForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+	 data-search="true" data-sort-order="desc">
+		<thead>
+			<tr>
+				<th data-field="number">#</th>
+				<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Ally Name</th>
+			</tr>
+		</thead>
+	</table>
+	<script>
+		$(function () {
+			$('#knownallies').bootstrapTable({
+				onLoadSuccess: function (d) {
+					if (d.length == 0) {
+						$("#well_knownallies").hide();
 					}
-				});
+				}
 			});
-		</script>
-	</div>
+		});
+	</script>
+</div>
 {{end}}
 
 {{define "assets"}}
-	<div class="col-md-6 well" id="well_assets">
-		<h3>
-			Possible Assets In Space
-		</h3>
-		Note: Citadels may show as fighter drones.
-		<table id="assets" data-sort-name="lastSeen" data-pagination="true" data-url="/J/assetsForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
-		 data-search="true" data-sort-order="desc">
-			<thead>
-				<tr>
-					<th data-field="itemName">Near</th>
-					<th data-field="typeName" data-sortable="true">Type</th>
-					<th data-field="security" data-sortable="true">Security</th>
-					<th data-field="lastSeen" data-sortable="true">Last Seen</th>
-				</tr>
-			</thead>
-		</table>
-		<script>
-			$(function () {
-				$('#assets').bootstrapTable({ 
-					data: assets,
-					onLoadSuccess: function(d) {
-						if (d.length == 0) {
-							$("#well_assets").hide();
-						}
-					},
-				 });
+<div class="col-md-6 well" id="well_assets">
+	<h3>
+		Possible Assets In Space
+	</h3>
+	Note: Citadels may show as fighter drones.
+	<table id="assets" data-sort-name="lastSeen" data-pagination="true" data-url="/J/assetsForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+	 data-search="true" data-sort-order="desc">
+		<thead>
+			<tr>
+				<th data-field="itemName">Near</th>
+				<th data-field="typeName" data-sortable="true">Type</th>
+				<th data-field="security" data-sortable="true">Security</th>
+				<th data-field="lastSeen" data-sortable="true">Last Seen</th>
+			</tr>
+		</thead>
+	</table>
+	<script>
+		$(function () {
+			$('#assets').bootstrapTable({
+				data: assets,
+				onLoadSuccess: function (d) {
+					if (d.length == 0) {
+						$("#well_assets").hide();
+					}
+				},
 			});
-		</script>
-	</div>
+		});
+	</script>
+</div>
 {{end}}
 
 {{define "killmails"}}
-	<div class="col-md-6 well" id="well_killmails">
-		<h3>
-			Killmails
-		</h3>
-		<table id="killmails" data-pagination="true" data-url="/J/killmailsForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
-		 data-search="true" data-sort-order="desc">
-			<thead>
-				<tr>
-					<th data-field="killmail" data-formatter="killmailFormatter">Killmail</th>
-				</tr>
-			</thead>
-		</table>
-		<script>
-			$(function () {
-				$('#killmails').bootstrapTable({
-					data: killmails,
-					onLoadSuccess: function (d) {
-						if (d.length == 0) {
-							$("#well_killmails").hide();
-						}
-					},
-				});
+<div class="col-md-6 well" id="well_killmails">
+	<h3>
+		Killmails
+		<button id="losses" style="float: right" type="button" class="btn btn-primary btn-sm " data-toggle="button" onClick="javascript:filterKills()">Losses
+			Only</button>
+	</h3>
+
+	<table id="killmails" data-row-style="lossFormatter" data-pagination="true" data-url="/J/killmailsForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+	 data-sort-order="desc">
+		<thead>
+			<tr>
+				<th data-field="killmail" data-formatter="killmailFormatter">Killmail</th>
+				<th data-field="killtime" data-width="110" data-formatter="killmailTimeFormatter">Time</th>
+			</tr>
+		</thead>
+	</table>
+	<script>
+		$(function () {
+			$('#killmails').bootstrapTable({
+				data: killmails,
+				onLoadSuccess: function (d) {
+					if (d.length == 0) {
+						$("#well_killmails").hide();
+					}
+				},
 			});
-		</script>
-	</div>
+		});
+		function filterKills() {
+			if (!$('#losses').hasClass('active')) {
+				$('#killmails').bootstrapTable('filterBy', { isLoss: 1 });
+			} else {
+				$('#killmails').bootstrapTable('filterBy', {});
+			}
+		}
+		function killmailFormatter(value, row) {
+			new Killmail(row.id, function (k) {
+				var v = k.formatValue(k.getMailValue()),
+					vc,
+					victim = k.getVictim();
+
+				switch (v.indicator) {
+					case "t":
+						vc = "#ac2f00"; break;
+					case "b":
+						vc = "#cb6808"; break;
+					case "m":
+						vc = "#f1b23a"; break;
+					case "k":
+						vc = "#f1b23a"; break;
+					default:
+						vc = "#ffffff"; break;
+				}
+
+				var attributes = "",
+					att = k.getShipAttributes();
+
+				if (att["avgEHP"] != undefined) {
+					attributes += `<img title="${simpleVal(att["avgEHP"])} eHP" src="//imageserver.eveonline.com/type/1272_32.png"  style="width:25px; height: 25px">`
+				}
+				if (att["capacitorStable"] != undefined) {
+					attributes += `<img title="${simpleVal(att["capacitorFraction"] * 100)}% stable" src="//imageserver.eveonline.com/type/3556_32.png"  style="width:25px; height: 25px">`
+				} else {
+					attributes += `<img title="${k.convertMS(att["capacitorDuration"])} duration" src="//imageserver.eveonline.com/type/1185_32.png"  style="width:25px; height: 25px">`
+				}
+				if (att["avgRPS"] > 100) {
+					attributes += `<img title="${simpleVal(att["avgRPS"])} eHP/s" src="/i/icons/1_64_12.png"  style="width:25px; height: 25px">`
+				}
+				if (att["totalDPS"] != undefined) {
+					attributes += `<img title="${simpleVal(att["totalDPS"])} DPS" src="//imageserver.eveonline.com/type/11103_32.png"  style="width:25px; height: 25px">`
+				}
+				if (att["totalWarpScrambleStrength"] != undefined) {
+					attributes += `<img title="${simpleVal(att["totalWarpScrambleStrength"])} disrupt strength" src="//imageserver.eveonline.com/type/3242_32.png"  style="width:25px; height: 25px">`
+				}
+
+				if (att["stasisWebifierStrength"] != undefined && att["stasisWebifierStrength"] != -100) {
+					attributes += `<img title="${simpleVal(att["stasisWebifierStrength"])} web strength" src="//imageserver.eveonline.com/type/526_32.png"  style="width:25px; height: 25px">`
+				}
+
+				if (att["remoteArmorDamageAmountPerSecond"] != undefined) {
+					attributes += `<img title="${simpleVal(att["remoteArmorDamageAmountPerSecond"])} remote armor hp/s" src="/i/icons/1_64_11.png"  style="width:25px; height: 25px">`
+				}
+				if (att["remoteStructureDamageAmountPerSecond"] != undefined) {
+					attributes += `<img title="${simpleVal(att["remoteStructureDamageAmountPerSecond"])} remote structure hp/s" src="/i/icons/2_64_13.png"  style="width:25px; height: 25px">`
+				}
+				if (att["remoteShieldBonusAmountPerSecond"] != undefined) {
+					attributes += `<img title="${simpleVal(att["remoteShieldBonusAmountPerSecond"])} remote shield hp/s" src="/i/icons/22_32_7.png"  style="width:25px; height: 25px">`
+				}
+				if (att["remotePowerTransferAmountPerSecond"] != undefined) {
+					attributes += `<img title="${simpleVal(att["remotePowerTransferAmountPerSecond"])} remote power GJ/s" src="/i/icons/22_32_8.png"  style="width:25px; height: 25px">`
+				}
+
+
+
+				var h = `
+        <div style="height:52px">
+            <div style="float: left; width: 32px">
+                <a href="/killmail?id=${row.id}"><img src="//imageserver.eveonline.com/type/${victim.ship_type_id}_32.png" 
+                title="${k.getName(victim.ship_type_id)}" style="width:32px; height: 32px"></a>
+            </div>
+            <div style="float: left; width: 32px">
+            <a href="/killmail?id=${row.id}"><img src="//imageserver.eveonline.com/${k.getPortait(victim)}" 
+                    title="${k.getName(k.resolveEntity(victim))}" style="width:32px; height: 32px"></a>
+            </div>
+            <div style="float: left; height: 32px; width: 200px;">
+                ${k.getName(k.resolveEntity(victim))}<br>
+                <b style="color: ${vc}">${v.value.toFixed(1)}${v.indicator} ${k.getName(victim.ship_type_id)} (${k.getAttackerCount()})</b>
+            </div>
+            <div style="float: left; clear: left; ">${attributes} </div>
+        </div>
+       
+        `;
+
+				$("#killmail" + row.id).html(h);
+			});
+
+			return `<div id="killmail${row.id}" style="border: #000 1px; padding: 0px;"></div>`;
+		}
+
+		function killmailTimeFormatter(value, row) {
+			let date = new Date(value);
+			return date.toUTCString();
+		}
+
+		function lossFormatter(row, index) {
+			if (row.isLoss == 1) {
+				return {
+					classes: {},
+					css: {
+						"background-color": "#3b0000"
+					}
+				};
+			}
+			return {
+				classes: {},
+				css: {}
+			};
+		}
+
+	</script>
+</div>
 {{end}}
