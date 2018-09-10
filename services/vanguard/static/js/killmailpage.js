@@ -233,7 +233,7 @@ function getSystemInfo(a) {
     theStuff += `Location: ${a.solarSystemName} (${a.security.toFixed(1)}) ${a.regionName}<br>`;
 
     if (a.celestialID != undefined) theStuff += "Near: " + a.celestialName + "<br>";
-    $("#sysInfo").html(`<small>${theStuff}</small>`);
+    $("#sysInfo").html(`${theStuff}`);
 }
 
 function getVictimInformation(a) {
@@ -251,7 +251,7 @@ function getCharacterInformation(a) {
     if (a.character_id != undefined) theStuff += package.nameMap[a.character_id] + "<br>";
     if (a.corporation_id != undefined) theStuff += package.nameMap[a.corporation_id] + "<br>"
     if (a.alliance_id != undefined) theStuff += package.nameMap[a.alliance_id] + "<br>"
-    if (a.faction_id != undefined) theStuff += package.nameMap[a.faction_id] + "<br>"
+    if (a.faction_id != undefined) theStuff += "<small>" + package.nameMap[a.faction_id] + "</small>"
 
     return theStuff;
 }
@@ -274,10 +274,10 @@ function getAttackers(package) {
                     <img src="//imageserver.eveonline.com/type/${getShipImage(a)}" style="width:32px; height: 32px">
                     <img src="//imageserver.eveonline.com/type/${getWeaponImage(a)}" style="width:32px; height: 32px">
                 </div>
-                <div style="width: 210px; float: left; ">
+                <div style="width: 230px; float: left; ">
                     ${getCharacterInformation(a)}
                 </div>
-                <div style="float: left; text-align: right">
+                <div style="width: 66px; float: left; text-align: right">
                     ${simpleVal(a.damage_done)}
                 </div>
             </div>`;
@@ -347,8 +347,13 @@ function getTypes(package) {
 }
 
 function resizeCanvasToDisplaySize(canvas, mult) {
-    const width = Math.round(256);
-    const height = Math.round(256);
+    var width = Math.round(256),
+        height = Math.round(256);
+    if (window.innerHeight == screen.height) {
+        width = screen.width;
+        height = screen.height;
+    }
+
     if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width;
         canvas.height = height;
@@ -389,6 +394,16 @@ function getShipwebGL(package) {
         }
     } catch (err) {
         getShipFallback(package.attributes.typeID);
+    }
+}
+
+function fullscreen() {
+    var canvas = document.getElementById('shipCanvas');
+    if (canvas.webkitRequestFullScreen) {
+        canvas.webkitRequestFullScreen();
+    }
+    else {
+        canvas.mozRequestFullScreen();
     }
 }
 

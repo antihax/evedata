@@ -9,6 +9,11 @@
     <div id="Fitting_Panel" style="float: left; position: relative; height:398px; width:398px; z-index: 3">
         <img style="position:absolute; left: 0px; top: 0px;  height:398px; width:398px; border:0px" src='/i/fw/tyrannis.png' alt=''
         />
+
+        <div id="FS" style="position:absolute; left: 0px; top: 0px; width: 398px; height: 398px; z-index:300;">
+            <img id="FS" src="/i/icons/1337_64_3.png" title="full screen" style="border:0px;" onClick="javascript:fullscreen()" />
+        </div>
+
         <div id="highx" style="position:absolute; left: 0px; top: 0px; width: 398px; height: 398px; z-index:1;">
             <img id="hiSlots" src="/i/fw/0h.png" alt="" style="border:0px;" />
         </div>
@@ -97,7 +102,7 @@
     </div>
 
     <div class="killmail-frame killmail-border">
-        <div style="background-color: #06100a;  padding: 2px;">
+        <div style="background-color: #06100a; padding: 2px;">
             <div class="row killmail" style="padding: 0px;">
                 <div class="col-xs-2 killmail" style="width: 64px">
                     <img id="victimImage" style="width:64px; height: 64px">
@@ -106,8 +111,8 @@
                     <img id="victimCorporationImage" style="width:32px; height: 32px">
                     <img id="victimAllianceImage" style="width:32px; height: 32px">
                 </div>
-                <div class="col-xs-9 killmail" style="width: 155px;">
-                    <div class="row killmail" style="height: 64px; padding: 5px;">
+                <div class="col-xs-9 killmail" style="width: 290px;">
+                    <div class="row killmail" style="height: 64px; padding: 0px;">
                         <div id="victim"></div>
                     </div>
                 </div>
@@ -175,7 +180,7 @@
             <span><small>Defensive</small></span>
             <span class='pull-right'><small id="ehp"></small></span>
         </div>
-        <div class="container" style="width: 255px">
+        <div class="container" style="width: 390px">
             <div class="row" style="background-color: #16201a; padding: 2px;">
                 <div class="col-xs-12">
                     <div class="row" style="padding: 0px; ">
