@@ -405,7 +405,7 @@ func (mbox *Mailbox) makeFakeBody(m *esi.GetCharactersCharacterIdMailMailIdOk, i
 
 	// Replace killmails killReport:66991326:b80d548e48c419002cccbe74886b8c05e40af596
 	rp := regexp.MustCompile("(?m)killReport:([0-9]+):[a-z0-9]+")
-	plain = rp.ReplaceAllString(plain, "https://www.zkillboard.com/kill/$1/")
+	plain = rp.ReplaceAllString(plain, "https://www.evedata.org/killmail?id=$1")
 
 	// Replace showinfo:1377//1331768660 strip for now.
 	rp2 := regexp.MustCompile("(?m) \\( showinfo:[0-9].{1,4}//([0-9]+) \\)")
