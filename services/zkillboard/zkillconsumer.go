@@ -48,7 +48,7 @@ func (s *ZKillboard) apiConsumer() error {
 	nextCheck := time.Now().UTC().Add(time.Hour * 24 * -365)
 	//nextCheck := time.Unix(1196812800, 0)
 
-	rate := time.Second / 3
+	rate := time.Second / 2
 	throttle := time.Tick(rate)
 
 	for {
