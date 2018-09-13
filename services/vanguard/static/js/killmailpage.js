@@ -245,12 +245,16 @@ function getVictimInformation(a) {
     $("#victim").html(getCharacterInformation(a));
 }
 
+function getLink(id, type) {
+    return `<a href="/${type}?id=${id}">${package.nameMap[id]}</a>`;
+}
+
 function getCharacterInformation(a) {
     var theStuff = "";
 
-    if (a.character_id != undefined) theStuff += package.nameMap[a.character_id] + "<br>";
-    if (a.corporation_id != undefined) theStuff += package.nameMap[a.corporation_id] + "<br>"
-    if (a.alliance_id != undefined) theStuff += package.nameMap[a.alliance_id] + "<br>"
+    if (a.character_id != undefined) theStuff += getLink(a.character_id, "character") + "<br>";
+    if (a.corporation_id != undefined) theStuff += getLink(a.corporation_id, "corporation") + "<br>"
+    if (a.alliance_id != undefined) theStuff += getLink(a.alliance_id, "alliance") + "<br>"
     if (a.faction_id != undefined) theStuff += "<small>" + package.nameMap[a.faction_id] + "</small>"
 
     return theStuff;
@@ -375,7 +379,7 @@ function getShipwebGL(package) {
         scene = ccpwgl.loadScene(sceneList[Math.floor(Math.random() * sceneList.length)]);
         ship = scene.loadShip(package.dna);
         scene.loadSun(sunList[Math.floor(Math.random() * sunList.length)]);
-   
+
         ccpwgl.onPreRender = function (dt) {
             resizeCanvasToDisplaySize(canvas, window.devicePixelRatio);
             gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
