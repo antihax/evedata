@@ -233,7 +233,7 @@ function getSystemInfo(a) {
     theStuff += `Location: ${a.solarSystemName} (${a.security.toFixed(1)}) ${a.regionName}<br>`;
 
     if (a.celestialID != undefined) theStuff += "Near: " + a.celestialName + "<br>";
-    $("#sysInfo").html(`<small>${theStuff}</small>`);
+    $("#sysInfo").html(`${theStuff}`);
 }
 
 function getVictimInformation(a) {
@@ -245,13 +245,17 @@ function getVictimInformation(a) {
     $("#victim").html(getCharacterInformation(a));
 }
 
+function getLink(id, type) {
+    return `<a href="/${type}?id=${id}">${package.nameMap[id]}</a>`;
+}
+
 function getCharacterInformation(a) {
     var theStuff = "";
 
-    if (a.character_id != undefined) theStuff += package.nameMap[a.character_id] + "<br>";
-    if (a.corporation_id != undefined) theStuff += package.nameMap[a.corporation_id] + "<br>"
-    if (a.alliance_id != undefined) theStuff += package.nameMap[a.alliance_id] + "<br>"
-    if (a.faction_id != undefined) theStuff += package.nameMap[a.faction_id] + "<br>"
+    if (a.character_id != undefined) theStuff += getLink(a.character_id, "character") + "<br>";
+    if (a.corporation_id != undefined) theStuff += getLink(a.corporation_id, "corporation") + "<br>"
+    if (a.alliance_id != undefined) theStuff += getLink(a.alliance_id, "alliance") + "<br>"
+    if (a.faction_id != undefined) theStuff += "<small>" + package.nameMap[a.faction_id] + "</small>"
 
     return theStuff;
 }
@@ -274,10 +278,10 @@ function getAttackers(package) {
                     <img src="//imageserver.eveonline.com/type/${getShipImage(a)}" style="width:32px; height: 32px">
                     <img src="//imageserver.eveonline.com/type/${getWeaponImage(a)}" style="width:32px; height: 32px">
                 </div>
-                <div style="width: 210px; float: left; ">
+                <div style="width: 230px; float: left; ">
                     ${getCharacterInformation(a)}
                 </div>
-                <div style="float: left; text-align: right">
+                <div style="width: 66px; float: left; text-align: right">
                     ${simpleVal(a.damage_done)}
                 </div>
             </div>`;
@@ -347,8 +351,13 @@ function getTypes(package) {
 }
 
 function resizeCanvasToDisplaySize(canvas, mult) {
-    const width = Math.round(256);
-    const height = Math.round(256);
+    var width = Math.round(256),
+        height = Math.round(256);
+    if (window.innerHeight == screen.height) {
+        width = screen.width;
+        height = screen.height;
+    }
+
     if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width;
         canvas.height = height;
@@ -367,9 +376,9 @@ function getShipwebGL(package) {
         ccpwgl.initialize(canvas, {});
 
         camera = ccpwgl.createCamera(canvas, {}, true);
-        scene = ccpwgl.loadScene('res:/dx9/scene/universe/m10_cube.red');
+        scene = ccpwgl.loadScene(sceneList[Math.floor(Math.random() * sceneList.length)]);
         ship = scene.loadShip(package.dna);
-        scene.loadSun('res:/fisfx/lensflare/purple_sun.red');
+        scene.loadSun(sunList[Math.floor(Math.random() * sunList.length)]);
 
         ccpwgl.onPreRender = function (dt) {
             resizeCanvasToDisplaySize(canvas, window.devicePixelRatio);
@@ -389,6 +398,16 @@ function getShipwebGL(package) {
         }
     } catch (err) {
         getShipFallback(package.attributes.typeID);
+    }
+}
+
+function fullscreen() {
+    var canvas = document.getElementById('shipCanvas');
+    if (canvas.webkitRequestFullScreen) {
+        canvas.webkitRequestFullScreen();
+    }
+    else {
+        canvas.mozRequestFullScreen();
     }
 }
 
@@ -504,6 +523,94 @@ function getShip(package) {
         }
     });
 }
+
+
+var sceneList = [
+    'res:/dx9/scene/Universe/a01_cube.red',
+    'res:/dx9/scene/Universe/a02_cube.red',
+    'res:/dx9/scene/Universe/a03_cube.red',
+    'res:/dx9/scene/Universe/a04_cube.red',
+    'res:/dx9/scene/Universe/a05_cube.red',
+    'res:/dx9/scene/Universe/a06_cube.red',
+    'res:/dx9/scene/Universe/a07_cube.red',
+    'res:/dx9/scene/Universe/a08_cube.red',
+    'res:/dx9/scene/Universe/a09_cube.red',
+    'res:/dx9/scene/Universe/a10_cube.red',
+    'res:/dx9/scene/Universe/a11_cube.red',
+    'res:/dx9/scene/Universe/a12_cube.red',
+    'res:/dx9/scene/Universe/a13_cube.red',
+    'res:/dx9/scene/Universe/a14_cube.red',
+    'res:/dx9/scene/Universe/a15_cube.red',
+    'res:/dx9/scene/Universe/a16_cube.red',
+    'res:/dx9/scene/Universe/a17_cube.red',
+    'res:/dx9/scene/Universe/a18_cube.red',
+    'res:/dx9/scene/Universe/c01_cube.red',
+    'res:/dx9/scene/Universe/c02_cube.red',
+    'res:/dx9/scene/Universe/c03_cube.red',
+    'res:/dx9/scene/Universe/c04_cube.red',
+    'res:/dx9/scene/Universe/c05_cube.red',
+    'res:/dx9/scene/Universe/c06_cube.red',
+    'res:/dx9/scene/Universe/c07_cube.red',
+    'res:/dx9/scene/Universe/c08_cube.red',
+    'res:/dx9/scene/Universe/c09_cube.red',
+    'res:/dx9/scene/Universe/c10_cube.red',
+    'res:/dx9/scene/Universe/c11_cube.red',
+    'res:/dx9/scene/Universe/c12_cube.red',
+    'res:/dx9/scene/Universe/c13_cube.red',
+    'res:/dx9/scene/Universe/c14_cube.red',
+    'res:/dx9/scene/Universe/c15_cube.red',
+    'res:/dx9/scene/Universe/c16_cube.red',
+    'res:/dx9/scene/Universe/c17_cube.red',
+    'res:/dx9/scene/Universe/c18_cube.red',
+    'res:/dx9/scene/Universe/c19_cube.red',
+    'res:/dx9/scene/Universe/g01_cube.red',
+    'res:/dx9/scene/Universe/g02_cube.red',
+    'res:/dx9/scene/Universe/g03_cube.red',
+    'res:/dx9/scene/Universe/g04_cube.red',
+    'res:/dx9/scene/Universe/g05_cube.red',
+    'res:/dx9/scene/Universe/g06_cube.red',
+    'res:/dx9/scene/Universe/g07_cube.red',
+    'res:/dx9/scene/Universe/g08_cube.red',
+    'res:/dx9/scene/Universe/g09_cube.red',
+    'res:/dx9/scene/Universe/g10_cube.red',
+    'res:/dx9/scene/Universe/g11_cube.red',
+    'res:/dx9/scene/Universe/j01_cube.red',
+    'res:/dx9/scene/Universe/j02_cube.red',
+    'res:/dx9/scene/Universe/m01_cube.red',
+    'res:/dx9/scene/Universe/m02_cube.red',
+    'res:/dx9/scene/Universe/m03_cube.red',
+    'res:/dx9/scene/Universe/m04_cube.red',
+    'res:/dx9/scene/Universe/m05_cube.red',
+    'res:/dx9/scene/Universe/m06_cube.red',
+    'res:/dx9/scene/Universe/m07_cube.red',
+    'res:/dx9/scene/Universe/m08_cube.red',
+    'res:/dx9/scene/Universe/m09_cube.red',
+    'res:/dx9/scene/Universe/m10_cube.red',
+    'res:/dx9/scene/Universe/m11_cube.red',
+    'res:/dx9/scene/Universe/m12_cube.red',
+    'res:/dx9/scene/Universe/m13_cube.red',
+    'res:/dx9/scene/Universe/m14_cube.red',
+    'res:/dx9/scene/Universe/m15_cube.red',
+    'res:/dx9/scene/Universe/m16_cube.red',
+    'res:/dx9/scene/Universe/m17_cube.red',
+];
+
+var sunList = [
+    'res:/fisfx/lensflare/yellow_small.red',
+    'res:/fisfx/lensflare/yellow.red',
+    'res:/fisfx/lensflare/white_tiny.red',
+    'res:/fisfx/lensflare/white.red',
+    'res:/fisfx/lensflare/red.red',
+    'res:/fisfx/lensflare/purple_sun.red',
+    'res:/fisfx/lensflare/pink_sun_small.red',
+    'res:/fisfx/lensflare/pink_hazy.red',
+    'res:/fisfx/lensflare/orange_sun.red',
+    'res:/fisfx/lensflare/orange_radiating.red',
+    'res:/fisfx/lensflare/orange.red',
+    'res:/fisfx/lensflare/blue_sun.red',
+    'res:/fisfx/lensflare/blue_small.red',
+    'res:/fisfx/lensflare/blue.red',
+];
 
 var graphicsMap = {
     "6": "res:/dx9/model/celestial/sun/sun_yellow_01a.red",

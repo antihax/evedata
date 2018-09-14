@@ -1,14 +1,15 @@
 {{define "fittingWheel"}}
-<script type="text/javascript" src="/js/ccpwgl_int.min.js"></script>
-<script type="text/javascript" src="/js/ccpwgl.js"></script>
-<script type="text/javascript" src="/js/native.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/pako/1.0.6/pako_inflate.min.js"></script>
-<script src="/js/killmail.js"></script>
+<script src="/js/killmailpage.js"></script>
 
-<div class="row" style="padding: 0px; ">
+<div class="row" style="padding: 0px; justify-content: center; display:flex; flex-wrap: wrap;">
     <div id="Fitting_Panel" style="float: left; position: relative; height:398px; width:398px; z-index: 3">
-        <img style="position:absolute; left: 0px; top: 0px;  height:398px; width:398px; border:0px" src='/i/fw/tyrannis.png' alt=''
-        />
+        <img style="position:absolute; left: 0px; top: 0px;  height:398px; width:398px; border:0px" src='/i/fw/tyrannis.png'
+            alt='' />
+
+        <div id="FS" style="position:absolute; left: 0px; top: 0px; width: 398px; height: 398px; z-index:300;">
+            <img id="FS" src="/i/icons/1337_64_3.png" title="full screen" style="border:0px;" onClick="javascript:fullscreen()" />
+        </div>
+
         <div id="highx" style="position:absolute; left: 0px; top: 0px; width: 398px; height: 398px; z-index:1;">
             <img id="hiSlots" src="/i/fw/0h.png" alt="" style="border:0px;" />
         </div>
@@ -97,7 +98,7 @@
     </div>
 
     <div class="killmail-frame killmail-border">
-        <div style="background-color: #06100a;  padding: 2px;">
+        <div style="background-color: #06100a; padding: 2px;">
             <div class="row killmail" style="padding: 0px;">
                 <div class="col-xs-2 killmail" style="width: 64px">
                     <img id="victimImage" style="width:64px; height: 64px">
@@ -106,8 +107,8 @@
                     <img id="victimCorporationImage" style="width:32px; height: 32px">
                     <img id="victimAllianceImage" style="width:32px; height: 32px">
                 </div>
-                <div class="col-xs-9 killmail" style="width: 155px;">
-                    <div class="row killmail" style="height: 64px; padding: 5px;">
+                <div class="col-xs-9 killmail" style="width: 290px;">
+                    <div class="row killmail" style="height: 64px; padding: 0px;">
                         <div id="victim"></div>
                     </div>
                 </div>
@@ -146,13 +147,15 @@
             </div>
             <div class="row">
                 <div class="col-xs-1" style="text-align: center">
-                    <img src="//imageserver.eveonline.com/type/3242_32.png" title="warp scramble strength" alt="warp scramble strength" style="height: 22px; width: 22px;">
+                    <img src="//imageserver.eveonline.com/type/3242_32.png" title="warp scramble strength" alt="warp scramble strength"
+                        style="height: 22px; width: 22px;">
                 </div>
                 <div class="col-xs-1">
                     <small id="warpStrength">0</small>
                 </div>
                 <div class="col-xs-1">
-                    <img src="//imageserver.eveonline.com/type/526_32.png" title="web strength" alt="web strength" style="height: 22px; width: 22px;">
+                    <img src="//imageserver.eveonline.com/type/526_32.png" title="web strength" alt="web strength"
+                        style="height: 22px; width: 22px;">
                 </div>
                 <div class="col-xs-1">
                     <small id="webStrength">0%</small>
@@ -175,7 +178,7 @@
             <span><small>Defensive</small></span>
             <span class='pull-right'><small id="ehp"></small></span>
         </div>
-        <div class="container" style="width: 255px">
+        <div class="container" style="width: 390px">
             <div class="row" style="background-color: #16201a; padding: 2px;">
                 <div class="col-xs-12">
                     <div class="row" style="padding: 0px; ">
@@ -192,7 +195,8 @@
                             <img alt="kinetic resonance" title="kinetic resonance" src="/i/icons/22_32_9.png" style="width: 20px; padding:0px; height: 20px;">
                         </div>
                         <div class="col-xs-2" style="padding: 0px; text-align: center">
-                            <img alt="explosive resonance" title="explosive resonance" src="/i/icons/22_32_11.png" style="width: 20px; padding:0px; height: 20px;">
+                            <img alt="explosive resonance" title="explosive resonance" src="/i/icons/22_32_11.png"
+                                style="width: 20px; padding:0px; height: 20px;">
                         </div>
                     </div>
                     <div class="row" style="padding: 0px; ">
@@ -204,26 +208,26 @@
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="shieldEm" class="progress-bar progress-bar-em" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width:0%;">0%</div>
+                                <div id="shieldEm" class="progress-bar progress-bar-em" role="progressbar"
+                                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%;">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="shieldTherm" class="progress-bar progress-bar-therm" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width:0%">0%</div>
+                                <div id="shieldTherm" class="progress-bar progress-bar-therm" role="progressbar"
+                                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="shieldKin" class="progress-bar progress-bar-kin" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width:0%">0%</div>
+                                <div id="shieldKin" class="progress-bar progress-bar-kin" role="progressbar"
+                                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="shieldExp" class="progress-bar progress-bar-exp" role="progressbar " aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width:0%">0%</div>
+                                <div id="shieldExp" class="progress-bar progress-bar-exp" role="progressbar "
+                                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0%</div>
                             </div>
                         </div>
                     </div>
@@ -236,26 +240,26 @@
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="armorEm" class="progress-bar progress-bar-em" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width:0%">0%</div>
+                                <div id="armorEm" class="progress-bar progress-bar-em" role="progressbar" aria-valuenow="0"
+                                    aria-valuemin="0" aria-valuemax="100" style="width:0%">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="armorTherm" class="progress-bar progress-bar-therm" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width:0%">0%</div>
+                                <div id="armorTherm" class="progress-bar progress-bar-therm" role="progressbar"
+                                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="armorKin" class="progress-bar progress-bar-kin" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width:0%">0%</div>
+                                <div id="armorKin" class="progress-bar progress-bar-kin" role="progressbar"
+                                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="armorExp" class="progress-bar progress-bar-exp" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width:0%">0%</div>
+                                <div id="armorExp" class="progress-bar progress-bar-exp" role="progressbar"
+                                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0%</div>
                             </div>
                         </div>
                     </div>
@@ -268,26 +272,26 @@
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="hullEm" class="progress-bar progress-bar-em" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width:0%">0%</div>
+                                <div id="hullEm" class="progress-bar progress-bar-em" role="progressbar" aria-valuenow="0"
+                                    aria-valuemin="0" aria-valuemax="100" style="width:0%">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="hullTherm" class="progress-bar progress-bar-therm" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width:0%">0%</div>
+                                <div id="hullTherm" class="progress-bar progress-bar-therm" role="progressbar"
+                                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="hullKin" class="progress-bar progress-bar-kin" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width:0%">0%</div>
+                                <div id="hullKin" class="progress-bar progress-bar-kin" role="progressbar"
+                                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0%</div>
                             </div>
                         </div>
                         <div class="col-xs-2" style="padding: 2px;">
                             <div class="progress" style="height: 15px;">
-                                <div id="hullExp" class="progress-bar progress-bar-exp" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                                    style="width:0%">0%</div>
+                                <div id="hullExp" class="progress-bar progress-bar-exp" role="progressbar"
+                                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0%</div>
                             </div>
                         </div>
                     </div>
@@ -302,16 +306,17 @@
         <div class="remoteRepair  hidden" style="background-color: #16201a; padding: 2px;">
             <div class="row">
                 <div class="col-xs-3">
-                    <img alt="em resonance" title="em resonance" src="/i/icons/22_32_8.png" style="width: 32px; padding:0px; height: 32px;">
+                    <img alt="remote capacitor transfer" title="remote capacitor transfer" src="/i/icons/22_32_8.png"
+                        style="width: 32px; padding:0px; height: 32px;">
                 </div>
                 <div class="col-xs-3">
-                    <img alt="em resonance" title="em resonance" src="/i/icons/22_32_7.png" style="width: 32px; padding:0px; height: 32px;">
+                    <img alt="remote shield boost" title="remote shield boost" src="/i/icons/22_32_7.png" style="width: 32px; padding:0px; height: 32px;">
                 </div>
                 <div class="col-xs-3">
-                    <img alt="em resonance" title="em resonance" src="/i/icons/1_64_11.png" style="width: 32px; padding:0px; height: 32px;">
+                    <img alt="remote armor repair" title="remote armor repair" src="/i/icons/1_64_11.png" style="width: 32px; padding:0px; height: 32px;">
                 </div>
                 <div class="col-xs-3">
-                    <img alt="em resonance" title="em resonance" src="/i/icons/2_64_13.png" style="width: 32px; padding:0px; height: 32px;">
+                    <img alt="remote structure repair" title="remote structure repair" src="/i/icons/2_64_13.png" style="width: 32px; padding:0px; height: 32px;">
                 </div>
             </div>
             <div class="row">

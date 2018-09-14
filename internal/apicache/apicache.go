@@ -21,13 +21,13 @@ func CreateHTTPClientCache(redis *redis.Pool) *http.Client {
 		&http.Transport{
 			MaxIdleConns: 200,
 			DialContext: (&net.Dialer{
-				Timeout:   10 * time.Second,
+				Timeout:   60 * time.Second,
 				KeepAlive: 5 * 60 * time.Second,
 				DualStack: true,
 			}).DialContext,
 			IdleConnTimeout:       5 * 60 * time.Second,
-			TLSHandshakeTimeout:   10 * time.Second,
-			ResponseHeaderTimeout: 15 * time.Second,
+			TLSHandshakeTimeout:   60 * time.Second,
+			ResponseHeaderTimeout: 60 * time.Second,
 			ExpectContinueTimeout: 0,
 			MaxIdleConnsPerHost:   20,
 		},

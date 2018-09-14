@@ -212,6 +212,7 @@ func (s *Tailor) getSystemInformation(system int32, x, y, z float64) (*SystemInf
 		WHERE itemID = closestCelestial(?,?,?,?);`, system, x, y, z).Scan(
 		&sys.CelestialName, &sys.CelestialID, &sys.SolarSystemID, &sys.RegionID, &sys.SolarSystemName, &sys.RegionName, &sys.Security)
 	if err != nil {
+		log.Println(err)
 		return s.getFallbackSystemInformation(system)
 	}
 	return sys, err
@@ -350,7 +351,7 @@ func (s *Tailor) killmailConsumer() {
 
 		sq = sq.Values(
 			a.Killmail.KillmailId, b["avgEHP"], b["totalDPS"], b["totalAlphaDamage"], b["scanResolution"], b["signatureRadius"],
-			b["signatureRadiusMWD"], b["agility"], b["warpSpeedMultiplier"], b["MaxVelocity"], b["MaxVelocityMWD"], b["remoteArmorRepairPerSecond"],
+			b["signatureRadiusMWD"], b["agility"], b["warpSpeedMultiplier"], b["maxVelocity"], b["maxVelocityMWD"], b["remoteArmorRepairPerSecond"],
 			b["remoteShieldBonusAmountPerSecond"], b["remotePowerTransferAmountPerSecond"], b["energyNeutralizerAmountPerSecond"],
 			b["scanRadarStrength"]+b["scanLadarStrength"]+b["scanMagnetometricStrength"]+b["scanGravimetricStrength"],
 			b["avgRPS"], b["cpuRemaining"], b["powerRemaining"], b["capacitorFraction"], b["capacitorFractionMWD"],

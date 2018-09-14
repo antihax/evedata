@@ -14,7 +14,6 @@ func SetServiceState(state string, cacheUntil time.Time, page int32) error {
 
 // SetServiceStateByDays sets state information: nextCheck, value (page, etc).
 func SetServiceStateByDays(state string, daysToCache int32, page int32) error {
-
 	if _, err := database.Exec(`
 		INSERT INTO evedata.states (nextCheck, value, state)VALUES(?,?,?) ON DUPLICATE KEY UPDATE nextCheck=VALUES(nextCheck), value=VALUES(value)
 	`, daysToCache, page, state); err != nil {
@@ -24,7 +23,6 @@ func SetServiceStateByDays(state string, daysToCache int32, page int32) error {
 }
 
 // GetServiceState Get service state (page number, cache expired, etc).
-
 func GetServiceState(service string) (time.Time, int32, error) {
 	type ServiceState struct {
 		Value     int32     `db:"value"`

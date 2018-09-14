@@ -99,7 +99,7 @@ func (s *Conservator) reportKillmail(mail *esi.GetKillmailsKillmailIdKillmailHas
 
 		if sendMail {
 			if err := service.Server.SendMessageToChannel(channel.ChannelID,
-				fmt.Sprintf("https://zkillboard.com/kill/%d/", mail.KillmailId)); err != nil {
+				fmt.Sprintf("https://www.evedata.org/killmail?id=%d", mail.KillmailId)); err != nil {
 				log.Println(err)
 			}
 		}

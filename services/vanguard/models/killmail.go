@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/guregu/null"
 )
@@ -13,6 +14,49 @@ func GetKnownKillmails() ([]int64, error) {
 		return nil, err
 	}
 	return known, nil
+}
+
+// KillmailList is brief list of killmails
+type KillmailList struct {
+	ID       int32     `db:"id" json:"id"`
+	Killtime time.Time `db:"killtime" json:"killtime"`
+	IsLoss   int32     `db:"isLoss" json:"isLoss"`
+}
+
+// GetKillmailsForEntity fetches all the killmails for an entity
+func GetKillmailsForEntity(id int64, entityType string) ([]KillmailList, error) {
+	kill := []KillmailList{}
+
+	var victim, entity string
+
+	switch entityType {
+	case "corporation":
+		victim = fmt.Sprintf("victimCorporationID=%d", id)
+		entity = fmt.Sprintf("corporationID=%d", id)
+	case "alliance":
+		victim = fmt.Sprintf("victimAllianceID=%d", id)
+		entity = fmt.Sprintf("allianceID=%d", id)
+	case "character":
+		victim = fmt.Sprintf("victimCharacterID=%d", id)
+		entity = fmt.Sprintf("characterID=%d", id)
+	}
+
+	if err := database.Select(&kill, `
+	SELECT * FROM (SELECT K.id, K.killtime, 1 AS isLoss
+		FROM evedata.killmails K
+		LEFT OUTER JOIN evedata.killmailAttackers A ON K.id = A.id
+		WHERE `+victim+` 
+		UNION
+		SELECT DISTINCT K.id, K.killtime, 0 AS isLoss
+		FROM evedata.killmails K
+		INNER JOIN evedata.killmailAttackers A ON K.id = A.id
+		WHERE `+entity+` 
+		) a
+		ORDER BY killTime DESC`); err != nil {
+		return nil, err
+	}
+
+	return kill, nil
 }
 
 // KillmailDetails is all the details of a killmail

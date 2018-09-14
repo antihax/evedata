@@ -60,30 +60,12 @@ Data represents 10,000 most recent killmails for a ship group type. Filter by dr
             <th data-visible="false" data-field="signatureRadiusNoMWD" data-formatter="numberRound0Formatter" data-align="right" data-sortable="true">Sig Radius</th>
             <th data-visible="false" data-field="agility" data-formatter="currencyFormatter" data-align="right" data-sortable="true">Agility</th>
             <th data-visible="false" data-field="warpSpeed" data-formatter="numberRound0Formatter" data-align="right" data-sortable="true">Warp Speed</th>
-            <th data-field="capacitor" data-formatter="capacitorFormatter" data-align="right" data-sortable="false">Capacitor</th>
+            <th data-field="capacitor" data-formatter="kmCapacitorFormatter" data-align="right" data-sortable="false">Capacitor</th>
         </tr>
     </thead>
 </table>
 
 <script>
-    function capacitorFormatter(value, row) {
-        if (row.capacitorNoMWD > 0) {
-            return (row.capacitorNoMWD * 100).toFixed(0) + "%";
-        } else {
-            return nsToTime(row.capacitorTimeNoMWD);
-        }
-    }
-
-    function nsToTime(nanoseconds) {
-        var duration = nanoseconds / 1000;
-        var seconds = parseInt((duration / 1000) % 60)
-            , minutes = parseInt((duration / (1000 * 60)) % 60)
-            , hours = parseInt((duration / (1000 * 60 * 60)) % 24);
-        minutes = (minutes < 10) ? "0" + minutes : minutes;
-        seconds = (seconds < 10) ? "0" + seconds : seconds;
-        return hours + "h " + minutes + "m " + seconds + "s ";
-    }
-
     var $killmails = $('#killmails').bootstrapTable({}),
         killmailData,
         filterValues,

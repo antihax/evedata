@@ -1,13 +1,12 @@
+{{define "Head"}}
+{{ template "ccpwgl" . }}
+{{ template "bootstrap-multiselect" . }}
+{{end}}
 {{define "body"}}
-
-<script type="text/javascript" src="/js/ccpwgl_int.min.js"></script>
-<script type="text/javascript" src="/js/ccpwgl.js"></script>
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 
 <h3>Bubble-O-Matic 9002</h3>
 <p>Visualize warp paths to nullsec gates and determine the optimal type of bubble and placement.
-<br>Controls: W, A, S, D, Q, E, Left Mouse
+    <br>Controls: W, A, S, D, Q, E, Left Mouse
 </p>
 
 <label>Region: &nbsp;</label>
@@ -75,13 +74,14 @@
 
     $('#bubbleType').multiselect({
         onChange: function () {
-            bubbleSize = parseInt($('#bubbleType option:selected').val() );
+            bubbleSize = parseInt($('#bubbleType option:selected').val());
             loadSystem(currentGate);
         }
     });
 
     $(document).ready(function () {
-        var canvas = document.getElementById('mainCanvas');
+        var canvas = document.getElementById('mainCanvas'),
+            gl = canvas.getContext("webgl");
         ccpwgl.initialize(canvas, {});
 
         camera = ccpwgl.createCamera(canvas, {
@@ -94,6 +94,11 @@
 
         curveSet = new ccpwgl_int.EveCurveLineSet();
         curveSet.Initialize();
+
+        ccpwgl.onPreRender = function (dt) {
+            resizeCanvasToDisplaySize(canvas, window.devicePixelRatio);
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+        }
 
         var batches = new ccpwgl_int.Tw2BatchAccumulator();
         ccpwgl.onPostSceneRender = function (dt) {
@@ -552,5 +557,30 @@
 
         vec3.scale(out, direction, len - Math.sqrt(rSq - dSq))
         return vec3.add(out, out, origin)
+    }
+
+    function resizeCanvasToDisplaySize(canvas, mult) {
+        console.log(canvas.height)
+        var width = Math.round(canvas.width),
+            height = Math.round(canvas.height);
+        if (window.innerHeight == screen.height) {
+            width = screen.width;
+            height = screen.height;
+        }
+
+        if (canvas.width !== width || canvas.height !== height) {
+            canvas.width = width;
+            canvas.height = height;
+        }
+    }
+
+    function fullscreen() {
+        var canvas = document.getElementById('mainCanvas');
+        if (canvas.webkitRequestFullScreen) {
+            canvas.webkitRequestFullScreen();
+        }
+        else {
+            canvas.mozRequestFullScreen();
+        }
     }
 </script> {{end}}
