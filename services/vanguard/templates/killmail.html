@@ -4,6 +4,11 @@
 <meta property="og:image" content="{{.OG.Image}}" />
 <meta property="og:description" content="{{.OG.Description}}" />
 {{end}}
+{{define "Head"}}
+{{ template "tooltip" . }}
+{{ template "ccpwgl" . }}
+{{ template "libkm" . }}
+{{end}}
 {{define "body"}}
 
 {{template "fittingWheel" .}}
