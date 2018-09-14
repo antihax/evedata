@@ -63,6 +63,8 @@ spec:
         name: redis
         app: redis
     spec:
+      nodeSelector:
+        database: redis
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
