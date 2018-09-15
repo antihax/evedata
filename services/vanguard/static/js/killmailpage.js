@@ -371,13 +371,22 @@ function getShipwebGL(package) {
             rotation = 0.0,
             direction = 0.001,
             canvas = document.getElementById('shipCanvas'),
-            gl = canvas.getContext("webgl");
+            gl = canvas.getContext("webgl"),
+            effect;
 
         ccpwgl.initialize(canvas, {});
-
+        ccpwgl_int.store.RegisterPath('local', 'https://www.evedata.org/')
+    
         camera = ccpwgl.createCamera(canvas, {}, true);
         scene = ccpwgl.loadScene(sceneList[Math.floor(Math.random() * sceneList.length)]);
-        ship = scene.loadShip(package.dna);
+        ship = scene.loadShip(package.dna/*, function () {
+            ship.addArmorEffects('local:/i/shaders/fxarmorimpactv5.sm_hi',
+                (eff) => {
+                    effect = eff;
+
+                },
+                (err) => { console.log(err); throw err });
+        }*/);
         scene.loadSun(sunList[Math.floor(Math.random() * sunList.length)]);
 
         ccpwgl.onPreRender = function (dt) {
