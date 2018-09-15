@@ -18,9 +18,12 @@ func GetKnownKillmails() ([]int64, error) {
 
 // KillmailList is brief list of killmails
 type KillmailList struct {
-	ID       int32     `db:"id" json:"id"`
-	Killtime time.Time `db:"killtime" json:"killtime"`
-	IsLoss   int32     `db:"isLoss" json:"isLoss"`
+	ID            int32     `db:"id" json:"id"`
+	SolarSystemID int32     `db:"solarSystemID" json:"solarSystemID"`
+	ShipType      int32     `db:"shipType" json:"shipType"`
+	WarID         int32     `db:"warID" json:"warID"`
+	IsLoss        int32     `db:"isLoss" json:"isLoss"`
+	Killtime      time.Time `db:"killtime" json:"killtime"`
 }
 
 // GetKillmailsForEntity fetches all the killmails for an entity
@@ -42,12 +45,12 @@ func GetKillmailsForEntity(id int64, entityType string) ([]KillmailList, error) 
 	}
 
 	if err := database.Select(&kill, `
-	SELECT * FROM (SELECT K.id, K.killtime, 1 AS isLoss
+	SELECT * FROM (SELECT K.id, K.killtime, K.shipType, K.solarSystemID, K.warID, 1 AS isLoss
 		FROM evedata.killmails K
 		LEFT OUTER JOIN evedata.killmailAttackers A ON K.id = A.id
 		WHERE `+victim+` 
-		UNION
-		SELECT DISTINCT K.id, K.killtime, 0 AS isLoss
+		UNION DISTINCT
+		SELECT DISTINCT K.id, K.killtime, K.shipType, K.solarSystemID, K.warID, 0 AS isLoss
 		FROM evedata.killmails K
 		INNER JOIN evedata.killmailAttackers A ON K.id = A.id
 		WHERE `+entity+` 
