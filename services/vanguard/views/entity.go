@@ -315,14 +315,22 @@ func entityBlurb(name, entType string, eff float64, kills, losses, capKills int6
 	p := message.NewPrinter(language.English)
 
 	desc := name + " is a "
-	if eff > 0.9 && kills > 100 {
-		desc += "deadly PvP"
+	if eff > 0.99 && kills > 100 {
+		desc += "godlike"
+	} else if eff > 0.9 && kills > 75 {
+		desc += "deadly"
 	} else if eff > 0.75 && kills > 50 {
-		desc += "dangerous PvP"
+		desc += "dangerous"
 	} else if eff > 0.6 && kills > 25 {
-		desc += "decent PvP"
-	} else if eff > 0.4 && kills > 1 {
-		desc += "mediocre PvP"
+		desc += "decent"
+	} else if eff > 0.4 && kills > 25 {
+		desc += "mediocre"
+	} else if eff > 0.3 && kills > 25 {
+		desc += "bad"
+	} else if eff > 0.1 && kills > 25 {
+		desc += "really bad"
+	} else if eff <= 0.1 && kills > 25 {
+		desc += "awful"
 	} else {
 		desc += "boring"
 	}
@@ -335,14 +343,18 @@ func entityBlurb(name, entType string, eff float64, kills, losses, capKills int6
 
 	if kills+losses > 50000 {
 		desc += "obnoxiously active"
-	} else if kills+losses > 25000 {
+	} else if kills+losses > 2500 {
+		desc += "very active"
+	} else if kills+losses > 2500 {
 		desc += "very active"
 	} else if kills+losses > 250 {
 		desc += "quite active"
 	} else if kills+losses > 50 {
+		desc += "a little active"
+	} else if kills+losses > 50 {
 		desc += "not very active"
 	} else {
-		desc += "barely breathing"
+		desc += "quitting eve"
 	}
 
 	capProb := float32(0)
@@ -350,9 +362,9 @@ func entityBlurb(name, entType string, eff float64, kills, losses, capKills int6
 		capProb = float32(capKills) / float32(kills)
 	}
 
-	if capProb > 0.8 && capKills > 20 {
-		desc += " and drop capital ships way too much."
-	} else if capProb > 0.5 && capKills > 20 {
+	if capProb > 0.5 && capKills > 20 {
+		desc += " and drop capital ships far too much."
+	} else if capProb > 0.4 && capKills > 20 {
 		desc += " and drop capital ships a lot."
 	} else if capProb > 0.25 && capKills > 20 {
 		desc += " and drop capital ships often."
