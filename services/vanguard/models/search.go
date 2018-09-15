@@ -21,7 +21,7 @@ func SearchMarketNames(query string) ([]MarketItemList, error) {
            WHERE published=1 AND T.marketGroupID > 0 AND typeName LIKE ?
            GROUP BY T.typeID
            ORDER BY typeName
-           LIMIT 100`, query+"%")
+           LIMIT 100`, "%"+query+"%")
 	if err != nil {
 		return nil, err
 	}
@@ -31,25 +31,26 @@ func SearchMarketNames(query string) ([]MarketItemList, error) {
 
 type NamesItemList struct {
 	ID   int64  `db:"id" json:"id"`
+	Dead int64  `db:"dead" json:"dead"`
 	Name string `db:"name" json:"name"`
 	Type string `db:"type" json:"type"`
 }
 
 func SearchNames(query string) ([]NamesItemList, error) {
 	list := []NamesItemList{}
-	query = query + "%"
+	query = "%" + query + "%"
 
 	err := database.Select(&list, `
-		SELECT typeName AS name, typeID AS id, "Item" AS type 
+		SELECT typeName AS name, typeID AS id, "Item" AS type, 0 AS dead
 			FROM invTypes WHERE typeName LIKE ?
 			UNION
-			SELECT name, characterID AS id, "Character" AS type 
+			SELECT name, characterID AS id, "Character" AS type, IF(corporationID = 1000001, 1, 0) AS dead 
 			FROM evedata.characters WHERE name LIKE ?
 			UNION
-			SELECT name, corporationID AS id, "Corporation" AS type 
+			SELECT name, corporationID AS id, "Corporation" AS type, IF(memberCount = 0, 1, 0) AS dead
 			FROM evedata.corporations WHERE name LIKE ?
 			UNION
-			SELECT name, allianceID AS id, "Alliance" AS type 
+			SELECT name, allianceID AS id, "Alliance" AS type, IF(corporationsCount = 0, 1, 0) AS dead
 			FROM evedata.alliances WHERE name LIKE ?
 			ORDER BY name ASC;
 		`, query, query, query, query)
@@ -62,14 +63,14 @@ func SearchNames(query string) ([]NamesItemList, error) {
 
 func SearchEntities(query string) ([]NamesItemList, error) {
 	list := []NamesItemList{}
-	query = query + "%"
+	query = "%" + query + "%"
 
 	err := database.Select(&list, `
 		SELECT name, id, type FROM (
-			SELECT name, corporationID AS id, "Corporation" AS type 
+			SELECT name, corporationID AS id, "Corporation" AS type, IF(memberCount = 0, 1, 0) AS dead
 			FROM evedata.corporations WHERE name LIKE ?
 			UNION
-			SELECT name, allianceID AS id, "Alliance" AS type 
+			SELECT name, allianceID AS id, "Alliance" AS type, IF(corporationsCount = 0, 1, 0) AS dead 
 			FROM evedata.alliances WHERE name LIKE ?) A
 			ORDER BY name ASC;
 		`, query, query)
