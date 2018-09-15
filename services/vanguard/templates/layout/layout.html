@@ -344,6 +344,7 @@
 					return {
 						value: s.name,
 						id: s.id,
+						dead: s.dead,
 						type: s.type
 					};
 				});
@@ -365,9 +366,11 @@
 				'Nothing Found',
 				'</div>'
 			].join('\n'),
-			suggestion: function (data) {
-				return '<div><strong>' + data.value + '</strong> – ' + data.type +
-					'</div>';
+			suggestion: function (d) {
+				console.log(d)
+				return `<div ${d.dead != "0" ? 'style="text-decoration: line-through;"' : ""}>
+					<strong>${d.value}</strong> – ${d.type}
+					</div>`;
 			}
 		}
 	}).on('typeahead:selected', function (obj, d, name) {
