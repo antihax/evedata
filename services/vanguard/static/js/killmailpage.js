@@ -63,7 +63,7 @@ function cycleModule(slot) {
 }
 
 function setModule(slot, type) {
-    if (graphicsMap[type]) {
+    if (graphicsMap[type] && ship != undefined) {
         ship.mountTurret(slot, graphicsMap[type]);
         setTimeout(cycleModule, 100, slot);
     }
@@ -388,7 +388,7 @@ function getShipwebGL(package) {
                 (err) => { console.log(err); throw err });
         }*/);
         scene.loadSun(sunList[Math.floor(Math.random() * sunList.length)]);
-
+  
         ccpwgl.onPreRender = function (dt) {
             resizeCanvasToDisplaySize(canvas, window.devicePixelRatio);
             gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);

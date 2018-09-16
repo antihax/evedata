@@ -1,3 +1,6 @@
+{{define "Head"}}
+{{ template "bootstrap-table" . }}
+{{end}}
 {{define "body"}}
 <h3>ISK Per Loyalty Points</h3>
 
@@ -7,8 +10,8 @@ item to highest buy order in Jita.
     <select class="form-control" name="corp" id="corp"></select>
 </div>
 <div class="insideContainer">
-    <table id="iskPerLPTable" class="table" data-sort-name="iskPerLP" data-sort-order="desc"
-        data-cache="true" data-toggle="table" cellspacing="0" width="100%">
+    <table id="iskPerLPTable" class="table" data-sort-name="iskPerLP" data-sort-order="desc" data-pagination="true"
+        data-page-list="[10, 25, 50, 100, ALL]" data-cache="true" data-toggle="table" cellspacing="0" width="100%">
         <thead>
             <tr>
                 <th data-field="typeName" data-formatter="typeFormatter">Item Name</th>
@@ -50,7 +53,7 @@ item to highest buy order in Jita.
                 url: '/J/iskPerLP?corp=' + $('#corp').val()
             });
         },
-        error: function () {}
+        error: function () { }
     });
 
 

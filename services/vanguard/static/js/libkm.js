@@ -21,6 +21,7 @@ var Killmail = function (id, completeFunc) {
     function returnPackage() {
         return {
             getKillmail: function () { return killmail },
+            getSystem: function () { return killmail.systemInfo },
             getVictim: function () { return killmail.killmail.victim },
             getAttackerCount: function () { return killmail.killmail.attackers.length },
             getName: function (id) { return killmail.nameMap[id] },

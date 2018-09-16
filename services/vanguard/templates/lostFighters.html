@@ -1,6 +1,9 @@
+{{define "Head"}}
+{{ template "bootstrap-table" . }}
+{{end}}
 {{define "body"}}
-<h3>Fighters lost in Highsec</h3>
-Report shows fighters that have been lost in highsec withing the last seven days.
+<h3>Structures under attack in Highsec</h3>
+Report shows structures that have been under attack in highsec within the last seven days.
 <div class="insideContainer">
 	<table id="activeWarTable" class="table" 
 		data-sort-name="warKills"

@@ -1,3 +1,6 @@
+{{define "Head"}}
+{{ template "bootstrap-table" . }}
+{{end}}
 {{define "body"}}
 <h3>Undervalued Market Items</h3>
 <div class="toolbar marketToolbar" id="LocationContainer">
@@ -29,16 +32,22 @@
     <button type="submit button-inline" id="submit" class="btn btn-primary">Apply</button>
 </div>
 
-<table class="table" data-cache="true" data-toolbar=".marketToolbar" data-sort-name="typeName" data-sort-order="asc" data-show-columns="true"
-    data-row-style="warningFormatter" id="marketItems">
+<table class="table" data-cache="true" data-toolbar=".marketToolbar" data-sort-name="typeName" data-sort-order="asc"
+    data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50, 100, ALL]" data-row-style="warningFormatter"
+    id="marketItems">
     <thead>
         <tr>
             <th data-field="typeName" data-formatter="typeFormatter" data-sortable="true">Type</th>
-            <th data-field="destinationVolume" data-formatter="numberFormatter" data-align="right" data-sortable="true">ISK Volume</th>
-            <th data-field="regionOrders" data-visible="false" data-formatter="numberFormatter" data-align="right" data-sortable="true">Region Orders</th>
-            <th data-field="regionPrice" data-formatter="numberFormatter" data-align="right" data-sortable="true">Buy at Price</th>
-            <th data-field="marketPrice" data-formatter="numberFormatter" data-align="right" data-sortable="true">Market Price</th>
-            <th data-field="destinationPrice" data-formatter="numberFormatter" data-align="right" data-sortable="true">Sell at Price</th>
+            <th data-field="destinationVolume" data-formatter="numberFormatter" data-align="right" data-sortable="true">ISK
+                Volume</th>
+            <th data-field="regionOrders" data-visible="false" data-formatter="numberFormatter" data-align="right"
+                data-sortable="true">Region Orders</th>
+            <th data-field="regionPrice" data-formatter="numberFormatter" data-align="right" data-sortable="true">Buy
+                at Price</th>
+            <th data-field="marketPrice" data-formatter="numberFormatter" data-align="right" data-sortable="true">Market
+                Price</th>
+            <th data-field="destinationPrice" data-formatter="numberFormatter" data-align="right" data-sortable="true">Sell
+                at Price</th>
         </tr>
     </thead>
 </table>
