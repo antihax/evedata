@@ -35,11 +35,23 @@ text.mono {
     float: left;
     margin-left: 200px;
     border-radius: 20px;
-    background-color: #292f33;
+    background-color: #232329;
+}
+
+.rounded-32 {
+    border-radius: 32px;
+}
+
+.rounded-16 {
+    border-radius: 16px;
+}
+
+.rounded-8 {
+    border-radius: 8px;
 }
 
 .well {
-    background-color: #292f33;
+    background-color: #232329;
     border: 2px solid black;
     border-radius: 8px;
 }
@@ -68,7 +80,7 @@ text.mono {
 #mainWell {
     padding: 15px;
     border-radius: 15px;
-    background-color: #292f33;
+    background-color: #17171b;
 }
 
 .fullheight {
@@ -118,8 +130,7 @@ pre {
 }
 
 html {
-    color: #292f33;
-    font: normal normal normal 12px/1.2 "Helvetica Neue", Roboto, "Segoe UI", Calibri, sans-serif;
+     font: normal normal normal 12px/1.2 "Helvetica Neue", Roboto, "Segoe UI", Calibri, sans-serif;
 }
 
 body {

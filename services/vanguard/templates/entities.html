@@ -21,7 +21,7 @@
 <div class="container-fluid">
 	<header class="row">
 		<div class="col-md-2">
-			<img alt="{{.Corporation.CorporationName}}" src="//imageserver.eveonline.com/corporation/{{.Corporation.CorporationID}}_128.png" />
+			<img class="rounded-32" alt="{{.Corporation.CorporationName}}" src="//imageserver.eveonline.com/corporation/{{.Corporation.CorporationID}}_128.png" />
 		</div>
 		<div class="col-md-10">
 			<dl>
@@ -53,7 +53,7 @@
 <div class="container-fluid">
 	<header class="row">
 		<div class="col-md-2">
-			<img alt="{{.Character.CharacterName}}" src="//imageserver.eveonline.com/character/{{.Character.CharacterID}}_128.jpg" />
+			<img class="rounded-32" alt="{{.Character.CharacterName}}" src="//imageserver.eveonline.com/character/{{.Character.CharacterID}}_128.jpg" />
 		</div>
 		<div class="col-md-10">
 			<dl>
@@ -85,7 +85,7 @@
 <div class="container-fluid">
 	<header class="row">
 		<div class="col-md-2">
-			<img alt="{{.Alliance.AllianceName}}" src="//imageserver.eveonline.com/Alliance/{{.Alliance.AllianceID}}_128.png" />
+			<img class="rounded-32" alt="{{.Alliance.AllianceName}}" src="//imageserver.eveonline.com/Alliance/{{.Alliance.AllianceID}}_128.png" />
 		</div>
 		<div class="col-md-10">
 			<dl>
@@ -536,11 +536,11 @@
 				var h = `
         <div style="height:52px">
             <div style="float: left; width: 32px">
-                <a href="/killmail?id=${row.id}"><img src="//imageserver.eveonline.com/type/${victim.ship_type_id}_32.png" 
+                <a href="/killmail?id=${row.id}"><img class="rounded-8" src="//imageserver.eveonline.com/type/${victim.ship_type_id}_32.png" 
                 title="${k.getName(victim.ship_type_id)}" style="width:32px; height: 32px"></a>
             </div>
             <div style="float: left; width: 32px">
-            <a href="/killmail?id=${row.id}"><img src="//imageserver.eveonline.com/${k.getPortait(victim)}" 
+            <a href="/killmail?id=${row.id}"><img class="rounded-8" src="//imageserver.eveonline.com/${k.getPortait(victim)}" 
                     title="${k.getName(k.resolveEntity(victim))}" style="width:32px; height: 32px"></a>
             </div>
             <div style="float: left; height: 32px; width: 170px;">
