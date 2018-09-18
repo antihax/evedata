@@ -12,6 +12,14 @@ Array.prototype.inArray = function (comparer) {
 	return false;
 };
 
+function dateFormatter(value, row) {
+	let date = new Date(value);
+	if (date.getTime() == 0) { 
+		return ""
+	}
+	return date.toUTCString();
+}
+
 function convertMS(ms) {
 	var d, h, m, s;
 	s = Math.floor(ms / 1000);

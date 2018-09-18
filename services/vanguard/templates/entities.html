@@ -145,7 +145,7 @@
 		<thead>
 			<tr>
 				<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
-				<th data-field="startDate" data-sortable="true">Start Date</th>
+				<th data-field="startDate" data-formatter="dateFormatter" data-sortable="true">Start Date</th>
 			</tr>
 		</thead>
 	</table>
@@ -167,8 +167,8 @@
 		<thead>
 			<tr>
 				<th data-field="corporationName" data-sortable="true" data-formatter="corporationFormatter">Name</th>
-				<th data-field="startDate" data-sortable="true">Start Date</th>
-				<th data-field="endDate" data-sortable="true">End Date</th>
+				<th data-field="startDate" data-formatter="dateFormatter" data-sortable="true">Start Date</th>
+				<th data-field="endDate" data-formatter="dateFormatter" data-sortable="true">End Date</th>
 			</tr>
 		</thead>
 	</table>
@@ -180,7 +180,7 @@
 </div>
 {{end}}
 
-{{define "allianceJoinHistory"}}
+{{define "allianceJoinHistory"}}s
 <div class="col-md-6 well">
 	<h3>
 		Character History
@@ -190,7 +190,7 @@
 		<thead>
 			<tr>
 				<th data-field="characterName" data-sortable="true" data-formatter="characterFormatterName">Name</th>
-				<th data-field="date" data-sortable="true">Date</th>
+				<th data-field="date" data-formatter="dateFormatter" data-sortable="true">Date</th>
 				<th data-field="event" data-sortable="true">Event</th>
 			</tr>
 		</thead>
@@ -214,8 +214,8 @@
 		<thead>
 			<tr>
 				<th data-field="characterName" data-sortable="true" data-formatter="characterFormatterName">Name</th>
-				<th data-field="startDate" data-sortable="true">Start Date</th>
-				<th data-field="endDate" data-sortable="true">End Date</th>
+				<th data-field="startDate" data-formatter="dateFormatter" data-sortable="true">Start Date</th>
+				<th data-field="endDate" data-formatter="dateFormatter" data-sortable="true">End Date</th>
 			</tr>
 		</thead>
 	</table>
@@ -429,7 +429,7 @@
 		<thead>
 			<tr>
 				<th data-field="killmail" data-formatter="killmailFormatter">Killmail</th>
-				<th data-field="killtime" data-width="110" data-formatter="killmailTimeFormatter">Time</th>
+				<th data-field="killtime" data-width="110" data-formatter="dateFormatter">Time</th>
 			</tr>
 		</thead>
 	</table>
@@ -454,7 +454,6 @@
 		}
 
 		function specialFilter(o, togLosses = false) {
-			console.log(o)
 			if (togLosses)
 				$('#losses').addClass('active')
 
@@ -470,7 +469,6 @@
 		}
 
 		function killmailFormatter(value, row) {
-			console.log(row)
 			new Killmail(row.id, function (k) {
 				var v = k.formatValue(k.getMailValue()),
 					vc,
@@ -559,11 +557,6 @@
 			});
 
 			return `<div id="killmail${row.id}" style="border: #000 1px; padding: 0px;"></div>`;
-		}
-
-		function killmailTimeFormatter(value, row) {
-			let date = new Date(value);
-			return date.toUTCString();
 		}
 
 		function lossFormatter(row, index) {

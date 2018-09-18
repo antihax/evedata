@@ -364,7 +364,6 @@
 				'</div>'
 			].join('\n'),
 			suggestion: function (d) {
-				console.log(d)
 				return `<div ${d.dead != "0" ? 'style="text-decoration: line-through;"' : ""}>
 					<strong>${d.value}</strong> – ${d.type}
 					</div>`;

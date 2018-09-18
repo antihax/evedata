@@ -432,17 +432,19 @@ function getShipwebGL(package) {
             resizeCanvasToDisplaySize(canvas, window.devicePixelRatio);
             gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-            camera.rotationX += 0.01;
-            camera.rotationY += direction;
-            if (camera.rotationY > 1.57 & direction > 0) {
-                direction = -0.001;
-            } else if (camera.rotationY < -1.57 & direction < 0) {
-                direction = 0.001;
+            if (window.innerHeight != screen.height) {
+                camera.rotationX += 0.01;
+                camera.rotationY += direction;
+                if (camera.rotationY > 1.57 & direction > 0) {
+                    direction = -0.001;
+                } else if (camera.rotationY < -1.57 & direction < 0) {
+                    direction = 0.001;
+                }
+                if (ship.isLoaded() == true) {
+                    $("#shipImage").addClass("hidden");
+                }
+                camera.focus(ship, 5, 1);
             }
-            if (ship.isLoaded() == true) {
-                $("#shipImage").addClass("hidden");
-            }
-            camera.focus(ship, 5, 1);
         }
     } catch (err) {
         getShipFallback(package.attributes.typeID);
