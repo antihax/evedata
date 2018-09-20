@@ -1,5 +1,7 @@
 package models
 
+import "strings"
+
 type MarketItemList struct {
 	TypeID     int64  `db:"typeID"`
 	TypeName   string `db:"typeName"`
@@ -21,7 +23,7 @@ func SearchMarketNames(query string) ([]MarketItemList, error) {
            WHERE published=1 AND T.marketGroupID > 0 AND typeName LIKE ?
            GROUP BY T.typeID
            ORDER BY typeName
-           LIMIT 100`, "%"+query+"%")
+           LIMIT 100`, "%"+strings.TrimSpace(query)+"%")
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +40,7 @@ type NamesItemList struct {
 
 func SearchNames(query string) ([]NamesItemList, error) {
 	list := []NamesItemList{}
-	query = "%" + query + "%"
+	query = strings.TrimSpace(query) + "%"
 
 	err := database.Select(&list, `
 		SELECT typeName AS name, typeID AS id, "Item" AS type, 0 AS dead
@@ -63,7 +65,7 @@ func SearchNames(query string) ([]NamesItemList, error) {
 
 func SearchEntities(query string) ([]NamesItemList, error) {
 	list := []NamesItemList{}
-	query = "%" + query + "%"
+	query = strings.TrimSpace(query) + "%"
 
 	err := database.Select(&list, `
 		SELECT name, id, type FROM (
