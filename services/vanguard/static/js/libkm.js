@@ -23,6 +23,8 @@ var Killmail = function (id, completeFunc) {
             getKillmail: function () { return killmail },
             getSystem: function () { return killmail.systemInfo },
             getVictim: function () { return killmail.killmail.victim },
+            getModules: function () { return killmail.attributes.modules },
+            getDrones: function () { return killmail.attributes.drones },
             getAttackerCount: function () { return killmail.killmail.attackers.length },
             getName: function (id) { return killmail.nameMap[id] },
             getPrice: function (id) { return killmail.priceMap[id] != undefined ? killmail.priceMap[id] : 0 },
@@ -48,6 +50,25 @@ var Killmail = function (id, completeFunc) {
                 h += d * 24;
                 m += h * 60;
                 return m + 'm ' + s + "s";
+            },
+            getEFT: function () {
+                var self = this,
+                    modules = "",
+                    drones = "",
+                    title = `[${this.getName(this.getVictim().ship_type_id)}, ${self.getName(self.resolveEntity(self.getVictim()))}'s ${this.getName(this.getVictim().ship_type_id)}]`;
+
+                $.each(self.getModules(), function (i, a) {
+                    modules += self.getName(a.typeID);
+                    if (a.chargeTypeID != undefined) {
+                        modules += "," + self.getName(a.chargeTypeID);
+                    }
+                    modules += "\n";
+                });
+
+                $.each(self.getDrones(), function (i, a) {
+                    drones += self.getName(a.typeID) + " x" + a.quantity + "\n";
+                });
+                return `${title}\n${modules}\n${drones}\n`
             },
             resolveEntity: function (a) {
                 if (a.character_id != undefined) {

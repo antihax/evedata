@@ -2,15 +2,11 @@ var package,
     urlVars = getUrlVars(),
     ship, canvas, camera;
 
-$.ajax({
-    url: "https://static.evedata.org/file/evedata-killmails/" + urlVars["id"] + ".json.gz",
-    dataType: 'native',
-    xhrFields: {
-        responseType: 'arraybuffer'
-    },
-    success: function (d) {
+    var killmail = new Killmail(urlVars["id"], function (k) {
         try {
-            package = $.parseJSON(pako.inflate(d, { to: 'string' }));
+            package = k.getKillmail();
+            console.log(k.getEFT())
+            console.log(package)
             $(document).ready(function () {
                 getShip(package);
                 populateModules(package)
@@ -18,15 +14,18 @@ $.ajax({
                 getTypes(package);
                 getVictimInformation(package.killmail.victim);
                 getSystemInfo(package.systemInfo);
+
+                new ClipboardJS('.clipboardCopy', {
+                    text: function(trigger) {
+                        showAlert("copied to clipboard", "success");
+                        return k.getEFT();
+                    }
+                });
             });
-        } catch {
-            showAlert("Failed to decode killmail package", "danger")
+        } catch (e){
+            showAlert("Failed to read killmail: " + e, "danger")
         }
-    },
-    failure: function (d) {
-        showAlert("Don't know this killmail yet", "danger")
-    }
-});
+    });
 
 function setResonancePercentage(resonance, value) {
     if (!value) {

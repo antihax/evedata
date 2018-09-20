@@ -364,8 +364,8 @@
 				'</div>'
 			].join('\n'),
 			suggestion: function (d) {
-				return `<div ${d.dead != "0" ? 'style="text-decoration: line-through;"' : ""}>
-					<strong>${d.value}</strong> – ${d.type}
+				return `<div class="entry" ${d.dead != "0" ? 'style="text-decoration: line-through;"' : ""}>
+					<a class="typeahead-link" href="/search?id=${d.id}&type=${d.type}"><strong>${d.value}</strong> – ${d.type}</a>
 					</div>`;
 			}
 		}
