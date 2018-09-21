@@ -35,7 +35,17 @@ func killmailAttributesAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	v, err := models.GetKillmailAttributes(groupID)
+	value, err := strconv.ParseInt(r.FormValue("value"), 10, 64)
+	if err != nil {
+		value = 0
+	}
+
+	points, err := strconv.ParseInt(r.FormValue("points"), 10, 64)
+	if err != nil {
+		points = 0
+	}
+
+	v, err := models.GetKillmailAttributes(groupID, value, points)
 	if err != nil {
 		httpErr(w, err)
 		return

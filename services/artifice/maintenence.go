@@ -465,7 +465,7 @@ func marketMaint(s *Artifice) error {
 	FROM evedata.market_history
 	WHERE DATE > DATE_FORMAT(NOW() ,'%Y-%m-01')
 	GROUP BY itemID, YEAR(date), MONTH(date)
-	ON DUPLICATE KEY UPDATE mean = VALUES(mean)DELETE FROM evedata.market WHERE DATE_ADD(issued, INTERVAL duration DAY) < utc_timestamp();
+	ON DUPLICATE KEY UPDATE mean = VALUES(mean);
 	            `); err != nil {
 		log.Println(err)
 	}

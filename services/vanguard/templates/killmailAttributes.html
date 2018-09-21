@@ -7,7 +7,6 @@
 {{define "Head"}}
 {{ template "bootstrap-table" . }}
 {{ template "libkm" . }}
-
 {{ template "d3-5" .}}
 {{ template "crossfilter" .}}
 {{ template "dc-3" .}}
@@ -36,6 +35,13 @@ clicking the ship type. Some attributes are hidden and can be added to the table
         <option data-icon="fab fa-yahoo" value="energyNeutralization">Neutralizer</option>
         <option data-icon="fab fa-yahoo" value="sensorStrength">ECCM</option>
     </select>
+    <div style="position: relative; display: inline-block; width: 140px">
+        <input class="form-control" name="value" id="value" type="number" min=0 maxlength=5 placeholder="Max Value (M)">
+    </div>
+    <div style="position: relative; display: inline-block; width: 120px">
+        <input class="form-control" name="points" id="points" type="number" min=0 maxlength=2 placeholder="Min Points">
+    </div>
+
     <button type="submit button-inline" id="resetFilters" class="btn btn-primary">Reset Filters</button>
 </div>
 <div>
@@ -108,6 +114,12 @@ clicking the ship type. Some attributes are hidden and can be added to the table
     $('#groupID').change(function () {
         updateTable();
     });
+    $('#points').change(function () {
+        updateTable();
+    });
+    $('#value').change(function () {
+        updateTable();
+    });
 
     function killmailFormatter(value, row) {
         new Killmail(row.id, function (k) {
@@ -168,7 +180,10 @@ clicking the ship type. Some attributes are hidden and can be added to the table
 
     function updateTable() {
         $.ajax({
-            url: '/J/killmailAttributes?groupID=' + $('#groupID').val(),
+            url: '/J/killmailAttributes?groupID='
+                + $('#groupID').val()
+                + "&value=" + $('#value').val()
+                + "&points=" + $('#points').val(),
             dataType: 'JSON',
             success: function (data) {
                 killmailData = data;
