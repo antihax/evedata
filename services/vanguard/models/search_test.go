@@ -12,7 +12,7 @@ func TestSearchMarketNames(t *testing.T) {
 	}
 
 	if res[0].TypeName != "Warp Disruptor II" {
-		t.Error("Wrong item returned")
+		t.Errorf("Wrong item returned %s", res[0].TypeName)
 		return
 	}
 }
