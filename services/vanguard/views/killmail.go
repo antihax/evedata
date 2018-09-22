@@ -61,9 +61,14 @@ func init() {
 			km.Security,
 		)
 
+		typeName := km.TypeName
+		if km.TotalValue.Float64 > 0 {
+			typeName += fmt.Sprintf(" worth %s ISK", models.FormatValue(km.TotalValue.Float64))
+		}
+
 		description := fmt.Sprintf("%s lost their %s in the %.1f security system of %s",
 			fullEntity,
-			km.TypeName,
+			typeName,
 			km.Security,
 			km.SolarSystemName,
 		)
