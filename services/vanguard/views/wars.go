@@ -21,7 +21,7 @@ func init() {
 			renderTemplate(w,
 				"lostFighters.html",
 				time.Hour*24*31,
-				newPage(r, "Lost Fighters in HighSec"))
+				newPage(r, "Structures under attack in HighSec"))
 		})
 	vanguard.AddRoute("GET", "/lossesInHighsec",
 		func(w http.ResponseWriter, r *http.Request) {

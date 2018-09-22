@@ -1,3 +1,6 @@
+{{define "Head"}}
+{{ template "bootstrap-table" . }}
+{{end}}
 {{define "body"}} {{template "checkAuthentication" .}}
 <div class="modal fade" id="mailPasswordDialog">
 	<div class="modal-dialog">

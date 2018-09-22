@@ -12,6 +12,14 @@ Array.prototype.inArray = function (comparer) {
 	return false;
 };
 
+function dateFormatter(value, row) {
+	let date = new Date(value);
+	if (date.getTime() == 0) { 
+		return ""
+	}
+	return date.toUTCString();
+}
+
 function convertMS(ms) {
 	var d, h, m, s;
 	s = Math.floor(ms / 1000);
@@ -112,23 +120,23 @@ function entityTypeFormatter(value, row) {
 }
 
 function tokenCharacterFormatter(value, row) {
-	return '<img src="' + characterImageByID(row.tokenCharacterID, 32) + '" height=32 width=32> ' + value + '</a>';
+	return '<img class="rounded-8" src="' + characterImageByID(row.tokenCharacterID, 32) + '" height=32 width=32> ' + value + '</a>';
 }
 
 function characterFormatter(value, row) {
-	return '<img src="' + characterImage(row) + '" height=32 width=32 alt="' + row.characterName + '">';
+	return '<img class="rounded-8" src="' + characterImage(row) + '" height=32 width=32 alt="' + row.characterName + '">';
 }
 
 function characterFormatterName(value, row) {
-	return '<a href="/character?id=' + row.characterID + '"><img src="' + characterImage(row) + '" height=32 width=32 alt="' + row.characterName + '">' + row.characterName + '</a>';
+	return '<a href="/character?id=' + row.characterID + '"><img class="rounded-8" src="' + characterImage(row) + '" height=32 width=32 alt="' + row.characterName + '">' + row.characterName + '</a>';
 }
 
 function owner1Formatter(value, row) {
-	return '<img src="' + characterImageByID(row.ownerID1, 32) + '" height=32 width=32 alt="' + row.ownerName1 + '"> &nbsp;' + row.ownerName1;
+	return '<img class="rounded-8" src="' + characterImageByID(row.ownerID1, 32) + '" height=32 width=32 alt="' + row.ownerName1 + '"> &nbsp;' + row.ownerName1;
 }
 
 function owner2Formatter(value, row) {
-	return '<img src="' + characterImageByID(row.ownerID2, 32) + '" height=32 width=32 alt="' + row.ownerName2 + '"> &nbsp;' + row.ownerName2;
+	return '<img class="rounded-8" src="' + characterImageByID(row.ownerID2, 32) + '" height=32 width=32 alt="' + row.ownerName2 + '"> &nbsp;' + row.ownerName2;
 }
 
 function stationFormatter(value, row) {
@@ -140,7 +148,7 @@ function stationFormatter(value, row) {
 function typeFormatter(value, row) {
 	var typeURL = '/item?id=' + row.typeID
 	return '<a data-toggle="tooltip" title="Open market in-game" href="javascript:openMarketWindow(' + row.typeID + ')"><span class="glyphicon glyphicon-circle-arrow-right"></span></a>' +
-		'&nbsp;&nbsp;<a href="' + typeURL + '"><img src="' + typeImage(row) + '" height=25 width=25></a> &nbsp;<a href="' + typeURL + '">' + value + '</a>';
+		'&nbsp;&nbsp;<a href="' + typeURL + '"><img class="rounded-8" src="' + typeImage(row) + '" height=25 width=25></a> &nbsp;<a href="' + typeURL + '">' + value + '</a>';
 }
 
 

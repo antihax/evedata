@@ -35,11 +35,23 @@ text.mono {
     float: left;
     margin-left: 200px;
     border-radius: 20px;
-    background-color: #292f33;
+    background-color: #232329;
+}
+
+.rounded-32 {
+    border-radius: 32px;
+}
+
+.rounded-16 {
+    border-radius: 16px;
+}
+
+.rounded-8 {
+    border-radius: 8px;
 }
 
 .well {
-    background-color: #292f33;
+    background-color: #232329;
     border: 2px solid black;
     border-radius: 8px;
 }
@@ -64,11 +76,10 @@ text.mono {
     border-radius: 8px;
 }
 
-
 #mainWell {
     padding: 15px;
     border-radius: 15px;
-    background-color: #292f33;
+    background-color: #17171b;
 }
 
 .fullheight {
@@ -80,7 +91,13 @@ text.mono {
 }
 
 .hidden {
-    display:none;
+    display: none;
+}
+
+.typeahead-link {
+    color: black;
+    width: 100%;
+	height: 100%;
 }
 
 .nopadding {
@@ -118,7 +135,6 @@ pre {
 }
 
 html {
-    color: #292f33;
     font: normal normal normal 12px/1.2 "Helvetica Neue", Roboto, "Segoe UI", Calibri, sans-serif;
 }
 
@@ -311,34 +327,37 @@ p+p {
 }
 
 #mainCanvas {
-    width:100%;
-    height:100%
+    width: 100%;
+    height: 100%
 }
 
 .progress-bar-em {
     background-color: #195E8C;
     padding: 2px;
 }
-.progress-bar-therm{
+
+.progress-bar-therm {
     background-color: #8C1919;
     padding: 2px;
 }
+
 .progress-bar-kin {
     background-color: #727272;
     padding: 2px;
 }
+
 .progress-bar-exp {
     background-color: #8C5E19;
     padding: 2px;
 }
 
-.killmail-border{
+.killmail-border {
     border: 2px solid #c0c0c0;
     outline: 2px solid #808080;
 }
 
 .killmail-frame {
     padding: 0px;
-    width: 394px; 
+    width: 394px;
     float: left;
 }

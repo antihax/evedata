@@ -1,3 +1,6 @@
+{{define "Head"}}
+{{ template "bootstrap-table" . }}
+{{end}}
 {{define "body"}}
 <h3>Market Browser</h3>
 <p>Search for items to list buy and sell orders across New Eden, including public structures.</p>
@@ -11,7 +14,8 @@
 <div class="insideContainer">
 	<table id="sellOrders" class="table" 
 		data-sort-name="price"
-        data-sort-order="asc"
+		data-sort-order="asc"
+		data-pagination="true" data-page-list="[10, 25, 50, 100, ALL]"
 		data-toggle="table" cellspacing="0" width="100%">
 		<thead>
 			<tr>
@@ -28,7 +32,8 @@
 <div class="insideContainer"> 
 	<table id="buyOrders" class="table" 
 		data-sort-name="price"
-        data-sort-order="desc"
+		data-sort-order="desc"
+		data-pagination="true" data-page-list="[10, 25, 50, 100, ALL]"
 		data-toggle="table" cellspacing="0" width="100%">
 		<thead>
 			<tr>

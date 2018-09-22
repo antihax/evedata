@@ -205,7 +205,7 @@ func (s *Tailor) getFallbackSystemInformation(system int32) (*SystemInformation,
 func (s *Tailor) getSystemInformation(system int32, x, y, z float64) (*SystemInformation, error) {
 	sys := &SystemInformation{}
 	err := s.db.QueryRow(
-		`SELECT itemName AS celestialName, itemID AS celestialID, S.solarSystemID, S.regionID, solarSystemName, regionName, security
+		`SELECT itemName AS celestialName, itemID AS celestialID, S.solarSystemID, S.regionID, solarSystemName, regionName, S.security
 		FROM  eve.mapDenormalize D
 		INNER JOIN eve.mapSolarSystems S ON S.solarSystemID = D.solarSystemID
 		INNER JOIN eve.mapRegions R ON R.regionID = D.regionID
@@ -340,13 +340,35 @@ func (s *Tailor) killmailConsumer() {
 	for {
 		a := <-chanKillmailAttributes
 		b := a.Attributes.Ship
+		pm := a.PriceMap
+
+		value := pm[a.Attributes.TypeID]
+		totalValue := pm[a.Attributes.TypeID]
+		if value > 0 {
+			for _, e := range a.Attributes.Modules {
+				value += pm[int32(e["typeID"])]
+				if pm[int32(e["chargeID"])] > 0 {
+					value += pm[int32(e["chargeID"])]
+				}
+			}
+			for _, e := range a.Attributes.Drones {
+				value += pm[int32(e["typeID"])] * e["quantity"]
+			}
+		}
+
+		for _, e := range a.Killmail.Victim.Items {
+			for _, e := range e.Items {
+				totalValue += pm[e.ItemTypeId] * float64(e.QuantityDestroyed+e.QuantityDropped)
+			}
+			totalValue += pm[e.ItemTypeId] * float64(e.QuantityDestroyed+e.QuantityDropped)
+		}
 
 		sq := squirrel.Insert("evedata.killmailAttributes").Columns(
 			"id", "eHP", "DPS", "Alpha", "scanResolution", "signatureRadiusNoMWD",
 			"signatureRadius", "agility", "warpSpeed", "speedNoMWD", "speed", "remoteArmorRepair",
 			"remoteShieldRepair", "remoteEnergyTransfer", "energyNeutralization", "sensorStrength",
 			"RPS", "CPURemaining", "powerRemaining", "capacitorNoMWD", "capacitor",
-			"capacitorTimeNoMWD", "capacitorTime",
+			"capacitorTimeNoMWD", "capacitorTime", "fittedValue", "totalValue", "stasisWebifierStrength", "totalWarpScrambleStrength",
 		)
 
 		sq = sq.Values(
@@ -355,7 +377,7 @@ func (s *Tailor) killmailConsumer() {
 			b["remoteShieldBonusAmountPerSecond"], b["remotePowerTransferAmountPerSecond"], b["energyNeutralizerAmountPerSecond"],
 			b["scanRadarStrength"]+b["scanLadarStrength"]+b["scanMagnetometricStrength"]+b["scanGravimetricStrength"],
 			b["avgRPS"], b["cpuRemaining"], b["powerRemaining"], b["capacitorFraction"], b["capacitorFractionMWD"],
-			b["capacitorDuration"]*100000, b["capacitorDurationMWD"]*100000,
+			b["capacitorDuration"]*100000, b["capacitorDurationMWD"]*100000, value, totalValue, b["stasisWebifierStrength"], b["totalWarpScrambleStrength"],
 		)
 
 		sqlq, args, err := sq.ToSql()

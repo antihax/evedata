@@ -1,5 +1,6 @@
 {{define "Head"}}
 {{ template "libkm" . }}
+{{ template "bootstrap-table" . }}
 {{end}}
 {{define "body"}}
 {{if .Alliance }}
@@ -20,7 +21,7 @@
 <div class="container-fluid">
 	<header class="row">
 		<div class="col-md-2">
-			<img alt="{{.Corporation.CorporationName}}" src="//imageserver.eveonline.com/corporation/{{.Corporation.CorporationID}}_128.png" />
+			<img class="rounded-32" alt="{{.Corporation.CorporationName}}" src="//imageserver.eveonline.com/corporation/{{.Corporation.CorporationID}}_128.png" />
 		</div>
 		<div class="col-md-10">
 			<dl>
@@ -37,12 +38,12 @@
 	</header>
 	<div class="row flex-row">
 		{{ template "wars" . }}
-		{{ template "knownallies" . }}
 		{{ template "activity" . }}
+		{{ template "knownships" . }}
 		{{ template "killmails" . }}
 		{{ template "assets" . }}
 		{{ template "corporationJoinHistory" . }}
-		{{ template "knownships" . }}
+		{{ template "knownallies" . }}
 		{{ template "knownAssociates" . }}
 	</div>
 </div>
@@ -52,7 +53,7 @@
 <div class="container-fluid">
 	<header class="row">
 		<div class="col-md-2">
-			<img alt="{{.Character.CharacterName}}" src="//imageserver.eveonline.com/character/{{.Character.CharacterID}}_128.jpg" />
+			<img class="rounded-32" alt="{{.Character.CharacterName}}" src="//imageserver.eveonline.com/character/{{.Character.CharacterID}}_128.jpg" />
 		</div>
 		<div class="col-md-10">
 			<dl>
@@ -84,7 +85,7 @@
 <div class="container-fluid">
 	<header class="row">
 		<div class="col-md-2">
-			<img alt="{{.Alliance.AllianceName}}" src="//imageserver.eveonline.com/Alliance/{{.Alliance.AllianceID}}_128.png" />
+			<img class="rounded-32" alt="{{.Alliance.AllianceName}}" src="//imageserver.eveonline.com/Alliance/{{.Alliance.AllianceID}}_128.png" />
 		</div>
 		<div class="col-md-10">
 			<dl>
@@ -99,14 +100,14 @@
 	</header>
 	<div class="row flex-row">
 		{{ template "wars" . }}
-		{{ template "knownallies" . }}
 		{{ template "activity" . }}
+		{{ template "knownships" . }}
 		{{ template "killmails" . }}
 		{{ template "assets" . }}
-		{{ template "knownships" . }}
 		{{ template "corporations" . }}
 		{{ template "allianceHistory" . }}
 		{{ template "allianceJoinHistory" . }}
+		{{ template "knownallies" . }}
 		{{ template "knownAssociates" . }}
 	</div>
 </div>
@@ -144,7 +145,7 @@
 		<thead>
 			<tr>
 				<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
-				<th data-field="startDate" data-sortable="true">Start Date</th>
+				<th data-field="startDate" data-formatter="dateFormatter" data-sortable="true">Start Date</th>
 			</tr>
 		</thead>
 	</table>
@@ -166,8 +167,8 @@
 		<thead>
 			<tr>
 				<th data-field="corporationName" data-sortable="true" data-formatter="corporationFormatter">Name</th>
-				<th data-field="startDate" data-sortable="true">Start Date</th>
-				<th data-field="endDate" data-sortable="true">End Date</th>
+				<th data-field="startDate" data-formatter="dateFormatter" data-sortable="true">Start Date</th>
+				<th data-field="endDate" data-formatter="dateFormatter" data-sortable="true">End Date</th>
 			</tr>
 		</thead>
 	</table>
@@ -179,7 +180,7 @@
 </div>
 {{end}}
 
-{{define "allianceJoinHistory"}}
+{{define "allianceJoinHistory"}}s
 <div class="col-md-6 well">
 	<h3>
 		Character History
@@ -189,7 +190,7 @@
 		<thead>
 			<tr>
 				<th data-field="characterName" data-sortable="true" data-formatter="characterFormatterName">Name</th>
-				<th data-field="date" data-sortable="true">Date</th>
+				<th data-field="date" data-formatter="dateFormatter" data-sortable="true">Date</th>
 				<th data-field="event" data-sortable="true">Event</th>
 			</tr>
 		</thead>
@@ -213,8 +214,8 @@
 		<thead>
 			<tr>
 				<th data-field="characterName" data-sortable="true" data-formatter="characterFormatterName">Name</th>
-				<th data-field="startDate" data-sortable="true">Start Date</th>
-				<th data-field="endDate" data-sortable="true">End Date</th>
+				<th data-field="startDate" data-formatter="dateFormatter" data-sortable="true">Start Date</th>
+				<th data-field="endDate" data-formatter="dateFormatter" data-sortable="true">End Date</th>
 			</tr>
 		</thead>
 	</table>
@@ -309,6 +310,11 @@
 					if (d.length == 0) {
 						$("#well_activity").hide();
 					}
+				},
+				onClickRow: function (arg1, arg2) {
+					var systems = arg1.solarSystemIDs.split(",")
+					for (var i = 0; i < systems.length; i++) { systems[i] = parseInt(systems[i], 10); }
+					specialFilter({  solarSystemID: systems })
 				}
 			});
 		});
@@ -321,7 +327,7 @@
 	<h3>
 		Known Ships
 	</h3>
-	<table id="knownships" data-sort-name="number" data-pagination="true" data-search="true" data-url="/J/shipsForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
+	<table id="knownships" data-sort-name="number" data-pagination="true" data-url="/J/shipsForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
 	 data-sort-order="desc">
 		<thead>
 			<tr>
@@ -337,6 +343,9 @@
 					if (d.length == 0) {
 						$("#well_knownships").hide();
 					}
+				},
+				onClickRow: function (arg1, arg2) {
+					specialFilter({ isLoss: 1, shipType: arg1.shipType }, true)
 				}
 			});
 		});
@@ -408,8 +417,11 @@
 <div class="col-md-6 well" id="well_killmails">
 	<h3>
 		Killmails
-		<button id="losses" style="float: right" type="button" class="btn btn-primary btn-sm " data-toggle="button" onClick="javascript:filterKills()">Losses
+
+		<button id="losses" style="float: right;" type="button" class="btn btn-primary btn-sm " data-toggle="button" onClick="javascript:filterKills()">Losses
 			Only</button>
+		<button id="specialFilter" style="float: right; display: none;" type="button" class="btn btn-primary btn-sm "
+		 data-toggle="button" onClick="javascript:specialFilterClear()">Clear Filter</button>
 	</h3>
 
 	<table id="killmails" data-row-style="lossFormatter" data-pagination="true" data-url="/J/killmailsForEntity?id={{ .entityID }}&entityType={{ .entityType }}"
@@ -417,7 +429,7 @@
 		<thead>
 			<tr>
 				<th data-field="killmail" data-formatter="killmailFormatter">Killmail</th>
-				<th data-field="killtime" data-width="110" data-formatter="killmailTimeFormatter">Time</th>
+				<th data-field="killtime" data-width="110" data-formatter="dateFormatter">Time</th>
 			</tr>
 		</thead>
 	</table>
@@ -432,6 +444,7 @@
 				},
 			});
 		});
+
 		function filterKills() {
 			if (!$('#losses').hasClass('active')) {
 				$('#killmails').bootstrapTable('filterBy', { isLoss: 1 });
@@ -439,6 +452,22 @@
 				$('#killmails').bootstrapTable('filterBy', {});
 			}
 		}
+
+		function specialFilter(o, togLosses = false) {
+			if (togLosses)
+				$('#losses').addClass('active')
+
+			$('#killmails').bootstrapTable('filterBy', o);
+			$("#specialFilter").addClass('active')
+			$("#specialFilter").show()
+		}
+
+		function specialFilterClear() {
+			$('#losses').removeClass('active')
+			$('#killmails').bootstrapTable('filterBy', {});
+			$("#specialFilter").hide()
+		}
+
 		function killmailFormatter(value, row) {
 			new Killmail(row.id, function (k) {
 				var v = k.formatValue(k.getMailValue()),
@@ -483,6 +512,10 @@
 					attributes += `<img title="${simpleVal(att["stasisWebifierStrength"])} web strength" src="//imageserver.eveonline.com/type/526_32.png"  style="width:25px; height: 25px">`
 				}
 
+				if (att["warpScrambleStatus"] != undefined) {
+					attributes += `<img title="${simpleVal(att["warpScrambleStatus"])} warp core stabilization" src="//imageserver.eveonline.com/type/10998_32.png"  style="width:25px; height: 25px">`
+				}
+
 				if (att["remoteArmorDamageAmountPerSecond"] != undefined) {
 					attributes += `<img title="${simpleVal(att["remoteArmorDamageAmountPerSecond"])} remote armor hp/s" src="/i/icons/1_64_11.png"  style="width:25px; height: 25px">`
 				}
@@ -501,17 +534,20 @@
 				var h = `
         <div style="height:52px">
             <div style="float: left; width: 32px">
-                <a href="/killmail?id=${row.id}"><img src="//imageserver.eveonline.com/type/${victim.ship_type_id}_32.png" 
+                <a href="/killmail?id=${row.id}"><img class="rounded-8" src="//imageserver.eveonline.com/type/${victim.ship_type_id}_32.png" 
                 title="${k.getName(victim.ship_type_id)}" style="width:32px; height: 32px"></a>
             </div>
             <div style="float: left; width: 32px">
-            <a href="/killmail?id=${row.id}"><img src="//imageserver.eveonline.com/${k.getPortait(victim)}" 
+            <a href="/killmail?id=${row.id}"><img class="rounded-8" src="//imageserver.eveonline.com/${k.getPortait(victim)}" 
                     title="${k.getName(k.resolveEntity(victim))}" style="width:32px; height: 32px"></a>
             </div>
-            <div style="float: left; height: 32px; width: 200px;">
+            <div style="float: left; height: 32px; width: 170px;">
                 ${k.getName(k.resolveEntity(victim))}<br>
                 <b style="color: ${vc}">${v.value.toFixed(1)}${v.indicator} ${k.getName(victim.ship_type_id)} (${k.getAttackerCount()})</b>
-            </div>
+			</div>
+			<div style="float: left; height: 32px; width: 80px;">
+			    ${k.getSystem().solarSystemName} (${k.getSystem().security.toFixed(1)})<br>
+				</div>
             <div style="float: left; clear: left; ">${attributes} </div>
         </div>
        
@@ -521,11 +557,6 @@
 			});
 
 			return `<div id="killmail${row.id}" style="border: #000 1px; padding: 0px;"></div>`;
-		}
-
-		function killmailTimeFormatter(value, row) {
-			let date = new Date(value);
-			return date.toUTCString();
 		}
 
 		function lossFormatter(row, index) {
