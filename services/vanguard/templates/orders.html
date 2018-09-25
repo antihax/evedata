@@ -1,0 +1,116 @@
+{{define "Head"}}
+{{ template "bootstrap-table" . }}
+{{ template "clipboard" . }}
+{{end}}
+{{define "body"}}
+<h3>Orders</h3>
+{{template "checkAuthentication" .}}
+
+<div class="toolbar orderToolbar" id="LocationContainer">
+    <select class="selectpicker" data-width="auto" name="characterList" id="characterList"></select>
+</div>
+<button id="orderType" style="float: right;" type="button" class="btn btn-primary btn-sm" data-toggle="button" onClick="javascript:filters()">Sell
+    Orders</button>
+
+
+<table class="table" data-cache="true" data-row-style="warningFormatter" data-toolbar=".orderToolbar" id="orders">
+    <thead>
+        <tr>
+            <th data-field="characterID" data-formatter="characterFormatter">Character</th>
+            <th data-field="typeName" data-formatter="typeLocationFormatter">Type</th>
+            <th data-field="volumeRemain" data-formatter="numberFormatter" data-align="right">Quantity</th>
+            <th data-field="price.Float64" data-formatter="numberFormatter" data-align="right">Buy Price</th>
+        </tr>
+    </thead>
+</table>
+
+<script>
+    function warningFormatter(row, index) {
+        console.log(row)
+        if (row.currentPrice.Valid) {
+            if (row.currentPrice.Float64 < row.price.Float64 && row.isBuyOrder == 0) {
+                return {
+                    classes: {},
+                    css: {
+                        "background-color": "#3a0000",
+                    }
+                };
+            }
+        }
+        if (row.currentPrice.Valid) {
+            if (row.currentPrice.Float64 > row.price.Float64 && row.isBuyOrder == 1) {
+                return {
+                    classes: {},
+                    css: {
+                        "background-color": "#3a0000",
+                    }
+                };
+            }
+        }
+        if (row.regionPrice.Valid) {
+            if (row.regionPrice.Float64 < row.price.Float64 && row.isBuyOrder == 0) {
+                return {
+                    classes: {},
+                    css: {
+                        "background-color": "#3C5050"
+                    }
+                };
+            }
+        }
+        if (row.regionPrice.Valid) {
+            if (row.regionPrice.Float64 > row.price.Float64 && row.isBuyOrder == 1) {
+                return {
+                    classes: {},
+                    css: {
+                        "background-color": "#3C5050"
+                    }
+                };
+            }
+        }
+        return {
+            classes: {},
+            css: {}
+        };
+    }
+    var $orders = $('#orders').bootstrapTable({
+        url: "/U/orders",
+        success: function() {
+            filters()
+        }
+    });
+
+    function filters() {
+        var filter = {}
+        if (!$('#orderType').hasClass('active')) {
+            filter["isBuyOrder"] = 1;
+            $('#orderType').text("Buy Orders")
+        } else {
+            filter["isBuyOrder"] = 0;
+            $('#orderType').text("Sell Orders")
+        }
+        $('#orders').bootstrapTable('filterBy', filter);
+    }
+
+    $.ajax({
+        url: '/U/orderCharacters',
+        dataType: 'JSON',
+        success: function (data) {
+            $('#characterList').append(
+                '<option value=0>All Characters</option>');
+            $.each(data, function (key, val) {
+                $('#characterList').append('<option value=' +
+                    val.characterID + '>' +
+                    val.characterName + '</option>');
+            })
+            $('#characterList').selectpicker('refresh');
+        },
+        error: function () { }
+    });
+
+    $('#characterList').change(function () {
+        $('#orders').bootstrapTable('refreshOptions', {
+            url: '/U/orders?filterCharacterID=' + $('#characterList').val()
+        });
+    });
+</script>
+{{end}}

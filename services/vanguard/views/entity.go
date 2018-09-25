@@ -331,8 +331,10 @@ func entityBlurb(name, entType string, eff float64, kills, losses, capKills int6
 		desc += "really bad"
 	} else if eff <= 0.1 && kills > 25 {
 		desc += "awful"
+	} else if kills > 1 {
+		desc += "useless"
 	} else {
-		desc += "boring"
+		desc += "carebear"
 	}
 
 	if plural {
@@ -351,7 +353,7 @@ func entityBlurb(name, entType string, eff float64, kills, losses, capKills int6
 		desc += "quite active"
 	} else if kills+losses > 50 {
 		desc += "a little active"
-	} else if kills+losses > 50 {
+	} else if kills+losses > 25 {
 		desc += "not very active"
 	} else {
 		desc += "quitting eve"
@@ -412,6 +414,7 @@ func alliancePage(w http.ResponseWriter, r *http.Request) {
 	if ref.Kills > 0 && ref.Losses > 0 {
 		ref.Efficiency = 1 - (float64(ref.Losses) / float64(ref.Kills))
 	}
+
 	description := entityBlurb(ref.AllianceName, "alliance", ref.Efficiency, ref.Kills, ref.Losses, ref.CapKills, true)
 	p["OG"] = OpenGraph{
 		Image:       entityImage(ref.AllianceID, "alliance", 128),
@@ -447,7 +450,12 @@ func corporationPage(w http.ResponseWriter, r *http.Request) {
 	if ref.Kills > 0 && ref.Losses > 0 {
 		ref.Efficiency = 1 - (float64(ref.Losses) / float64(ref.Kills))
 	}
+
 	description := entityBlurb(ref.CorporationName, "corporation", ref.Efficiency, ref.Kills, ref.Losses, ref.CapKills, true)
+	if ref.AllianceID > 0 {
+		description += " They are part of " + ref.AllianceName.String + "."
+	}
+
 	p["OG"] = OpenGraph{
 		Image:       entityImage(ref.CorporationID, "corporation", 128),
 		Title:       "Corporation: " + ref.CorporationName + " - EveData.org",
@@ -484,6 +492,13 @@ func characterPage(w http.ResponseWriter, r *http.Request) {
 		ref.Efficiency = 1 - (float64(ref.Losses) / float64(ref.Kills))
 	}
 	description := entityBlurb(ref.CharacterName, "character", ref.Efficiency, ref.Kills, ref.Losses, ref.CapKills, false)
+
+	if ref.AllianceID > 0 {
+		description += " They are part of " + ref.CorporationName + " with " + ref.AllianceName.String + "."
+	} else {
+		description += " They are part of " + ref.CorporationName + "."
+	}
+
 	p["OG"] = OpenGraph{
 		Image:       entityImage(int64(ref.CharacterID), "character", 128),
 		Title:       "Character: " + ref.CharacterName + " - EveData.org",

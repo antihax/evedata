@@ -14,7 +14,7 @@ Array.prototype.inArray = function (comparer) {
 
 function dateFormatter(value, row) {
 	let date = new Date(value);
-	if (date.getTime() == 0) { 
+	if (date.getTime() == 0) {
 		return ""
 	}
 	return date.toUTCString();
@@ -124,11 +124,11 @@ function tokenCharacterFormatter(value, row) {
 }
 
 function characterFormatter(value, row) {
-	return '<img class="rounded-8" src="' + characterImage(row) + '" height=32 width=32 alt="' + row.characterName + '">';
+	return '<img class="rounded-8" src="' + characterImage(row) + '" height=32 width=32 title="' + row.characterName + '" alt="' + row.characterName + '">';
 }
 
 function characterFormatterName(value, row) {
-	return '<a href="/character?id=' + row.characterID + '"><img class="rounded-8" src="' + characterImage(row) + '" height=32 width=32 alt="' + row.characterName + '">' + row.characterName + '</a>';
+	return '<a href="/character?id=' + row.characterID + '"><img class="rounded-8" src="' + characterImage(row) + '" height=32 width=32 title="' + row.characterName + '" alt="' + row.characterName + '">' + row.characterName + '</a>';
 }
 
 function owner1Formatter(value, row) {
@@ -151,6 +151,68 @@ function typeFormatter(value, row) {
 		'&nbsp;&nbsp;<a href="' + typeURL + '"><img class="rounded-8" src="' + typeImage(row) + '" height=25 width=25></a> &nbsp;<a href="' + typeURL + '">' + value + '</a>';
 }
 
+var clipboardMarketOrderTracking = {};
+function typeLocationFormatter(value, row) {
+	var typeURL = '/item?id=' + row.typeID
+	var oid = "order" + row.orderID;
+	var v = 0;
+
+	if (row.regionPrice.Valid) {
+		if (row.regionPrice.Float64 < row.price.Float64 && row.isBuyOrder == 0) {
+			v = row.regionPrice.Float64;
+		} else if (row.regionPrice.Float64 > row.price.Float64 && row.isBuyOrder == 1) {
+			v = row.regionPrice.Float64;
+		}
+	}
+
+	if (row.currentPrice.Valid) {
+		if (row.currentPrice.Float64 < row.price.Float64 && row.isBuyOrder == 0) {
+			v = row.currentPrice.Float64;
+		} else if (row.currentPrice.Float64 < row.price.Float64 && row.isBuyOrder == 1) {
+			v = row.regionPrice.Float64;
+		}
+	}
+
+	if (!clipboardMarketOrderTracking[oid]) {
+		new ClipboardJS('#' + oid, {
+			text: function (trigger) {
+				showAlert("copied to clipboard", "success");
+				if (v > 0) {
+					if (row.isBuyOrder == 0) {
+						return (v - 0.01).toFixed(2);
+					}
+					else {
+						return (v + 0.01).toFixed(2);
+					}
+				}
+			}
+		});
+		clipboardMarketOrderTracking[oid] = true;
+	}
+
+	return `
+	<div>
+	<a id="${oid}" data-toggle="tooltip" title="Open market in-game" 
+		href="javascript:openMarketWindowCharacter(${row.characterID},${row.typeID})">
+	<span class="glyphicon glyphicon-circle-arrow-right"></span></a>
+
+	<a href="${typeURL}">
+		<img class="rounded-8" src="${typeImage(row)}" height=32 width=32>
+	</a> 
+	<a href="${typeURL}" style="font-size: 12pt">${value}</a>
+	
+	</div>
+	<div>
+	<a data-toggle="tooltip" title="Set Destination"
+		 href="javascript:setEVEDestination(${row.stationID})">
+		 <span class="glyphicon glyphicon-circle-arrow-right"></span></a>
+	
+		<a data-toggle="tooltip" title="Add Destination" href="javascript:addEVEDestination(${row.stationID})">
+		<span class="glyphicon glyphicon-plus-sign"></span></a>
+		&nbsp;&nbsp; ${row.regionName} - ${row.stationName} 
+	</div>
+	`
+}
 
 function currencyFormatter(value, row) {
 	return numberCommafy(value.toFixed(2));
@@ -220,6 +282,17 @@ function getUrlVars() {
 		vars[hash[0]] = hash[1];
 	}
 	return vars;
+}
+
+function openMarketWindowCharacter(characterID, typeID) {
+	if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
+		$.ajax({
+			url: "/X/openMarketWindow?typeID=" + typeID + "&characterID=" + characterID,
+			type: 'POST',
+		});
+	} else {
+		showAlert('No characters available with UI Control. Please add characters on the account page with at least one with UI control.', 'danger');
+	}
 }
 
 function openMarketWindow(id) {
