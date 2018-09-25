@@ -43,29 +43,32 @@ func (s *Nail) characterOrdersConsumer(message *nsq.Message) error {
 		return err
 	}
 
-	// Dump all orders into the DB.
-	sql := sq.Insert("evedata.orders").Columns(
-		"orderid", "characterID", "duration", "isBuyOrder", "isCorporation", "escrow",
-		"issued", "locationID", "minVolume", "price", "orderRange", "regionID", "typeID",
-		"volumeRemain", "volumeTotal",
-	)
-	for _, g := range orders.Orders {
-		sql = sql.Values(
-			g.OrderId, orders.TokenCharacterID, g.Duration, boolToInt(g.IsBuyOrder), boolToInt(g.IsCorporation), g.Escrow,
-			g.Issued, g.LocationId, g.MinVolume, g.Price, g.Range_, g.RegionId, g.TypeId,
-			g.VolumeRemain, g.VolumeTotal,
+	if len(orders.Orders) > 0 {
+		// Dump all orders into the DB.
+		sql := sq.Insert("evedata.orders").Columns(
+			"orderID", "characterID", "duration", "isBuyOrder", "isCorporation", "escrow",
+			"issued", "locationID", "minVolume", "price", "orderRange", "regionID", "typeID",
+			"volumeRemain", "volumeTotal",
 		)
-	}
 
-	sqlq, args, err := sql.ToSql()
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	err = s.doSQL(sqlq+" ON DUPLICATE KEY UPDATE orderid = orderid", args...)
-	if err != nil {
-		log.Println(err)
-		return err
+		for _, g := range orders.Orders {
+			sql = sql.Values(
+				g.OrderId, orders.TokenCharacterID, g.Duration, boolToInt(g.IsBuyOrder), boolToInt(g.IsCorporation), g.Escrow,
+				g.Issued, g.LocationId, g.MinVolume, g.Price, g.Range_, g.RegionId, g.TypeId,
+				g.VolumeRemain, g.VolumeTotal,
+			)
+		}
+
+		sqlq, args, err := sql.ToSql()
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		err = s.doSQL(sqlq+" ON DUPLICATE KEY UPDATE orderID = orderID", args...)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
 	}
 
 	return nil

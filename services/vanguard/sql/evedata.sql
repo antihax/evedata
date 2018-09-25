@@ -581,7 +581,7 @@ CREATE TABLE `notifications` (
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `orders` (
-  `orderid` bigint(20) unsigned NOT NULL,
+  `orderID` bigint(20) unsigned NOT NULL,
   `characterID` int(10) unsigned NOT NULL,
   `duration` int(10) unsigned NOT NULL,
   `isBuyOrder` tinyint(3) unsigned NOT NULL,
@@ -596,7 +596,7 @@ CREATE TABLE `orders` (
   `typeID` int(10) unsigned NOT NULL,
   `volumeRemain` int(10) unsigned NOT NULL,
   `volumeTotal` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`orderid`),
+  PRIMARY KEY (`orderID`),
   KEY `characterID` (`characterID`),
   KEY `char_region_item` (`characterID`,`regionID`,`typeID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;

@@ -44,6 +44,14 @@ func NewMarketCollector(db *sqlx.DB, consumerAddresses []string) *MarketCollecto
 	s.ws = c
 	go s.readPump()
 	go s.sqlPump()
+
+	// Restart once an hour to get full market tick
+	restart := time.NewTimer(1 * time.Hour)
+	go func() {
+		<-restart.C
+		s.Close()
+	}()
+
 	return s
 }
 
