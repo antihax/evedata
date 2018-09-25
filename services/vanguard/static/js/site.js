@@ -176,6 +176,9 @@ function typeLocationFormatter(value, row) {
 	if (!clipboardMarketOrderTracking[oid]) {
 		new ClipboardJS('#' + oid, {
 			text: function (trigger) {
+				$(".R_reset").css("background-color","");
+				$("#R_" + oid).css("background-color","#005555");
+			
 				showAlert("copied to clipboard", "success");
 				if (v > 0) {
 					if (row.isBuyOrder == 0) {
@@ -191,7 +194,7 @@ function typeLocationFormatter(value, row) {
 	}
 
 	return `
-	<div>
+	<div id="R_${oid}" class="R_reset">
 	<a id="${oid}" data-toggle="tooltip" title="Open market in-game" 
 		href="javascript:openMarketWindowCharacter(${row.characterID},${row.typeID})">
 	<span class="glyphicon glyphicon-circle-arrow-right"></span></a>
