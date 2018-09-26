@@ -33,9 +33,8 @@ func characterOrdersConsumer(s *Hammer, parameter interface{}) {
 		log.Println(err)
 		return
 	}
-	if len(orders) == 0 {
-		return
-	}
+
+	// Note: intentionally pass blank orders to force delete of old orders.
 
 	// Send out the result
 	err = s.QueueResult(&datapackages.CharacterOrders{
