@@ -195,24 +195,26 @@ function typeLocationFormatter(value, row) {
 
 	return `
 	<div id="R_${oid}" class="R_reset">
-	<a id="${oid}" data-toggle="tooltip" title="Open market in-game" 
-		href="javascript:openMarketWindowCharacter(${row.characterID},${row.typeID})">
-	<span class="glyphicon glyphicon-circle-arrow-right"></span></a>
+		<div >
+		<a id="${oid}" data-toggle="tooltip" title="Open market in-game" 
+			href="javascript:openMarketWindowCharacter(${row.characterID},${row.typeID})">
+		<span class="glyphicon glyphicon-circle-arrow-right"></span></a>
 
-	<a href="${typeURL}">
-		<img class="rounded-8" src="${typeImage(row)}" height=32 width=32>
-	</a> 
-	<a href="${typeURL}" style="font-size: 12pt">${value}</a>
-	
-	</div>
-	<div>
-	<a data-toggle="tooltip" title="Set Destination"
-		 href="javascript:setEVEDestination(${row.stationID})">
-		 <span class="glyphicon glyphicon-circle-arrow-right"></span></a>
-	
-		<a data-toggle="tooltip" title="Add Destination" href="javascript:addEVEDestination(${row.stationID})">
-		<span class="glyphicon glyphicon-plus-sign"></span></a>
-		&nbsp;&nbsp; ${row.regionName} - ${row.stationName} 
+		<a href="${typeURL}">
+			<img class="rounded-8" src="${typeImage(row)}" height=32 width=32>
+		</a> 
+		<a href="${typeURL}" style="font-size: 12pt">${value}</a>
+		
+		</div>
+		<div>
+		<a data-toggle="tooltip" title="Set Destination"
+			href="javascript:setEVEDestination(${row.stationID})">
+			<span class="glyphicon glyphicon-circle-arrow-right"></span></a>
+		
+			<a data-toggle="tooltip" title="Add Destination" href="javascript:addEVEDestination(${row.stationID})">
+			<span class="glyphicon glyphicon-plus-sign"></span></a>
+			&nbsp;&nbsp; ${row.regionName} - ${row.stationName} 
+		</div>
 	</div>
 	`
 }
