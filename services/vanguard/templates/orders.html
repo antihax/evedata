@@ -13,13 +13,15 @@
     Orders</button>
 
 
-<table class="table" data-cache="true" data-row-style="warningFormatter" data-toolbar=".orderToolbar" id="orders">
+<table class="table" data-sort-name="characterID" data-cache="true" data-row-style="warningFormatter" data-toolbar=".orderToolbar"
+    id="orders">
     <thead>
         <tr>
             <th data-field="characterID" data-sortable="true" data-formatter="characterFormatter">Character</th>
             <th data-field="typeName" data-sortable="true" data-formatter="typeLocationFormatter">Type</th>
             <th data-field="volumeRemain" data-formatter="numberFormatter" data-align="right">Quantity</th>
-            <th data-field="price.Float64" data-sortable="true" data-formatter="numberFormatter" data-align="right">Buy Price</th>
+            <th data-field="price.Float64" data-sortable="true" data-formatter="numberFormatter" data-align="right">Buy
+                Price</th>
         </tr>
     </thead>
 </table>
@@ -73,7 +75,7 @@
     }
     var $orders = $('#orders').bootstrapTable({
         url: "/U/orders",
-        success: function() {
+        success: function () {
             filters()
         }
     });
