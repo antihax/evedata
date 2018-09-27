@@ -160,15 +160,15 @@ func (s *Tailor) killmailHandler(message *nsq.Message) error {
 		SystemInfo: sysinfo,
 		DNA:        dna,
 	}
+	// Add the package to the list
+	chanKillmailAttributes <- pack
+
 	err = s.saveKillmail(&pack)
 	if err != nil {
 		return err
 	}
 	timeStage("save", start)
 	start = time.Now()
-
-	// Add the package to the list
-	chanKillmailAttributes <- pack
 
 	return nil
 }
