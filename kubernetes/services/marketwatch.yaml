@@ -31,9 +31,14 @@ spec:
             topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-marketwatch
-        image: antihax/eve-marketwatch
+        image: antihax/evedata-marketwatch
         imagePullPolicy: Always
         env:
+        - name: SQLAUTH
+          valueFrom:
+            secretKeyRef:
+              name: sql-password
+              key: sqlauth
         - name: ESI_SECRET_TOKENSTORE
           valueFrom:
             secretKeyRef:
@@ -51,7 +56,6 @@ spec:
               key: refreshKey
         ports:
         - containerPort: 3000
-        - containerPort: 3005
         volumeMounts:
         - mountPath: /etc/ssl/certs
           name: ca-certs
@@ -60,17 +64,4 @@ spec:
         hostPath:
           path: /etc/ssl/certs
           type: Directory
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: marketwatch
-  namespace: evedata
-spec:
-  selector:
-    app: marketwatch
-  ports:
-  - name: marketwatch
-    protocol: TCP
-    port: 3005
-    targetPort: 3005
+

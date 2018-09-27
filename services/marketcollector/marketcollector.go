@@ -29,7 +29,7 @@ type MarketCollector struct {
 }
 
 // NewMarketCollector Service.
-func NewMarketCollector(db *sqlx.DB, consumerAddresses []string) *MarketCollector {
+func NewMarketCollector(db *sqlx.DB) *MarketCollector {
 	// Setup a new artifice
 	s := &MarketCollector{
 		stop:             make(chan bool),
