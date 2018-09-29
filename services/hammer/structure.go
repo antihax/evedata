@@ -11,6 +11,7 @@ import (
 
 func init() {
 	registerConsumer("structure", structureConsumer)
+	registerConsumer("characterStructures", characterStructuresConsumer)
 }
 
 func structureConsumer(s *Hammer, parameter interface{}) {
@@ -21,7 +22,7 @@ func structureConsumer(s *Hammer, parameter interface{}) {
 	}
 
 	ctx := context.WithValue(context.Background(), goesi.ContextOAuth2, *s.token)
-	struc, _, err := s.esi.ESI.UniverseApi.GetUniverseStructuresStructureId(ctx, structureID, nil)
+	structure, _, err := s.esi.ESI.UniverseApi.GetUniverseStructuresStructureId(ctx, structureID, nil)
 
 	if err != nil {
 		if strings.Contains(err.Error(), "403") {
@@ -31,7 +32,35 @@ func structureConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 	// Send out the result
-	err = s.QueueResult(&datapackages.Structure{Structure: struc, StructureID: structureID}, "structure")
+	err = s.QueueResult(&datapackages.Structure{Structure: structure, StructureID: structureID}, "structure")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
+
+// Handle character structures separately since they should remain private
+func characterStructuresConsumer(s *Hammer, parameter interface{}) {
+	parameters := parameter.([]interface{})
+	characterID := int32(parameters[0].(int))
+	tokenCharacterID := int32(parameters[1].(int))
+	structureID := parameters[2].(int64)
+
+	ctx, err := s.GetTokenSourceContext(context.Background(), characterID, tokenCharacterID)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// [TODO] tick failure to database
+	structure, _, err := s.esi.ESI.UniverseApi.GetUniverseStructuresStructureId(ctx, structureID, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// Send out the result
+	err = s.QueueResult(&datapackages.CharacterStructure{Structure: structure, StructureID: structureID, CharacterID: tokenCharacterID}, "characterStructure")
 	if err != nil {
 		log.Println(err)
 		return

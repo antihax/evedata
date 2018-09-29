@@ -13,6 +13,8 @@ func init() {
 	registerTrigger("characterTransactions", characterTransactions, time.NewTicker(time.Second*3600))
 	registerTrigger("characterAssets", characterAssets, time.NewTicker(time.Second*3600))
 	registerTrigger("characterOrders", characterOrders, time.NewTicker(time.Second*1200))
+	registerTrigger("characterStructures", characterStructures, time.NewTicker(time.Second*3600))
+
 	registerTrigger("characterNotifications", characterNotifications, time.NewTicker(time.Second*600))
 	registerTrigger("characterContactSync", characterContactSync, time.NewTicker(time.Second*360))
 	registerTrigger("characterAuthOwners", characterAuthOwners, time.NewTicker(time.Second*3600))
@@ -23,7 +25,6 @@ func init() {
 }
 
 func characterTransactions(s *Artifice) error {
-
 	if pairs, err := s.GetCharactersForScope("read_character_wallet"); err != nil {
 		return err
 	} else {
@@ -47,6 +48,47 @@ func characterAssets(s *Artifice) error {
 	}
 
 	return s.QueueWork(work, redisqueue.Priority_High)
+}
+
+func characterStructures(s *Artifice) error {
+	structures, err := s.db.Query(
+		`SELECT T.characterID, T.tokenCharacterID, S.locationID
+			FROM evedata.crestTokens T
+			INNER JOIN ( 
+					SELECT DISTINCT characterID, locationID FROM evedata.orders WHERE locationID > 70000000
+					UNION DISTINCT
+					SELECT DISTINCT characterID, locationID FROM evedata.assets WHERE locationID > 70000000
+				) S ON S.characterID = T.tokenCharacterID
+			WHERE lastStatus != "invalid_token" AND scopes LIKE "%read_structures%"
+			`)
+	if err != nil {
+		return err
+	}
+	defer structures.Close()
+
+	work := []redisqueue.Work{}
+
+	// Loop the structure pairs
+	for structures.Next() {
+		var (
+			characterID, tokenCharacterID int32
+			structureID                   int64
+		)
+
+		err = structures.Scan(&characterID, &tokenCharacterID, &structureID)
+		if err != nil {
+			return err
+		}
+
+		work = append(work, redisqueue.Work{Operation: "characterStructures",
+			Parameter: []interface{}{
+				characterID,
+				tokenCharacterID,
+				structureID,
+			}})
+	}
+
+	return s.QueueWork(work, redisqueue.Priority_Lowest)
 }
 
 func characterOrders(s *Artifice) error {

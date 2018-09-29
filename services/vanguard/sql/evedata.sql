@@ -2,6 +2,14 @@ CREATE DATABASE IF NOT EXISTS evedata;
 
 USE evedata;
 
+CREATE TABLE `accessibleStructure` (
+  `accessibleStructure` bigint(20) NOT NULL,
+  `characterID` int(11) NOT NULL,
+  `lastCheck` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `canAccess` tinyint(4) NOT NULL,
+  PRIMARY KEY (`accessibleStructure`,`characterID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `allianceHistory` (
   `recordID` int(11) NOT NULL,
   `startDate` datetime NOT NULL,
@@ -600,7 +608,8 @@ CREATE TABLE `orders` (
   `volumeTotal` int(10) unsigned NOT NULL,
   PRIMARY KEY (`orderID`),
   KEY `characterID` (`characterID`),
-  KEY `char_region_item` (`characterID`,`regionID`,`typeID`)
+  KEY `char_region_item` (`characterID`,`regionID`,`typeID`),
+  KEY `locationID` (`locationID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `sharing` (
@@ -630,6 +639,7 @@ CREATE TABLE `structures` (
   `marketCacheUntil` datetime DEFAULT '2016-01-01 00:00:00',
   `ownerID` int(11) NOT NULL,
   `typeID` int(11) NOT NULL DEFAULT '0',
+  `private` tinyint(4) DEFAULT '0',
   PRIMARY KEY (`stationID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 

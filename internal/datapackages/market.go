@@ -17,9 +17,16 @@ type Structure struct {
 	Structure   esi.GetUniverseStructuresStructureIdOk
 	StructureID int64
 }
+
 type StructureOrders struct {
 	Orders      []esi.GetMarketsStructuresStructureId200Ok
 	StructureID int64
+}
+
+type CharacterStructure struct {
+	Structure   esi.GetUniverseStructuresStructureIdOk
+	StructureID int64
+	CharacterID int32
 }
 
 func WintoUnixTimestamp(t int64) int64 {

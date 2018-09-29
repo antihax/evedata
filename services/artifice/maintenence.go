@@ -293,6 +293,7 @@ func discoveredAssetsMaint(s *Artifice) error {
 			S.updated AS lastSeen
 			FROM evedata.structures S
 			INNER JOIN evedata.corporations C ON C.corporationID = S.ownerID
+			WHERE S.private = 0
 		ON DUPLICATE KEY UPDATE lastSeen = VALUES(lastSeen);`); err != nil {
 		return err
 	}
@@ -454,7 +455,14 @@ func marketUpdate(s *Artifice) error {
 func marketMaint(s *Artifice) error {
 	// Deal with any possible orphaned orders
 	if err := s.RetryExecTillNoRows(`
-	DELETE FROM evedata.market WHERE DATE_ADD(issued, INTERVAL duration DAY) < utc_timestamp();
+		DELETE FROM evedata.market WHERE DATE_ADD(issued, INTERVAL duration DAY) < utc_timestamp();
+	            `); err != nil {
+		log.Println(err)
+	}
+
+	// Remove any possible stale items
+	if err := s.RetryExecTillNoRows(`
+		DELETE FROM evedata.market WHERE reported < DATE_SUB(UTC_TIMESTAMP(), INTERVAL 70 MINUTE)
 	            `); err != nil {
 		log.Println(err)
 	}
