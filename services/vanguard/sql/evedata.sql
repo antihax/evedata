@@ -486,7 +486,9 @@ CREATE TABLE `market` (
   KEY `regionID_typeID` (`regionID`,`typeID`),
   KEY `typeID` (`typeID`),
   KEY `stationID_bid_reported` (`stationID`,`bid`,`reported`),
-  KEY `regionID_bid` (`regionID`,`bid`)
+  KEY `regionID_bid` (`regionID`,`bid`),
+  KEY `ix_marketorders` (`typeID`,`bid`,`stationID`,`orderID`),
+  KEY `ix_marketordersregion` (`typeID`,`bid`,`regionID`,`orderID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `marketHistoryStatistics` (
