@@ -14,8 +14,6 @@ import (
 
 var Templates *template.Template
 
-const LayoutPath string = "templates/layout/layout.html"
-
 var (
 	templateIncludeFiles []string
 )
@@ -28,6 +26,7 @@ func init() {
 	}
 
 	templateIncludeFiles = append(includeFiles, "templates/layout/layout.html")
+	templateIncludeFiles = append(includeFiles, "templates/layout/blank.html")
 }
 
 func renderJSON(w http.ResponseWriter, v interface{}, cacheTime time.Duration) error {
@@ -80,6 +79,60 @@ func renderTemplate(w http.ResponseWriter, name string, cacheTime time.Duration,
 	)
 
 	if err := t.ExecuteTemplate(w, "base", data); err != nil {
+		httpErrCode(w, err, http.StatusInternalServerError)
+		return err
+	}
+
+	cache(w, cacheTime)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	return nil
+}
+
+func renderBlank(w http.ResponseWriter, name string, cacheTime time.Duration, data interface{}) error {
+
+	mainTemplate := template.Must(template.New("blank").Funcs(template.FuncMap{
+		"dict": func(values ...interface{}) (map[string]interface{}, error) {
+			if len(values) == 0 {
+				return nil, errors.New("invalid dict call")
+			}
+
+			dict := make(map[string]interface{})
+
+			for i := 0; i < len(values); i++ {
+				key, isset := values[i].(string)
+				if !isset {
+					if reflect.TypeOf(values[i]).Kind() == reflect.Map {
+						m := values[i].(map[string]interface{})
+						for i, v := range m {
+							dict[i] = v
+						}
+					} else {
+						return nil, errors.New("dict values must be maps")
+					}
+				} else {
+					i++
+					if i == len(values) {
+						return nil, errors.New("specify the key for non array values")
+					}
+					dict[key] = values[i]
+				}
+
+			}
+			return dict, nil
+		},
+	}).ParseFiles("templates/layout/blank.html"))
+
+	t, err := mainTemplate.Clone()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	templates := append(templateIncludeFiles, "templates/"+name)
+	t = template.Must(
+		t.ParseFiles(templates...),
+	)
+
+	if err := t.ExecuteTemplate(w, "blank", data); err != nil {
 		httpErrCode(w, err, http.StatusInternalServerError)
 		return err
 	}
