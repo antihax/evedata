@@ -145,13 +145,43 @@ function stationFormatter(value, row) {
 		'&nbsp;&nbsp;' + value;
 }
 
+var clipboardMarketOrderTracking = {};
 function typeFormatter(value, row) {
 	var typeURL = '/item?id=' + row.typeID
-	return '<a data-toggle="tooltip" title="Open market in-game" href="javascript:openMarketWindow(' + row.typeID + ')"><span class="glyphicon glyphicon-circle-arrow-right"></span></a>' +
+	return '<a id="${oid}" data-toggle="tooltip" title="Open market in-game" href="javascript:openMarketWindow(' + row.typeID + ')"><span class="glyphicon glyphicon-circle-arrow-right"></span></a>' +
 		'&nbsp;&nbsp;<a href="' + typeURL + '"><img class="rounded-8" src="' + typeImage(row) + '" height=25 width=25></a> &nbsp;<a href="' + typeURL + '">' + value + '</a>';
 }
 
-var clipboardMarketOrderTracking = {};
+function typeMarketAssetFormatter(value, row) {
+	var oid = "order" + row.typeID + (Math.random()*1000000).toFixed(0) ;
+	var typeURL = '/item?id=' + row.typeID;
+	var price = 0;
+	if (row.regionPrice != undefined) {
+		price = row.regionPrice - 0.01;
+	} else if (row.stationPrice != undefined) {
+		price = row.stationPrice - 0.01;
+	}
+	if (price == 0) {
+		return (row.sell * 1.3).toFixed(2);
+	}
+	console.log(row)
+	if (!clipboardMarketOrderTracking[oid]) {
+		new ClipboardJS('#' + oid, {
+			text: function (trigger) {
+				showAlert("copied to clipboard", "success");
+				if (price != 0) {
+					return (price).toFixed(2);
+				}
+				return "";
+			}
+		});
+		clipboardMarketOrderTracking[oid] = true;
+	}
+
+	return `<a id="${oid}" data-toggle="tooltip" title="Open market in-game" href="javascript:openMarketWindow(${row.typeID})"><span class="glyphicon glyphicon-circle-arrow-right"></span></a>
+		&nbsp;&nbsp;<a href="${typeURL}"><img class="rounded-8" src="${typeImage(row)}" height=25 width=25></a> &nbsp;<a href="${typeURL}">${value}</a>`;
+}
+
 function typeLocationFormatter(value, row) {
 	var typeURL = '/item?id=' + row.typeID
 	var oid = "order" + row.orderID;
@@ -176,9 +206,9 @@ function typeLocationFormatter(value, row) {
 	if (!clipboardMarketOrderTracking[oid]) {
 		new ClipboardJS('#' + oid, {
 			text: function (trigger) {
-				$(".R_reset").css("background-color","");
-				$("#R_" + oid).css("background-color","#005555");
-			
+				$(".R_reset").css("background-color", "");
+				$("#R_" + oid).css("background-color", "#005555");
+
 				showAlert("copied to clipboard", "success");
 				if (v > 0) {
 					if (row.isBuyOrder == 0) {

@@ -77,7 +77,7 @@ func getJournalEntries(characterID int32, rangeI int64, refTypeID int64, entries
 		LEFT JOIN evedata.characters C2 ON J.ownerID2 = C2.characterID
 		LEFT JOIN evedata.walletTransactions TR ON J.argID1 = TR.transactionID
         LEFT JOIN invTypes TY ON TY.typeID = TR.typeID
-        LEFT JOIN staStations ST ON J.argID1 = ST.stationID
+        LEFT JOIN evedata.structures ST ON J.argID1 = ST.stationID
 		WHERE T.characterID IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)
 		AND refTypeID = ?
 		AND date > DATE_SUB(UTC_TIMESTAMP(), INTERVAL ? DAY)

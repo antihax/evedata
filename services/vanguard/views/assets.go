@@ -56,7 +56,7 @@ func assetCharactersAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderJSON(w, v, time.Hour)
+	renderJSON(w, v, time.Minute*5)
 }
 
 func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +98,7 @@ func assetLocationsAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderJSON(w, v, time.Hour)
+	renderJSON(w, v, time.Minute*2)
 }
 
 func assetsAPI(w http.ResponseWriter, r *http.Request) {
@@ -146,7 +146,7 @@ func assetsAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderJSON(w, v, time.Hour)
+	renderJSON(w, v, time.Minute*2)
 }
 
 func marketableAssetsAPI(w http.ResponseWriter, r *http.Request) {
@@ -182,5 +182,5 @@ func marketableAssetsAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderJSON(w, v, time.Hour)
+	renderJSON(w, v, time.Minute*2)
 }

@@ -347,6 +347,16 @@ func marketUpdate(s *Artifice) error {
 	}
 
 	if err := s.doSQL(`
+		INSERT IGNORE INTO evedata.structures (stationID,solarSystemID,stationName,x,y,z,updated,marketCacheUntil,ownerID,typeID,private)
+		SELECT stationID, solarSystemID, stationName, 
+		x, y, z, utc_timestamp(), utc_timestamp(), corporationID AS ownerID, stationTypeID AS typeID, 0 
+		FROM eve.staStations WHERE corporationID < 9000000
+		ON DUPLICATE KEY UPDATE updated = utc_timestamp();
+             `); err != nil {
+		log.Println(err)
+	}
+
+	if err := s.doSQL(`
         DELETE FROM evedata.marketStations ORDER BY stationID;
              `); err != nil {
 		log.Println(err)
@@ -356,7 +366,7 @@ func marketUpdate(s *Artifice) error {
         INSERT INTO evedata.marketStations SELECT stationName, M.stationID, Count(*) as Count
         FROM    evedata.market M
                 INNER JOIN staStations S ON M.stationID = S.stationID
-        WHERE   reported >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 7 DAY)
+        WHERE   reported >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 7 DAY) AND M.private = 0
 		GROUP BY M.stationID 
 		ORDER BY stationID
         ON DUPLICATE KEY UPDATE stationID=stationID;
@@ -394,8 +404,8 @@ func marketUpdate(s *Artifice) error {
 	if err := s.doSQL(`
 		 INSERT IGNORE INTO evedata.jitaPrice (
 		 SELECT S.typeID as itemID, buy, sell, high, low, mean, quantity FROM
-			 (SELECT typeID, min(price) AS sell FROM evedata.market WHERE regionID = 10000002 AND bid = 0 GROUP BY typeID) S
-			 INNER JOIN (SELECT typeID, max(price) AS buy FROM evedata.market WHERE regionID = 10000002 AND bid = 1 GROUP BY typeID) B ON S.typeID = B.typeID
+			 (SELECT typeID, min(price) AS sell FROM evedata.market WHERE regionID = 10000002 AND bid = 0 AND private = 0 GROUP BY typeID) S
+			 INNER JOIN (SELECT typeID, max(price) AS buy FROM evedata.market WHERE regionID = 10000002 AND bid = 1 AND private = 0 GROUP BY typeID) B ON S.typeID = B.typeID
 			 LEFT OUTER JOIN (SELECT itemID, max(high) AS high, avg(mean) AS mean, min(low) AS low, sum(quantity) AS quantity FROM evedata.market_history WHERE regionID = 10000002 AND date > DATE_SUB(UTC_DATE(), INTERVAL 7 DAY) GROUP BY itemID) H on H.itemID = S.typeID
 		 HAVING mean IS NOT NULL
 		 ) ORDER BY itemID;

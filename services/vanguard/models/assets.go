@@ -57,7 +57,7 @@ func GetAssetLocations(characterID int32, ownerHash string, filterCharacterID in
 			SUM(P.sell  * IF(A.quantity, A.quantity, A.isSingleton)) AS sell
 		FROM evedata.assets A
 		JOIN evedata.jitaPrice P  ON A.typeID   = P.itemID
-		JOIN staStations LOC ON LOC.stationID = A.locationID
+		JOIN evedata.structures LOC ON LOC.stationID = A.locationID
 		WHERE  A.characterID `+filter+`
 		GROUP BY A.locationID
 		ORDER BY sell DESC
@@ -235,7 +235,10 @@ func GetMarketableAssets(characterID int32, ownerHash string, tokenCharacterID i
 	// Get the regionID
 	var regionID int32
 	if err := database.QueryRowx(`
-		SELECT regionID FROM staStations WHERE stationID = ? LIMIT 1;`, locationID).Scan(&regionID); err != nil {
+	SELECT R.regionID FROM mapRegions R
+	INNER JOIN mapSolarSystems S ON R.regionID = S.regionID
+	INNER JOIN evedata.structures ST ON S.solarSystemID = ST.solarSystemID
+	WHERE ST.stationID = ? LIMIT 1;`, locationID).Scan(&regionID); err != nil {
 		return nil, err
 	}
 	assets := []MarketableAssets{}
@@ -247,7 +250,7 @@ func GetMarketableAssets(characterID int32, ownerHash string, tokenCharacterID i
 			JOIN evedata.crestTokens C on A.characterID = C.tokenCharacterID	
 			INNER JOIN evedata.jitaPrice J ON A.typeID = J.itemID
 			INNER JOIN invTypes T ON A.typeID = T.typeID
-			INNER JOIN staStations S ON S.stationID = A.locationID
+			INNER JOIN evedata.structures S ON S.stationID = A.locationID
 			LEFT OUTER JOIN (SELECT typeID, count(*) AS regionOrders, min(price) AS regionPrice FROM evedata.market M FORCE INDEX(regionID_bid) WHERE regionID = ? AND bid = 0 GROUP BY typeID) MR ON MR.typeID = A.typeID
 			LEFT OUTER JOIN (SELECT typeID, count(*) AS stationOrders, min(price) AS stationPrice FROM evedata.market M WHERE stationID = ? AND bid = 0 GROUP BY typeID) SR ON SR.typeID = A.typeID
 			WHERE A.isSingleton = 0

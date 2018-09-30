@@ -67,8 +67,9 @@ func GetOrders(characterID int32, ownerHash string, filterCharacterID int32) ([]
 	FROM evedata.orders O
 	INNER JOIN eve.invTypes T ON T.typeID = O.typeID
 	INNER JOIN evedata.crestTokens C ON C.tokenCharacterID = O.characterID
-	INNER JOIN eve.staStations S ON S.stationID = O.locationID
-	INNER JOIN eve.mapRegions R ON R.regionID = S.regionID
+	INNER JOIN evedata.structures S ON S.stationID = O.locationID
+	INNER JOIN eve.mapSolarSystems MS ON MS.solarSystemID = S.solarSystemID
+	INNER JOIN eve.mapRegions R ON R.regionID = MS.regionID
 	LEFT OUTER JOIN evedata.market M FORCE INDEX(ix_marketorders) ON 
 		M.typeID = O.typeID AND
 		M.bid = O.isBuyOrder AND

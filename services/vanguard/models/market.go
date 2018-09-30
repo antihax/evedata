@@ -81,7 +81,8 @@ func GetArbitrageCalculator(stationID int64, minVolume int64, maxPrice int64, br
 		        market.regionID = market_vol.regionID AND
 		        market.typeID = invTypes.typeID AND
 		        market.stationID = ?
-		        AND bid = 1
+				AND bid = 1
+				AND private = 0
 		        AND market_vol.quantity /2 > ?
 		GROUP BY market.typeID
 		HAVING price < ?`, brokersFee, stationID, minVolume, maxPrice)
@@ -97,7 +98,8 @@ func GetArbitrageCalculator(stationID int64, minVolume int64, maxPrice int64, br
 		SELECT  typeID, ROUND(min(price) - (min(price) * ?) - (min(price) * ?),2) AS price
 		FROM    evedata.market
 		WHERE   market.stationID = ?
-		        AND bid = 0
+				AND bid = 0
+				AND private = 0
 		        AND price < ?
 		        GROUP BY typeID`, brokersFee, tax, stationID, maxPrice)
 
@@ -166,7 +168,8 @@ func GetMarketRegions() ([]MarketRegion, error) {
 	err := database.Select(&v, `
 		SELECT 	R.regionID, regionName, count(*) AS orders
 		FROM 	mapRegions R
-        INNER JOIN evedata.market M ON R.regionID = M.regionID
+		INNER JOIN evedata.market M ON R.regionID = M.regionID
+		AND M.private = 0
 		WHERE R.regionID < 11000000
         GROUP BY R.regionID
 		ORDER BY regionName ASC;
@@ -247,6 +250,7 @@ func MarketRegionItems(regionID int, itemID int, secFlags int, buy bool) ([]Mark
 				INNER JOIN staStations S ON S.stationID=M.stationID
 				INNER JOIN mapSolarSystems Sy ON Sy.solarSystemID = S.solarSystemID
 				WHERE	bid=? AND
+				M.private = 0 AND 
 						typeID = ? AND (`+secFilter+`);
 			`, buy, itemID)
 	} else {
@@ -257,6 +261,7 @@ func MarketRegionItems(regionID int, itemID int, secFlags int, buy bool) ([]Mark
 				INNER JOIN mapSolarSystems Sy ON Sy.solarSystemID = S.solarSystemID
 				WHERE	bid=? AND
 						M.regionID = ? AND
+						M.private = 0 AND 
 						typeID = ? AND (`+secFilter+`);
 			`, buy, regionID, itemID)
 	}
@@ -283,9 +288,9 @@ func MarketUnderValued(marketRegion int64, sourceRegion int64, destinationRegion
 				coalesce(CR.Price,0) AS regionPrice, coalesce(regionOrders, 0) AS regionOrders
 			FROM evedata.market_history H
 			INNER JOIN eve.invTypes T ON H.itemID = T.typeID
-			LEFT OUTER JOIN (SELECT typeID, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND bid = 0 GROUP BY typeID) CR ON CR.typeID = H.itemID
-			LEFT OUTER JOIN (SELECT typeID, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND bid = 0 GROUP BY typeID) FR ON FR.typeID = H.itemID
-			LEFT OUTER JOIN (SELECT typeID, count(*) AS regionOrders, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND bid = 0 GROUP BY typeID) HR ON HR.typeID = H.itemID
+			LEFT OUTER JOIN (SELECT typeID, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND bid = 0 AND M.private = 0 GROUP BY typeID) CR ON CR.typeID = H.itemID
+			LEFT OUTER JOIN (SELECT typeID, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND bid = 0 AND M.private = 0 GROUP BY typeID) FR ON FR.typeID = H.itemID
+			LEFT OUTER JOIN (SELECT typeID, count(*) AS regionOrders, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND M.private = 0 AND bid = 0 GROUP BY typeID) HR ON HR.typeID = H.itemID
 			WHERE H.regionID = ? AND H.date >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 31 DAY)
 			GROUP BY itemID
 			HAVING RegionPrice < if(destinationPrice>0, destinationPrice, marketPrice)*(1-?) AND regionPrice > 0
@@ -315,12 +320,12 @@ func MarketStationStocker(characterID int32, marketRegion int64, destinationRegi
 		coalesce(count(DISTINCT O.orderID) * sum(O.volumeRemain),0) AS selling
 		FROM evedata.market_history H
 		INNER JOIN eve.invTypes T ON H.itemID = T.typeID
-		INNER JOIN (SELECT typeID, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND bid = 0 GROUP BY typeID) FR ON FR.typeID = H.itemID
+		INNER JOIN (SELECT typeID, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND M.private = 0 AND bid = 0 GROUP BY typeID) FR ON FR.typeID = H.itemID
 		LEFT OUTER JOIN evedata.orders O ON
 			O.characterID IN (SELECT tokenCharacterID FROM evedata.crestTokens WHERE characterID = ?)
             AND O.typeID = T.typeID
             AND O.regionID = H.regionID
-		LEFT OUTER JOIN (SELECT typeID, count(*) AS regionOrders, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND bid = 0 GROUP BY typeID) HR ON HR.typeID = H.itemID
+		LEFT OUTER JOIN (SELECT typeID, count(*) AS regionOrders, MIN(price) AS price FROM evedata.market M WHERE regionID = ? AND M.private = 0 AND bid = 0 GROUP BY typeID) HR ON HR.typeID = H.itemID
 		WHERE H.regionID = ? AND H.date >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 60 DAY)
 		GROUP BY itemID
 		HAVING marketPrice * (1+?) < destinationPrice OR destinationPrice = 0

@@ -55,5 +55,5 @@ func walletSummaryAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderJSON(w, v, time.Hour)
+	renderJSON(w, v, time.Minute*20)
 }

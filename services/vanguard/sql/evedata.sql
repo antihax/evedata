@@ -490,6 +490,7 @@ CREATE TABLE `market` (
   `issued` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
   `duration` smallint(5) unsigned NOT NULL DEFAULT '0',
   `reported` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
+  `private` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`orderID`),
   KEY `regionID_typeID` (`regionID`,`typeID`),
   KEY `typeID` (`typeID`),

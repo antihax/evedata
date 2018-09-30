@@ -26,7 +26,7 @@ func arbitrageCalculatorStations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderJSON(w, v, time.Hour)
+	renderJSON(w, v, time.Minute)
 }
 
 func arbitrageCalculator(w http.ResponseWriter, r *http.Request) {
@@ -71,5 +71,5 @@ func arbitrageCalculator(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderJSON(w, v, time.Hour)
+	renderJSON(w, v, time.Minute)
 }

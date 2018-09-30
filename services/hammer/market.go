@@ -12,8 +12,56 @@ import (
 )
 
 func init() {
+	registerConsumer("characterStructureMarket", structureOrdersConsumer)
 	registerConsumer("marketHistoryTrigger", marketHistoryTrigger)
 	registerConsumer("marketHistory", marketHistoryConsumer)
+}
+
+func structureOrdersConsumer(s *Hammer, parameter interface{}) {
+	parameters := parameter.([]interface{})
+	characterID := int32(parameters[0].(int))
+	tokenCharacterID := int32(parameters[1].(int))
+	structureID := parameters[2].(int64)
+
+	ctx, err := s.GetTokenSourceContext(context.Background(), characterID, tokenCharacterID)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	var page int32 = 1
+	orders := []esi.GetMarketsStructuresStructureId200Ok{}
+	for {
+		o, _, err := s.esi.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, structureID,
+			&esi.GetMarketsStructuresStructureIdOpts{
+				Page: optional.NewInt32(page),
+			})
+		if err != nil {
+			log.Printf("Bad structure market: %s %d\n", err, structureID)
+			err := s.inQueue.SetWorkExpire("evedata_structuremarket_failure", structureID+int64(characterID)+int64(tokenCharacterID), 86400)
+			if err != nil {
+				log.Printf("failed setting failure: %s %d\n", err, structureID)
+			}
+			return
+		} else if len(o) == 0 { // end of the pages
+			break
+		}
+
+		orders = append(orders, o...)
+
+		page++
+	}
+	// early out if there are no orders
+	if len(orders) == 0 {
+		return
+	}
+
+	// Send out the result
+	err = s.QueueResult(&datapackages.StructureOrders{Orders: orders, StructureID: structureID}, "structureOrders")
+	if err != nil {
+		log.Println(err)
+		return
+	}
 }
 
 func marketHistoryTrigger(s *Hammer, parameter interface{}) {
