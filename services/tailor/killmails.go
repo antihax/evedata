@@ -212,7 +212,6 @@ func (s *Tailor) getSystemInformation(system int32, x, y, z float64) (*SystemInf
 		WHERE itemID = closestCelestial(?,?,?,?);`, system, x, y, z).Scan(
 		&sys.CelestialName, &sys.CelestialID, &sys.SolarSystemID, &sys.RegionID, &sys.SolarSystemName, &sys.RegionName, &sys.Security)
 	if err != nil {
-		log.Println(err)
 		return s.getFallbackSystemInformation(system)
 	}
 	return sys, err
