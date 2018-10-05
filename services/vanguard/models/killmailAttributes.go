@@ -65,3 +65,32 @@ func GetOffensiveShipGroupID() ([]OffensiveGroups, error) {
 	}
 	return v, nil
 }
+
+type KillmailStatistics struct {
+	Month        int `db:"month" json:"month"`
+	Year         int `db:"year" json:"year"`
+	CharacterAge int `db:"characterAge" json:"characterAge"`
+	Wars         int `db:"wars" json:"wars"`
+	Ganks        int `db:"ganks" json:"ganks"`
+	Lowsec       int `db:"lowsec" json:"lowsec"`
+	Nullsec      int `db:"nullsec" json:"nullsec"`
+	Highsec      int `db:"highsec" json:"highsec"`
+	NPCKills     int `db:"npcKills" json:"npcKills"`
+	WH           int `db:"wh" json:"wh"`
+	LowsecFW     int `db:"lowsecFW" json:"lowsecFW"`
+	HighsecFW    int `db:"highsecFW" json:"highsecFW"`
+	Total        int `db:"total" json:"total"`
+}
+
+func GetKillmailStatistics() ([]KillmailStatistics, error) {
+	v := []KillmailStatistics{}
+
+	if err := database.Select(&v, `
+		SELECT month, year, characterAge, wars, ganks, lowsec,
+		nullsec, wh, lowsecFW, highsecFW, highsec, npcKills, total 
+		FROM evedata.killmailStatistics;	
+	`); err != nil {
+		return nil, err
+	}
+	return v, nil
+}

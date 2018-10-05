@@ -2,6 +2,7 @@ package hammer
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strconv"
 
@@ -38,7 +39,7 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 			})
 		if err != nil {
 			log.Printf("Bad structure market: %s %d\n", err, structureID)
-			err := s.inQueue.SetWorkExpire("evedata_structuremarket_failure", structureID+int64(characterID)+int64(tokenCharacterID), 86400)
+			err := s.inQueue.SetWorkExpire("evedata_structuremarket_failure", fmt.Sprintf("%d%d", structureID, tokenCharacterID), 86400*3)
 			if err != nil {
 				log.Printf("failed setting failure: %s %d\n", err, structureID)
 			}

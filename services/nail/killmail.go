@@ -51,7 +51,7 @@ func (s *Nail) killmailHandler(message *nsq.Message) error {
 		err = s.doSQL(fmt.Sprintf(`INSERT INTO evedata.killmailAttackers
 			(id,characterID,corporationID,allianceID,shipType,security)
 			VALUES %s ON DUPLICATE KEY UPDATE id=id, security=VALUES(security);
-			`, joinParameters(5, len(mail.Attackers))), attackers...)
+			`, joinParameters(6, len(mail.Attackers))), attackers...)
 		if err != nil {
 			log.Println(err)
 			return err

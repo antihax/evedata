@@ -2,6 +2,7 @@ package artifice
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -59,6 +60,7 @@ func characterStructures(s *Artifice) error {
 					SELECT DISTINCT characterID, locationID FROM evedata.orders WHERE locationID > 70000000
 					UNION DISTINCT
 					SELECT DISTINCT characterID, locationID FROM evedata.assets WHERE locationID > 70000000
+						AND locationFlag = "Hangar"
 				) S ON S.characterID = T.tokenCharacterID
 			WHERE lastStatus != "invalid_token" AND scopes LIKE "%read_structures%"
 			`)
@@ -100,6 +102,7 @@ func characterStructureMarket(s *Artifice) error {
 					SELECT DISTINCT characterID, locationID FROM evedata.orders WHERE locationID > 70000000
 					UNION DISTINCT
 					SELECT DISTINCT characterID, locationID FROM evedata.assets WHERE locationID > 70000000
+						AND locationFlag = "Hangar"
 				) S ON S.characterID = T.tokenCharacterID
 			WHERE lastStatus != "invalid_token" AND scopes LIKE "%read_structures%"
 			`)
@@ -123,14 +126,15 @@ func characterStructureMarket(s *Artifice) error {
 		}
 
 		if !s.inQueue.CheckWorkCompleted("evedata_structuremarket_failure",
-			structureID+int64(characterID)+int64(tokenCharacterID)) {
-
+			fmt.Sprintf("%d%d", structureID, tokenCharacterID)) {
 			work = append(work, redisqueue.Work{Operation: "characterStructureMarket",
 				Parameter: []interface{}{
 					characterID,
 					tokenCharacterID,
 					structureID,
 				}})
+		} else {
+			log.Printf("failed, ignoring %d\n", structureID)
 		}
 	}
 

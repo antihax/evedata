@@ -64,6 +64,16 @@ func contactSyncMaint(s *Artifice) error {
 }
 
 func entityStatsMaint(s *Artifice) error {
+
+	if err := s.doSQL(`
+		UPDATE evedata.killmailAttributes A
+			INNER JOIN evedata.killmails K on K.id = A.id
+			INNER JOIN evedata.characters C ON C.characterID = K.victimCharacterID
+			SET characterAge = DATEDIFF(K.killTime, C.birthDate)+1 
+			WHERE characterAge = 0;`); err != nil {
+		return err
+	}
+
 	// Prefill stats for known entities that may have no kills
 	if err := s.doSQL(`
 			INSERT IGNORE INTO evedata.entityKillStats (id) (SELECT characterID AS id FROM evedata.characters);

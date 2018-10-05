@@ -1,0 +1,261 @@
+{{define "OpenGraph"}}
+<meta property="og:title" content="EVEData: Where are players dying?" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="https://www.evedata.org/images/icon.png" />
+<meta property="og:description" content="View over time, the most common sources of distinct characters losing ships" />
+{{end}}
+{{define "Head"}}
+{{ template "bootstrap-table" . }}
+{{ template "d3-5" .}}
+{{ template "crossfilter" .}}
+{{ template "dc-3" .}}
+
+{{end}}
+{{define "body"}}
+<h3>Killmail Statistics</h3>
+Data represents Unique Characters per Month that lost a ship per category.<br>
+Ganks are any losses in highsec where the attackers average security was less than -4.5.<br>
+Wars are all war kills in highsec since the implementation of killmail tagging by war in March 2012.<br>
+HighsecFW/LowsecFW are losses by faction war characters.<br>
+Highsec/lowsec/nullsec/wh are totals in these areas, including wars, ganks, etc.<br><br>
+The highsec pie shows wars, ganks, highsec facwar and the remainder (npc kills, suspect/can baiting, duals, etc).<br><br>
+The age filter will show characters younger than this age (18250 is everyone).
+<br><br>
+
+<div id="graphContainer" style="width: 800px;" class="container whitewell">
+    <select class="selectpicker" data-width="auto" name="age" id="age"></select>
+    <button id="viewBy" style="float: right;" type="button" class="btn btn-primary btn-sm" data-toggle="button">Month</button>
+
+    <div id="lineGraph"></div>
+    <div id="slice"></div>
+    <div id="spreadGraph"></div>
+    <div id="highsecGraph" style="float: right;"></div>
+</div>
+<script>
+    var killdata;
+
+    $.ajax({
+        url: '/J/killmailStatistics',
+        dataType: 'JSON',
+        success: function (data) {
+            killdata = data;
+            var seen = {};
+            var ages = [];
+            $.each(data, function (k, v) {
+                if (!seen[v.characterAge]) {
+                    seen[v.characterAge] = true;
+                    ages.push(v.characterAge);
+                }
+            });
+            ages.sort(function (a, b) {
+                return a - b;
+            });
+            $.each(ages, function (k, v) {
+                $('#age').append('<option value=' +
+                    v + '>' +
+                    v + ' days old</option>');
+            });
+            $('#age').selectpicker('refresh');
+
+            redraw()
+        },
+        error: function (x, o, e) { alert(e); }
+    });
+
+    $('#age').change(function () {
+        redraw();
+    });
+
+    $('#viewBy').click(function () {
+        setTimeout(function () {
+            if (!$('#viewBy').hasClass('active')) {
+                $('#viewBy').text("Month")
+            } else {
+                $('#viewBy').text("Year")
+            }
+            redraw();
+        }, 0);
+    });
+
+    function redraw() {
+        loadGraphs(transform(killdata, $('#age').val()), $('#viewBy').hasClass('active'));
+    }
+
+    function remove_empty_bins(source_group) {
+        return {
+            all: function () {
+                return source_group.all().filter(function (d) {
+                    //return Math.abs(d.value) > 0.00001; // if using floating-point numbers
+                    return d.value !== 0; // if integers only
+                });
+            }
+        };
+    }
+    function remove_keyA(source_group, key) {
+        return {
+            all: function () {
+                return source_group.all().filter(function (d) {
+                    return d.key[0] != key
+                });
+            }
+        };
+    }
+
+    function remove_nonsec(source_group) {
+        return {
+            all: function () {
+                return source_group.all().filter(function (d) {
+                    return d.key.endsWith("sec") || d.key == "wh"
+                });
+            }
+        };
+    }
+
+    function remove_nonhighsec(source_group) {
+        return {
+            all: function () {
+                return source_group.all().filter(function (d) {
+                    return d.key == "highsecOther" || d.key == "ganks" || d.key == "wars" || d.key == "highsecFW"
+                });
+            }
+        };
+    }
+
+    function transform(data, age) {
+        var types = [
+            "ganks",
+            "highsecFW",
+            "highsecOther",
+            "highsec",
+            "lowsec",
+            "lowsecFW",
+            "nullsec",
+            "wars",
+            "wh",
+        ];
+
+        var n = [];
+        $.each(data, function (k, v) {
+            if (age == v.characterAge) {
+                var d = new Date(v.year, v.month-1, 1);
+                
+                v["highsecOther"] = v["highsec"] - v["highsecFW"] - v["wars"] - v["ganks"];
+                $.each(types, function (i, t) {
+                    n.push({
+                        date: d,
+                        key: t,
+                        value: v[t],
+                    });
+                });
+            }
+        });
+        return n;
+    }
+
+    function loadGraphs(data, viewBy) {
+        var ndx = crossfilter(data),
+            dimension = ndx.dimension(function (d) {
+                if (viewBy == 0) {
+                    return [d.key, d3.timeMonth(d.date)];
+                } else {
+                    return [d.key, d3.timeYear(d.date)];
+                }
+            }),
+            areaCount = dimension.group().reduceSum(function (d) {
+                return d.value;
+            });
+        areaCount = remove_empty_bins(remove_keyA(areaCount, "highsecOther"));
+
+        var lineGraph = dc.seriesChart("#lineGraph");
+        lineGraph
+            .width(800)
+            .height(480)
+            .chart(function (c) { return dc.lineChart(c) })
+            .x(d3.scaleTime())
+            .round(d3.timeMonth.round)
+            .xUnits(d3.timeMonths)
+            .brushOn(false)
+            .yAxisLabel("Unique Characters")
+            .xAxisLabel("Time")
+            .clipPadding(10)
+            .elasticY(true)
+            .elasticX(true)
+            .dimension(dimension)
+            .group(areaCount)
+            .title(function (p) {
+                return [p.key[0],
+                p.key[1].getMonth() + 1 + "-" + p.key[1].getFullYear(),
+                p.value,
+                ].join('\n');
+            })
+            .mouseZoomable(false)
+            .seriesAccessor(function (d) { return d.key[0]; })
+            .keyAccessor(function (d) { return d.key[1]; })
+            .valueAccessor(function (d) { return d.value; })
+            .legend(dc.legend().x(350).y(10).itemHeight(13).gap(5).horizontal(1).legendWidth(140).itemWidth(70));
+
+        lineGraph.yAxis().tickFormat(function (d) { return d3.format(',d')(d); });
+        lineGraph.margins().left += 40;
+        lineGraph.margins().bottom += 0;
+
+        var slice = dc.barChart("#slice"),
+            sliceDimension = ndx.dimension(function (d) {
+                return d3.timeMonth(d.date)
+            }),
+            sliceGroup = sliceDimension.group().reduceSum(function (d) { return d.value; });
+
+        slice
+            .width(800)
+            .height(60)
+
+            .margins({ top: 0, right: 50, bottom: 30, left: 80 })
+            .dimension(sliceDimension)
+            .group(sliceGroup)
+            .x(d3.scaleTime())
+            .round(d3.timeMonth.round)
+            .xUnits(d3.timeMonths)
+            .elasticY(true)
+            .elasticX(true)
+            .yAxis().ticks(3);
+
+        var spreadDimension = ndx.dimension(function (d) {
+            return d.key;
+        }),
+            spreadGroup = spreadDimension.group().reduceSum(function (d) { return d.value; });
+        spreadGroup = remove_nonsec(spreadGroup)
+        var spreadPie = dc.pieChart("#spreadGraph");
+        spreadPie
+            .width(350)
+            .height(350)
+            .innerRadius(100)
+            .dimension(spreadDimension)
+            .group(spreadGroup)
+            .legend(dc.legend()).on('pretransition', function (chart) {
+                chart.selectAll('text.pie-slice').text(function (d) {
+                    return d.data.key + ' ' + dc.utils.printSingleValue((d.endAngle - d.startAngle) / (2 * Math.PI) * 100) + '%';
+                })
+            });;
+
+        var highsecDimension = ndx.dimension(function (d) {
+            return d.key;
+        }),
+            highsecGroup = highsecDimension.group().reduceSum(function (d) { return d.value; }),
+            highsecPie = dc.pieChart("#highsecGraph");
+
+        highsecGroup = remove_nonhighsec(highsecGroup);
+        highsecPie
+            .width(350)
+            .height(350)
+            .innerRadius(100)
+            .dimension(highsecDimension)
+            .group(highsecGroup)
+            .legend(dc.legend()).on('pretransition', function (chart) {
+                chart.selectAll('text.pie-slice').text(function (d) {
+                    return d.data.key + ' ' + dc.utils.printSingleValue((d.endAngle - d.startAngle) / (2 * Math.PI) * 100) + '%';
+                })
+            });;
+
+        dc.renderAll();
+    }
+</script>
+{{end}}
