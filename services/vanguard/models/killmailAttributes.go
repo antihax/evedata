@@ -94,3 +94,26 @@ func GetKillmailStatistics() ([]KillmailStatistics, error) {
 	}
 	return v, nil
 }
+
+type KillmailAreaEntityStatistics struct {
+	Area  string `db:"area" json:"area"`
+	Name  string `db:"name" json:"name"`
+	ID    int32  `db:"id" json:"id"`
+	Kills int32  `db:"kills" json:"kills"`
+}
+
+func GetKillmailAreaEntityStatistics() ([]KillmailAreaEntityStatistics, error) {
+	v := []KillmailAreaEntityStatistics{}
+
+	if err := database.Select(&v, `
+	SELECT id, sum(kills) AS kills, area, coalesce(A.name,C.name) as name
+	FROM evedata.killmailKillers K
+	LEFT OUTER JOIN evedata.alliances A ON A.allianceID = K.id
+	LEFT OUTER JOIN evedata.corporations C ON C.corporationID = K.id
+    WHERE year > YEAR(DATE_SUB(utc_timestamp(), INTERVAL 2 year))
+	GROUP BY id, area
+	`); err != nil {
+		return nil, err
+	}
+	return v, nil
+}

@@ -3,6 +3,7 @@ package views
 import (
 	"errors"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -14,6 +15,7 @@ func init() {
 	// Add routes to the http router
 	vanguard.AddRoute("GET", "/J/search", searchAPI)
 	vanguard.AddRoute("GET", "/J/searchEntities", searchEntitiesAPI)
+	vanguard.AddRoute("GET", "/J/findEntity", findEntityAPI)
 	vanguard.AddRoute("GET", "/search", searchRouter)
 }
 
@@ -78,6 +80,34 @@ func searchRouter(w http.ResponseWriter, r *http.Request) {
 		endPoint = "/corporation?id=" + id
 	case "item":
 		endPoint = "/item?id=" + id
+	default:
+		httpErr(w, errors.New("Unknown endpoint"))
+		return
+	}
+
+	http.Redirect(w, r, endPoint, 302)
+	httpErrCode(w, nil, http.StatusMovedPermanently)
+}
+
+// findEntitiesAPI for characters, alliances, corporations, and items.
+func findEntityAPI(w http.ResponseWriter, r *http.Request) {
+	var endPoint string
+	id, err := strconv.ParseInt(r.FormValue("id"), 10, 64)
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+
+	entityType := models.SearchByID(id)
+	switch entityType {
+	case "character":
+		endPoint = "/character?id=" + r.FormValue("id")
+	case "alliance":
+		endPoint = "/alliance?id=" + r.FormValue("id")
+	case "corporation":
+		endPoint = "/corporation?id=" + r.FormValue("id")
+	case "item":
+		endPoint = "/item?id=" + r.FormValue("id")
 	default:
 		httpErr(w, errors.New("Unknown endpoint"))
 		return
