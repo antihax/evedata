@@ -83,6 +83,7 @@ func (s *Tailor) saveKillmail(pack *KillmailAttributes) error {
 		)
 		if err != nil {
 			log.Println(err)
+
 			metricStatus.With(
 				prometheus.Labels{"status": "fail"},
 			).Inc()
