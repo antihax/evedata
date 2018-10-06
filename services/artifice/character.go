@@ -82,13 +82,15 @@ func characterStructures(s *Artifice) error {
 		if err != nil {
 			return err
 		}
-
-		work = append(work, redisqueue.Work{Operation: "characterStructures",
-			Parameter: []interface{}{
-				characterID,
-				tokenCharacterID,
-				structureID,
-			}})
+		if !s.inQueue.CheckWorkExpired("evedata_structurechar_failure",
+			fmt.Sprintf("%d%d", structureID, tokenCharacterID)) {
+			work = append(work, redisqueue.Work{Operation: "characterStructures",
+				Parameter: []interface{}{
+					characterID,
+					tokenCharacterID,
+					structureID,
+				}})
+		}
 	}
 
 	return s.QueueWork(work, redisqueue.Priority_Lowest)
@@ -125,7 +127,7 @@ func characterStructureMarket(s *Artifice) error {
 			return err
 		}
 
-		if !s.inQueue.CheckWorkCompleted("evedata_structuremarket_failure",
+		if !s.inQueue.CheckWorkExpired("evedata_structuremarket_failure",
 			fmt.Sprintf("%d%d", structureID, tokenCharacterID)) {
 			work = append(work, redisqueue.Work{Operation: "characterStructureMarket",
 				Parameter: []interface{}{
@@ -133,6 +135,7 @@ func characterStructureMarket(s *Artifice) error {
 					tokenCharacterID,
 					structureID,
 				}})
+			log.Printf("adding %d\n", structureID)
 		} else {
 			log.Printf("failed, ignoring %d\n", structureID)
 		}

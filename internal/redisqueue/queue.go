@@ -208,10 +208,11 @@ func (hq *RedisQueue) SetWorkCompletedInBulk(key string, ids []int64) error {
 }
 
 // CheckWorkExpired takes a key and checks if the ID has expired
-func (hq *RedisQueue) CheckWorkExpired(key string, id int64) bool {
+func (hq *RedisQueue) CheckWorkExpired(key string, id interface{}) bool {
 	conn := hq.redisPool.Get()
 	defer conn.Close()
-	found, _ := redis.Bool(conn.Do("GET", fmt.Sprintf("%s:%d", key, id)))
+	found, _ := redis.Bool(conn.Do("GET", fmt.Sprintf("%s:%v", key, id)))
+
 	return found
 }
 
@@ -244,7 +245,7 @@ func (hq *RedisQueue) CheckWorkExpiredInBulk(key string, id []int64) ([]bool, er
 func (hq *RedisQueue) SetWorkExpire(key string, id interface{}, seconds int) error {
 	conn := hq.redisPool.Get()
 	defer conn.Close()
-	_, err := conn.Do("SETEX", fmt.Sprintf("%s:%d", key, id), seconds, true)
+	_, err := conn.Do("SETEX", fmt.Sprintf("%s:%v", key, id), seconds, true)
 	return err
 }
 

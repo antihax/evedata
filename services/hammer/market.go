@@ -24,6 +24,12 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 	tokenCharacterID := int32(parameters[1].(int))
 	structureID := parameters[2].(int64)
 
+	if s.inQueue.CheckWorkExpired("evedata_structuremarket_failure",
+		fmt.Sprintf("%d%d", structureID, tokenCharacterID)) {
+		log.Printf("failed structure ignored %d\n", structureID)
+		return
+	}
+
 	ctx, err := s.GetTokenSourceContext(context.Background(), characterID, tokenCharacterID)
 	if err != nil {
 		log.Println(err)
@@ -33,15 +39,17 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 	var page int32 = 1
 	orders := []esi.GetMarketsStructuresStructureId200Ok{}
 	for {
-		o, _, err := s.esi.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, structureID,
+		o, r, err := s.esi.ESI.MarketApi.GetMarketsStructuresStructureId(ctx, structureID,
 			&esi.GetMarketsStructuresStructureIdOpts{
 				Page: optional.NewInt32(page),
 			})
 		if err != nil {
 			log.Printf("Bad structure market: %s %d\n", err, structureID)
-			err := s.inQueue.SetWorkExpire("evedata_structuremarket_failure", fmt.Sprintf("%d%d", structureID, tokenCharacterID), 86400*3)
-			if err != nil {
-				log.Printf("failed setting failure: %s %d\n", err, structureID)
+			if r.StatusCode == 403 {
+				err := s.inQueue.SetWorkExpire("evedata_structuremarket_failure", fmt.Sprintf("%d%d", structureID, tokenCharacterID), 86400*3)
+				if err != nil {
+					log.Printf("failed setting failure: %s %d\n", err, structureID)
+				}
 			}
 			return
 		} else if len(o) == 0 { // end of the pages
