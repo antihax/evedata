@@ -135,9 +135,6 @@ func characterStructureMarket(s *Artifice) error {
 					tokenCharacterID,
 					structureID,
 				}})
-			log.Printf("adding %d\n", structureID)
-		} else {
-			log.Printf("failed, ignoring %d\n", structureID)
 		}
 	}
 
