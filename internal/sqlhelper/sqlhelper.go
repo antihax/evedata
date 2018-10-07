@@ -7,21 +7,25 @@ import (
 	"log"
 	"os"
 
-	_ "github.com/go-sql-driver/mysql"
+	sq "github.com/Masterminds/squirrel"
+	_ "github.com/go-sql-driver/mysql" // SQL Driver
 	"github.com/jmoiron/sqlx"
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Hash a password with bcrypt
 func Hash(pwd string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(pwd), 10)
 	return string(hash), err
 }
 
+// CompareHash of a bcrypt hash
 func CompareHash(pwd string, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(pwd))
 	return err == nil
 }
 
+// NewTestDatabase creates a connection to a test database on 127.0.0.1:3306 with no password
 func NewTestDatabase() *sqlx.DB {
 	database, err := setupDatabase("mysql", "root@tcp(127.0.0.1:3306)/eve?allowOldPasswords=1&parseTime=true&tls=skip-verify")
 	if err != nil {
@@ -30,6 +34,7 @@ func NewTestDatabase() *sqlx.DB {
 	return database
 }
 
+// NewDatabase creates a new connection for sql.storage
 func NewDatabase() *sqlx.DB {
 	database, err := setupDatabase("mysql", os.Getenv("SQLAUTH")+"@tcp(sql.storage:3306)/eve?allowOldPasswords=1&parseTime=true&tls=skip-verify")
 	if err != nil {
@@ -120,6 +125,26 @@ func RetryTransaction(tx *sqlx.Tx) error {
 	}
 }
 
+// RetrySquirrelInsertTransaction on deadlocks
+func RetrySquirrelInsertTransaction(tx *sqlx.Tx, sq sq.InsertBuilder) error {
+	sqlq, args, err := sq.ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(sqlq, args...)
+	if err != nil {
+		return err
+	}
+
+	err = RetryTransaction(tx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// IToB converts a boolean to integer
 func IToB(b bool) int {
 	if b {
 		return 1
