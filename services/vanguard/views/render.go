@@ -35,7 +35,6 @@ func renderJSON(w http.ResponseWriter, v interface{}, cacheTime time.Duration) e
 }
 
 func renderTemplate(w http.ResponseWriter, name string, cacheTime time.Duration, data interface{}) error {
-
 	mainTemplate := template.Must(template.New("base").Funcs(template.FuncMap{
 		"dict": func(values ...interface{}) (map[string]interface{}, error) {
 			if len(values) == 0 {
@@ -144,7 +143,7 @@ func renderBlank(w http.ResponseWriter, name string, cacheTime time.Duration, da
 
 func renderStatic(w http.ResponseWriter, r *http.Request, area string, page page) {
 	p := newPage(r, page.Title)
-	setCache(w, 60*60*24*31)
+	cache(w, time.Hour*24*31)
 
 	mainTemplate := template.New("base")
 	mainTemplate, err := mainTemplate.ParseFiles("templates/layout/layout.html")
@@ -170,7 +169,7 @@ func renderStatic(w http.ResponseWriter, r *http.Request, area string, page page
 
 func notFoundPage(w http.ResponseWriter, r *http.Request) {
 	p := newPage(r, "Page Not Found")
-	setCache(w, 60*60*24*31)
+	cache(w, time.Hour*24*31)
 
 	mainTemplate := template.New("base")
 	mainTemplate, err := mainTemplate.ParseFiles("templates/layout/layout.html")

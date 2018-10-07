@@ -31,7 +31,7 @@ func init() {
 }
 
 func localIntel(w http.ResponseWriter, r *http.Request) {
-	setCache(w, 60*30)
+	cache(w, time.Hour)
 	c := vanguard.GlobalsFromContext(r.Context())
 
 	hash := r.FormValue("hash")
