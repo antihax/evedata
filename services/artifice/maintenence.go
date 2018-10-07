@@ -3,6 +3,8 @@ package artifice
 import (
 	"log"
 	"time"
+
+	"github.com/antihax/evedata/internal/sqlhelper"
 )
 
 func init() {
@@ -350,9 +352,39 @@ func getMarketRegions(s *Artifice) ([]marketRegion, error) {
 	return v, nil
 }
 
+func updateMarketStations(s *Artifice) error {
+	tx, err := s.db.Beginx()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec("DELETE FROM evedata.marketStations ORDER BY stationID;")
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(`
+		INSERT INTO evedata.marketStations SELECT stationName, M.stationID, Count(*) as Count
+		FROM    evedata.market M
+				INNER JOIN staStations S ON M.stationID = S.stationID
+		WHERE   M.private = 0
+		GROUP BY M.stationID 
+		ORDER BY stationID
+		ON DUPLICATE KEY UPDATE stationID=stationID; `)
+	if err != nil {
+		return err
+	}
+
+	return sqlhelper.RetryTransaction(tx)
+}
+
 func marketUpdate(s *Artifice) error {
 	regions, err := getMarketRegions(s)
 	if err != nil {
+		log.Println(err)
+	}
+
+	if err := updateMarketStations(s); err != nil {
 		log.Println(err)
 	}
 
@@ -361,25 +393,7 @@ func marketUpdate(s *Artifice) error {
 		SELECT stationID, solarSystemID, stationName, 
 		x, y, z, utc_timestamp(), utc_timestamp(), corporationID AS ownerID, stationTypeID AS typeID, 0 
 		FROM eve.staStations WHERE corporationID < 9000000
-		ON DUPLICATE KEY UPDATE updated = utc_timestamp();
-             `); err != nil {
-		log.Println(err)
-	}
-
-	if err := s.doSQL(`
-        DELETE FROM evedata.marketStations ORDER BY stationID;
-             `); err != nil {
-		log.Println(err)
-	}
-
-	if err := s.doSQL(`
-        INSERT INTO evedata.marketStations SELECT stationName, M.stationID, Count(*) as Count
-        FROM    evedata.market M
-                INNER JOIN staStations S ON M.stationID = S.stationID
-        WHERE   M.private = 0
-		GROUP BY M.stationID 
-        ON DUPLICATE KEY UPDATE stationID=stationID;
-            `); err != nil {
+		ON DUPLICATE KEY UPDATE updated = utc_timestamp(); `); err != nil {
 		log.Println(err)
 	}
 
@@ -391,12 +405,13 @@ func marketUpdate(s *Artifice) error {
 
 	for _, region := range regions {
 		if err := s.doSQL(`
-        REPLACE INTO evedata.market_vol (
-            SELECT count(*) as number,sum(quantity)/7 as quantity, regionID, itemID 
+        INSERT INTO evedata.market_vol (quantity, regionID, itemID) (
+            SELECT sum(quantity)/count(*) as quantity, regionID, itemID 
                 FROM evedata.market_history 
                 WHERE date > DATE_SUB(UTC_TIMESTAMP(),INTERVAL 7 DAY) 
                 AND regionID = ?
-                GROUP BY regionID, itemID);
+                GROUP BY regionID, itemID) 
+		ON DUPLICATE KEY UPDATE quantity = VALUES(quantity);
             `, region.RegionID); err != nil {
 			log.Println(err)
 			return err
