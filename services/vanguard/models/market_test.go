@@ -55,7 +55,7 @@ func TestGetGetArbitrageCalculator(t *testing.T) {
 	}
 
 	_, err = database.Exec(`
-			INSERT INTO evedata.market_vol VALUES(6, 54.0000, 10000002, 37306) ON DUPLICATE KEY UPDATE number=number;
+			INSERT INTO evedata.market_vol VALUES( 54.0000, 10000002, 37306) ON DUPLICATE KEY UPDATE number=number;
 		`)
 	if err != nil {
 		t.Error(err)
