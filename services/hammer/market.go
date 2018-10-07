@@ -44,7 +44,6 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 				Page: optional.NewInt32(page),
 			})
 		if err != nil {
-			log.Printf("Bad structure market: %s %d\n", err, structureID)
 			if r.StatusCode == 403 {
 				err := s.inQueue.SetWorkExpire("evedata_structuremarket_failure", fmt.Sprintf("%d%d", structureID, tokenCharacterID), 86400*3)
 				if err != nil {

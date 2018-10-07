@@ -62,7 +62,6 @@ func characterStructuresConsumer(s *Hammer, parameter interface{}) {
 	// [TODO] tick failure to database
 	structure, r, err := s.esi.ESI.UniverseApi.GetUniverseStructuresStructureId(ctx, structureID, nil)
 	if err != nil {
-		log.Printf("Bad structure: %s %d\n", err, structureID)
 		if r.StatusCode == 403 {
 			err := s.inQueue.SetWorkExpire("evedata_structurechar_failure", fmt.Sprintf("%d%d", structureID, tokenCharacterID), 86400*3)
 			if err != nil {
