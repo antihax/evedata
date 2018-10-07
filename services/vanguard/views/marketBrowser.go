@@ -72,5 +72,5 @@ func marketRegionItems(w http.ResponseWriter, r *http.Request, buy bool) {
 		return
 	}
 
-	renderJSON(w, v, time.Hour)
+	renderJSON(w, v, time.Minute)
 }

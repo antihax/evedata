@@ -82,3 +82,10 @@ func SearchEntities(query string) ([]NamesItemList, error) {
 
 	return list, nil
 }
+
+// SearchByID looks for entities by ID
+func SearchByID(id int64) string {
+	var result string
+	database.QueryRow(`	SELECT type FROM evedata.entities WHERE id = ?;`, id).Scan(&result)
+	return result
+}

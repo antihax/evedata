@@ -12,7 +12,7 @@ func init() {
 	registerTrigger("marketUpdate", marketUpdate, time.NewTicker(time.Hour*2))
 	registerTrigger("discoveredAssetsMaint", discoveredAssetsMaint, time.NewTicker(time.Second*3620))
 	registerTrigger("entityMaint", entityMaint, time.NewTicker(time.Second*3630*3))
-	registerTrigger("entityStatsMaint", entityStatsMaint, time.NewTicker(time.Hour*8))
+	registerTrigger("entityStatsMaint", entityStatsMaint, time.NewTicker(time.Hour*24))
 	registerTrigger("contactSyncMaint", contactSyncMaint, time.NewTicker(time.Second*3615*6))
 }
 
@@ -64,6 +64,16 @@ func contactSyncMaint(s *Artifice) error {
 }
 
 func entityStatsMaint(s *Artifice) error {
+
+	if err := s.doSQL(`
+		UPDATE evedata.killmailAttributes A
+			INNER JOIN evedata.killmails K on K.id = A.id
+			INNER JOIN evedata.characters C ON C.characterID = K.victimCharacterID
+			SET characterAge = DATEDIFF(K.killTime, C.birthDate)+1 
+			WHERE characterAge = 0;`); err != nil {
+		return err
+	}
+
 	// Prefill stats for known entities that may have no kills
 	if err := s.doSQL(`
 			INSERT IGNORE INTO evedata.entityKillStats (id) (SELECT characterID AS id FROM evedata.characters);
@@ -293,6 +303,7 @@ func discoveredAssetsMaint(s *Artifice) error {
 			S.updated AS lastSeen
 			FROM evedata.structures S
 			INNER JOIN evedata.corporations C ON C.corporationID = S.ownerID
+			WHERE S.private = 0
 		ON DUPLICATE KEY UPDATE lastSeen = VALUES(lastSeen);`); err != nil {
 		return err
 	}
@@ -346,6 +357,16 @@ func marketUpdate(s *Artifice) error {
 	}
 
 	if err := s.doSQL(`
+		INSERT IGNORE INTO evedata.structures (stationID,solarSystemID,stationName,x,y,z,updated,marketCacheUntil,ownerID,typeID,private)
+		SELECT stationID, solarSystemID, stationName, 
+		x, y, z, utc_timestamp(), utc_timestamp(), corporationID AS ownerID, stationTypeID AS typeID, 0 
+		FROM eve.staStations WHERE corporationID < 9000000
+		ON DUPLICATE KEY UPDATE updated = utc_timestamp();
+             `); err != nil {
+		log.Println(err)
+	}
+
+	if err := s.doSQL(`
         DELETE FROM evedata.marketStations ORDER BY stationID;
              `); err != nil {
 		log.Println(err)
@@ -355,9 +376,8 @@ func marketUpdate(s *Artifice) error {
         INSERT INTO evedata.marketStations SELECT stationName, M.stationID, Count(*) as Count
         FROM    evedata.market M
                 INNER JOIN staStations S ON M.stationID = S.stationID
-        WHERE   reported >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 7 DAY)
+        WHERE   M.private = 0
 		GROUP BY M.stationID 
-		ORDER BY stationID
         ON DUPLICATE KEY UPDATE stationID=stationID;
             `); err != nil {
 		log.Println(err)
@@ -393,8 +413,8 @@ func marketUpdate(s *Artifice) error {
 	if err := s.doSQL(`
 		 INSERT IGNORE INTO evedata.jitaPrice (
 		 SELECT S.typeID as itemID, buy, sell, high, low, mean, quantity FROM
-			 (SELECT typeID, min(price) AS sell FROM evedata.market WHERE regionID = 10000002 AND bid = 0 GROUP BY typeID) S
-			 INNER JOIN (SELECT typeID, max(price) AS buy FROM evedata.market WHERE regionID = 10000002 AND bid = 1 GROUP BY typeID) B ON S.typeID = B.typeID
+			 (SELECT typeID, min(price) AS sell FROM evedata.market WHERE regionID = 10000002 AND bid = 0 AND private = 0 GROUP BY typeID) S
+			 INNER JOIN (SELECT typeID, max(price) AS buy FROM evedata.market WHERE regionID = 10000002 AND bid = 1 AND private = 0 GROUP BY typeID) B ON S.typeID = B.typeID
 			 LEFT OUTER JOIN (SELECT itemID, max(high) AS high, avg(mean) AS mean, min(low) AS low, sum(quantity) AS quantity FROM evedata.market_history WHERE regionID = 10000002 AND date > DATE_SUB(UTC_DATE(), INTERVAL 7 DAY) GROUP BY itemID) H on H.itemID = S.typeID
 		 HAVING mean IS NOT NULL
 		 ) ORDER BY itemID;
@@ -454,7 +474,14 @@ func marketUpdate(s *Artifice) error {
 func marketMaint(s *Artifice) error {
 	// Deal with any possible orphaned orders
 	if err := s.RetryExecTillNoRows(`
-	DELETE FROM evedata.market WHERE DATE_ADD(issued, INTERVAL duration DAY) < utc_timestamp();
+		DELETE FROM evedata.market WHERE DATE_ADD(issued, INTERVAL duration DAY) < utc_timestamp();
+	            `); err != nil {
+		log.Println(err)
+	}
+
+	// Remove any possible stale items
+	if err := s.RetryExecTillNoRows(`
+		DELETE FROM evedata.market WHERE reported < DATE_SUB(UTC_TIMESTAMP(), INTERVAL 70 MINUTE)
 	            `); err != nil {
 		log.Println(err)
 	}

@@ -30,7 +30,7 @@ type SystemCelestials struct {
 	DX             float64 `db:"dx" json:"dx,omitempty"`
 	DY             float64 `db:"dy" json:"dy,omitempty"`
 	DZ             float64 `db:"dz" json:"dz,omitempty"`
-	Radius         int64   `db:"radius" json:"radius,omitempty"`
+	Radius         float64 `db:"radius" json:"radius,omitempty"`
 	CelestialIndex int64   `db:"celestialIndex" json:"celestialIndex,omitempty"`
 	OrbitIndex     int64   `db:"orbitIndex" json:"orbitIndex,omitempty"`
 }

@@ -65,3 +65,55 @@ func GetOffensiveShipGroupID() ([]OffensiveGroups, error) {
 	}
 	return v, nil
 }
+
+type KillmailStatistics struct {
+	Month        int `db:"month" json:"month"`
+	Year         int `db:"year" json:"year"`
+	CharacterAge int `db:"characterAge" json:"characterAge"`
+	Wars         int `db:"wars" json:"wars"`
+	Ganks        int `db:"ganks" json:"ganks"`
+	Lowsec       int `db:"lowsec" json:"lowsec"`
+	Nullsec      int `db:"nullsec" json:"nullsec"`
+	Highsec      int `db:"highsec" json:"highsec"`
+	NPCKills     int `db:"npcKills" json:"npcKills"`
+	WH           int `db:"wh" json:"wh"`
+	LowsecFW     int `db:"lowsecFW" json:"lowsecFW"`
+	HighsecFW    int `db:"highsecFW" json:"highsecFW"`
+	Total        int `db:"total" json:"total"`
+}
+
+func GetKillmailStatistics() ([]KillmailStatistics, error) {
+	v := []KillmailStatistics{}
+
+	if err := database.Select(&v, `
+		SELECT month, year, characterAge, wars, ganks, lowsec,
+		nullsec, wh, lowsecFW, highsecFW, highsec, npcKills, total 
+		FROM evedata.killmailStatistics;	
+	`); err != nil {
+		return nil, err
+	}
+	return v, nil
+}
+
+type KillmailAreaEntityStatistics struct {
+	Area  string `db:"area" json:"area"`
+	Name  string `db:"name" json:"name"`
+	ID    int32  `db:"id" json:"id"`
+	Kills int32  `db:"kills" json:"kills"`
+}
+
+func GetKillmailAreaEntityStatistics() ([]KillmailAreaEntityStatistics, error) {
+	v := []KillmailAreaEntityStatistics{}
+
+	if err := database.Select(&v, `
+	SELECT id, sum(kills) AS kills, area, coalesce(A.name,C.name) as name
+	FROM evedata.killmailKillers K
+	LEFT OUTER JOIN evedata.alliances A ON A.allianceID = K.id
+	LEFT OUTER JOIN evedata.corporations C ON C.corporationID = K.id
+    WHERE year > YEAR(DATE_SUB(utc_timestamp(), INTERVAL 2 year))
+	GROUP BY id, area
+	`); err != nil {
+		return nil, err
+	}
+	return v, nil
+}

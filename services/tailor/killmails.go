@@ -83,6 +83,7 @@ func (s *Tailor) saveKillmail(pack *KillmailAttributes) error {
 		)
 		if err != nil {
 			log.Println(err)
+
 			metricStatus.With(
 				prometheus.Labels{"status": "fail"},
 			).Inc()
@@ -212,7 +213,6 @@ func (s *Tailor) getSystemInformation(system int32, x, y, z float64) (*SystemInf
 		WHERE itemID = closestCelestial(?,?,?,?);`, system, x, y, z).Scan(
 		&sys.CelestialName, &sys.CelestialID, &sys.SolarSystemID, &sys.RegionID, &sys.SolarSystemName, &sys.RegionName, &sys.Security)
 	if err != nil {
-		log.Println(err)
 		return s.getFallbackSystemInformation(system)
 	}
 	return sys, err
@@ -342,6 +342,19 @@ func (s *Tailor) killmailConsumer() {
 		b := a.Attributes.Ship
 		pm := a.PriceMap
 
+		// figure out the mean security of the attackers.
+		meanSecurity := float32(0.0)
+		count := 0
+		for _, attacker := range a.Killmail.Attackers {
+			if attacker.CharacterId > 0 {
+				meanSecurity += attacker.SecurityStatus
+				count++
+			}
+		}
+		if count > 0 {
+			meanSecurity = meanSecurity / float32(count)
+		}
+
 		value := pm[a.Attributes.TypeID]
 		totalValue := pm[a.Attributes.TypeID]
 		if value > 0 {
@@ -369,6 +382,7 @@ func (s *Tailor) killmailConsumer() {
 			"remoteShieldRepair", "remoteEnergyTransfer", "energyNeutralization", "sensorStrength",
 			"RPS", "CPURemaining", "powerRemaining", "capacitorNoMWD", "capacitor",
 			"capacitorTimeNoMWD", "capacitorTime", "fittedValue", "totalValue", "stasisWebifierStrength", "totalWarpScrambleStrength",
+			"meanSecurity",
 		)
 
 		sq = sq.Values(
@@ -378,6 +392,7 @@ func (s *Tailor) killmailConsumer() {
 			b["scanRadarStrength"]+b["scanLadarStrength"]+b["scanMagnetometricStrength"]+b["scanGravimetricStrength"],
 			b["avgRPS"], b["cpuRemaining"], b["powerRemaining"], b["capacitorFraction"], b["capacitorFractionMWD"],
 			b["capacitorDuration"]*100000, b["capacitorDurationMWD"]*100000, value, totalValue, b["stasisWebifierStrength"], b["totalWarpScrambleStrength"],
+			meanSecurity,
 		)
 
 		sqlq, args, err := sq.ToSql()
@@ -386,7 +401,7 @@ func (s *Tailor) killmailConsumer() {
 			continue
 		}
 
-		err = s.doSQL(sqlq+" ON DUPLICATE KEY UPDATE id = id", args...)
+		err = s.doSQL(sqlq+" ON DUPLICATE KEY UPDATE id = id, meanSecurity = VALUES(meanSecurity)", args...)
 		if err != nil {
 			log.Println(err)
 			continue

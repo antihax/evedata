@@ -17,13 +17,14 @@ func init() {
 				time.Hour*24*31,
 				newPage(r, "Bubble-O-Matic 9002"))
 		})
-	vanguard.AddRoute("GET", "/iskPerLPByConversion",
+	vanguard.AddRoute("GET", "/battleFinder",
 		func(w http.ResponseWriter, r *http.Request) {
-			renderTemplate(w,
-				"iskPerLPByConversion.html",
+			renderBlank(w,
+				"battleFinder.html",
 				time.Hour*24*31,
-				newPage(r, "ISK Per Loyalty Point - All Entities"))
+				newPage(r, "battlefinder"))
 		})
+
 	vanguard.AddRoute("GET", "/J/nullSystems", nullSystems)
 	vanguard.AddRoute("GET", "/J/systemCelestials", systemCelestials)
 

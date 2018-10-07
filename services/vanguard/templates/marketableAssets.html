@@ -1,5 +1,6 @@
 {{define "Head"}}
 {{ template "bootstrap-table" . }}
+{{ template "clipboard" . }}
 {{end}}
 {{define "body"}}
 <h3>Marketable Assets</h3>
@@ -19,7 +20,7 @@
     id="assets">
     <thead>
         <tr>
-            <th data-field="typeName" data-formatter="typeFormatter" data-sortable="true">Type</th>
+            <th data-field="typeName" data-formatter="typeMarketAssetFormatter" data-sortable="true">Type</th>
             <th data-field="quantity" data-formatter="numberFormatter" data-align="right">Quantity</th>
             <th data-field="buy" data-visible="false" data-formatter="numberFormatter" data-align="right"
                 data-sortable="true">Jita Buy Price</th>

@@ -33,9 +33,6 @@ func (s *Nail) characterOrdersConsumer(message *nsq.Message) error {
 		log.Println(err)
 		return err
 	}
-	if len(orders.Orders) == 0 {
-		return nil
-	}
 
 	err = s.doSQL("DELETE FROM evedata.orders WHERE characterID = ?;", orders.TokenCharacterID)
 	if err != nil {

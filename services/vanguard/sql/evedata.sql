@@ -2,6 +2,14 @@ CREATE DATABASE IF NOT EXISTS evedata;
 
 USE evedata;
 
+CREATE TABLE `accessibleStructure` (
+  `accessibleStructure` bigint(20) NOT NULL,
+  `characterID` int(11) NOT NULL,
+  `lastCheck` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `canAccess` tinyint(4) NOT NULL,
+  PRIMARY KEY (`accessibleStructure`,`characterID`)
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 CREATE TABLE `allianceHistory` (
   `recordID` int(11) NOT NULL,
   `startDate` datetime NOT NULL,
@@ -116,7 +124,8 @@ CREATE TABLE `contractItems` (
   `TE` tinyint(4) DEFAULT NULL,
   `runs` int(11) DEFAULT NULL,
   `quantity` int(11) DEFAULT NULL,
-  PRIMARY KEY (`recordID`,`contractID`)
+  PRIMARY KEY (`recordID`,`contractID`),
+  KEY `ix_typeID` (`typeID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `contracts` (
@@ -362,6 +371,7 @@ CREATE TABLE `killmailAttackers` (
   `corporationID` int(10) unsigned NOT NULL DEFAULT '0',
   `allianceID` int(10) unsigned NOT NULL DEFAULT '0',
   `shipType` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `security` float NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`,`characterID`),
   KEY `ix_allianceID` (`allianceID`),
   KEY `ix_corporationID` (`corporationID`),
@@ -398,8 +408,38 @@ CREATE TABLE `killmailAttributes` (
   `stasisWebifierStrength` double NOT NULL DEFAULT '0',
   `totalWarpScrambleStrength` double NOT NULL DEFAULT '0',
   `totalValue` decimal(20,2) NOT NULL DEFAULT '0.00',
+  `characterAge` int(11) NOT NULL DEFAULT '0',
+  `meanSecurity` double NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  KEY `ix_id_cpu_pg_ehp` (`id`,`CPURemaining`,`powerRemaining`,`eHP`)
+  KEY `ix_id_cpu_pg_ehp` (`id`,`CPURemaining`,`powerRemaining`,`eHP`),
+  KEY `age` (`characterAge`),
+  KEY `meanSecurity` (`meanSecurity`)
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `killmailKillers` (
+  `month` int(10) unsigned NOT NULL,
+  `year` int(10) unsigned NOT NULL,
+  `id` bigint(20) unsigned NOT NULL,
+  `kills` int(10) unsigned NOT NULL DEFAULT '0',
+  `area` varchar(45) CHARACTER SET utf8 NOT NULL DEFAULT 'highsec',
+  PRIMARY KEY (`month`,`year`,`id`,`area`)
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `killmailStatistics` (
+  `month` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `year` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `characterAge` smallint(6) NOT NULL DEFAULT '0',
+  `wars` int(10) unsigned NOT NULL DEFAULT '0',
+  `ganks` int(10) unsigned NOT NULL DEFAULT '0',
+  `lowsec` int(10) unsigned NOT NULL DEFAULT '0',
+  `nullsec` int(10) unsigned NOT NULL DEFAULT '0',
+  `wh` int(10) unsigned NOT NULL DEFAULT '0',
+  `lowsecFW` int(10) unsigned NOT NULL DEFAULT '0',
+  `highsecFW` int(10) unsigned NOT NULL DEFAULT '0',
+  `total` int(10) unsigned NOT NULL DEFAULT '0',
+  `highsec` int(10) unsigned NOT NULL DEFAULT '0',
+  `npcKills` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`month`,`year`,`characterAge`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `killmails` (
@@ -482,11 +522,15 @@ CREATE TABLE `market` (
   `issued` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
   `duration` smallint(5) unsigned NOT NULL DEFAULT '0',
   `reported` datetime NOT NULL DEFAULT '1000-01-01 00:00:00',
+  `private` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`orderID`),
   KEY `regionID_typeID` (`regionID`,`typeID`),
   KEY `typeID` (`typeID`),
   KEY `stationID_bid_reported` (`stationID`,`bid`,`reported`),
-  KEY `regionID_bid` (`regionID`,`bid`)
+  KEY `regionID_bid` (`regionID`,`bid`),
+  KEY `ix_marketorders` (`typeID`,`bid`,`stationID`,`orderID`),
+  KEY `ix_marketordersregion` (`typeID`,`bid`,`regionID`,`orderID`),
+  KEY `private` (`private`)
 ) ENGINE=TokuDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `marketHistoryStatistics` (
@@ -550,14 +594,14 @@ CREATE TABLE `mutationAttributes` (
   `attributeID` int(11) unsigned NOT NULL,
   `value` double NOT NULL,
   PRIMARY KEY (`itemID`,`attributeID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `mutationEffects` (
   `itemID` bigint(20) unsigned NOT NULL,
   `effectID` int(11) unsigned NOT NULL,
   `isDefault` tinyint(4) NOT NULL,
   PRIMARY KEY (`itemID`,`effectID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `mutations` (
   `typeID` mediumint(9) unsigned NOT NULL,
@@ -566,7 +610,7 @@ CREATE TABLE `mutations` (
   `mutatorTypeID` int(11) unsigned NOT NULL,
   `sourceTypeID` int(11) unsigned NOT NULL,
   PRIMARY KEY (`typeID`,`itemID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `notifications` (
   `notificationID` int(11) NOT NULL,
@@ -598,7 +642,8 @@ CREATE TABLE `orders` (
   `volumeTotal` int(10) unsigned NOT NULL,
   PRIMARY KEY (`orderID`),
   KEY `characterID` (`characterID`),
-  KEY `char_region_item` (`characterID`,`regionID`,`typeID`)
+  KEY `char_region_item` (`characterID`,`regionID`,`typeID`),
+  KEY `locationID` (`locationID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `sharing` (
@@ -628,6 +673,7 @@ CREATE TABLE `structures` (
   `marketCacheUntil` datetime DEFAULT '2016-01-01 00:00:00',
   `ownerID` int(11) NOT NULL,
   `typeID` int(11) NOT NULL DEFAULT '0',
+  `private` tinyint(4) DEFAULT '0',
   PRIMARY KEY (`stationID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -637,7 +683,7 @@ CREATE TABLE `typePricesMonthly` (
   `typeID` smallint(5) unsigned NOT NULL,
   `mean` decimal(24,2) NOT NULL DEFAULT '0.00',
   PRIMARY KEY (`year`,`month`,`typeID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `walletJournal` (
   `refID` bigint(20) unsigned NOT NULL,

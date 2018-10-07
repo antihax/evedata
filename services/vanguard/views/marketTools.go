@@ -37,7 +37,7 @@ func marketRegionsAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderJSON(w, v, time.Hour*24*31)
+	renderJSON(w, v, time.Hour*24)
 }
 
 func marketUnderValueAPI(w http.ResponseWriter, r *http.Request) {
@@ -69,7 +69,7 @@ func marketUnderValueAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderJSON(w, v, time.Hour)
+	renderJSON(w, v, time.Minute)
 }
 
 func marketStationStockerAPI(w http.ResponseWriter, r *http.Request) {
@@ -104,5 +104,5 @@ func marketStationStockerAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderJSON(w, v, time.Hour)
+	renderJSON(w, v, time.Minute)
 }

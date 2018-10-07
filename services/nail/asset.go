@@ -1,10 +1,11 @@
 package nail
 
 import (
-	"fmt"
 	"log"
-	"strings"
 
+	"github.com/antihax/evedata/internal/sqlhelper"
+
+	sq "github.com/Masterminds/squirrel"
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/evedata/internal/gobcoder"
 	nsq "github.com/nsqio/go-nsq"
@@ -23,41 +24,44 @@ func (s *Nail) characterAssetsConsumer(message *nsq.Message) error {
 		log.Println(err)
 		return err
 	}
-	if len(assets.Assets) == 0 {
-		return nil
-	}
-	var values []string
 
-	err = s.doSQL("DELETE FROM evedata.assets WHERE characterID = ?;", assets.TokenCharacterID)
+	// Start a new transaction to keep the delete an inserts together
+	tx, err := s.db.Beginx()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	defer tx.Rollback()
+
+	// Delete everything because we will replace with the new assets.
+	_, err = tx.Exec("DELETE FROM evedata.assets WHERE characterID = ?;", assets.TokenCharacterID)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	// Dump all assets into the DB.
-	count := 0
-	for _, asset := range assets.Assets {
-		count++
-		values = append(values, fmt.Sprintf("(%d,%d,%d,%d,%q,%d,%q,%v)",
-			asset.LocationId, asset.TypeId, asset.Quantity, assets.TokenCharacterID,
-			asset.LocationFlag, asset.ItemId, asset.LocationType, asset.IsSingleton))
+	// early out if there are no assets.
+	if len(assets.Assets) == 0 {
+		return tx.Commit()
 	}
 
-	stmt := doAssets(values)
+	// Dump all assets into the DB.
+	assetSQL := sq.Insert("evedata.assets").
+		Columns("locationID", "typeID", "quantity", "characterID",
+			"locationFlag", "itemID", "locationType", "isSingleton")
 
-	err = s.doSQL(stmt)
+	// Build a multi-insert statement
+	for _, asset := range assets.Assets {
+		assetSQL = assetSQL.Values(asset.LocationId, asset.TypeId, asset.Quantity, assets.TokenCharacterID,
+			asset.LocationFlag, asset.ItemId, asset.LocationType, asset.IsSingleton)
+	}
+
+	// Retry the transaction until we succeed.
+	err = sqlhelper.RetrySquirrelInsertTransaction(tx, assetSQL)
 	if err != nil {
-		log.Printf("%s %s\n", err, stmt)
+		log.Println(err)
 		return err
 	}
 
 	return nil
-}
-
-func doAssets(values []string) string {
-	return fmt.Sprintf(`INSERT INTO evedata.assets
-		(locationID, typeID, quantity, characterID, 
-		locationFlag, itemID, locationType, isSingleton)
-		VALUES %s 
-		ON DUPLICATE KEY UPDATE typeID = typeID;`, strings.Join(values, ",\n"))
 }

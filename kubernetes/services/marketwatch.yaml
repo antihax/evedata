@@ -19,16 +19,8 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
     spec:
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: esi-connector
-                operator: In
-                values:
-                - "true"
-            topologyKey: "kubernetes.io/hostname"
+      nodeSelector:
+        database: mysql
       containers:
       - name: evedata-marketwatch
         image: antihax/evedata-marketwatch

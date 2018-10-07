@@ -142,7 +142,7 @@ func (hq *RedisQueue) GetWork() (*Work, error) {
 }
 
 // CheckWorkCompleted takes a key and checks if the ID has been completed to prevent duplicates
-func (hq *RedisQueue) CheckWorkCompleted(key string, id int64) bool {
+func (hq *RedisQueue) CheckWorkCompleted(key string, id interface{}) bool {
 	conn := hq.redisPool.Get()
 	defer conn.Close()
 	found, err := redis.Bool(conn.Do("SISMEMBER", key, id))
@@ -178,7 +178,7 @@ func (hq *RedisQueue) CheckWorkCompletedInBulk(key string, id []int64) ([]bool, 
 }
 
 // SetWorkCompleted takes a key and sets if the ID has been completed to prevent duplicates
-func (hq *RedisQueue) SetWorkCompleted(key string, id int64) error {
+func (hq *RedisQueue) SetWorkCompleted(key string, id interface{}) error {
 	conn := hq.redisPool.Get()
 	defer conn.Close()
 	_, err := conn.Do("SADD", key, id)
@@ -208,10 +208,11 @@ func (hq *RedisQueue) SetWorkCompletedInBulk(key string, ids []int64) error {
 }
 
 // CheckWorkExpired takes a key and checks if the ID has expired
-func (hq *RedisQueue) CheckWorkExpired(key string, id int64) bool {
+func (hq *RedisQueue) CheckWorkExpired(key string, id interface{}) bool {
 	conn := hq.redisPool.Get()
 	defer conn.Close()
-	found, _ := redis.Bool(conn.Do("GET", fmt.Sprintf("%s:%d", key, id)))
+	found, _ := redis.Bool(conn.Do("GET", fmt.Sprintf("%s:%v", key, id)))
+
 	return found
 }
 
@@ -241,10 +242,10 @@ func (hq *RedisQueue) CheckWorkExpiredInBulk(key string, id []int64) ([]bool, er
 }
 
 // SetWorkExpire takes a key and sets if the ID has failed to prevent multiple failed
-func (hq *RedisQueue) SetWorkExpire(key string, id int64, seconds int) error {
+func (hq *RedisQueue) SetWorkExpire(key string, id interface{}, seconds int) error {
 	conn := hq.redisPool.Get()
 	defer conn.Close()
-	_, err := conn.Do("SETEX", fmt.Sprintf("%s:%d", key, id), seconds, true)
+	_, err := conn.Do("SETEX", fmt.Sprintf("%s:%v", key, id), seconds, true)
 	return err
 }
 

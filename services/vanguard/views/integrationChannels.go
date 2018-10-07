@@ -47,7 +47,7 @@ func apiGetIntegrationChannels(w http.ResponseWriter, r *http.Request) {
 	for _, ch := range channels {
 		v = append(v, channel{ChannelID: ch[0], ChannelName: ch[1]})
 	}
-	renderJSON(w, v, time.Hour)
+	renderJSON(w, v, time.Minute*3)
 }
 
 func apiGetIntegrationRoles(w http.ResponseWriter, r *http.Request) {
@@ -75,7 +75,7 @@ func apiGetIntegrationRoles(w http.ResponseWriter, r *http.Request) {
 	for _, ch := range roles {
 		v = append(v, role{RoleID: ch[0], RoleName: ch[1]})
 	}
-	renderJSON(w, v, time.Hour)
+	renderJSON(w, v, time.Minute*3)
 }
 
 func apiAddIntegrationChannel(w http.ResponseWriter, r *http.Request) {

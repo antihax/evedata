@@ -1,0 +1,172 @@
+{{define "Head"}}
+{{ template "ccpwgl" . }}
+{{end}}
+{{define "body"}}
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <title>Cube of death</title>
+    <style>
+        body {
+            background-color:black;
+            margin:0;
+        }
+        #mainCanvas {
+            border: none;
+            position:fixed;
+            width:100%;
+            height:100%
+        }
+        </style>
+
+    <script type="text/javascript">
+        var ship,
+            rotation = 0.0,
+            direction = 0.001,
+            canvas,
+            camera,
+            gl;
+
+        function OnDocLoad() {
+            var mat4 = ccpwgl_int.math.mat4;
+            canvas = document.getElementById('mainCanvas');
+            gl = canvas.getContext("webgl");
+            ccpwgl.initialize(canvas, {
+                clock: {
+                    autoTick: true,
+                    autoStart: true
+                },
+                quality: {
+                    texture: 'HI',
+                    shader: 'HI',
+                    lod: true,
+                    antialiasing: true,
+                    antialisingSamples: 4,
+                    anisotropicFilter: true,
+                    anisotropicFilterSamples: 16
+                },
+                resMan: {
+                    maxPrepareTime: 1,
+                    autoPurgeResources: true,
+                    autoPurgeTimer: 30
+                }
+            });
+
+            camera = ccpwgl.createCamera(canvas, {}, true);
+            var shipCount = 5;
+            var spacing = 1500;
+
+            var scene = ccpwgl.loadScene('res:/dx9/scene/universe/m10_cube.red');
+            scene.setLodSetting(ccpwgl.LodSettings.LOD_ENABLED)
+            var sofData = {
+                hull: null,
+                faction: null,
+                race: null
+            };
+            ship = scene.loadShip("mb2_t1:minmatarbase:minmatar");
+
+            ccpwgl.onPreRender = function (dt) {
+                resizeCanvasToDisplaySize(canvas, window.devicePixelRatio);
+                gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+                camera.rotationX += 0.01;
+                camera.rotationY += direction;
+                if (camera.rotationY > 1.57 & direction > 0) {
+                    direction = -0.001;
+                } else if (camera.rotationY < -1.57 & direction < 0) {
+                    direction = 0.001;
+                }
+            }
+            camera.distance = 10000;
+            function resizeCanvasToDisplaySize(canvas, mult) {
+                var width = Math.round(canvas.width),
+                    height = Math.round(canvas.height);
+                if (window.innerHeight == screen.height) {
+                    width = screen.width;
+                    height = screen.height;
+                }
+
+                if (canvas.width !== width || canvas.height !== height) {
+                    canvas.width = width;
+                    canvas.height = height;
+                }
+            }
+
+            function fullscreen() {
+                var elem = document.getElementById('shipCanvas');
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.mozRequestFullScreen) { /* Firefox */
+                    elem.mozRequestFullScreen();
+                } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) { /* IE/Edge */
+                    elem.msRequestFullscreen();
+                }
+            }
+
+            function sofDataReceived(member) {
+                return function (data) {
+                    sofData[member] = [];
+                    for (var i in data) {
+                        if (data.hasOwnProperty(i)) {
+                            if (member !== 'hull' || (data[i].substr(0, 4) === 'ship' && data[i].indexOf('titan') <
+                                0 && data[i].indexOf('wreck') < 0))
+                                sofData[member].push(i);
+                        }
+                    }
+                    if (sofData.hull && sofData.faction && sofData.race) {
+                        var x = 0;
+                        var y = 0;
+                        var z = 0;
+                        var cubeDimension = Math.ceil(Math.pow(shipCount, 1 / 3));
+                        var radius = (cubeDimension - 1) / 2 * spacing;
+
+                        for (i = 0; i < shipCount; ++i) {
+                            setTimeout(function () {
+                                var dna = sofData.hull[Math.floor(Math.random() * sofData.hull.length)] +
+                                    ':' +
+                                    sofData.faction[Math.floor(Math.random() * sofData.faction.length)] +
+                                    ':' +
+                                    sofData.race[Math.floor(Math.random() * sofData.race.length)];
+                                var s = scene.loadShip(dna);
+
+                                s.setTransform(mat4.fromValues(
+                                    1, 0, 0, 0,
+                                    0, 1, 0, 0,
+                                    0, 0, 1, 0,
+                                    x * spacing - radius, y * spacing - radius, z * spacing -
+                                    radius, 1
+                                ));
+                                x += 1;
+                                if (x === cubeDimension) {
+                                    x = 0;
+                                    z += 1;
+                                    if (z === cubeDimension) {
+                                        z = 0;
+                                        y += 1;
+                                    }
+                                }
+                            }, 0);
+                        }
+                    }
+                }
+            }
+
+            ccpwgl.getSofHullNames(sofDataReceived('hull'));
+            ccpwgl.getSofFactionNames(sofDataReceived('faction'));
+            ccpwgl.getSofRaceNames(sofDataReceived('race'));
+        }
+        fullscreen()
+    </script>
+
+</head>
+
+<body onload="OnDocLoad()">
+    <canvas id="mainCanvas" width="500" height="500"></canvas>
+</body>
+
+</html>
+
+{{end}}
