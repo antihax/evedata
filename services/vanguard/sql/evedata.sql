@@ -582,10 +582,9 @@ CREATE TABLE `market_history` (
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `market_vol` (
-  `number` bigint(21) NOT NULL DEFAULT '0',
-  `quantity` decimal(36,4) DEFAULT NULL,
-  `regionID` int(11) NOT NULL,
-  `itemID` bigint(20) NOT NULL,
+  `quantity` decimal(23,2) unsigned NOT NULL DEFAULT '0.00',
+  `regionID` mediumint(8) unsigned NOT NULL,
+  `itemID` smallint(5) unsigned NOT NULL,
   PRIMARY KEY (`regionID`,`itemID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 

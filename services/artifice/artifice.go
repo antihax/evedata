@@ -131,11 +131,6 @@ func (s *Artifice) doSQL(stmt string, args ...interface{}) error {
 	return sqlhelper.DoSQL(s.db, stmt, args...)
 }
 
-// RetryExecTillNoRows retries the exec until we get no error (deadlocks) and no results are returned
-func (s *Artifice) RetryExecTillNoRows(stmt string, args ...interface{}) error {
-	return sqlhelper.RetryExecTillNoRows(s.db, stmt, args...)
-}
-
 type CharacterPairs struct {
 	CharacterID      int32 `db:"characterID"`
 	TokenCharacterID int32 `db:"tokenCharacterID"`
