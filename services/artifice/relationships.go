@@ -36,12 +36,12 @@ func buildRelationships(s *Artifice) error {
 // Find relationships between characters in killmails
 func (s *Artifice) cleanupRelationships() error {
 	// Remove any orphan killmails
-	return s.RetryExecTillNoRows(`
+	return s.doSQL(`
 		DELETE FROM evedata.characterAssociations 
 		WHERE
 			characterID = 0
 			OR added < DATE_SUB(UTC_TIMESTAMP(),
-			INTERVAL 6 MONTH) LIMIT 5000;`)
+			INTERVAL 6 MONTH)`)
 }
 
 // Find relationships between characters in killmails
