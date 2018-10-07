@@ -378,7 +378,6 @@ func marketUpdate(s *Artifice) error {
                 INNER JOIN staStations S ON M.stationID = S.stationID
         WHERE   M.private = 0
 		GROUP BY M.stationID 
-		ORDER BY stationID
         ON DUPLICATE KEY UPDATE stationID=stationID;
             `); err != nil {
 		log.Println(err)
