@@ -9,13 +9,14 @@ metadata:
   name: evedata-marketwatch
   namespace: evedata
 spec:
+  nodeSelector:
+    database: mysql
   replicas: 1
   template:
     metadata:
       name: evedata-marketwatch
       labels:
         app: marketwatch
-        esi-connector: "true"
       annotations:
         prometheus.io/scrape: "true"
     spec:
