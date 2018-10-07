@@ -124,7 +124,8 @@ CREATE TABLE `contractItems` (
   `TE` tinyint(4) DEFAULT NULL,
   `runs` int(11) DEFAULT NULL,
   `quantity` int(11) DEFAULT NULL,
-  PRIMARY KEY (`recordID`,`contractID`)
+  PRIMARY KEY (`recordID`,`contractID`),
+  KEY `ix_typeID` (`typeID`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `contracts` (
@@ -528,7 +529,8 @@ CREATE TABLE `market` (
   KEY `stationID_bid_reported` (`stationID`,`bid`,`reported`),
   KEY `regionID_bid` (`regionID`,`bid`),
   KEY `ix_marketorders` (`typeID`,`bid`,`stationID`,`orderID`),
-  KEY `ix_marketordersregion` (`typeID`,`bid`,`regionID`,`orderID`)
+  KEY `ix_marketordersregion` (`typeID`,`bid`,`regionID`,`orderID`),
+  KEY `private` (`private`)
 ) ENGINE=TokuDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `marketHistoryStatistics` (

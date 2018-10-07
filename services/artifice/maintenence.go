@@ -12,7 +12,7 @@ func init() {
 	registerTrigger("marketUpdate", marketUpdate, time.NewTicker(time.Hour*2))
 	registerTrigger("discoveredAssetsMaint", discoveredAssetsMaint, time.NewTicker(time.Second*3620))
 	registerTrigger("entityMaint", entityMaint, time.NewTicker(time.Second*3630*3))
-	registerTrigger("entityStatsMaint", entityStatsMaint, time.NewTicker(time.Hour*8))
+	registerTrigger("entityStatsMaint", entityStatsMaint, time.NewTicker(time.Hour*24))
 	registerTrigger("contactSyncMaint", contactSyncMaint, time.NewTicker(time.Second*3615*6))
 }
 
@@ -376,7 +376,7 @@ func marketUpdate(s *Artifice) error {
         INSERT INTO evedata.marketStations SELECT stationName, M.stationID, Count(*) as Count
         FROM    evedata.market M
                 INNER JOIN staStations S ON M.stationID = S.stationID
-        WHERE   reported >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 7 DAY) AND M.private = 0
+        WHERE   M.private = 0
 		GROUP BY M.stationID 
 		ORDER BY stationID
         ON DUPLICATE KEY UPDATE stationID=stationID;
