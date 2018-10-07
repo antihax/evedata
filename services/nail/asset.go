@@ -42,7 +42,7 @@ func (s *Nail) characterAssetsConsumer(message *nsq.Message) error {
 
 	// early out if there are no assets.
 	if len(assets.Assets) == 0 {
-		return tx.Commit()
+		return sqlhelper.RetryTransaction(tx)
 	}
 
 	// Dump all assets into the DB.
