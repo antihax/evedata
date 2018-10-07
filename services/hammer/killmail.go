@@ -28,20 +28,43 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 			log.Println(err)
 			return
 		}
-
-		err = s.AddCharacter(kill.Victim.CharacterId)
-		if err != nil {
-			log.Println(err)
-			return
-		}
 	}
 
-	// We don't want to ignore attackers on DUST mails.
+	err = s.AddCharacter(kill.Victim.CharacterId)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	err = s.AddAlliance(kill.Victim.AllianceId)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	err = s.AddCorporation(kill.Victim.CorporationId)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	for _, a := range kill.Attackers {
 		err = s.AddCharacter(a.CharacterId)
 		if err != nil {
 			log.Println(err)
 			return
 		}
+		err = s.AddAlliance(a.AllianceId)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		err = s.AddCorporation(a.CorporationId)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
 	}
 }
