@@ -34,7 +34,7 @@ func NewTailor(db *sqlx.DB, b2 *backblaze.B2, consumerAddresses []string) *Tailo
 
 	nsqcfg := nsq.NewConfig()
 	nsqcfg.MaxInFlight = 100
-	nsqcfg.MsgTimeout = time.Minute * 5
+	nsqcfg.MsgTimeout = time.Minute
 
 	c, err := nsq.NewConsumer("killmail", "tailor", nsqcfg)
 	if err != nil {

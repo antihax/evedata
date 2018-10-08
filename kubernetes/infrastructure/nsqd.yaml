@@ -39,7 +39,7 @@ spec:
         command:
           - /bin/sh
           - -c
-          - "/nsqd -max-msg-size=9388608 -mem-queue-size=1000 --lookupd-tcp-address=nsqlookupd1:4160 --lookupd-tcp-address=nsqlookupd2:4160 --broadcast-address=$IP"
+          - "/nsqd -max-msg-size=9388608 -max-msg-timeout=15m -mem-queue-size=1000 --lookupd-tcp-address=nsqlookupd1:4160 --lookupd-tcp-address=nsqlookupd2:4160 --broadcast-address=$IP"
         ports:
           - containerPort: 4150
             name: tcp
