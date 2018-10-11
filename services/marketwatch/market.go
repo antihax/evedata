@@ -121,9 +121,9 @@ func (s *MarketWatch) marketWorker(regionID int32) {
 			s.orderChan <- newOrders
 		}
 
-		if len(changes) > 0 {
+		/*	if len(changes) > 0 {
 			s.orderChangeChan <- changes
-		}
+		}*/
 
 		if len(deletions) > 0 {
 			s.orderDeleteChan <- deletions

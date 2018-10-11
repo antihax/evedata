@@ -14,7 +14,7 @@ import (
 
 func init() {
 	AddHandler("structureOrders", func(s *Nail, consumer *nsq.Consumer) {
-		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.structureOrderHandler)))
+		consumer.AddConcurrentHandlers(s.wait(nsq.HandlerFunc(s.structureOrderHandler)), 50)
 	})
 
 	AddHandler("marketHistory", func(s *Nail, consumer *nsq.Consumer) {
@@ -53,7 +53,13 @@ func (s *Nail) structureOrderHandler(message *nsq.Message) error {
 		}
 	}
 
-	return s.doMarketOrders(values)
+	if err := s.doMarketOrders(values); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return s.inQueue.SetWorkExpire("evedata_entity", int64(allianceID), 43200)
+
 }
 
 func (s *Nail) doMarketOrders(values []string) error {
