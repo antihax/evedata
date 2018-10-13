@@ -46,6 +46,10 @@ spec:
                 operator: In
                 values:
                 - "true"
+              - key: database
+                operator: In
+                values:
+                - mysql                   
             topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-mailserver

@@ -27,6 +27,10 @@ spec:
                 operator: In
                 values:
                 - zkillboard
+              - key: database
+                operator: In
+                values:
+                - mysql                   
             topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-zkillboard
