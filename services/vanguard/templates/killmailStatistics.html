@@ -12,15 +12,16 @@
 
 {{end}}
 {{define "body"}}
-<h3>Killmail Statistics</h3>
-Data represents Unique Characters per Month that lost a ship per category.<br>
-Ganks are any losses in highsec where the attackers average security was less than -4.5.<br>
-Wars are all war kills in highsec since the implementation of killmail tagging by war in March 2012.<br>
-HighsecFW/LowsecFW are losses by faction war characters.<br>
-Highsec/lowsec/nullsec/wh are totals in these areas, including wars, ganks, etc.<br><br>
-The highsec pie shows wars, ganks, highsec facwar and the remainder (npc kills, suspect/can baiting, duals, etc).<br><br>
-The age filter will show characters younger than this age (18250 is everyone).
-<br><br>
+<div class="well">
+    <h3>Killmail Statistics</h3>
+    Data represents Unique Characters per Month that lost a ship per category.<br>
+    Ganks are any losses in highsec where the attackers average security was less than -4.5.<br>
+    Wars are all war kills in highsec since the implementation of killmail tagging by war in March 2012.<br>
+    HighsecFW/LowsecFW are losses by faction war characters.<br>
+    Highsec/lowsec/nullsec/wh are totals in these areas, including wars, ganks, etc.<br><br>
+    The highsec pie shows wars, ganks, highsec facwar and the remainder (npc kills, suspect/can baiting, duals, etc).<br><br>
+    The age filter will show characters younger than this age (18250 is everyone).
+</div>
 
 <div id="graphContainer" style="width: 800px;" class="container whitewell">
     <select class="selectpicker" data-width="auto" name="age" id="age"></select>
@@ -137,8 +138,8 @@ The age filter will show characters younger than this age (18250 is everyone).
         var n = [];
         $.each(data, function (k, v) {
             if (age == v.characterAge) {
-                var d = new Date(v.year, v.month-1, 1);
-                
+                var d = new Date(v.year, v.month - 1, 1);
+
                 v["highsecOther"] = v["highsec"] - v["highsecFW"] - v["wars"] - v["ganks"];
                 $.each(types, function (i, t) {
                     n.push({

@@ -2,9 +2,11 @@
 {{ template "bootstrap-table" . }}
 {{end}}
 {{define "body"}}
+<div class="well">
 <h3>Structures under attack in Highsec</h3>
 Report shows structures that have been under attack in highsec within the last seven days.
-<div class="insideContainer">
+</div>
+<div class="insideContainer well">
 	<table id="activeWarTable" class="table" 
 		data-sort-name="warKills"
         data-sort-order="desc"

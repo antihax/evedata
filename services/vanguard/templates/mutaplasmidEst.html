@@ -1,11 +1,12 @@
 {{define "body"}}
-<h3>Mutaplasmid Mutation Price Estimator</h3>
-Estimate the value of a mutated module based on known sold prices of known modules.
-<br>
-<br> This is intended as an estimate only, actual price is always what someone is willing to pay for a module at a location.
-The further from known modules the attributes go, the worse the confidence will become.
-<br>
-<br>
+<div class="well">
+    <h3>Mutaplasmid Mutation Price Estimator</h3>
+    Estimate the value of a mutated module based on known sold prices of known modules.
+    <br>
+    <br> This is intended as an estimate only, actual price is always what someone is willing to pay for a module at a
+    location.
+    The further from known modules the attributes go, the worse the confidence will become.
+</div>
 <h5>Type: &nbsp;
     <select class="selectpicker" data-width="auto" name="mutaplasmidType" id="mutaplasmidType"></select>
     &nbsp;&nbsp;&nbsp; Cubic: <input type="checkbox" id="cubic">
@@ -69,7 +70,7 @@ The further from known modules the attributes go, the worse the confidence will 
     if (cubic == 'undefined') {
         cubic = "true";
     }
-    
+
     if (cubic == "true")
         $('#cubic').prop("checked", cubic);
 
@@ -119,7 +120,7 @@ The further from known modules the attributes go, the worse the confidence will 
         width = 250 - margin.left - margin.right,
         height = 250 - margin.top - margin.bottom;
 
-    var maxPrice = (d3.max(dataSet, pluck("price")) / 1000000000)*1.1;
+    var maxPrice = (d3.max(dataSet, pluck("price")) / 1000000000) * 1.1;
     var lineChart = d3.lineChart()
         .width(width)
         .height(height)

@@ -2,10 +2,11 @@
 {{ template "bootstrap-table" . }}
 {{end}}
 {{define "body"}}
+<div class="well">
 <h3>Losses in Highsec (last 60 days)</h3>
 A list of entities who have lost a large number of ships in highsec over the last
-60 days.
-<div class="insideContainer">
+60 days.</div>
+<div class="insideContainer well">
 	<table id="lossesinhighsecTable" class="table" data-sort-name="number" data-sort-order="desc"
 	    data-url="/J/lossesInHighsec" data-toggle="table" data-cache="true" data-search="true"
 	    data-show-refresh="true" data-show-columns="true" data-page-size="50" data-pagination="true"

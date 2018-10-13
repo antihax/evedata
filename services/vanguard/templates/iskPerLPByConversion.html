@@ -2,28 +2,31 @@
 {{ template "bootstrap-table" . }}
 {{end}}
 {{define "body"}}
-<h3>ISK Per Loyalty Points By Conversion</h3>
-Quickly identify the current trends in what agents to grind LP with.
-<br> Formula assumes buying requirements from lowest sell order and selling converted
-item to highest buy order in Jita.
-
-<div class="insideContainer">
-    <table id="iskPerLPTable" class="table" data-sort-name="iskPerLP" data-sort-order="desc" data-pagination="true"
-        data-page-list="[10, 25, 50, 100, ALL]" data-cache="true" data-url="/J/iskPerLPByConversion" data-toggle="table"
-        cellspacing="0" width="100%">
-        <thead>
-            <tr>
-                <th data-field="typeName" data-formatter="typeFormatter">Item Name</th>
-                <th data-field="itemCost" data-sortable="true" data-formatter="priceFormatter">ISK Cost</th>
-                <th data-field="iskPerLP" data-sortable="true" data-formatter="priceFormatter">ISK Per LP</th>
-                <th data-field="iskVolume" data-sortable="true" data-formatter="priceFormatter">ISK Volume</th>
-                <th data-field="availableFrom">Available From</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+<div class="well">
+    <h3>ISK Per Loyalty Points By Conversion</h3>
+    Quickly identify the current trends in what agents to grind LP with.
+    <br> Formula assumes buying requirements from lowest sell order and selling converted
+    item to highest buy order in Jita.
 </div>
+
+<div class="well">
+    <div class="insideContainer">
+        <table id="iskPerLPTable" class="table" data-sort-name="iskPerLP" data-sort-order="desc" data-pagination="true"
+            data-page-list="[10, 25, 50, 100, ALL]" data-cache="true" data-url="/J/iskPerLPByConversion" data-toggle="table"
+            cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th data-field="typeName" data-formatter="typeFormatter">Item Name</th>
+                    <th data-field="itemCost" data-sortable="true" data-formatter="priceFormatter">ISK Cost</th>
+                    <th data-field="iskPerLP" data-sortable="true" data-formatter="priceFormatter">ISK Per LP</th>
+                    <th data-field="iskVolume" data-sortable="true" data-formatter="priceFormatter">ISK Volume</th>
+                    <th data-field="availableFrom">Available From</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 

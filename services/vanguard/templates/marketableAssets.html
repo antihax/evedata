@@ -3,41 +3,48 @@
 {{ template "clipboard" . }}
 {{end}}
 {{define "body"}}
-<h3>Marketable Assets</h3>
-{{template "checkAuthentication" .}}
-<p>Pricing guide to sell assets in system with 30% Jita price markup.<br><br>
-    White: 30% markup<br>
-    <font color="yellow">Yellow: Below 30% markup due to regional competition</font><br>
-    <font color="red">Red: Selling at a loss due to regional competition</font><br>
-</p>
-<div class="toolbar assetToolbar" id="LocationContainer">
-    <select class="selectpicker" data-width="auto" name="locationList" id="locationList"></select>
-    <select class="selectpicker" data-width="auto" name="characterList" id="characterList"></select>
+<div class="well">
+    <h3>Marketable Assets</h3>
+    {{template "checkAuthentication" .}}
+    <p>Pricing guide to sell assets in system with 30% Jita price markup.<br><br>
+        White: 30% markup<br>
+        <font color="yellow">Yellow: Below 30% markup due to regional competition</font><br>
+        <font color="red">Red: Selling at a loss due to regional competition</font><br>
+    </p>
 </div>
 
-<table class="table" data-cache="true" data-toolbar=".assetToolbar" data-sort-name="typeName"
-    data-sort-order="asc" data-show-columns="true" data-row-style="warningFormatter"
-    id="assets">
-    <thead>
-        <tr>
-            <th data-field="typeName" data-formatter="typeMarketAssetFormatter" data-sortable="true">Type</th>
-            <th data-field="quantity" data-formatter="numberFormatter" data-align="right">Quantity</th>
-            <th data-field="buy" data-visible="false" data-formatter="numberFormatter" data-align="right"
-                data-sortable="true">Jita Buy Price</th>
-            <th data-field="sell" data-formatter="numberFormatter" data-align="right" data-sortable="true">Jita Sell Price</th>
-            <th data-field="regionOrders" data-visible="false" data-formatter="numberFormatter"
-                data-align="right" data-sortable="true">Region Orders</th>
-            <th data-field="stationOrders" data-visible="false" data-formatter="numberFormatter"
-                data-align="right" data-sortable="true">Station Orders</th>
-            <th data-field="regionPrice" data-formatter="numberFormatter" data-align="right"
-                data-sortable="true">Region Price</th>
-            <th data-field="stationPrice" data-visible="false" data-formatter="numberFormatter"
-                data-align="right" data-sortable="true">Station Price</th>
-            <th data-field="" data-formatter="markupFormatter" data-align="right" data-sortable="true">Marked Up Price</th>
-        </tr>
-    </thead>
-</table>
+<div class="well">
+    <div class="toolbar assetToolbar" id="LocationContainer">
+        <select class="selectpicker" data-width="auto" name="locationList" id="locationList"></select>
+        <select class="selectpicker" data-width="auto" name="characterList" id="characterList"></select>
+    </div>
 
+    <table class="table" data-cache="true" data-toolbar=".assetToolbar" data-sort-name="typeName" data-sort-order="asc"
+        data-show-columns="true" data-row-style="warningFormatter" id="assets">
+        <thead>
+            <tr>
+                <th data-field="typeName" data-formatter="typeMarketAssetFormatter" data-sortable="true">Type</th>
+                <th data-field="quantity" data-formatter="numberFormatter" data-align="right">Quantity</th>
+                <th data-field="buy" data-visible="false" data-formatter="numberFormatter" data-align="right"
+                    data-sortable="true">Jita
+                    Buy Price</th>
+                <th data-field="sell" data-formatter="numberFormatter" data-align="right" data-sortable="true">Jita
+                    Sell
+                    Price</th>
+                <th data-field="regionOrders" data-visible="false" data-formatter="numberFormatter" data-align="right"
+                    data-sortable="true">Region Orders</th>
+                <th data-field="stationOrders" data-visible="false" data-formatter="numberFormatter" data-align="right"
+                    data-sortable="true">Station Orders</th>
+                <th data-field="regionPrice" data-formatter="numberFormatter" data-align="right" data-sortable="true">Region
+                    Price</th>
+                <th data-field="stationPrice" data-visible="false" data-formatter="numberFormatter" data-align="right"
+                    data-sortable="true">Station Price</th>
+                <th data-field="" data-formatter="markupFormatter" data-align="right" data-sortable="true">Marked Up
+                    Price</th>
+            </tr>
+        </thead>
+    </table>
+</div>
 <script>
     function warningFormatter(row, index) {
         if (getPrice(row) < row.sell) {
@@ -139,14 +146,14 @@
                             '#characterList').val()
                 });
             },
-            error: function () {}
+            error: function () { }
         });
     }
 
     $('#locationList').change(function () {
         $('#assets').bootstrapTable('refreshOptions', {
             url: '/U/marketableAssets?locationID=' + $(
-                    '#locationList').val() +
+                '#locationList').val() +
                 '&tokenCharacterID=' + $('#characterList').val()
         });
     });
@@ -164,7 +171,7 @@
             $('#characterList').selectpicker('refresh');
             updateStationList(0)
         },
-        error: function () {}
+        error: function () { }
     });
 
     $('#characterList').change(function () {

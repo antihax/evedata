@@ -313,7 +313,9 @@ func corporationsForAllianceAPI(w http.ResponseWriter, r *http.Request) {
 func entityBlurb(name, entType string, eff float64, kills, losses, capKills int64, plural bool) string {
 
 	p := message.NewPrinter(language.English)
-
+	if eff == 0 && kills > 1 {
+		eff = 1
+	}
 	desc := name + " is a "
 	if eff > 0.99 && kills > 100 {
 		desc += "godlike"

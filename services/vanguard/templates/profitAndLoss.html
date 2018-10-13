@@ -2,12 +2,16 @@
 {{ template "bootstrap-table" . }}
 {{end}}
 {{define "body"}}
-<h3>Profit and Loss Statement</h3>
-{{template "checkAuthentication" .}}
+<div class="well">
+    <h3>Profit and Loss Statement</h3>
+    {{template "checkAuthentication" .}}
 
-<p>Explore your characters income and expenses to determine if you are making a profit overall or losing big, and more importantly:
-    where!</p>
-
+    <p>Explore your characters income and expenses to determine if you are making a profit overall or losing big, and
+        more
+        importantly:
+        where!</p>
+</div>
+<div class="well">
 <div class="toolbar walletSummaryToolbar" id="walletSummaryToolbar">
     <h4>Duration: &nbsp;
         <select class="selectpicker" data-width="auto" name="duration" id="duration">
@@ -31,11 +35,12 @@
     <thead>
         <tr>
             <th data-field="refTypeName" data-footer-formatter="totalTextFormatter">Account</th>
-            <th data-field="balance" data-formatter="currencyFormatter" data-sortable="true" data-footer-formatter="sumFormatter" data-align="right">Balance</th>
+            <th data-field="balance" data-formatter="currencyFormatter" data-sortable="true" data-footer-formatter="sumFormatter"
+                data-align="right">Balance</th>
         </tr>
     </thead>
 </table>
-
+</div>
 <script>
     var $walletSummary = $('#walletSummary').bootstrapTable({
         url: '/U/walletSummary?range=' + $('#duration').val(),

@@ -5,7 +5,7 @@
 <div class="modal fade" id="mailPasswordDialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header">							
+			<div class="modal-header">
 				<button aria-label="Close" class="close" data-dismiss="modal" type="button">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -13,18 +13,38 @@
 			</div>
 			<div class="modal-body">
 				<p>You must have EVE Mail Proxy Service scopes selected on this character or you will not authenticate.</p>
-					<p>Set your mail client to the following settings:</p>
-					<table class="table table-striped">
-						<tr><td>Server:</td><td>mail.evedata.org</td></tr>
-						<tr><td>EMail:</td><td id="email">mail.evedata.org</td></tr>
-						<tr><td>Username:</td><td name="characterID" class="characterID">characterID</td></tr>
-						<tr><td>IMAP Port:</td><td>993</td></tr>
-						<tr><td>SMTP Port:</td><td>465</td></tr>
-						<tr><td>Security:</td><td>TLS</td></tr>
-					</table>
+				<p>Set your mail client to the following settings:</p>
+				<table class="table table-striped">
+					<tr>
+						<td>Server:</td>
+						<td>mail.evedata.org</td>
+					</tr>
+					<tr>
+						<td>EMail:</td>
+						<td id="email">mail.evedata.org</td>
+					</tr>
+					<tr>
+						<td>Username:</td>
+						<td name="characterID" class="characterID">characterID</td>
+					</tr>
+					<tr>
+						<td>IMAP Port:</td>
+						<td>993</td>
+					</tr>
+					<tr>
+						<td>SMTP Port:</td>
+						<td>465</td>
+					</tr>
+					<tr>
+						<td>Security:</td>
+						<td>TLS</td>
+					</tr>
+				</table>
 				<div class="form-group">
 					<label>Password</label>
-					<div class="well"><h5 id="password">We cannot restore passwords, please generate another if you lose it.</h5></div>
+					<div class="well">
+						<h5 id="password">We cannot restore passwords, please generate another if you lose it.</h5>
+					</div>
 					<button type="submit" onClick="genPassword()" id="genPassword" class="btn btn-primary">Generate New Password</button>
 				</div>
 			</div>
@@ -34,13 +54,12 @@
 		</div>
 	</div>
 </div>
-
-<h3>Single Sign On Account:
-	<span class="SSOCharacterName">### PENDING ###</span>
-</h3>
-<p>You are currently logged in as
-	<b class="SSOCharacterName">### PENDING ###</b>. This is your "account" for this website; as long as you log
-	into this character, your data will be available to you.</p>
+<div class="well">
+	<h3>Single Sign On Account:
+		<span class="SSOCharacterName">### PENDING ###</span>
+	</h3>
+	<p>You are logged in as
+		<b class="SSOCharacterName">### PENDING ###</b>. All characters you add below will be available under this login. You must also add <b class="SSOCharacterName">### PENDING ###</b> in the characters below to access their data.</p>
 </div>
 
 <div id="availableServicesPanel" class="well collapse">
@@ -68,7 +87,7 @@
 	<h3>Characters</h3>
 	<ul>
 		<li>
-			<b>Add Characters:</b> Add all of your characters below. Press CANCEL on the character
+			<b>Add Characters:</b> Add your characters below. Press CANCEL on the character
 			selection screen to swap accounts.</li>
 		<li>
 			<b>Auth:</b> Any character with Auth checked will be have access to their respective
@@ -106,16 +125,14 @@
 	<div class="table">
 		<div class="toolbar cresttokenToolbar" id="cresttokenToolbar">
 			<div class="btn-group">
-				<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChar"
-				    data-toggle="dropdown">
+				<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChar" data-toggle="dropdown">
 					Add Character
 					<span class="caret"></span>
 				</button>
 				<ul class="dropdown-menu" id="addCharMenu">
 					{{ range $scope, $reason := .ScopeGroups }}
 					<li>
-						<a href="#" id="{{ $scope }}" class="small characterScopes" data-value="{{ $scope }}"
-						    tabIndex="-1">
+						<a href="#" id="{{ $scope }}" class="small characterScopes" data-value="{{ $scope }}" tabIndex="-1">
 							<input type="checkbox" CHECKED>&nbsp;{{ $reason }}</a>
 					</li>
 					{{ end }}
@@ -127,20 +144,18 @@
 			</div>
 		</div>
 
-		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".cresttokenToolbar"
-		    data-url="/U/CRESTTokens" id="cresttable">
+		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".cresttokenToolbar" data-url="/U/CRESTTokens"
+		 id="cresttable">
 			<thead>
 				<tr>
-					<th data-align="center" data-field="authCharacter" data-events="actionEvents" data-formatter="authFormatter"
-						title="Allow alliance access to my data">Auth</th>
+					<th data-align="center" data-field="authCharacter" data-events="actionEvents" data-formatter="authFormatter" title="Allow alliance access to my data">Auth</th>
 					<th data-align="center" data-field="mailPassword" data-events="actionEvents" data-formatter="mailPasswordFormatter"
-					    title="EveMail Proxy Password is Set">Mail PW</th>
+					 title="EveMail Proxy Password is Set">Mail PW</th>
 					<th data-align="center" data-field="sharing" data-formatter="sharingFormatter" title="Share my data with explicit entities">Sharing</th>
 					<th data-field="characterName">Name</th>
 					<th data-field="scopes" title="Authorization grants provided by this character">Scope Groups</th>
 					<th data-field="lastStatus">Last Status</th>
-					<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="deleteFormatter"
-					    title="Delete a character">Delete</th>
+					<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="deleteFormatter" title="Delete a character">Delete</th>
 				</tr>
 			</thead>
 		</table>
@@ -155,8 +170,8 @@
 	<div class="table">
 		<div class="toolbar integrationTokenToolbar" id="integrationTokenToolbar">
 			<div class="dropdown">
-				<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addDiscord"
-				    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addDiscord" data-toggle="dropdown"
+				 aria-haspopup="true" aria-expanded="false">
 					Add Integration Token
 					<span class="caret"></span>
 				</button>
@@ -168,14 +183,14 @@
 			</div>
 		</div>
 
-		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".integrationTokenToolbar"
-		    data-url="/U/integrationTokens" id="integrationtable">
+		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".integrationTokenToolbar" data-url="/U/integrationTokens"
+		 id="integrationtable">
 			<thead>
 				<tr>
 					<th data-field="type">Type</th>
 					<th data-field="integrationUserName" data-formatter="escapeFormatter">Name</th>
 					<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="deleteIntegrationFormatter"
-					    title="Delete Token">Delete</th>
+					 title="Delete Token">Delete</th>
 				</tr>
 			</thead>
 		</table>
@@ -350,7 +365,7 @@
 			'click .setMailPassword': function (e, value, row) {
 				$mailPasswordDialog.find('.modal-title').text("Set Mail Password: " + row.characterName);
 				$mailPasswordDialog.find('.characterID').text(row.tokenCharacterID);
-				$mailPasswordDialog.find('#email').text(row.tokenCharacterID+"@evedata.org");
+				$mailPasswordDialog.find('#email').text(row.tokenCharacterID + "@evedata.org");
 				$("input[name=genPassword]").attr("disabled", "enabled");
 				$mailPasswordDialog.modal('show');
 			},
@@ -375,32 +390,32 @@
 				}
 			}
 		};
-			function genPassword() {
-				$("input[name=genPassword]").attr("disabled", "disabled");
-				var randPassword = "",
-					ok = null,
-					pwRe = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{12,}$/g;
+		function genPassword() {
+			$("input[name=genPassword]").attr("disabled", "disabled");
+			var randPassword = "",
+				ok = null,
+				pwRe = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{12,}$/g;
 
-				while (ok == null) {
-					randPassword = Array(Math.floor(Math.random() * 4) + 12).fill("123456789ABCDEFGHJKMNPQRSTUWXYZabcdefgh-ijkmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
-					ok = pwRe.exec(randPassword);
+			while (ok == null) {
+				randPassword = Array(Math.floor(Math.random() * 4) + 12).fill("123456789ABCDEFGHJKMNPQRSTUWXYZabcdefgh-ijkmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
+				ok = pwRe.exec(randPassword);
+			}
+
+			$.ajax({
+				url: "/U/setMailPassword?tokenCharacterID=" + $(".characterID").text() + "&password=" + randPassword,
+				type: 'post',
+				success: function () {
+					$cresttable.bootstrapTable('refresh');
+					showAlert('Password changed for ' + $(".characterID").text() + '!',
+						'success');
+					$('#password').text(randPassword);
+					refreshData();
+				},
+				error: function () {
+					showAlert('Error changing password state!', 'danger');
+					$("input[name=genPassword]").attr("disabled", "enabled");
 				}
-
-				$.ajax({
-					url: "/U/setMailPassword?tokenCharacterID=" + $(".characterID").text() + "&password=" + randPassword,
-					type: 'post',
-					success: function () {
-						$cresttable.bootstrapTable('refresh');
-						showAlert('Password changed for ' + $(".characterID").text() + '!',
-							'success');
-						$('#password').text(randPassword);
-						refreshData();
-					},
-					error: function () {
-						showAlert('Error changing password state!', 'danger');
-						$("input[name=genPassword]").attr("disabled", "enabled");
-					}
-				})
-			};
+			})
+		};
 
 	</script> {{end}}

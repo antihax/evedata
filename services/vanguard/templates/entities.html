@@ -19,7 +19,7 @@
 {{end}}
 {{define "corporation"}}
 <div class="container-fluid">
-	<header class="row">
+	<header class="row well">
 		<div class="col-md-2">
 			<img class="rounded-32" alt="{{.Corporation.CorporationName}}" src="//imageserver.eveonline.com/corporation/{{.Corporation.CorporationID}}_128.png" />
 		</div>
@@ -51,7 +51,7 @@
 
 {{define "character"}}
 <div class="container-fluid">
-	<header class="row">
+	<header class="row well">
 		<div class="col-md-2">
 			<img class="rounded-32" alt="{{.Character.CharacterName}}" src="//imageserver.eveonline.com/character/{{.Character.CharacterID}}_128.jpg" />
 		</div>
@@ -83,11 +83,11 @@
 
 {{define "alliance"}}
 <div class="container-fluid">
-	<header class="row">
-		<div class="col-md-2">
+	<header class="row well">
+		<div class="col-lg-2">
 			<img class="rounded-32" alt="{{.Alliance.AllianceName}}" src="//imageserver.eveonline.com/Alliance/{{.Alliance.AllianceID}}_128.png" />
 		</div>
-		<div class="col-md-10">
+		<div class="col-lg-10">
 			<dl>
 				<dt>
 					<h2>{{.Alliance.AllianceName}}</h2>

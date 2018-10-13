@@ -2,10 +2,12 @@
 {{ template "bootstrap-table" . }}
 {{end}}
 {{define "body"}}
-<h3>Integration Services</h3>
-<p>Discord integration for your corporation or alliance.</p>
-<p>All executor corp directors will have access to alter the configuration.</p>
 {{template "checkAuthentication" .}}
+<div class="well">
+	<h3>Integration Services</h3>
+	<p>Discord integration for your corporation or alliance.</p>
+	<p>All executor corp directors will have access to alter the configuration.</p>
+</div>
 
 <div class="modal fade" id="adddiscord">
 	<div class="modal-dialog">
@@ -21,7 +23,7 @@
 				<ol>
 					<li>
 						<a href="https://discordapp.com/api/oauth2/authorize?client_id=229339294144135169&permissions=1543765239&scope=bot"
-						    target="_new">Click to have our service join your Discord</a>.</li>
+						 target="_new">Click to have our service join your Discord</a>.</li>
 					<li>Right click your discord server from the discord UI and select
 						<i>Copy ID</i>
 					</li>
@@ -44,41 +46,41 @@
 		</div>
 	</div>
 </div>
-
-<div class="table">
-	<div class="toolbar servicesToolbar" id="servicesToolbar">
-		<div class="dropdown">
-			<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChar"
-			    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				Add New Service
-				<span class="caret"></span>
-			</button>
-			<ul class="dropdown-menu" id="addCharMenu" aria-labelledby="addChar">
-				<li>
-					<a class="adddiscord btn btn-default" href="javascript:">Add Discord</a>
-				</li>
-			</ul>
+<div class="well">
+	<div class="table">
+		<div class="toolbar servicesToolbar" id="servicesToolbar">
+			<div class="dropdown">
+				<button type="button" class="btn btn-default btn-sm dropdown-toggle" id="addChar" data-toggle="dropdown"
+				 aria-haspopup="true" aria-expanded="false">
+					Add New Service
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" id="addCharMenu" aria-labelledby="addChar">
+					<li>
+						<a class="adddiscord btn btn-default" href="javascript:">Add Discord</a>
+					</li>
+				</ul>
+			</div>
 		</div>
 	</div>
-</div>
 
-<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".servicesToolbar"
-    data-url="/U/integrations" id="servicesTable">
-	<thead>
-		<tr>
-			<th data-field="type">Service Type</th>
-			<th data-field="name" data-formatter="serverFormatter">Server Name</th>
-			<th data-field="entityName" data-formatter="entityTypeFormatter">Owning Entity</th>
-			<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="ServerActionsFormatter">Actions</th>
-		</tr>
-	</thead>
-</table>
+	<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".servicesToolbar" data-url="/U/integrations"
+	 id="servicesTable">
+		<thead>
+			<tr>
+				<th data-field="type">Service Type</th>
+				<th data-field="name" data-formatter="serverFormatter">Server Name</th>
+				<th data-field="entityName" data-formatter="entityTypeFormatter">Owning Entity</th>
+				<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="ServerActionsFormatter">Actions</th>
+			</tr>
+		</thead>
+	</table>
 </div>
 
 <script>
 	var $adddiscord = $('#adddiscord').modal({
-			show: false
-		}),
+		show: false
+	}),
 		$servicesTable = $('#servicesTable').bootstrapTable({
 			url: "/U/integrations"
 		}, "changeLocale", "en_US");
@@ -139,13 +141,13 @@
 	};
 	$adddiscord.find('.submit').click(function () {
 		$.ajax({
-				type: "POST",
-				url: "/U/integrationsDiscord",
-				data: {
-					entityID: $('#entity').children(":selected").attr("id"),
-					serverID: $('#serverID').val(),
-				}
-			})
+			type: "POST",
+			url: "/U/integrationsDiscord",
+			data: {
+				entityID: $('#entity').children(":selected").attr("id"),
+				serverID: $('#serverID').val(),
+			}
+		})
 			.done(function () {
 				$servicesTable.bootstrapTable('refresh');
 				$adddiscord.modal('hide');
