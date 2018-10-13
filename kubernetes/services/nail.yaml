@@ -27,6 +27,10 @@ spec:
                 operator: In
                 values:
                 - nail
+              - key: database
+                operator: In
+                values:
+                - mysql                
             topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-nail
