@@ -31,7 +31,7 @@ spec:
               - key: database
                 operator: In
                 values:
-                - mysql                   
+                - mysql
             topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-artifice
