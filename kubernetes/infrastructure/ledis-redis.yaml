@@ -16,6 +16,8 @@ spec:
         name: ledis
         app: ledis
     spec:
+      nodeSelector:
+        worker: worker
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

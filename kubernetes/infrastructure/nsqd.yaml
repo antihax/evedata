@@ -16,6 +16,8 @@ spec:
         name: nsqd
         app: nsqd
     spec:
+      nodeSelector:
+        worker: worker
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -79,6 +81,8 @@ spec:
         name: nsqadmin
         app: nsqadmin
     spec:
+      nodeSelector:
+        worker: worker
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -129,6 +133,8 @@ spec:
         name: nsqlookupd1
         app: nsqlookupd
     spec:
+      nodeSelector:
+        worker: worker
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -183,6 +189,8 @@ spec:
         name: nsqlookupd2
         app: nsqlookupd
     spec:
+      nodeSelector:
+        worker: worker
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
