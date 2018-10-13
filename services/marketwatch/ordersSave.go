@@ -10,6 +10,7 @@ import (
 	"github.com/antihax/goesi/esi"
 )
 
+/*
 func (s *MarketWatch) orderChangesPump() {
 	for {
 		c := <-s.orderChangeChan
@@ -41,7 +42,7 @@ func (s *MarketWatch) orderChangesPump() {
 			}
 		}
 	}
-}
+}*/
 
 func (s *MarketWatch) saveAdditions(c []esi.GetMarketsRegionIdOrders200Ok) {
 	order := squirrel.Insert("evedata.market").Columns(
@@ -135,7 +136,7 @@ func (s *MarketWatch) saveChanges(c []OrderChange) {
 func (s *MarketWatch) sqlPumps() {
 	// Deal with change records in a separate routine as we don't have to worry about
 	// collisions.
-	go s.orderChangesPump()
+	//go s.orderChangesPump()
 
 	for {
 		select {

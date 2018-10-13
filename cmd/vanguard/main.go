@@ -77,10 +77,6 @@ func main() {
 			log.Printf("%d %s\n", i, err)
 			i, err = redis.Int64(conn.Do("DEL", "evedata_war_finished"))
 			log.Printf("%d %s\n", i, err)
-			for i = 1; i < 595412; i++ {
-
-			}
-
 		} else if os.Args[1] == "flushqueue" {
 			// Erase http cache in redis
 			log.Printf("Flushing queue\n")

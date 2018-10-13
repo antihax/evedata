@@ -14,7 +14,7 @@ import (
 
 func init() {
 	AddHandler("structureOrders", func(s *Nail, consumer *nsq.Consumer) {
-		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.structureOrderHandler)))
+		consumer.AddConcurrentHandlers(s.wait(nsq.HandlerFunc(s.structureOrderHandler)), 5)
 	})
 
 	AddHandler("marketHistory", func(s *Nail, consumer *nsq.Consumer) {
@@ -28,7 +28,12 @@ func (s *Nail) structureOrderHandler(message *nsq.Message) error {
 	if err != nil {
 		return err
 	}
+	// early out if we already have this recently
+	if s.outQueue.CheckWorkExpired("evedata_structuremarket", b.StructureID) {
+		return nil
+	}
 
+	// Early out if there are no orders
 	if len(b.Orders) == 0 {
 		return nil
 	}
@@ -53,7 +58,13 @@ func (s *Nail) structureOrderHandler(message *nsq.Message) error {
 		}
 	}
 
-	return s.doMarketOrders(values)
+	if err := s.doMarketOrders(values); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return s.outQueue.SetWorkExpire("evedata_structuremarket", int64(b.StructureID), 300)
+
 }
 
 func (s *Nail) doMarketOrders(values []string) error {

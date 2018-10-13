@@ -13,7 +13,7 @@ import (
 
 func init() {
 	AddHandler("characterAssets", func(s *Nail, consumer *nsq.Consumer) {
-		consumer.AddConcurrentHandlers(s.wait(nsq.HandlerFunc(s.characterAssetsConsumer)), 5)
+		consumer.AddConcurrentHandlers(s.wait(nsq.HandlerFunc(s.characterAssetsConsumer)), 10)
 	})
 }
 
@@ -56,10 +56,18 @@ func (s *Nail) characterAssetsConsumer(message *nsq.Message) error {
 			asset.LocationFlag, asset.ItemId, asset.LocationType, asset.IsSingleton)
 	}
 
-	// Retry the transaction until we succeed.
-	err = sqlhelper.RetrySquirrelInsertTransaction(tx, assetSQL)
+	sqlq, args, err := assetSQL.ToSql()
 	if err != nil {
-		log.Println(err)
+		return err
+	}
+
+	_, err = tx.Exec(sqlq+" ON DUPLICATE KEY UPDATE quantity=VALUES(quantity) ", args...)
+	if err != nil {
+		return err
+	}
+
+	err = sqlhelper.RetryTransaction(tx)
+	if err != nil {
 		return err
 	}
 

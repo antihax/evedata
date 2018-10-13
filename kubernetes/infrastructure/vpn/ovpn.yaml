@@ -31,6 +31,16 @@ spec:
         name: openvpn
         app: ovpn
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: database
+                operator: In
+                values:
+                - mysql
+            topologyKey: "kubernetes.io/hostname"      
       containers:
       - image: kylemanna/openvpn
         name: ovpn

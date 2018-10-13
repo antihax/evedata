@@ -3,6 +3,7 @@ package tailor
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -401,7 +402,7 @@ func (s *Tailor) killmailConsumer() {
 			continue
 		}
 
-		err = s.doSQL(sqlq+" ON DUPLICATE KEY UPDATE id = id, meanSecurity = VALUES(meanSecurity)", args...)
+		err = s.doSQL(sqlq+" ON DUPLICATE KEY UPDATE id = id, speed = VALUES(speed), meanSecurity = VALUES(meanSecurity)", args...)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -414,15 +415,17 @@ func getAttributesForKillmail(km *esi.GetKillmailsKillmailIdKillmailHashOk) (*at
 	if err != nil {
 		return nil, err
 	}
-
+	ctx, cncl := context.WithTimeout(context.Background(), time.Second*30)
+	defer cncl()
 	req, err := http.NewRequest("POST", "http://axiom.evedata:3005/killmail", bytes.NewBuffer(j))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := http.DefaultClient.Do(req.WithContext(ctx))
 	if err != nil {
+		log.Printf("exceeded %d", km.KillmailId)
 		return nil, err
 	}
 

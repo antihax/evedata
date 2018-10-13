@@ -140,6 +140,7 @@ html {
 
 body {
     font-size: 12px;
+    background: #000 url(/images/site-bg-v2.jpg) no-repeat center center fixed;
 }
 
 a {

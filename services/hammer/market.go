@@ -26,7 +26,11 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 
 	if s.inQueue.CheckWorkExpired("evedata_structuremarket_failure",
 		fmt.Sprintf("%d%d", structureID, tokenCharacterID)) {
-		log.Printf("failed structure ignored %d\n", structureID)
+		return
+	}
+
+	// early out if we already have this recently
+	if s.inQueue.CheckWorkExpired("evedata_structuremarket", structureID) {
 		return
 	}
 
