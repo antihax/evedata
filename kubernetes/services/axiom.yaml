@@ -13,6 +13,8 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
     spec:
+      nodeSelector:
+        worker: worker
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -22,10 +24,6 @@ spec:
                 operator: In
                 values:
                 - axiom
-              - key: database
-                operator: In
-                values:
-                - mysql
             topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-axiom
