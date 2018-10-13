@@ -9,7 +9,7 @@ metadata:
   name: evedata-nail
   namespace: evedata
 spec:
-  replicas: 8
+  replicas: 5
   template:
     metadata:
       name: evedata-nail
@@ -27,6 +27,8 @@ spec:
                 operator: In
                 values:
                 - nail
+          - nodeSelector:
+              matchExpressions:
               - key: database
                 operator: In
                 values:
