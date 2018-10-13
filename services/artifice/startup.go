@@ -1,6 +1,8 @@
 package artifice
 
-import "log"
+import (
+	"log"
+)
 
 func (s *Artifice) startup() error {
 	err := s.loadKills()
@@ -16,7 +18,7 @@ func (s *Artifice) startup() error {
 
 func (s *Artifice) loadKills() error {
 	var known []int64
-	if err := s.db.Select(&known, `SELECT id FROM evedata.killmails WHERE hash != "";`); err != nil {
+	if err := s.db.Select(&known, `SELECT id FROM evedata.killmails;`); err != nil {
 		return err
 	}
 

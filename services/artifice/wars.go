@@ -15,7 +15,7 @@ import (
 func init() {
 	registerTrigger("wars", warsTrigger, time.NewTicker(time.Second*3600))
 	registerTrigger("warsFromDB", warsUpdate, time.NewTicker(time.Second*300))
-	registerTrigger("missingKillmails", missingKillmails, time.NewTicker(time.Second*10))
+	registerTrigger("missingKillmails", missingKillmails, time.NewTicker(time.Hour*12))
 }
 
 func warsTrigger(s *Artifice) error {

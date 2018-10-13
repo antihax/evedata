@@ -482,13 +482,13 @@ function getShip(package) {
     setResonancePercentage("hullKin", a.kineticDamageResonance)
     setResonancePercentage("hullExp", a.explosiveDamageResonance)
 
-    $("#ehp").text(simpleVal(a.maxEHP) + " EHP");
+    $("#ehp").text(simpleVal(a.avgEHP) + " EHP");
 
     $("#hullHP").text(simpleVal(a.hp) + " HP");
     $("#armorHP").text(simpleVal(a.armorHP) + " HP");
     $("#shieldHP").text(simpleVal(a.shieldCapacity) + " HP");
 
-    $("#rps").text(simpleVal(a.maxRPS) + " EHP/s");
+    $("#rps").text(simpleVal(a.avgRPS) + " EHP/s");
 
     $("#warpStrength").text(simpleVal(a.totalWarpScrambleStrength));
     $("#webStrength").text(simpleVal(a.stasisWebifierStrength) + "%");
