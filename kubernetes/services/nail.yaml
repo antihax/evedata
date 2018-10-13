@@ -9,7 +9,7 @@ metadata:
   name: evedata-nail
   namespace: evedata
 spec:
-  replicas: 5
+  replicas: 8
   template:
     metadata:
       name: evedata-nail
@@ -18,6 +18,8 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
     spec:
+      nodeSelector:
+        worker: worker
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -27,13 +29,7 @@ spec:
                 operator: In
                 values:
                 - nail
-          - nodeSelector:
-              matchExpressions:
-              - key: database
-                operator: In
-                values:
-                - mysql
-            topologyKey: "kubernetes.io/hostname"
+            topologyKey: "kubernetes.io/hostname"    
       containers:
       - name: evedata-nail
         image: antihax/evedata-nail

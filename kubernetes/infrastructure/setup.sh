@@ -18,3 +18,16 @@ kubectl label nodes database02 database=mysql
 kubectl label nodes database01 elasticsearch=elasticsearch
 kubectl label nodes database02 elasticsearch=elasticsearch
 kubectl label nodes database03 elasticsearch=elasticsearch
+
+kubectl label nodes worker01 worker=worker
+kubectl label nodes worker02 worker=worker
+kubectl label nodes worker03 worker=worker
+kubectl label nodes worker04 worker=worker
+kubectl label nodes worker05 worker=worker
+kubectl label nodes worker06 worker=worker
+kubectl label nodes worker07 worker=worker
+kubectl label nodes worker08 worker=worker
+kubectl label nodes worker09 worker=worker
+kubectl label nodes worker10 worker=worker
+kubectl label nodes worker11 worker=worker
+kubectl label nodes worker12 worker=worker
