@@ -26,9 +26,9 @@ type MarketWatch struct {
 	tokenAuth *goesi.SSOAuthenticator
 
 	// SQL Queues
-	orderChan    chan []esi.GetMarketsRegionIdOrders200Ok
-	contractChan chan []FullContract
-	//orderChangeChan    chan []OrderChange
+	orderChan          chan []esi.GetMarketsRegionIdOrders200Ok
+	contractChan       chan []FullContract
+	orderChangeChan    chan []OrderChange
 	contractChangeChan chan []ContractChange
 	orderDeleteChan    chan []OrderChange
 	contractDeleteChan chan []ContractChange
@@ -84,9 +84,9 @@ func NewMarketWatch(refresh, tokenClientID, tokenSecret string, db *sqlx.DB, led
 		tokenAuth: auth,
 
 		// SQL channels
-		orderChan:    make(chan []esi.GetMarketsRegionIdOrders200Ok, 10000),
-		contractChan: make(chan []FullContract, 10000),
-		//orderChangeChan:    make(chan []OrderChange, 10000),
+		orderChan:          make(chan []esi.GetMarketsRegionIdOrders200Ok, 10000),
+		contractChan:       make(chan []FullContract, 10000),
+		orderChangeChan:    make(chan []OrderChange, 10000),
 		contractChangeChan: make(chan []ContractChange, 10000),
 		orderDeleteChan:    make(chan []OrderChange, 10000),
 		contractDeleteChan: make(chan []ContractChange, 10000),
