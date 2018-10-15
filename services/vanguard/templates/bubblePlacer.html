@@ -3,48 +3,49 @@
 {{ template "bootstrap-multiselect" . }}
 {{end}}
 {{define "body"}}
+<div class="well">
+    <h3>Bubble-O-Matic 9002</h3>
+    <p>Visualize warp paths to nullsec gates and determine the optimal type of bubble and placement.
+        <br>Controls: W, A, S, D, Q, E, Left Mouse
+    </p>
 
-<h3>Bubble-O-Matic 9002</h3>
-<p>Visualize warp paths to nullsec gates and determine the optimal type of bubble and placement.
-    <br>Controls: W, A, S, D, Q, E, Left Mouse
-</p>
+    <label>Region: &nbsp;</label>
+    <select class="selectpicker" data-width="auto" name="region" id="region">
+        <option SELECTED id="">All Regions</option>
+    </select>
 
-<label>Region: &nbsp;</label>
-<select class="selectpicker" data-width="auto" name="region" id="region">
-    <option SELECTED id="">All Regions</option>
-</select>
+    <label>System: &nbsp;</label>
+    <select class="selectpicker" data-width="auto" name="solarSystem" id="solarSystem"></select>
+    &nbsp;
+    <label>Gate: &nbsp;</label>
+    <select class="selectpicker" data-width="auto" name="gate" id="gate"></select>
+    &nbsp;
+    <label>Paths: &nbsp;</label>
+    <select id="showPaths" multiple="multiple">
+        <option value="Sun" selected="selected">Sun</option>
+        <option value="Stargate" selected="selected">Stargates</option>
+        <option value="Planet">Planets</option>
+        <option value="Station">Stations</option>
+        <option value="Moon">Moons</option>
+    </select>
+    &nbsp;
+    <label>Bubble Type: &nbsp;</label>
+    <select id="bubbleType">
+        <option value=20000 selected="selected">Warp Disrupt Probe</option>
+        <option value=10000>Surgical Warp Disrupt Probe</option>
+        <option value=16000>Warp Disruption Field Generator I</option>
+        <option value=20000>Warp Disruption Field Generator II</option>
+        <option value=5000>Mobile Small Warp Disruptor I</option>
+        <option value=7500>Mobile Small Warp Disruptor II</option>
+        <option value=11500>Mobile Medium Warp Disruptor I</option>
+        <option value=17500>Mobile Medium Warp Disruptor II</option>
+        <option value=26500>Mobile Large Warp Disruptor I</option>
+        <option value=40000>Mobile Large Warp Disruptor II</option>
+    </select>
 
-<label>System: &nbsp;</label>
-<select class="selectpicker" data-width="auto" name="solarSystem" id="solarSystem"></select>
-&nbsp;
-<label>Gate: &nbsp;</label>
-<select class="selectpicker" data-width="auto" name="gate" id="gate"></select>
-&nbsp;
-<label>Paths: &nbsp;</label>
-<select id="showPaths" multiple="multiple">
-    <option value="Sun" selected="selected">Sun</option>
-    <option value="Stargate" selected="selected">Stargates</option>
-    <option value="Planet">Planets</option>
-    <option value="Station">Stations</option>
-    <option value="Moon">Moons</option>
-</select>
-&nbsp;
-<label>Bubble Type: &nbsp;</label>
-<select id="bubbleType">
-    <option value=20000 selected="selected">Warp Disrupt Probe</option>
-    <option value=10000>Surgical Warp Disrupt Probe</option>
-    <option value=16000>Warp Disruption Field Generator I</option>
-    <option value=20000>Warp Disruption Field Generator II</option>
-    <option value=5000>Mobile Small Warp Disruptor I</option>
-    <option value=7500>Mobile Small Warp Disruptor II</option>
-    <option value=11500>Mobile Medium Warp Disruptor I</option>
-    <option value=17500>Mobile Medium Warp Disruptor II</option>
-    <option value=26500>Mobile Large Warp Disruptor I</option>
-    <option value=40000>Mobile Large Warp Disruptor II</option>
-</select>
-
-<div id="stats">Distance from gate: 0m
-    <br> Close to align: All the things</div>
+    <div id="stats">Distance from gate: 0m
+        <br> Close to align: All the things
+    </div>
 </div>
 
 <center>

@@ -17,10 +17,13 @@
 </style>
 {{end}}
 {{define "body"}}
-<h3>Killmail Attribute Browser</h3>
-Data represents 10,000 most recent killmails for a ship group type. Filter by drawing a brush on the scatterplot and
-clicking the ship type. Some attributes are hidden and can be added to the table.
-<div>
+<div class="well">
+    <h3>Killmail Attribute Browser</h3>
+    Data represents 10,000 most recent killmails for a ship group type. Filter by drawing a brush on the scatterplot
+    and
+    clicking the ship type. Some attributes are hidden and can be added to the table.
+    <div>
+    </div>
     <select class="selectpicker form-control" data-width="auto" name="groupID" id="groupID"></select>
     <select class="selectpicker form-control axisChanger" data-width="auto" name="xAxis" id="xAxis">
         <option data-icon="fa fa-times" value="rps">eHP/s</option>

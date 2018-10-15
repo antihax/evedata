@@ -2,26 +2,28 @@
 {{ template "bootstrap-table" . }}
 {{end}}
 {{define "body"}}
-<h3>War Contact Synchronization</h3>
 {{template "checkAuthentication" .}}
+<div class="well">
+	<h3>War Contact Synchronization</h3>
 
-<p> The War Contact Synchronization tool will automatically create negative standings for
-	active, pending, and faction wars on the Alt Character from the Main Character so
-	you can keep your Alt Characters up to date. This tool will erase all -5 and -10
-	personal contacts on the Alt Character and replace them with active and pending
-	war contacts perpetually until the entry is deleted. It is recommended to use neutral
-	standings in place of negative standings for any important contacts.</p>
-<p>To use this tool, add characters on the
-	<a href="/account">account page</a> with War Contact Synchronization permissions, then create one Contact
-	Copy on this page from your main character to each alt. Your main can be added with
-	all permissions unchecked.</p>
-<p></p>
+	<p> The War Contact Synchronization tool will automatically create negative standings for
+		active, pending, and faction wars on the Alt Character from the Main Character so
+		you can keep your Alt Characters up to date. This tool will erase all -5 and -10
+		personal contacts on the Alt Character and replace them with active and pending
+		war contacts perpetually until the entry is deleted. It is recommended to use neutral
+		standings in place of negative standings for any important contacts.</p>
+	<p>To use this tool, add characters on the
+		<a href="/account">account page</a> with War Contact Synchronization permissions, then create one Contact
+		Copy on this page from your main character to each alt. Your main can be added with
+		all permissions unchecked.</p>
+	<p></p>
+</div>
 <div class="table">
 	<p class="toolbar contactToolbar" id="contactToolbar">
 		<a class="addcontact btn btn-default" href="javascript:">Add New War Contact Sync</a>
 	</p>
-	<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".contactToolbar"
-	    data-url="/U/contactSync" id="contactstable">
+	<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".contactToolbar" data-url="/U/contactSync"
+	 id="contactstable">
 		<thead>
 			<tr>
 				<th data-field="sourceName">Main Character</th>
@@ -62,8 +64,8 @@
 
 <script>
 	var $contactstable = $('#contactstable').bootstrapTable({
-			url: "/U/contactSync"
-		}, "changeLocale", "en_US"),
+		url: "/U/contactSync"
+	}, "changeLocale", "en_US"),
 		$addcontact = $('#addcontact').modal({
 			show: false
 		});

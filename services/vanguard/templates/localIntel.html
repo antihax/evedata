@@ -2,14 +2,15 @@
 {{ template "bootstrap-table-legacy" . }}
 {{end}}
 {{define "body"}}
-<h3>Local Intel Summary</h3>
+<div class="well">
+    <h3>Local Intel Summary</h3>
 
-<p>Copy and paste the contents of a local window and paste below and we will generate
-    a summary of entities.
-    <br> Use the
-    <i>Filter NPC Corps</i> toggle to show or hide NPC entities.</p>
-
-<div class="container-fluid">
+    <p>Copy and paste the contents of a local window and paste below and we will generate
+        a summary of entities.
+        <br> Use the
+        <i>Filter NPC Corps</i> toggle to show or hide NPC entities.</p>
+</div>
+<div class="container-fluid well">
     <div class="row">
         <div class="col-md-6">
             <textarea class="form-control input-sm" rows="6" name="local" id="local" placeholder="Paste character names"
@@ -21,7 +22,8 @@
             <br>
             <button id="hideNPC" type="button" class="btn btn-primary btn-sm" data-toggle="button">Filter NPC Corps</button>
             <br>
-            <button id="hideNonFW" type="button" class="btn btn-primary btn-sm" data-toggle="button">Filter Non-FW Corps</button>
+            <button id="hideNonFW" type="button" class="btn btn-primary btn-sm" data-toggle="button">Filter Non-FW
+                Corps</button>
         </div>
     </div>
     <div class="row">
@@ -30,10 +32,9 @@
         </div>
     </div>
 </div>
-<div class="insideContainer">
-    <table id="localIntel" class="table" data-sort-name="number" data-sort-order="desc"
-        data-cache="true" data-unique-id="id" data-url="{{.HashURL}}" data-toggle="table"
-        cellspacing="0" width="100%">
+<div class="insideContainer well">
+    <table id="localIntel" class="table" data-sort-name="number" data-sort-order="desc" data-cache="true"
+        data-unique-id="id" data-url="{{.HashURL}}" data-toggle="table" cellspacing="0" width="100%">
         <thead>
             <tr>
                 <th data-field="number">#</th>

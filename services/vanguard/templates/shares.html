@@ -2,12 +2,13 @@
 {{ template "bootstrap-table" . }}
 {{end}}
 {{define "body"}}
-<h3>Share Data with other Entities</h3>
-{{template "checkAuthentication" .}}
-<p>Add entities that you wish to share data with.
-	<br> Warning! Any character you add here will be visible to entity you share it with
-	and will share the scoped data you select.</p>
-
+<div class="well">
+	<h3>Share Data with other Entities</h3>
+	{{template "checkAuthentication" .}}
+	<p>Add entities that you wish to share data with.
+		<br> Warning! Any character you add here will be visible to entity you share it with
+		and will share the scoped data you select.</p>
+</div>
 <div class="modal fade" id="addshare">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -31,8 +32,7 @@
 					<ul class="form-group" id="addSharesMenu">
 						{{ range $type, $reason := .ShareGroups }}
 						<li>
-							<a href="#" id="{{ $type }}" class="small shareGroups" data-value="{{ $type }}"
-							    tabIndex="-1">
+							<a href="#" id="{{ $type }}" class="small shareGroups" data-value="{{ $type }}" tabIndex="-1">
 								<input type="checkbox" CHECKED>&nbsp;{{ $reason }}</a>
 						</li>
 						{{ end }}
@@ -55,29 +55,29 @@
 		</div>
 	</div>
 </div>
+<div class="well">
+	<div class="table">
+		<div class="toolbar sharesToolbar" id="sharesToolbar">
+			<a class="addshare btn btn-default" href="javascript:">Share Data</a>
+		</div>
 
-<div class="table">
-	<div class="toolbar sharesToolbar" id="sharesToolbar">
-		<a class="addshare btn btn-default" href="javascript:">Share Data</a>
+		<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".sharesToolbar" data-url="/U/shares"
+		 id="sharesTable">
+			<thead>
+				<tr>
+					<th data-field="tokenCharacterName" data-formatter="tokenCharacterFormatter">Character</th>
+					<th data-field="types">Sharing</th>
+					<th data-field="entityName" data-formatter="entityTypeFormatter">Shared With</th>
+					<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="ShareActionsFormatter">Delete</th>
+				</tr>
+			</thead>
+		</table>
 	</div>
-
-	<table class="table" data-show-refresh="true" data-cache="false" data-toolbar=".sharesToolbar"
-	    data-url="/U/shares" id="sharesTable">
-		<thead>
-			<tr>
-				<th data-field="tokenCharacterName" data-formatter="tokenCharacterFormatter">Character</th>
-				<th data-field="types">Sharing</th>
-				<th data-field="entityName" data-formatter="entityTypeFormatter">Shared With</th>
-				<th data-align="center" data-events="actionEvents" data-field="action" data-formatter="ShareActionsFormatter">Delete</th>
-			</tr>
-		</thead>
-	</table>
 </div>
-
 <script>
 	var $addshare = $('#addshare').modal({
-			show: false
-		}),
+		show: false
+	}),
 		$sharesTable = $('#sharesTable').bootstrapTable({
 			url: "/U/shares"
 		}, "changeLocale", "en_US"),
@@ -111,15 +111,15 @@
 			});
 
 			$.ajax({
-					type: "POST",
-					url: "/U/shares",
-					data: {
-						types: shareGroups.join(','),
-						entityID: selectedID,
-						tokenCharacterID: $('#tokenCharacterID').children(":selected").attr(
-							"id")
-					}
-				})
+				type: "POST",
+				url: "/U/shares",
+				data: {
+					types: shareGroups.join(','),
+					entityID: selectedID,
+					tokenCharacterID: $('#tokenCharacterID').children(":selected").attr(
+						"id")
+				}
+			})
 				.done(function () {
 					$sharesTable.bootstrapTable('refresh');
 					$addshare.modal('hide');

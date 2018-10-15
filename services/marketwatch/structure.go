@@ -169,9 +169,9 @@ func (s *MarketWatch) structureWorker(structureID int64) {
 			s.orderChan <- newOrders
 		}
 
-		/*if len(changes) > 0 {
+		if len(changes) > 0 {
 			s.orderChangeChan <- changes
-		}*/
+		}
 
 		if len(deletions) > 0 {
 			s.orderDeleteChan <- deletions

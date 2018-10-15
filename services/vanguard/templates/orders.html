@@ -3,29 +3,37 @@
 {{ template "clipboard" . }}
 {{end}}
 {{define "body"}}
-<h3>Orders</h3>
-{{template "checkAuthentication" .}}
-
-<div class="toolbar orderToolbar" id="LocationContainer">
-    <select class="selectpicker" data-width="auto" name="characterList" id="characterList"></select>
+<div class="well">
+    <h3>Orders</h3>
+    {{template "checkAuthentication" .}}
+    The order tool shows all your character orders in private and public structures and markets. Red means you have
+    been outbid in the station and gray means outbid in the region.<br><br>
+    Note: due to cache timers, we can only update market data every 5 minutes, and orders every 20 minutes. Data may be
+    outdated and should be confirmed.
 </div>
-<button id="orderType" style="float: right;" type="button" class="btn btn-primary btn-sm" data-toggle="button" onClick="javascript:filters()">Sell
-    Orders</button>
+
+<div class="well">
+    <div class="toolbar orderToolbar" id="LocationContainer">
+        <select class="selectpicker" data-width="auto" name="characterList" id="characterList"></select>
+    </div>
+    <button id="orderType" style="float: right;" type="button" class="btn btn-primary btn-sm" data-toggle="button"
+        onClick="javascript:filters()">Sell
+        Orders</button>
 
 
-<table class="table" data-sort-name="characterID" data-cache="true" data-row-style="warningFormatter" data-toolbar=".orderToolbar"
-    id="orders">
-    <thead>
-        <tr>
-            <th data-field="characterID" data-sortable="true" data-formatter="characterFormatter">Character</th>
-            <th data-field="typeName" data-sortable="true" data-formatter="typeLocationFormatter">Type</th>
-            <th data-field="volumeRemain" data-formatter="numberFormatter" data-align="right">Quantity</th>
-            <th data-field="price.Float64" data-sortable="true" data-formatter="numberFormatter" data-align="right">Buy
-                Price</th>
-        </tr>
-    </thead>
-</table>
-
+    <table class="table" data-sort-name="characterID" data-cache="true" data-row-style="warningFormatter" data-toolbar=".orderToolbar"
+        id="orders">
+        <thead>
+            <tr>
+                <th data-field="characterID" data-sortable="true" data-formatter="characterFormatter">Character</th>
+                <th data-field="typeName" data-sortable="true" data-formatter="typeLocationFormatter">Type</th>
+                <th data-field="volumeRemain" data-formatter="numberFormatter" data-align="right">Quantity</th>
+                <th data-field="price.Float64" data-sortable="true" data-formatter="numberFormatter" data-align="right">Buy
+                    Price</th>
+            </tr>
+        </thead>
+    </table>
+</div>
 <script>
     function warningFormatter(row, index) {
         if (row.currentPrice.Valid) {

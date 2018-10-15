@@ -2,56 +2,60 @@
 {{ template "bootstrap-table" . }}
 {{end}}
 {{define "body"}}
-<h3>Undervalued Market Items</h3>
-<div class="toolbar marketToolbar" id="LocationContainer">
-    <div id="marketToolbarContainer" class="form-group">
-        <div class="row">
-            <div class="col-xs-6">
-                <lable>Base Market Region:</lable>
-                <br>
-                <select class="selectpicker form-control regions" data-width="auto" name="marketRegionID" id="marketRegionID"></select>
-            </div>
-            <div class="col-xs-6">
-                <lable>Minimum Discount Percentage:</lable>
-                <input class="form-control" name="discount" id="discount" type="number" min=0 max=90 maxlength=2 value=20>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-6">
-                <lable>Buy In Region:</lable>
-                <br>
-                <select class="selectpicker form-control regions" data-width="auto" name="sourceRegionID" id="sourceRegionID"></select>
-            </div>
-            <div class="col-xs-6">
-                <lable>Sell At Region:</lable>
-                <br>
-                <select class="selectpicker form-control regions" data-width="auto" name="destinationRegionID" id="destinationRegionID"></select>
-            </div>
-        </div>
-    </div>
-    <button type="submit button-inline" id="submit" class="btn btn-primary">Apply</button>
+<div class="well">
+    <h3>Undervalued Market Items</h3>
 </div>
+<div class="well">
+    <div class="toolbar marketToolbar" id="LocationContainer">
+        <div id="marketToolbarContainer" class="form-group">
+            <div class="row">
+                <div class="col-xs-6">
+                    <lable>Base Market Region:</lable>
+                    <br>
+                    <select class="selectpicker form-control regions" data-width="auto" name="marketRegionID" id="marketRegionID"></select>
+                </div>
+                <div class="col-xs-6">
+                    <lable>Minimum Discount Percentage:</lable>
+                    <input class="form-control" name="discount" id="discount" type="number" min=0 max=90 maxlength=2
+                        value=20>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6">
+                    <lable>Buy In Region:</lable>
+                    <br>
+                    <select class="selectpicker form-control regions" data-width="auto" name="sourceRegionID" id="sourceRegionID"></select>
+                </div>
+                <div class="col-xs-6">
+                    <lable>Sell At Region:</lable>
+                    <br>
+                    <select class="selectpicker form-control regions" data-width="auto" name="destinationRegionID" id="destinationRegionID"></select>
+                </div>
+            </div>
+        </div>
+        <button type="submit button-inline" id="submit" class="btn btn-primary">Apply</button>
+    </div>
 
-<table class="table" data-cache="true" data-toolbar=".marketToolbar" data-sort-name="typeName" data-sort-order="asc"
-    data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50, 100, ALL]" data-row-style="warningFormatter"
-    id="marketItems">
-    <thead>
-        <tr>
-            <th data-field="typeName" data-formatter="typeFormatter" data-sortable="true">Type</th>
-            <th data-field="destinationVolume" data-formatter="numberFormatter" data-align="right" data-sortable="true">ISK
-                Volume</th>
-            <th data-field="regionOrders" data-visible="false" data-formatter="numberFormatter" data-align="right"
-                data-sortable="true">Region Orders</th>
-            <th data-field="regionPrice" data-formatter="numberFormatter" data-align="right" data-sortable="true">Buy
-                at Price</th>
-            <th data-field="marketPrice" data-formatter="numberFormatter" data-align="right" data-sortable="true">Market
-                Price</th>
-            <th data-field="destinationPrice" data-formatter="numberFormatter" data-align="right" data-sortable="true">Sell
-                at Price</th>
-        </tr>
-    </thead>
-</table>
-
+    <table class="table" data-cache="true" data-toolbar=".marketToolbar" data-sort-name="typeName" data-sort-order="asc"
+        data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50, 100, ALL]" data-row-style="warningFormatter"
+        id="marketItems">
+        <thead>
+            <tr>
+                <th data-field="typeName" data-formatter="typeFormatter" data-sortable="true">Type</th>
+                <th data-field="destinationVolume" data-formatter="numberFormatter" data-align="right" data-sortable="true">ISK
+                    Volume</th>
+                <th data-field="regionOrders" data-visible="false" data-formatter="numberFormatter" data-align="right"
+                    data-sortable="true">Region Orders</th>
+                <th data-field="regionPrice" data-formatter="numberFormatter" data-align="right" data-sortable="true">Buy
+                    at Price</th>
+                <th data-field="marketPrice" data-formatter="numberFormatter" data-align="right" data-sortable="true">Market
+                    Price</th>
+                <th data-field="destinationPrice" data-formatter="numberFormatter" data-align="right" data-sortable="true">Sell
+                    at Price</th>
+            </tr>
+        </thead>
+    </table>
+</div>
 <script>
     function markupFormatter(value, row) {
         return numberCommafy(getPrice(row).toFixed(2));

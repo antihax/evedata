@@ -2,21 +2,20 @@
 {{ template "bootstrap-table" . }}
 {{end}}
 {{define "body"}}
-<h3>Market Browser</h3>
-<p>Search for items to list buy and sell orders across New Eden, including public structures.</p>
-<div id="itemSearchContainer">
-	<input class="typeahead" type="text" placeholder="Item Search"><br>
-	<button id="highsec" type="button" class="btn btn-primary btn-sm sec active" data-toggle="button">HighSec</button>
-	<button id="lowsec" type="button" class="btn btn-primary btn-sm sec" data-toggle="button">LowSec</button>
-	<button id="nullsec" type="button" class="btn btn-primary btn-sm sec" data-toggle="button">NullSec</button>
+<div class="well">
+	<h3>Market Browser</h3>
+	<p>Search for items to list buy and sell orders across New Eden, including public structures.</p>
+	<div id="itemSearchContainer">
+		<input class="typeahead" type="text" placeholder="Item Search"><br>
+		<button id="highsec" type="button" class="btn btn-primary btn-sm sec active" data-toggle="button">HighSec</button>
+		<button id="lowsec" type="button" class="btn btn-primary btn-sm sec" data-toggle="button">LowSec</button>
+		<button id="nullsec" type="button" class="btn btn-primary btn-sm sec" data-toggle="button">NullSec</button>
+	</div>
 </div>
 <h4>Sell Orders</h4>
-<div class="insideContainer">
-	<table id="sellOrders" class="table" 
-		data-sort-name="price"
-		data-sort-order="asc"
-		data-pagination="true" data-page-list="[10, 25, 50, 100, ALL]"
-		data-toggle="table" cellspacing="0" width="100%">
+<div class="insideContainer well">
+	<table id="sellOrders" class="table" data-sort-name="price" data-sort-order="asc" data-pagination="true"
+	 data-page-list="[10, 25, 50, 100, ALL]" data-toggle="table" cellspacing="0" width="100%">
 		<thead>
 			<tr>
 				<th data-field="stationName" data-formatter="stationFormatter">Station Name</th>
@@ -29,12 +28,9 @@
 	</table>
 </div>
 <h4>Buy Orders</h4>
-<div class="insideContainer"> 
-	<table id="buyOrders" class="table" 
-		data-sort-name="price"
-		data-sort-order="desc"
-		data-pagination="true" data-page-list="[10, 25, 50, 100, ALL]"
-		data-toggle="table" cellspacing="0" width="100%">
+<div class="insideContainer well">
+	<table id="buyOrders" class="table" data-sort-name="price" data-sort-order="desc" data-pagination="true"
+	 data-page-list="[10, 25, 50, 100, ALL]" data-toggle="table" cellspacing="0" width="100%">
 		<thead>
 			<tr>
 				<th data-field="stationName" data-formatter="stationFormatter">Station Name</th>
@@ -48,62 +44,62 @@
 </div>
 
 <script type="text/javascript">
-    function priceFormatter(nStr) {
-         nStr += '';
-		 var x = nStr.split('.');
-		 var x1 = x[0];
-		 var x2 = x.length > 1 ? '.' + x[1] : '';
-		 var rgx = /(\d+)(\d{3})/;
-		 while (rgx.test(x1)) {
-		  x1 = x1.replace(rgx, '$1' + ',' + '$2');
-		 }
-		 return x1 + x2;
-    }
-    
+	function priceFormatter(nStr) {
+		nStr += '';
+		var x = nStr.split('.');
+		var x1 = x[0];
+		var x2 = x.length > 1 ? '.' + x[1] : '';
+		var rgx = /(\d+)(\d{3})/;
+		while (rgx.test(x1)) {
+			x1 = x1.replace(rgx, '$1' + ',' + '$2');
+		}
+		return x1 + x2;
+	}
+
 	$('#itemSearchContainer')
-	.removeClass( 'display' )
-	.addClass('table table-striped table-bordered');
-		
+		.removeClass('display')
+		.addClass('table table-striped table-bordered');
+
 	var itemSearch = new Bloodhound({
-	   sufficient: 100,
-	   limit: 100,
-	   datumTokenizer: function (datum) {
-	       return Bloodhound.tokenizers.whitespace(datum.value);
-	   },
-	   queryTokenizer: Bloodhound.tokenizers.whitespace,
-	   remote: {
-	       url: '/J/searchMarketItems?q=%QUERY',
-	       filter: function (itemSearch) {
-	           return $.map(itemSearch, function (s) {
-	               return {
-	                   value: 	s.TypeName,
-	                   id:		s.TypeID
-	               };
-	           });
-	       }
-	   }
+		sufficient: 100,
+		limit: 100,
+		datumTokenizer: function (datum) {
+			return Bloodhound.tokenizers.whitespace(datum.value);
+		},
+		queryTokenizer: Bloodhound.tokenizers.whitespace,
+		remote: {
+			url: '/J/searchMarketItems?q=%QUERY',
+			filter: function (itemSearch) {
+				return $.map(itemSearch, function (s) {
+					return {
+						value: s.TypeName,
+						id: s.TypeID
+					};
+				});
+			}
+		}
 	});
-	
+
 	// Initialize the Bloodhound suggestion engine
 	itemSearch.initialize();
 	var datum;
-	
+
 	$('#itemSearchContainer .typeahead').typeahead(null, {
 		name: 'itemSearch',
 		limit: 100,
 		display: 'value',
 		source: itemSearch.ttAdapter()
-	}).on('typeahead:selected', function(obj, d, name) {
+	}).on('typeahead:selected', function (obj, d, name) {
 		datum = d;
 		resetFlags();
 	});
-	
+
 	$('.sec').click(function () {
 		setTimeout(resetFlags, 50);
 	});
 
 	function resetFlags() {
-		var secFlags = {High: 1, Low: 2, Null: 4};
+		var secFlags = { High: 1, Low: 2, Null: 4 };
 		var f;
 		if ($('#highsec').hasClass('active')) {
 			f = f | secFlags.High;
@@ -115,12 +111,12 @@
 			f = f | secFlags.Null;
 		}
 		$('#sellOrders').bootstrapTable('refreshOptions', {
-			url: '/J/marketSellRegionItems?itemID='+datum.id+"&secflags="+f
-			});
+			url: '/J/marketSellRegionItems?itemID=' + datum.id + "&secflags=" + f
+		});
 
 		$('#buyOrders').bootstrapTable('refreshOptions', {
-			url: '/J/marketBuyRegionItems?itemID='+datum.id+"&secflags="+f
-			});		
+			url: '/J/marketBuyRegionItems?itemID=' + datum.id + "&secflags=" + f
+		});
 	}
-	</script>
+</script>
 {{end}}

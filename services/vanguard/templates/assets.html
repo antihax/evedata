@@ -2,27 +2,28 @@
 {{ template "bootstrap-table" . }}
 {{end}}
 {{define "body"}}
-<h3>Assets</h3>
 {{template "checkAuthentication" .}}
+<div class="well">
+    <h3>Assets</h3>
 
-<div class="toolbar assetToolbar" id="LocationContainer">
-    <select class="selectpicker" data-width="auto" name="locationList" id="locationList"></select>
-    <select class="selectpicker" data-width="auto" name="characterList" id="characterList"></select>
+    <div class="toolbar assetToolbar" id="LocationContainer">
+        <select class="selectpicker" data-width="auto" name="locationList" id="locationList"></select>
+        <select class="selectpicker" data-width="auto" name="characterList" id="characterList"></select>
+    </div>
+
+    <table class="table" data-cache="true" data-toolbar=".assetToolbar" id="assets">
+        <thead>
+            <tr>
+                <th data-field="characterID" data-formatter="characterFormatter">Character</th>
+                <th data-field="typeName" data-formatter="typeFormatter">Type</th>
+                <th data-field="quantity" data-formatter="numberFormatter" data-align="right">Quantity</th>
+                <th data-field="subCount" data-formatter="numberFormatter" data-align="right">Items Inside</th>
+                <th data-field="buy" data-formatter="numberFormatter" data-align="right">Buy Price</th>
+                <th data-field="sell" data-formatter="numberFormatter" data-align="right">Sell Price</th>
+            </tr>
+        </thead>
+    </table>
 </div>
-
-<table class="table" data-cache="true" data-toolbar=".assetToolbar" id="assets">
-    <thead>
-        <tr>
-            <th data-field="characterID" data-formatter="characterFormatter">Character</th>
-            <th data-field="typeName" data-formatter="typeFormatter">Type</th>
-            <th data-field="quantity" data-formatter="numberFormatter" data-align="right">Quantity</th>
-            <th data-field="subCount" data-formatter="numberFormatter" data-align="right">Items Inside</th>
-            <th data-field="buy" data-formatter="numberFormatter" data-align="right">Buy Price</th>
-            <th data-field="sell" data-formatter="numberFormatter" data-align="right">Sell Price</th>
-        </tr>
-    </thead>
-</table>
-
 <script>
     var $assets = $('#assets').bootstrapTable({
         url: "/U/assets",
@@ -61,15 +62,15 @@
                     $detailb) {
                     $detailb.html('<table></table>').find(
                         'table').bootstrapTable({
-                        columns: [{
-                            field: 'col6',
-                            title: 'Col6'
-                        }, {
-                            field: 'col7',
-                            title: 'Col7'
-                        }],
-                        data: rowb.other
-                    });
+                            columns: [{
+                                field: 'col6',
+                                title: 'Col6'
+                            }, {
+                                field: 'col7',
+                                title: 'Col7'
+                            }],
+                            data: rowb.other
+                        });
                 }
             });
         }
@@ -93,12 +94,12 @@
                 $('#locationList').selectpicker('refresh');
                 $('#assets').bootstrapTable('refreshOptions', {
                     url: '/U/assets?locationID=' + $(
-                            '#locationList').val() +
+                        '#locationList').val() +
                         '&filterCharacterID=' + $(
                             '#characterList').val()
                 });
             },
-            error: function () {}
+            error: function () { }
         });
     }
 
@@ -124,7 +125,7 @@
             $('#characterList').selectpicker('refresh');
             updateStationList(0)
         },
-        error: function () {}
+        error: function () { }
 
     });
 
