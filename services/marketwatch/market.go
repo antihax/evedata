@@ -2,7 +2,6 @@ package marketwatch
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -55,7 +54,7 @@ func (s *MarketWatch) marketWorker(regionID int32) {
 			go func(page int32) {
 				defer wg.Done() // release when done
 
-				orders, r, err := s.esi.ESI.MarketApi.GetMarketsRegionIdOrders(
+				orders, _, err := s.esi.ESI.MarketApi.GetMarketsRegionIdOrders(
 					context.Background(),
 					"all",
 					regionID,
@@ -63,13 +62,6 @@ func (s *MarketWatch) marketWorker(regionID int32) {
 				)
 				if err != nil {
 					echan <- err
-					return
-				}
-
-				// Are we too close to the end of the window?
-				duration := timeUntilCacheExpires(r)
-				if duration.Seconds() < 20 {
-					echan <- errors.New("market too close to end of window")
 					return
 				}
 

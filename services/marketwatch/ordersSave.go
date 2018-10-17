@@ -65,8 +65,8 @@ func (s *MarketWatch) saveAdditions(c []esi.GetMarketsRegionIdOrders200Ok) {
 			g.VolumeRemain, g.VolumeTotal, g.Issued, g.Duration, squirrel.Expr("UTC_TIMESTAMP()"),
 		)
 
-		// If we have 500 or reached the end, dump what we have
-		if count%500 == 0 || count == length {
+		// If we have 80 or reached the end, dump what we have
+		if count%80 == 0 || count == length {
 			sqlq, args, err := order.ToSql()
 			if err != nil {
 				log.Println(err)

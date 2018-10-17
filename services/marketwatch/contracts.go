@@ -2,7 +2,6 @@ package marketwatch
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -55,20 +54,13 @@ func (s *MarketWatch) contractWorker(regionID int32) {
 			go func(page int32) {
 				defer wg.Done() // release when done
 
-				contracts, r, err := s.esi.ESI.ContractsApi.GetContractsPublicRegionId(
+				contracts, _, err := s.esi.ESI.ContractsApi.GetContractsPublicRegionId(
 					context.Background(),
 					regionID,
 					&esi.GetContractsPublicRegionIdOpts{Page: optional.NewInt32(page)},
 				)
 				if err != nil {
 					echan <- err
-					return
-				}
-
-				// Are we too close to the end of the window?
-				duration := timeUntilCacheExpires(r)
-				if duration.Seconds() < 20 {
-					echan <- errors.New("contract too close to end of window")
 					return
 				}
 
@@ -170,6 +162,11 @@ func (s *MarketWatch) getContractItems(contract *Contract) error {
 		log.Println(err)
 		return err
 	}
+	// No items on the order
+	if res.StatusCode == 204 {
+		return nil
+	}
+
 	rchan <- items
 
 	// Figure out if there are more pages

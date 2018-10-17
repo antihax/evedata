@@ -2,7 +2,6 @@ package marketwatch
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -40,7 +39,7 @@ func (s *MarketWatch) runStructures() {
 				state = s.createStructureState(structure)
 			}
 			if state.running == false && time.Now().After(state.restart) {
-				time.Sleep(time.Second * 1)
+				time.Sleep(time.Second * 5)
 				state.running = true
 				go s.structureWorker(structure)
 			}
@@ -51,7 +50,7 @@ func (s *MarketWatch) runStructures() {
 
 func (s *MarketWatch) failStructure(structureID int64) {
 	state := s.getStructureState(structureID)
-	state.restart = time.Now().Add(time.Hour * 12)
+	state.restart = time.Now().Add(time.Hour * 24)
 	state.running = false
 }
 
@@ -101,7 +100,7 @@ func (s *MarketWatch) structureWorker(structureID int64) {
 			go func(page int32) {
 				defer wg.Done() // release when done
 
-				orders, r, err := s.esi.ESI.MarketApi.GetMarketsStructuresStructureId(
+				orders, _, err := s.esi.ESI.MarketApi.GetMarketsStructuresStructureId(
 					context.Background(),
 					structureID,
 					&esi.GetMarketsStructuresStructureIdOpts{Page: optional.NewInt32(page)},
@@ -109,13 +108,6 @@ func (s *MarketWatch) structureWorker(structureID int64) {
 
 				if err != nil {
 					echan <- err
-					return
-				}
-
-				// Are we too close to the end of the window?
-				duration := timeUntilCacheExpires(r)
-				if duration.Seconds() < 20 {
-					echan <- errors.New("too close to end of window")
 					return
 				}
 
