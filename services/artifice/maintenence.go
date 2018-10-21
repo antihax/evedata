@@ -368,7 +368,7 @@ func updateMarketStations(s *Artifice) error {
 		FROM    evedata.market M
 				INNER JOIN staStations S ON M.stationID = S.stationID
 		WHERE   M.private = 0
-		ORDER BY stationID
+		GROUP BY stationID
 		ON DUPLICATE KEY UPDATE stationID=stationID, Count=values(Count); `)
 	if err != nil {
 		return err

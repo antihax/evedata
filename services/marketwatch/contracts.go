@@ -77,9 +77,7 @@ func (s *MarketWatch) contractWorker(regionID int32) {
 		close(echan)
 
 		for err := range echan {
-			// Start over if any requests failed
 			log.Println(err)
-			continue
 		}
 
 		changes := []ContractChange{}
@@ -163,7 +161,7 @@ func (s *MarketWatch) getContractItems(contract *Contract) error {
 		return err
 	}
 	// No items on the order
-	if res.StatusCode == 204 {
+	if res.StatusCode == 204 || res.StatusCode == 403 {
 		return nil
 	}
 
@@ -172,7 +170,8 @@ func (s *MarketWatch) getContractItems(contract *Contract) error {
 	// Figure out if there are more pages
 	pages, err := getPages(res)
 	if err != nil {
-		log.Println(err)
+		log.Printf("%d %v\n", contract.Contract.Contract.ContractId, err)
+
 		return err
 	}
 
