@@ -171,7 +171,6 @@ func (s *MarketWatch) getContractItems(contract *Contract) error {
 	pages, err := getPages(res)
 	if err != nil {
 		log.Printf("%d %v\n", contract.Contract.Contract.ContractId, err)
-
 		return err
 	}
 
