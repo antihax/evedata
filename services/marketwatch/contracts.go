@@ -157,7 +157,7 @@ func (s *MarketWatch) getContractItems(contract *Contract) error {
 		context.Background(), contract.Contract.Contract.ContractId, nil,
 	)
 	// No items on the order
-	if res != nil && (res.StatusCode == 204 || res.StatusCode == 403) {
+	if res != nil && (res.StatusCode == 204 || res.StatusCode == 403 || res.StatusCode == 404) {
 		return nil
 	}
 	if err != nil {
