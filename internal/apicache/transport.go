@@ -11,13 +11,13 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// Custom transport to chain into the HTTPClient to gather statistics.
-type ApiCacheTransport struct {
-	next *http.Transport
+// APICacheTransport to chain into the HTTPClient to gather statistics.
+type APICacheTransport struct {
+	Transport http.RoundTripper
 }
 
 // RoundTrip wraps http.DefaultTransport.RoundTrip to provide stats and handle error rates.
-func (t *ApiCacheTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+func (t *APICacheTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	// Loop until success
 	tries := 0
@@ -29,7 +29,7 @@ func (t *ApiCacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 		start := time.Now()
 
 		// Run the request.
-		res, err := t.next.RoundTrip(req)
+		res, err := t.Transport.RoundTrip(req)
 
 		metricAPICalls.With(
 			prometheus.Labels{"host": req.Host},
@@ -46,7 +46,6 @@ func (t *ApiCacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 				metricAPIErrors.Inc()
 				log.Printf("St: %d Res: %s Tok: %s - %s\n", res.StatusCode, resetS, tokensS, req.URL)
 			}
-
 			// If we cannot decode this is likely from another source.
 			esiRateLimiter := true
 			reset, err := strconv.ParseFloat(resetS, 64)
