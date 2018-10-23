@@ -493,13 +493,6 @@ func marketMaint(s *Artifice) error {
 		log.Println(err)
 	}
 
-	// Remove any possible stale items
-	if err := s.doSQL(`
-		DELETE FROM evedata.market WHERE reported < DATE_SUB(UTC_TIMESTAMP(), INTERVAL 70 MINUTE)
-	            `); err != nil {
-		log.Println(err)
-	}
-
 	if err := s.doSQL(`
 	INSERT INTO evedata.typePricesMonthly 
 	SELECT YEAR(date) AS year, MONTH(date) AS month, itemID AS typeID, avg(mean) AS mean
