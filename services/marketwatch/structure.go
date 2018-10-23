@@ -39,7 +39,7 @@ func (s *MarketWatch) runStructures() {
 				state = s.createStructureState(structure)
 			}
 			if state.running == false && time.Now().After(state.restart) {
-				time.Sleep(time.Second * 5)
+				time.Sleep(time.Second * 1)
 				state.running = true
 				go s.structureWorker(structure)
 			}

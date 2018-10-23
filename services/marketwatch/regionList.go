@@ -19,7 +19,7 @@ func (s *MarketWatch) startUpMarketWorkers() {
 		s.createContractStore(int64(region))
 		// Ignore non-market regions
 		if region < 11000000 || region == 11000031 {
-			time.Sleep(time.Millisecond * 500)
+			time.Sleep(time.Millisecond * 10)
 			go s.marketWorker(region)
 			go s.contractWorker(region)
 		}
