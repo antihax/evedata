@@ -29,7 +29,7 @@ func (t *APICacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 		start := time.Now()
 
 		// Run the request.
-		res, err := t.Transport.RoundTrip(req)
+		res, httperr := t.Transport.RoundTrip(req)
 
 		metricAPICalls.With(
 			prometheus.Labels{"host": req.Host},
@@ -46,6 +46,7 @@ func (t *APICacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 				metricAPIErrors.Inc()
 				log.Printf("St: %d Res: %s Tok: %s - %s\n", res.StatusCode, resetS, tokensS, req.URL)
 			}
+
 			// If we cannot decode this is likely from another source.
 			esiRateLimiter := true
 			reset, err := strconv.ParseFloat(resetS, 64)
@@ -74,7 +75,7 @@ func (t *APICacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 				if res.StatusCode != 403 {
 					log.Printf("Giving up %d %s\n", res.StatusCode, req.URL)
 				}
-				return res, err
+				return res, httperr
 			}
 
 			if tries > 10 {
@@ -82,10 +83,10 @@ func (t *APICacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 				return res, err
 			}
 		} else {
-			return res, err
+			return res, httperr
 		}
 		if res.StatusCode >= 200 && res.StatusCode < 400 {
-			return res, err
+			return res, httperr
 		}
 	}
 }
