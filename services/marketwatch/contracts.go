@@ -227,6 +227,13 @@ func (s *MarketWatch) getContractBids(contract *Contract) error {
 	bids, res, err := s.esi.ESI.ContractsApi.GetContractsPublicBidsContractId(
 		context.Background(), contract.Contract.Contract.ContractId, nil,
 	)
+	if res != nil && (res.StatusCode == 204 || res.StatusCode == 403 || res.StatusCode == 404) {
+		return nil
+	}
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 	rchan <- bids
 
 	// Figure out if there are more pages
