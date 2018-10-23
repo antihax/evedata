@@ -101,7 +101,7 @@ func (s *MarketWatch) structureWorker(structureID int64) {
 				defer wg.Done() // release when done
 
 				orders, _, err := s.esi.ESI.MarketApi.GetMarketsStructuresStructureId(
-					context.Background(),
+					s.getAuthContext(),
 					structureID,
 					&esi.GetMarketsStructuresStructureIdOpts{Page: optional.NewInt32(page)},
 				)
