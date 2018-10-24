@@ -41,9 +41,7 @@ func (s *Nail) characterNotificationsHandler(message *nsq.Message) error {
 		if n.Type_ == "LocateCharMsg" {
 			l := notification.LocateCharMsg{}
 			err = yaml.Unmarshal([]byte(n.Text), &l)
-			if err != nil {
-				fmt.Printf("%s\n", n.Text)
-			} else {
+			if err == nil { // Ignore old locator responses
 				done = true
 				locatorValues = append(locatorValues, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%d,%q)",
 					n.NotificationId, notifications.CharacterID, l.TargetLocation.SolarSystem, l.TargetLocation.Constellation,
@@ -76,5 +74,4 @@ func (s *Nail) characterNotificationsHandler(message *nsq.Message) error {
 		return err
 	}
 	return nil
-
 }
