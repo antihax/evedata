@@ -38,12 +38,6 @@ type AllianceHistory struct {
 	AllianceHistory []esi.GetCorporationsCorporationIdAlliancehistory200Ok
 }
 
-// Store contains NPC Corp loyalty point offers
-type Store struct {
-	CorporationID int32
-	Store         []esi.GetLoyaltyStoresCorporationIdOffers200Ok
-}
-
 // Killmail contains Killmail data
 type Killmail struct {
 	Hash string

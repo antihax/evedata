@@ -19,8 +19,6 @@ func init() {
 	registerConsumer("allianceHistory", allianceHistoryConsumer)
 
 	registerConsumer("character", characterConsumer)
-
-	registerConsumer("loyaltyStore", loyaltyStoreConsumer)
 }
 
 // AddAlliance adds an alliance to queue
@@ -180,27 +178,6 @@ func allianceConsumer(s *Hammer, parameter interface{}) {
 	// Add all known corporations
 	for _, corp := range allianceCorporations {
 		err = s.AddCorporation(corp)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-	}
-	return
-}
-
-func loyaltyStoreConsumer(s *Hammer, parameter interface{}) {
-	corporationID := int32(parameter.(int))
-	store, _, err := s.esi.ESI.LoyaltyApi.GetLoyaltyStoresCorporationIdOffers(context.Background(), corporationID, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if len(store) > 0 {
-		// Send out the result
-		err = s.QueueResult(&datapackages.Store{
-			CorporationID: corporationID,
-			Store:         store},
-			"loyaltyStore")
 		if err != nil {
 			log.Println(err)
 			return

@@ -34,9 +34,7 @@ func init() {
 	AddHandler("allianceHistory", func(s *Nail, consumer *nsq.Consumer) {
 		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.allianceHistoryHandler)))
 	})
-	AddHandler("loyaltyStore", func(s *Nail, consumer *nsq.Consumer) {
-		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.loyaltyStoreHandler)))
-	})
+
 	AddHandler("characterAuthOwner", func(s *Nail, consumer *nsq.Consumer) {
 		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterAuthOwnerHandler)))
 	})
@@ -157,41 +155,6 @@ func (s *Nail) allianceHistoryHandler(message *nsq.Message) error {
 		}
 	}
 	return nil
-}
-
-func (s *Nail) loyaltyStoreHandler(message *nsq.Message) error {
-	c := datapackages.Store{}
-	err := gobcoder.GobDecoder(message.Body, &c)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	var offers, requirements []string
-	for _, offer := range c.Store {
-		offers = append(offers, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%d)",
-			offer.OfferId, c.CorporationID, offer.TypeId, offer.Quantity, offer.LpCost, 0, int(offer.IskCost)))
-		for _, requirement := range offer.RequiredItems {
-			requirements = append(requirements, fmt.Sprintf("(%d,%d,%d)",
-				offer.OfferId, requirement.TypeId, requirement.Quantity))
-		}
-	}
-
-	stmt := fmt.Sprintf("INSERT INTO evedata.lpOffers (offerID,corporationID,typeID,quantity,lpCost,akCost,iskCost) VALUES %s ON DUPLICATE KEY UPDATE akCost=VALUES(akCost), iskCost=VALUES(iskCost), lpCost=VALUES(lpCost);", strings.Join(offers, ",\n"))
-	err = s.doSQL(stmt)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	stmt = fmt.Sprintf("INSERT IGNORE INTO evedata.lpOfferRequirements (offerID,typeID,quantity) VALUES %s ON DUPLICATE KEY UPDATE quantity=VALUES(quantity);", strings.Join(requirements, ",\n"))
-	err = s.doSQL(stmt)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	return err
 }
 
 func (s *Nail) addEntity(id int32, entityType string) error {
