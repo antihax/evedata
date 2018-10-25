@@ -20,8 +20,7 @@
 <div class="well">
     <h3>Killmail Attribute Browser</h3>
     Data represents 10,000 most recent killmails for a ship group type. Filter by drawing a brush on the scatterplot
-    and
-    clicking the ship type. Some attributes are hidden and can be added to the table.
+    and clicking the ship type. Some attributes are hidden and can be added to the table.
     <div>
     </div>
     <select class="selectpicker form-control" data-width="auto" name="groupID" id="groupID"></select>
@@ -92,7 +91,19 @@
         killmailData,
         filterValues,
         scatterChart = dc.scatterPlot("#scatter"),
-        rowChartTypes = dc.rowChart("#chart-row-types");
+        rowChartTypes = dc.rowChart("#chart-row-types"),
+        urlVars = getUrlVars(),
+        originalBrush,
+        originalShipFilter,
+        firstPass = true;
+
+    if (urlVars["brush"] != undefined)
+        originalBrush = JSON.parse(urlVars["brush"]);
+    if (urlVars["shipFilter"] != undefined)
+        originalShipFilter = JSON.parse(decodeURI(urlVars["shipFilter"]));
+
+    $('#points').val(urlVars["points"]);
+    $('#value').val(urlVars["value"]);
 
     $.ajax({
         url: '/J/offensiveGroups',
@@ -103,6 +114,8 @@
                     '<option data-icon="fa fa-rocket" value=' + val.groupID + '>' + val.groupName + '</option>'
                 );
             });
+            if (urlVars["groupID"] != undefined)
+                $('select[name=groupID]').val(urlVars["groupID"]);
             $('#groupID').selectpicker('refresh');
             $('.axisChanger').selectpicker('refresh');
             updateTable();
@@ -205,7 +218,22 @@
         };
     }
 
+    function updateURL() {
+        var shipFilter = JSON.stringify(rowChartTypes.filters());
+        if (shipFilter.substring(0, 2) != "[[") {
+            shipFilter = `[${shipFilter}]`;
+        }
+        var url = '?groupID=' + $('#groupID').val()
+            + "&value=" + $('#value').val()
+            + "&points=" + $('#points').val()
+            + "&brush=" + JSON.stringify(scatterChart.filter())
+            + "&shipFilter=" + shipFilter;
+
+        history.replaceState("", "Killmail Attribute Browser", url);
+    }
+
     function updateChart() {
+        updateURL();
         var ndx = crossfilter(killmailData),
             xAxis = $('#xAxis').val(),
             yAxis = $('#yAxis').val(),
@@ -255,11 +283,13 @@
             .excludedOpacity(0.5)
             .group(scatterDim.group());
 
+
         dc.chartRegistry.list().forEach(function (chart) {
             chart.on('filtered', function () {
                 $('#killmails').bootstrapTable('refreshOptions', {
                     data: allDim.top(Infinity),
                 });
+                updateURL();
             });
         });
         $('#killmails').bootstrapTable('refreshOptions', {
@@ -269,6 +299,13 @@
         scatterChart.filterAll();
         allDim.filterAll();
         dc.renderAll();
+        if (firstPass) {
+            firstPass = false;
+            scatterChart.applyBrushSelection(originalBrush);
+            rowChartTypes.filter(originalShipFilter);
+            dc.redrawAll();
+        }
+
         $('#resetFilters').click(function () {
             rowChartTypes.filterAll();
             scatterChart.filterAll();
