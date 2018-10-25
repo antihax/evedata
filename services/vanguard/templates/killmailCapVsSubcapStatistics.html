@@ -1,0 +1,115 @@
+{{define "OpenGraph"}}
+<meta property="og:title" content="EVEData: Caps vs Subcaps" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="https://www.evedata.org/images/icon.png" />
+<meta property="og:description" content="Capitals vs. sub-capital kills over time." />
+{{end}}
+{{define "Head"}}
+{{ template "bootstrap-table" . }}
+{{ template "d3-5" .}}
+{{ template "crossfilter" .}}
+{{ template "dc-3" .}}
+
+{{end}}
+{{define "body"}}
+<div class="well">
+    <h3>Killmail Cap vs Subcap Statistics</h3>
+    Aggregate lowsec kills with only sub-capitals vs kills with capitals involved. Capital involved kills counts per month are multiplied by 50 to overlay subcapital kills.
+</div>
+<div id="graphContainer" style="width: 800px;" class="container whitewell">
+    <div id="slicer"></div>
+</div>
+<script>
+    function sel_stack(i) {
+        return function (d) {
+            return d.value[i];
+        };
+    }
+    function transform(d) {
+        var n = {};
+        $.each(d, function (k, v) {
+            n[v.month + "-" + v.year] = {
+                date: new Date(v.year, v.month - 1, 1)
+            };
+        });
+        $.each(d, function (k, v) {
+            if (v.type == "cap")
+                n[v.month + "-" + v.year].cap = v.kills;
+            else if (v.type == "subcap")
+                n[v.month + "-" + v.year].subcap = v.kills;
+        });
+
+        var a = [];
+        $.each(n, function (k, v) {
+            a.push(v)
+        });
+        return a;
+    }
+
+    $.ajax({
+        url: '/J/killmailCapVsSubcapStatistics',
+        dataType: 'JSON',
+        success: function (data) {
+            loadGraphs(transform(data));
+        },
+        error: function (x, o, e) { alert(e); }
+    });
+
+    function loadGraphs(data) {
+        var ndx = crossfilter(data),
+            lineChart = dc.compositeChart("#slicer");
+
+        var sliceDimension = ndx.dimension(function (d) {
+            return d3.timeMonth(d.date)
+        }),
+            subcap = sliceDimension.group().reduceSum(
+                function (v) {
+                    return v.subcap;
+                }
+            ),
+            cap = sliceDimension.group().reduceSum(
+                function (v) {
+                    return v.cap * 50;
+                }
+            );
+
+       
+       lineChart.width(790)
+            .height(500)
+            .clipPadding(10)
+            .x(d3.scaleTime())
+            .round(d3.timeMonth.round)
+            .xUnits(d3.timeMonths)
+            .renderHorizontalGridLines(true)
+            .elasticY(true)
+            .elasticX(true)
+            .brushOn(false)
+            .shareTitle(true)
+            .dimension(sliceDimension)
+            .title(function (p) {
+                return [
+                p.key.getMonth() + 1 + "-" + p.key.getFullYear(),
+                p.value,
+                ].join('\n');
+            })
+            .legend(dc.legend().x(80).y(20));
+            lineChart.compose([
+                dc.lineChart(lineChart)
+                    .dimension(sliceDimension)
+                    .colors('blue')
+                    .group(subcap, "Sub Capitals Only Kills")
+                    
+                ,
+                dc.lineChart(lineChart)
+                    .dimension(sliceDimension)
+                    .colors('red')
+                    .group(cap, "Capital Involved Kills x50")
+                 
+
+            ]).yAxis().tickFormat(d3.format('.2s'));
+
+
+        dc.renderAll();
+    }
+</script>
+{{end}}

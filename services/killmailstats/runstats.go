@@ -36,6 +36,8 @@ func (s *KillmailStats) runStats() {
 		s.entity_lowsec,
 		s.entity_nullsec,
 		s.entity_wh,
+		s.lowsec_subcap,
+		s.lowsec_cap,
 	}
 
 	for _, age := range ages {
@@ -221,6 +223,34 @@ func (s *KillmailStats) entity_lowsec() error {
 
 					GROUP BY YEAR(K.killTime), MONTH(K.killTime), E.ID
 				ON DUPLICATE KEY UPDATE kills=VALUES(kills);
+	`)
+}
+
+func (s *KillmailStats) lowsec_subcap() error {
+	return s.doSQL(`
+	INSERT INTO evedata.killmailCapsVsSubcap (month, year, kills, area, type)
+		SELECT MONTH(K.killTime) AS month, YEAR(K.killTime) AS year, COUNT(DISTINCT K.id) AS kills, "lowsec" AS area, "subcap" AS type
+			FROM evedata.killmailAttackers A 
+			INNER JOIN evedata.killmails K ON K.id = A.id
+			INNER JOIN mapSolarSystems S ON S.solarSystemID = K.solarSystemID
+		WHERE ROUND(S.security, 1) < 0.5 AND ROUND(S.security, 1) > 0.0 
+			AND K.ID NOT IN (SELECT id FROM evedata.killmailAttackers WHERE shipType IN (SELECT typeID FROM eve.invTypes WHERE groupID IN (30, 547, 485, 1538, 659)))
+			GROUP BY YEAR(K.killTime), MONTH(K.killTime)
+	ON DUPLICATE KEY UPDATE kills=VALUES(kills);
+	`)
+}
+
+func (s *KillmailStats) lowsec_cap() error {
+	return s.doSQL(`
+	INSERT INTO evedata.killmailCapsVsSubcap (month, year, kills, area, type)
+		SELECT MONTH(K.killTime) AS month, YEAR(K.killTime) AS year, COUNT(DISTINCT K.id) AS kills,  "lowsec" AS area, "cap" AS type
+			FROM evedata.killmailAttackers A 
+			INNER JOIN evedata.killmails K ON K.id = A.id
+			INNER JOIN mapSolarSystems S ON S.solarSystemID = K.solarSystemID
+		WHERE ROUND(S.security, 1) < 0.5 AND ROUND(S.security, 1) > 0.0 
+			AND A.shipType IN (SELECT typeID FROM eve.invTypes WHERE groupID IN (30, 547, 485, 1538, 659))
+			GROUP BY YEAR(K.killTime), MONTH(K.killTime)
+	ON DUPLICATE KEY UPDATE kills=VALUES(kills);
 	`)
 }
 
