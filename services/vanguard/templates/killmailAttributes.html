@@ -98,7 +98,7 @@
         firstPass = true;
 
     if (urlVars["brush"] != undefined)
-        originalBrush = JSON.parse(urlVars["brush"]);
+        originalBrush = JSON.parse(decodeURI(urlVars["brush"]));
     if (urlVars["shipFilter"] != undefined)
         originalShipFilter = JSON.parse(decodeURI(urlVars["shipFilter"]));
 
@@ -116,6 +116,10 @@
             });
             if (urlVars["groupID"] != undefined)
                 $('select[name=groupID]').val(urlVars["groupID"]);
+            if (urlVars["x"] != undefined)
+                $('select[name=xAxis]').val(urlVars["x"]);
+            if (urlVars["y"] != undefined)
+                $('select[name=yAxis]').val(urlVars["y"]);
             $('#groupID').selectpicker('refresh');
             $('.axisChanger').selectpicker('refresh');
             updateTable();
@@ -225,9 +229,11 @@
         }
         var url = '?groupID=' + $('#groupID').val()
             + "&value=" + $('#value').val()
+            + "&x=" + $('#xAxis').val()
+            + "&y=" + $('#yAxis').val()
             + "&points=" + $('#points').val()
-            + "&brush=" + JSON.stringify(scatterChart.filter())
-            + "&shipFilter=" + shipFilter;
+            + "&brush=" + encodeURI(JSON.stringify(scatterChart.filter()))
+            + "&shipFilter=" + encodeURI(shipFilter);
 
         history.replaceState("", "Killmail Attribute Browser", url);
     }
