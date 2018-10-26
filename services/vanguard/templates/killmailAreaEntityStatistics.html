@@ -9,8 +9,8 @@
 {{ template "d3-5" .}}
 {{ template "crossfilter" .}}
 {{ template "dc-3" .}}
-
 {{end}}
+
 {{define "body"}}
 <div class="well">
     <h3>Killmail Area by Entity Statistics</h3>
@@ -18,14 +18,10 @@
     Count is distinct to 1 killmail per entity, not per attacker.<br>
 </div>
 <div id="graphContainer" style="width: 800px;" class="container whitewell">
-
     <div id="spreadGraph"></div>
     <div id="whoGraph"></div>
-
 </div>
 <script>
-
-
     $.ajax({
         url: '/J/killmailAreaEntityStatistics',
         dataType: 'JSON',
@@ -35,7 +31,6 @@
         error: function (x, o, e) { alert(e); }
     });
 
-
     function loadGraphs(data) {
         var ndx = crossfilter(data),
             spreadDimension = ndx.dimension(function (d) {
@@ -43,6 +38,7 @@
             }),
             spreadGroup = spreadDimension.group().reduceSum(function (d) { return d.kills; }),
             spreadPie = dc.pieChart("#spreadGraph");
+
         spreadPie
             .width(300)
             .height(300)
@@ -58,14 +54,15 @@
         var whoDimension = ndx.dimension(function (d) {
             return [d.name, d.id];
         }),
-            whoGroup = whoDimension.group().reduceSum(function (d) { return d.kills; }),
+            whoGroup = whoDimension.group().reduceSum(
+                function (d) { return d.kills; }
+            ),
             whoPie = dc.pieChart("#whoGraph");
 
         whoPie.width(750)
             .height(750)
             .innerRadius(100)
             .slicesCap(40)
-
             .dimension(whoDimension)
             .group(whoGroup).legend(dc.legend());
 
@@ -80,11 +77,9 @@
                 .text(function (d) { console.log(d); return simpleVal(d.data) })
                 .append('tspan')
                 .attr('x', 80)
-
                 .html(function (d) {
                     if (d.name == "Others")
                         return d.name;
-
                     return `<a href="/J/findEntity?id=${d.name[1]}" target="entity">${d.name[0]}</a>`;
                 });
         });

@@ -14,18 +14,21 @@
 {{define "body"}}
 <div class="well">
     <h3>Killmail Cap vs Subcap Statistics</h3>
-    Aggregate lowsec kills with only sub-capitals vs kills with capitals involved. Capital involved kills counts per month are multiplied by 50 to overlay subcapital kills.
+    Aggregate lowsec kills with only sub-capitals vs kills with capitals involved. Capital involved kills counts per
+    month are multiplied by 50 to overlay subcapital kills.
 </div>
 <div id="graphContainer" style="width: 800px;" class="container whitewell">
     <div id="slicer"></div>
 </div>
 <script>
+
+    var dataDetails;
     function sel_stack(i) {
         return function (d) {
             return d.value[i];
         };
     }
-    function transform(d) {
+    function transform(d, r) {
         var n = {};
         $.each(d, function (k, v) {
             n[v.month + "-" + v.year] = {
@@ -39,10 +42,15 @@
                 n[v.month + "-" + v.year].subcap = v.kills;
         });
 
+        $.each(r, function (k, v) {
+            var date = new Date(v.date);
+            n[(date.getMonth() + 1) + "-" + date.getFullYear()].release = v.name;
+        });
         var a = [];
         $.each(n, function (k, v) {
             a.push(v)
         });
+        dataDetails = n;
         return a;
     }
 
@@ -50,7 +58,14 @@
         url: '/J/killmailCapVsSubcapStatistics',
         dataType: 'JSON',
         success: function (data) {
-            loadGraphs(transform(data));
+            $.ajax({
+                url: '/js/releases.json',
+                dataType: 'JSON',
+                success: function (releases) {
+                    loadGraphs(transform(data, releases));
+                },
+                error: function (x, o, e) { alert(e); }
+            });
         },
         error: function (x, o, e) { alert(e); }
     });
@@ -71,10 +86,17 @@
                 function (v) {
                     return v.cap * 50;
                 }
+            ),
+            release = sliceDimension.group().reduceSum(
+                function (v) {
+                    if (v.release != undefined)
+                        return 450000;
+                    else
+                        return 0;
+                }
             );
 
-       
-       lineChart.width(790)
+        lineChart.width(790)
             .height(500)
             .clipPadding(10)
             .x(d3.scaleTime())
@@ -84,31 +106,40 @@
             .elasticY(true)
             .elasticX(true)
             .brushOn(false)
-            .shareTitle(true)
+            .shareTitle(false)
             .dimension(sliceDimension)
             .title(function (p) {
                 return [
-                p.key.getMonth() + 1 + "-" + p.key.getFullYear(),
-                p.value,
+                    p.key.getMonth() + 1 + "-" + p.key.getFullYear(),
+                    p.value,
                 ].join('\n');
             })
             .legend(dc.legend().x(80).y(20));
-            lineChart.compose([
-                dc.lineChart(lineChart)
-                    .dimension(sliceDimension)
-                    .colors('blue')
-                    .group(subcap, "Sub Capitals Only Kills")
-                    
-                ,
-                dc.lineChart(lineChart)
-                    .dimension(sliceDimension)
-                    .colors('red')
-                    .group(cap, "Capital Involved Kills x50")
-                 
+        lineChart.compose([
+            dc.barChart(lineChart)
+                .dimension(sliceDimension)
+                .colors('lightgray')
+                .group(release,"Releases")
+                .centerBar(true)
+                .title(function (d) {
 
-            ]).yAxis().tickFormat(d3.format('.2s'));
+                    r = dataDetails[d.key.getMonth() + 1 + "-" + d.key.getFullYear()];
+                    if (r != undefined && r.release != undefined) {
+                        return r.release
+                    }
+                }),
+            dc.lineChart(lineChart)
+                .dimension(sliceDimension)
+                .colors('blue')
+                .group(subcap, "Sub Capitals Only Kills")
+            ,
+            dc.lineChart(lineChart)
+                .dimension(sliceDimension)
+                .colors('red')
+                .group(cap, "Capital Involved Kills x50"),
 
 
+        ]).yAxis().tickFormat(d3.format('.2s'));
         dc.renderAll();
     }
 </script>
