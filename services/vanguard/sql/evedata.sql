@@ -320,7 +320,7 @@ CREATE TABLE `integrations` (
   `factionID` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`integrationID`),
   UNIQUE KEY `UNIQUE` (`address`,`authentication`)
-) ENGINE=TokuDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `invMarketGroups` (
   `marketGroupID` mediumint(6) unsigned NOT NULL,
@@ -414,6 +414,14 @@ CREATE TABLE `killmailAttributes` (
   KEY `ix_id_cpu_pg_ehp` (`id`,`CPURemaining`,`powerRemaining`,`eHP`),
   KEY `age` (`characterAge`),
   KEY `meanSecurity` (`meanSecurity`)
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `killmailCapsVsSubcap` (
+  `month` tinyint(3) unsigned DEFAULT NULL,
+  `year` mediumint(8) unsigned DEFAULT NULL,
+  `kills` int(10) unsigned NOT NULL DEFAULT '0',
+  `area` varchar(50) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `type` varchar(10) CHARACTER SET utf8 NOT NULL DEFAULT ''
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `killmailKillers` (
@@ -561,7 +569,7 @@ CREATE TABLE `marketOrderHistory` (
 CREATE TABLE `marketStations` (
   `stationName` varchar(255) DEFAULT NULL,
   `stationID` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `Count` bigint(21) NOT NULL DEFAULT '0',
+  `Count` bigint(21) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`stationID`),
   KEY `count` (`Count`)
 ) ENGINE=TokuDB DEFAULT CHARSET=utf8;
