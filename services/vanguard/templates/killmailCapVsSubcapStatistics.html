@@ -14,8 +14,7 @@
 {{define "body"}}
 <div class="well">
     <h3>Killmail Cap vs Subcap Statistics</h3>
-    Aggregate lowsec kills with only sub-capitals vs kills with capitals involved. Capital involved kills counts per
-    month are multiplied by 50 to overlay subcapital kills.
+    Aggregate lowsec kills with only sub-capitals vs kills with capitals involved.
 </div>
 <div id="graphContainer" style="width: 800px;" class="container whitewell">
     <div id="slicer"></div>
@@ -84,19 +83,19 @@
             ),
             cap = sliceDimension.group().reduceSum(
                 function (v) {
-                    return v.cap * 50;
+                    return v.cap;
                 }
             ),
             release = sliceDimension.group().reduceSum(
                 function (v) {
                     if (v.release != undefined)
-                        return 450000;
+                        return 250000;
                     else
                         return 0;
                 }
             );
 
-        lineChart.width(790)
+        lineChart.width(750)
             .height(500)
             .clipPadding(10)
             .x(d3.scaleTime())
@@ -108,12 +107,8 @@
             .brushOn(false)
             .shareTitle(false)
             .dimension(sliceDimension)
-            .title(function (p) {
-                return [
-                    p.key.getMonth() + 1 + "-" + p.key.getFullYear(),
-                    p.value,
-                ].join('\n');
-            })
+            .yAxisLabel("Subcapital only Kills")
+            .rightYAxisLabel("Capital Involved Kills")
             .legend(dc.legend().x(80).y(20));
         lineChart.compose([
             dc.barChart(lineChart)
@@ -122,7 +117,6 @@
                 .group(release,"Releases")
                 .centerBar(true)
                 .title(function (d) {
-
                     r = dataDetails[d.key.getMonth() + 1 + "-" + d.key.getFullYear()];
                     if (r != undefined && r.release != undefined) {
                         return r.release
@@ -132,11 +126,23 @@
                 .dimension(sliceDimension)
                 .colors('blue')
                 .group(subcap, "Sub Capitals Only Kills")
-            ,
+                .title(function (p) {
+                return [
+                    p.key.getMonth() + 1 + "-" + p.key.getFullYear(),
+                    p.value,
+                ].join('\n')
+            })            ,
             dc.lineChart(lineChart)
                 .dimension(sliceDimension)
                 .colors('red')
-                .group(cap, "Capital Involved Kills x50"),
+                .group(cap, "Capital Involved Kills ")
+                .useRightYAxis(true)
+                .title(function (p) {
+                return [
+                    p.key.getMonth() + 1 + "-" + p.key.getFullYear(),
+                    p.value,
+                ].join('\n');
+            }),
 
 
         ]).yAxis().tickFormat(d3.format('.2s'));
