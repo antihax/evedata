@@ -59,13 +59,13 @@ func NewVanguard(redis *redis.Pool, ledis *redis.Pool, db *sqlx.DB) *Vanguard {
 	esi := goesi.NewAPIClient(cache, "EVEData-API-Vanguard")
 
 	// Setup an authenticator for our user tokens
-	tauth := goesi.NewSSOAuthenticator(cache, os.Getenv("ESI_CLIENTID_TOKENSTORE"), os.Getenv("ESI_SECRET_TOKENSTORE"), "https://"+os.Getenv("DOMAIN")+"/X/eveTokenAnswer", []string{})
+	tauth := goesi.NewSSOAuthenticator(cache, os.Getenv("ESI_CLIENTID_TOKENSTORE"), os.Getenv("ESI_SECRET_TOKENSTORE"), "https://"+os.Getenv("DOMAIN")+"/U/eveTokenAnswer", []string{})
 
 	// Setup an authenticator for our SSO token
-	ssoauth := goesi.NewSSOAuthenticator(cache, os.Getenv("ESI_CLIENTID_SSO"), os.Getenv("ESI_SECRET_SSO"), "https://"+os.Getenv("DOMAIN")+"/X/eveSSOAnswer", []string{})
+	ssoauth := goesi.NewSSOAuthenticator(cache, os.Getenv("ESI_CLIENTID_SSO"), os.Getenv("ESI_SECRET_SSO"), "https://"+os.Getenv("DOMAIN")+"/U/eveSSOAnswer", []string{})
 
 	// Setup an authenticator for Discord
-	dauth := discordauth.NewAuthenticator(cache, os.Getenv("DISCORD_CLIENTID"), os.Getenv("DISCORD_SECRET"), "https://"+os.Getenv("DOMAIN")+"/X/discordAnswer", []string{"identify", "guilds.join"})
+	dauth := discordauth.NewAuthenticator(cache, os.Getenv("DISCORD_CLIENTID"), os.Getenv("DISCORD_SECRET"), "https://"+os.Getenv("DOMAIN")+"/U/discordAnswer", []string{"identify", "guilds.join"})
 
 	// Build our private token
 	tok := &oauth2.Token{

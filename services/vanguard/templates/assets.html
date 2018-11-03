@@ -76,7 +76,6 @@
         }
     });
 
-
     function updateStationList(characterID) {
         $.ajax({
             url: '/U/assetLocations?filterCharacterID=' + characterID,
@@ -91,12 +90,14 @@
                         ' ISK">' + val.locationName +
                         '</option>');
                 })
-                $('#locationList').selectpicker('refresh');
-                $('#assets').bootstrapTable('refreshOptions', {
-                    url: '/U/assets?locationID=' + $(
-                        '#locationList').val() +
-                        '&filterCharacterID=' + $(
-                            '#characterList').val()
+                $(function () {
+                    $('#locationList').selectpicker('refresh');
+                    $('#assets').bootstrapTable('refreshOptions', {
+                        url: '/U/assets?locationID=' + $(
+                            '#locationList').val() +
+                            '&filterCharacterID=' + $(
+                                '#characterList').val()
+                    });
                 });
             },
             error: function () { }

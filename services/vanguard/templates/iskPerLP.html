@@ -53,19 +53,23 @@
                 $('#corp').append('<option id=' + val.itemName +
                     '>' + val.itemName + '</option>');
             })
-            $('#iskPerLPTable').bootstrapTable('refreshOptions', {
-                url: '/J/iskPerLP?corp=' + $('#corp').val()
-            });
+            $(function () {
+                $('#iskPerLPTable').bootstrapTable('refreshOptions', {
+                    url: '/J/iskPerLP?corp=' + $('#corp').val()
+                });
+                $('#iskPerLPTable').bootstrapTable('refresh');
+            })
         },
         error: function () { }
     });
 
-
-
     $('#corp').change(function () {
-        $('#iskPerLPTable').bootstrapTable('refreshOptions', {
-            url: '/J/iskPerLP?corp=' + $('#corp').val()
-        });
+        $(function () {
+            $('#iskPerLPTable').bootstrapTable('refreshOptions', {
+                url: '/J/iskPerLP?corp=' + $('#corp').val()
+            });
+            $('#iskPerLPTable').bootstrapTable('refresh');
+        })
     });
 </script>
 {{end}}

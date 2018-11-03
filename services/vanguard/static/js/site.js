@@ -322,7 +322,7 @@ function getUrlVars() {
 function openMarketWindowCharacter(characterID, typeID) {
 	if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
 		$.ajax({
-			url: "/X/openMarketWindow?typeID=" + typeID + "&characterID=" + characterID,
+			url: "/U/openMarketWindow?typeID=" + typeID + "&characterID=" + characterID,
 			type: 'POST',
 		});
 	} else {
@@ -333,7 +333,7 @@ function openMarketWindowCharacter(characterID, typeID) {
 function openMarketWindow(id) {
 	if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
 		$.ajax({
-			url: "/X/openMarketWindow?typeID=" + id,
+			url: "/U/openMarketWindow?typeID=" + id,
 			type: 'POST',
 		});
 	} else {
@@ -344,7 +344,7 @@ function openMarketWindow(id) {
 function setEVEDestination(id) {
 	if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
 		$.ajax({
-			url: "/X/setDestination?destinationID=" + id,
+			url: "/U/setDestination?destinationID=" + id,
 			type: 'POST',
 		});
 	} else {
@@ -355,7 +355,7 @@ function setEVEDestination(id) {
 function addEVEDestination(id) {
 	if (accountInfo.cursor && accountInfo.cursor.cursorCharacterID > 0) {
 		$.ajax({
-			url: "/X/addDestination?destinationID=" + id,
+			url: "/U/addDestination?destinationID=" + id,
 			type: 'POST',
 		});
 	} else {

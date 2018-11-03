@@ -218,14 +218,14 @@
 				});
 
 				if (scopeGroups.length) {
-					window.location.replace("/X/eveTokenAuth?scopeGroups=" + scopeGroups.join(
+					window.location.replace("/U/eveTokenAuth?scopeGroups=" + scopeGroups.join(
 						","));
 				} else {
-					window.location.replace("/X/eveTokenAuth");
+					window.location.replace("/U/eveTokenAuth");
 				}
 			});
 			$('.adddiscord').click(function () {
-				window.location.replace("/X/discordAuth");
+				window.location.replace("/U/discordAuth");
 			});
 			refreshData();
 		});

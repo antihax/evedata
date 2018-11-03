@@ -35,7 +35,7 @@ func apiGetLocatorResponses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderJSON(w, v, 5)
+	renderJSON(w, v, time.Minute)
 
 	if err = s.Save(r, w); err != nil {
 		httpErr(w, err)
