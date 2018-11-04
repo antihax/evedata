@@ -100,6 +100,7 @@ spec:
           - /nsqadmin
           - --lookupd-http-address=nsqlookupd1:4161
           - --lookupd-http-address=nsqlookupd2:4161
+          - --log-level=error
         ports:
           - containerPort: 4171
             name: http
@@ -150,6 +151,7 @@ spec:
         image: nsqio/nsq
         command:
           - /nsqlookupd
+          - --log-level=error
         ports:
           - containerPort: 4160
             name: tcp
@@ -206,6 +208,7 @@ spec:
         image: nsqio/nsq
         command:
           - /nsqlookupd
+          - --log-level=error
         ports:
           - containerPort: 4160
             name: tcp
