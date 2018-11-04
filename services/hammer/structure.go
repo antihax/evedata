@@ -63,7 +63,7 @@ func characterStructuresConsumer(s *Hammer, parameter interface{}) {
 	structure, r, err := s.esi.ESI.UniverseApi.GetUniverseStructuresStructureId(ctx, structureID, nil)
 	if err != nil {
 		s.tokenStore.CheckSSOError(characterID, tokenCharacterID, err)
-		if r.StatusCode == 403 {
+		if  r != nil r.StatusCode == 403 {
 			err := s.inQueue.SetWorkExpire("evedata_structurechar_failure", fmt.Sprintf("%d%d", structureID, tokenCharacterID), 86400*3)
 			if err != nil {
 				log.Printf("failed setting failure: %s %d\n", err, structureID)
