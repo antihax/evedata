@@ -22,11 +22,17 @@ func init() {
 		func(w http.ResponseWriter, r *http.Request) {
 			renderTemplate(w, "killmailAreaEntityStatistics.html", time.Hour*24*31, newPage(r, "Killmail Statistics"))
 		})
+	vanguard.AddRoute("GET", "/killmailCapVsSubcapStatistics",
+		func(w http.ResponseWriter, r *http.Request) {
+			renderTemplate(w, "killmailCapVsSubcapStatistics.html", time.Hour*24*31, newPage(r, "Killmail Statistics"))
+		})
 	vanguard.AddRoute("GET", "/J/killmailAttributes", killmailAttributesAPI)
 	vanguard.AddRoute("GET", "/J/offensiveGroups", offensiveGroupsAPI)
 
 	vanguard.AddRoute("GET", "/J/killmailStatistics", killmailStatisticsAPI)
 	vanguard.AddRoute("GET", "/J/killmailAreaEntityStatistics", killmailAreaEntityStatisticsAPI)
+	vanguard.AddRoute("GET", "/J/killmailCapVsSubcapStatistics", killmailCapVsSubcapStatisticsAPI)
+
 }
 
 func offensiveGroupsAPI(w http.ResponseWriter, r *http.Request) {
@@ -73,8 +79,16 @@ func killmailStatisticsAPI(w http.ResponseWriter, r *http.Request) {
 }
 
 func killmailAreaEntityStatisticsAPI(w http.ResponseWriter, r *http.Request) {
-
 	v, err := models.GetKillmailAreaEntityStatistics()
+	if err != nil {
+		httpErr(w, err)
+		return
+	}
+	renderJSON(w, v, time.Hour*24)
+}
+
+func killmailCapVsSubcapStatisticsAPI(w http.ResponseWriter, r *http.Request) {
+	v, err := models.GetKillmailCapVsSubcapStatistics()
 	if err != nil {
 		httpErr(w, err)
 		return

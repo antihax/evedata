@@ -19,7 +19,6 @@ var (
 )
 
 func init() {
-
 	includeFiles, err := filepath.Glob("templates/includes/*.html")
 	if err != nil {
 		log.Fatal(err)
@@ -35,6 +34,8 @@ func renderJSON(w http.ResponseWriter, v interface{}, cacheTime time.Duration) e
 }
 
 func renderTemplate(w http.ResponseWriter, name string, cacheTime time.Duration, data interface{}) error {
+	cache(w, cacheTime)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	mainTemplate := template.Must(template.New("base").Funcs(template.FuncMap{
 		"dict": func(values ...interface{}) (map[string]interface{}, error) {
 			if len(values) == 0 {
@@ -82,8 +83,6 @@ func renderTemplate(w http.ResponseWriter, name string, cacheTime time.Duration,
 		return err
 	}
 
-	cache(w, cacheTime)
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	return nil
 }
 
@@ -194,12 +193,12 @@ func notFoundPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func cache(w http.ResponseWriter, cacheTime time.Duration) {
-	if cacheTime == 0 {
-		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-		w.Header().Set("Pragma", "no-cache")
-	} else {
+	if cacheTime.Seconds() > float64(0) {
 		w.Header().Set("Cache-Control", "max-age:"+strconv.Itoa(int(cacheTime.Seconds()))+", public")
 		w.Header().Set("Last-Modified", time.Now().UTC().Format(http.TimeFormat))
 		w.Header().Set("Expires", time.Now().UTC().Add(cacheTime).Format(http.TimeFormat))
+	} else {
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		w.Header().Set("Pragma", "no-cache")
 	}
 }

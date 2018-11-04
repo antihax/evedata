@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	registerTrigger("npcCorporations", npcCorporationsTrigger, time.NewTicker(time.Second*172800))
+	registerTrigger("npcCorporations", npcCorporationsTrigger, time.NewTicker(time.Second*86400))
 	registerTrigger("alliance", allianceTrigger, time.NewTicker(time.Second*3600))
 	registerTrigger("characterUpdate", characterUpdate, time.NewTicker(time.Second*60))
 	registerTrigger("corporationUpdate", corporationUpdate, time.NewTicker(time.Second*60))
@@ -23,7 +23,6 @@ func npcCorporationsTrigger(s *Artifice) error {
 	work := []redisqueue.Work{}
 	for _, corporation := range corporations {
 		work = append(work, redisqueue.Work{Operation: "corporation", Parameter: corporation})
-		work = append(work, redisqueue.Work{Operation: "loyaltyStore", Parameter: corporation})
 	}
 
 	return s.QueueWork(work, redisqueue.Priority_Lowest)

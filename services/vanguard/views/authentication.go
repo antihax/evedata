@@ -21,16 +21,16 @@ import (
 )
 
 func init() {
-	vanguard.AddAuthRoute("GET", "/X/logout", logout)
+	vanguard.AddAuthRoute("GET", "/U/logout", logout)
 
-	vanguard.AddAuthRoute("GET", "/X/eveAuth", eveSSO)
-	vanguard.AddAuthRoute("GET", "/X/eveSSOAnswer", eveSSOAnswer)
+	vanguard.AddAuthRoute("GET", "/U/eveAuth", eveSSO)
+	vanguard.AddAuthRoute("GET", "/U/eveSSOAnswer", eveSSOAnswer)
 
-	vanguard.AddAuthRoute("GET", "/X/eveTokenAuth", eveCRESTToken)
-	vanguard.AddAuthRoute("GET", "/X/eveTokenAnswer", eveTokenAnswer)
+	vanguard.AddAuthRoute("GET", "/U/eveTokenAuth", eveCRESTToken)
+	vanguard.AddAuthRoute("GET", "/U/eveTokenAnswer", eveTokenAnswer)
 
-	vanguard.AddAuthRoute("GET", "/X/discordAuth", discordAuth)
-	vanguard.AddAuthRoute("GET", "/X/discordAnswer", discordAnswer)
+	vanguard.AddAuthRoute("GET", "/U/discordAuth", discordAuth)
+	vanguard.AddAuthRoute("GET", "/U/discordAnswer", discordAnswer)
 }
 
 func discordAuth(w http.ResponseWriter, r *http.Request) {

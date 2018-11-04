@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 
-	sq "github.com/Masterminds/squirrel"
 	_ "github.com/go-sql-driver/mysql" // SQL Driver
 	"github.com/jmoiron/sqlx"
 	"golang.org/x/crypto/bcrypt"
@@ -123,25 +122,6 @@ func RetryTransaction(tx *sqlx.Tx) error {
 			return err
 		}
 	}
-}
-
-// RetrySquirrelInsertTransaction on deadlocks
-func RetrySquirrelInsertTransaction(tx *sqlx.Tx, sq sq.InsertBuilder) error {
-	sqlq, args, err := sq.ToSql()
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec(sqlq, args...)
-	if err != nil {
-		return err
-	}
-
-	err = RetryTransaction(tx)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 // IToB converts a boolean to integer

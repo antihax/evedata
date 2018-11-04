@@ -14,7 +14,7 @@ func init() {
 
 // LimitedTransport limits concurrent requests to one connection.
 type LimitedTransport struct {
-	next *http.Transport
+	Transport http.RoundTripper
 }
 
 // RoundTrip wraps http.DefaultTransport.RoundTrip to provide stats and handle error rates.
@@ -23,7 +23,7 @@ func (t *LimitedTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 	apiTransportLimiter <- true
 
 	// Free the worker
-	defer func() { <-apiTransportLimiter }() // Loop until success
+	defer func() { <-apiTransportLimiter }()
 
-	return t.next.RoundTrip(req)
+	return t.Transport.RoundTrip(req)
 }

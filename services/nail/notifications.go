@@ -39,15 +39,14 @@ func (s *Nail) characterNotificationsHandler(message *nsq.Message) error {
 	// Dump all locators into the DB.
 	for _, n := range notifications.Notifications {
 		if n.Type_ == "LocateCharMsg" {
-			done = true
 			l := notification.LocateCharMsg{}
 			err = yaml.Unmarshal([]byte(n.Text), &l)
-			if err != nil {
-				return err
+			if err == nil { // Ignore old locator responses
+				done = true
+				locatorValues = append(locatorValues, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%d,%q)",
+					n.NotificationId, notifications.CharacterID, l.TargetLocation.SolarSystem, l.TargetLocation.Constellation,
+					l.TargetLocation.Region, l.TargetLocation.Station, l.CharacterID, n.Timestamp.Format(models.SQLTimeFormat)))
 			}
-			locatorValues = append(locatorValues, fmt.Sprintf("(%d,%d,%d,%d,%d,%d,%d,%q)",
-				n.NotificationId, notifications.CharacterID, l.TargetLocation.SolarSystem, l.TargetLocation.Constellation,
-				l.TargetLocation.Region, l.TargetLocation.Station, l.CharacterID, n.Timestamp.Format(models.SQLTimeFormat)))
 		}
 		allValues = append(allValues, fmt.Sprintf("(%d,%d,%d,%d,%q,%q,%q,%q)",
 			n.NotificationId, notifications.CharacterID, notifications.TokenCharacterID, n.SenderId, n.SenderType,
@@ -75,5 +74,4 @@ func (s *Nail) characterNotificationsHandler(message *nsq.Message) error {
 		return err
 	}
 	return nil
-
 }

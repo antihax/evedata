@@ -203,7 +203,9 @@
             sliceDimension = ndx.dimension(function (d) {
                 return d3.timeMonth(d.date)
             }),
-            sliceGroup = sliceDimension.group().reduceSum(function (d) { return d.value; });
+            sliceGroup = sliceDimension.group().reduceSum(
+                function (d) { return d.value; }
+            );
 
         slice
             .width(800)

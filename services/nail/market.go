@@ -14,7 +14,7 @@ import (
 
 func init() {
 	AddHandler("structureOrders", func(s *Nail, consumer *nsq.Consumer) {
-		consumer.AddConcurrentHandlers(s.wait(nsq.HandlerFunc(s.structureOrderHandler)), 5)
+		consumer.AddConcurrentHandlers(s.wait(nsq.HandlerFunc(s.structureOrderHandler)), 1)
 	})
 
 	AddHandler("marketHistory", func(s *Nail, consumer *nsq.Consumer) {

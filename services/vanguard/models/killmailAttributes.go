@@ -117,3 +117,23 @@ func GetKillmailAreaEntityStatistics() ([]KillmailAreaEntityStatistics, error) {
 	}
 	return v, nil
 }
+
+type KillmailCapVsSubcapStatistics struct {
+	Month int    `db:"month" json:"month"`
+	Year  int    `db:"year" json:"year"`
+	Area  string `db:"area" json:"area"`
+	Type  string `db:"type" json:"type"`
+	Kills int32  `db:"kills" json:"kills"`
+}
+
+func GetKillmailCapVsSubcapStatistics() ([]KillmailCapVsSubcapStatistics, error) {
+	v := []KillmailCapVsSubcapStatistics{}
+
+	if err := database.Select(&v, `
+	SELECT month, year, kills, area, type
+	FROM evedata.killmailCapsVsSubcap K
+	`); err != nil {
+		return nil, err
+	}
+	return v, nil
+}

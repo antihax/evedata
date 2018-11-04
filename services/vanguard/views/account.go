@@ -25,8 +25,8 @@ func init() {
 			renderTemplate(w, "account.html", time.Hour*24*31, p)
 		})
 
-	vanguard.AddAuthRoute("GET", "/X/accountInfo", accountInfo)
-	vanguard.AddAuthRoute("POST", "/X/cursorChar", cursorChar)
+	vanguard.AddAuthRoute("GET", "/U/accountInfo", accountInfo)
+	vanguard.AddAuthRoute("POST", "/U/cursorChar", cursorChar)
 
 	vanguard.AddAuthRoute("GET", "/U/crestTokens", apiGetCRESTTokens)
 	vanguard.AddAuthRoute("DELETE", "/U/crestTokens", apiDeleteCRESTToken)

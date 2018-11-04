@@ -2,7 +2,6 @@ package marketwatch
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -55,20 +54,13 @@ func (s *MarketWatch) contractWorker(regionID int32) {
 			go func(page int32) {
 				defer wg.Done() // release when done
 
-				contracts, r, err := s.esi.ESI.ContractsApi.GetContractsPublicRegionId(
+				contracts, _, err := s.esi.ESI.ContractsApi.GetContractsPublicRegionId(
 					context.Background(),
 					regionID,
 					&esi.GetContractsPublicRegionIdOpts{Page: optional.NewInt32(page)},
 				)
 				if err != nil {
 					echan <- err
-					return
-				}
-
-				// Are we too close to the end of the window?
-				duration := timeUntilCacheExpires(r)
-				if duration.Seconds() < 20 {
-					echan <- errors.New("contract too close to end of window")
 					return
 				}
 
@@ -85,9 +77,7 @@ func (s *MarketWatch) contractWorker(regionID int32) {
 		close(echan)
 
 		for err := range echan {
-			// Start over if any requests failed
 			log.Println(err)
-			continue
 		}
 
 		changes := []ContractChange{}
@@ -166,16 +156,21 @@ func (s *MarketWatch) getContractItems(contract *Contract) error {
 	items, res, err := s.esi.ESI.ContractsApi.GetContractsPublicItemsContractId(
 		context.Background(), contract.Contract.Contract.ContractId, nil,
 	)
+	// No items on the order
+	if res != nil && (res.StatusCode == 204 || res.StatusCode == 403 || res.StatusCode == 404) {
+		return nil
+	}
 	if err != nil {
 		log.Println(err)
 		return err
 	}
+
 	rchan <- items
 
 	// Figure out if there are more pages
 	pages, err := getPages(res)
 	if err != nil {
-		log.Println(err)
+		log.Printf("%d %v\n", contract.Contract.Contract.ContractId, err)
 		return err
 	}
 
@@ -232,6 +227,13 @@ func (s *MarketWatch) getContractBids(contract *Contract) error {
 	bids, res, err := s.esi.ESI.ContractsApi.GetContractsPublicBidsContractId(
 		context.Background(), contract.Contract.Contract.ContractId, nil,
 	)
+	if res != nil && (res.StatusCode == 204 || res.StatusCode == 403 || res.StatusCode == 404) {
+		return nil
+	}
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 	rchan <- bids
 
 	// Figure out if there are more pages

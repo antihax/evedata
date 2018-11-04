@@ -19,7 +19,7 @@ type AssetsInSpace struct {
 func GetAllianceAssetsInSpace(id int64) ([]AssetsInSpace, error) {
 	ref := []AssetsInSpace{}
 	if err := database.Select(&ref, `
-		SELECT itemName, A.typeID, typeName, lastSeen, round(security,1) AS security
+		SELECT itemName, A.typeID, typeName, lastSeen, round(D.security,1) AS security
 			FROM evedata.discoveredAssets A
 		    INNER JOIN invTypes T ON A.typeID = T.typeID
 			INNER JOIN mapDenormalize D ON A.locationID = D.itemID
@@ -35,7 +35,7 @@ func GetAllianceAssetsInSpace(id int64) ([]AssetsInSpace, error) {
 func GetCorporationAssetsInSpace(id int64) ([]AssetsInSpace, error) {
 	ref := []AssetsInSpace{}
 	if err := database.Select(&ref, `
-		SELECT itemName, A.typeID, typeName, lastSeen, round(security,1) AS security
+		SELECT itemName, A.typeID, typeName, lastSeen, round(D.security,1) AS security
 			FROM evedata.discoveredAssets A
 		    INNER JOIN invTypes T ON A.typeID = T.typeID
 			INNER JOIN mapDenormalize D ON A.locationID = D.itemID
@@ -67,7 +67,7 @@ func GetCorporationAssetsInSpaceLostFightersHighsec() ([]LostFighters, error) {
 			LEFT OUTER JOIN evedata.alliances A ON K.victimAllianceID = A.allianceID
 			LEFT OUTER JOIN evedata.corporations C ON K.victimCorporationID = C.corporationID
 			INNER JOIN eve.invTypes T ON T.typeID = K.shipType
-		WHERE round(security,1) >= 0.5 AND 
+		WHERE round(S.security,1) >= 0.5 AND 
 			victimCharacterID = 0 AND 
 			groupID IN (1537, 1652, 1653) AND 
 			killTime > DATE_SUB(NOW(), INTERVAL 8 DAY)
@@ -78,7 +78,7 @@ func GetCorporationAssetsInSpaceLostFightersHighsec() ([]LostFighters, error) {
 			LEFT OUTER JOIN evedata.alliances A ON KA.allianceID = A.allianceID
 			LEFT OUTER JOIN evedata.corporations C ON KA.corporationID = C.corporationID
 			INNER JOIN eve.invTypes T ON T.typeID = KA.shipType AND T.groupID IN (365, 549, 1023, 1537, 1652, 1653, 1657, 2233)
-		WHERE round(security,1) >= 0.5 AND 
+		WHERE round(S.security,1) >= 0.5 AND 
 			killTime > DATE_SUB(NOW(), INTERVAL 8 DAY)
 		ORDER BY killTime DESC
 		`); err != nil {

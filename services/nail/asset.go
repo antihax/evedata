@@ -50,20 +50,29 @@ func (s *Nail) characterAssetsConsumer(message *nsq.Message) error {
 		Columns("locationID", "typeID", "quantity", "characterID",
 			"locationFlag", "itemID", "locationType", "isSingleton")
 
+	count := 0
 	// Build a multi-insert statement
 	for _, asset := range assets.Assets {
+		count++
 		assetSQL = assetSQL.Values(asset.LocationId, asset.TypeId, asset.Quantity, assets.TokenCharacterID,
 			asset.LocationFlag, asset.ItemId, asset.LocationType, asset.IsSingleton)
-	}
 
-	sqlq, args, err := assetSQL.ToSql()
-	if err != nil {
-		return err
-	}
+		// create statement if >80 or at end of array
+		if count%80 == 0 || len(assets.Assets) == count {
+			sqlq, args, err := assetSQL.ToSql()
+			if err != nil {
+				return err
+			}
 
-	_, err = tx.Exec(sqlq+" ON DUPLICATE KEY UPDATE quantity=VALUES(quantity) ", args...)
-	if err != nil {
-		return err
+			_, err = tx.Exec(sqlq+" ON DUPLICATE KEY UPDATE quantity=VALUES(quantity) ", args...)
+			if err != nil {
+				return err
+			}
+
+			assetSQL = sq.Insert("evedata.assets").
+				Columns("locationID", "typeID", "quantity", "characterID",
+					"locationFlag", "itemID", "locationType", "isSingleton")
+		}
 	}
 
 	err = sqlhelper.RetryTransaction(tx)

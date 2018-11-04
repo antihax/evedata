@@ -368,9 +368,8 @@ func updateMarketStations(s *Artifice) error {
 		FROM    evedata.market M
 				INNER JOIN staStations S ON M.stationID = S.stationID
 		WHERE   M.private = 0
-		GROUP BY M.stationID 
-		ORDER BY stationID
-		ON DUPLICATE KEY UPDATE stationID=stationID; `)
+		GROUP BY stationID
+		ON DUPLICATE KEY UPDATE stationID=stationID, Count=values(Count); `)
 	if err != nil {
 		return err
 	}
@@ -490,13 +489,6 @@ func marketMaint(s *Artifice) error {
 	// Deal with any possible orphaned orders
 	if err := s.doSQL(`
 		DELETE FROM evedata.market WHERE DATE_ADD(issued, INTERVAL duration DAY) < utc_timestamp();
-	            `); err != nil {
-		log.Println(err)
-	}
-
-	// Remove any possible stale items
-	if err := s.doSQL(`
-		DELETE FROM evedata.market WHERE reported < DATE_SUB(UTC_TIMESTAMP(), INTERVAL 70 MINUTE)
 	            `); err != nil {
 		log.Println(err)
 	}
