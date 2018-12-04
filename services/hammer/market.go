@@ -49,7 +49,7 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 			})
 		if err != nil {
 			s.tokenStore.CheckSSOError(characterID, tokenCharacterID, err)
-			if r.StatusCode == 403 {
+			if r != nil && r.StatusCode == 403 {
 				err := s.inQueue.SetWorkExpire("evedata_structuremarket_failure", fmt.Sprintf("%d%d", structureID, tokenCharacterID), 86400*3)
 				if err != nil {
 					log.Printf("failed setting failure: %s %d\n", err, structureID)
