@@ -17,18 +17,22 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetPrefix("evedata tokenserver: ")
+	log.Println("Access redis")
 	redis := redigohelper.ConnectRedisProdPool()
 
+	log.Println("Access db")
 	db := sqlhelper.NewDatabase()
 
 	// Make a new service and send it into the background.
 	tokenserver := tokenserver.NewTokenServer(redis, db, os.Getenv("ESI_CLIENTID_TOKENSTORE"), os.Getenv("ESI_SECRET_TOKENSTORE"))
+	log.Println("Starting server")
 	go tokenserver.Run()
 	defer tokenserver.Close()
 
 	// Run metrics
 	http.Handle("/metrics", promhttp.Handler())
 
+	log.Println("Listening")
 	go log.Fatalln(http.ListenAndServe(":3000", nil))
 
 	// Handle SIGINT and SIGTERM.
