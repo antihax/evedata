@@ -12,9 +12,7 @@ EOF
 mkdir -p /etc/cni/net.d
 
 apt update -y
-apt install -y docker.io apt-transport-https
-apt update -y
-apt install -y kubelet kubeadm kubectl kubernetes-cni
+apt install -y docker.io apt-transport-https kubelet kubeadm kubectl kubernetes-cni
 apt upgrade -y
 apt autoremove -y
 
