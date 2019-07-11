@@ -16,7 +16,7 @@ type TokenServerAPI struct {
 }
 
 func NewTokenServerAPI() (*TokenServerAPI, error) {
-	r, err := grpc.Dial("tokenserver.evedata:3002",
+	r, err := grpc.Dial("tokenserver.evedata.svc.cluster.local:3002",
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{
 			Time:                time.Second * 5,
 			Timeout:             time.Second * 10,
@@ -34,9 +34,9 @@ func NewTokenServerAPI() (*TokenServerAPI, error) {
 }
 
 func NewTokenServerInternalAPI() (*TokenServerAPI, error) {
-	r, err := grpc.Dial("tokenserver.evedata:3002", grpc.WithInsecure(), grpc.WithCodec(&msgpackcodec.MsgPackCodec{}))
+	r, err := grpc.Dial("tokenserver.evedata.svc.cluster.local:3002", grpc.WithInsecure(), grpc.WithCodec(&msgpackcodec.MsgPackCodec{}))
 	if err != nil {
-		r, err = grpc.Dial("tokenserver.evedata:32004", grpc.WithInsecure(), grpc.WithCodec(&msgpackcodec.MsgPackCodec{}))
+		r, err = grpc.Dial("tokenserver.evedata.svc.cluster.local:32004", grpc.WithInsecure(), grpc.WithCodec(&msgpackcodec.MsgPackCodec{}))
 		if err != nil {
 			return nil, err
 		}
