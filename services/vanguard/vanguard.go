@@ -110,9 +110,11 @@ func NewVanguard(redis *redis.Pool, ledis *redis.Pool, db *sqlx.DB) *Vanguard {
 		TokenStore: tokenStore,
 	}
 
-	if err := globalVanguard.RPCConnect(); err != nil {
-		log.Fatalln(err)
-	}
+	go func(gvg *Vanguard) {
+		if err := gvg.RPCConnect(); err != nil {
+			log.Fatalln(err)
+		}
+	}(globalVanguard)
 
 	return globalVanguard
 }
