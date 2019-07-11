@@ -35,7 +35,7 @@ func NewTestDatabase() *sqlx.DB {
 
 // NewDatabase creates a new connection for sql.storage
 func NewDatabase() *sqlx.DB {
-	database, err := setupDatabase("mysql", os.Getenv("SQLAUTH")+"@tcp(sql.storage:3306)/eve?allowOldPasswords=1&parseTime=true&tls=skip-verify")
+	database, err := setupDatabase("mysql", os.Getenv("SQLAUTH")+"@tcp(sql.storage.svc.cluster.local:3306)/eve?allowOldPasswords=1&parseTime=true&tls=skip-verify")
 	if err != nil {
 		log.Fatalln(err)
 	}

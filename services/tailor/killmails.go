@@ -417,7 +417,7 @@ func getAttributesForKillmail(km *esi.GetKillmailsKillmailIdKillmailHashOk) (*at
 	}
 	ctx, cncl := context.WithTimeout(context.Background(), time.Second*30)
 	defer cncl()
-	req, err := http.NewRequest("POST", "http://axiom.evedata:3005/killmail", bytes.NewBuffer(j))
+	req, err := http.NewRequest("POST", "http://axiom.evedata.svc.cluster.local:3005/killmail", bytes.NewBuffer(j))
 	if err != nil {
 		return nil, err
 	}

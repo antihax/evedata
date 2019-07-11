@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	Prod = []string{"nsqlookupd1.nsq:4161", "nsqlookupd2.nsq:4161"}
+	Prod = []string{"nsqlookupd1.nsq.svc.cluster.local:4161", "nsqlookupd2.nsq.svc.cluster.local:4161"}
 	Test = []string{"localhost:4161"}
 )
 
@@ -17,7 +17,7 @@ func NewNSQConsumer(topicName, channelName string, maxInFlight int) (*nsq.Consum
 
 func NewNSQProducer() (*nsq.Producer, error) {
 	cfg := nsq.NewConfig()
-	return nsq.NewProducer("nsqd.nsq:4150", cfg)
+	return nsq.NewProducer("nsqd.nsq.svc.cluster.local:4150", cfg)
 }
 
 func NewTestNSQProducer() (*nsq.Producer, error) {

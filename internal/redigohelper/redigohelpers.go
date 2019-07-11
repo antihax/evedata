@@ -13,7 +13,7 @@ import (
 // Memory Store
 func ConnectRedisProdPool() *redis.Pool {
 	pool := connectRedisPool(
-		[]string{"redis.storage:6379"},
+		[]string{"redis.storage.svc.cluster.local:6379"},
 		os.Getenv("REDIS_PASSWORD"),
 		"evedata",
 		false,
@@ -30,7 +30,7 @@ func ConnectRedisProdPool() *redis.Pool {
 // Disk Store
 func ConnectLedisProdPool() *redis.Pool {
 	pool := connectRedisPool(
-		[]string{"ledis.storage:6379"},
+		[]string{"ledis.storage.svc.cluster.local:6379"},
 		os.Getenv("REDIS_PASSWORD"),
 		"evedata",
 		false,

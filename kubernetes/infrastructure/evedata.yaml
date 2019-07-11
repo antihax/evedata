@@ -43,41 +43,41 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: vanguard.evedata
+          serviceName: vanguard.evedata.svc.cluster.local
           servicePort: '3000'
   - host: evedata.org
     http:
       paths:
       - backend:
-          serviceName: vanguard.evedata
+          serviceName: vanguard.evedata.svc.cluster.local
           servicePort: '3000'
   - host: scope.evedata.org
     http:
       paths:
       - backend:
-          serviceName: scope-auth.kube-system
+          serviceName: scope-auth.kube-system.svc.cluster.local
           servicePort: '80'
   - host: log.evedata.org
     http:
       paths:
       - backend:
-          serviceName: kibana-auth.kube-system
+          serviceName: kibana-auth.kube-system.svc.cluster.local
           servicePort: '80'
   - host: grafana.evedata.org
     http:
       paths:
       - backend:
-          serviceName: grafana.monitoring
+          serviceName: grafana.monitoring.svc.cluster.local
           servicePort: '3000'
   - host: mail.evedata.org
     tcp:
       port: 993
       backend:
-        serviceName: mailserver.evedata
+        serviceName: mailserver.evedata.svc.cluster.local
         servicePort: '993'
   - host: mail.evedata.org
     tcp:
       port: 465
       backend:
-        serviceName: mailserver.evedata
+        serviceName: mailserver.evedata.svc.cluster.local
         servicePort: '465'
