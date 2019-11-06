@@ -5,6 +5,13 @@ function capitalizeFirstLetter(string) {
 	return string;
 }
 
+function uncapitalizeFirstLetter(string) {
+	if (string) {
+		return string.charAt(0).toLowerCase() + string.slice(1);
+	}
+	return string;
+}
+
 Array.prototype.inArray = function (comparer) {
 	for (var i = 0; i < this.length; i++) {
 		if (comparer(this[i])) return true;
@@ -50,17 +57,17 @@ function characterImageByID(characterID, size) {
 
 function entityImage(row) {
 	if (row.type == "character") {
-		return '//imageserver.eveonline.com/' + capitalizeFirstLetter(row.type) + '/' + row.id + '_32.jpg';
+		return '//imageserver.eveonline.com/' + uncapitalizeFirstLetter(row.type) + '/' + row.id + '_32.jpg';
 	} else {
-		return '//imageserver.eveonline.com/' + capitalizeFirstLetter(row.type) + '/' + row.id + '_32.png';
+		return '//imageserver.eveonline.com/' + uncapitalizeFirstLetter(row.type) + '/' + row.id + '_32.png';
 	}
 }
 
 function entityTypeImage(row) {
 	if (row.type == "character") {
-		return '//imageserver.eveonline.com/' + capitalizeFirstLetter(row.entityType) + '/' + row.entityID + '_32.jpg';
+		return '//imageserver.eveonline.com/' + uncapitalizeFirstLetter(row.entityType) + '/' + row.entityID + '_32.jpg';
 	} else {
-		return '//imageserver.eveonline.com/' + capitalizeFirstLetter(row.entityType) + '/' + row.entityID + '_32.png';
+		return '//imageserver.eveonline.com/' + uncapitalizeFirstLetter(row.entityType) + '/' + row.entityID + '_32.png';
 	}
 }
 

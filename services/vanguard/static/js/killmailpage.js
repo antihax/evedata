@@ -41,7 +41,7 @@ function setResonancePercentage(resonance, value) {
 function setModuleSlot(type, slot, i) {
     typeNames = package.attributes.types;
 
-    $("#" + type + slot).prepend('<img class="ttp" src="//imageserver.eveonline.com/Type/' + i.typeID + '_32.png" title="' + typeNames[i.typeID] + '" style="height: 32px; width: 32px; z-index:3000">')
+    $("#" + type + slot).prepend('<img class="ttp" src="//imageserver.eveonline.com/type/' + i.typeID + '_32.png" title="' + typeNames[i.typeID] + '" style="height: 32px; width: 32px; z-index:3000">')
     $("#" + type + slot + " .ttp").tooltipster({
         contentAsHTML: true,
         position: 'bottom',
@@ -51,7 +51,7 @@ function setModuleSlot(type, slot, i) {
             ins.content(moduleToolTip(i, typeNames));
         },
     });
-    if (i.chargeTypeID > 0) $("#" + type + slot + "l").prepend('<img src="//imageserver.eveonline.com/Type/' + i.chargeTypeID + '_32.png" style="height: 32px; width: 32px;">')
+    if (i.chargeTypeID > 0) $("#" + type + slot + "l").prepend('<img src="//imageserver.eveonline.com/type/' + i.chargeTypeID + '_32.png" style="height: 32px; width: 32px;">')
 }
 
 function moduleToolTip(i, t) {
@@ -403,7 +403,7 @@ function resizeCanvasToDisplaySize(canvas, mult) {
 }
 
 function getShipwebGL(package) {
-    $("#shipImage").attr("src", "//imageserver.eveonline.com/Render/" + package.attributes.typeID + "_256.png")
+    $("#shipImage").attr("src", "//imageserver.eveonline.com/render/" + package.attributes.typeID + "_256.png")
     try {
         var mat4 = ccpwgl_int.math.mat4,
             rotation = 0.0,
