@@ -226,9 +226,9 @@ function populateModules(package) {
 
 function getCorporationImage(a) {
     if (a.corporation_id != undefined) {
-        return "corporation/" + a.corporation_id + "_32.png";
+        return "Corporation/" + a.corporation_id + "_32.png";
     } else {
-        return "corporation/" + a.faction_id + "_32.png";
+        return "Corporation/" + a.faction_id + "_32.png";
     }
 }
 function getAllianceImage(a) {

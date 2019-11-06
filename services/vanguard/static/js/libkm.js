@@ -31,11 +31,11 @@ var Killmail = function (id, completeFunc) {
             getShipAttributes: function () { return killmail.attributes.ship },
             getPortait: function (a) {
                 if (a.character_id != undefined) {
-                    return "character/" + a.character_id + "_64.jpg";
+                    return "Character/" + a.character_id + "_64.jpg";
                 } else if (a.corporation_id != undefined) {
-                    return "corporation/" + a.corporation_id + "_64.png";
+                    return "Corporation/" + a.corporation_id + "_64.png";
                 } else {
-                    return "corporation/" + a.faction_id + "_64.png";
+                    return "Corporation/" + a.faction_id + "_64.png";
                 }
             },
             convertMS: function (ms) {
