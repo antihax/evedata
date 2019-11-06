@@ -41,7 +41,7 @@ function setResonancePercentage(resonance, value) {
 function setModuleSlot(type, slot, i) {
     typeNames = package.attributes.types;
 
-    $("#" + type + slot).prepend('<img class="ttp" src="//imageserver.eveonline.com/type/' + i.typeID + '_32.png" title="' + typeNames[i.typeID] + '" style="height: 32px; width: 32px; z-index:3000">')
+    $("#" + type + slot).prepend('<img class="ttp" src="//imageserver.eveonline.com/Type/' + i.typeID + '_32.png" title="' + typeNames[i.typeID] + '" style="height: 32px; width: 32px; z-index:3000">')
     $("#" + type + slot + " .ttp").tooltipster({
         contentAsHTML: true,
         position: 'bottom',
@@ -51,7 +51,7 @@ function setModuleSlot(type, slot, i) {
             ins.content(moduleToolTip(i, typeNames));
         },
     });
-    if (i.chargeTypeID > 0) $("#" + type + slot + "l").prepend('<img src="//imageserver.eveonline.com/type/' + i.chargeTypeID + '_32.png" style="height: 32px; width: 32px;">')
+    if (i.chargeTypeID > 0) $("#" + type + slot + "l").prepend('<img src="//imageserver.eveonline.com/Type/' + i.chargeTypeID + '_32.png" style="height: 32px; width: 32px;">')
 }
 
 function moduleToolTip(i, t) {
@@ -233,26 +233,26 @@ function getCorporationImage(a) {
 }
 function getAllianceImage(a) {
     if (a.alliance_id != undefined) {
-        return "alliance/" + a.alliance_id + "_64.png";
+        return "Alliance/" + a.alliance_id + "_64.png";
     } else if (a.faction_id != undefined) {
-        return "corporation/" + a.faction_id + "_64.png";
+        return "Corporation/" + a.faction_id + "_64.png";
     } else {
-        return "corporation/" + a.corporation_id + "_64.png";
+        return "Corporation/" + a.corporation_id + "_64.png";
     }
 }
 
 function getPortrait(a) {
     if (a.character_id != undefined) {
-        return "character/" + a.character_id + "_64.jpg";
+        return "Character/" + a.character_id + "_64.jpg";
     } else if (a.corporation_id != undefined) {
-        return "corporation/" + a.corporation_id + "_64.png";
+        return "Corporation/" + a.corporation_id + "_64.png";
     } else {
-        return "corporation/" + a.faction_id + "_64.png";
+        return "Corporation/" + a.faction_id + "_64.png";
     }
 }
 
 function getTypeImage(typeID) {
-    return "type/" + typeID + "_64.png";
+    return "Type/" + typeID + "_64.png";
 }
 
 function getShipImage(a) {
@@ -313,8 +313,8 @@ function getAttackers(package) {
                     <img src="//imageserver.eveonline.com/${getPortrait(a)}" style="width:64px; height: 64px">
                 </div>
                 <div style="float: left; width: 32px">
-                    <img src="//imageserver.eveonline.com/type/${getShipImage(a)}" style="width:32px; height: 32px">
-                    <img src="//imageserver.eveonline.com/type/${getWeaponImage(a)}" style="width:32px; height: 32px">
+                    <img src="//imageserver.eveonline.com/Type/${getShipImage(a)}" style="width:32px; height: 32px">
+                    <img src="//imageserver.eveonline.com/Type/${getWeaponImage(a)}" style="width:32px; height: 32px">
                 </div>
                 <div style="width: 230px; float: left; ">
                     ${getCharacterInformation(a)}
@@ -403,7 +403,7 @@ function resizeCanvasToDisplaySize(canvas, mult) {
 }
 
 function getShipwebGL(package) {
-    $("#shipImage").attr("src", "//imageserver.eveonline.com/render/" + package.attributes.typeID + "_256.png")
+    $("#shipImage").attr("src", "//imageserver.eveonline.com/Render/" + package.attributes.typeID + "_256.png")
     try {
         var mat4 = ccpwgl_int.math.mat4,
             rotation = 0.0,

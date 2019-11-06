@@ -5,13 +5,6 @@ function capitalizeFirstLetter(string) {
 	return string;
 }
 
-function uncapitalizeFirstLetter(string) {
-	if (string) {
-		return string.charAt(0).toLowerCase() + string.slice(1);
-	}
-	return string;
-}
-
 Array.prototype.inArray = function (comparer) {
 	for (var i = 0; i < this.length; i++) {
 		if (comparer(this[i])) return true;
@@ -48,31 +41,31 @@ Array.prototype.pushIfNotExist = function (element, comparer) {
 };
 
 function characterImage(row) {
-	return '//imageserver.eveonline.com/character/' + row.characterID + '_32.jpg';
+	return '//imageserver.eveonline.com/Character/' + row.characterID + '_32.jpg';
 }
 
 function characterImageByID(characterID, size) {
-	return '//imageserver.eveonline.com/character/' + characterID + '_' + size + '.jpg';
+	return '//imageserver.eveonline.com/Character/' + characterID + '_' + size + '.jpg';
 }
 
 function entityImage(row) {
 	if (row.type == "character") {
-		return '//imageserver.eveonline.com/' + row.type.toLowerCase() + '/' + row.id + '_32.jpg';
+		return '//imageserver.eveonline.com/' + capitalizeFirstLetter(row.type) + '/' + row.id + '_32.jpg';
 	} else {
-		return '//imageserver.eveonline.com/' + row.type.toLowerCase() + '/' + row.id + '_32.png';
+		return '//imageserver.eveonline.com/' + capitalizeFirstLetter(row.type) + '/' + row.id + '_32.png';
 	}
 }
 
 function entityTypeImage(row) {
 	if (row.type == "character") {
-		return '//imageserver.eveonline.com/' + row.entityType.toLowerCase() + '/' + row.entityID + '_32.jpg';
+		return '//imageserver.eveonline.com/' + capitalizeFirstLetter(row.entityType) + '/' + row.entityID + '_32.jpg';
 	} else {
-		return '//imageserver.eveonline.com/' + row.entityType.toLowerCase() + '/' + row.entityID + '_32.png';
+		return '//imageserver.eveonline.com/' + capitalizeFirstLetter(row.entityType) + '/' + row.entityID + '_32.png';
 	}
 }
 
 function typeImage(row) {
-	return '//imageserver.eveonline.com/type/' + row.typeID + '_32.png';
+	return '//imageserver.eveonline.com/Type/' + row.typeID + '_32.png';
 }
 
 function allianceFormatter(value, row) {
