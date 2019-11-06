@@ -163,21 +163,21 @@
             var attributes = "",
                 att = k.getShipAttributes();
             if (att["totalWarpScrambleStrength"] != undefined) {
-                attributes += `<img title="${simpleVal(att["totalWarpScrambleStrength"])} disrupt strength" src="//imageserver.eveonline.com/type/3242_32.png"  style="width:25px; height: 25px">`
+                attributes += `<img title="${simpleVal(att["totalWarpScrambleStrength"])} disrupt strength" src="//imageserver.eveonline.com/Type/3242_32.png"  style="width:25px; height: 25px">`
             }
 
             if (att["stasisWebifierStrength"] != undefined && att["stasisWebifierStrength"] != -100) {
-                attributes += `<img title="${simpleVal(att["stasisWebifierStrength"])} web strength" src="//imageserver.eveonline.com/type/526_32.png"  style="width:25px; height: 25px">`
+                attributes += `<img title="${simpleVal(att["stasisWebifierStrength"])} web strength" src="//imageserver.eveonline.com/Type/526_32.png"  style="width:25px; height: 25px">`
             }
 
             if (att["warpScrambleStatus"] != undefined) {
-                attributes += `<img title="${simpleVal(att["warpScrambleStatus"])} warp core stabilization" src="//imageserver.eveonline.com/type/10998_32.png"  style="width:25px; height: 25px">`
+                attributes += `<img title="${simpleVal(att["warpScrambleStatus"])} warp core stabilization" src="//imageserver.eveonline.com/Type/10998_32.png"  style="width:25px; height: 25px">`
             }
 
             var h = `
                 <div style="height:52px">
                     <div style="float: left; width: 32px">
-                        <a href="/killmail?id=${row.id}" target="kill"><img class="rounded-8" src="//imageserver.eveonline.com/type/${victim.ship_type_id}_32.png" 
+                        <a href="/killmail?id=${row.id}" target="kill"><img class="rounded-8" src="//imageserver.eveonline.com/Type/${victim.ship_type_id}_32.png" 
                         title="${k.getName(victim.ship_type_id)}" style="width:32px; height: 32px"></a>
                     </div>
                     <div style="float: left; width: 32px">

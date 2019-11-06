@@ -21,7 +21,7 @@
 <div class="container-fluid">
 	<header class="row well">
 		<div class="col-md-2">
-			<img class="rounded-32" alt="{{.Corporation.CorporationName}}" src="//imageserver.eveonline.com/corporation/{{.Corporation.CorporationID}}_128.png" />
+			<img class="rounded-32" alt="{{.Corporation.CorporationName}}" src="//imageserver.eveonline.com/Corporation/{{.Corporation.CorporationID}}_128.png" />
 		</div>
 		<div class="col-md-10">
 			<dl>
@@ -53,7 +53,7 @@
 <div class="container-fluid">
 	<header class="row well">
 		<div class="col-md-2">
-			<img class="rounded-32" alt="{{.Character.CharacterName}}" src="//imageserver.eveonline.com/character/{{.Character.CharacterID}}_128.jpg" />
+			<img class="rounded-32" alt="{{.Character.CharacterName}}" src="//imageserver.eveonline.com/Character/{{.Character.CharacterID}}_128.jpg" />
 		</div>
 		<div class="col-md-10">
 			<dl>
@@ -491,29 +491,29 @@
 					att = k.getShipAttributes();
 
 				if (att["avgEHP"] != undefined) {
-					attributes += `<img title="${simpleVal(att["avgEHP"])} eHP" src="//imageserver.eveonline.com/type/1272_32.png"  style="width:25px; height: 25px">`
+					attributes += `<img title="${simpleVal(att["avgEHP"])} eHP" src="//imageserver.eveonline.com/Type/1272_32.png"  style="width:25px; height: 25px">`
 				}
 				if (att["capacitorStable"] != undefined) {
-					attributes += `<img title="${simpleVal(att["capacitorFraction"] * 100)}% stable" src="//imageserver.eveonline.com/type/3556_32.png"  style="width:25px; height: 25px">`
+					attributes += `<img title="${simpleVal(att["capacitorFraction"] * 100)}% stable" src="//imageserver.eveonline.com/Type/3556_32.png"  style="width:25px; height: 25px">`
 				} else {
-					attributes += `<img title="${k.convertMS(att["capacitorDuration"])} duration" src="//imageserver.eveonline.com/type/1185_32.png"  style="width:25px; height: 25px">`
+					attributes += `<img title="${k.convertMS(att["capacitorDuration"])} duration" src="//imageserver.eveonline.com/Type/1185_32.png"  style="width:25px; height: 25px">`
 				}
 				if (att["avgRPS"] > 100) {
 					attributes += `<img title="${simpleVal(att["avgRPS"])} eHP/s" src="/i/icons/1_64_12.png"  style="width:25px; height: 25px">`
 				}
 				if (att["totalDPS"] != undefined) {
-					attributes += `<img title="${simpleVal(att["totalDPS"])} DPS" src="//imageserver.eveonline.com/type/11103_32.png"  style="width:25px; height: 25px">`
+					attributes += `<img title="${simpleVal(att["totalDPS"])} DPS" src="//imageserver.eveonline.com/Type/11103_32.png"  style="width:25px; height: 25px">`
 				}
 				if (att["totalWarpScrambleStrength"] != undefined) {
-					attributes += `<img title="${simpleVal(att["totalWarpScrambleStrength"])} disrupt strength" src="//imageserver.eveonline.com/type/3242_32.png"  style="width:25px; height: 25px">`
+					attributes += `<img title="${simpleVal(att["totalWarpScrambleStrength"])} disrupt strength" src="//imageserver.eveonline.com/Type/3242_32.png"  style="width:25px; height: 25px">`
 				}
 
 				if (att["stasisWebifierStrength"] != undefined && att["stasisWebifierStrength"] != -100) {
-					attributes += `<img title="${simpleVal(att["stasisWebifierStrength"])} web strength" src="//imageserver.eveonline.com/type/526_32.png"  style="width:25px; height: 25px">`
+					attributes += `<img title="${simpleVal(att["stasisWebifierStrength"])} web strength" src="//imageserver.eveonline.com/Type/526_32.png"  style="width:25px; height: 25px">`
 				}
 
 				if (att["warpScrambleStatus"] != undefined) {
-					attributes += `<img title="${simpleVal(att["warpScrambleStatus"])} warp core stabilization" src="//imageserver.eveonline.com/type/10998_32.png"  style="width:25px; height: 25px">`
+					attributes += `<img title="${simpleVal(att["warpScrambleStatus"])} warp core stabilization" src="//imageserver.eveonline.com/Type/10998_32.png"  style="width:25px; height: 25px">`
 				}
 
 				if (att["remoteArmorDamageAmountPerSecond"] != undefined) {
@@ -534,7 +534,7 @@
 				var h = `
         <div style="height:52px">
             <div style="float: left; width: 32px">
-                <a href="/killmail?id=${row.id}"><img class="rounded-8" src="//imageserver.eveonline.com/type/${victim.ship_type_id}_32.png" 
+                <a href="/killmail?id=${row.id}"><img class="rounded-8" src="//imageserver.eveonline.com/Type/${victim.ship_type_id}_32.png" 
                 title="${k.getName(victim.ship_type_id)}" style="width:32px; height: 32px"></a>
             </div>
             <div style="float: left; width: 32px">
