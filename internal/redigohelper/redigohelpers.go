@@ -30,7 +30,7 @@ func ConnectRedisProdPool() *redis.Pool {
 // Disk Store
 func ConnectLedisProdPool() *redis.Pool {
 	pool := connectRedisPool(
-		[]string{"ledis.storage.svc.cluster.local:6379"},
+		[]string{"redis.storage.svc.cluster.local:6379"},
 		os.Getenv("REDIS_PASSWORD"),
 		"evedata",
 		false,
@@ -88,12 +88,14 @@ func connectRedisPool(addresses []string, password string, masterName string, se
 func newRedisPool(address string, password string) *redis.Pool {
 	// Build the redis pool
 	return &redis.Pool{
-		MaxIdle:     200,
-		MaxActive:   600,
+		MaxIdle:     20,
+		MaxActive:   1500,
 		Wait:        false,
-		IdleTimeout: 240 * time.Second,
+		IdleTimeout: 20 * time.Second,
 		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", address)
+			c, err := redis.Dial("tcp", address,
+				redis.DialReadTimeout(4*time.Second),
+				redis.DialWriteTimeout(2*time.Second))
 			if err != nil {
 				return nil, err
 			}
@@ -124,10 +126,10 @@ func newSentinelPool(addresses []string, masterName string, password string) *re
 	}
 
 	return &redis.Pool{
-		MaxIdle:     200,
-		MaxActive:   600,
+		MaxIdle:     5,
+		MaxActive:   20,
 		Wait:        false,
-		IdleTimeout: 240 * time.Second,
+		IdleTimeout: 20 * time.Second,
 		Dial: func() (redis.Conn, error) {
 			masterAddr, err := sntnl.MasterAddr()
 			if err != nil {
