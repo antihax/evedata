@@ -57,22 +57,22 @@ function characterImageByID(characterID, size) {
 
 function entityImage(row) {
 	if (row.type == "character") {
-		return '//imageserver.eveonline.com/' + uncapitalizeFirstLetter(row.type) + '/' + row.id + '_32.jpg';
+		return '//imageserver.eveonline.com/' + row.type.toLowerCase() + '/' + row.id + '_32.jpg';
 	} else {
-		return '//imageserver.eveonline.com/' + uncapitalizeFirstLetter(row.type) + '/' + row.id + '_32.png';
+		return '//imageserver.eveonline.com/' + row.type.toLowerCase() + '/' + row.id + '_32.png';
 	}
 }
 
 function entityTypeImage(row) {
 	if (row.type == "character") {
-		return '//imageserver.eveonline.com/' + uncapitalizeFirstLetter(row.entityType) + '/' + row.entityID + '_32.jpg';
+		return '//imageserver.eveonline.com/' + row.entityType.toLowerCase() + '/' + row.entityID + '_32.jpg';
 	} else {
-		return '//imageserver.eveonline.com/' + uncapitalizeFirstLetter(row.entityType) + '/' + row.entityID + '_32.png';
+		return '//imageserver.eveonline.com/' + row.entityType.toLowerCase() + '/' + row.entityID + '_32.png';
 	}
 }
 
 function typeImage(row) {
-	return '//imageserver.eveonline.com/Type/' + row.typeID + '_32.png';
+	return '//imageserver.eveonline.com/type/' + row.typeID + '_32.png';
 }
 
 function allianceFormatter(value, row) {
