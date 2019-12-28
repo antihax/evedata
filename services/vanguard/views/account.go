@@ -154,7 +154,6 @@ func apiGetCRESTTokens(w http.ResponseWriter, r *http.Request) {
 	char, ok := s.Values["character"].(goesi.VerifyResponse)
 	if !ok {
 		httpErrCode(w, errors.New("could not find character response"), http.StatusForbidden)
-		log.Printf("%+v\n", s.Values["character"])
 		return
 	}
 
