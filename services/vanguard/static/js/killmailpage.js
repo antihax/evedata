@@ -2,30 +2,30 @@ var package,
     urlVars = getUrlVars(),
     ship, canvas, camera;
 
-    var killmail = new Killmail(urlVars["id"], function (k) {
-        try {
-            package = k.getKillmail();
-            console.log(k.getEFT())
-            console.log(package)
-            $(document).ready(function () {
-                getShip(package);
-                populateModules(package)
-                getAttackers(package);
-                getTypes(package);
-                getVictimInformation(package.killmail.victim);
-                getSystemInfo(package.systemInfo);
+var killmail = new Killmail(urlVars["id"], function (k) {
+    try {
+        package = k.getKillmail();
+        console.log(k.getEFT())
+        console.log(package)
+        $(document).ready(function () {
+            getShip(package);
+            populateModules(package)
+            getAttackers(package);
+            getTypes(package);
+            getVictimInformation(package.killmail.victim);
+            getSystemInfo(package.systemInfo);
 
-                new ClipboardJS('.clipboardCopy', {
-                    text: function(trigger) {
-                        showAlert("copied to clipboard", "success");
-                        return k.getEFT();
-                    }
-                });
+            new ClipboardJS('.clipboardCopy', {
+                text: function (trigger) {
+                    showAlert("copied to clipboard", "success");
+                    return k.getEFT();
+                }
             });
-        } catch (e){
-            showAlert("Failed to read killmail: " + e, "danger")
-        }
-    });
+        });
+    } catch (e) {
+        showAlert("Failed to read killmail: " + e, "danger")
+    }
+});
 
 function setResonancePercentage(resonance, value) {
     if (!value) {
@@ -107,6 +107,9 @@ function setModule(slot, type) {
 }
 
 function populateModules(package) {
+
+    if (!package.attributes)
+        return;
     typeNames = package.attributes.types;
 
     $.each(package.attributes.modules, function (k, i) {
@@ -466,6 +469,10 @@ function getShipFallback(typeID) {
 }
 
 function getShip(package) {
+    if (!package.attributes) {
+        return;
+    }
+
     var a = package.attributes.ship;
     getShipwebGL(package);
 

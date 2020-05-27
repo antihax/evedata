@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	registerTrigger("mutatedItem", resolveItems, time.NewTicker(time.Second*30))
+	registerTrigger("mutatedItem", resolveItems, time.NewTicker(time.Second*1200))
 }
 
 func resolveItems(s *Artifice) error {

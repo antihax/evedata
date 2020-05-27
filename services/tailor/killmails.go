@@ -113,12 +113,11 @@ func (s *Tailor) killmailHandler(message *nsq.Message) error {
 	timeStage("decode", start)
 	start = time.Now()
 
-	attr, err := getAttributesForKillmail(&killmail.Kill)
+	/*attr, err := getAttributesForKillmail(&killmail.Kill)
 	if err != nil {
 		log.Println(err)
-		return err
 	}
-	timeStage("axiom", start)
+	timeStage("axiom", start)*/
 	start = time.Now()
 
 	names, err := s.resolveNames(&killmail.Kill)
@@ -155,7 +154,7 @@ func (s *Tailor) killmailHandler(message *nsq.Message) error {
 	start = time.Now()
 
 	pack := KillmailAttributes{
-		Attributes: attr,
+		Attributes: nil, //attr,
 		Killmail:   &killmail.Kill,
 		NameMap:    names,
 		PriceMap:   prices,
@@ -340,6 +339,9 @@ func (s *Tailor) resolveNames(kill *esi.GetKillmailsKillmailIdKillmailHashOk) (m
 func (s *Tailor) killmailConsumer() {
 	for {
 		a := <-chanKillmailAttributes
+		if a.Attributes == nil {
+			continue
+		}
 		b := a.Attributes.Ship
 		pm := a.PriceMap
 

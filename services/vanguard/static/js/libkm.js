@@ -23,12 +23,12 @@ var Killmail = function (id, completeFunc) {
             getKillmail: function () { return killmail },
             getSystem: function () { return killmail.systemInfo },
             getVictim: function () { return killmail.killmail.victim },
-            getModules: function () { return killmail.attributes.modules },
-            getDrones: function () { return killmail.attributes.drones },
+            getModules: function () { return killmail.attributes ? killmail.attributes.modules : {} },
+            getDrones: function () { return killmail.attributes ? killmail.attributes.drones : {} },
             getAttackerCount: function () { return killmail.killmail.attackers.length },
             getName: function (id) { return killmail.nameMap[id] },
             getPrice: function (id) { return killmail.priceMap[id] != undefined ? killmail.priceMap[id] : 0 },
-            getShipAttributes: function () { return killmail.attributes.ship },
+            getShipAttributes: function () { return killmail.attributes ? killmail.attributes.ship : {} },
             getPortait: function (a) {
                 if (a.character_id != undefined) {
                     return "Character/" + a.character_id + "_64.jpg";
