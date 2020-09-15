@@ -7,6 +7,7 @@ secret.yaml
 secrets.yaml
 configuration.sh
 debug
+__*
 profile.out
 coverage.txt
 teamspeakToken.txt
