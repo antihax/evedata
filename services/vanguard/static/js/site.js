@@ -391,8 +391,8 @@ function nsToTime(nanoseconds) {
 }
 
 function killmailTypeFormatter(value, row) {
-	var typeURL = '/killmail?id=' + row.id
-	return '<a data-toggle="tooltip" title="Open zkillboard" href="https://zkillboard.com/kill/' + row.id + '" target="zkill"><img src="https://zkillboard.com/img/wreck.png" height=16 width=16></a>' +
+	var typeURL = 'https://zkillboard.com/kill/' + row.id + '/';
+	return '<a data-toggle="tooltip" title="Open zkillboard" href="https://zkillboard.com/kill/' + row.id + '/" target="zkill"><img src="https://zkillboard.com/img/wreck.png" height=16 width=16></a>' +
 		'&nbsp;&nbsp;<a href="' + typeURL + '" target="zkill"><img src="' + typeImage(row) + '" height=25 width=25></a> &nbsp;<a href="' + typeURL + '" target="zkill">' + value + '</a>';
 }
 
