@@ -177,11 +177,11 @@
             var h = `
                 <div style="height:52px">
                     <div style="float: left; width: 32px">
-                        <a href="https://zkillboard.com/kill/killmail?id=${row.id}/" target="kill"><img class="rounded-8" src="//imageserver.eveonline.com/Type/${victim.ship_type_id}_32.png" 
+                        <a href="https://zkillboard.com/kill/${row.id}/" target="kill"><img class="rounded-8" src="//imageserver.eveonline.com/Type/${victim.ship_type_id}_32.png" 
                         title="${k.getName(victim.ship_type_id)}" style="width:32px; height: 32px"></a>
                     </div>
                     <div style="float: left; width: 32px">
-                    <a href="https://zkillboard.com/kill/killmail?id=${row.id}/" target="kill"><img class="rounded-8" src="//imageserver.eveonline.com/${k.getPortait(victim)}" 
+                    <a href="https://zkillboard.com/kill/${row.id}/" target="kill"><img class="rounded-8" src="//imageserver.eveonline.com/${k.getPortait(victim)}" 
                             title="${k.getName(k.resolveEntity(victim))}" style="width:32px; height: 32px"></a>
                     </div>
                     <div style="float: left; height: 32px; width: 120px;">
