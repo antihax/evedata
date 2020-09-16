@@ -19,7 +19,7 @@ func CreateHTTPClientCache(redis *redis.Pool) *http.Client {
 	// Attach a basic transport with our chained custom transport.
 	transportCache.Transport = &APICacheTransport{
 		&http.Transport{
-			MaxIdleConns: 200,
+			MaxIdleConns: 100,
 			DialContext: (&net.Dialer{
 				Timeout:   60 * time.Second,
 				KeepAlive: 5 * 60 * time.Second,
@@ -29,7 +29,7 @@ func CreateHTTPClientCache(redis *redis.Pool) *http.Client {
 			TLSHandshakeTimeout:   60 * time.Second,
 			ResponseHeaderTimeout: 60 * time.Second,
 			ExpectContinueTimeout: 0,
-			MaxIdleConnsPerHost:   20,
+			MaxIdleConnsPerHost:   3,
 		},
 	}
 
@@ -50,7 +50,7 @@ func CreateLimitedHTTPClientCache(redis *redis.Pool) *http.Client {
 	cache := &LimitedTransport{
 		&APICacheTransport{
 			&http.Transport{
-				MaxIdleConns: 200,
+				MaxIdleConns: 100,
 				DialContext: (&net.Dialer{
 					Timeout:   60 * time.Second,
 					KeepAlive: 5 * 60 * time.Second,
@@ -60,7 +60,7 @@ func CreateLimitedHTTPClientCache(redis *redis.Pool) *http.Client {
 				TLSHandshakeTimeout:   60 * time.Second,
 				ResponseHeaderTimeout: 60 * time.Second,
 				ExpectContinueTimeout: 0,
-				MaxIdleConnsPerHost:   20,
+				MaxIdleConnsPerHost:   3,
 			},
 		},
 	}
@@ -82,7 +82,7 @@ func CreateHTTPClient() *http.Client {
 	// Attach a basic transport with our chained custom transport.
 	t := &APICacheTransport{
 		&http.Transport{
-			MaxIdleConns: 200,
+			MaxIdleConns: 100,
 			DialContext: (&net.Dialer{
 				Timeout:   10 * time.Second,
 				KeepAlive: 5 * 60 * time.Second,
@@ -92,7 +92,7 @@ func CreateHTTPClient() *http.Client {
 			TLSHandshakeTimeout:   10 * time.Second,
 			ResponseHeaderTimeout: 15 * time.Second,
 			ExpectContinueTimeout: 0,
-			MaxIdleConnsPerHost:   20,
+			MaxIdleConnsPerHost:   3,
 		},
 	}
 

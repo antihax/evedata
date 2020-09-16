@@ -88,14 +88,14 @@ func connectRedisPool(addresses []string, password string, masterName string, se
 func newRedisPool(address string, password string) *redis.Pool {
 	// Build the redis pool
 	return &redis.Pool{
-		MaxIdle:     20,
-		MaxActive:   1500,
+		MaxIdle:     5,
+		MaxActive:   20,
 		Wait:        false,
 		IdleTimeout: 20 * time.Second,
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.Dial("tcp", address,
-				redis.DialReadTimeout(4*time.Second),
-				redis.DialWriteTimeout(2*time.Second))
+				redis.DialReadTimeout(60*time.Second),
+				redis.DialWriteTimeout(60*time.Second))
 			if err != nil {
 				return nil, err
 			}
