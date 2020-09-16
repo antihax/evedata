@@ -41,12 +41,20 @@ func NewRedisQueue(r *redis.Pool, key string) *RedisQueue {
 	conn := r.Get()
 	defer conn.Close()
 
-	err := rq.queueScript.Load(conn)
+	exists, err := redis.Ints(conn.Do("SCRIPT", "EXISTS", rq.queueScript.Hash()))
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	log.Printf("Loaded script %s\n", rq.queueScript.Hash())
+	if exists[0] != 1 {
+		log.Printf("Load script %s\n", rq.queueScript.Hash())
+		err := rq.queueScript.Load(conn)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+
+	log.Printf("Script %s Ready\n", rq.queueScript.Hash())
 
 	return rq
 }
