@@ -15,7 +15,6 @@ import (
 func init() {
 	registerTrigger("wars", warsTrigger, time.NewTicker(time.Second*3600))
 	registerTrigger("warsFromDB", warsUpdate, time.NewTicker(time.Second*300))
-	registerTrigger("missingKillmails", missingKillmails, time.NewTicker(time.Hour*12))
 }
 
 func warsTrigger(s *Artifice) error {
@@ -154,40 +153,4 @@ func warsUpdate(s *Artifice) error {
 	}
 
 	return s.QueueWork(work, redisqueue.Priority_Normal)
-}
-
-func missingKillmails(s *Artifice) error {
-	wars, err := s.db.Query(`
-		SELECT K.id, hash
-		FROM evedata.killmails K
-		LEFT OUTER JOIN evedata.killmailAttributes A ON A.id = K.id
-		WHERE K.killtime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 2 MONTH) AND A.id IS NULL`)
-	if err != nil {
-		return err
-	}
-	defer wars.Close()
-
-	// Loop the wars
-	for wars.Next() {
-		var (
-			id   int32
-			hash string
-		)
-
-		err = wars.Scan(&id, &hash)
-		if err != nil {
-			return err
-		}
-		err = s.QueueWork(
-			[]redisqueue.Work{
-				redisqueue.Work{
-					Operation: "killmail", Parameter: []interface{}{hash, id}},
-			},
-			redisqueue.Priority_Normal)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

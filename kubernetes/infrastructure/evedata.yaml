@@ -32,10 +32,7 @@ spec:
       hosts:
       - evedata.org
       - www.evedata.org
-      - mail.evedata.org
       - grafana.evedata.org
-      - log.evedata.org
-      - scope.evedata.org
   nodeSelector:
     loadbalancer: voyager
   rules:
@@ -51,33 +48,9 @@ spec:
       - backend:
           serviceName: vanguard.evedata
           servicePort: '3000'
-  - host: scope.evedata.org
-    http:
-      paths:
-      - backend:
-          serviceName: scope-auth.kube-system
-          servicePort: '80'
-  - host: log.evedata.org
-    http:
-      paths:
-      - backend:
-          serviceName: kibana-auth.kube-system
-          servicePort: '80'
   - host: grafana.evedata.org
     http:
       paths:
       - backend:
           serviceName: grafana.monitoring
           servicePort: '3000'
-  - host: mail.evedata.org
-    tcp:
-      port: 993
-      backend:
-        serviceName: mailserver.evedata
-        servicePort: '993'
-  - host: mail.evedata.org
-    tcp:
-      port: 465
-      backend:
-        serviceName: mailserver.evedata
-        servicePort: '465'

@@ -28,8 +28,8 @@ func TestMain(m *testing.M) {
 			panic(err)
 		}
 	}()
+	time.Sleep(time.Second * 1)
 	retCode := m.Run()
-	time.Sleep(time.Second * 5)
 	tokenserver.Close()
 
 	redis.Close()
@@ -55,4 +55,5 @@ func TestTokens(t *testing.T) {
 	token := oauth2.Token{}
 	err = r.Invoke(context.Background(), "/TokenStore/GetToken", &tokenstore.TokenRequest{CharacterID: 555, TokenCharacterID: 555}, &token)
 	assert.Nil(t, err)
+
 }

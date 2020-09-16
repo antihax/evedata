@@ -64,7 +64,7 @@ func GetItemAttributes(id int64) (*[]ItemAttributes, error) {
 		SELECT 
 			A.attributeID, 
 			IFNULL(valueFloat, valueInt) AS value,
-		    IFNULL(displayName, attributeName) AS attributeName,
+		    IFNULL(displayName, IFNULL(attributeName, "UNKNOWN")) AS attributeName,
 		    description,
 		    T.categoryID,
 		    categoryName,

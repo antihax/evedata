@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -60,54 +59,6 @@ func GetKillmailsForEntity(id int64, entityType string) ([]KillmailList, error) 
 	}
 
 	return kill, nil
-}
-
-// KillmailDetails is all the details of a killmail
-type KillmailDetails struct {
-	SolarSystemID   int32           `db:"solarSystemID" json:"solarSystemID"`
-	SolarSystemName string          `db:"solarSystemName" json:"solarSystemName"`
-	Security        float32         `db:"security" json:"security"`
-	TypeID          int32           `db:"typeID" json:"typeID"`
-	TypeName        string          `db:"typeName" json:"typeName"`
-	CharacterID     sql.NullInt64   `db:"characterID" json:"characterID"`
-	CharacterName   sql.NullString  `db:"characterName" json:"characterName"`
-	CorporationID   sql.NullInt64   `db:"corporationID" json:"corporationID"`
-	CorporationName sql.NullString  `db:"corporationName" json:"corporationName"`
-	AllianceID      sql.NullInt64   `db:"allianceID" json:"allianceID"`
-	AllianceName    sql.NullString  `db:"allianceName" json:"allianceName"`
-	FactionID       sql.NullInt64   `db:"factionID" json:"factionID"`
-	FactionName     sql.NullString  `db:"factionName" json:"factionName"`
-	FittedValue     sql.NullFloat64 `db:"fittedValue" json:"fittedValue"`
-	TotalValue      sql.NullFloat64 `db:"totalValue" json:"totalValue"`
-	Hash            string          `db:"hash" json:"hash"`
-}
-
-// GetKillmailDetails fetches all the details of a killmail
-func GetKillmailDetails(id int64) (*KillmailDetails, error) {
-	kill := KillmailDetails{}
-	if err := database.QueryRowx(
-		`	SELECT 
-				Sy.solarSystemID, Sy.solarSystemName,
-				ROUND(Sy.security,1) AS security,
-				S.typeID, S.typeName, 
-				C.characterID, C.name AS characterName,
-				Co.corporationID, Co.name AS corporationName,
-				A.allianceID, A.name AS allianceName,
-				K.factionID, itemName AS factionName,
-				K.hash, AT.fittedValue, AT.totalValue
-				FROM evedata.killmails K
-				LEFT OUTER JOIN evedata.characters C ON K.victimCharacterID = C.characterID
-				LEFT OUTER JOIN evedata.corporations Co ON K.victimCorporationID = Co.corporationID
-				LEFT OUTER JOIN evedata.alliances A ON K.victimAllianceID = A.allianceID
-				LEFT OUTER JOIN eve.eveNames N ON K.factionID = N.itemID
-				LEFT OUTER JOIN evedata.killmailAttributes AT ON AT.id = K.id
-				INNER JOIN eve.invTypes S ON S.typeID = K.shipType
-				INNER JOIN eve.mapSolarSystems Sy ON Sy.solarSystemID = K.solarSystemID
-				WHERE K.id = ? LIMIT 1`, id).StructScan(&kill); err != nil {
-
-		return nil, err
-	}
-	return &kill, nil
 }
 
 // [TODO] Break out the CSV into an array
