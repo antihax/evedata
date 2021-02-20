@@ -27,39 +27,6 @@ func ConnectRedisProdPool() *redis.Pool {
 	return pool
 }
 
-// Disk Store
-func ConnectLedisProdPool() *redis.Pool {
-	pool := connectRedisPool(
-		[]string{"redis.storage.svc.cluster.local:6379"},
-		os.Getenv("REDIS_PASSWORD"),
-		"evedata",
-		false,
-	)
-	test := pool.Get()
-	_, err := test.Do("PING")
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	return pool
-}
-
-func ConnectLedisTestPool() *redis.Pool {
-	redis := connectRedisPool(
-		[]string{"127.0.0.1:6379"},
-		"",
-		"",
-		false,
-	)
-	c := redis.Get()
-	defer c.Close()
-
-	_, err := c.Do("FLUSHALL")
-	if err != nil {
-		panic(err)
-	}
-	return redis
-}
 func ConnectRedisTestPool() *redis.Pool {
 	redis := connectRedisPool(
 		[]string{"127.0.0.1:6379"},

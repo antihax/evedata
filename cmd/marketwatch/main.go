@@ -26,7 +26,7 @@ func main() {
 		os.Getenv("ESI_CLIENTID_TOKENSTORE"),
 		os.Getenv("ESI_SECRET_TOKENSTORE"),
 		db,
-		redigohelper.ConnectLedisProdPool(),
+		redigohelper.ConnectRedisProdPool(),
 	)
 	go mw.Run()
 

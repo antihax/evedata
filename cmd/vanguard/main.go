@@ -22,11 +22,10 @@ func main() {
 	log.SetPrefix("evedata vanguard: ")
 
 	r := redigohelper.ConnectRedisProdPool()
-	l := redigohelper.ConnectLedisProdPool()
 	db := sqlhelper.NewDatabase()
 
 	// Make a new service and send it into the background.
-	vanguard := vanguard.NewVanguard(r, l, db)
+	vanguard := vanguard.NewVanguard(r, db)
 	log.Printf("Setup Router\n")
 	rtr := vanguard.NewRouter()
 	defer vanguard.Close()
@@ -43,7 +42,7 @@ func main() {
 		} else if os.Args[1] == "flushcache" {
 			// Erase http cache in redis
 			log.Printf("Flushing Cache\n")
-			conn := l.Get()
+			conn := r.Get()
 			defer conn.Close()
 			keys, err := redis.Strings(conn.Do("KEYS", "*rediscache*"))
 			if err != nil {

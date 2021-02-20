@@ -23,9 +23,9 @@ type Squirrel struct {
 }
 
 // NewSquirrel Service.
-func NewSquirrel(redis *redis.Pool, ledis *redis.Pool, db *sqlx.DB) *Squirrel {
+func NewSquirrel(redis *redis.Pool, db *sqlx.DB) *Squirrel {
 	// Get a caching http client
-	cache := apicache.CreateHTTPClientCache(ledis)
+	cache := apicache.CreateHTTPClientCache(redis)
 
 	// Limit concurrency of outbound calls
 	cache.Transport = LimiterTransport{next: cache.Transport}

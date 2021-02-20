@@ -22,7 +22,7 @@ type ZKillboard struct {
 }
 
 // NewZKillboard Service.
-func NewZKillboard(redis *redis.Pool, ledis *redis.Pool) *ZKillboard {
+func NewZKillboard(redis *redis.Pool) *ZKillboard {
 	// Setup a new service
 	s := &ZKillboard{
 		stop: make(chan bool),
@@ -31,7 +31,7 @@ func NewZKillboard(redis *redis.Pool, ledis *redis.Pool) *ZKillboard {
 			redis,
 			"evedata-hammer",
 		),
-		http:  apicache.CreateHTTPClientCache(ledis),
+		http:  apicache.CreateHTTPClientCache(redis),
 		redis: redis,
 	}
 	return s

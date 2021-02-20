@@ -23,7 +23,6 @@ func main() {
 	// Make a new service and send it into the background.
 	artifice := artifice.NewArtifice(
 		redigohelper.ConnectRedisProdPool(),
-		redigohelper.ConnectLedisProdPool(),
 		db,
 		os.Getenv("ESI_CLIENTID_TOKENSTORE"),
 		os.Getenv("ESI_SECRET_TOKENSTORE"),

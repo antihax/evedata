@@ -46,9 +46,9 @@ type Hammer struct {
 }
 
 // NewHammer Service.
-func NewHammer(redis *redis.Pool, ledis *redis.Pool, db *sqlx.DB, nsq *nsq.Producer, refresh, tokenClientID, tokenSecret string) *Hammer {
+func NewHammer(redis *redis.Pool, db *sqlx.DB, nsq *nsq.Producer, refresh, tokenClientID, tokenSecret string) *Hammer {
 	// Get a caching http client
-	cache := apicache.CreateHTTPClientCache(ledis)
+	cache := apicache.CreateHTTPClientCache(redis)
 
 	// Create our ESI API Client
 	esi := goesi.NewAPIClient(cache, "EVEData-API-Hammer")

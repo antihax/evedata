@@ -29,7 +29,6 @@ func main() {
 	// Make a new service and send it into the background.
 	hammer := hammer.NewHammer(
 		redigohelper.ConnectRedisProdPool(),
-		redigohelper.ConnectLedisProdPool(),
 		db,
 		producer,
 		os.Getenv("ESI_REFRESHKEY"),

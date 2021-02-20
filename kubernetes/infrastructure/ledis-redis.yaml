@@ -6,59 +6,6 @@ metadata:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: ledis
-  namespace: storage
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        name: ledis
-        app: ledis
-    spec:
-      nodeSelector:
-        worker: worker
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - ledis
-              - key: database
-                operator: In
-                values:
-                - mysql
-            topologyKey: "kubernetes.io/hostname"
-      containers:
-      - name: ledis
-        image: antihax/ardb
-        imagePullPolicy: Always
-        ports:
-          - containerPort: 6379
-            name: http
-            protocol: TCP
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: ledis
-  namespace: storage
-  labels:
-    name: ledis
-spec:
-  ports:
-    - port: 6379
-      name: ledis
-      targetPort: 6379
-  selector:
-    name: ledis
----
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
   name: redis
   namespace: storage
 spec:

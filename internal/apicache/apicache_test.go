@@ -20,7 +20,7 @@ func TestAPICache(t *testing.T) {
 	defer server.Close()
 
 	// Test the client
-	client := CreateHTTPClientCache(redigohelper.ConnectLedisTestPool())
+	client := CreateHTTPClientCache(redigohelper.ConnectRedisTestPool())
 	res, err := client.Get("http://" + server.Listener.Addr().String() + "/?size=30")
 	assert.Nil(t, err)
 	assert.Equal(t, 200, res.StatusCode)

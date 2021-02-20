@@ -46,9 +46,9 @@ type MarketWatch struct {
 }
 
 // NewMarketWatch creates a new MarketWatch microservice
-func NewMarketWatch(refresh, tokenClientID, tokenSecret string, db *sqlx.DB, ledis *redis.Pool) *MarketWatch {
+func NewMarketWatch(refresh, tokenClientID, tokenSecret string, db *sqlx.DB, redis *redis.Pool) *MarketWatch {
 	// Get a caching http client
-	cache := apicache.CreateLimitedHTTPClientCache(ledis)
+	cache := apicache.CreateLimitedHTTPClientCache(redis)
 
 	// Create our ESI API Client
 	esiClient := goesi.NewAPIClient(cache, "EVEData-API-MarketWatch")

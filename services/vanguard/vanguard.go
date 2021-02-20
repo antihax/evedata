@@ -42,7 +42,7 @@ type Vanguard struct {
 
 var globalVanguard *Vanguard
 
-func NewVanguard(redis *redis.Pool, ledis *redis.Pool, db *sqlx.DB) *Vanguard {
+func NewVanguard(redis *redis.Pool, db *sqlx.DB) *Vanguard {
 	// Don't allow more than one to be created
 	if globalVanguard != nil {
 		return globalVanguard
@@ -53,7 +53,7 @@ func NewVanguard(redis *redis.Pool, ledis *redis.Pool, db *sqlx.DB) *Vanguard {
 	gob.Register(goesi.VerifyResponse{})
 
 	// Get a caching http client
-	cache := apicache.CreateHTTPClientCache(ledis)
+	cache := apicache.CreateHTTPClientCache(redis)
 
 	// Create our ESI API Client
 	esi := goesi.NewAPIClient(cache, "EVEData-API-Vanguard")

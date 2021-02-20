@@ -22,7 +22,6 @@ func main() {
 	// Make a new service and send it into the background.
 	zkill := zkillboard.NewZKillboard(
 		redigohelper.ConnectRedisProdPool(),
-		redigohelper.ConnectLedisProdPool(),
 	)
 	go zkill.Run()
 

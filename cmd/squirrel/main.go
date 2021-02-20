@@ -26,7 +26,6 @@ func main() {
 	// Make a new service and send it into the background.
 	squirrel := squirrel.NewSquirrel(
 		redigohelper.ConnectRedisProdPool(),
-		redigohelper.ConnectLedisProdPool(),
 		db,
 	)
 
