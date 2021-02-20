@@ -6,6 +6,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/antihax/goesi/esi"
 	"github.com/antihax/goesi/optional"
@@ -95,24 +96,49 @@ func characterContactSyncConsumer(s *Hammer, parameter interface{}) {
 	// Loop through all the destinations
 	for _, token := range tokens {
 		// authentication token context for destination char
-		contacts := []esi.GetCharactersCharacterIdContacts200Ok{}
 		auth := context.WithValue(context.Background(), goesi.ContextOAuth2, *token.token)
-		page := int32(1)
-		for {
-			c, _, err := s.esi.ESI.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid),
-				&esi.GetCharactersCharacterIdContactsOpts{
-					Page: optional.NewInt32(page),
-				})
-			if err != nil {
-				s.tokenStore.CheckSSOError(characterID, token.cid, err)
-				log.Println(err)
-				return
+		contacts, r, err := s.esi.ESI.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid), nil)
+		if err != nil {
+			s.tokenStore.CheckSSOError(characterID, token.cid, err)
+			log.Println(err)
+			return
+		}
+
+		pagesInt, err := strconv.Atoi(r.Header.Get("x-pages"))
+		if err == nil {
+
+			pages := int32(pagesInt)
+
+			// Make a channel for reading contacts from the other pages
+			conch := make(chan []esi.GetCharactersCharacterIdContacts200Ok, 100)
+
+			// Concurrently pull the remaining contact pages
+			wg := sync.WaitGroup{}
+			for pages != 1 {
+				wg.Add(1)
+				go func(page int32) {
+					defer wg.Done()
+
+					contacts, _, err := s.esi.ESI.ContactsApi.GetCharactersCharacterIdContacts(auth, (int32)(token.cid),
+						&esi.GetCharactersCharacterIdContactsOpts{Page: optional.NewInt32(page)})
+					if err != nil {
+						s.tokenStore.CheckSSOError(characterID, token.cid, err)
+						log.Println(err)
+						return
+					}
+					conch <- contacts
+				}(pages)
+				pages--
 			}
-			if len(c) == 0 {
-				break
+
+			// Wait for everything to complete and close the channel.
+			wg.Wait()
+			close(conch)
+
+			// Combine all the results
+			for c := range conch {
+				contacts = append(contacts, c...)
 			}
-			contacts = append(contacts, c...)
-			page++
 		}
 
 		var erase []int32

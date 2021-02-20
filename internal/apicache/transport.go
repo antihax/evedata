@@ -45,6 +45,8 @@ func (t *APICacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 			if res.StatusCode >= 400 {
 				metricAPIErrors.Inc()
 				log.Printf("St: %d Res: %s Tok: %s - %s\n", res.StatusCode, resetS, tokensS, req.URL)
+				//dump, _ := httputil.DumpResponse(res, true)
+				//fmt.Printf("%s", dump)
 			}
 
 			// If we cannot decode this is likely from another source.

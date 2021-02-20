@@ -3,8 +3,6 @@ package models
 import (
 	"fmt"
 	"time"
-
-	"github.com/guregu/null"
 )
 
 func GetKnownKillmails() ([]int64, error) {
@@ -207,74 +205,6 @@ func GetKnownShipTypes(id int64, entityType string) ([]KnownShipTypes, error) {
 	) K
 	INNER JOIN invTypes T ON K.shipType = T.typeID
 	GROUP BY shipType`); err != nil {
-		return nil, err
-	}
-	return v, nil
-}
-
-type LossesInHighsec struct {
-	Number     int64       `db:"number" json:"number"`
-	ID         int64       `db:"id" json:"id"`
-	Type       null.String `db:"type" json:"type"`
-	Name       null.String `db:"name" json:"name"`
-	Members    int64       `db:"members" json:"members"`
-	Efficiency float64     `db:"efficiency" json:"efficiency"`
-	Kills      int64       `db:"kills" json:"kills"`
-	Losses     int64       `db:"losses" json:"losses"`
-}
-
-// FIXME: i am slow :(
-func GetLossesInHighsec() ([]LossesInHighsec, error) {
-	v := []LossesInHighsec{}
-
-	if err := database.Select(&v, `
-		SELECT 	
-			COUNT(DISTINCT K.id) AS number, 
-			A.name AS name,
-			A.allianceID AS id,
-			memberCount AS members,
-			type,
-			IFNULL(S.efficiency,1) AS efficiency,
-			IFNULL(S.kills,0) AS kills,
-			IFNULL(S.losses,0)  AS losses
-		FROM
-		(SELECT K.id AS id, victimAllianceID AS entityID, "alliance" AS type
-			FROM evedata.killmails K
-			INNER JOIN eve.mapSolarSystems S ON S.solarSystemID = K.solarSystemID
-			WHERE 
-				K.killTime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 60 DAY) 
-				AND round(S.security,1) >= 0.5 AND K.victimAllianceID > 0
-		) K
-		INNER JOIN evedata.alliances A ON K.entityID = A.allianceID
-		LEFT OUTER JOIN evedata.entityKillStats S ON S.id = K.entityID 
-		GROUP BY A.allianceID 
-		HAVING members > 25 AND members < 500 AND number > 15
-		UNION ALL
-
-			SELECT 	
-			COUNT(DISTINCT K.id) AS number, 
-			A.name AS name,
-			A.corporationID AS id,
-			memberCount AS members,
-			type,
-			IFNULL(S.efficiency,1) AS efficiency,
-			IFNULL(S.kills,0) AS kills,
-			IFNULL(S.losses,0)  AS losses
-		FROM
-		(SELECT K.id AS id, victimCorporationID AS entityID, "corporation" AS type 
-			FROM evedata.killmails K
-			INNER JOIN eve.mapSolarSystems S ON S.solarSystemID = K.solarSystemID
-			WHERE 
-				K.killTime > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 60 DAY) 
-				AND round(S.security,1) >= 0.5
-				AND victimAllianceID = 0
-		) K
-		INNER JOIN evedata.corporations A ON K.entityID = A.corporationID
-		LEFT OUTER JOIN evedata.entityKillStats S ON S.id = K.entityID 
-		WHERE corporationID > 2000000 
-		GROUP BY A.corporationID 
-		HAVING members > 25 AND members < 4000 AND number > 15
-`); err != nil {
 		return nil, err
 	}
 	return v, nil

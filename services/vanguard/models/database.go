@@ -115,13 +115,13 @@ func DumpDatabase(file string, db string) (err error) {
 
 	f.WriteString(`
 		DELIMITER $$
-		CREATE FUNCTION constellationIDBySolarSystem(system INT UNSIGNED) RETURNS int(10) unsigned
+		CREATE FUNCTION constellationIDBySolarSystem(systemID INT UNSIGNED) RETURNS int(10) unsigned
 			DETERMINISTIC
 		BEGIN
 			DECLARE constellation int(10) unsigned;
 			SELECT constellationID INTO constellation
 				FROM eve.mapSolarSystems
-				WHERE solarSystemID = system
+				WHERE solarSystemID = systemID
 				LIMIT 1;
 			
 		RETURN constellation;
@@ -147,13 +147,13 @@ func DumpDatabase(file string, db string) (err error) {
 		`)
 
 	f.WriteString(`DELIMITER $$
-		CREATE FUNCTION regionIDBySolarSystem(system INT UNSIGNED) RETURNS int(10) unsigned
+		CREATE FUNCTION regionIDBySolarSystem(systemID INT UNSIGNED) RETURNS int(10) unsigned
 			DETERMINISTIC
 		BEGIN
 			DECLARE region int(10) unsigned;
 			SELECT regionID INTO region
 				FROM eve.mapSolarSystems
-				WHERE solarSystemID = system
+				WHERE solarSystemID = systemID
 				LIMIT 1;
 			
 		RETURN region;

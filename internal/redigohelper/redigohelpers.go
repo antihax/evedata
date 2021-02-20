@@ -88,8 +88,8 @@ func connectRedisPool(addresses []string, password string, masterName string, se
 func newRedisPool(address string, password string) *redis.Pool {
 	// Build the redis pool
 	return &redis.Pool{
-		MaxIdle:     5,
-		MaxActive:   20,
+		MaxIdle:     20,
+		MaxActive:   120,
 		Wait:        false,
 		IdleTimeout: 20 * time.Second,
 		Dial: func() (redis.Conn, error) {
@@ -126,8 +126,8 @@ func newSentinelPool(addresses []string, masterName string, password string) *re
 	}
 
 	return &redis.Pool{
-		MaxIdle:     5,
-		MaxActive:   20,
+		MaxIdle:     20,
+		MaxActive:   120,
 		Wait:        false,
 		IdleTimeout: 20 * time.Second,
 		Dial: func() (redis.Conn, error) {

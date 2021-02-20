@@ -13,7 +13,6 @@ import (
 
 	"github.com/antihax/evedata/internal/botservice"
 	"github.com/antihax/evedata/internal/botservice/discordservice"
-	"github.com/antihax/evedata/internal/botservice/tsservice"
 )
 
 type ServiceOptions struct {
@@ -154,12 +153,6 @@ func (s *Conservator) loadServices() error {
 		switch service.Type {
 		case "discord":
 			n = discordservice.NewDiscordService(s.discord, service.Address)
-		case "ts3":
-			auth := strings.Split(service.Authentication, ":")
-			n, err = tsservice.NewTSService(service.Address, auth[0], auth[1])
-			if err != nil {
-				log.Println(err)
-			}
 		default:
 			return errors.New("unknown service type")
 		}

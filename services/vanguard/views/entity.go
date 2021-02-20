@@ -20,14 +20,12 @@ func init() {
 	vanguard.AddRoute("GET", "/corporation", corporationPage)
 	vanguard.AddRoute("GET", "/J/warsForEntity", warsForEntityAPI)
 	vanguard.AddRoute("GET", "/J/shipsForEntity", shipsForEntityAPI)
-	vanguard.AddRoute("GET", "/J/assetsForEntity", assetsForEntityAPI)
 	vanguard.AddRoute("GET", "/J/alliesForEntity", alliesForEntityAPI)
 	vanguard.AddRoute("GET", "/J/heatmapForEntity", heatmapForEntityAPI)
 	vanguard.AddRoute("GET", "/J/activityForEntity", activityForEntityAPI)
 	vanguard.AddRoute("GET", "/J/killmailsForEntity", killmailsForEntityAPI)
 	vanguard.AddRoute("GET", "/J/corporationHistory", corporationHistoryAPI)
 	vanguard.AddRoute("GET", "/J/corporationsForAlliance", corporationsForAllianceAPI)
-	vanguard.AddRoute("GET", "/J/knownAssociatesForEntity", knownAssociatesForEntityAPI)
 	vanguard.AddRoute("GET", "/J/allianceHistoryForEntity", allianceHistoryForEntityAPI)
 	vanguard.AddRoute("GET", "/J/corporationHistoryForEntity", corporationHistoryForEntityAPI)
 	vanguard.AddRoute("GET", "/J/allianceJoinHistoryForEntity", allianceJoinHistoryForEntityAPI)
@@ -50,37 +48,6 @@ func shipsForEntityAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	v, err := models.GetKnownShipTypes(id, entityType)
-	if err != nil {
-		httpErrCode(w, err, http.StatusNotFound)
-		return
-	}
-
-	renderJSON(w, v, time.Hour*12)
-}
-
-func assetsForEntityAPI(w http.ResponseWriter, r *http.Request) {
-	idStr := r.FormValue("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
-
-	entityType := r.FormValue("entityType")
-	if !validEntity[entityType] {
-		httpErr(w, errors.New("entityType must be corporation, character, or alliance"))
-		return
-	}
-	var v []models.AssetsInSpace
-	if entityType == "alliance" {
-		v, err = models.GetAllianceAssetsInSpace(id)
-	} else if entityType == "corporation" {
-		v, err = models.GetCorporationAssetsInSpace(id)
-	} else {
-		httpErr(w, errors.New("entityType must be corporation or alliance"))
-		return
-	}
-
 	if err != nil {
 		httpErrCode(w, err, http.StatusNotFound)
 		return
@@ -185,40 +152,6 @@ func corporationHistoryAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	v, err := models.GetCorporationHistory(int32(id))
-	if err != nil {
-		httpErrCode(w, err, http.StatusNotFound)
-		return
-	}
-
-	renderJSON(w, v, time.Hour*12)
-}
-
-func knownAssociatesForEntityAPI(w http.ResponseWriter, r *http.Request) {
-	idStr := r.FormValue("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
-
-	entityType := r.FormValue("entityType")
-	if !validEntity[entityType] {
-		httpErr(w, errors.New("entityType must be corporation, character, or alliance"))
-		return
-	}
-
-	var v []models.KnownAlts
-	if entityType == "alliance" {
-		v, err = models.GetAllianceKnownAssociates(id)
-	} else if entityType == "corporation" {
-		v, err = models.GetCorporationKnownAssociates(id)
-	} else if entityType == "character" {
-		v, err = models.GetCharacterKnownAssociates(id)
-	} else {
-		httpErr(w, errors.New("entityType must be corporation or alliance"))
-		return
-	}
-
 	if err != nil {
 		httpErrCode(w, err, http.StatusNotFound)
 		return

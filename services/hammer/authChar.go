@@ -3,6 +3,8 @@ package hammer
 import (
 	"context"
 	"log"
+	"strconv"
+	"sync"
 
 	"github.com/antihax/goesi/esi"
 	"github.com/antihax/goesi/optional"
@@ -60,25 +62,44 @@ func allianceContacts(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	var page int32 = 1
-	contacts := []esi.GetAlliancesAllianceIdContacts200Ok{}
+	contacts, r, err := s.esi.ESI.ContactsApi.GetAlliancesAllianceIdContacts(ctx, allianceID, nil)
+	if err != nil {
+		return
+	}
 
-	for {
-		c, _, err := s.esi.ESI.ContactsApi.GetAlliancesAllianceIdContacts(ctx, allianceID, &esi.GetAlliancesAllianceIdContactsOpts{Page: optional.NewInt32(page)})
-		if err != nil {
-			log.Println(err)
-			return
-		} else if len(c) == 0 { // end of the pages
-			break
+	pagesInt, err := strconv.Atoi(r.Header.Get("x-pages"))
+	if err == nil {
+
+		pages := int32(pagesInt)
+
+		// Make a channel for reading contacts from the other pages
+		conch := make(chan []esi.GetAlliancesAllianceIdContacts200Ok, 100)
+
+		// Concurrently pull the remaining contact pages
+		wg := sync.WaitGroup{}
+		for pages != 1 {
+			wg.Add(1)
+			go func(page int32) {
+				defer wg.Done()
+
+				contacts, _, err := s.esi.ESI.ContactsApi.GetAlliancesAllianceIdContacts(ctx, allianceID,
+					&esi.GetAlliancesAllianceIdContactsOpts{Page: optional.NewInt32(page)})
+				if err != nil {
+					return
+				}
+				conch <- contacts
+			}(pages)
+			pages--
 		}
 
-		contacts = append(contacts, c...)
+		// Wait for everything to complete and close the channel.
+		wg.Wait()
+		close(conch)
 
-		page++
-	}
-	// early out if there are no orders
-	if len(contacts) == 0 {
-		return
+		// Combine all the results
+		for c := range conch {
+			contacts = append(contacts, c...)
+		}
 	}
 
 	// Send out the result
@@ -105,30 +126,45 @@ func corporationContacts(s *Hammer, parameter interface{}) {
 		return
 	}
 
-	var page int32 = 1
-	contacts := []esi.GetCorporationsCorporationIdContacts200Ok{}
-
-	for {
-		c, _, err := s.esi.ESI.ContactsApi.GetCorporationsCorporationIdContacts(ctx, corporationID,
-			&esi.GetCorporationsCorporationIdContactsOpts{
-				Page: optional.NewInt32(page),
-			})
-		if err != nil {
-			log.Println(err)
-			return
-		} else if len(c) == 0 { // end of the pages
-			break
-		}
-
-		contacts = append(contacts, c...)
-
-		page++
-	}
-	// early out if there are no orders
-	if len(contacts) == 0 {
+	contacts, r, err := s.esi.ESI.ContactsApi.GetCorporationsCorporationIdContacts(ctx, corporationID, nil)
+	if err != nil {
 		return
 	}
 
+	pagesInt, err := strconv.Atoi(r.Header.Get("x-pages"))
+	if err == nil {
+
+		pages := int32(pagesInt)
+
+		// Make a channel for reading contacts from the other pages
+		conch := make(chan []esi.GetCorporationsCorporationIdContacts200Ok, 100)
+
+		// Concurrently pull the remaining contact pages
+		wg := sync.WaitGroup{}
+		for pages != 1 {
+			wg.Add(1)
+			go func(page int32) {
+				defer wg.Done()
+
+				contacts, _, err := s.esi.ESI.ContactsApi.GetCorporationsCorporationIdContacts(ctx, corporationID,
+					&esi.GetCorporationsCorporationIdContactsOpts{Page: optional.NewInt32(page)})
+				if err != nil {
+					return
+				}
+				conch <- contacts
+			}(pages)
+			pages--
+		}
+
+		// Wait for everything to complete and close the channel.
+		wg.Wait()
+		close(conch)
+
+		// Combine all the results
+		for c := range conch {
+			contacts = append(contacts, c...)
+		}
+	}
 	// Send out the result
 	err = s.QueueResult(&datapackages.CorporationContacts{
 		CorporationID: corporationID,

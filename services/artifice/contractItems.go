@@ -1,13 +1,11 @@
 package artifice
 
 import (
-	"time"
-
 	"github.com/antihax/evedata/internal/redisqueue"
 )
 
 func init() {
-	registerTrigger("mutatedItem", resolveItems, time.NewTicker(time.Second*1200))
+	//registerTrigger("mutatedItem", resolveItems, time.NewTicker(time.Second*1200))
 }
 
 func resolveItems(s *Artifice) error {

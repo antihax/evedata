@@ -35,7 +35,7 @@ type SystemCelestials struct {
 	OrbitIndex     int64   `db:"orbitIndex" json:"orbitIndex,omitempty"`
 }
 
-func GetSystemCelestials(system int32) ([]SystemCelestials, error) {
+func GetSystemCelestials(systemID int32) ([]SystemCelestials, error) {
 	s := []SystemCelestials{}
 	if err := database.Select(&s, `
 	SELECT coalesce(IF(sofHullName != "", concat(sofHullName, ":",sofFactionName, ":", sofRaceName), NULL),  graphicFile, "") AS DNA, 
@@ -59,7 +59,7 @@ func GetSystemCelestials(system int32) ([]SystemCelestials, error) {
 		LEFT OUTER JOIN invTypes T ON T.typeID = D.typeID
 		LEFT OUTER JOIN eveGraphics GR ON T.graphicID = GR.graphicID
 	WHERE D.solarSystemID = ? 
-	`, system); err != nil {
+	`, systemID); err != nil {
 		return nil, err
 	}
 	return s, nil
