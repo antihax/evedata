@@ -121,3 +121,4 @@ data:
     sort_buffer_size        = 20M
     read_rnd_buffer_size    = 20M
     join_buffer_size        = 512K
+    sql_mode                = NO_ENGINE_SUBSTITUTION
