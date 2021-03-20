@@ -11,9 +11,9 @@ import (
 )
 
 func init() {
-	//registerTrigger("characterTransactions", characterTransactions, time.NewTicker(time.Second*3600))
-	//registerTrigger("characterAssets", characterAssets, time.NewTicker(time.Second*3600))
-	//registerTrigger("characterOrders", characterOrders, time.NewTicker(time.Second*1200))
+	registerTrigger("characterTransactions", characterTransactions, time.NewTicker(time.Second*3600))
+	registerTrigger("characterAssets", characterAssets, time.NewTicker(time.Second*3600))
+	registerTrigger("characterOrders", characterOrders, time.NewTicker(time.Second*1200))
 	registerTrigger("characterStructures", characterStructures, time.NewTicker(time.Second*3600))
 	registerTrigger("characterStructureMarket", characterStructureMarket, time.NewTicker(time.Second*300))
 

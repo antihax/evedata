@@ -10,8 +10,8 @@ import (
 func init() {
 	registerTrigger("npcCorporations", npcCorporationsTrigger, time.NewTicker(time.Second*86400))
 	registerTrigger("alliance", allianceTrigger, time.NewTicker(time.Second*3600))
-	registerTrigger("characterUpdate", characterUpdate, time.NewTicker(time.Second*60))
-	registerTrigger("corporationUpdate", corporationUpdate, time.NewTicker(time.Second*60))
+	registerTrigger("characterUpdate", characterUpdate, time.NewTicker(time.Second*120))
+	registerTrigger("corporationUpdate", corporationUpdate, time.NewTicker(time.Second*120))
 }
 
 func npcCorporationsTrigger(s *Artifice) error {

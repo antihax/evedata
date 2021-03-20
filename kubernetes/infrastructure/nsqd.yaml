@@ -3,13 +3,16 @@ kind: Namespace
 metadata:
   name: nsq
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nsqd
   namespace: nsq
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      name: nsqd    
   template:
     metadata:
       labels:
@@ -68,13 +71,16 @@ spec:
   selector:
     name: nsqd
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nsqadmin
   namespace: nsq
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      name: nsqadmin    
   template:
     metadata:
       labels:
@@ -121,13 +127,16 @@ spec:
   selector:
     name: nsqadmin
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nsqlookupd1
   namespace: nsq
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      name: nsqlookupd1    
   template:
     metadata:
       labels:
@@ -178,13 +187,16 @@ spec:
   selector:
     name: nsqlookupd1
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nsqlookupd2
   namespace: nsq
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      name: nsqlookupd2    
   template:
     metadata:
       labels:

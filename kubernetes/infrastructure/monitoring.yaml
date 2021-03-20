@@ -41,7 +41,7 @@ subjects:
   name: prometheus
   namespace: monitoring
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -50,6 +50,9 @@ metadata:
   namespace: monitoring
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      name: prometheus  
   template:
     metadata:
       labels:
@@ -382,7 +385,7 @@ data:
         action: replace
         target_label: kubernetes_pod_name
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana-core
@@ -392,6 +395,9 @@ metadata:
     component: core
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      name: grafana    
   template:
     metadata:
       labels:
