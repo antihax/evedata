@@ -3,6 +3,7 @@ package hammer
 import (
 	"context"
 	"log"
+	"strconv"
 
 	"github.com/antihax/evedata/internal/datapackages"
 	"github.com/antihax/goesi/esi"
@@ -120,7 +121,7 @@ func characterWalletJournalConsumer(s *Hammer, parameter interface{}) {
 	page := int32(1)
 	journal := []esi.GetCharactersCharacterIdWalletJournal200Ok{}
 	for {
-		top, _, err := s.esi.ESI.WalletApi.GetCharactersCharacterIdWalletJournal(ctx, tokenCharacterID,
+		a, r, err := s.esi.ESI.WalletApi.GetCharactersCharacterIdWalletJournal(ctx, tokenCharacterID,
 			&esi.GetCharactersCharacterIdWalletJournalOpts{
 				Page: optional.NewInt32(page),
 			})
@@ -129,11 +130,14 @@ func characterWalletJournalConsumer(s *Hammer, parameter interface{}) {
 			log.Println(err)
 			return
 		}
-		if len(top) == 0 {
+		journal = append(journal, a...)
+		xpagesS := r.Header.Get("x-pages")
+		xpages, _ := strconv.Atoi(xpagesS)
+		if int32(xpages) == page || len(a) == 0 {
 			break
 		}
 		page++
-		journal = append(journal, top...)
+
 	}
 
 	// Send out the result

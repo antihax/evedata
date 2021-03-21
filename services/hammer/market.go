@@ -62,6 +62,11 @@ func structureOrdersConsumer(s *Hammer, parameter interface{}) {
 
 		orders = append(orders, o...)
 
+		xpagesS := r.Header.Get("x-pages")
+		xpages, _ := strconv.Atoi(xpagesS)
+		if int32(xpages) == page || len(o) == 0 {
+			break
+		}
 		page++
 	}
 	// early out if there are no orders
