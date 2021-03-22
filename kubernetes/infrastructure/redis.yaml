@@ -20,7 +20,7 @@ spec:
         app: redis
     spec:
       nodeSelector:
-        database: redis
+        database: mysql
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
