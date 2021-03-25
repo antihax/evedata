@@ -524,7 +524,7 @@ data:
     # limit for maxmemory so that there is some free RAM on the system for slave
     # output buffers (but this is not needed if the policy is 'noeviction').
     #
-    maxmemory 6gb
+    maxmemory 32gb
 
     # MAXMEMORY POLICY: how Redis will select what to remove when maxmemory
     # is reached. You can select among five behaviors:
