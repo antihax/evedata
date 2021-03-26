@@ -15,9 +15,6 @@ func init() {
 	registerConsumer("charSearch", charSearchConsumer)
 	registerConsumer("alliance", allianceConsumer)
 	registerConsumer("corporation", corporationConsumer)
-	registerConsumer("corporationHistory", corporationHistoryConsumer)
-	registerConsumer("allianceHistory", allianceHistoryConsumer)
-
 	registerConsumer("character", characterConsumer)
 }
 
@@ -39,7 +36,6 @@ func (s *Hammer) AddCorporation(corporationID int32) error {
 		if !s.inQueue.CheckWorkExpired("evedata_entity", int64(corporationID)) {
 			return s.inQueue.QueueWork([]redisqueue.Work{
 				{Operation: "corporation", Parameter: corporationID},
-				{Operation: "allianceHistory", Parameter: corporationID},
 			}, redisqueue.Priority_Low)
 		}
 	}
@@ -52,7 +48,6 @@ func (s *Hammer) AddCharacter(characterID int32) error {
 		if !s.inQueue.CheckWorkExpired("evedata_entity", int64(characterID)) {
 			return s.inQueue.QueueWork([]redisqueue.Work{
 				{Operation: "character", Parameter: characterID},
-				{Operation: "corporationHistory", Parameter: characterID},
 			}, redisqueue.Priority_Low)
 		}
 	}
@@ -62,8 +57,8 @@ func (s *Hammer) AddCharacter(characterID int32) error {
 // BulkLookup looks up ID to entities in bulk and adds them to the queue
 func (s *Hammer) BulkLookup(ids []int32) error {
 	if len(ids) > 0 {
-		for start := 0; start < len(ids); start = start + 1000 {
-			end := min(start+1000, len(ids))
+		for start := 0; start < len(ids); start = start + 10 {
+			end := min(start+10, len(ids))
 			if len(ids[start:end]) == 0 {
 				break
 			}
@@ -219,55 +214,6 @@ func corporationConsumer(s *Hammer, parameter interface{}) {
 			log.Println(err)
 			return
 		}
-	}
-}
-
-func corporationHistoryConsumer(s *Hammer, parameter interface{}) {
-	characterID := int32(parameter.(int))
-
-	corporationHistory, _, err := s.esi.ESI.CharacterApi.GetCharactersCharacterIdCorporationhistory(context.Background(), characterID, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	// Send out the result
-	err = s.QueueResult(&datapackages.CorporationHistory{
-		CharacterID:        characterID,
-		CorporationHistory: corporationHistory,
-	}, "corporationHistory")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	// Add all known corporations
-	for _, corp := range corporationHistory {
-		err = s.AddCorporation(corp.CorporationId)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-	}
-}
-
-func allianceHistoryConsumer(s *Hammer, parameter interface{}) {
-	corporationID := int32(parameter.(int))
-
-	allianceHistory, _, err := s.esi.ESI.CorporationApi.GetCorporationsCorporationIdAlliancehistory(context.Background(), corporationID, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	// Send out the result
-	err = s.QueueResult(&datapackages.AllianceHistory{
-		CorporationID:   corporationID,
-		AllianceHistory: allianceHistory,
-	}, "allianceHistory")
-	if err != nil {
-		log.Println(err)
-		return
 	}
 }
 

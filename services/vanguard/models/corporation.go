@@ -64,27 +64,3 @@ func GetCorporation(id int64) (*Corporation, error) {
 	}
 	return &ref, nil
 }
-
-type CorporationJoinHistory struct {
-	CharacterID   int64     `db:"characterID" json:"characterID"`
-	CharacterName string    `db:"characterName" json:"characterName"`
-	StartDate     time.Time `db:"startDate" json:"startDate"`
-	EndDate       null.Time `db:"endDate" json:"endDate,omitempty"`
-}
-
-// Obtain a list of corporations history with an alliance by ID.
-
-func GetCorporationJoinHistory(id int64) ([]CorporationJoinHistory, error) {
-	ref := []CorporationJoinHistory{}
-	if err := database.Select(&ref, `
-		SELECT H.characterID, name AS characterName, startDate, endDate
-		FROM evedata.corporationHistory H
-		INNER JOIN evedata.characters C ON C.characterID = H.characterID
-		WHERE H.corporationID = ?
-		ORDER BY startDate DESC;
-		`, id); err != nil {
-		return nil, err
-	}
-
-	return ref, nil
-}

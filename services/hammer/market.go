@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	registerConsumer("characterStructureMarket", structureOrdersConsumer)
+	//registerConsumer("characterStructureMarket", structureOrdersConsumer)
 	registerConsumer("marketHistoryTrigger", marketHistoryTrigger)
 	registerConsumer("marketHistory", marketHistoryConsumer)
 }

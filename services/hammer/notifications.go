@@ -15,7 +15,7 @@ func init() {
 }
 
 func addID(e *[]int32, n int32) {
-	if n > 0 {
+	if n > 90000001 {
 		*e = append(*e, n)
 	}
 }
@@ -42,7 +42,7 @@ func characterNotificationsConsumer(s *Hammer, parameter interface{}) {
 		return
 	}
 	// see what we can learn about these notifications so our alerts do not fail
-	s.learnFromNotifications(notifications)
+	//s.learnFromNotifications(notifications)
 
 	// Send out the result
 	err = s.QueueResult(&datapackages.CharacterNotifications{

@@ -34,42 +34,8 @@ func init() {
 	vanguard.AddAuthRoute("GET", "/U/integrationTokens", apiGetIntegrationTokens)
 	vanguard.AddAuthRoute("DELETE", "/U/integrationTokens", apiDeleteIntegrationToken)
 
-	vanguard.AddAuthRoute("POST", "/U/toggleAuth", apiToggleAuth)
-
 	vanguard.AddAuthRoute("GET", "/U/accessableIntegrations", apiAccessableIntegrations)
 	vanguard.AddAuthRoute("POST", "/U/joinIntegration", apiJoinIntegration)
-
-	vanguard.AddAuthRoute("POST", "/U/setMailPassword", apiSetMailPassword)
-
-}
-
-func apiToggleAuth(w http.ResponseWriter, r *http.Request) {
-	s := vanguard.SessionFromContext(r.Context())
-	if s == nil {
-		httpErrCode(w, errors.New("Cannot find session"), http.StatusInternalServerError)
-		return
-	}
-	g := vanguard.GlobalsFromContext(r.Context())
-
-	// Get the sessions main characterID
-	characterID, ok := s.Values["characterID"].(int32)
-	if !ok {
-		httpErrCode(w, errors.New("could not find character ID for toggle auth"), http.StatusUnauthorized)
-		return
-	}
-
-	// Parse the characterID
-	tokenCharacterID, err := strconv.ParseInt(r.FormValue("tokenCharacterID"), 10, 64)
-	if err != nil {
-		httpErrCode(w, err, http.StatusForbidden)
-		return
-	}
-
-	_, err = g.Db.Exec("UPDATE evedata.crestTokens SET authCharacter = ! authCharacter WHERE characterID = ? and tokenCharacterID = ?", characterID, tokenCharacterID)
-	if err != nil {
-		httpErrCode(w, err, http.StatusInternalServerError)
-		return
-	}
 }
 
 func accountInfo(w http.ResponseWriter, r *http.Request) {
@@ -358,34 +324,4 @@ func verifyPassword(s string) bool {
 		return true
 	}
 	return false
-}
-
-func apiSetMailPassword(w http.ResponseWriter, r *http.Request) {
-	s := vanguard.SessionFromContext(r.Context())
-	if s == nil {
-		httpErrCode(w, errors.New("could not find session"), http.StatusUnauthorized)
-		return
-	}
-
-	char, ok := s.Values["character"].(goesi.VerifyResponse)
-	if !ok {
-		httpErrCode(w, errors.New("could not find verify response to change mail password"), http.StatusForbidden)
-		return
-	}
-
-	tokenCharacterID, err := strconv.ParseInt(r.FormValue("tokenCharacterID"), 10, 32)
-	if err != nil {
-		httpErrCode(w, errors.New("invalid tokenCharacterID"), http.StatusBadRequest)
-		return
-	}
-
-	if !verifyPassword(r.FormValue("password")) {
-		httpErrCode(w, errors.New("Password must be at least 12 characters with one uppercase, one lowercase, and one number"), http.StatusBadRequest)
-		return
-	}
-
-	if err := models.SetMailPassword(char.CharacterID, int32(tokenCharacterID), char.CharacterOwnerHash, r.FormValue("password")); err != nil {
-		httpErr(w, err)
-		return
-	}
 }

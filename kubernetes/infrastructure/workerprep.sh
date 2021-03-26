@@ -11,9 +11,13 @@ EOF
 
 mkdir -p /etc/cni/net.d
 
-apt update -y
-apt install -y docker.io apt-transport-https kubelet kubeadm kubectl kubernetes-cni
-apt upgrade -y
-apt autoremove -y
+export DEBIAN_FRONTEND=noninteractive; 
+apt-get update; 
+apt-get install -q -y docker.io apt-transport-https kubelet kubeadm kubectl kubernetes-cni; 
+apt-get autoremove -q -y; 
+apt-get upgrade -q -y; 
+apt-get --with-new-pkgs upgrade -q -y; 
+apt-get autoremove -q -y; 
+docker system prune -a -f;
 
-systemctl enable docker.service
+systemctl enable docker.service;

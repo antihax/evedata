@@ -27,22 +27,6 @@ func TestUpdateCharacter(t *testing.T) {
 		log.Fatal(err)
 		return
 	}
-
-	err = UpdateCorporationHistory(1001, 147035273, 100000222, time.Now())
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	hist, err := GetCorporationHistory(1001)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	if hist[0].CorporationID != 147035273 {
-		log.Fatal("wrong corporationID in history")
-	}
 }
 
 func TestCursor(t *testing.T) {

@@ -25,7 +25,7 @@ func init() {
 func (s *Nail) characterSQLPost() {
 	for {
 		count := 0
-		cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 14)
+		cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 60)
 		sql := sq.Insert("evedata.characters").Columns("characterID", "name", "bloodlineID", "ancestryID", "corporationID", "allianceID", "race", "gender", "securityStatus", "updated", "cacheUntil", "birthDate")
 		for c := range characterSQLQueue {
 			count++

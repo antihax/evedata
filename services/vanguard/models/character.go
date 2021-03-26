@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/antihax/evedata/internal/sqlhelper"
 	"github.com/antihax/evedata/services/conservator"
 	"github.com/guregu/null"
 	"golang.org/x/oauth2"
@@ -42,10 +41,8 @@ type CRESTToken struct {
 	AccessToken      string              `db:"accessToken" json:"accessToken,omitempty"`
 	RefreshToken     string              `db:"refreshToken" json:"refreshToken,omitempty"`
 	Scopes           string              `db:"scopes" json:"scopes"`
-	AuthCharacter    int                 `db:"authCharacter" json:"authCharacter"`
 	SharingInt       string              `db:"sharingint" json:"_,omitempty"`
 	Sharing          []conservator.Share `json:"sharing"`
-	MailPassword     int                 `db:"mailPassword" json:"mailPassword"`
 }
 
 type IntegrationToken struct {
@@ -106,8 +103,8 @@ func SetCursorCharacter(characterID int32, cursorCharacterID int32) error {
 func GetCRESTTokens(characterID int32, ownerHash string) ([]CRESTToken, error) {
 	tokens := []CRESTToken{}
 	if err := database.Select(&tokens, `
-		SELECT T.characterID, T.tokenCharacterID, characterName, IF(mailPassword != "", 1, 0) AS mailPassword,
-		lastCode, lastStatus, scopes, authCharacter, C1.name AS corporationName, A1.name AS allianceName,
+		SELECT T.characterID, T.tokenCharacterID, characterName,
+		lastCode, lastStatus, scopes, C1.name AS corporationName, A1.name AS allianceName,
 		T.corporationID, T.allianceID,
 		IFNULL(
 			CONCAT("[", GROUP_CONCAT(CONCAT(
@@ -198,22 +195,6 @@ func AddIntegrationToken(tokenType string, characterID int32, userID string, use
 	return nil
 }
 
-func SetMailPassword(characterID, tokenCharacterID int32, ownerHash, password string) error {
-	// BCrypt the password
-	hash, err := sqlhelper.Hash(password)
-	if err != nil {
-		return err
-	}
-
-	if _, err := database.Exec(`UPDATE evedata.crestTokens
-		SET mailPassword = ?
-		WHERE characterID = ? AND tokenCharacterID = ? AND characterOwnerHash = ?;
-		`, hash, characterID, tokenCharacterID, ownerHash); err != nil {
-		return err
-	}
-	return nil
-}
-
 func GetIntegrationTokens(characterID int32) ([]IntegrationToken, error) {
 	tokens := []IntegrationToken{}
 	if err := database.Select(&tokens, `
@@ -253,18 +234,6 @@ func UpdateCharacter(characterID int32, name string, bloodlineID int32, ancestry
 			ON DUPLICATE KEY UPDATE 
 			corporationID=VALUES(corporationID), gender=VALUES(gender), allianceID=VALUES(allianceID), securityStatus=VALUES(securityStatus), updated = UTC_TIMESTAMP(), cacheUntil=VALUES(cacheUntil)
 	`, characterID, name, bloodlineID, ancestryID, corporationID, allianceID, race, gender, securityStatus, cacheUntil); err != nil {
-		return err
-	}
-	return nil
-}
-
-func UpdateCorporationHistory(characterID int32, corporationID int32, recordID int32, startDate time.Time) error {
-	if _, err := database.Exec(`
-		INSERT INTO evedata.corporationHistory (characterID,startDate,recordID,corporationID)
-			VALUES(?,?,?,?) 
-			ON DUPLICATE KEY UPDATE 
-			startDate=VALUES(startDate)
-	`, characterID, startDate, recordID, corporationID); err != nil {
 		return err
 	}
 	return nil
@@ -312,36 +281,6 @@ func GetCharacter(id int32) (*Character, error) {
 		return nil, err
 	}
 	return &ref, nil
-}
-
-type CorporationHistory struct {
-	CorporationID   int32     `db:"corporationID" json:"id"`
-	CorporationName string    `db:"corporationName" json:"name"`
-	StartDate       time.Time `db:"startDate" json:"startDate"`
-	Type            string    `db:"type" json:"type"`
-}
-
-// Obtain Character information by ID.
-
-func GetCorporationHistory(id int32) ([]CorporationHistory, error) {
-	ref := []CorporationHistory{}
-	if err := database.Select(&ref, `
-		SELECT 
-			C.corporationID,
-			C.name AS corporationName,
-			startDate
-		    
-		FROM evedata.corporationHistory H
-		INNER JOIN evedata.corporations C ON C.corporationID = H.corporationID
-		WHERE H.characterID = ?
-		ORDER BY startDate DESC
-		`, id); err != nil {
-		return nil, err
-	}
-	for i := range ref {
-		ref[i].Type = "corporation"
-	}
-	return ref, nil
 }
 
 type Entity struct {

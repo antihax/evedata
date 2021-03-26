@@ -12,7 +12,7 @@ import (
 
 func init() {
 	registerConsumer("structure", structureConsumer)
-	registerConsumer("characterStructures", characterStructuresConsumer)
+	//registerConsumer("characterStructures", characterStructuresConsumer)
 }
 
 func structureConsumer(s *Hammer, parameter interface{}) {

@@ -2,8 +2,6 @@ package models
 
 import (
 	"time"
-
-	"github.com/guregu/null"
 )
 
 // UpdateAlliance Update an alliances information.
@@ -102,64 +100,6 @@ func GetAllianceMembers(id int64) ([]AllianceMember, error) {
 
 	for i := range ref {
 		ref[i].Type = "corporation"
-	}
-
-	return ref, nil
-}
-
-type AllianceHistory struct {
-	CorporationID   int64     `db:"corporationID" json:"corporationID"`
-	CorporationName string    `db:"corporationName" json:"corporationName"`
-	StartDate       time.Time `db:"startDate" json:"startDate"`
-	EndDate         null.Time `db:"endDate" json:"endDate,omitempty"`
-}
-
-// Obtain a list of corporations history with an alliance by ID.
-
-func GetAllianceHistory(id int64) ([]AllianceHistory, error) {
-	ref := []AllianceHistory{}
-	if err := database.Select(&ref, `
-		SELECT H.corporationID, name AS corporationName, startDate, endDate
-		FROM evedata.allianceHistory H
-		INNER JOIN evedata.corporations C ON C.corporationID = H.corporationID
-		WHERE H.allianceID = ?
-		ORDER BY startDate DESC;
-		`, id); err != nil {
-		return nil, err
-	}
-
-	return ref, nil
-}
-
-type AllianceJoinHistory struct {
-	CharacterID   int64     `db:"characterID" json:"characterID"`
-	CharacterName string    `db:"characterName" json:"characterName"`
-	Date          time.Time `db:"date" json:"date"`
-	Event         string    `db:"event" json:"event"`
-}
-
-// Obtain a list of corporations history with an alliance by ID.
-
-func GetAllianceJoinHistory(id int64) ([]AllianceJoinHistory, error) {
-	ref := []AllianceJoinHistory{}
-	if err := database.Select(&ref, `
-		SELECT name AS characterName, C.characterID, event, date FROM (
-			SELECT H.characterID, "joined" AS event, H.startDate AS date
-					FROM evedata.corporationHistory H
-					INNER JOIN evedata.allianceHistory A ON A.corporationID = H.corporationID
-						AND H.startDate > A.startDate AND H.startDate < IFNULL(A.endDate, UTC_TIMESTAMP())
-					WHERE A.allianceID = ?
-			UNION		
-			SELECT H.characterID, "left" AS event, H.endDate AS date
-					FROM evedata.corporationHistory H
-					INNER JOIN evedata.allianceHistory A ON A.corporationID = H.corporationID
-						AND H.endDate > A.startDate AND H.endDate < IFNULL(A.endDate, UTC_TIMESTAMP())
-					WHERE A.allianceID = ? AND H.endDate IS NOT NULL) S 
-			INNER JOIN evedata.characters C ON S.characterID = C.characterID 
-			ORDER BY date DESC
-			
-		`, id, id); err != nil {
-		return nil, err
 	}
 
 	return ref, nil

@@ -102,6 +102,7 @@ func (c *TokenStore) getTokenFromDB(characterID int32, tokenCharacterID int32) (
 		`SELECT expiry, tokenType, accessToken, refreshToken
 			FROM evedata.crestTokens
 			WHERE characterID = ? AND tokenCharacterID = ?
+			AND lastStatus != "invalid_token"
 			LIMIT 1`,
 		characterID, tokenCharacterID).StructScan(&token); err != nil {
 
@@ -194,6 +195,7 @@ func (c *TokenStore) updateTokenToDB(characterID int32, tokenCharacterID int32, 
 }
 
 func (c *TokenStore) tokenError(characterID int32, tokenCharacterID int32, code int, status string) error {
+	log.Printf("Disable Token")
 	if _, err := c.db.Exec(`
 		UPDATE evedata.crestTokens SET lastCode = ?, lastStatus = ?
 		WHERE characterID = ? AND tokenCharacterID = ?`,

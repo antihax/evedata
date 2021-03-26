@@ -14,11 +14,11 @@ func SearchMarketNames(query string) ([]MarketItemList, error) {
 
 	err := database.Select(&list, `SELECT  T.typeID, typeName, CONCAT_WS(',', G5.marketGroupName, G4.marketGroupName, G3.marketGroupName, G2.marketGroupName, G.marketGroupName) AS Categories, count(*) AS count
            FROM invTypes T 
-           LEFT JOIN evedata.invMarketGroups G on T.marketGroupID = G.marketGroupID
-           LEFT JOIN evedata.invMarketGroups G2 on G.parentGroupID = G2.marketGroupID
-           LEFT JOIN evedata.invMarketGroups G3 on G2.parentGroupID = G3.marketGroupID
-           LEFT JOIN evedata.invMarketGroups G4 on G3.parentGroupID = G4.marketGroupID
-           LEFT JOIN evedata.invMarketGroups G5 on G4.parentGroupID = G5.marketGroupID
+           LEFT JOIN eve.invMarketGroups G on T.marketGroupID = G.marketGroupID
+           LEFT JOIN eve.invMarketGroups G2 on G.parentGroupID = G2.marketGroupID
+           LEFT JOIN eve.invMarketGroups G3 on G2.parentGroupID = G3.marketGroupID
+           LEFT JOIN eve.invMarketGroups G4 on G3.parentGroupID = G4.marketGroupID
+           LEFT JOIN eve.invMarketGroups G5 on G4.parentGroupID = G5.marketGroupID
 
            WHERE published=1 AND T.marketGroupID > 0 AND typeName LIKE ?
            GROUP BY T.typeID

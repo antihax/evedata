@@ -14,16 +14,13 @@ func init() {
 	registerTrigger("characterTransactions", characterTransactions, time.NewTicker(time.Second*3600))
 	registerTrigger("characterAssets", characterAssets, time.NewTicker(time.Second*3600))
 	registerTrigger("characterOrders", characterOrders, time.NewTicker(time.Second*1200))
-	registerTrigger("characterStructures", characterStructures, time.NewTicker(time.Second*3600))
-	registerTrigger("characterStructureMarket", characterStructureMarket, time.NewTicker(time.Second*300))
+	//registerTrigger("characterStructures", characterStructures, time.NewTicker(time.Second*3600))
+	//registerTrigger("characterStructureMarket", characterStructureMarket, time.NewTicker(time.Second*300))
 
 	registerTrigger("characterNotifications", characterNotifications, time.NewTicker(time.Second*600))
 	registerTrigger("characterContactSync", characterContactSync, time.NewTicker(time.Second*360))
-	registerTrigger("characterAuthOwners", characterAuthOwners, time.NewTicker(time.Second*3600))
 	registerTrigger("crestCharacters", crestCharacters, time.NewTicker(time.Second*3600))
 
-	registerTrigger("allianceContacts", allianceContacts, time.NewTicker(time.Second*360))
-	registerTrigger("corporationContacts", corporationContacts, time.NewTicker(time.Second*360))
 }
 
 func characterTransactions(s *Artifice) error {
@@ -62,7 +59,7 @@ func characterStructures(s *Artifice) error {
 					SELECT DISTINCT characterID, locationID FROM evedata.assets WHERE locationID > 70000000
 						AND locationFlag = "Hangar"
 				) S ON S.characterID = T.tokenCharacterID
-			WHERE lastStatus != "invalid_token" AND scopes LIKE "%read_structures%"
+			WHERE T.lastStatus != "invalid_token" AND scopes LIKE "%read_structures%"
 			`)
 	if err != nil {
 		return err
@@ -106,7 +103,7 @@ func characterStructureMarket(s *Artifice) error {
 					SELECT DISTINCT characterID, locationID FROM evedata.assets WHERE locationID > 70000000
 						AND locationFlag = "Hangar"
 				) S ON S.characterID = T.tokenCharacterID
-			WHERE lastStatus != "invalid_token" AND scopes LIKE "%read_structures%"
+			WHERE T.lastStatus != "invalid_token" AND scopes LIKE "%read_structures%"
 			`)
 	if err != nil {
 		return err
@@ -230,25 +227,12 @@ func characterContactSync(s *Artifice) error {
 	return s.QueueWork(work, redisqueue.Priority_Normal)
 }
 
-func characterAuthOwners(s *Artifice) error {
-	work := []redisqueue.Work{}
-	if pairs, err := s.GetCharactersForScope("read_corporation_roles"); err != nil {
-		return err
-	} else {
-		for _, p := range pairs {
-			work = append(work, redisqueue.Work{Operation: "characterAuthOwner", Parameter: []int32{p.CharacterID, p.TokenCharacterID}})
-		}
-	}
-
-	return s.QueueWork(work, redisqueue.Priority_High)
-}
-
 // This is sensitive so we will do it here to prevent mixing it with public data.
 // figure out character alliance and corp for our members
 func crestCharacters(s *Artifice) error {
 	var chars []int32
 	err := s.db.Select(&chars,
-		`SELECT DISTINCT tokenCharacterID FROM evedata.crestTokens`)
+		`SELECT DISTINCT tokenCharacterID FROM evedata.crestTokens WHERE lastStatus != "invalid_token"`)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -258,7 +242,8 @@ func crestCharacters(s *Artifice) error {
 	sharing := make(map[int32]int32)
 	rows, err := s.db.Query(`
 		SELECT DISTINCT T.tokenCharacterID, T.corporationID FROM evedata.crestTokens T
-			INNER JOIN evedata.sharing S ON S.tokenCharacterID = T.tokenCharacterID`)
+			INNER JOIN evedata.sharing S ON S.tokenCharacterID = T.tokenCharacterID
+			WHERE lastStatus != "invalid_token"`)
 	if err != nil {
 		log.Println(err)
 		return err

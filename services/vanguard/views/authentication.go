@@ -11,8 +11,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/antihax/evedata/internal/redisqueue"
-
 	"github.com/antihax/goesi"
 
 	"github.com/antihax/evedata/services/vanguard"
@@ -304,19 +302,6 @@ func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {
 	red := c.Cache.Get()
 	defer red.Close()
 	red.Do("DEL", key)
-
-	// Urgently get their corp roles if they give us permission to read.
-	if strings.Contains(v.Scopes, "read_corporation_roles") {
-		if err = c.OutQueue.QueueWork(
-			[]redisqueue.Work{
-				{Operation: "characterAuthOwner",
-					Parameter: []int32{char.CharacterID, v.CharacterID}},
-			},
-			redisqueue.Priority_Urgent); err != nil {
-			httpErr(w, err)
-			return
-		}
-	}
 
 	if err = updateAccountInfo(s, char.CharacterID, char.CharacterOwnerHash, char.CharacterName); err != nil {
 		log.Println(err)

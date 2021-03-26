@@ -24,11 +24,7 @@ func init() {
 	vanguard.AddRoute("GET", "/J/heatmapForEntity", heatmapForEntityAPI)
 	vanguard.AddRoute("GET", "/J/activityForEntity", activityForEntityAPI)
 	vanguard.AddRoute("GET", "/J/killmailsForEntity", killmailsForEntityAPI)
-	vanguard.AddRoute("GET", "/J/corporationHistory", corporationHistoryAPI)
 	vanguard.AddRoute("GET", "/J/corporationsForAlliance", corporationsForAllianceAPI)
-	vanguard.AddRoute("GET", "/J/allianceHistoryForEntity", allianceHistoryForEntityAPI)
-	vanguard.AddRoute("GET", "/J/corporationHistoryForEntity", corporationHistoryForEntityAPI)
-	vanguard.AddRoute("GET", "/J/allianceJoinHistoryForEntity", allianceJoinHistoryForEntityAPI)
 
 	validEntity = map[string]bool{"alliance": true, "corporation": true, "character": true}
 }
@@ -136,73 +132,6 @@ func alliesForEntityAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	v, err := models.GetKnownAlliesByID(id)
-	if err != nil {
-		httpErrCode(w, err, http.StatusNotFound)
-		return
-	}
-
-	renderJSON(w, v, time.Hour*12)
-}
-
-func corporationHistoryAPI(w http.ResponseWriter, r *http.Request) {
-	idStr := r.FormValue("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
-	v, err := models.GetCorporationHistory(int32(id))
-	if err != nil {
-		httpErrCode(w, err, http.StatusNotFound)
-		return
-	}
-
-	renderJSON(w, v, time.Hour*12)
-}
-
-func allianceJoinHistoryForEntityAPI(w http.ResponseWriter, r *http.Request) {
-	idStr := r.FormValue("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
-
-	v, err := models.GetAllianceJoinHistory(id)
-	if err != nil {
-		httpErrCode(w, err, http.StatusNotFound)
-		return
-	}
-
-	renderJSON(w, v, time.Hour*12)
-}
-
-func allianceHistoryForEntityAPI(w http.ResponseWriter, r *http.Request) {
-	idStr := r.FormValue("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
-
-	v, err := models.GetAllianceHistory(id)
-	if err != nil {
-		httpErrCode(w, err, http.StatusNotFound)
-		return
-	}
-
-	renderJSON(w, v, time.Hour*12)
-}
-
-func corporationHistoryForEntityAPI(w http.ResponseWriter, r *http.Request) {
-	idStr := r.FormValue("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		httpErr(w, err)
-		return
-	}
-
-	v, err := models.GetCorporationJoinHistory(id)
 	if err != nil {
 		httpErrCode(w, err, http.StatusNotFound)
 		return

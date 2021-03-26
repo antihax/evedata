@@ -1,7 +1,6 @@
 package nail
 
 import (
-	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -28,16 +27,6 @@ func init() {
 	AddHandler("corporation", func(s *Nail, consumer *nsq.Consumer) {
 		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.corporationHandler)))
 	})
-	AddHandler("corporationHistory", func(s *Nail, consumer *nsq.Consumer) {
-		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.corporationHistoryHandler)))
-	})
-	AddHandler("allianceHistory", func(s *Nail, consumer *nsq.Consumer) {
-		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.allianceHistoryHandler)))
-	})
-
-	AddHandler("characterAuthOwner", func(s *Nail, consumer *nsq.Consumer) {
-		consumer.AddHandler(s.wait(nsq.HandlerFunc(s.characterAuthOwnerHandler)))
-	})
 
 }
 
@@ -49,7 +38,7 @@ func (s *Nail) corporationHandler(message *nsq.Message) error {
 		return err
 	}
 
-	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 14)
+	cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 30)
 
 	err = s.doSQL(`INSERT INTO evedata.corporations
 		(corporationID,name,ticker,ceoID,allianceID,factionID,memberCount,updated,cacheUntil)
@@ -100,61 +89,6 @@ func (s *Nail) allianceHandler(message *nsq.Message) error {
 	}
 
 	return s.addEntity(c.AllianceID, "alliance")
-}
-
-func (s *Nail) corporationHistoryHandler(message *nsq.Message) error {
-	c := datapackages.CorporationHistory{}
-	err := gobcoder.GobDecoder(message.Body, &c)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	var values []string
-	for _, e := range c.CorporationHistory {
-		values = append(values, fmt.Sprintf("(%d,%q,%d,%d)",
-			c.CharacterID, e.StartDate.UTC().Format("2006-01-02 15:04:05"), e.RecordId, e.CorporationId))
-	}
-
-	if len(values) > 0 {
-		stmt := fmt.Sprintf("INSERT INTO evedata.corporationHistory (characterID,startDate,recordID,corporationID) VALUES %s ON DUPLICATE KEY UPDATE characterID=VALUES(characterID);", strings.Join(values, ",\n"))
-		err = s.doSQL(stmt)
-		if err != nil {
-			log.Println(err)
-			return err
-		}
-	}
-	return nil
-}
-
-func (s *Nail) allianceHistoryHandler(message *nsq.Message) error {
-	c := datapackages.AllianceHistory{}
-	err := gobcoder.GobDecoder(message.Body, &c)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	var values []string
-	for _, e := range c.AllianceHistory {
-		deleted := 0
-		if e.IsDeleted {
-			deleted = 1
-		}
-
-		values = append(values, fmt.Sprintf("(%d,%q,%d,%d,%d)",
-			c.CorporationID, e.StartDate.UTC().Format("2006-01-02 15:04:05"), e.RecordId, e.AllianceId, deleted))
-	}
-
-	if len(values) > 0 {
-		stmt := fmt.Sprintf("INSERT INTO evedata.allianceHistory (corporationID,startDate,recordID,allianceID,deleted) VALUES %s ON DUPLICATE KEY UPDATE corporationID=VALUES(corporationID);", strings.Join(values, ",\n"))
-		err = s.doSQL(stmt)
-		if err != nil {
-			log.Println(err)
-			return err
-		}
-	}
-	return nil
 }
 
 func (s *Nail) addEntity(id int32, entityType string) error {

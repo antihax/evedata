@@ -8,44 +8,12 @@ import (
 )
 
 func init() {
-	registerTrigger("alliancehistoryMaint", alliancehistoryMaint, time.NewTicker(time.Hour*2))
-	registerTrigger("corphistoryMaint", corphistoryMaint, time.NewTicker(time.Hour*2))
 	registerTrigger("marketMaint", marketMaint, time.NewTicker(time.Hour))
 	registerTrigger("marketUpdate", marketUpdate, time.NewTicker(time.Hour*2))
 	registerTrigger("discoveredAssetsMaint", discoveredAssetsMaint, time.NewTicker(time.Second*3620))
 	registerTrigger("entityMaint", entityMaint, time.NewTicker(time.Second*3630*3))
 	registerTrigger("entityStatsMaint", entityStatsMaint, time.NewTicker(time.Hour*24))
 	registerTrigger("contactSyncMaint", contactSyncMaint, time.NewTicker(time.Second*3615*6))
-}
-
-func corphistoryMaint(s *Artifice) error {
-	if err := s.doSQL(`
-		UPDATE evedata.corporationHistory A
-		INNER JOIN (
-			SELECT H.recordID, MIN(L.startDate) AS endDate
-				FROM 	evedata.corporationHistory H
-				INNER JOIN evedata.corporationHistory L ON H.characterID = L.characterID AND L.startDate > H.startDate
-				WHERE   H.endDate IS NULL
-				GROUP BY H.recordID) B ON A.recordID = B.recordID
-			SET A.endDate = B.endDate`); err != nil {
-		return err
-	}
-	return nil
-}
-
-func alliancehistoryMaint(s *Artifice) error {
-	if err := s.doSQL(`
-		UPDATE evedata.allianceHistory A
-		INNER JOIN (SELECT H.recordID, MIN(L.startDate) AS endDate
-			FROM evedata.allianceHistory H
-			INNER JOIN evedata.allianceHistory L ON H.corporationID = L.corporationID AND L.startDate > H.startDate
-			WHERE H.endDate IS NULL
-			GROUP BY H.recordID) B ON A.recordID = B.recordID
-		SET A.endDate = B.endDate`); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func contactSyncMaint(s *Artifice) error {

@@ -15,11 +15,6 @@ type Character struct {
 	CharacterID int32
 }
 
-type CorporationHistory struct {
-	CharacterID        int32
-	CorporationHistory []esi.GetCharactersCharacterIdCorporationhistory200Ok
-}
-
 // Character contains corp history and character information
 type CharacterRoles struct {
 	Roles            esi.GetCharactersCharacterIdRolesOk
@@ -31,11 +26,6 @@ type CharacterRoles struct {
 type Corporation struct {
 	CorporationID int32
 	Corporation   esi.GetCorporationsCorporationIdOk
-}
-
-type AllianceHistory struct {
-	CorporationID   int32
-	AllianceHistory []esi.GetCorporationsCorporationIdAlliancehistory200Ok
 }
 
 // Killmail contains Killmail data

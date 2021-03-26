@@ -41,7 +41,6 @@
 		{{ template "activity" . }}
 		{{ template "knownships" . }}
 		{{ template "killmails" . }}
-		{{ template "corporationJoinHistory" . }}
 		{{ template "knownallies" . }}
 	</div>
 </div>
@@ -73,7 +72,6 @@
 		{{ template "activity" . }}
 		{{ template "knownships" . }}
 		{{ template "killmails" . }}
-		{{ template "corporationHistory" . }}
 	</div>
 </div>
 {{end}}
@@ -101,8 +99,6 @@
 		{{ template "knownships" . }}
 		{{ template "killmails" . }}
 		{{ template "corporations" . }}
-		{{ template "allianceHistory" . }}
-		{{ template "allianceJoinHistory" . }}
 		{{ template "knownallies" . }}
 	</div>
 </div>
@@ -125,98 +121,6 @@
 	<script>
 		$(function () {
 			$('#corporations').bootstrapTable();
-		});
-	</script>
-</div>
-{{end}}
-
-{{define "corporationHistory"}}
-<div class="col-md-6 well">
-	<h3>
-		Corporation History
-	</h3>
-	<table id="corporations" data-sort-name="startDate" data-url="/J/corporationHistory?id={{ .entityID }}"
-	 data-pagination="true" data-search="true" data-sort-order="desc">
-		<thead>
-			<tr>
-				<th data-field="name" data-sortable="true" data-formatter="entityFormatter">Name</th>
-				<th data-field="startDate" data-formatter="dateFormatter" data-sortable="true">Start Date</th>
-			</tr>
-		</thead>
-	</table>
-	<script>
-		$(function () {
-			$('#corporations').bootstrapTable();
-		});
-	</script>
-</div>
-{{end}}
-
-{{define "allianceHistory"}}
-<div class="col-md-6 well">
-	<h3>
-		Corporation History
-	</h3>
-	<table id="corporationHistory" data-sort-name="startDate" data-url="/J/allianceHistoryForEntity?id={{ .entityID }}&entityType=alliance"
-	 data-pagination="true" data-search="true" data-sort-order="desc">
-		<thead>
-			<tr>
-				<th data-field="corporationName" data-sortable="true" data-formatter="corporationFormatter">Name</th>
-				<th data-field="startDate" data-formatter="dateFormatter" data-sortable="true">Start Date</th>
-				<th data-field="endDate" data-formatter="dateFormatter" data-sortable="true">End Date</th>
-			</tr>
-		</thead>
-	</table>
-	<script>
-		$(function () {
-			$('#corporationHistory').bootstrapTable();
-		});
-	</script>
-</div>
-{{end}}
-
-{{define "allianceJoinHistory"}}
-<div class="col-md-6 well">
-	<h3>
-		Character History
-	</h3>
-	<table id="allianceJoinHistory" data-sort-name="date" data-url="/J/allianceJoinHistoryForEntity?id={{ .entityID }}&entityType=alliance"
-	 data-pagination="true" data-search="true" data-sort-order="desc">
-		<thead>
-			<tr>
-				<th data-field="characterName" data-sortable="true" data-formatter="characterFormatterName">Name</th>
-				<th data-field="date" data-formatter="dateFormatter" data-sortable="true">Date</th>
-				<th data-field="event" data-sortable="true">Event</th>
-			</tr>
-		</thead>
-	</table>
-	<script>
-		$(function () {
-			$('#allianceJoinHistory').bootstrapTable();
-		});
-	</script>
-</div>
-{{end}}
-
-
-{{define "corporationJoinHistory"}}
-<div class="col-md-6 well">
-	<h3>
-		Character History
-	</h3>
-	<table id="corporationHistory" data-sort-name="startDate" data-url="/J/corporationHistoryForEntity?id={{ .entityID }}&entityType=alliance"
-	 data-pagination="true" data-search="true" data-sort-order="desc">
-		<thead>
-			<tr>
-				<th data-field="characterName" data-sortable="true" data-formatter="characterFormatterName">Name</th>
-				<th data-field="startDate" data-formatter="dateFormatter" data-sortable="true">Start Date</th>
-				<th data-field="endDate" data-formatter="dateFormatter" data-sortable="true">End Date</th>
-			</tr>
-		</thead>
-	</table>
-	<script>
-		$(function () {
-			$('#corporationHistory').bootstrapTable();
 		});
 	</script>
 </div>

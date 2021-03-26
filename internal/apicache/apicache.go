@@ -19,17 +19,17 @@ func CreateHTTPClientCache(redis *redis.Pool) *http.Client {
 	// Attach a basic transport with our chained custom transport.
 	transportCache.Transport = &APICacheTransport{
 		&http.Transport{
-			MaxIdleConns: 100,
+			MaxIdleConns: 2,
 			DialContext: (&net.Dialer{
-				Timeout:   60 * time.Second,
-				KeepAlive: 5 * 60 * time.Second,
-				DualStack: true,
+				Timeout:   10 * time.Second,
+				KeepAlive: 10 * time.Second,
 			}).DialContext,
-			IdleConnTimeout:       5 * 60 * time.Second,
-			TLSHandshakeTimeout:   60 * time.Second,
-			ResponseHeaderTimeout: 60 * time.Second,
-			ExpectContinueTimeout: 0,
-			MaxIdleConnsPerHost:   3,
+			ForceAttemptHTTP2:     true,
+			IdleConnTimeout:       10 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ResponseHeaderTimeout: 15 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+			MaxIdleConnsPerHost:   2,
 		},
 	}
 
@@ -50,17 +50,17 @@ func CreateLimitedHTTPClientCache(redis *redis.Pool) *http.Client {
 	cache := &LimitedTransport{
 		&APICacheTransport{
 			&http.Transport{
-				MaxIdleConns: 100,
+				MaxIdleConns: 2,
 				DialContext: (&net.Dialer{
-					Timeout:   60 * time.Second,
-					KeepAlive: 5 * 60 * time.Second,
-					DualStack: true,
+					Timeout:   10 * time.Second,
+					KeepAlive: 10 * time.Second,
 				}).DialContext,
-				IdleConnTimeout:       5 * 60 * time.Second,
-				TLSHandshakeTimeout:   60 * time.Second,
-				ResponseHeaderTimeout: 60 * time.Second,
-				ExpectContinueTimeout: 0,
-				MaxIdleConnsPerHost:   3,
+				ForceAttemptHTTP2:     true,
+				IdleConnTimeout:       10 * time.Second,
+				TLSHandshakeTimeout:   10 * time.Second,
+				ResponseHeaderTimeout: 15 * time.Second,
+				ExpectContinueTimeout: 1 * time.Second,
+				MaxIdleConnsPerHost:   2,
 			},
 		},
 	}
@@ -82,17 +82,17 @@ func CreateHTTPClient() *http.Client {
 	// Attach a basic transport with our chained custom transport.
 	t := &APICacheTransport{
 		&http.Transport{
-			MaxIdleConns: 100,
+			MaxIdleConns: 2,
 			DialContext: (&net.Dialer{
 				Timeout:   10 * time.Second,
-				KeepAlive: 5 * 60 * time.Second,
-				DualStack: true,
+				KeepAlive: 10 * time.Second,
 			}).DialContext,
-			IdleConnTimeout:       5 * 60 * time.Second,
+			ForceAttemptHTTP2:     true,
+			IdleConnTimeout:       10 * time.Second,
 			TLSHandshakeTimeout:   10 * time.Second,
 			ResponseHeaderTimeout: 15 * time.Second,
-			ExpectContinueTimeout: 0,
-			MaxIdleConnsPerHost:   3,
+			ExpectContinueTimeout: 1 * time.Second,
+			MaxIdleConnsPerHost:   2,
 		},
 	}
 

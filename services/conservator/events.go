@@ -107,7 +107,7 @@ func (c *Conservator) getMemberStatus(memberID string, entity int32) (string, er
 		SELECT characterName
 			FROM evedata.integrationCharacters C
 			INNER JOIN evedata.crestTokens T ON T.characterID = C.characterID
-			WHERE T.authCharacter = 1 AND integrationUserID = ? AND (allianceID = ? OR corporationID = ?) LIMIT 1;`, memberID, entity, entity).Scan(&ref); err != nil && err != sql.ErrNoRows {
+			WHERE T.lastStatus != "invalid_token" AND T.authCharacter = 1 AND integrationUserID = ? AND (allianceID = ? OR corporationID = ?) LIMIT 1;`, memberID, entity, entity).Scan(&ref); err != nil && err != sql.ErrNoRows {
 		return "", err
 	}
 	return ref, nil
@@ -120,7 +120,7 @@ func (c *Conservator) getPlusFiveStatus(memberID string, entity int32) (string, 
 			FROM evedata.integrationCharacters C
 			INNER JOIN evedata.crestTokens T ON T.characterID = C.characterID
 			INNER JOIN evedata.entityContacts E ON E.contactID = T.allianceID OR E.contactID = T.corporationID OR E.contactID = T.tokenCharacterID
-			WHERE T.authCharacter = 1 AND integrationUserID = ? AND entityID = ? AND standing = 10 LIMIT 1;`, memberID, entity).Scan(&ref); err != nil && err != sql.ErrNoRows {
+			WHERE T.lastStatus != "invalid_token" AND T.authCharacter = 1 AND integrationUserID = ? AND entityID = ? AND standing = 10 LIMIT 1;`, memberID, entity).Scan(&ref); err != nil && err != sql.ErrNoRows {
 		return "", err
 	}
 	return ref, nil
@@ -133,7 +133,7 @@ func (c *Conservator) getPlusTenStatus(memberID string, entity int32) (string, e
 			FROM evedata.integrationCharacters C
 			INNER JOIN evedata.crestTokens T ON T.characterID = C.characterID
 			INNER JOIN evedata.entityContacts E ON E.contactID = T.allianceID OR E.contactID = T.corporationID OR E.contactID = T.tokenCharacterID
-			WHERE T.authCharacter = 1 AND integrationUserID = ?  AND entityID = ? AND standing = 10 LIMIT 1;`, memberID, entity).Scan(&ref); err != nil && err != sql.ErrNoRows {
+			WHERE T.lastStatus != "invalid_token" AND T.authCharacter = 1 AND integrationUserID = ?  AND entityID = ? AND standing = 10 LIMIT 1;`, memberID, entity).Scan(&ref); err != nil && err != sql.ErrNoRows {
 		return "", err
 	}
 	return ref, nil
@@ -145,7 +145,7 @@ func (c *Conservator) getMilitiaStatus(memberID string, militia int32) (string, 
 		SELECT characterName
 			FROM evedata.integrationCharacters C
 			INNER JOIN evedata.crestTokens T ON T.characterID = C.characterID
-			WHERE T.authCharacter = 1 AND integrationUserID = ? AND factionID = ? LIMIT 1;`, memberID, militia).Scan(&ref); err != nil && err != sql.ErrNoRows {
+			WHERE T.lastStatus != "invalid_token" AND T.authCharacter = 1 AND integrationUserID = ? AND factionID = ? LIMIT 1;`, memberID, militia).Scan(&ref); err != nil && err != sql.ErrNoRows {
 		return "", err
 	}
 	return ref, nil

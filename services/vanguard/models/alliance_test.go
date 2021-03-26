@@ -52,13 +52,3 @@ func TestCharacterGet(t *testing.T) {
 		t.Error("Could not find corporation 'Test Character'")
 	}
 }
-
-func TestGetAllianceHistory(t *testing.T) {
-	_, err := GetAllianceHistory(2)
-	assert.Nil(t, err)
-}
-
-func TestGetAllianceJoinHistory(t *testing.T) {
-	_, err := GetAllianceJoinHistory(2)
-	assert.Nil(t, err)
-}

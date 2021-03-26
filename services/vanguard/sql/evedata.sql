@@ -8,7 +8,7 @@ CREATE TABLE `accessibleStructure` (
   `lastCheck` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `canAccess` tinyint(4) NOT NULL,
   PRIMARY KEY (`accessibleStructure`,`characterID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `allianceHistory` (
   `recordID` int(11) NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE `allianceHistory` (
   KEY `startDate` (`startDate`),
   KEY `corporationID_Date` (`corporationID`,`startDate`),
   KEY `endDate` (`endDate`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `alliances` (
   `allianceID` int(10) unsigned NOT NULL DEFAULT '0',
@@ -40,7 +40,7 @@ CREATE TABLE `alliances` (
   KEY `name` (`name`),
   KEY `executorCorpID` (`executorCorpID`),
   KEY `cacheUntil` (`cacheUntil`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `assets` (
   `locationID` bigint(20) unsigned NOT NULL,
@@ -54,24 +54,7 @@ CREATE TABLE `assets` (
   PRIMARY KEY (`itemID`),
   KEY `locationID` (`locationID`),
   KEY `characterID` (`characterID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `characterAssociations` (
-  `characterID` int(10) unsigned NOT NULL,
-  `associateID` int(10) unsigned NOT NULL,
-  `frequency` smallint(5) unsigned NOT NULL,
-  `source` tinyint(4) unsigned DEFAULT NULL,
-  `added` datetime DEFAULT NULL,
-  PRIMARY KEY (`characterID`,`associateID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `characterKillmailAssociations` (
-  `characterID` int(10) unsigned NOT NULL,
-  `associateID` int(10) unsigned NOT NULL,
-  `frequency` smallint(5) unsigned NOT NULL,
-  `added` datetime DEFAULT NULL,
-  PRIMARY KEY (`characterID`,`associateID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `characters` (
   `characterID` int(11) unsigned NOT NULL DEFAULT '0',
@@ -92,7 +75,7 @@ CREATE TABLE `characters` (
   KEY `name` (`name`),
   KEY `corporationIDCharacterID` (`corporationID`,`characterID`),
   KEY `ix_notdeadcharexpired` (`cacheUntil`,`characterID`,`dead`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `contactSyncs` (
   `characterID` int(11) NOT NULL,
@@ -103,7 +86,7 @@ CREATE TABLE `contactSyncs` (
   PRIMARY KEY (`characterID`,`destination`,`source`),
   UNIQUE KEY `destination_UNIQUE` (`destination`),
   KEY `source` (`source`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `contractBids` (
   `contractID` bigint(20) unsigned NOT NULL,
@@ -111,7 +94,7 @@ CREATE TABLE `contractBids` (
   `dateBid` datetime NOT NULL,
   `amount` decimal(22,2) DEFAULT NULL,
   PRIMARY KEY (`contractID`,`bidID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `contractItems` (
   `recordID` bigint(20) NOT NULL,
@@ -126,7 +109,7 @@ CREATE TABLE `contractItems` (
   `quantity` int(11) DEFAULT NULL,
   PRIMARY KEY (`recordID`,`contractID`),
   KEY `ix_typeID` (`typeID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `contracts` (
   `contractID` int(10) unsigned NOT NULL,
@@ -148,7 +131,7 @@ CREATE TABLE `contracts` (
   `updated` datetime NOT NULL DEFAULT '1990-01-01 00:00:00',
   PRIMARY KEY (`contractID`),
   KEY `ix_location_type_exp` (`locationID`,`type`,`dateExpired`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `corporationHistory` (
   `recordID` int(11) NOT NULL,
@@ -162,7 +145,7 @@ CREATE TABLE `corporationHistory` (
   KEY `startDate` (`startDate`),
   KEY `characterID_Date` (`characterID`,`endDate`),
   KEY `endDate` (`endDate`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `corporations` (
   `corporationID` int(11) NOT NULL,
@@ -180,7 +163,7 @@ CREATE TABLE `corporations` (
   KEY `factionID` (`factionID`),
   KEY `cacheUntil` (`cacheUntil`),
   KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `crestTokens` (
   `characterID` int(11) NOT NULL,
@@ -205,13 +188,13 @@ CREATE TABLE `crestTokens` (
   `mailPassword` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`characterID`,`tokenCharacterID`),
   KEY `tokenCharacterID` (`tokenCharacterID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `cursorCharacter` (
   `characterID` int(11) NOT NULL,
   `cursorCharacterID` int(11) NOT NULL,
   PRIMARY KEY (`characterID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `discoveredAssets` (
   `corporationID` int(10) unsigned NOT NULL,
@@ -227,20 +210,20 @@ CREATE TABLE `discoveredAssets` (
   KEY `corporation` (`corporationID`),
   KEY `alliance` (`allianceID`),
   KEY `lastSeen` (`lastSeen`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `entities` (
   `id` int(10) unsigned NOT NULL,
   `type` varchar(60) COLLATE utf8_bin NOT NULL DEFAULT 'unknown',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `entityContacts` (
   `entityID` int(11) NOT NULL,
   `contactID` int(11) NOT NULL,
   `standing` decimal(4,2) DEFAULT NULL,
   PRIMARY KEY (`entityID`,`contactID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `entityKillStats` (
   `id` int(10) unsigned NOT NULL,
@@ -249,17 +232,7 @@ CREATE TABLE `entityKillStats` (
   `efficiency` float NOT NULL DEFAULT '0',
   `capKills` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `httpErrors` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `url` varchar(255) DEFAULT NULL,
-  `status` smallint(6) DEFAULT NULL,
-  `request` text,
-  `response` text,
-  `time` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `integrationChannels` (
   `integrationID` int(10) unsigned NOT NULL,
@@ -268,28 +241,28 @@ CREATE TABLE `integrationChannels` (
   `options` text COLLATE utf8_bin NOT NULL,
   `channelName` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT 'unknown',
   PRIMARY KEY (`channelID`,`integrationID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `integrationCharacters` (
   `integrationID` int(11) NOT NULL,
   `characterID` int(11) NOT NULL,
   `integrationUserID` varchar(255) COLLATE utf8_bin DEFAULT '',
   PRIMARY KEY (`integrationID`,`characterID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `integrationDelegate` (
   `integrationID` int(11) NOT NULL,
   `characterID` int(11) NOT NULL,
   `permissions` enum('administrator') COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`integrationID`,`characterID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `integrationRoles` (
   `integrationID` int(10) unsigned NOT NULL DEFAULT '0',
   `roleID` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
   `roleName` varchar(45) COLLATE utf8_bin NOT NULL DEFAULT 'unknown',
   PRIMARY KEY (`integrationID`,`roleID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `integrationTokens` (
   `characterID` int(11) NOT NULL,
@@ -305,7 +278,7 @@ CREATE TABLE `integrationTokens` (
   `scopes` text NOT NULL,
   `mailedError` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`characterID`,`integrationUserID`,`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `integrations` (
   `integrationID` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -320,7 +293,7 @@ CREATE TABLE `integrations` (
   `factionID` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`integrationID`),
   UNIQUE KEY `UNIQUE` (`address`,`authentication`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `invMarketGroups` (
   `marketGroupID` mediumint(6) unsigned NOT NULL,
@@ -328,7 +301,7 @@ CREATE TABLE `invMarketGroups` (
   `marketGroupName` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `description` text COLLATE utf8_bin,
   PRIMARY KEY (`marketGroupID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `iskPerLp` (
   `itemName` varchar(100) NOT NULL,
@@ -343,7 +316,7 @@ CREATE TABLE `iskPerLp` (
   `offerID` int(11) DEFAULT NULL,
   PRIMARY KEY (`typeID`,`itemName`),
   KEY `itemName` (`itemName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `jitaPrice` (
   `itemID` int(10) unsigned NOT NULL DEFAULT '0',
@@ -354,7 +327,7 @@ CREATE TABLE `jitaPrice` (
   `mean` decimal(15,2) DEFAULT NULL,
   `quantity` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`itemID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `jumps` (
   `toSolarSystemID` int(10) unsigned NOT NULL DEFAULT '0',
@@ -363,7 +336,7 @@ CREATE TABLE `jumps` (
   `secureJumps` tinyint(3) unsigned DEFAULT '0',
   PRIMARY KEY (`toSolarSystemID`,`fromSolarSystemID`),
   KEY `fromSolarSystemID` (`fromSolarSystemID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `killmailAttackers` (
   `id` int(10) unsigned NOT NULL,
@@ -378,77 +351,7 @@ CREATE TABLE `killmailAttackers` (
   KEY `ix_characterID` (`characterID`),
   KEY `ix_shipType` (`shipType`),
   KEY `ix_id` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `killmailAttributes` (
-  `id` int(11) NOT NULL DEFAULT '0',
-  `eHP` double NOT NULL DEFAULT '0',
-  `DPS` double NOT NULL DEFAULT '0',
-  `Alpha` double NOT NULL DEFAULT '0',
-  `scanResolution` double NOT NULL DEFAULT '0',
-  `signatureRadiusNoMWD` double NOT NULL DEFAULT '0',
-  `signatureRadius` double NOT NULL DEFAULT '0',
-  `agility` double NOT NULL DEFAULT '0',
-  `warpSpeed` double NOT NULL DEFAULT '0',
-  `speedNoMWD` double NOT NULL DEFAULT '0',
-  `speed` double NOT NULL DEFAULT '0',
-  `remoteArmorRepair` double NOT NULL DEFAULT '0',
-  `remoteShieldRepair` double NOT NULL DEFAULT '0',
-  `remoteEnergyTransfer` double NOT NULL DEFAULT '0',
-  `energyNeutralization` double NOT NULL DEFAULT '0',
-  `sensorStrength` double NOT NULL DEFAULT '0',
-  `RPS` double NOT NULL DEFAULT '0',
-  `CPURemaining` double NOT NULL DEFAULT '0',
-  `powerRemaining` double NOT NULL DEFAULT '0',
-  `capacitorNoMWD` double NOT NULL DEFAULT '0',
-  `capacitor` double NOT NULL DEFAULT '0',
-  `capacitorTimeNoMWD` bigint(20) NOT NULL DEFAULT '0',
-  `capacitorTime` bigint(20) NOT NULL DEFAULT '0',
-  `fittedValue` decimal(20,2) NOT NULL DEFAULT '0.00',
-  `stasisWebifierStrength` double NOT NULL DEFAULT '0',
-  `totalWarpScrambleStrength` double NOT NULL DEFAULT '0',
-  `totalValue` decimal(20,2) NOT NULL DEFAULT '0.00',
-  `characterAge` int(11) NOT NULL DEFAULT '0',
-  `meanSecurity` double NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `ix_id_cpu_pg_ehp` (`id`,`CPURemaining`,`powerRemaining`,`eHP`),
-  KEY `age` (`characterAge`),
-  KEY `meanSecurity` (`meanSecurity`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-CREATE TABLE `killmailCapsVsSubcap` (
-  `month` tinyint(3) unsigned DEFAULT NULL,
-  `year` mediumint(8) unsigned DEFAULT NULL,
-  `kills` int(10) unsigned NOT NULL DEFAULT '0',
-  `area` varchar(50) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `type` varchar(10) CHARACTER SET utf8 NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-CREATE TABLE `killmailKillers` (
-  `month` int(10) unsigned NOT NULL,
-  `year` int(10) unsigned NOT NULL,
-  `id` bigint(20) unsigned NOT NULL,
-  `kills` int(10) unsigned NOT NULL DEFAULT '0',
-  `area` varchar(45) CHARACTER SET utf8 NOT NULL DEFAULT 'highsec',
-  PRIMARY KEY (`month`,`year`,`id`,`area`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-CREATE TABLE `killmailStatistics` (
-  `month` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `year` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `characterAge` smallint(6) NOT NULL DEFAULT '0',
-  `wars` int(10) unsigned NOT NULL DEFAULT '0',
-  `ganks` int(10) unsigned NOT NULL DEFAULT '0',
-  `lowsec` int(10) unsigned NOT NULL DEFAULT '0',
-  `nullsec` int(10) unsigned NOT NULL DEFAULT '0',
-  `wh` int(10) unsigned NOT NULL DEFAULT '0',
-  `lowsecFW` int(10) unsigned NOT NULL DEFAULT '0',
-  `highsecFW` int(10) unsigned NOT NULL DEFAULT '0',
-  `total` int(10) unsigned NOT NULL DEFAULT '0',
-  `highsec` int(10) unsigned NOT NULL DEFAULT '0',
-  `npcKills` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`month`,`year`,`characterAge`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `killmails` (
   `id` int(9) unsigned NOT NULL,
@@ -475,7 +378,7 @@ CREATE TABLE `killmails` (
   KEY `ix_war_killtime` (`warID`,`killTime`),
   KEY `ix_victimAllianceID_killtime` (`victimAllianceID`,`killTime`),
   KEY `ix_victimCorporationD_killtime` (`victimCorporationID`,`killTime`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `locatedCharacters` (
   `notificationID` int(11) NOT NULL,
@@ -487,13 +390,13 @@ CREATE TABLE `locatedCharacters` (
   `locatedCharacterID` int(11) NOT NULL,
   `time` datetime NOT NULL,
   PRIMARY KEY (`notificationID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `locatorShareWith` (
   `characterID` int(11) NOT NULL,
   `entityID` int(11) NOT NULL,
   PRIMARY KEY (`characterID`,`entityID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `lpOfferRequirements` (
   `offerID` int(11) NOT NULL,
@@ -501,7 +404,7 @@ CREATE TABLE `lpOfferRequirements` (
   `quantity` int(11) NOT NULL,
   PRIMARY KEY (`offerID`,`typeID`),
   KEY `lpReqs_offerID` (`offerID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `lpOffers` (
   `offerID` int(11) NOT NULL AUTO_INCREMENT,
@@ -515,7 +418,7 @@ CREATE TABLE `lpOffers` (
   KEY `lpOffers_typeid` (`typeID`),
   KEY `lpOffers_corporation` (`corporationID`),
   KEY `lpOffers_corp_type` (`corporationID`,`typeID`)
-) ENGINE=InnoDB AUTO_INCREMENT=16443 DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB AUTO_INCREMENT=16443 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `market` (
   `orderID` bigint(11) unsigned NOT NULL DEFAULT '0',
@@ -539,7 +442,7 @@ CREATE TABLE `market` (
   KEY `ix_marketorders` (`typeID`,`bid`,`stationID`,`orderID`),
   KEY `ix_marketordersregion` (`typeID`,`bid`,`regionID`,`orderID`),
   KEY `private` (`private`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=TokuDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `marketHistoryStatistics` (
   `itemID` int(10) unsigned NOT NULL,
@@ -550,7 +453,7 @@ CREATE TABLE `marketHistoryStatistics` (
   `quantity` bigint(20) unsigned NOT NULL,
   `orders` int(10) unsigned NOT NULL,
   PRIMARY KEY (`itemID`,`regionID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `marketOrderHistory` (
   `orderID` bigint(20) unsigned NOT NULL,
@@ -564,7 +467,7 @@ CREATE TABLE `marketOrderHistory` (
   `changed` datetime NOT NULL,
   PRIMARY KEY (`orderID`,`changed`),
   KEY `ix_chg_buy` (`isBuyOrder`,`changed`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `marketStations` (
   `stationName` varchar(255) DEFAULT NULL,
@@ -572,7 +475,7 @@ CREATE TABLE `marketStations` (
   `Count` bigint(21) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`stationID`),
   KEY `count` (`Count`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `market_history` (
   `date` date NOT NULL,
@@ -587,37 +490,14 @@ CREATE TABLE `market_history` (
   KEY `regionIDDate` (`regionID`,`date`),
   KEY `date` (`date`),
   KEY `itemID_regionID_date` (`itemID`,`regionID`,`date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `market_vol` (
   `quantity` decimal(23,2) unsigned NOT NULL DEFAULT '0.00',
   `regionID` mediumint(8) unsigned NOT NULL,
   `itemID` smallint(5) unsigned NOT NULL,
   PRIMARY KEY (`regionID`,`itemID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `mutationAttributes` (
-  `itemID` bigint(20) unsigned NOT NULL,
-  `attributeID` int(11) unsigned NOT NULL,
-  `value` double NOT NULL,
-  PRIMARY KEY (`itemID`,`attributeID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-CREATE TABLE `mutationEffects` (
-  `itemID` bigint(20) unsigned NOT NULL,
-  `effectID` int(11) unsigned NOT NULL,
-  `isDefault` tinyint(4) NOT NULL,
-  PRIMARY KEY (`itemID`,`effectID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-CREATE TABLE `mutations` (
-  `typeID` mediumint(9) unsigned NOT NULL,
-  `itemID` bigint(20) unsigned NOT NULL,
-  `createdBy` int(11) unsigned NOT NULL,
-  `mutatorTypeID` int(11) unsigned NOT NULL,
-  `sourceTypeID` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`typeID`,`itemID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `notifications` (
   `notificationID` int(11) NOT NULL,
@@ -629,7 +509,7 @@ CREATE TABLE `notifications` (
   `type` varchar(255) DEFAULT NULL,
   `text` text,
   PRIMARY KEY (`notificationID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `orders` (
   `orderID` bigint(20) unsigned NOT NULL,
@@ -651,7 +531,7 @@ CREATE TABLE `orders` (
   KEY `characterID` (`characterID`),
   KEY `char_region_item` (`characterID`,`regionID`,`typeID`),
   KEY `locationID` (`locationID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `sharing` (
   `characterID` int(11) unsigned NOT NULL,
@@ -660,14 +540,14 @@ CREATE TABLE `sharing` (
   `types` set('locator','kill','structure','application','war') COLLATE utf8_bin NOT NULL,
   `ignored` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`characterID`,`tokenCharacterID`,`entityID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='For sharing character information with entities.';
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='For sharing character information with entities.';
 
 CREATE TABLE `states` (
   `state` varchar(45) NOT NULL,
   `value` int(11) NOT NULL,
   `nextCheck` datetime NOT NULL DEFAULT '2011-02-01 00:00:00',
   PRIMARY KEY (`state`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `structures` (
   `stationID` bigint(20) NOT NULL,
@@ -682,7 +562,7 @@ CREATE TABLE `structures` (
   `typeID` int(11) NOT NULL DEFAULT '0',
   `private` tinyint(4) DEFAULT '0',
   PRIMARY KEY (`stationID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `typePricesMonthly` (
   `year` smallint(5) unsigned NOT NULL,
@@ -690,7 +570,7 @@ CREATE TABLE `typePricesMonthly` (
   `typeID` smallint(5) unsigned NOT NULL,
   `mean` decimal(24,2) NOT NULL DEFAULT '0.00',
   PRIMARY KEY (`year`,`month`,`typeID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `walletJournal` (
   `refID` bigint(20) unsigned NOT NULL,
@@ -709,13 +589,13 @@ CREATE TABLE `walletJournal` (
   PRIMARY KEY (`refID`,`ownerID1`,`ownerID2`,`characterID`),
   KEY `charID_date` (`characterID`,`date`),
   KEY `argID1` (`argID1`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `walletJournalRefType` (
   `refTypeID` int(11) NOT NULL,
   `refTypeName` varchar(255) COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`refTypeID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `walletTransactions` (
   `transactionID` bigint(20) unsigned NOT NULL,
@@ -732,14 +612,14 @@ CREATE TABLE `walletTransactions` (
   `clientTypeID` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`transactionID`,`characterID`),
   KEY `journalID` (`journalTransactionID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `warAllies` (
   `id` mediumint(8) unsigned NOT NULL,
   `allyID` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`,`allyID`),
   KEY `allyID` (`allyID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `wars` (
   `id` mediumint(8) unsigned NOT NULL,
@@ -757,7 +637,7 @@ CREATE TABLE `wars` (
   KEY `defenderID` (`defenderID`),
   KEY `timeFinished_cacheUntil` (`timeFinished`,`cacheUntil`),
   KEY `idx_lookup` (`aggressorID`,`defenderID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB DEFAULT CHARSET=utf8;
 
 
 		DELIMITER $$
