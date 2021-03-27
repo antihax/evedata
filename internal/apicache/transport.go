@@ -78,7 +78,7 @@ func (t *APICacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 					fmt.Printf("%s", dump)
 				}
 				// Get out for "our bad" statuses
-				if res.StatusCode >= 400 && res.StatusCode < 420 {
+				if res.StatusCode >= 400 && res.StatusCode < 420 || res.StatusCode == 422 {
 					if res.StatusCode != 403 {
 						dump, _ := httputil.DumpRequest(req, true)
 						fmt.Printf("%s", dump)
