@@ -23,7 +23,7 @@ import (
 )
 
 // NUM_WORKERS number of concurrent workers
-const NUM_WORKERS = 100
+const NUM_WORKERS = 20
 
 // Hammer completes work handling CCP ESI and other API.
 type Hammer struct {
@@ -120,6 +120,7 @@ func (s *Hammer) Run() {
 		case <-s.stop:
 			return
 		default:
+			time.Sleep(time.Second / NUM_WORKERS) // stagger
 			err := s.runConsumers()
 			if err != nil {
 				log.Println(err)
@@ -155,7 +156,7 @@ func (s *Hammer) SetToken(cid, tcid int32, token *oauth2.Token) error {
 
 func (s *Hammer) tickWorkersToPrometheus() {
 	for {
-		<-time.After(5 * time.Second)
+		<-time.After(1 * time.Second)
 		count := atomic.LoadUint64(&s.activeWorkers)
 		activeWorkers.Set(float64(count))
 	}

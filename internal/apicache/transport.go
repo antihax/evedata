@@ -59,12 +59,12 @@ func (t *APICacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 				if res.StatusCode == 401 { // Something went wrong
 					sleep = 60 * time.Second
 				} else if esiRateLimiter { // Sleep based on error rate.
-					sleep = time.Second*time.Duration(reset) + (time.Duration(rand.Float32()) * (time.Second))
+					sleep = time.Duration(reset+(rand.Float64()*15.0)) * time.Second
 				} else if !esiRateLimiter { // Not an ESI error
 					sleep = time.Second * time.Duration(tries) * 5
 				}
 				if sleep < time.Second {
-					sleep = time.Duration(rand.Float32()) * time.Second
+					sleep = time.Second + (time.Duration(rand.Float32()) * time.Second)
 				}
 				if sleep > time.Second*60 {
 					sleep = time.Second * 60
@@ -72,16 +72,16 @@ func (t *APICacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 
 				log.Printf("Try: %d Sleep: %d St: %d Res: %s Tok: %s - %s\n", tries, sleep/time.Second, res.StatusCode, resetS, tokensS, req.URL)
 
-				// Dump data for important errors
-				if !esiRateLimiter && res.StatusCode >= 400 {
+				// Dump data for important errors // !esiRateLimiter &&
+				if res.StatusCode >= 400 {
 					dump, _ := httputil.DumpResponse(res, true)
-					fmt.Printf("%s", dump)
+					fmt.Printf("%s\n\n", dump)
 				}
 				// Get out for "our bad" statuses
 				if res.StatusCode >= 400 && res.StatusCode < 420 || res.StatusCode == 422 {
 					if res.StatusCode != 403 {
 						dump, _ := httputil.DumpRequest(req, true)
-						fmt.Printf("%s", dump)
+						fmt.Printf("%s\n\n", dump)
 						log.Printf("Giving up %d %s\n", res.StatusCode, req.URL)
 					}
 					return res, httperr

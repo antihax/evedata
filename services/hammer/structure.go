@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	registerConsumer("structure", structureConsumer)
+	//registerConsumer("structure", structureConsumer)
 	//registerConsumer("characterStructures", characterStructuresConsumer)
 }
 

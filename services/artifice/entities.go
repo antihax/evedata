@@ -10,8 +10,8 @@ import (
 func init() {
 	registerTrigger("npcCorporations", npcCorporationsTrigger, time.NewTicker(time.Second*86400))
 	registerTrigger("alliance", allianceTrigger, time.NewTicker(time.Second*3600))
-	registerTrigger("characterUpdate", characterUpdate, time.NewTicker(time.Second*15))
-	registerTrigger("corporationUpdate", corporationUpdate, time.NewTicker(time.Second*15))
+	//registerTrigger("characterUpdate", characterUpdate, time.NewTicker(time.Second*20))
+	//registerTrigger("corporationUpdate", corporationUpdate, time.NewTicker(time.Second*20))
 }
 
 func npcCorporationsTrigger(s *Artifice) error {
@@ -47,7 +47,7 @@ func characterUpdate(s *Artifice) error {
 		`SELECT characterID AS id FROM evedata.characters A
 			WHERE cacheUntil < UTC_TIMESTAMP() AND dead = 0
 			AND characterID > 90000000
-            ORDER BY cacheUntil ASC LIMIT 50`)
+            ORDER BY cacheUntil ASC LIMIT 250`)
 	if err != nil {
 		return err
 	}
@@ -74,7 +74,7 @@ func corporationUpdate(s *Artifice) error {
 	entities, err := s.db.Query(
 		`SELECT corporationID AS id FROM evedata.corporations A
 		 WHERE cacheUntil < UTC_TIMESTAMP() AND memberCount > 0 AND corporationId> 90000000
-		 ORDER BY cacheUntil ASC LIMIT 50`)
+		 ORDER BY cacheUntil ASC LIMIT 100`)
 	if err != nil {
 		return err
 	}
@@ -90,9 +90,7 @@ func corporationUpdate(s *Artifice) error {
 		if err != nil {
 			return err
 		}
-
 		work = append(work, redisqueue.Work{Operation: "corporation", Parameter: id})
-
 	}
 
 	return s.QueueWork(work, redisqueue.Priority_Lowest)

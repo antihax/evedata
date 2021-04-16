@@ -10,7 +10,7 @@ import (
 func init() {
 	registerTrigger("marketMaint", marketMaint, time.NewTicker(time.Hour))
 	registerTrigger("marketUpdate", marketUpdate, time.NewTicker(time.Hour*2))
-	registerTrigger("discoveredAssetsMaint", discoveredAssetsMaint, time.NewTicker(time.Second*3620))
+	//registerTrigger("discoveredAssetsMaint", discoveredAssetsMaint, time.NewTicker(time.Second*3620))
 	registerTrigger("entityMaint", entityMaint, time.NewTicker(time.Second*3630*3))
 	registerTrigger("entityStatsMaint", entityStatsMaint, time.NewTicker(time.Hour*24))
 	registerTrigger("contactSyncMaint", contactSyncMaint, time.NewTicker(time.Second*3615*6))

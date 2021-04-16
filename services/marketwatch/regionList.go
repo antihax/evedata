@@ -21,11 +21,11 @@ func (s *MarketWatch) startUpMarketWorkers() {
 		if region < 11000000 || region == 11000031 {
 			time.Sleep(time.Millisecond * 10)
 			go s.marketWorker(region)
-			go s.contractWorker(region)
+			//go s.contractWorker(region)
 		}
 	}
 
-	if s.doAuth {
+	/*if s.doAuth {
 		go s.runStructures()
-	}
+	}*/
 }

@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	registerTrigger("mailNotifications", mailNotifications, time.NewTicker(time.Second*100))
+	//registerTrigger("mailNotifications", mailNotifications, time.NewTicker(time.Second*100))
 }
 
 func mailNotifications(s *Artifice) error {
