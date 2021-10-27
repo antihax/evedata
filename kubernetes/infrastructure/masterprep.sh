@@ -57,3 +57,19 @@ EOF
 
 # restart kubernetes pods to make sure everything is now clean
 kubectl delete pod --all -n kube-system
+
+# setup helm
+curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+helm repo add haproxytech https://haproxytech.github.io/helm-charts
+helm repo update
+
+# setup haproxy ingress
+kubectl create namespace haproxy
+helm install haproxy haproxytech/kubernetes-ingress \
+  --namespace=haproxy \
+  --set controller.kind=DaemonSet \
+  --set controller.daemonset.useHostPort=true \
+  --set controller.nodeSelector.loadbalancer=voyager
+
+# setup cert manager
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/latest/download/cert-manager.yaml

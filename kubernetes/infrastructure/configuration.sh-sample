@@ -1,8 +1,4 @@
-kubectl create secret generic voyager-cloudflare --namespace default \
-  --from-literal=CLOUDFLARE_EMAIL= \
-  --from-literal=CLOUDFLARE_API_KEY=
-
-kubectl create secret generic acme-account --from-literal=ACME_EMAIL=
+kubectl create secret generic cloudflare-apikey-secret --namespace haproxy --from-literal=apikey=
 
 kubectl create secret generic monitoring --namespace monitoring \
   --from-literal=GF_SECURITY_ADMIN_USER= \
