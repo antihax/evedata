@@ -418,7 +418,7 @@ CREATE TABLE `lpOffers` (
   KEY `lpOffers_typeid` (`typeID`),
   KEY `lpOffers_corporation` (`corporationID`),
   KEY `lpOffers_corp_type` (`corporationID`,`typeID`)
-) ENGINE=TokuDB AUTO_INCREMENT=16443 DEFAULT CHARSET=utf8;
+) ENGINE=TokuDB AUTO_INCREMENT=17097 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `market` (
   `orderID` bigint(11) unsigned NOT NULL DEFAULT '0',
