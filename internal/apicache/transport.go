@@ -56,8 +56,8 @@ func (t *APICacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 
 				// Backoff
 				sleep := 60 * time.Second
-				if res.StatusCode == 401 { // Something went wrong
-					sleep = 60 * time.Second
+				if res.StatusCode == 401 { // Something went really wrong
+					sleep = 120 * time.Second
 				} else if esiRateLimiter { // Sleep based on error rate.
 					sleep = time.Duration(reset+(rand.Float64()*15.0)) * time.Second
 				} else if !esiRateLimiter { // Not an ESI error
