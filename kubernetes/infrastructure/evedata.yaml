@@ -1,56 +1,83 @@
-apiVersion: voyager.appscode.com/v1beta1
-kind: Certificate
+kind: Service
+apiVersion: v1
 metadata:
-  name: evedata
-  namespace: default
+  name: grafana
+  namespace: evedata
 spec:
-  domains:
-  - evedata.org
-  - '*.evedata.org'
-  acmeUserSecretName: acme-account
-  challengeProvider:
-    dns:
-      provider: cloudflare
-      credentialSecretName: voyager-cloudflare
-  storage:
-    secret:
-      name: cert-evedata
+  type: ExternalName
+  externalName: grafana.monitoring.svc.cluster.local
+  ports:
+  - port: 3000
 ---
-apiVersion: voyager.appscode.com/v1beta1
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+  namespace: haproxy
+spec:
+  acme:
+    # You must replace this email address with your own.
+    # Let's Encrypt will use this to contact you about expiring
+    # certificates, and issues related to your account.
+    email: antihax@gmail.com
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: issuer-account-key
+    solvers:
+    - dns01:
+        cloudflare:
+          email: antihax@gmail.com
+          apiKeySecretRef:
+            name: cloudflare-apikey-secret
+            key: apikey
+      selector:
+        dnsNames:
+        - 'evedata.org'
+        - '*.evedata.org'
+---
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: vanguard-ingress
-  namespace: default
   annotations:
-    kubernetes.io/ingress.class: voyager
-    ingress.appscode.com/type: HostPort
-    ingress.appscode.com/use-host-port: "true"
-    ingress.appscode.com/replicas: '2'
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+    haproxy.org/ingress.class: "haproxy"
+  name: evedata-ingress
+  namespace: evedata
 spec:
-  tls:
-    - secretName: cert-evedata
-      hosts:
-      - evedata.org
-      - www.evedata.org
-      - grafana.evedata.org
-  nodeSelector:
-    loadbalancer: voyager
   rules:
   - host: www.evedata.org
     http:
       paths:
-      - backend:
-          serviceName: vanguard.evedata
-          servicePort: '3000'
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: vanguard
+            port:
+              number: 3000
   - host: evedata.org
     http:
       paths:
-      - backend:
-          serviceName: vanguard.evedata
-          servicePort: '3000'
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: vanguard
+            port:
+              number: 3000
   - host: grafana.evedata.org
     http:
       paths:
-      - backend:
-          serviceName: grafana.monitoring
-          servicePort: '3000'
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana
+            port:
+              number: 3000
+  tls:
+  - secretName: evedata-cert
+    hosts:
+    - evedata.org
+    - www.evedata.org
+    - grafana.evedata.org
