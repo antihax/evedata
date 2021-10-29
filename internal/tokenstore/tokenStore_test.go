@@ -32,7 +32,7 @@ func TestTokenStore(t *testing.T) {
 	cache := apicache.CreateHTTPClientCache(redigohelper.ConnectRedisTestPool())
 
 	// Setup an authenticator for our private token
-	auth := goesi.NewSSOAuthenticator(cache, "fake", "reeeeely fake", "",
+	auth := goesi.NewSSOAuthenticatorV2(cache, "fake", "reeeeely fake", "",
 		[]string{"esi-universe.read_structures.v1",
 			"esi-search.search_structures.v1",
 			"esi-markets.structure_markets.v1"})

@@ -59,7 +59,7 @@ func characterStructures(s *Artifice) error {
 					SELECT DISTINCT characterID, locationID FROM evedata.assets WHERE locationID > 70000000
 						AND locationFlag = "Hangar"
 				) S ON S.characterID = T.tokenCharacterID
-			WHERE T.lastStatus != "invalid_token" AND scopes LIKE "%read_structures%"
+			WHERE T.lastCode <= 200 AND scopes LIKE "%read_structures%"
 			`)
 	if err != nil {
 		return err
@@ -103,7 +103,7 @@ func characterStructureMarket(s *Artifice) error {
 					SELECT DISTINCT characterID, locationID FROM evedata.assets WHERE locationID > 70000000
 						AND locationFlag = "Hangar"
 				) S ON S.characterID = T.tokenCharacterID
-			WHERE T.lastStatus != "invalid_token" AND scopes LIKE "%read_structures%"
+			WHERE T.lastCode <= 200 AND scopes LIKE "%read_structures%"
 			`)
 	if err != nil {
 		return err
@@ -195,7 +195,7 @@ func characterContactSync(s *Artifice) error {
 		`SELECT S.characterID, source, group_concat(destination) AS destinations
 		FROM evedata.contactSyncs S
 		INNER JOIN evedata.crestTokens T ON T.tokenCharacterID = destination
-		WHERE lastStatus != "invalid_token" AND scopes LIKE ?
+		WHERE T.lastCode <= 200 AND scopes LIKE ?
 		GROUP BY source
 		HAVING max(nextSync) < UTC_TIMESTAMP();`, "%characters.read_contacts%")
 	if err != nil {
@@ -232,7 +232,7 @@ func characterContactSync(s *Artifice) error {
 func crestCharacters(s *Artifice) error {
 	var chars []int32
 	err := s.db.Select(&chars,
-		`SELECT DISTINCT tokenCharacterID FROM evedata.crestTokens WHERE lastStatus != "invalid_token"`)
+		`SELECT DISTINCT tokenCharacterID FROM evedata.crestTokens WHERE lastCode <= 200`)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -243,7 +243,7 @@ func crestCharacters(s *Artifice) error {
 	rows, err := s.db.Query(`
 		SELECT DISTINCT T.tokenCharacterID, T.corporationID FROM evedata.crestTokens T
 			INNER JOIN evedata.sharing S ON S.tokenCharacterID = T.tokenCharacterID
-			WHERE lastStatus != "invalid_token"`)
+			WHERE T.lastCode <= 200`)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -271,13 +271,6 @@ func crestCharacters(s *Artifice) error {
 				return err
 			}
 			for _, c := range affiliation {
-				// See if they changed corporation, if they have shares, warn them they are still sharing.
-				if check, ok := sharing[c.CharacterId]; ok {
-					if check != c.CorporationId {
-						s.mailCorporationChangeWithShares(c.CharacterId)
-					}
-				}
-
 				if _, err := tx.Exec(`UPDATE evedata.crestTokens
 					SET corporationID = ?, allianceID = ?, factionID = ?
 					WHERE tokenCharacterID = ?;

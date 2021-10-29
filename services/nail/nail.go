@@ -19,7 +19,6 @@ type Nail struct {
 	wg             *sync.WaitGroup
 	db             *sqlx.DB
 	inQueue        map[string]*nsq.Consumer
-	redis          *redis.Pool
 	outQueue       *redisqueue.RedisQueue
 	characterRaces map[int32]string
 }

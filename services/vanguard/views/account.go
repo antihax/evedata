@@ -9,12 +9,12 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/antihax/goesi"
 	"golang.org/x/oauth2"
 
 	"github.com/antihax/evedata/services/conservator"
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
+	"github.com/antihax/goesi"
 )
 
 func init() {

@@ -54,7 +54,7 @@ func NewHammer(redis *redis.Pool, db *sqlx.DB, nsq *nsq.Producer, refresh, token
 	esi := goesi.NewAPIClient(cache, "EVEData-API-Hammer")
 
 	// Setup an authenticator for our user tokens
-	tauth := goesi.NewSSOAuthenticator(cache, tokenClientID, tokenSecret, "", []string{})
+	tauth := goesi.NewSSOAuthenticatorV2(cache, tokenClientID, tokenSecret, "", []string{})
 
 	tok := &oauth2.Token{
 		Expiry:       time.Now(),

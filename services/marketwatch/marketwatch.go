@@ -60,7 +60,7 @@ func NewMarketWatch(refresh, tokenClientID, tokenSecret string, db *sqlx.DB, red
 	} else {
 		doAuth = true
 	}
-	auth := goesi.NewSSOAuthenticator(cache, tokenClientID, tokenSecret, "", []string{})
+	auth := goesi.NewSSOAuthenticatorV2(cache, tokenClientID, tokenSecret, "", []string{})
 
 	// Setup our token for structures
 	tok := &oauth2.Token{

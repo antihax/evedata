@@ -37,7 +37,7 @@ func NewTokenServer(redis *redis.Pool, db *sqlx.DB, clientID, secret string) *To
 	cache := apicache.CreateHTTPClient()
 
 	// Setup a token authenticator
-	auth := goesi.NewSSOAuthenticator(cache, clientID, secret, "", []string{})
+	auth := goesi.NewSSOAuthenticatorV2(cache, clientID, secret, "", []string{})
 
 	// Setup RPC server
 	server := grpc.NewServer(grpc.CustomCodec(&msgpackcodec.MsgPackCodec{}),

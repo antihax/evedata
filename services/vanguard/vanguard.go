@@ -1,11 +1,15 @@
 package vanguard
 
 import (
+	"context"
 	"encoding/gob"
+	"fmt"
 	"log"
 	"net/http"
 	"net/rpc"
 	"os"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -16,6 +20,7 @@ import (
 	"github.com/antihax/evedata/services/vanguard/models"
 	"github.com/antihax/goesi"
 	gsr "github.com/antihax/redistore"
+	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 	"golang.org/x/oauth2"
@@ -37,6 +42,7 @@ type Vanguard struct {
 	token                *oauth2.TokenSource
 	TokenAuthenticator   *goesi.SSOAuthenticator
 	SSOAuthenticator     *goesi.SSOAuthenticator
+	Verifier             *oidc.IDTokenVerifier
 	DiscordAuthenticator *discordauth.Authenticator
 }
 
@@ -59,10 +65,10 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB) *Vanguard {
 	esi := goesi.NewAPIClient(cache, "EVEData-API-Vanguard")
 
 	// Setup an authenticator for our user tokens
-	tauth := goesi.NewSSOAuthenticator(cache, os.Getenv("ESI_CLIENTID_TOKENSTORE"), os.Getenv("ESI_SECRET_TOKENSTORE"), "https://"+os.Getenv("DOMAIN")+"/U/eveTokenAnswer", []string{})
+	tauth := goesi.NewSSOAuthenticatorV2(cache, os.Getenv("ESI_CLIENTID_TOKENSTORE"), os.Getenv("ESI_SECRET_TOKENSTORE"), "https://"+os.Getenv("DOMAIN")+"/U/eveTokenAnswer", []string{})
 
 	// Setup an authenticator for our SSO token
-	ssoauth := goesi.NewSSOAuthenticator(cache, os.Getenv("ESI_CLIENTID_SSO"), os.Getenv("ESI_SECRET_SSO"), "https://"+os.Getenv("DOMAIN")+"/U/eveSSOAnswer", []string{})
+	ssoauth := goesi.NewSSOAuthenticatorV2(cache, os.Getenv("ESI_CLIENTID_SSO"), os.Getenv("ESI_SECRET_SSO"), "https://"+os.Getenv("DOMAIN")+"/U/eveSSOAnswer", []string{})
 
 	// Setup an authenticator for Discord
 	dauth := discordauth.NewAuthenticator(cache, os.Getenv("DISCORD_CLIENTID"), os.Getenv("DISCORD_SECRET"), "https://"+os.Getenv("DOMAIN")+"/U/discordAnswer", []string{"identify", "guilds.join"})
@@ -88,6 +94,12 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB) *Vanguard {
 	store.SetMaxLength(1024 * 100)
 	store.Options.Domain = "evedata.org"
 
+	key := oidc.NewRemoteKeySet(context.Background(), "https://login.eveonline.com/oauth/jwks")
+	if key == nil {
+		panic("could not obtain remote key")
+	}
+	verifier := oidc.NewVerifier("login.eveonline.com", key, &oidc.Config{SkipClientIDCheck: true})
+
 	// Setup a new Vanguard
 	globalVanguard = &Vanguard{
 		stop: make(chan bool),
@@ -101,6 +113,7 @@ func NewVanguard(redis *redis.Pool, db *sqlx.DB) *Vanguard {
 		SSOAuthenticator:     ssoauth,
 		TokenAuthenticator:   tauth,
 		DiscordAuthenticator: dauth,
+		Verifier:             verifier,
 		ESI:                  esi,
 		Store:                store,
 		Db:                   db,
@@ -153,4 +166,34 @@ func (s *Vanguard) RPCConnect() error {
 	}
 
 	return nil
+}
+
+// JWTVerify validates jwt tokens and returns legacy VerifyResponse response
+func (s *Vanguard) JWTVerify(token string) (*goesi.VerifyResponse, error) {
+	idToken, err := s.Verifier.Verify(context.Background(), token)
+	if err != nil {
+		return nil, err
+	}
+
+	var claims goesi.EVESSOClaims
+	if err := idToken.Claims(&claims); err != nil {
+		return nil, err
+	}
+
+	idParts := strings.Split(claims.Subject, ":")
+	if len(idParts) != 3 {
+		return nil, fmt.Errorf("could not decode character id")
+	}
+
+	cid, err := strconv.Atoi(idParts[2])
+	if err != nil {
+		return nil, err
+	}
+
+	v := &goesi.VerifyResponse{
+		CharacterName:      claims.Name,
+		CharacterID:        int32(cid),
+		CharacterOwnerHash: claims.Owner,
+	}
+	return v, nil
 }

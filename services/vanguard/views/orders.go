@@ -10,7 +10,6 @@ import (
 
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
-
 	"github.com/antihax/goesi"
 )
 

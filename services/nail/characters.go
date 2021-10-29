@@ -26,10 +26,10 @@ func (s *Nail) characterSQLPost() {
 	for {
 		count := 0
 		cacheUntil := time.Now().UTC().Add(time.Hour * 24 * 60)
-		sql := sq.Insert("evedata.characters").Columns("characterID", "name", "bloodlineID", "ancestryID", "corporationID", "allianceID", "race", "gender", "securityStatus", "updated", "cacheUntil", "birthDate")
+		sql := sq.Insert("evedata.characters").Columns("characterID", "name", "bloodlineID", "corporationID", "allianceID", "race", "gender", "securityStatus", "updated", "cacheUntil", "birthDate")
 		for c := range characterSQLQueue {
 			count++
-			sql = sql.Values(c.CharacterID, c.Character.Name, c.Character.BloodlineId, c.Character.AncestryId, c.Character.CorporationId, c.Character.AllianceId, s.characterRaces[c.Character.RaceId], c.Character.Gender, c.Character.SecurityStatus, time.Now(), cacheUntil, c.Character.Birthday)
+			sql = sql.Values(c.CharacterID, c.Character.Name, c.Character.BloodlineId, c.Character.CorporationId, c.Character.AllianceId, s.characterRaces[c.Character.RaceId], c.Character.Gender, c.Character.SecurityStatus, time.Now(), cacheUntil, c.Character.Birthday)
 			if count > 80 {
 				break
 			}
