@@ -53,7 +53,7 @@ func NewArtifice(redis *redis.Pool, db *sqlx.DB, clientID string, secret string,
 	esiClient := goesi.NewAPIClient(cache, "EVEData-API-Artifice")
 
 	// Setup an authenticator
-	auth := goesi.NewSSOAuthenticator(cache, clientID, secret, "", []string{})
+	auth := goesi.NewSSOAuthenticatorV2(cache, clientID, secret, "", []string{})
 
 	tok := &oauth2.Token{
 		Expiry:       time.Now(),
@@ -122,7 +122,6 @@ func (s *Artifice) Run() {
 	go s.zkillboardPost()
 	go s.warKillmails()
 	go s.runMetrics()
-	go s.mailRunner()
 	s.runTriggers()
 }
 
@@ -142,7 +141,7 @@ func (s *Artifice) GetCharactersForScope(scope string) ([]CharacterPairs, error)
 	pairs := []CharacterPairs{}
 	err := s.db.Select(&pairs,
 		`SELECT characterID, tokenCharacterID FROM evedata.crestTokens T
-			WHERE lastStatus != "invalid_token" AND scopes LIKE ?`, "%"+scope+"%")
+			WHERE lastCode <= 200 AND scopes LIKE ?`, "%"+scope+"%")
 	return pairs, err
 }
 
@@ -150,7 +149,7 @@ func (s *Artifice) GetAllianceForScope(scope string) ([]CharacterPairs, error) {
 	pairs := []CharacterPairs{}
 	err := s.db.Select(&pairs,
 		`SELECT characterID, tokenCharacterID, allianceID, corporationID FROM evedata.crestTokens T
-			WHERE lastStatus != "invalid_token" AND scopes LIKE ? AND allianceID > 0
+			WHERE lastCode <= 200 AND scopes LIKE ? AND allianceID > 0
 			GROUP BY allianceID
 			`, "%"+scope+"%")
 	return pairs, err
@@ -160,7 +159,7 @@ func (s *Artifice) GetCorporationForScope(scope string) ([]CharacterPairs, error
 	pairs := []CharacterPairs{}
 	err := s.db.Select(&pairs,
 		`SELECT characterID, tokenCharacterID, allianceID, corporationID FROM evedata.crestTokens T
-			WHERE lastStatus != "invalid_token" AND scopes LIKE ? 
+			WHERE lastCode <= 200 AND scopes LIKE ? 
 			GROUP BY corporationID
 			`, "%"+scope+"%")
 	return pairs, err

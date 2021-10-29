@@ -11,10 +11,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/antihax/goesi"
-
 	"github.com/antihax/evedata/services/vanguard"
 	"github.com/antihax/evedata/services/vanguard/models"
+	"github.com/antihax/goesi"
 	"github.com/gorilla/sessions"
 )
 
@@ -155,9 +154,7 @@ func eveSSOAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokSrc := c.SSOAuthenticator.TokenSource(tok)
-
-	v, err := c.SSOAuthenticator.Verify(tokSrc)
+	v, err := c.JWTVerify(tok.AccessToken)
 	if err != nil {
 		log.Println(err)
 		httpErr(w, err)
@@ -269,10 +266,9 @@ func eveTokenAnswer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokSrc := c.SSOAuthenticator.TokenSource(tok)
-
-	v, err := c.SSOAuthenticator.Verify(tokSrc)
+	v, err := c.JWTVerify(tok.AccessToken)
 	if err != nil {
+		log.Println(err)
 		httpErr(w, err)
 		return
 	}
