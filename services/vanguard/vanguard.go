@@ -194,6 +194,7 @@ func (s *Vanguard) JWTVerify(token string) (*goesi.VerifyResponse, error) {
 		CharacterName:      claims.Name,
 		CharacterID:        int32(cid),
 		CharacterOwnerHash: claims.Owner,
+		Scopes:             strings.Join(claims.Scopes, " "),
 	}
 	return v, nil
 }
