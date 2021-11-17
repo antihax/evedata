@@ -70,6 +70,7 @@ func (t *APICacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 					sleep = time.Second * 60
 				}
 
+				time.Sleep(sleep)
 				log.Printf("Try: %d Sleep: %d St: %d Res: %s Tok: %s - %s\n", tries, sleep/time.Second, res.StatusCode, resetS, tokensS, req.URL)
 
 				// Dump data for important errors // !esiRateLimiter &&
@@ -87,7 +88,6 @@ func (t *APICacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 					return res, httperr
 				}
 
-				time.Sleep(sleep)
 			}
 
 			if tries > 10 && res.StatusCode >= 400 {

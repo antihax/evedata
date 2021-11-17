@@ -2,14 +2,13 @@ package artifice
 
 import (
 	"context"
-	"time"
 
 	"github.com/antihax/evedata/internal/redisqueue"
 )
 
 func init() {
-	registerTrigger("npcCorporations", npcCorporationsTrigger, time.NewTicker(time.Second*86400))
-	registerTrigger("alliance", allianceTrigger, time.NewTicker(time.Second*3600))
+	//registerTrigger("npcCorporations", npcCorporationsTrigger, time.NewTicker(time.Second*86400))
+	//registerTrigger("alliance", allianceTrigger, time.NewTicker(time.Second*3600))
 	//registerTrigger("characterUpdate", characterUpdate, time.NewTicker(time.Second*20))
 	//registerTrigger("corporationUpdate", corporationUpdate, time.NewTicker(time.Second*20))
 }
