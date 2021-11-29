@@ -20,8 +20,8 @@ func warConsumer(s *Hammer, parameter interface{}) {
 	}
 
 	// if the war ended, market it finished
-	if war.Finished.IsZero() == false && war.Finished.Before(time.Now().UTC()) {
-		err = s.inQueue.SetWorkCompleted("evedata_known_kills", int64(id))
+	if war.Finished.IsZero() && war.Finished.Before(time.Now().UTC()) {
+		err = s.inQueue.SetWorkCompleted("evedata_war_finished", int64(id))
 		if err != nil {
 			log.Println(err)
 		}

@@ -1,6 +1,7 @@
 package hammer
 
 import (
+	"context"
 	"log"
 
 	"github.com/antihax/evedata/internal/datapackages"
@@ -15,7 +16,18 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 	hash := parameters[0].(string)
 	id := int32(parameters[1].(int))
 
-	kill, _, err := s.esi.ESI.KillmailsApi.GetKillmailsKillmailIdKillmailHash(nil, hash, id, nil)
+	known := s.inQueue.CheckWorkCompleted("evedata_known_kills", id)
+	if known {
+		return
+	}
+
+	kill, _, err := s.esi.ESI.KillmailsApi.GetKillmailsKillmailIdKillmailHash(context.Background(), hash, id, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	s.inQueue.SetWorkCompleted("evedata_known_kills", id)
 	if err != nil {
 		log.Println(err)
 		return
@@ -65,6 +77,5 @@ func killmailConsumer(s *Hammer, parameter interface{}) {
 			log.Println(err)
 			return
 		}
-
 	}
 }

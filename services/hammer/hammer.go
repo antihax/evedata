@@ -23,7 +23,7 @@ import (
 )
 
 // NUM_WORKERS number of concurrent workers
-const NUM_WORKERS = 20
+const NUM_WORKERS = 5
 
 // Hammer completes work handling CCP ESI and other API.
 type Hammer struct {

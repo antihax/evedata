@@ -20,22 +20,25 @@ type APICacheTransport struct {
 
 // RoundTrip wraps http.DefaultTransport.RoundTrip to provide stats and handle error rates.
 func (t *APICacheTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-
 	// Loop until success
 	tries := 0
 	for {
 		// Tickup retry counter
+		sleep := time.Second * time.Duration(tries) * 2
 		tries++
 
 		// Time our response
 		start := time.Now()
-
-		// Run the request.
-		res, httperr := t.Transport.RoundTrip(req)
-
 		metricAPICalls.With(
 			prometheus.Labels{"host": req.Host},
 		).Observe(float64(time.Since(start).Nanoseconds()) / float64(time.Millisecond))
+
+		// Run the request.
+		res, err := t.Transport.RoundTrip(req)
+		if err != nil {
+			time.Sleep(time.Second * 10) // Uncatchable errors
+			return res, err
+		}
 
 		// We got a response
 		if res != nil {
@@ -53,9 +56,7 @@ func (t *APICacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 			// Tick up and log any errors
 			if res.StatusCode >= 400 {
 				metricAPIErrors.Inc()
-
 				// Backoff
-				sleep := 60 * time.Second
 				if res.StatusCode == 401 { // Something went really wrong
 					sleep = 120 * time.Second
 				} else if esiRateLimiter { // Sleep based on error rate.
@@ -66,11 +67,10 @@ func (t *APICacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 				if sleep < time.Second {
 					sleep = time.Second + (time.Duration(rand.Float32()) * time.Second)
 				}
-				if sleep > time.Second*60 {
-					sleep = time.Second * 60
+				if sleep > time.Second*120 {
+					sleep = time.Second * 120
 				}
 
-				time.Sleep(sleep)
 				log.Printf("Try: %d Sleep: %d St: %d Res: %s Tok: %s - %s\n", tries, sleep/time.Second, res.StatusCode, resetS, tokensS, req.URL)
 
 				// Dump data for important errors // !esiRateLimiter &&
@@ -85,22 +85,20 @@ func (t *APICacheTransport) RoundTrip(req *http.Request) (*http.Response, error)
 						fmt.Printf("%s\n\n", dump)
 						log.Printf("Giving up %d %s\n", res.StatusCode, req.URL)
 					}
-					return res, httperr
+					time.Sleep(sleep)
+					return res, err
 				}
-
 			}
 
-			if tries > 10 && res.StatusCode >= 400 {
+			if tries > 10 {
 				log.Printf("Too many tries %d %s\n", res.StatusCode, req.URL)
 				return res, err
 			}
-
-		} else {
-			return res, httperr
 		}
 		if res.StatusCode >= 200 && res.StatusCode < 400 {
-			return res, httperr
+			return res, err
 		}
+		time.Sleep(sleep)
 	}
 }
 
