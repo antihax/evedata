@@ -44,15 +44,13 @@ subjects:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    name: prometheus-deployment
   name: prometheus-deployment
   namespace: monitoring
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: prometheus  
+      app: prometheus  
   template:
     metadata:
       labels:
@@ -390,14 +388,11 @@ kind: Deployment
 metadata:
   name: grafana-core
   namespace: monitoring
-  labels:
-    app: grafana
-    component: core
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: grafana    
+      app: grafana    
   template:
     metadata:
       labels:
