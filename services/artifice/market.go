@@ -9,7 +9,7 @@ import (
 
 func init() {
 	//registerTrigger("structures", structuresTrigger, time.NewTicker(time.Second*300))
-	//registerTrigger("marketHistory", historyTrigger, time.NewTicker(time.Second*1900))
+	registerTrigger("marketHistory", historyTrigger, time.NewTicker(time.Second*1900))
 }
 
 func historyTrigger(s *Artifice) error {

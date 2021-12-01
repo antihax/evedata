@@ -1,7 +1,6 @@
 package squirrel
 
 import (
-	"log"
 	"net/http"
 )
 
@@ -23,7 +22,7 @@ func (t LimiterTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	// Run the request.
 	// Limit concurrency
 	semLimiterTransport <- true
-	log.Printf("%+v\n", req.URL)
+	//log.Printf("%+v\n", req.URL)
 
 	// Free the worker
 	defer func() { <-semLimiterTransport }()
