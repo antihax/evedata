@@ -9,12 +9,12 @@ import (
 
 func init() {
 	//registerTrigger("structures", structuresTrigger, time.NewTicker(time.Second*300))
-	registerTrigger("marketHistory", historyTrigger, time.NewTicker(time.Second*1900))
+	registerTrigger("marketHistory", historyTrigger, time.NewTicker(time.Second*3000))
 }
 
 func historyTrigger(s *Artifice) error {
 	hour := time.Now().UTC().Hour()
-	if hour == 1 || hour == 13 {
+	if hour == 1 {
 		work := []redisqueue.Work{}
 		work = append(work, redisqueue.Work{Operation: "marketHistoryTrigger", Parameter: true})
 		return s.QueueWork(work, redisqueue.Priority_High)
