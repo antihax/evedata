@@ -384,6 +384,13 @@ func marketUpdate(s *Artifice) error {
 	}
 
 	if err := s.doSQL(`
+		DELETE FROM evedata.market_history WHERE date < DATE_SUB(UTC_TIMESTAMP(),INTERVAL 60 DAY);
+		  `); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	if err := s.doSQL(`
 		 INSERT IGNORE INTO evedata.jitaPrice (
 		 SELECT S.typeID as itemID, buy, sell, high, low, mean, quantity FROM
 			 (SELECT typeID, min(price) AS sell FROM evedata.market WHERE regionID = 10000002 AND bid = 0 AND private = 0 GROUP BY typeID) S
