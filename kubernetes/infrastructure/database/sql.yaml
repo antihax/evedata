@@ -40,8 +40,6 @@ spec:
     - name: infusion-volume
       mountPath: /usr/lib/mysql/plugin/udf_infusion.so
     env:
-    - name: INIT_TOKUDB
-      value: "1"
     - name: MYSQL_RANDOM_ROOT_PASSWORD
       value: "1"
     - name: MYSQL_HOME
@@ -60,7 +58,7 @@ spec:
       type: File
   - configMap:
       name: sql-config
-    name: config-volume        
+    name: config-volume
   initContainers:
   - image: busybox
     name: setup-hugepage
@@ -96,7 +94,7 @@ data:
     character-set-server = utf8
 
     skip-log-bin
-    default_storage_engine=TokuDB
+    default_storage_engine=InnoDB
 
     bind-address            = 0.0.0.0
 
@@ -104,18 +102,18 @@ data:
     skip-host-cache
     skip-name-resolve
     max_prepared_stmt_count = 104857
-    
-    innodb_buffer_pool_size = 1M
-    innodb_buffer_pool_instances = 1
-    innodb_log_buffer_size  = 1M
-    innodb_log_file_size    = 1M
+
+    innodb_buffer_pool_size = 128M
+    innodb_buffer_pool_instances = 4
+    innodb_log_buffer_size  = 8M
+    innodb_log_file_size    = 8M
     innodb_flush_log_at_trx_commit = 0
     innodb_thread_concurrency = 0
 
     thread_pool_size        = 16
     wait_timeout            = 340
     interactive_timeout     = 580
-    max_connections         = 2046
+    max_connections         = 1026
     thread_cache_size       = 10M
     query_cache_size        = 0
     query_cache_type        = 0
