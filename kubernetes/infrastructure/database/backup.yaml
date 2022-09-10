@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql-backup
@@ -38,7 +38,7 @@ spec:
             secretKeyRef:
               name: backup-secrets
               key: dbpass
-        - name: B2_ACCOUNT_ID
+        - name: B2_APPLICATION_KEY_ID
           valueFrom:
             secretKeyRef:
               name: backup-secrets
