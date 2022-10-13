@@ -3,13 +3,16 @@ kind: Namespace
 metadata:
   name: evedata
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: evedata-hammer
   namespace: evedata
 spec:
-  replicas: 3
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hammer    
   template:
     metadata:
       name: evedata-hammer
@@ -19,18 +22,6 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
     spec:
-      nodeSelector:
-        worker: worker
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: esi-connector
-                operator: In
-                values:
-                - "true"
-            topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-hammer
         image: antihax/evedata-hammer

@@ -17,13 +17,16 @@ spec:
     port: 3002
     targetPort: 3002
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: evedata-tokenserver
   namespace: evedata
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: tokenserver
   template:
     metadata:
       name: evedata-tokenserver
@@ -32,18 +35,6 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
     spec:
-      nodeSelector:
-        worker: worker
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - tokenserver
-            topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-tokenserver
         image: antihax/evedata-tokenserver

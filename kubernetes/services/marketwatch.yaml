@@ -3,13 +3,16 @@ kind: Namespace
 metadata:
   name: evedata
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: evedata-marketwatch
   namespace: evedata
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: marketwatch  
   template:
     metadata:
       name: evedata-marketwatch
@@ -18,8 +21,6 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
     spec:
-      nodeSelector:
-        database: mysql
       containers:
       - name: evedata-marketwatch
         image: antihax/evedata-marketwatch

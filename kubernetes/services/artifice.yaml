@@ -3,12 +3,15 @@ kind: Namespace
 metadata:
   name: evedata
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: evedata-artifice
   namespace: evedata
 spec:
+  selector:
+    matchLabels:
+      app: artifice  
   replicas: 1
   template:
     metadata:
@@ -19,18 +22,6 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
     spec:
-      nodeSelector:
-        worker: worker
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: esi-connector
-                operator: In
-                values:
-                - "true"
-            topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-artifice
         image: antihax/evedata-artifice

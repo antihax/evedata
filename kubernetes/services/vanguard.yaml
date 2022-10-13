@@ -3,12 +3,15 @@ kind: Namespace
 metadata:
   name: evedata
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: evedata-vanguard
   namespace: evedata
 spec:
+  selector:
+    matchLabels:
+      app: vanguard
   replicas: 3
   template:
     metadata:
@@ -18,18 +21,6 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
     spec:
-      nodeSelector:
-        worker: worker
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - vanguard
-            topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-vanguard
         image: antihax/evedata-vanguard

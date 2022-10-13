@@ -17,7 +17,7 @@ spec:
     port: 3001
     targetPort: 3001
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: evedata-conservator
@@ -32,18 +32,6 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
     spec:
-      nodeSelector:
-        worker: worker
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - conservator
-            topologyKey: "kubernetes.io/hostname"
       containers:
       - name: evedata-conservator
         image: antihax/evedata-conservator
